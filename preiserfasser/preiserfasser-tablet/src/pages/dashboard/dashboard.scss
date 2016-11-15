@@ -1,0 +1,18 @@
+dashboard {x
+    .toolbar-title {
+        display: flex;
+    }
+
+    .app-title {
+        font-weight: bold;
+        padding-right: 2em;
+    }
+
+    .dashboard-content {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

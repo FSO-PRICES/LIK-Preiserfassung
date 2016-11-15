@@ -1,0 +1,27 @@
+<ion-header>
+    <ion-navbar [hideBackButton]="false">
+    </ion-navbar>
+</ion-header>
+<ion-content no-scroll>
+    <div class="price-entry-container">
+        <div class="product-details-container">
+            <div class="product-details"></div>
+        </div>
+        <div class="product-list-container">
+            <div class="product-list">
+                <!--<ion-list>
+                    <ion-item *ngFor="let item of items">
+                        {{ item }}
+                    </ion-item>
+                </ion-list>-->
+                <ion-scroll scrollY="true" zoom="false">
+                    <ion-list [virtualScroll]="items">
+                        <ion-item *virtualItem="let item">
+                            {{ item }}
+                        </ion-item>
+                    </ion-list>
+                </ion-scroll>
+            </div>
+        </div>
+    </div>
+</ion-content>
