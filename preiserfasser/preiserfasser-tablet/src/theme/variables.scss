@@ -13,7 +13,13 @@
 // http://ionicframework.com/docs/v2/theming/overriding-ionic-variables/
 
 $athens-gray: #f1f3f5;
+$athens-gray2: #e9ecef;
+$geyser: #dee2e6;
+$trout: #495057;
 $blue-chill: #0c8599;
+$dusty-gray: #979797;
+$lightning-yellow: #fcc419;
+$chateau-green: #40c057;
 
 $text-color:        #000;
 $background-color:  #fff;
@@ -32,7 +38,7 @@ $toolbar-background: $athens-gray;
 
 $colors: (
   primary:    $blue-chill,
-  secondary:  #32db64,
+  secondary:  $trout,
   danger:     #f53d3d,
   light:      #f4f4f4,
   dark:       #222

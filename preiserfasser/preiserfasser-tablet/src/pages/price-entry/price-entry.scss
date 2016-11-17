@@ -1,3 +1,5 @@
+@import "../../theme/variables.scss";
+
 price-entry {
     .price-entry-container {
         height: 100%;
@@ -14,33 +16,104 @@ price-entry {
         flex: 1;
         display: flex;
         padding: 12px 24px 12px 12px;
+        flex-direction: column;
     }
 
     .product-details {
         flex: 1;
-        background-color: #f1f3f5;
+        background-color: $athens-gray;
+    }
+
+    .product-functions {
+        flex: 0 0 auto;
+        background-color: $geyser;
+        padding: 12px 8px;
+        display: flex;
+        justify-content: space-between;
+        button {
+            margin: 0;
+        }
+        button.function-button {
+            flex: 0 0 48px;
+            margin-right: 24px;
+        }
+    }
+
+    .product-filter {
+        flex: 0 0 auto;
+        display: flex;
+        padding: 12px 8px 8px 8px;
+        justify-content: space-between;
+        background-color: $athens-gray;
+        &.hidden {
+            display: none;
+        }
+        .checkboxes-container {
+            display: flex;
+            ion-item.checkbox {
+                margin-right: 16px;
+            }
+        }
+        ion-item.checkbox {
+            background-color: transparent;
+            padding: 0;
+            ion-checkbox {
+                &.checkbox-md {
+                    margin: 0 8px 0 0;
+                }
+            }
+            .item-inner {
+                padding: 0;
+                border: none;
+            }
+            .label-md {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+        }
+        svg.warning {
+            fill: $lightning-yellow;
+        }
+        svg.success {
+            fill: $chateau-green;
+        }
+        ion-item.input {
+            flex: 1;
+            padding-left: 0;
+            min-height: initial;
+            .item-inner {
+                border-top: 1px solid $dusty-gray;
+                border-left: 1px solid $dusty-gray;
+                border-right: 1px solid $dusty-gray;
+                /*border-bottom: 1px solid $dusty-gray !important;*/
+            }
+            .text-input-md {
+                height: 36px;
+                margin: 0 8px;
+            }
+        }
     }
 
     .product-list {
         flex: 1;
-        background-color: #f1f3f5;
+        background-color: $athens-gray;
         display: flex;
+        padding: 4px 8px;
 
-        .scroll-zoom-wrapper {
-            height: 100%;
-        }
-
-        ion-scroll {
-            height: 100%;
+        virtual-scroll {
             width: 100%;
         }
+    }
 
-        ion-list {
-            height: 100%;
+    .product-item {
+        padding-left: 0;
+        background-color: $geyser;
+        border-bottom: 4px solid $athens-gray;
+        .item-inner {
+            padding: 8px;
         }
-
-        /*ion-list {
-            flex: 1;
-        }*/
+        ion-label {
+            margin: 0;
+        }
     }
 }

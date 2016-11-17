@@ -8,19 +8,56 @@
             <div class="product-details"></div>
         </div>
         <div class="product-list-container">
-            <div class="product-list">
-                <!--<ion-list>
-                    <ion-item *ngFor="let item of items">
-                        {{ item }}
-                    </ion-item>
-                </ion-list>-->
-                <ion-scroll scrollY="true" zoom="false">
-                    <ion-list [virtualScroll]="items">
-                        <ion-item *virtualItem="let item">
-                            {{ item }}
+            <div class="product-functions">
+                <div class="button-container">
+                    <button ion-button color="secondary" class="function-button">
+                        <ion-icon name="star"></ion-icon>
+                    </button>
+                    <button ion-button color="secondary" class="function-button">
+                        <ion-icon name="star"></ion-icon>
+                    </button>
+                    <button ion-button color="secondary" class="function-button">
+                        <ion-icon name="star"></ion-icon>
+                    </button>
+                </div>
+                <button ion-button clear (click)="toggleFilter.emit()">
+                    {{ filterButtonText | async }}
+                </button>
+            </div>
+            <form [formGroup]="form">
+                <div class="product-filter" [class.hidden]="!(showFilter | async)">
+                    <div class="checkboxes-container">
+                        <ion-item class="checkbox">
+                            <ion-checkbox></ion-checkbox>
+                            <ion-label>
+                                <svg class="warning" width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="0" y="0" width="32" height="32"></rect>
+                                </svg>
+                            </ion-label>
                         </ion-item>
-                    </ion-list>
-                </ion-scroll>
+                        <ion-item class="checkbox">
+                            <ion-checkbox></ion-checkbox>
+                            <ion-label>
+                                <svg class="success" width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="0" y="0" width="32" height="32"></rect>
+                                </svg>
+                            </ion-label>
+                        </ion-item>
+                    </div>
+                    <ion-item class="input">
+                        <ion-input
+                            formControlName="filterText"
+                            placeholder="Suche"
+                            clearInput></ion-input>
+                    </ion-item>
+                </div>
+            </form>
+            <div class="product-list">
+                <virtual-scroll [items]="products | async" (update)="viewPortItems = $event">
+                    <ion-item class="product-item" *ngFor="let product of viewPortItems">
+                        {{ product.name.de }}
+                    </ion-item>
+                </virtual-scroll>
             </div>
         </div>
     </div>
