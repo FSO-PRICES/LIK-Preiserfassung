@@ -16,11 +16,13 @@ const HIDE_FILTER = 'Filter ausblenden';
     templateUrl: 'price-entry.html'
 })
 export class PriceEntryPage implements OnInit {
-    public products: Observable<any[]>;
+    public products: Observable<P.AppState[]>;
     public viewPortItems: string[];
     public toggleFilter = new EventEmitter<void>();
     public showFilter: Observable<boolean>;
     public filterButtonText: Observable<string>;
+    public selectProduct = new EventEmitter<P.Product>();
+    public selectedProduct: Observable<P.Product>;
 
     form: FormGroup;
 
@@ -43,6 +45,8 @@ export class PriceEntryPage implements OnInit {
             const regExp = new RegExp(filter.filterText, 'i');
             return products.filter(x => x.name.de.search(regExp) !== -1);
         });
+
+        this.selectedProduct = this.selectProduct;
     }
 
     ngOnInit() {

@@ -5,7 +5,8 @@
 <ion-content no-scroll>
     <div class="price-entry-container">
         <div class="product-details-container">
-            <div class="product-details"></div>
+            <div class="product-details">
+            </div>
         </div>
         <div class="product-list-container">
             <div class="product-functions">
@@ -53,11 +54,25 @@
                 </div>
             </form>
             <div class="product-list">
-                <virtual-scroll [items]="products | async" (update)="viewPortItems = $event">
-                    <ion-item class="product-item" *ngFor="let product of viewPortItems">
-                        {{ product.name.de }}
+                <pef-virtual-scroll [items]="products | async" (update)="viewPortItems = $event">
+                    <ion-item
+                        class="product-item"
+                        *ngFor="let product of viewPortItems"
+                        (click)="selectProduct.emit(product)"
+                        [class.selected]="product == (selectedProduct | async)"
+                        tappable>
+                        <div class="product-code">
+                            {{ product.code }}
+                        </div>
+                        <div class="product-description">
+                            <span class="name">{{ product.name.de }}</span>
+                            <span class="comment">-</span>
+                        </div>
+                        <div class="product-icons">
+                            <pef-icon class="warning" name="square_option"></pef-icon>
+                        </div>
                     </ion-item>
-                </virtual-scroll>
+                </pef-virtual-scroll>
             </div>
         </div>
     </div>

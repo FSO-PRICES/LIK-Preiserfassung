@@ -1,6 +1,14 @@
+export interface NameTranslation {
+    [lang: string]: string;
+}
+
 export interface Product {
-    id: string;
-    name: string;
+    code: string;
+    parent: string;
+    level: string;
+    name: NameTranslation;
+    parentName: NameTranslation;
+    grandparentName: NameTranslation;
 }
 
 export type ProductAction =
@@ -12,7 +20,7 @@ export function productReducer(state: Product[] = [], action: ProductAction): Pr
         case 'ADD_PRODUCT':
             return [...state, action.payload];
         case 'UPDATE_PRODUCT':
-            return state.map(x => x.id === action.payload.id ? action.payload : x);
+            return state.map(x => x.code === action.payload.code ? action.payload : x);
         default:
             return state;
     }

@@ -1,4 +1,3 @@
-import { ProductsService } from './services/products-service';
 import { Product } from './reducers/productReducer';
 
 export interface AppState {
@@ -6,5 +5,5 @@ export interface AppState {
 }
 
 export {
-    ProductsService
+    Product
 }

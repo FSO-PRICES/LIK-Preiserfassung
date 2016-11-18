@@ -8,7 +8,7 @@ export interface IndexUpdateEvent {
 // copied from https://github.com/rintoj/angular2-virtual-scroll
 
 @Component({
-    selector: 'virtual-scroll',
+    selector: 'pef-virtual-scroll',
     template: `
         <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
         <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
@@ -34,7 +34,7 @@ export interface IndexUpdateEvent {
         }
     `]
 })
-export class VirtualScrollComponent implements OnDestroy, OnChanges {
+export class PefVirtualScrollComponent implements OnDestroy, OnChanges {
 
     @Input()
     items: any[] = [];

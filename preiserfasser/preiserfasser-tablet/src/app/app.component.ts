@@ -5,7 +5,9 @@ import { StatusBar, Splashscreen } from 'ionic-native';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 
 @Component({
-    template: `<ion-nav [root]="rootPage"></ion-nav>`
+    template: `
+        <pef-svg-icons></pef-svg-icons>
+        <ion-nav [root]="rootPage"></ion-nav>`
 })
 export class MyApp {
     rootPage = DashboardPage;

@@ -100,7 +100,7 @@ price-entry {
         display: flex;
         padding: 4px 8px;
 
-        virtual-scroll {
+        pef-virtual-scroll {
             width: 100%;
         }
     }
@@ -109,11 +109,45 @@ price-entry {
         padding-left: 0;
         background-color: $geyser;
         border-bottom: 4px solid $athens-gray;
+        &.selected {
+            background-color: $athens-gray2;
+            .product-description .name {
+                color: black;
+            }
+        }
         .item-inner {
             padding: 8px;
         }
         ion-label {
             margin: 0;
+            display: flex;
+        }
+        .product-code {
+            max-width: 4em;
+            flex: 0 0 4em;
+        }
+        .product-description {
+            width: calc(100% - 6em);
+            max-width: calc(100% - 6em);
+            flex: 0 0 calc(100% - 6em);
+            display: flex;
+            flex-direction: column;
+            span {
+                display: inline-block;
+                text-overflow: ellipsis;
+                width: 100%;
+                overflow: hidden;
+                &.name {
+                    color: $teal-blue;
+                    font-weight: 500;
+                }
+            }
+        }
+        .product-icons {
+            max-width: 2em;
+            flex: 0 0 2em;
+            display: flex;
+            align-items: center;
         }
     }
 }

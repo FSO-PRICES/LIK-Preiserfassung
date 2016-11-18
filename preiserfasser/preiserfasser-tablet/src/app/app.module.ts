@@ -10,7 +10,7 @@ import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import { PriceEntryPage } from '../pages/price-entry/price-entry';
 import { DashboardPage } from '../pages/dashboard/dashboard';
-import { VirtualScrollComponent } from '../components/virtual-scroll/virtual-scroll';
+import { PEF_COMPONENTS } from '../components';
 
 import { ProductsService } from '../services/products-service';
 
@@ -25,7 +25,7 @@ import { productReducer } from '../reducers/productReducer';
         TabsPage,
         PriceEntryPage,
         DashboardPage,
-        VirtualScrollComponent
+        ...PEF_COMPONENTS
     ],
     imports: [
         IonicModule.forRoot(MyApp, {}, {
