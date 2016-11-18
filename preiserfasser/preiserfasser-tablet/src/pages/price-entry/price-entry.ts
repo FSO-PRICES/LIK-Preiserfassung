@@ -43,6 +43,7 @@ export class PriceEntryPage implements OnInit {
         this.products = products$.combineLatest(this.form.valueChanges.startWith({ filterText: '' }), (products, filter) => {
             if (!filter.filterText) return products;
             const regExp = new RegExp(filter.filterText, 'i');
+            console.log(`product count is ${products.length}`);
             return products.filter(x => x.name.de.search(regExp) !== -1);
         });
 
