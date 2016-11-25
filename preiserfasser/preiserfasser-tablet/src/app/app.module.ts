@@ -10,6 +10,7 @@ import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import { PriceEntryPage, PRICE_ENTRY_COMPONENTS } from '../pages/price-entry';
 import { DashboardPage } from '../pages/dashboard/dashboard';
+import { DragTestPage } from '../pages/drag-test/drag-test';
 import { PEF_COMPONENTS } from '../components';
 
 import { ProductsService } from '../services/products-service';
@@ -25,6 +26,7 @@ import { productReducer } from '../reducers/productReducer';
         TabsPage,
         PriceEntryPage,
         DashboardPage,
+        DragTestPage,
         PRICE_ENTRY_COMPONENTS,
         ...PEF_COMPONENTS
     ],
@@ -32,7 +34,8 @@ import { productReducer } from '../reducers/productReducer';
         IonicModule.forRoot(MyApp, {}, {
             links: [
                 { component: DashboardPage, name: 'Dashboard', segment: 'home' },
-                { component: PriceEntryPage, name: 'PriceEntry', segment: 'price-entry' }
+                { component: PriceEntryPage, name: 'PriceEntry', segment: 'price-entry' },
+                { component: DragTestPage, name: 'DragTest', segment: 'drag-test' }
             ]
         }),
         StoreModule.provideStore({
@@ -48,7 +51,8 @@ import { productReducer } from '../reducers/productReducer';
         HomePage,
         TabsPage,
         PriceEntryPage,
-        DashboardPage
+        DashboardPage,
+        DragTestPage
     ],
     providers: [
         ProductsService
