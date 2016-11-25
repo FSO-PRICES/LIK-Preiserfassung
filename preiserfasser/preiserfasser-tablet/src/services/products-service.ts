@@ -9,8 +9,10 @@ export class ProductsService {
     constructor(private http: Http) {
     }
 
-    loadProducts(): Observable<any[]> {
+    loadProducts(): Observable<P.Product[]> {
         return this.http.get('assets/data/products.json')
+            .catch(err => ([]))
+            .do(() => console.log('received data'))
             .map(res => res.json() as P.Product[]);
     }
 }

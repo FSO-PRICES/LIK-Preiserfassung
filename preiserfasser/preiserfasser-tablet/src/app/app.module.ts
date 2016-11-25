@@ -8,7 +8,7 @@ import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
 import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
-import { PriceEntryPage } from '../pages/price-entry/price-entry';
+import { PriceEntryPage, PRICE_ENTRY_COMPONENTS } from '../pages/price-entry';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 import { PEF_COMPONENTS } from '../components';
 
@@ -25,6 +25,7 @@ import { productReducer } from '../reducers/productReducer';
         TabsPage,
         PriceEntryPage,
         DashboardPage,
+        PRICE_ENTRY_COMPONENTS,
         ...PEF_COMPONENTS
     ],
     imports: [

@@ -30,7 +30,7 @@
     "zone.js": "0.6.21"
   },
   "devDependencies": {
-    "@ionic/app-scripts": "0.0.43",
+    "@ionic/app-scripts": "0.0.45",
     "@types/node": "^6.0.48",
     "@types/pouchdb": "^5.4.28",
     "ts-node": "^1.7.0",

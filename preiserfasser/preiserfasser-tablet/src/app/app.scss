@@ -43,6 +43,13 @@
 
 html, ion-app.md {
     font-family: 'Roboto', sans-serif !important;
+    background-color: $trout;
+}
+
+.app-root.pef-desktop {
+    max-width: 1920px;
+    margin: 0 auto;
+    position: relative;
 }
 
 ion-content[no-scroll] {
@@ -61,5 +68,12 @@ pef-icon {
     }
     &.success {
         fill: $success;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    html {
+        /*font-size: 0.78125vw;*/
+        font-size: 0.85vw;
     }
 }
