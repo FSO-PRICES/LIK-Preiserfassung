@@ -14,7 +14,7 @@ export function seedData() {
     //     .then(() => console.log(`completed reset of database '${DB_NAME}'`));
 }
 
-function resetDatabase() {
+function resetDatabase() { // tslint:disable-line
     return deleteDatabase()
         .then(() => createDatabase());
 }

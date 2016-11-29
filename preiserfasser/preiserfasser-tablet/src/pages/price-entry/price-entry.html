@@ -5,9 +5,7 @@
 <ion-content no-scroll>
     <div class="price-entry-container">
         <div class="product-details-container">
-            <!--<product-detail [product]="selectedProduct | async"></product-detail>-->
-            <div class="product-details">
-            </div>
+            <product-detail [product]="selectedProduct | async"></product-detail>
         </div>
         <div class="product-list-container">
             <product-list [products]="products | async" (selectedProduct)="selectedProduct.emit($event)"></product-list>

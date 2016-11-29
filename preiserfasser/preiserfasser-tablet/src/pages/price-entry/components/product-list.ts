@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { ReactiveComponent } from '../../../common/ReactiveComponent';
@@ -39,13 +39,10 @@ export class ProductListComponent extends ReactiveComponent implements OnChanges
             .map(x => x ? HIDE_FILTER : SHOW_FILTER);
 
         const products$ = this.observePropertyCurrentValue<P.Product[]>('products');
-            // .do(x => alert('aaa'));
 
         this.filteredProducts = products$.combineLatest(this.form.valueChanges.startWith({ filterText: '' }), (products, filter) => {
-            // alert('here');
             if (!filter.filterText) return products;
             const regExp = new RegExp(filter.filterText, 'i');
-            // alert(`product count is ${products.length}`);
             return products.filter(x => x.name['de'].search(regExp) !== -1);
         });
 
@@ -55,14 +52,4 @@ export class ProductListComponent extends ReactiveComponent implements OnChanges
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
-
-    // ngOnChanges(changes: { [key: string]: SimpleChange }) {
-    //     const key = Object.keys(changes)[0];
-    //     if (key === 'products') {
-    //         const products = changes['products'].currentValue;
-    //         // alert(`got products ${!products ? null : products.length}`);
-    //         this.products$.next(changes['products'].currentValue);
-    //     }
-    //     // this.changesObserver.next(changes);
-    // }
 }

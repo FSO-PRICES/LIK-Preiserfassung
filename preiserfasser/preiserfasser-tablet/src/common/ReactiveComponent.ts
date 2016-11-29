@@ -31,7 +31,7 @@ export class ReactiveComponent {
         const observable = Observable.create((obs: Observer<any>) => {
             observer = obs;
         });
-        this[functionName] = function(...args: any[]) {
+        this[functionName] = function (...args: any[]) {
             if (observer) {
                 if (args.length === 1) {
                     observer.next(args[0]);
@@ -39,7 +39,7 @@ export class ReactiveComponent {
                     observer.next(args);
                 }
             }
-        }
+        };
         return observable;
     }
 
