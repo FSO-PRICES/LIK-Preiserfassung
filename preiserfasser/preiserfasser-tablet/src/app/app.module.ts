@@ -2,6 +2,7 @@ import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { DragulaModule } from 'ng2-dragula';
 
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
@@ -9,6 +10,7 @@ import { ContactPage } from '../pages/contact/contact';
 import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import { PriceEntryPage, PRICE_ENTRY_COMPONENTS } from '../pages/price-entry';
+import { DragTestListItem } from '../pages/drag-test/components/drag-test-list-item';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 import { DragTestPage } from '../pages/drag-test/drag-test';
 import { PEF_COMPONENTS } from '../components';
@@ -28,7 +30,8 @@ import { productReducer } from '../reducers/productReducer';
         DashboardPage,
         DragTestPage,
         PRICE_ENTRY_COMPONENTS,
-        ...PEF_COMPONENTS
+        ...PEF_COMPONENTS,
+        DragTestListItem
     ],
     imports: [
         IonicModule.forRoot(MyApp, {}, {
@@ -41,7 +44,8 @@ import { productReducer } from '../reducers/productReducer';
         StoreModule.provideStore({
             product: productReducer
         }),
-        StoreDevtoolsModule.instrumentOnlyWithExtension()
+        StoreDevtoolsModule.instrumentOnlyWithExtension(),
+        DragulaModule
     ],
     bootstrap: [IonicApp],
     entryComponents: [

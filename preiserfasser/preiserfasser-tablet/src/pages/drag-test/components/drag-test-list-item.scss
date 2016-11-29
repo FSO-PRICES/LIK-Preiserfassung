@@ -1,0 +1,40 @@
+@import "../../../theme/imports.scss";
+
+drag-test-list-item {
+    font-size: 1.6rem;
+    background-color: $geyser;
+    display: flex;
+    margin-bottom: 4px;
+    .product-item {
+        background-color: $geyser;
+        display: flex;
+        padding: 10px;
+        ion-label {
+            display: flex;
+        }
+        .code {
+            flex: 0 0 20%;
+        }
+        .name {
+            flex: 1;
+        }
+        .drag-handle-container {
+            flex: 0 0 15%;
+            max-width: 15%;
+            display: flex;
+            justify-content: flex-end;
+            button {
+                @include pef-button-reset();
+            }
+            pef-icon {
+                height: 1.5em;
+                flex: 0 0 1.5em;
+                fill: $dusty-gray;
+            }
+        }
+    }
+
+    &.isMouseDown {
+        box-shadow: $whiteframe-shadow-8dp;
+    }
+}

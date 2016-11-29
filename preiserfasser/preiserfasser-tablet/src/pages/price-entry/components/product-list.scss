@@ -88,6 +88,7 @@ product-list {
         padding-left: 0;
         background-color: $geyser;
         border-bottom: 4px solid $athens-gray;
+        min-height: 4.4em;
         &.selected {
             background-color: $athens-gray2;
             .product-description .name {
