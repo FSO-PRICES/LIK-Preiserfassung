@@ -1,0 +1,25 @@
+{
+  "name": "pouch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "./node_modules/.bin/webpack --watch",
+    "serve": "./node_modules/.bin/http-server .",
+    "start": "./node_modules/.bin/run-p watch serve"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/pouchdb": "^5.4.28",
+    "http-server": "^0.9.0",
+    "npm-run-all": "^3.1.1",
+    "ts-loader": "^1.2.2",
+    "typescript": "^2.0.10",
+    "webpack": "^1.13.3"
+  },
+  "dependencies": {
+    "pouchdb": "^6.0.7"
+  }
+}

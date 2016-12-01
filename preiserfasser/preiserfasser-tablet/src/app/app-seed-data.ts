@@ -7,11 +7,20 @@ const DB_NAME = 'preiserfasser';
 
 export function seedData() {
     // console.log(products.length);
-    // resetDatabase()
-    //     .then(db => {
-    //         return db;
-    //     })
-    //     .then(() => console.log(`completed reset of database '${DB_NAME}'`));
+    return resetDatabase()
+        .then(db => {
+            db.put({
+                _id: 'store_foobar',
+                store: 'foobar',
+                products: [
+                    { name: 'bread', price: 1.0 },
+                    { name: 'milk', price: 1.2 }
+                ]
+            });
+            return db;
+        })
+        .then(() => console.log(`completed reset of database '${DB_NAME}'`));
+    // return deleteDatabase();
 }
 
 function resetDatabase() { // tslint:disable-line
@@ -20,7 +29,8 @@ function resetDatabase() { // tslint:disable-line
 }
 
 function deleteDatabase() {
-    return createDatabase().then(db => createDatabase());
+    return createDatabase().then(db => db.destroy())
+        .then(() => console.log('database destroyed'));
 }
 
 function createDatabase() {
