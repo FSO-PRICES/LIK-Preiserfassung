@@ -174,7 +174,7 @@ function createHierarchyRecursive(parent: TreeItem, currentItemIndex: number, tr
         }
         currentItem = treeItems[i + 1];
     }
-    return Object.assign({}, parent, { children });
+    return _.assign({}, parent, { children });
 }
 
 function countHierarchicalItems(item: HierarchicalTreeItem): number {
