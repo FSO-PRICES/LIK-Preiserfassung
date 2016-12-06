@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bluebird": "^3.0.36",
     "@types/pouchdb": "^5.4.28",
     "http-server": "^0.9.0",
     "npm-run-all": "^3.1.1",
@@ -20,6 +21,8 @@
     "webpack": "^1.13.3"
   },
   "dependencies": {
-    "pouchdb": "^6.0.7"
+    "bluebird": "^3.4.6",
+    "pouchdb": "^6.0.7",
+    "pouchdb-authentication": "^0.5.5"
   }
 }

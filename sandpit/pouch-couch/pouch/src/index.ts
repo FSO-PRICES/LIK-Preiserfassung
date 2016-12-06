@@ -1,13 +1,19 @@
+import * as bluebird from 'bluebird';
 import * as PouchDB from 'pouchdb';
+import * as pouchDbAuthentication from 'pouchdb-authentication';
 
-const couch = new PouchDB('http://localhost:5984/test-couch');
-const pouch = new PouchDB('test-couch');
+PouchDB.plugin(pouchDbAuthentication);
+
+const couch = new PouchDB('http://localhost:5986/germaine_exemple') as any;
+const pouch = new PouchDB('lik');
+
+var xxx = new PouchDB('');
 
 // (PouchDB as any).debug.enable('pouchdb:api');
 (PouchDB as any).debug.enable('pouchdb:http');
 
 function sync() {
-    pouch.sync(couch);
+    pouch.sync(couch, { push: false, pull: true });
     // (PouchDB as any).debug.disable();
 }
 
@@ -38,7 +44,17 @@ function query() {
     .then(x => console.log(x));
 }
 
-query();
-// sync();
-// modifyLocal();
-// deleteDatabase();
+const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
+
+// couch.login('germaine_exemple', 'secret', x => {
+//     alert('xxx')
+//     console.log(JSON.stringify(x));
+// });
+
+login('germaine_exemple', 'secret')
+    .then(x => {
+        // query();
+        sync();
+        // modifyLocal();
+        // deleteDatabase();
+    })

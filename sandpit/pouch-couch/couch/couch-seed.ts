@@ -1,8 +1,11 @@
 import * as request from 'request-promise';
 
-const url = 'http://localhost:5984/test-couch';
+const [, , username, password] = process.argv;
+
+const url = `http://${username}:${password}@localhost:5984/test-couch`;
 
 request.del(url)
+    .catch(() => {})
     .then(() => request.put(url))
     .then(() => {
         const json = {

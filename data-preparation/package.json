@@ -6,12 +6,15 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "encoding": "^0.1.12",
-    "lodash": "^4.17.2"
+    "lodash": "^4.17.2",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "@types/bluebird": "^3.0.36",
     "@types/lodash": "^4.14.41",
     "@types/node": "0.0.2",
+    "@types/request-promise": "^4.1.33",
     "npm-run-all": "^3.1.2",
     "ts-node": "^1.7.0",
     "typescript": "^2.0.10"
@@ -19,7 +22,10 @@
   "scripts": {
     "warenkorb:build": "tsc warenkorb/process-warenkorb.ts typings.d.ts -t es5 --moduleResolution node",
     "warenkorb:run": "node warenkorb/process-warenkorb.js",
-    "warenkorb": "run-s warenkorb:build warenkorb:run"
+    "warenkorb": "run-s warenkorb:build warenkorb:run",
+    "presta:build": "tsc presta/process-presta.ts typings.d.ts -t es5 --moduleResolution node",
+    "presta:run": "node presta/process-presta.js",
+    "presta": "run-s presta:build presta:run"
   },
   "keywords": [],
   "author": "",

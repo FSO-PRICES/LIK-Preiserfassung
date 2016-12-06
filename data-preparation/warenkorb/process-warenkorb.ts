@@ -1,25 +1,9 @@
 import * as os from 'os';
-import * as fs from 'fs';
 import * as encoding from 'encoding';
-import * as bluebird from 'bluebird';
 import * as _ from 'lodash';
 
-interface ReadFileSignature {
-    (filename: string): bluebird<Buffer>;
-    (filename: string, encoding: string): bluebird<string>;
-    (filename: string, options: { encoding: string; flag?: string; }): bluebird<string>;
-    (filename: string, options: { flag?: string; }): bluebird<Buffer>;
-}
-
-interface WriteFileSignature {
-    (filename: string, data: any): bluebird<{}>;
-    (filename: string, data: any, options: { encoding?: string; mode?: number; flag?: string; }): bluebird<{}>;
-    (filename: string, data: any, options: { encoding?: string; mode?: string; flag?: string; }): bluebird<{}>;
-}
-
-
-const readFile = <ReadFileSignature>bluebird.promisify(fs.readFile);
-const writeFile = <WriteFileSignature>bluebird.promisify(fs.writeFile);
+import { readFile, writeFile, } from '../promisified';
+import { bufferToCells } from '../utils';
 
 readFile('./warenkorb/data/Erhebungsschema_DE.csv').then(bufferToCells)
     .then(de => readFile('./warenkorb/data/Erhebungsschema_FR.csv').then(bufferToCells).then(fr => ({ de, fr })))
@@ -81,7 +65,7 @@ const indexes = {
     anzahlPreiseProPMS: 10,
     beispiel: 11,
     info: 12
-}
+};
 
 function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): TreeItem[] {
     const lastDepthGliederungspositionsnummers: { [index: number]: TreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
@@ -121,12 +105,6 @@ function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): Tr
     }
 
     return treeItems;
-}
-
-function bufferToCells(buffer: Buffer) {
-    const s: string = encoding.convert(buffer, 'UTF-8', 'Latin_1').toString();
-    const lines = s.split('\u000a');
-    return _.drop(lines.filter(x => x.length)).map(x => x.split(';'));
 }
 
 function parseProduktecode(s: string) {
