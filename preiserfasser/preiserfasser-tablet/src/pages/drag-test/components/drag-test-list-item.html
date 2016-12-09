@@ -1,9 +1,0 @@
-<div class="product-item" (mouseup)="isMouseDown = false" (touchend)="isMouseDown = false" (touchcancel)="isMouseDown = false">
-    <div class="code">{{product.code}}</div>
-    <div class="name">{{product.name['de']}}</div>
-    <div class="drag-handle-container">
-        <button class="drag-handle-button" (mousedown)="dragButtonDown($event)" (touchstart)="dragButtonDown($event)">
-            <pef-icon name="drag-handle"></pef-icon>
-        </button>
-    </div>
-</div>

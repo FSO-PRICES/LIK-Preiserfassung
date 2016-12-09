@@ -12,28 +12,47 @@
 // To view all the possible Ionic variables, see:
 // http://ionicframework.com/docs/v2/theming/overriding-ionic-variables/
 
-$athens-gray: #f1f3f5;
-$athens-gray2: #e9ecef;
-$geyser: #dee2e6;
+// grey
+$wild-sand: #f5f5f5;
+$mercury: #eaeaea;
+$alto: #e0e0e0;
 $hit-gray: #adb5bd;
-$dusty-gray: #979797;
+$oslo-gray: #868e96;
 $trout: #495057;
 $outer-space: #343a40;
+$shark: #212529;
 
+// blue
+$foam: #e3fafc;
+$scooter: #3bc9db;
+$java: #15aabf;
 $blue-chill: #0c8599;
 $teal-blue: #045565;
-$lightning-yellow: #fcc419;
-$chateau-green: #40c057;
 
-$warning: $lightning-yellow;
-$success: $chateau-green;
+// yellow
+$egg-white: #FFF3BF;
+$bright-sun: #FFD43B;
 
-$text-color:        #000;
-$background-color:  #fff;
+// red
+$flamingo: #F03E3E;
+$alizarin-crimson: #E03131;
+
+// green:
+$sulu: #C0EB75;
+$emerald: #51CF66;
+$sea-green: #2F9E44;
+
+// $warning: $lightning-yellow;
+// $success: $chateau-green;
+
+$white: #ffffff;
+$black: #000000;
+
+$text-color:        $black;
+$background-color:  $white;
 
 $font-size-base: 1.6rem;
 $toolbar-md-title-font-size: 1em;
-$toolbar-background: $athens-gray;
 
 // Named Color Variables
 // --------------------------------------------------

@@ -1,4 +1,4 @@
-<ion-header>
+<!--<ion-header>
     <ion-navbar>
         <ion-title>
             <div class="app-title">LIK</div>
@@ -6,9 +6,31 @@
         </ion-title>
     </ion-navbar>
 </ion-header>
+<ion-content></ion-content>-->
 <ion-content no-scroll>
     <div class="dashboard-content">
-        <a ion-button round outline (click)="navigateToPriceEntry()">Preise erfassen</a>
-        <a ion-button round outline (click)="navigateToDragTest()">drag-test</a>
+        <div class="pef-toolbar">
+            <div class="app-info-container">
+                <div class="app-name">LIK</div>
+                <div class="person">
+                    <div class="person-icon"></div>
+                </div>
+            </div>
+            <div class="settings-buttons-container">
+                <button ion-button class="pef-toolbar-button">
+                    <pef-icon name="info"></pef-icon>
+                </button>
+                <button ion-button class="pef-toolbar-button" (click)="settingsClicked.emit()">
+                    <pef-icon name="settings"></pef-icon>
+                </button>
+            </div>
+        </div>
+        <div class="work-area">
+            <div class="preismeldestellen">
+                <h2>Preismeldestelle auswählen</h2>
+                <pef-search-input></pef-search-input>
+            </div>
+            <div class="preismeldungen"></div>
+        </div>
     </div>
 </ion-content>

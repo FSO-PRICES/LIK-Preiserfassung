@@ -8,7 +8,7 @@ import { DashboardPage } from '../pages/dashboard/dashboard';
     template: `
         <pef-svg-icons></pef-svg-icons>
         <ion-nav [root]="rootPage"></ion-nav>`,
-    host: { '[class.pef-desktop]': `isDesktop` }
+    host: { '[class.pef-desktop]': 'isDesktop', '[class.pef-toolbar-right]': 'false' }
 })
 export class MyApp {
     rootPage = DashboardPage;
@@ -16,9 +16,10 @@ export class MyApp {
 
     constructor(platform: Platform) {
         platform.ready().then(() => {
-            // Okay, so the platform is ready and our plugins are available.
-            // Here you can do any higher level native things you might need.
-            StatusBar.styleDefault();
+            // StatusBar.styleDefault();
+            // StatusBar.backgroundColorByHexString('#ffffff');
+            // StatusBar.backgroundColorByName('black');
+            StatusBar.hide();
             Splashscreen.hide();
             this.isDesktop = !platform.is('mobile');
             if (!this.isDesktop) {

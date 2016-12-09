@@ -1,4 +1,6 @@
-dashboard {x
+@import "../../theme/imports.scss";
+
+dashboard {
     .toolbar-title {
         display: flex;
     }
@@ -12,7 +14,91 @@ dashboard {x
         height: 100%;
         width: 100%;
         display: flex;
+    }
+
+    .pef-toolbar {
+        flex: 0 0 5.25em;
+        max-width: 5.25em;
+        background-color: $java;
+        order: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .app-info-container {
+        flex: 0 0 auto;
+    }
+
+    .app-name {
+        font-weight: bold;
+        letter-spacing: 1px;
+        @include set-padding-top-bottom(2.25, 1.25);
+        display: flex;
         justify-content: center;
-        align-items: center;
+    }
+
+    .person {
+        display: flex;
+        justify-content: center;
+    }
+
+    .person-icon {
+        height: 3em;
+        width: 3em;
+        border-radius: 1.5em;
+        background-color: $scooter;
+    }
+
+    .settings-buttons-container {
+        @include set-padding-bottom(1.5)
+    }
+
+    .button-md.pef-toolbar-button {
+        height: 3em;
+        border-radius: 0;
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        box-shadow: none;
+        transition-property: background-color, color;
+        &:hover {
+            background-color: transparent;
+        }
+    }
+
+    .work-area {
+        flex: 1;
+        display: flex;
+        background-color: $alto;
+        @include set-padding-vert-horiz(1, 1.5);
+    }
+
+    .preismeldestellen {
+        flex: 1 1 66.6%;
+        margin-right: 12px;
+        @include set-margin-right(0.75);
+        @include set-padding-vert-horiz(1.5, 1);
+        background-color: $mercury;
+    }
+
+    .preismeldungen {
+        flex: 1 1 33.3%;
+        @include set-margin-left(0.75);
+        @include set-padding-vert-horiz(1.5, 1);
+        background-color: $mercury;
+    }
+
+    h2 {
+        font-size: 1em;
+        margin: 0 0 1em 0;
+    }
+}
+
+.app-root.pef-toolbar-right {
+    dashboard {
+        .pef-toolbar {
+            order: 1;
+        }
     }
 }

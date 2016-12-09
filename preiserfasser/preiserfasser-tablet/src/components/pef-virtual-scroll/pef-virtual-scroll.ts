@@ -116,7 +116,7 @@ export class PefVirtualScrollComponent implements OnDestroy, OnChanges {
         let viewWidth = el.clientWidth - this.scrollbarWidth;
         let viewHeight = el.clientHeight - this.scrollbarHeight;
 
-        let contentDimensions;
+        let contentDimensions: any;
         if (this.childWidth === undefined || this.childHeight === undefined) {
             contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
                 width: viewWidth,
