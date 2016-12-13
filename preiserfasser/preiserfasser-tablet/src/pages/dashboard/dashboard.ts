@@ -3,7 +3,7 @@ import { NavController } from 'ionic-angular';
 // import { PriceEntryPage } from '../price-entry/price-entry';
 // import { DragTestPage } from '../drag-test/drag-test';
 
-import { syncData } from './sync-data';
+import { syncData, getProductCount } from './sync-data';
 
 @Component({
     selector: 'dashboard',
@@ -11,17 +11,22 @@ import { syncData } from './sync-data';
 })
 export class DashboardPage {
     settingsClicked = new EventEmitter();
+    productCount = 0;
 
     constructor(public navCtrl: NavController) {
-        this.settingsClicked
-            .subscribe(() => {
-                alert('hoi2');
-            });
         // this.settingsClicked
         //     .subscribe(() => {
-        //         syncData()
-        //             .then(() => alert('done'));
+        //         alert('hoi2');
         //     });
+        this.settingsClicked
+            .subscribe(() => {
+                syncData()
+                    .then(() => getProductCount())
+                    .then(x => this.productCount = x);
+            });
+
+        getProductCount()
+            .then(x => this.productCount = x);
         //     // .flatMap(() => syncData())
             // .subscribe(() => console.log('settings clicked'));
     }

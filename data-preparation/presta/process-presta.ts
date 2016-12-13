@@ -1,5 +1,8 @@
 import * as bluebird from 'bluebird';
 import * as _ from 'lodash';
+import * as _urlify from 'urlify';
+
+const urlify = _urlify.create({ addEToUmlauts: true, toLower: true });
 
 import { readFile, writeFile, } from '../promisified';
 import { bufferToCells } from '../utils';
@@ -169,7 +172,7 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
         });
     })
     .then(data => {
-        const promises = data.map(x => writeFile(`./presta/erheber_${x.erheber.firstName}_${x.erheber.surname}.json`, JSON.stringify(x)));
+        const promises = data.map(x => writeFile(`./presta/erheber__${urlify(`${x.erheber.firstName}_${x.erheber.surname}`)}.json`, JSON.stringify(x)));
         return bluebird.all(promises);
     })
 

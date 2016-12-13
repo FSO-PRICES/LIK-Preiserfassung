@@ -1,31 +1,26 @@
 import * as bluebird from 'bluebird';
 import * as request from 'request-promise';
 import * as _ from 'lodash';
+import * as docuri from 'docuri';
 
-import { readFile, writeFile, } from './promisified';
+import { readFile, writeFile, readdir } from './promisified';
 
 const [, , username, password] = process.argv;
 
 const baseUrl = `http://${username}:${password}@localhost:5986`;
 
-const files =  [
-    { filename: 'Alphonse_Dupont', username: 'alphonse_dupont' },
-    { filename: 'Germaine_Exemple', username: 'germaine_exemple' },
-    { filename: 'Hans_Müller', username: 'hans_mueller' },
-    { filename: 'Hansueli_Müller', username: 'hansueli_mueller' },
-    { filename: 'Marie_Crétin', username: 'marie_cretin' },
-    { filename: 'Nicole_Schmidt', username: 'nicole_schmidt' },
-    { filename: 'Patrick_Muster', username: 'patrick_muster' },
-    { filename: 'Peter_Muster', username: 'petra_muster' },
-    { filename: 'Pierrette_Dupont', username: 'pierrette_dupont' },
-    { filename: 'Pierrinne_Tabouret', username: 'pierrinne_tabouret' }
-];
+const productUri = docuri.route('product/:productKey');
+const pmsUri = docuri.route('preismeldestelle/:pmsKey');
+
+const filenameRegex = /erheber__(.*?)\.json/;
 
 readFile('./warenkorb/flat.json')
     .then(x => JSON.parse(x.toString()))
-    .then(warenkorbProducts => {
-        return files.map(x => {
-            const url = `${baseUrl}/${x.username}`;
+    .then(warenkorbProducts => readdir('./presta/').then(files => files.filter(x => !!x.match(filenameRegex))).then(files => ({ warenkorbProducts, files })))
+    .then(x => {
+        return x.files.map(filename => {
+            const username = filename.match(filenameRegex)[1];
+            const url = `${baseUrl}/${username}`;
             return request.del(url)
                 .catch(() => {})
                 .then(() => request.put(url))
@@ -33,18 +28,18 @@ readFile('./warenkorb/flat.json')
                     url: `${url}/_security`,
                     method: 'PUT',
                     json: {
-                        admins: { names: [x.username], roles: [] },
+                        admins: { names: [username], roles: [] },
                         members: { names: [], 'roles': [] } }
                 }))
-                .then(() => readFile(`./presta/erheber_${x.filename}.json`))
-                .then(x => {
-                    const data = JSON.parse(x.toString());
+                .then(() => readFile(`./presta/erheber__${username}.json`))
+                .then(buffer => {
+                    const data = JSON.parse(buffer.toString());
                     const erheber = _.assign(data.erheber, { _id: 'erheber' });
-                    const preismeldestellen = data.preismeldestellen.map(x => _.assign(x, { _id: `preismeldestelle_${x.pmsKey}` }));
-                    const products = data.products.map(x => _.assign(x, { _id: `product_${x.erhebungspositionsnummer}` }));
+                    const preismeldestellen = data.preismeldestellen.map(x => _.assign(x, { _id: pmsUri({ pmsKey: x.pmsKey }) }));
+                    const products = data.products.map(x => _.assign(x, { _id: productUri({ productKey: x.erhebungspositionsnummer }) }));
                     const warenkorb = {
                         _id: 'warenkorb',
-                        products: warenkorbProducts
+                        products: x.warenkorbProducts
                     };
                     return request({
                         url: `${url}/_bulk_docs`,

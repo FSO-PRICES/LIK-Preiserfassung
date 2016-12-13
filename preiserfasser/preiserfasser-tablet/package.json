@@ -19,10 +19,12 @@
     "@angular/platform-server": "2.1.1",
     "@ionic/storage": "1.1.6",
     "bluebird": "^3.4.6",
+    "docuri": "^4.2.1",
     "ionic-angular": "2.0.0-rc.3",
     "ionic-native": "2.2.3",
     "ionicons": "3.0.0",
     "pouchdb": "^6.0.7",
+    "pouchdb-all-dbs": "^1.0.2",
     "pouchdb-authentication": "^0.5.5",
     "rxjs": "5.0.0-beta.12",
     "zone.js": "0.6.26"
