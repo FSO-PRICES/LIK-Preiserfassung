@@ -7,26 +7,26 @@ const urlify = _urlify.create({ addEToUmlauts: true, toLower: true });
 import { readFile, writeFile, } from '../promisified';
 import { bufferToCells } from '../utils';
 
-interface Preisemeldestelle {
-    pmsKey: number;
-    name: string;
-    supplement: string;
-    street: string;
-    postcode: string;
-    town: string;
-    telephone: string;
-    email: string;
-    languageCode: string;
-}
+// interface Preisemeldestelle {
+//     pmsKey: number;
+//     name: string;
+//     supplement: string;
+//     street: string;
+//     postcode: string;
+//     town: string;
+//     telephone: string;
+//     email: string;
+//     languageCode: string;
+// }
 
-interface Erheber {
-    firstName: string;
-    surname: string;
-    personFunction: string;
-    languageCode: string;
-    telephone: string;
-    email: string;
-}
+// interface Erheber {
+//     firstName: string;
+//     surname: string;
+//     personFunction: string;
+//     languageCode: string;
+//     telephone: string;
+//     email: string;
+// }
 
 const pmsPreiserheberIndexes = {
     pmsKey: 0,
@@ -46,32 +46,32 @@ const pmsPreiserheberIndexes = {
     erheberEmail: 14
 };
 
-interface Product {
-    pmsKey: number;
-    erhebungspositionsnummer: number;
-    laufnummer: number;
-    preisT: number;
-    mengeT: number;
-    aktionsCode: boolean;
-    ausverkauf: boolean;
-    preisGueltigSeit: Date;
-    text: string;
-    artikelNummer: string;
-    basispreise: number;
-    basismenge: number;
-    sonderpreis: number;
-    fehlendepreisCode: string;
-    bemerkungen: string;
-    tableInformationen: string;
-    preiseVorReduktion: number;
-    mengeVorReduktion: number;
-    preiseReiheIstZuBeenden: boolean;
-    produktMerkmal1: string;
-    produktMerkmal2: string;
-    produktMerkmal3: string;
-    produktMerkmal4: string;
-    produktMerkmal5: string;
-}
+// interface Product {
+//     pmsKey: number;
+//     erhebungspositionsnummer: number;
+//     laufnummer: number;
+//     preisT: number;
+//     mengeT: number;
+//     aktionsCode: boolean;
+//     ausverkauf: boolean;
+//     preisGueltigSeit: Date;
+//     text: string;
+//     artikelNummer: string;
+//     basispreise: number;
+//     basismenge: number;
+//     sonderpreis: number;
+//     fehlendepreisCode: string;
+//     bemerkungen: string;
+//     tableInformationen: string;
+//     preiseVorReduktion: number;
+//     mengeVorReduktion: number;
+//     preiseReiheIstZuBeenden: boolean;
+//     produktMerkmal1: string;
+//     produktMerkmal2: string;
+//     produktMerkmal3: string;
+//     produktMerkmal4: string;
+//     produktMerkmal5: string;
+// }
 
 
 const productIndexes = {

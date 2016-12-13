@@ -1,5 +1,12 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
+import { StoreModule, combineReducers } from '@ngrx/store';
+import 'rxjs';
+
+import * as preismeldestelle from '../reducers/preismeldestelle';
+
+import { reducer } from '../reducers';
+
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
@@ -19,7 +26,9 @@ import { PEF_COMPONENTS } from '../components';
         ...PEF_COMPONENTS
     ],
     imports: [
-        IonicModule.forRoot(MyApp)
+        IonicModule.forRoot(MyApp),
+        // StoreModule.provideStore({ preismeldestelle: preismeldestelle.reducer })
+        StoreModule.provideStore(reducer)
     ],
     bootstrap: [IonicApp],
     entryComponents: [

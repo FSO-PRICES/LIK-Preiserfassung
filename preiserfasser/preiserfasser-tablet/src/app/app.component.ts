@@ -4,7 +4,7 @@ import { StatusBar, Splashscreen, ScreenOrientation } from 'ionic-native';
 
 import { DashboardPage } from '../pages/dashboard/dashboard';
 
-import { initialisePouchForDev } from '../pages/dashboard/sync-data';
+// import { initialisePouchForDev } from '../pages/dashboard/sync-data';
 
 @Component({
     template: `
@@ -27,7 +27,7 @@ export class MyApp {
             if (!this.isDesktop) {
                 ScreenOrientation.lockOrientation('landscape');
             }
-            initialisePouchForDev();
+            // initialisePouchForDev();
         });
     }
 }
