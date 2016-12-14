@@ -1,24 +1,28 @@
 import { compose } from '@ngrx/core/compose';
-import { combineReducers } from '@ngrx/store';
+import { combineReducers, ActionReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from "ngrx-store-logger";
 
 import { environment } from '../environments/environment';
 import * as preismeldestelle from './preismeldestelle';
+import * as appConfig from './app-config';
 
-export interface State {
+export interface AppState {
     preismeldestellen: preismeldestelle.State
 }
 
 const reducers = {
+    appConfig: appConfig.reducer,
     preismeldestellen: preismeldestelle.reducer
 };
 
-export function reducer(state: State, action: any) {
+const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
+const productionReducer: ActionReducer<AppState> = combineReducers(reducers);
+
+export function reducer(state: AppState, action: any): AppState {
     if (environment.production) {
-        return combineReducers(reducers)(state, action);
+        return productionReducer(state, action);
     } else {
-        // return compose(storeLogger(), storeFreeze, combineReducers)(reducers);
-        return compose(storeLogger(), storeFreeze, combineReducers)(reducers)(state, action);
+        return developmentReducer(state, action);
     }
 }

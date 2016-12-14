@@ -9,8 +9,8 @@ const [, , username, password] = process.argv;
 
 const baseUrl = `http://${username}:${password}@localhost:5986`;
 
-const productUri = docuri.route('product/:productKey');
 const pmsUri = docuri.route('preismeldestelle/:pmsKey');
+const productUri = docuri.route('preismeldestelle/:pmsKey/product/:productKey');
 
 const filenameRegex = /erheber__(.*?)\.json/;
 
@@ -34,8 +34,8 @@ readFile('./warenkorb/flat.json')
                 .then(() => readFile(`./presta/erheber__${username}.json`))
                 .then(buffer => {
                     const data = JSON.parse(buffer.toString());
-                    const erheber = _.assign(data.erheber, { _id: 'erheber' });
-                    const preismeldestellen = data.preismeldestellen.map(x => _.assign(x, { _id: pmsUri({ pmsKey: x.pmsKey }) }));
+                    const erheber = { _id: 'erheber', ...data.erheber };
+                    const preismeldestellen = data.preismeldestellen.map(x => ({ _id: pmsUri({ pmsKey: x.pmsKey, ...x })}));
                     const products = data.products.map(x => _.assign(x, { _id: productUri({ productKey: x.erhebungspositionsnummer }) }));
                     const warenkorb = {
                         _id: 'warenkorb',

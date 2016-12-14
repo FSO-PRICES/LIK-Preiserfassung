@@ -1,6 +1,8 @@
 import { Store } from '@ngrx/store';
 import { Component, EventEmitter } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { AppState } from '../../reducers';
+
 // import { PriceEntryPage } from '../price-entry/price-entry';
 // import { DragTestPage } from '../drag-test/drag-test';
 
@@ -14,9 +16,11 @@ export class DashboardPage {
     settingsClicked = new EventEmitter();
     productCount = 0;
 
-    constructor(public navCtrl: NavController, private store: Store<any>) {
-        this.store.subscribe(x => console.log('store is', JSON.stringify(x)))
-        this.store.dispatch({ type: 'PREISEMELDESTELLE_LOAD_SUCCESS', payload: [ 'a' ] });
+    public preismeldestellen$ = this.store.select(x => x.preismeldestellen).map(x => x.entities);
+
+    constructor(public navCtrl: NavController, private store: Store<AppState>) {
+        // this.store.subscribe(x => console.log('store is', JSON.stringify(x)))
+        this.store.dispatch({ type: 'PREISEMELDESTELLE_LOAD_ALL' });
         // this.settingsClicked
         //     .subscribe(() => {
         //         alert('hoi2');

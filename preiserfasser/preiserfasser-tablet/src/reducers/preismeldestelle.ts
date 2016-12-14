@@ -5,12 +5,11 @@ export interface State {
     entities: Preisemeldestelle[];
 }
 
-const initialState = {
+const initialState: State = {
     entities: []
 };
 
 export function reducer(state = initialState, action: preisemeldestelle.Actions): State {
-    console.log('am here')
     switch (action.type) {
         case 'PREISEMELDESTELLE_LOAD_SUCCESS':
             return { entities: action.payload };
