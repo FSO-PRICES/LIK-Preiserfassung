@@ -1,4 +1,4 @@
-export interface Preisemeldestelle {
+export interface Preismeldestelle {
     pmsKey: number;
     name: string;
     supplement: string;

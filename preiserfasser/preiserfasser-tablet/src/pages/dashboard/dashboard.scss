@@ -84,6 +84,11 @@ dashboard {
         background-color: $mercury;
     }
 
+    .preismeldestellen-scroll-container {
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
+
     .preismeldungen {
         flex: 1 1 33.3%;
         @include set-margin-left(0.75);

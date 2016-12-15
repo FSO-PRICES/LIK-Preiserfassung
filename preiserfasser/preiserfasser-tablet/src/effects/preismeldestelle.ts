@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 
-import { getDatabase, getAllDocumentsForPrefix } from './pouchdb';
+import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 
 @Injectable()
 export class PreismeldestelleEffects {
@@ -9,9 +9,9 @@ export class PreismeldestelleEffects {
 
     @Effect()
     loadPreismeldestellen$ = this.actions$
-        .ofType('PREISEMELDESTELLE_LOAD_ALL')
+        .ofType('PREISMELDESTELLEN_LOAD_ALL')
         .switchMap(() => getDatabase())
         .flatMap(db => db.allDocs(Object.assign({}, getAllDocumentsForPrefix('preismeldestelle'), { include_docs: true })))
         // .flatMap(db => db.allDocs({ ...getAllDocumentsForPrefix('preismeldestelle'), include_docs: true }))) // TODO: TS2.1
-        .map(allDocs => ({ type: 'PREISEMELDESTELLE_LOAD_SUCCESS', payload: allDocs.rows.map(x => x.doc) }));
+        .map(allDocs => ({ type: 'PREISMELDESTELLEN_LOAD_SUCCESS', payload: allDocs.rows.map(x => x.doc) }));
 }

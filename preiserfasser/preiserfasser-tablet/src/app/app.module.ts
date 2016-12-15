@@ -8,6 +8,7 @@ import 'rxjs';
 import { reducer } from '../reducers';
 
 import { PreismeldestelleEffects } from '../effects/preismeldestelle';
+import { DatabaseEffects } from '../effects/database';
 
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
@@ -30,7 +31,8 @@ import { PEF_COMPONENTS } from '../components';
     imports: [
         IonicModule.forRoot(MyApp),
         StoreModule.provideStore(reducer),
-        EffectsModule.run(PreismeldestelleEffects)
+        EffectsModule.run(PreismeldestelleEffects),
+        EffectsModule.run(DatabaseEffects)
     ],
     bootstrap: [IonicApp],
     entryComponents: [

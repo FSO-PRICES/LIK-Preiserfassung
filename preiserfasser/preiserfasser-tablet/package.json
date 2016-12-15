@@ -28,9 +28,11 @@
     "ionicons": "3.0.0",
     "ngrx-store-freeze": "^0.1.4",
     "ngrx-store-logger": "^0.1.7",
+    "perfect-scrollbar": "^0.6.15",
     "pouchdb": "^6.0.7",
     "pouchdb-all-dbs": "^1.0.2",
     "pouchdb-authentication": "^0.5.5",
+    "reselect": "^2.5.4",
     "rxjs": "5.0.0-beta.12",
     "zone.js": "0.6.26"
   },
@@ -38,7 +40,7 @@
     "@ionic/app-scripts": "0.0.45",
     "@types/bluebird": "^3.0.36",
     "@types/pouchdb": "^5.4.28",
-    "typescript": "^2.0.10"
+    "typescript": "2.0.10"
   },
   "cordovaPlugins": [
     "cordova-plugin-whitelist",

@@ -17,3 +17,5 @@ export function reducer(state = initialState, action: appConfig.Actions): State 
             return state;
     }
 }
+
+export const getIsDesktop = (state: State) => state.isDesktop;

@@ -1,19 +1,21 @@
+import { createSelector } from 'reselect';
 import { compose } from '@ngrx/core/compose';
 import { combineReducers, ActionReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from "ngrx-store-logger";
 
 import { environment } from '../environments/environment';
-import * as preismeldestelle from './preismeldestelle';
-import * as appConfig from './app-config';
+import * as fromPreismeldestellen from './preismeldestellen';
+import * as fromAppConfig from './app-config';
 
 export interface AppState {
-    preismeldestellen: preismeldestelle.State
+    appConfig: fromAppConfig.State;
+    preismeldestellen: fromPreismeldestellen.State;
 }
 
 const reducers = {
-    appConfig: appConfig.reducer,
-    preismeldestellen: preismeldestelle.reducer
+    appConfig: fromAppConfig.reducer,
+    preismeldestellen: fromPreismeldestellen.reducer
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -26,3 +28,7 @@ export function reducer(state: AppState, action: any): AppState {
         return developmentReducer(state, action);
     }
 }
+
+export const getAppConfigState = (state: AppState) => state.appConfig;
+
+export const getIsDesktop = createSelector(getAppConfigState, fromAppConfig.getIsDesktop);

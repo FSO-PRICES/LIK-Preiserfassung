@@ -19,7 +19,7 @@
     "@types/request-promise": "^4.1.33",
     "npm-run-all": "^3.1.2",
     "ts-node": "^1.7.0",
-    "typescript": "^2.0.10"
+    "typescript": "2.0.10"
   },
   "scripts": {
     "warenkorb:build": "tsc warenkorb/process-warenkorb.ts typings.d.ts -t es5 --moduleResolution node",

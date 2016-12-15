@@ -7,7 +7,7 @@ import { AppState } from '../reducers';
 
 import { DashboardPage } from '../pages/dashboard/dashboard';
 
-// import { initialisePouchForDev } from '../pages/dashboard/sync-data';
+import { initialisePouchForDev } from '../effects/pouchdb-utils';
 
 @Component({
     template: `
@@ -26,12 +26,13 @@ export class MyApp {
             // StatusBar.backgroundColorByName('black');
             StatusBar.hide();
             Splashscreen.hide();
-            this.isDesktop = !platform.is('mobile');
-            this.store.dispatch({ type: 'APP_CONFIG_SET_IS_DESKTOP', payload: this.isDesktop });
-            if (!this.isDesktop) {
+            if (platform.is('mobile')) {
+                // remember when testing, this will fail on the desktop with "cannot read property 'apply' of undefined"
                 ScreenOrientation.lockOrientation('landscape');
             }
-            // initialisePouchForDev();
+            this.isDesktop = !platform.is('mobile');
+            this.store.dispatch({ type: 'APP_CONFIG_SET_IS_DESKTOP', payload: this.isDesktop });
+            initialisePouchForDev();
         });
     }
 }

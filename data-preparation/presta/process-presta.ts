@@ -104,7 +104,7 @@ const productIndexes = {
 readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
     .then(lines => {
         const pmsErhebers = lines.map(cells => ({
-            pms: <Preisemeldestelle>{
+            pms: <Preismeldestelle>{
                 pmsKey: parseInt(cells[pmsPreiserheberIndexes.pmsKey]),
                 name: cells[pmsPreiserheberIndexes.pmsName],
                 supplement: cells[pmsPreiserheberIndexes.pmsSupplement],

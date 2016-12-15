@@ -29,15 +29,15 @@
             <div class="preismeldestellen">
                 <h2>Preismeldestelle auswählen</h2>
                 <pef-search-input></pef-search-input>
-                <div>{{productCount}} products</div>
-                <!--<div>
+                <div>{{ (preismeldestellen$ | async).length }} Preismeldestellen</div>
+                <div class="preismeldestellen-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                     <div>
                         <div *ngFor="let preismeldestelle of preismeldestellen$ | async">
                             {{ preismeldestelle.name }}
                         </div>
                     </div>
                 </div>
-            </div>-->
+            </div>
             <div class="preismeldungen"></div>
         </div>
     </div>
