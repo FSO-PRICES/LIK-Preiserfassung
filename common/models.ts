@@ -1,5 +1,5 @@
-export interface Preismeldestelle {
-    pmsKey: number;
+export interface PreismeldestelleProperties {
+    pmsKey: string;
     name: string;
     supplement: string;
     street: string;
@@ -10,7 +10,7 @@ export interface Preismeldestelle {
     languageCode: string;
 }
 
-export interface Erheber {
+export interface ErheberProperties {
     firstName: string;
     surname: string;
     personFunction: string;
@@ -19,10 +19,10 @@ export interface Erheber {
     email: string;
 }
 
-export interface Product {
-    pmsKey: number;
-    erhebungspositionsnummer: number;
-    laufnummer: number;
+export interface ProductProperties {
+    pmsKey: string;
+    erhebungspositionsnummer: string;
+    laufnummer: string;
     preisT: number;
     mengeT: number;
     aktionsCode: boolean;
@@ -44,4 +44,25 @@ export interface Product {
     produktMerkmal3: string;
     produktMerkmal4: string;
     produktMerkmal5: string;
+}
+
+export interface CouchProperties {
+    _id: string;
+    _rev: string;
+}
+
+export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
+export type Erheber = ErheberProperties & CouchProperties;
+export type Product = ProductProperties & CouchProperties;
+
+export const pmsUriRoute = 'preismeldestelle/:pmsKey';
+export interface PmsUri {
+    pmsKey: string;
+}
+
+export const productUriRoute = 'pms-product/:pmsKey/position/:positionNumber/sequence/:sequenceNumber';
+export interface ProductUri {
+    pmsKey: string;
+    positionNumber: string;
+    sequenceNumber: string;
 }

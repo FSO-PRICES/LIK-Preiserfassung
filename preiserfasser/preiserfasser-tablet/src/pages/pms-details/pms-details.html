@@ -1,0 +1,154 @@
+<div class="pms-details-page">
+    <div class="header">
+        <h3>Daten zur Preismeldestelle</h3>
+        <a ion-button large icon-right clear color="white" class="align-right" href="javascript:history.go(-1)">
+            Schliessen
+            <pef-icon name="close_screen"></pef-icon>
+        </a>
+    </div>
+    <div class="pms-details-content">
+        <div class="pef-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
+            <div class="pms-scroll-content">
+                <h4 class="large">{{ header$ | async }}</h4>
+                <div class="row">
+                    <div class="column">
+                        <h5>Preismeldestellenummer</h5>
+                        <div class="readonly-text">{{(pms$ | async)?.pmsKey}}</div>
+                    </div>
+                    <div class="column"></div>
+                </div>
+                <div class="row">
+                    <div class="column">
+                        <h5>Adresse</h5>
+                        <div class="readonly-text" *ngFor="let line of address$ | async">{{ line }}</div>
+                    </div>
+                    <div class="column"></div>
+                </div>
+                <div class="row">
+                    <div class="column">
+                        <h5>1. Kontaktperson</h5>
+                        <ion-list>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Vorname</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Name</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Funktion</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Telefon</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Mobile</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Fax</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>E-Mail</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                    <div class="column">
+                        <h5>2. Kontaktperson</h5>
+                        <ion-list>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Vorname</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Name</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Funktion</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Telefon</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Mobile</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>Fax</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label stacked>E-Mail</ion-label>
+                                <ion-input type="text"></ion-input>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column">
+                        <h5>Erhebungsart</h5>
+                        <ion-list radio-group class="padding-to-header">
+                            <ion-item>
+                                <ion-label>Vor Ort mit Tablet</ion-label>
+                                <ion-radio value="tablet"></ion-radio>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>Telefon</ion-label>
+                                <ion-radio value="telefon"></ion-radio>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>Internet</ion-label>
+                                <ion-radio value="internet"></ion-radio>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>Papierliste (persönlich)</ion-label>
+                                <ion-radio value="paper-in_person"></ion-radio>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>Papierliste (an Preismeldestelle abgegeben)</ion-label>
+                                <ion-radio value="paper_x"></ion-radio>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                    <div class="column">
+                        <h5>Erhebungshäufigkeit</h5>
+                        <ion-list radio-group class="padding-to-header">
+                            <ion-item>
+                                <ion-label>monatlich</ion-label>
+                                <ion-radio value="monthly"></ion-radio>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>quartalsweise</ion-label>
+                                <ion-radio value="quarterly"></ion-radio>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>halbjährlich</ion-label>
+                                <ion-radio value="half-yearly"></ion-radio>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>jährlich</ion-label>
+                                <ion-radio value="yearly"></ion-radio>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                </div>
+                <div class="double-column">
+                    <h5>Bemerkungen zur Erhebungsart</h5>
+                    <ion-list class="padding-to-header">
+                        <ion-item class="pef-item">
+                            <ion-textarea></ion-textarea>
+                        </ion-item>
+                    </ion-list>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

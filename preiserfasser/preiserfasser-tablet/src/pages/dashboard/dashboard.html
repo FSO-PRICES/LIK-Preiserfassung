@@ -27,13 +27,35 @@
         </div>
         <div class="work-area">
             <div class="preismeldestellen">
-                <h2>Preismeldestelle auswählen</h2>
-                <pef-search-input></pef-search-input>
-                <div>{{ (preismeldestellen$ | async).length }} Preismeldestellen</div>
-                <div class="preismeldestellen-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
-                    <div>
-                        <div *ngFor="let preismeldestelle of preismeldestellen$ | async">
-                            {{ preismeldestelle.name }}
+                <h3>Preismeldestelle auswählen</h3>
+                <pef-search-input class="pms-search"></pef-search-input>
+                <div class="pms-header-table">
+                    <div class="pms-header-row">
+                        <div class="pms-header-cell pms-name">
+                            <div class="pms-header-cell-content">
+                                Preismeldestelle
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pms-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
+                    <div class="pms-table">
+                        <div class="pms-row" *ngFor="let preismeldestelle of preismeldestellen$ | async">
+                            <div class="pms-cell pms-name">
+                                <div class="pms-cell-content">
+                                    <a ion-button clear icon-left class="pms-detail-link" [href]="'#/pms-details/' + preismeldestelle.pmsKey">
+                                        <pef-icon name="shop"></pef-icon>
+                                        {{ preismeldestelle.name }}
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="pms-cell erfassung-starten">
+                                <div class="pms-cell-content">
+                                    <a ion-button icon-only class="price-entry-button" [href]="'#/price-entry/' + preismeldestelle.pmsKey">
+                                        <pef-icon name="todo"></pef-icon>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

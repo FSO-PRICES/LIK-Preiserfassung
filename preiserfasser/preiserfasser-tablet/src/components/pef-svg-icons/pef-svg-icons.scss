@@ -1,0 +1,14 @@
+@import "../../theme/imports.scss";
+
+.pef-icon__alarmclock_normal {
+    &.green {
+        use {
+            fill: $emerald;
+        }
+    }
+    &.gray {
+        use {
+            fill: $oslo-gray;
+        }
+    }
+}

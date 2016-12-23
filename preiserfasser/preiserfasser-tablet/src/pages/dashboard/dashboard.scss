@@ -16,16 +16,6 @@ dashboard {
         display: flex;
     }
 
-    .pef-toolbar {
-        flex: 0 0 5.25em;
-        max-width: 5.25em;
-        background-color: $java;
-        order: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
     .app-info-container {
         flex: 0 0 auto;
     }
@@ -51,6 +41,8 @@ dashboard {
     }
 
     .settings-buttons-container {
+        display: flex;
+        flex-direction: column;
         @include set-padding-bottom(1.5)
     }
 
@@ -78,15 +70,110 @@ dashboard {
         display: flex;
         flex-direction: column;
         flex: 1 1 66.6%;
-        margin-right: 12px;
         @include set-margin-right(0.75);
         @include set-padding-vert-horiz(1.5, 1);
         background-color: $mercury;
     }
 
-    .preismeldestellen-scroll-container {
+    .pms-search {
+        @include set-margin-bottom(1.25);
+    }
+
+    .pms-scroll-container {
         overflow-x: hidden;
         overflow-y: scroll;
+    }
+
+    .pms-header-table {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .pms-header-row {
+        display: table-row;
+    }
+
+    .pms-header-cell {
+        @include set-height(3.5);
+        display: table-cell;
+        @include set-padding-bottom(0.25);
+
+        &.pms-name {
+            .pms-header-cell-content {
+                @include set-padding-left(1);
+            }
+        }
+    }
+
+    .pms-header-cell-content {
+        background-color: $alto;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        color: $trout;
+    }
+
+    .pms-detail-link {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-size: 1em;
+        .button-inner {
+            justify-content: flex-start;
+        }
+        pef-icon {
+            width: 30px;
+            @include set-margin-right(1);
+        }
+    }
+
+    .pms-table {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .pms-row {
+        display: table-row;
+    }
+
+    .pms-cell {
+        @include set-height(3.5);
+        max-height: 56px; // TODO
+        display: table-cell;
+
+        &.pms-name {
+            width: 30%;
+            .pms-cell-content {
+                @include set-padding-left(1);
+                color: $blue-chill;
+                font-weight: 500;
+            }
+        }
+        &.erfassung-starten {
+            width: 70%;
+            .pms-cell-content {
+                @include set-padding-right(1);
+                justify-content: flex-end;
+            }
+        }
+        position: relative;
+    }
+
+    .pms-cell-content {
+        background-color: white;
+        position: absolute;
+        top: 0;
+        height: calc(100% - 4px);
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .button-md.price-entry-button {
+        @include button-color($scooter, white);
     }
 
     .preismeldungen {

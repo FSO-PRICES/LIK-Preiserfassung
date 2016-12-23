@@ -7,6 +7,8 @@ const urlify = _urlify.create({ addEToUmlauts: true, toLower: true });
 import { readFile, writeFile, } from '../promisified';
 import { bufferToCells } from '../utils';
 
+import { Erheber, Product, Preismeldestelle } from '../../common/models';
+
 // interface Preisemeldestelle {
 //     pmsKey: number;
 //     name: string;
@@ -166,8 +168,8 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
             const pmsKeys = x.preismeldestellen.map(y => y.pmsKey);
             return {
                 erheber: x.erheber,
-                preismeldestellen: x.preismeldestellen,
-                products: products.filter(y => pmsKeys.some(z => z == y.pmsKey))
+                preismeldestellen: _.sortBy(x.preismeldestellen, [x => x.pmsKey]),
+                products: _.sortBy(products.filter(y => pmsKeys.some(z => z == y.pmsKey)), [x => x.pmsKey, x => x.erhebungspositionsnummer, x => x.laufnummer])
             };
         });
     })

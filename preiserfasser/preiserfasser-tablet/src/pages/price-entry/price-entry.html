@@ -1,0 +1,25 @@
+<!--<ion-header>
+    <ion-navbar [hideBackButton]="false">
+    </ion-navbar>
+</ion-header>-->
+<ion-content no-scroll>
+    <div class="price-entry-content">
+        <div class="pef-toolbar"></div>
+        <div class="work-area">
+            <div class="product-details-container">
+                <product-detail [product]="selectedProduct | async"></product-detail>
+            </div>
+            <div class="product-list-container">
+                <product-list [products]="products$ | async" (selectedProduct)="selectedProduct.emit($event)"></product-list>
+            </div>
+        </div>
+    </div>
+    <!--<div class="price-entry-container">
+        <div class="product-details-container">
+            <product-detail [product]="selectedProduct | async"></product-detail>
+        </div>
+        <div class="product-list-container">
+            <product-list [products]="products$ | async" (selectedProduct)="selectedProduct.emit($event)"></product-list>
+        </div>
+    </div>-->
+</ion-content>

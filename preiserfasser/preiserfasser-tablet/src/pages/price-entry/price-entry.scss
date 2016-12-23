@@ -1,0 +1,36 @@
+@import "../../theme/imports.scss";
+
+price-entry.ion-page {
+    .price-entry-content {
+        height: 100%;
+        width: 100%;
+        display: flex;
+    }
+
+    .work-area {
+        flex: 1;
+        display: flex;
+        background-color: $alto;
+        @include set-padding-vert-horiz(1, 1.5);
+    }
+
+    .product-details-container {
+        flex: 2;
+        display: flex;
+        @include set-padding-right(0.75);
+    }
+
+    product-detail {
+        flex: 1;
+    }
+
+    .product-list-container {
+        flex: 1;
+        display: flex;
+        @include set-padding-left(0.75);
+    }
+
+    product-list {
+        flex: 1;
+    }
+}

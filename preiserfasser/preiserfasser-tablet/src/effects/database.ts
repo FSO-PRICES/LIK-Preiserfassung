@@ -11,5 +11,6 @@ export class DatabaseEffects {
     loadPreismeldestellen$ = this.actions$
         .ofType('DATABASE_SYNC')
         .switchMap(() => dropAndSyncDatabase())
-        .mapTo({});
+        .mapTo({})
+        .do(() => alert('sync complete'));
 }

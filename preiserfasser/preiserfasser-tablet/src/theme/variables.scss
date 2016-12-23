@@ -63,11 +63,19 @@ $toolbar-md-title-font-size: 1em;
 // The "primary" color is the only required color in the map.
 
 $colors: (
-  primary:    $blue-chill,
-  secondary:  $trout,
+  primary: $blue-chill,
+  secondary: $trout,
+
+  foam: $foam,
+  scooter: $scooter,
+  java: $java,
+  blue-chill: $blue-chill,
+  teal-blue: $teal-blue,
+
   danger:     #f53d3d,
   light:      #f4f4f4,
-  dark:       #222
+  dark:       #222,
+  white:      #fff
 );
 
 // App iOS Variables

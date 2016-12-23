@@ -1,0 +1,124 @@
+@import "../../theme/imports.scss";
+
+pms-details.ion-page {
+    background-color: $trout;
+    display: flex;
+
+    .pms-details-page {
+        margin: 0 7em;
+        color: white;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        height: 3.5em;
+        h3 {
+            flex: 1;
+            margin: 0;
+        }
+    }
+
+    .pms-details-content {
+        background-color: $mercury;
+        color: $outer-space;
+        flex: 1;
+        display: flex;
+        padding: 1em 1.5em;
+        > * {
+            flex: 1;
+        }
+    }
+
+    .pms-scroll-content {
+        max-width: 1280px;
+    }
+
+    .row {
+        padding: 0 4px 40px 4px;
+        display: flex;
+        .column {
+            flex: 1;
+            ion-list {
+                width: 80%;
+            }
+        }
+    }
+
+    .double-column {
+        padding: 0 4px 40px 4px;
+        width: 90%;
+    }
+
+    .padding-to-header {
+        padding-top: 10px;
+    }
+
+    .readonly-text {
+        font-weight: 500;
+    }
+}
+
+.item-md.pef-item {
+    padding-left: 0;
+    background-color: transparent;
+    &.item-md.item-block .item-inner {
+        padding-right: 0;
+        border-bottom-width: 0;
+    }
+    ion-label {
+        padding-left: 8px;
+        font-weight: 500;
+        color: $oslo-gray;
+        line-height: 1.75em;
+    }
+    &.item-label-stacked .text-input-md, .text-input-md {
+        margin: 6px 0;
+    }
+    ion-input, ion-textarea {
+        background-color: white;
+        border-bottom: 2px solid $hit-gray;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+    &.input-has-focus {
+        ion-input, ion-textarea {
+            border-bottom-color: $blue-chill;
+        }
+        .item-inner {
+            box-shadow: none;
+        }
+    }
+}
+
+ion-list[radio-group] {
+    .item-radio {
+        background-color: transparent;
+        padding-left: 0;
+        min-height: 3.6rem;
+        .item-inner {
+            border-bottom-width: 0;
+            .input-wrapper {
+                order: 1;
+            }
+        }
+        ion-label {
+            font-weight: 500;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .radio-icon {
+            height: 20px;
+            width: 20px;
+        }
+        .radio-inner {
+            top: 3px;
+            left: 3px;
+            width: 10px;
+            height: 10px;
+        }
+    }
+}

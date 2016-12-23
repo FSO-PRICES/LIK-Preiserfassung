@@ -7,10 +7,34 @@
     background-color: transparent;
 }
 
+@mixin button-color($background, $foreground) {
+    background-color: $background;
+    color: $foreground;
+    svg {
+        fill: $foreground;
+    }
+    &:hover {
+        background-color: $background;
+    }
+}
+
 @mixin set-height($height) {
     height: calc(#{$height} * 16px);
     @media screen and (max-width: 1280px) {
         height: calc(#{$height} * 1em);
+    }
+}
+
+@mixin set-padding($top, $right, $bottom, $left) {
+    padding-top: calc(#{$top} * 16px);
+    padding-right: calc(#{$right} * 16px);
+    padding-bottom: calc(#{$bottom} * 16px);
+    padding-left: calc(#{$left} * 16px);
+    @media screen and (max-width: 1280px) {
+        padding-top: calc(#{$top} * 1em);
+        padding-right: calc(#{$right} * 1em);
+        padding-bottom: calc(#{$bottom} * 1em);
+        padding-left: calc(#{$left} * 1em);
     }
 }
 
@@ -36,10 +60,31 @@
     }
 }
 
-@mixin set-padding-bottom($bottom) {
-    padding-bottom: calc(#{$bottom} * 16px);
+@mixin set-padding-top($amount) {
+    padding-top: calc(#{$amount} * 16px);
     @media screen and (max-width: 1280px) {
-        padding-bottom: calc(#{$bottom} * 1em);
+        padding-top: calc(#{$amount} * 1em);
+    }
+}
+
+@mixin set-padding-right($amount) {
+    padding-right: calc(#{$amount} * 16px);
+    @media screen and (max-width: 1280px) {
+        padding-right: calc(#{$amount} * 1em);
+    }
+}
+
+@mixin set-padding-bottom($amount) {
+    padding-bottom: calc(#{$amount} * 16px);
+    @media screen and (max-width: 1280px) {
+        padding-bottom: calc(#{$amount} * 1em);
+    }
+}
+
+@mixin set-padding-left($amount) {
+    padding-left: calc(#{$amount} * 16px);
+    @media screen and (max-width: 1280px) {
+        padding-left: calc(#{$amount} * 1em);
     }
 }
 
@@ -47,6 +92,13 @@
     margin-left: calc(#{$amount} * 16px);
     @media screen and (max-width: 1280px) {
         margin-left: calc(#{$amount} * 1em);
+    }
+}
+
+@mixin set-margin-bottom($amount) {
+    margin-bottom: calc(#{$amount} * 16px);
+    @media screen and (max-width: 1280px) {
+        margin-bottom: calc(#{$amount} * 1em);
     }
 }
 

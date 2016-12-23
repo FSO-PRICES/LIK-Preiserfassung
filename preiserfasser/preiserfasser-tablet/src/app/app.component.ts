@@ -32,6 +32,7 @@ export class MyApp {
             }
             this.isDesktop = !platform.is('mobile');
             this.store.dispatch({ type: 'APP_CONFIG_SET_IS_DESKTOP', payload: this.isDesktop });
+            this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
             initialisePouchForDev();
         });
     }
