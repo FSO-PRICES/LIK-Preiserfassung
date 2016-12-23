@@ -15,7 +15,7 @@ price-entry.ion-page {
     }
 
     .product-details-container {
-        flex: 2;
+        flex: 0 0 66.6%;
         display: flex;
         @include set-padding-right(0.75);
     }
@@ -25,7 +25,7 @@ price-entry.ion-page {
     }
 
     .product-list-container {
-        flex: 1;
+        flex: 0 0 33.3%;
         display: flex;
         @include set-padding-left(0.75);
     }

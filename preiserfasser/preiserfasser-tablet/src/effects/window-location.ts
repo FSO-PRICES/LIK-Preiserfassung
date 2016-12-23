@@ -16,7 +16,7 @@ export class WindowLocationEffects {
         .ofType('SELECT_PRODUCT')
         .do(x => {
             const product = <ProductUri>productUri(x.payload);
-            window.history.replaceState(null, null, `#/price-entry/${product.pmsKey}?position-number=${product.positionNumber}&sequence-number=${product.sequenceNumber}`);
+            // window.history.replaceState(null, null, `#/price-entry/${product.pmsKey}?position-number=${product.positionNumber}&sequence-number=${product.sequenceNumber}`);
         })
         .mapTo({});
 }

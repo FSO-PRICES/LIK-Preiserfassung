@@ -43,7 +43,8 @@
                         <div class="pms-row" *ngFor="let preismeldestelle of preismeldestellen$ | async">
                             <div class="pms-cell pms-name">
                                 <div class="pms-cell-content">
-                                    <a ion-button clear icon-left class="pms-detail-link" [href]="'#/pms-details/' + preismeldestelle.pmsKey">
+                                    <!--<a ion-button clear icon-left class="pms-detail-link" [href]="'#/pms-details/' + preismeldestelle.pmsKey">-->
+                                    <a ion-button clear icon-left class="pms-detail-link" href="javascript:" (click)="navigateToDetails(preismeldestelle)">
                                         <pef-icon name="shop"></pef-icon>
                                         {{ preismeldestelle.name }}
                                     </a>
@@ -51,7 +52,8 @@
                             </div>
                             <div class="pms-cell erfassung-starten">
                                 <div class="pms-cell-content">
-                                    <a ion-button icon-only class="price-entry-button" [href]="'#/price-entry/' + preismeldestelle.pmsKey">
+                                    <!--<a ion-button icon-only class="price-entry-button" [href]="'#/price-entry/' + preismeldestelle.pmsKey">-->
+                                    <a ion-button icon-only class="price-entry-button" href="javascript:" (click)="navigateToPriceEntry(preismeldestelle)">
                                         <pef-icon name="todo"></pef-icon>
                                     </a>
                                 </div>

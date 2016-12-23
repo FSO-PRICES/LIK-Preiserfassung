@@ -3,8 +3,9 @@ import { Component, EventEmitter } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
 import * as fromRoot from '../../reducers';
-// import { Preismeldestelle } from '../../common-models';
-// import { PmsDetailsPage } from '../pms-details/pms-details';
+import { Preismeldestelle } from '../../common-models';
+import { PmsDetailsPage } from '../pms-details/pms-details';
+import { PriceEntryPage } from '../price-entry/price-entry';
 
 @Component({
     selector: 'dashboard',
@@ -20,5 +21,13 @@ export class DashboardPage {
 
     constructor(private navCtrl: NavController, private store: Store<fromRoot.AppState>) {
         this.settingsClicked.subscribe(() => this.store.dispatch({ type: 'DATABASE_SYNC' }));
+    }
+
+    navigateToDetails(preismeldestelle: Preismeldestelle) {
+        this.navCtrl.push(PmsDetailsPage, { pmsKey: preismeldestelle.pmsKey });
+    }
+
+    navigateToPriceEntry(preismeldestelle: Preismeldestelle) {
+        this.navCtrl.push(PriceEntryPage, { pmsKey: preismeldestelle.pmsKey });
     }
 }

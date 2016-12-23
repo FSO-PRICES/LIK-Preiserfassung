@@ -1,6 +1,5 @@
 import { Component, EventEmitter } from '@angular/core';
 import { NavParams } from 'ionic-angular';
-// import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
@@ -17,10 +16,17 @@ export class PriceEntryPage {
     selectedProduct = new EventEmitter<P.Product>();
 
     constructor(private navParams: NavParams, private store: Store<fromRoot.AppState>) {
-        this.store.dispatch({ type: 'PRODUCTS_LOAD_FOR_PMS', payload: navParams.get('pmsKey') });
+    }
+
+    ionViewDidLoad() {
+        this.store.dispatch({ type: 'PRODUCTS_LOAD_FOR_PMS', payload: this.navParams.get('pmsKey') });
     }
 
     navigate(id: string) {
         this.store.dispatch({ type: 'SELECT_PRODUCT', payload: id })
+    }
+
+    ionViewDidLeave() {
+        this.store.dispatch({ type: 'PRODUCTS_CLEAR' });
     }
 }

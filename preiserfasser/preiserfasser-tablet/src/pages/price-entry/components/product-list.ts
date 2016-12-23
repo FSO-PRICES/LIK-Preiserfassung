@@ -53,6 +53,6 @@ export class ProductListComponent extends ReactiveComponent implements OnChanges
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
-        console.log(changes)
+        // console.log('changes', changes)
     }
 }

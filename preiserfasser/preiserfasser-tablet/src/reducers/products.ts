@@ -26,6 +26,10 @@ export function reducer(state = initialState, action: products.Actions): State {
             return Object.assign({}, state, { productIds, entities });
         }
 
+        case 'PRODUCTS_CLEAR': {
+            return Object.assign({}, state, { productIds: [], entities: {} });
+        }
+
         default:
             return state;
     }
