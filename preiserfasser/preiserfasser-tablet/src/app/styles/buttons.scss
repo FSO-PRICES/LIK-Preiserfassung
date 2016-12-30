@@ -1,0 +1,31 @@
+@import "../../theme/imports.scss";
+
+.button[icon-only] {
+    background-color: $scooter;
+    min-width: calc(2.25em + 4px);
+    &:hover:not(.disable-hover) {
+        opacity: 1;
+        background-color: $blue-chill;
+    }
+}
+
+.button-md {
+    text-transform: none;
+    transition: opacity 150ms;
+    &:hover:not(.disable-hover) {
+        opacity: 0.7;
+    }
+    &.align-right {
+        padding-right: 0;
+        margin-right: 0;
+    }
+}
+
+.button-large-md {
+    font-size: 1.6rem;
+    height: 3.6rem;
+}
+
+.button-clear-md:hover:not(.disable-hover) {
+    background-color: initial;
+}

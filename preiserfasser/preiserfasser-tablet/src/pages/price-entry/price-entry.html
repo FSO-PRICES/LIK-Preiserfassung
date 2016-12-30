@@ -1,25 +1,25 @@
-<!--<ion-header>
-    <ion-navbar [hideBackButton]="false">
-    </ion-navbar>
-</ion-header>-->
-<ion-content no-scroll>
-    <div class="price-entry-content">
-        <div class="pef-toolbar"></div>
-        <div class="work-area">
-            <div class="product-details-container">
-                <product-detail [product]="selectedProduct | async"></product-detail>
-            </div>
-            <div class="product-list-container">
-                <product-list [products]="products$ | async" (selectedProduct)="selectedProduct.emit($event)"></product-list>
-            </div>
-        </div>
-    </div>
-    <!--<div class="price-entry-container">
+<div class="price-entry-content">
+    <product-toolbar
+        [product]="selectedProduct$ | async"
+        (selectedTab)="selectTab$.emit($event)"
+        (buttonClicked)="toolbarButtonClicked$.emit($event)"
+        ></product-toolbar>
+    <div class="work-area">
         <div class="product-details-container">
-            <product-detail [product]="selectedProduct | async"></product-detail>
+            <ion-content>
+                <product-detail-messages
+                    *ngIf="(selectedTab$ | async) == 'MESSAGES'"
+                    [product]="selectedProduct$ | async"></product-detail-messages>
+                <product-detail-preismeldung
+                    *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'"
+                    [product]="selectedProduct$ | async"></product-detail-preismeldung>
+            </ion-content>
         </div>
         <div class="product-list-container">
-            <product-list [products]="products$ | async" (selectedProduct)="selectedProduct.emit($event)"></product-list>
+            <product-list
+                [products]="products$ | async"
+                (selectedProduct)="selectProduct$.emit($event)"
+                [isDesktop]="isDesktop$ | async"></product-list>
         </div>
-    </div>-->
-</ion-content>
+    </div>
+</div>

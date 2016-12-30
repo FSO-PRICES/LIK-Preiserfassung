@@ -25,6 +25,13 @@
     }
 }
 
+@mixin set-min-height($height) {
+    min-height: calc(#{$height} * 16px);
+    @media screen and (max-width: 1280px) {
+        min-height: calc(#{$height} * 1em);
+    }
+}
+
 @mixin set-padding($top, $right, $bottom, $left) {
     padding-top: calc(#{$top} * 16px);
     padding-right: calc(#{$right} * 16px);
@@ -88,6 +95,26 @@
     }
 }
 
+@mixin set-margin($top, $right, $bottom, $left) {
+    margin-top: calc(#{$top} * 16px);
+    margin-right: calc(#{$right} * 16px);
+    margin-bottom: calc(#{$bottom} * 16px);
+    margin-left: calc(#{$left} * 16px);
+    @media screen and (max-width: 1280px) {
+        margin-top: calc(#{$top} * 1em);
+        margin-right: calc(#{$right} * 1em);
+        margin-bottom: calc(#{$bottom} * 1em);
+        margin-left: calc(#{$left} * 1em);
+    }
+}
+
+@mixin set-margin-top($amount) {
+    margin-top: calc(#{$amount} * 16px);
+    @media screen and (max-width: 1280px) {
+        margin-top: calc(#{$amount} * 1em);
+    }
+}
+
 @mixin set-margin-left($amount) {
     margin-left: calc(#{$amount} * 16px);
     @media screen and (max-width: 1280px) {
@@ -117,3 +144,11 @@
         margin-right: calc(#{$amount} * 1em);
     }
 }
+
+@mixin set-flex($grow, $shrink, $basis) {
+    flex: $grow $shrink calc(#{$basis} * 16px);
+    @media screen and (max-width: 1280px) {
+        flex: $grow $shrink calc(#{$basis} * 1em);
+    }
+}
+

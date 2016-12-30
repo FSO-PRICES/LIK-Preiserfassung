@@ -20,6 +20,7 @@ import { TabsPage } from '../pages/tabs/tabs';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
 import { PriceEntryPage, PRICE_ENTRY_COMPONENTS } from '../pages/price-entry';
+import { TestPage } from '../pages/test-page/test-page';
 import { PEF_COMPONENTS } from '../components';
 
 @NgModule({
@@ -31,6 +32,7 @@ import { PEF_COMPONENTS } from '../components';
         TabsPage,
         DashboardPage,
         PmsDetailsPage,
+        TestPage,
         ...PRICE_ENTRY_COMPONENTS,
         ...PEF_COMPONENTS
     ],
@@ -40,6 +42,7 @@ import { PEF_COMPONENTS } from '../components';
                 { component: DashboardPage, name: 'Dashboard', segment: 'home' },
                 { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsKey', defaultHistory: [DashboardPage] },
                 { component: PriceEntryPage, name: 'PriceEntry', segment: 'price-entry/:pmsKey', defaultHistory: [DashboardPage] },
+                { component: TestPage, name: 'Test', segment: 'test-page', defaultHistory: [DashboardPage] },
             ]
         }),
         StoreModule.provideStore(reducer),
@@ -57,7 +60,8 @@ import { PEF_COMPONENTS } from '../components';
         TabsPage,
         DashboardPage,
         PriceEntryPage,
-        PmsDetailsPage
+        PmsDetailsPage,
+        TestPage
     ],
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler }

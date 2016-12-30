@@ -68,7 +68,7 @@
 <!--</div>-->
 
 <div class="product-list-scroll-container">
-    <pef-virtual-scroll [items]="filteredProducts$ | async" (update)="viewPortItems = $event">
+    <pef-virtual-scroll [items]="filteredProducts$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="isDesktop">
         <ion-item
             class="product-item"
             *ngFor="let product of viewPortItems"

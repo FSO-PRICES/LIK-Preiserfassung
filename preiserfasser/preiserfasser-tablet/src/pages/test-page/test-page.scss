@@ -1,0 +1,20 @@
+test-page.ion-page {
+    display: flex;
+    flex-direction: column;
+    .header {
+        flex: 0 0 100px;
+        background-color: green;
+    }
+    .body {
+        flex: 1;
+        display: flex;
+        .left {
+            flex: 0 0 66.6%;
+            background-color: gray;
+        }
+        .right {
+            flex: 0 0 33.3%;
+            background-color: blue;
+        }
+    }
+}

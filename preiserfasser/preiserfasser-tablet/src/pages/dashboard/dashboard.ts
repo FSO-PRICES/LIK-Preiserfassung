@@ -6,6 +6,7 @@ import * as fromRoot from '../../reducers';
 import { Preismeldestelle } from '../../common-models';
 import { PmsDetailsPage } from '../pms-details/pms-details';
 import { PriceEntryPage } from '../price-entry/price-entry';
+import { TestPage } from '../test-page/test-page';
 
 @Component({
     selector: 'dashboard',
@@ -24,7 +25,8 @@ export class DashboardPage {
     }
 
     navigateToDetails(preismeldestelle: Preismeldestelle) {
-        this.navCtrl.push(PmsDetailsPage, { pmsKey: preismeldestelle.pmsKey });
+        // this.navCtrl.push(PmsDetailsPage, { pmsKey: preismeldestelle.pmsKey });
+        this.navCtrl.push(TestPage);
     }
 
     navigateToPriceEntry(preismeldestelle: Preismeldestelle) {

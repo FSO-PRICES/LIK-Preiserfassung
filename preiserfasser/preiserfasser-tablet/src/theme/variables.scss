@@ -78,6 +78,8 @@ $colors: (
   white:      #fff
 );
 
+$sqrt2: 1.41421356237;
+
 // App iOS Variables
 // --------------------------------------------------
 // iOS only Sass variables can go here
@@ -89,7 +91,9 @@ $colors: (
 // --------------------------------------------------
 // Material Design only Sass variables can go here
 
+$list-md-text-color: $outer-space;
 
+$radio-md-disabled-opacity: 1;
 
 
 // App Windows Variables

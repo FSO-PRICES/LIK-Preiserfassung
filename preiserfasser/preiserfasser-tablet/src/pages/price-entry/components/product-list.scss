@@ -38,17 +38,18 @@ product-list {
             height: 100%;
             align-items: center;
             align-content: center;
+            font-size: 1em;
         }
         .product-position-number {
-            max-width: 5em;
-            flex: 0 0 5em;
+            max-width: 4em;
+            flex: 0 0 4em;
             color: $blue-chill;
             font-weight: 500;
         }
         .product-description {
-            width: calc(100% - 10em);
-            max-width: calc(100% - 10em);
-            flex: 0 0 calc(100% - 10em);
+            width: calc(100% - 9em);
+            max-width: calc(100% - 9em);
+            flex: 0 0 calc(100% - 9em);
             display: flex;
             flex-direction: column;
             span {

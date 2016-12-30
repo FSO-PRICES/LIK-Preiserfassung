@@ -14,6 +14,7 @@ const HIDE_FILTER = 'Filter ausblenden';
     templateUrl: 'product-list.html'
 })
 export class ProductListComponent extends ReactiveComponent implements OnChanges {
+    @Input() isDesktop: boolean;
     @Input() products: P.Product[];
     @Output() selectedProduct: Observable<P.Product>;
 

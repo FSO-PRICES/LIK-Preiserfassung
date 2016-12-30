@@ -25,6 +25,7 @@
     "@ngrx/store": "^2.2.1",
     "bluebird": "^3.4.7",
     "docuri": "^4.2.1",
+    "element-resize-detector": "^1.1.10",
     "ionic-angular": "2.0.0-rc.4",
     "ionic-native": "2.2.11",
     "ionicons": "3.0.0",

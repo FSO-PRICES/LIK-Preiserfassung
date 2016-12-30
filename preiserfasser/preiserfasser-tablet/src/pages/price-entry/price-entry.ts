@@ -1,5 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
-import { NavParams } from 'ionic-angular';
+import { NavParams, NavController } from 'ionic-angular';
+import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
@@ -13,9 +14,24 @@ import * as fromRoot from '../../reducers';
 export class PriceEntryPage {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     products$ = this.store.select(fromRoot.getProducts);
-    selectedProduct = new EventEmitter<P.Product>();
+    selectProduct$ = new EventEmitter<P.Product>();
+    selectTab$ = new EventEmitter<string>();
+    toolbarButtonClicked$ = new EventEmitter<string>();
 
-    constructor(private navParams: NavParams, private store: Store<fromRoot.AppState>) {
+    selectedTab$ = this.selectTab$.publishReplay(1).refCount();
+    selectedProduct$ = this.selectProduct$.publishReplay(1).refCount();
+
+    constructor(
+        private navController: NavController,
+        private navParams: NavParams,
+        private store: Store<fromRoot.AppState>)
+    {
+        this.toolbarButtonClicked$
+            .filter(x => x === 'HOME')
+            .subscribe(() => this.navController.pop());
+
+        this.selectedTab$
+            .subscribe(x => console.log(x));
     }
 
     ionViewDidLoad() {

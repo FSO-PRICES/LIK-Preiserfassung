@@ -1,6 +1,16 @@
 @import "../../theme/imports.scss";
 
 dashboard {
+    .pef-toolbar {
+        flex: 0 0 5.25em;
+        max-width: 5.25em;
+        background-color: $java;
+        order: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
     .toolbar-title {
         display: flex;
     }
@@ -69,7 +79,7 @@ dashboard {
     .preismeldestellen {
         display: flex;
         flex-direction: column;
-        flex: 0 0 66.6%;
+        flex: 0 1 66.6%;
         @include set-margin-right(0.75);
         @include set-padding-vert-horiz(1.5, 1);
         background-color: $mercury;
@@ -177,7 +187,7 @@ dashboard {
     }
 
     .preismeldungen {
-        flex: 0 0 33.3%;
+        flex: 0 1 33.3%;
         @include set-margin-left(0.75);
         @include set-padding-vert-horiz(1.5, 1);
         background-color: $mercury;
