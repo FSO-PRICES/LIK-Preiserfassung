@@ -1,12 +1,3 @@
-<!--<ion-header>
-    <ion-navbar>
-        <ion-title>
-            <div class="app-title">LIK</div>
-            <div class="date">Mittwoch, 19.11.2018&nbsp;&nbsp;09:32</div>
-        </ion-title>
-    </ion-navbar>
-</ion-header>
-<ion-content></ion-content>-->
 <ion-content no-scroll>
     <div class="dashboard-content">
         <div class="pef-toolbar">
@@ -27,8 +18,11 @@
         </div>
         <div class="work-area">
             <div class="preismeldestellen">
-                <h3>Preismeldestelle auswählen</h3>
-                <pef-search-input class="pms-search"></pef-search-input>
+                <div class="header-line">
+                    <h3>Preismeldestelle auswählen</h3>
+                    <div class="current-time">{{currentTime$ | async}}</div>
+                </div>
+                <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
                 <div class="pms-header-table">
                     <div class="pms-header-row">
                         <div class="pms-header-cell pms-name">
@@ -38,12 +32,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="pms-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
+                <pef-virtual-scroll
+                    class="preismeldungen-scroll"
+                    [items]="filteredPreismeldestellen$ | async"
+                    (update)="viewPortItems = $event"
+                    pef-perfect-scrollbar [enabled]="isDesktop$ | async"
+                >
                     <div class="pms-table">
-                        <div class="pms-row" *ngFor="let preismeldestelle of preismeldestellen$ | async">
+                        <div class="pms-row" *ngFor="let preismeldestelle of filteredPreismeldestellen$ | async">
                             <div class="pms-cell pms-name">
                                 <div class="pms-cell-content">
-                                    <a ion-button clear icon-left class="pms-detail-link" href="javascript:" (click)="navigateToDetails(preismeldestelle)">
+                                    <a ion-button clear icon-left
+                                        class="pms-detail-link"
+                                        href="javascript:"
+                                        (click)="navigateToDetails(preismeldestelle)"
+                                    >
                                         <pef-icon name="shop"></pef-icon>
                                         {{ preismeldestelle.name }}
                                     </a>
@@ -54,14 +57,15 @@
                                     <a ion-button icon-only
                                         class="price-entry-button"
                                         href="javascript:"
-                                        (click)="navigateToPriceEntry(preismeldestelle)">
+                                        (click)="navigateToPriceEntry(preismeldestelle)"
+                                    >
                                         <pef-icon name="todo"></pef-icon>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </pef-virtual-scroll>
             </div>
             <div class="preismeldungen"></div>
         </div>

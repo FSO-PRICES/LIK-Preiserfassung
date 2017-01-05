@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import * as P from '../../../common-models';
+import * as P from '../../../../common-models';
 
 @Component({
     selector: 'product-toolbar',

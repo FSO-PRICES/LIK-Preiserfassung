@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange } from 
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
-import { ReactiveComponent } from '../../../common/ReactiveComponent';
+import { ReactiveComponent } from '../../../../common/ReactiveComponent';
 
-import * as P from '../../../common-models';
+import * as P from '../../../../common-models';
 
 const SHOW_FILTER = 'Filter einblenden';
 const HIDE_FILTER = 'Filter ausblenden';

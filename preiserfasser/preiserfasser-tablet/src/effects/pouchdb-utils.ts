@@ -38,7 +38,7 @@ export function dropAndSyncDatabase() {
             return Promise.resolve(new PouchDB(DB_NAME));
         })
         .then(pouch => {
-            const couch = new PouchDB('http://192.168.1.136:5986/germaine_exemple') as any;
+            const couch = new PouchDB('http://192.168.1.153:5986/germaine_exemple') as any;
             const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
 
             return login('germaine_exemple', 'secret')

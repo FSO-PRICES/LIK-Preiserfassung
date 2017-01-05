@@ -1,14 +1,15 @@
-import { Component, EventEmitter, Input, Output, SimpleChange, OnChanges, ElementRef } from '@angular/core'; // tslint:disable-line
+import { Component, EventEmitter, Input, Output, SimpleChange, OnChanges, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FormBuilder, FormGroup } from '@angular/forms'; // tslint:disable-line
+import { FormBuilder, FormGroup } from '@angular/forms';
 import * as elementResizeDetectorMaker from 'element-resize-detector';
-import { ReactiveComponent } from '../../../common/ReactiveComponent';
+import { ReactiveComponent } from '../../../../../common/ReactiveComponent';
 
+// TODO: delete;
 const erdUltraFast = elementResizeDetectorMaker({
     strategy: "scroll"
 });
 
-import * as P from '../../../common-models';
+import * as P from '../../../../../common-models';
 
 @Component({
     selector: 'product-detail-preismeldung',

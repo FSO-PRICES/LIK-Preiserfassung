@@ -1,16 +1,12 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
 
 import 'rxjs';
 
 import { reducer } from '../reducers';
 
-import { PreismeldestelleEffects } from '../effects/preismeldestelle';
-import { DatabaseEffects } from '../effects/database';
-import { ProductEffects } from '../effects/product';
-import { WindowLocationEffects } from '../effects/window-location';
+import { PEF_EFFECTS } from '../effects';
 
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
@@ -19,9 +15,10 @@ import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
-import { PriceEntryPage, PRICE_ENTRY_COMPONENTS } from '../pages/price-entry';
+import { PriceEntryModule, PriceEntryPage } from '../pages/price-entry';
 import { TestPage } from '../pages/test-page/test-page';
-import { PEF_COMPONENTS } from '../components';
+
+import { PefComponentsModule } from '../components';
 
 @NgModule({
     declarations: [
@@ -33,8 +30,6 @@ import { PEF_COMPONENTS } from '../components';
         DashboardPage,
         PmsDetailsPage,
         TestPage,
-        ...PRICE_ENTRY_COMPONENTS,
-        ...PEF_COMPONENTS
     ],
     imports: [
         IonicModule.forRoot(MyApp, {}, {
@@ -45,11 +40,10 @@ import { PEF_COMPONENTS } from '../components';
                 { component: TestPage, name: 'Test', segment: 'test-page', defaultHistory: [DashboardPage] },
             ]
         }),
+        PefComponentsModule,
+        PriceEntryModule,
         StoreModule.provideStore(reducer),
-        EffectsModule.run(PreismeldestelleEffects),
-        EffectsModule.run(DatabaseEffects),
-        EffectsModule.run(ProductEffects),
-        EffectsModule.run(WindowLocationEffects)
+        ...PEF_EFFECTS
     ],
     bootstrap: [IonicApp],
     entryComponents: [

@@ -8,17 +8,20 @@ import { environment } from '../environments/environment';
 import * as fromPreismeldestellen from './preismeldestellen';
 import * as fromAppConfig from './app-config';
 import * as fromProducts from './products';
+import * as fromTime from './time';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
     preismeldestellen: fromPreismeldestellen.State;
     products: fromProducts.State
+    time: fromTime.State
 }
 
 const reducers = {
     appConfig: fromAppConfig.reducer,
     preismeldestellen: fromPreismeldestellen.reducer,
-    products: fromProducts.reducer
+    products: fromProducts.reducer,
+    time: fromTime.reducer
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -41,3 +44,6 @@ export const getSelectedPreismeldestelle = createSelector(getPreismeldestellenSt
 
 export const getProductsState = (state: AppState) => state.products;
 export const getProducts = createSelector(getProductsState, fromProducts.getAll);
+
+export const getTimeState = (state: AppState) => state.time;
+export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTime);

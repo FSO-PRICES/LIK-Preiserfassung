@@ -81,12 +81,31 @@ dashboard {
         flex-direction: column;
         flex: 0 1 66.6%;
         @include set-margin-right(0.75);
-        @include set-padding-vert-horiz(1.5, 1);
+        @include set-padding(1.5, 1, 1, 1);
         background-color: $mercury;
+    }
+
+    .header-line {
+        display: flex;
+
+        h3 {
+            flex: 1;
+        }
+    }
+
+    .current-time {
+        align-self: flex-end;
+        font-weight: 500;
+        line-height: 1.25em;
+        margin: 0 0 1em 0;
     }
 
     .pms-search {
         @include set-margin-bottom(1.25);
+    }
+
+    .preismeldungen-scroll {
+        flex: 1;
     }
 
     .pms-scroll-container {

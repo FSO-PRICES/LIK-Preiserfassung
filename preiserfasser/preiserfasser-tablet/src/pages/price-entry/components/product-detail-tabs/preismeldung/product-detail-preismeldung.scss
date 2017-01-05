@@ -1,4 +1,4 @@
-@import "../../../theme/imports.scss";
+@import "../../../../../theme/imports.scss";
 
 product-detail-preismeldung {
     display: flex;
@@ -14,7 +14,7 @@ product-detail-preismeldung {
         @include set-padding-vert-horiz(0.5, 1);
         flex: 0 0 auto;
         color: white;
-        background-color: $teal-blue;
+        background-color: $blue-chill;
         .item-md.pef-item ion-label {
             color: white;
         }

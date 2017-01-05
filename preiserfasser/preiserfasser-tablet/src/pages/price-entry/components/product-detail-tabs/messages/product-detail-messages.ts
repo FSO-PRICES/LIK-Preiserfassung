@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import * as P from '../../../common-models';
+import * as P from '../../../../../common-models';
 
 @Component({
     selector: 'product-detail-messages',

@@ -1,12 +1,24 @@
 @import "../../theme/imports.scss";
 
-.button[icon-only] {
-    background-color: $scooter;
-    min-width: calc(2.25em + 4px);
+.button.button-md {
     &:hover:not(.disable-hover) {
         opacity: 1;
         background-color: $blue-chill;
+        &.button-clear {
+            color: $teal-blue;
+            fill: $teal-blue;
+            background-color: transparent;
+        }
     }
+    &.button-clear {
+        color: $blue-chill;
+        fill: $blue-chill;
+    }
+}
+
+.button[icon-only] {
+    background-color: $scooter;
+    min-width: calc(2.25em + 4px);
 }
 
 .button-md {

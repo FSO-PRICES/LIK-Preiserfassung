@@ -1,4 +1,4 @@
-@import "../../../theme/imports.scss";
+@import "../../../../theme/imports.scss";
 
 product-list {
     display: flex;
@@ -23,7 +23,7 @@ product-list {
         min-height: 3.5em;
         @include set-margin-bottom(0.25);
         &.selected {
-            background-color: $teal-blue;
+            background-color: $blue-chill;
             color: white;
             .product-position-number, .product-description > .name {
                 color: white;
@@ -77,6 +77,11 @@ product-list {
                 flex: 0 0 8px;
                 background-color: $bright-sun;
                 height: 3.5em;
+            }
+        }
+        &:hover:not(.selected) {
+            .product-position-number, .product-description .name, .product-description .comment {
+                color: $teal-blue;
             }
         }
     }

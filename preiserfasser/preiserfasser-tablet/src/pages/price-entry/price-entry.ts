@@ -9,7 +9,7 @@ import * as fromRoot from '../../reducers';
 
 @Component({
     selector: 'price-entry',
-    templateUrl: 'price-entry.html'
+    templateUrl: 'price-entry.html',
 })
 export class PriceEntryPage {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop);
@@ -24,8 +24,8 @@ export class PriceEntryPage {
     constructor(
         private navController: NavController,
         private navParams: NavParams,
-        private store: Store<fromRoot.AppState>)
-    {
+        private store: Store<fromRoot.AppState>
+    ) {
         this.toolbarButtonClicked$
             .filter(x => x === 'HOME')
             .subscribe(() => this.navController.pop());

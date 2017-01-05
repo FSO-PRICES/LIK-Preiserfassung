@@ -24,6 +24,7 @@
     "@ngrx/effects": "^2.0.0",
     "@ngrx/store": "^2.2.1",
     "bluebird": "^3.4.7",
+    "date-fns": "^1.22.0",
     "docuri": "^4.2.1",
     "element-resize-detector": "^1.1.10",
     "ionic-angular": "2.0.0-rc.4",
