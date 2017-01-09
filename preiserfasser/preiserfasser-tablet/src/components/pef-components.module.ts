@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { IonicModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
 
+import { PefFormatNumber } from './pef-format-number/pef-format-number';
+import { PefHighlightOnFocus } from './pef-highlight-on-focus/pef-highlight-on-focus';
 import { PefIcon } from './pef-icon/pef-icon';
 import { PefPerfectScrollbar } from './pef-perfect-scrollbar/pef-perfect-scrollbar';
 import { PefSearchInput } from './pef-search-input/pef-search-input';
@@ -12,6 +14,8 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
 @NgModule({
     imports: [CommonModule, IonicModule],
     declarations: [
+        PefFormatNumber,
+        PefHighlightOnFocus,
         PefIcon,
         PefPerfectScrollbar,
         PefSearchInput,
@@ -20,6 +24,8 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefVirtualScrollComponent
     ],
     exports: [
+        PefFormatNumber,
+        PefHighlightOnFocus,
         PefIcon,
         PefPerfectScrollbar,
         PefSearchInput,

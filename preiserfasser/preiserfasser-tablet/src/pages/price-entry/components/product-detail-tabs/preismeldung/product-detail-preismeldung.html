@@ -4,14 +4,14 @@
             <div class="product-heading">
                 {{ (product$ | async).erhebungspositionsnummer }} {{ (product$ | async).text }}
             </div>
-            <ion-item class="pef-item">
+            <ion-item class="pef-item on-dark">
                 <ion-label> Artikelnummer </ion-label>
                 <ion-input type="text"></ion-input>
             </ion-item>
             <div class="right-column"></div>
         </div>
         <div class="header-line">
-            <ion-item class="pef-item">
+            <ion-item class="pef-item on-dark">
                 <ion-label> Artikeltext * </ion-label>
                 <ion-input type="text"></ion-input>
             </ion-item>
@@ -85,14 +85,14 @@
                     <ion-list>
                         <ion-item class="pef-item">
                             <ion-label>CHF</ion-label>
-                            <ion-input type="text" value="15.0" (focus)="testFocus($event)"></ion-input>
+                            <ion-input type="number" value="15.0" pef-highlight-on-focus [pef-format-number]="{ padRight: 2, truncate: 2, integerSeparator: '' }"></ion-input>
                         </ion-item>
                         <ion-item class="pef-item">
                             <ion-label>Stk</ion-label>
-                            <ion-input type="text" value="1" (focus)="testFocus($event)"></ion-input>
+                            <ion-input type="number" value="1" pef-highlight-on-focus></ion-input>
                         </ion-item>
                     </ion-list>
-                    <ion-list radio-group>
+                    <ion-list radio-group class="sale-radio-group-list">
                         <ion-item>
                             <ion-label>Aktion</ion-label>
                             <ion-radio value="on-sale" checked></ion-radio>
@@ -102,6 +102,7 @@
                             <ion-radio value="sell-out"></ion-radio>
                         </ion-item>
                     </ion-list>
+                    <processing-code></processing-code>
                 </div>
             </div>
         </div>
@@ -112,11 +113,11 @@
                     <ion-list>
                         <ion-item class="pef-item">
                             <ion-label>CHF</ion-label>
-                            <ion-input type="number" value="15.0" (focus)="testFocus($event)"></ion-input>
+                            <ion-input type="number" value="15.0" pef-highlight-on-focus [pef-format-number]="{ padRight: 2, truncate: 2, integerSeparator: '' }"></ion-input>
                         </ion-item>
                         <ion-item class="pef-item">
                             <ion-label>Stk</ion-label>
-                            <ion-input type="number" value="1" (focus)="testFocus($event)"></ion-input>
+                            <ion-input type="number" value="1" pef-highlight-on-focus></ion-input>
                         </ion-item>
                     </ion-list>
                 </div>
@@ -139,7 +140,7 @@
             <div class="last-period"></div>
             <div class="middle-section"></div>
             <div class="current-period">
-                <button ion-button color="java">Erfassung speichern</button>
+                <button ion-button color="java" (click)="foobar()">Erfassung speichern</button>
             </div>
         </div>
     </div>

@@ -19,14 +19,18 @@ product-toolbar {
         margin: 0;
         height: auto;
         padding: 16px 0;
+        &[disabled].selected {
+            opacity: 1;
+            background-color: $surfie-green;
+        }
         &:hover:not(.disable-hover) {
             opacity: 1;
             background-color: $blue-chill;
         }
-        &[disabled].pef-tab-button {
-            opacity: 1;
-            background-color: $blue-chill;
-        }
+        // &[disabled].pef-tab-button {
+        //     opacity: 1;
+        //     background-color: $blue-chill;
+        // }
    }
 
     button[icon-only].pef-toolbar-button {

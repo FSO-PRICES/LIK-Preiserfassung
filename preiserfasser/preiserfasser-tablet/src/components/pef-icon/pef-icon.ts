@@ -6,5 +6,5 @@ import { Component, Input } from '@angular/core';
 })
 export class PefIcon {
     @Input() name: string;
-    @Input() svgCssClasses: string;
+    @Input() svgCssClasses: string = '';
 }

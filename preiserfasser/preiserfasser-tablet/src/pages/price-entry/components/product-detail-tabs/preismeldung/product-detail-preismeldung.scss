@@ -14,7 +14,7 @@ product-detail-preismeldung {
         @include set-padding-vert-horiz(0.5, 1);
         flex: 0 0 auto;
         color: white;
-        background-color: $blue-chill;
+        background-color: $surfie-green;
         .item-md.pef-item ion-label {
             color: white;
         }
@@ -49,7 +49,7 @@ product-detail-preismeldung {
          .foreground-plus {
              fill: $blue-chill;
          }
-         &:hover {
+         &:hover:not(.disable-hover) {
              .foreground-plus, .background-plus {
                  fill: white;
              }
@@ -71,7 +71,7 @@ product-detail-preismeldung {
 
     .product-detail-body {
         @include set-margin-top(0.25);
-        @include set-padding(1, 1, 1, 1);
+        @include set-padding(1, 1, 0, 1);
         background-color: $mercury;
         flex: 0 0 auto;
         display: flex;
@@ -79,6 +79,10 @@ product-detail-preismeldung {
 
         .columns {
             display: flex;
+        }
+
+        h4, h5 {
+            margin-bottom: 0.5em;
         }
     }
 
@@ -121,17 +125,22 @@ product-detail-preismeldung {
     }
 
     .last-period {
-        flex: 1;
+        flex: 0 0 calc(50% - 5em);
+        max-width: calc(50% - 5em);
+        // flex: 0 1 50%;
         display: flex;
         flex-direction: column;
     }
 
     .middle-section {
-        @include set-flex(0, 0, 10);
+        // @include set-flex(0, 0, 10);
+        flex: 0 0 10em;
     }
 
     .current-period {
-        flex: 1;
+        // flex: 0 1 50%;
+        flex: 0 0 calc(50% - 5em);
+        max-width: calc(50% - 5em);
     }
 
     .product-detail-row {
@@ -200,14 +209,14 @@ product-detail-preismeldung {
 
         .current-period {
             display: flex;
-            min-height: 20em;
 
             .data-input-area {
-                flex: 1;
+                flex: 0 0 100%;
+                max-width: 100%;
             }
 
-            ion-list[radio-group] {
-                @include set-padding-top(1);
+            .sale-radio-group-list, .code-button-list {
+                @include set-padding-top(0.5);
             }
         }
     }
@@ -243,11 +252,13 @@ product-detail-preismeldung {
     .data-input-area {
         background-color: $wild-sand;
         @include set-padding(1, 1, 1, 1);
+        // flex: 0 0 100%;
+        // max-width: 100%;
     }
 }
 
 
-@media screen and (min-height: 800px) {
+@media screen and (min-height: 801px) {
     product-detail-preismeldung {
         .product-detail-row.row-3 {
             .current-period > button {

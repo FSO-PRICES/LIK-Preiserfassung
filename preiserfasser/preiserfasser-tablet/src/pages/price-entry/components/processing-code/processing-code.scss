@@ -1,0 +1,90 @@
+@import "../../../../theme/imports.scss";
+
+processing-code {
+    .code-button {
+        font-size: 1em;
+        line-height: 1.25em;
+        height: auto;
+        width: 100%;
+        @include set-padding(0.5, 1, 0.5, 1);
+        .button-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            height: auto;
+        }
+        .description {
+            @include crop-text();
+            text-align: left;
+            flex: 0 0 100%;
+            max-width: 100%;
+            font-weight: 500;
+            color: $blue-chill;
+        }
+        .code-name {
+            @include crop-text();
+            text-align: left;
+            flex: 0 0 100%;
+            max-width: 100%;
+            font-weight: 400;
+            color: $trout;
+        }
+        &:hover:not(.disable-hover), &.toggled-on {
+            .description, .code-name {
+                color: white;
+            }
+        }
+    }
+
+    .processing-code-flyout {
+        box-shadow: $whiteframe-shadow-2dp;
+        z-index: 100;
+        // display: flex;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        min-width: 150%;
+        flex-direction: column;
+        background-color: white;
+        @include set-padding(0.25, 1, 0.25, 1);
+        transition: opacity 0.3s ease;
+        opacity: 1;
+        visibility: hidden;
+        &.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+    ion-item.processing-code-option {
+        padding: 0;
+        &:not(:last-of-type) .item-inner {
+            border-bottom: 2px solid $alto;
+        }
+        &:hover {
+            background-color: $foam;
+        }
+        ion-label {
+            font-size: 1em;
+            margin: 0;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            line-height: 2.25em;
+            overflow: hidden;
+        }
+        .icon {
+            @include set-flex(0, 0, 2.5);
+        }
+        .description {
+            @include crop-text();
+            @include set-padding-right(1);
+            @include set-flex(1, 0, 18);
+            color: $blue-chill;
+            font-weight: 500;
+        }
+        .code-name {
+            @include crop-text();
+            @include set-flex(0, 0, 7);
+        }
+    }
+}

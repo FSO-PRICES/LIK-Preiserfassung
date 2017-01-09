@@ -18,6 +18,12 @@
     }
 }
 
+@mixin crop-text() {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 @mixin set-height($height) {
     height: calc(#{$height} * 16px);
     @media screen and (max-width: 1280px) {

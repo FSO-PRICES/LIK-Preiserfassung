@@ -1,11 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import * as P from '../../../../common-models';
 
 @Component({
     selector: 'product-toolbar',
-    templateUrl: 'product-toolbar.html'
+    templateUrl: 'product-toolbar.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductToolbarComponent {
     @Input() product: P.Product;
@@ -16,6 +17,17 @@ export class ProductToolbarComponent {
 
     constructor() {
         this.selectedTab$ = this.selectTab$
-            .startWith('PREISMELDUNG');
+            .startWith('PREISMELDUNG')
+            .publishReplay(1).refCount();
+    }
+
+    isSelected$(tabName: string) {
+        console.log('calling isSelected$', tabName)
+        return this.selectedTab$.map(x => x === tabName);
+    }
+
+    isDisabled$(tabName: string) {
+        console.log('calling isDisabled$', tabName)
+        return this.selectedTab$.map(x => x === tabName);
     }
 }

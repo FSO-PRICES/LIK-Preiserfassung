@@ -2,9 +2,6 @@ import { Directive, OnChanges, AfterViewInit, ElementRef, Input, SimpleChange } 
 import * as Ps from 'perfect-scrollbar';
 import { ReactiveComponent } from '../../common/ReactiveComponent';
 
-
-// import '../../../node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.css';
-
 @Directive({
     selector: '[pef-perfect-scrollbar]',
 })

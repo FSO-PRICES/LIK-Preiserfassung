@@ -23,7 +23,7 @@ product-list {
         min-height: 3.5em;
         @include set-margin-bottom(0.25);
         &.selected {
-            background-color: $blue-chill;
+            background-color: $surfie-green;
             color: white;
             .product-position-number, .product-description > .name {
                 color: white;
@@ -81,7 +81,7 @@ product-list {
         }
         &:hover:not(.selected) {
             .product-position-number, .product-description .name, .product-description .comment {
-                color: $teal-blue;
+                color: $blue-chill;
             }
         }
     }

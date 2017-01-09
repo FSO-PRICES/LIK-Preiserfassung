@@ -5,8 +5,8 @@
         opacity: 1;
         background-color: $blue-chill;
         &.button-clear {
-            color: $teal-blue;
-            fill: $teal-blue;
+            color: $surfie-green;
+            fill: $surfie-green;
             background-color: transparent;
         }
     }
@@ -16,8 +16,18 @@
     }
 }
 
+.button-md-mercury {
+    background-color: $mercury;
+    color: $blue-chill;
+    fill: $blue-chill;
+    &:hover:not(.disable-hover) {
+        background-color: $blue-chill;
+        color: white;
+        fill: white;
+    }
+}
+
 .button[icon-only] {
-    background-color: $scooter;
     min-width: calc(2.25em + 4px);
 }
 
@@ -41,3 +51,4 @@
 .button-clear-md:hover:not(.disable-hover) {
     background-color: initial;
 }
+

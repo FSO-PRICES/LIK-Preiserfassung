@@ -1,0 +1,17 @@
+<div style="position: relative;">
+    <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)">
+        <div class="description">{{ (selectedProcessingCode$ | async).description }}</div>
+        <div class="code-name">{{ (selectedProcessingCode$ | async).codeName }}</div>
+    </button>
+    <div class="processing-code-flyout" [class.visible]="buttonOn$ | async" [style.marginBottom]="marginBottom$ | async">
+        <ion-list>
+            <ion-item tappable class="processing-code-option" *ngFor="let processingCode of processingCodes" (click)="selectProcessingCode$.emit({event: $event, processingCode: processingCode})">
+                <div class="icon">
+                    <pef-icon [name]="processingCode.iconName"></pef-icon>
+                </div>
+                <div class="description">{{ processingCode.description }}</div>
+                <div class="code-name">{{ processingCode.codeName }}</div>
+            </ion-item>
+        </ion-list>
+    </div>
+</div>

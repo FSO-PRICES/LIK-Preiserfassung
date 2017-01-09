@@ -1,3 +1,12 @@
+@import "../../theme/imports.scss";
+
 button[pef-toggle-button] {
-    background-color: red;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    &.toggled-on {
+        color: white;
+        fill: white;
+        background-color: $surfie-green;
+    }
 }
