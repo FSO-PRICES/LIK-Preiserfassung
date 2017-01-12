@@ -8,12 +8,13 @@ import { PriceEntryPage } from './price-entry';
 import { ProcessingCodeComponent } from './components/processing-code/processing-code';
 import { ProductListComponent } from './components/product-list/product-list';
 import { ProductDetailMessagesComponent } from './components/product-detail-tabs/messages';
-import { ProductDetailPreismeldungComponent } from './components/product-detail-tabs/preismeldung';
+import { ProductDetailPreismeldungComponent, DialogCancelEditComponent } from './components/product-detail-tabs/preismeldung';
 import { ProductToolbarComponent } from './components/product-toolbar/product-toolbar';
 
 @NgModule({
     imports: [CommonModule, IonicModule, PefComponentsModule],
     declarations: [
+        DialogCancelEditComponent,
         ProcessingCodeComponent,
         ProductDetailMessagesComponent,
         ProductDetailPreismeldungComponent,
@@ -21,7 +22,10 @@ import { ProductToolbarComponent } from './components/product-toolbar/product-to
         ProductListComponent,
         ProductToolbarComponent
     ],
-    exports: [PriceEntryPage]
+    entryComponents: [
+        DialogCancelEditComponent
+    ],
+    exports: [PriceEntryPage, DialogCancelEditComponent]
 })
 export class PriceEntryModule {
 }

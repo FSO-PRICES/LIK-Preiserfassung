@@ -1,0 +1,41 @@
+@import "../../theme/imports.scss";
+
+.pef-dialog {
+    display: flex;
+    flex-direction: column;
+    @include set-padding(1, 2, 1, 1)
+}
+
+.pef-dialog-message {
+    width: calc(#{$pef-app-max-width} / 3);
+    h3 {
+        display: flex;
+        align-items: flex-end;
+        line-height: 1.5em;
+        pef-icon {
+            margin-right: 1em;
+        }
+    }
+    p {
+        padding-left: calc(1em + 32px);
+    }
+}
+
+.pef-dialog-button-row {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1em;
+    padding-left: calc(1em + 32px);
+    button:first-of-type {
+        margin-left: 0;
+    }
+    button:last-of-type {
+        margin-right: 0;
+    }
+}
+
+@media screen and (max-width: $pef-app-max-width) {
+    .pef-dialog-message {
+        width: 50vw;
+    }
+}

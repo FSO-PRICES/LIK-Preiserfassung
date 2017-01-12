@@ -1,4 +1,7 @@
-<div *ngIf="!!(product$ | async)">
+<!--<pef-dialog-wrapper [visible]="showSaveWarning$ | async">
+    <div style="height: 200px; width: 200px; background-color: red;"></div>
+</pef-dialog-wrapper>-->
+<form [formGroup]="form" *ngIf="!!(product$ | async)">
     <div class="header">
         <div class="header-line">
             <div class="product-heading">
@@ -41,13 +44,13 @@
         <div class="columns product-detail-row row-2">
             <div class="last-period">
                 <div class="data-input-area">
-                    <h6>Normal Preis &mdash; Alter Artikel</h6>
+                    <h6>Normal Preis &ndash; Alter Artikel</h6>
                     <div class="last-period-price">
-                        <div class="number">10.00</div>
+                        <div class="number">{{ (product$ | async).preisT | pefFormatNumber: numberFormattingOptions }}</div>
                         <div class="unit">CHF</div>
                     </div>
                     <div class="last-period-quantity">
-                        <div class="number">1</div>
+                        <div class="number">{{ (product$ | async).mengeT }}</div>
                         <div class="unit">Stk</div>
                     </div>
                     <div class="last-period-bottom-row">
@@ -64,18 +67,16 @@
                         <div class="code">R1</div>
                     </div>
                 </div>
-                <div class="box-container">
+                <div class="box-container" *ngIf="showChainedReplacementFields$ | async">
                     <div class="box">
-                        50%
+                        &mdash;
                     </div>
                     <div class="arrow down"></div>
                 </div>
             </div>
             <div class="middle-section">
                 <div class="box-container">
-                    <div class="box">
-                        10%
-                    </div>
+                    <div class="box" [innerHTML]="(percentageValues$ | async).lastPeriodToThisPeriod"></div>
                     <div class="arrow right"></div>
                 </div>
             </div>
@@ -85,11 +86,22 @@
                     <ion-list>
                         <ion-item class="pef-item">
                             <ion-label>CHF</ion-label>
-                            <ion-input type="number" value="15.0" pef-highlight-on-focus [pef-format-number]="{ padRight: 2, truncate: 2, integerSeparator: '' }"></ion-input>
+                            <ion-input
+                                type="number"
+                                min="0.05" step="0.05"
+                                pef-highlight-on-focus
+                                [pef-format-number]="numberFormattingOptions"
+                                (blur)="formValueChanged$.emit()"
+                                formControlName="currentPeriodPrice"></ion-input>
                         </ion-item>
                         <ion-item class="pef-item">
                             <ion-label>Stk</ion-label>
-                            <ion-input type="number" value="1" pef-highlight-on-focus></ion-input>
+                            <ion-input
+                                type="number"
+                                step="any"
+                                formControlName="currentPeriodQuantity"
+                                (blur)="formValueChanged$.emit()"
+                                pef-highlight-on-focus></ion-input>
                         </ion-item>
                     </ion-list>
                     <ion-list radio-group class="sale-radio-group-list">
@@ -102,49 +114,49 @@
                             <ion-radio value="sell-out"></ion-radio>
                         </ion-item>
                     </ion-list>
-                    <processing-code></processing-code>
+                    <processing-code (selectedProcessingCode)="selectedProcessingCode$.emit($event)"></processing-code>
                 </div>
             </div>
         </div>
         <div class="columns product-detail-row row-3">
             <div class="last-period">
-                <div class="data-input-area">
-                    <h6>Normal Preis &mdash; Neuer Artikel</h6>
+                <div class="data-input-area" *ngIf="showChainedReplacementFields$ | async">
+                    <h6>Normal Preis &ndash; Neuer Artikel</h6>
                     <ion-list>
                         <ion-item class="pef-item">
                             <ion-label>CHF</ion-label>
-                            <ion-input type="number" value="15.0" pef-highlight-on-focus [pef-format-number]="{ padRight: 2, truncate: 2, integerSeparator: '' }"></ion-input>
+                            <ion-input type="number" min="0.05" step="0.05" pef-highlight-on-focus [pef-format-number]="numberFormattingOptions"></ion-input>
                         </ion-item>
                         <ion-item class="pef-item">
                             <ion-label>Stk</ion-label>
-                            <ion-input type="number" value="1" pef-highlight-on-focus></ion-input>
+                            <ion-input type="number" step="any" pef-highlight-on-focus></ion-input>
                         </ion-item>
                     </ion-list>
                 </div>
             </div>
             <div class="middle-section">
                 <div class="middle-section-container-wrapper">
-                    <div class="box-container">
+                    <div class="box-container" *ngIf="showChainedReplacementFields$ | async">
                         <div class="arrow up-right"></div>
                         <div class="box">
-                            10%
+                            &mdash;
                         </div>
                     </div>
                 </div>
             </div>
             <div class="current-period">
-                <button ion-button color="java">Erfassung speichern</button>
+                <button ion-button color="java" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="save$.emit($event)">Erfassung speichern</button>
             </div>
         </div>
         <div class="columns product-detail-row row-4">
             <div class="last-period"></div>
             <div class="middle-section"></div>
             <div class="current-period">
-                <button ion-button color="java" (click)="foobar()">Erfassung speichern</button>
+                <button ion-button color="java" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="save$.emit($event)">Erfassung speichern</button>
             </div>
         </div>
     </div>
-</div>
+</form>
 <div class="message" *ngIf="!(product$ | async)">
     No product selected.
 </div>

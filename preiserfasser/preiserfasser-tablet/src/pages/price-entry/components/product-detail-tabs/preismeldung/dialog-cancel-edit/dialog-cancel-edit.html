@@ -1,0 +1,13 @@
+<div class="pef-dialog-message">
+    <h3>
+        <pef-icon name="warning"></pef-icon>
+        An der aktuellen Preismeldung wurde Daten geändert!
+    </h3>
+    <p> Auf «Weiter bearbeiten» klicken um bei dieser Preismeldung zu bleiben <br> (Dateineingabe bleibt bestehen). </p>
+    <p> Auf «Änderungen verwerfen» klicken um diese Preismeldung zu verlassen <br> (Dateneingabe geht verloren). </p>
+</div>
+
+<div class="pef-dialog-button-row">
+    <button ion-button (click)="viewCtrl.dismiss('DIALOG_CANCEL')" color="primary">Weiter bearbeiten</button>
+    <button ion-button (click)="viewCtrl.dismiss('DIALOG_OK')" color="secondary">Änderungen verwerfen</button>
+</div>

@@ -44,6 +44,10 @@ export interface ProductProperties {
     produktMerkmal3: string;
     produktMerkmal4: string;
     produktMerkmal5: string;
+
+    // new period properties
+    currentPrice: number;
+    currentQuantity: number;
 }
 
 export interface CouchProperties {

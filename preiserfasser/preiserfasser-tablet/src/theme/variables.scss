@@ -3,6 +3,7 @@
 // http://ionicframework.com/docs/v2/theming/overriding-ionic-variables/
 
 @import "ionic.globals";
+@import "./shadows.scss";
 
 
 // Shared Variables
@@ -11,6 +12,8 @@
 // the Sass variables found in Ionic's source scss files.
 // To view all the possible Ionic variables, see:
 // http://ionicframework.com/docs/v2/theming/overriding-ionic-variables/
+
+$pef-app-max-width: 1920px;
 
 // grey
 $wild-sand: #f5f5f5;
@@ -52,7 +55,6 @@ $text-color:        $black;
 $background-color:  $white;
 
 $font-size-base: 1.6rem;
-$toolbar-md-title-font-size: 1em;
 
 // Named Color Variables
 // --------------------------------------------------
@@ -63,8 +65,8 @@ $toolbar-md-title-font-size: 1em;
 // The "primary" color is the only required color in the map.
 
 $colors: (
-  primary: $blue-chill,
-  secondary: $trout,
+  primary: $java,
+  secondary: $scooter,
 
   mercury: $mercury,
   foam: $foam,
@@ -99,6 +101,9 @@ $text-input-md-show-invalid-highlight: false;
 
 $radio-md-disabled-opacity: 1;
 
+$popover-md-box-shadow: $whiteframe-shadow-2dp;
+
+$toolbar-md-title-font-size: 1em;
 
 // App Windows Variables
 // --------------------------------------------------
