@@ -1,0 +1,42 @@
+@import "../../theme/imports.scss";
+
+pms-price-entry.ion-page {
+    .pms-price-entry-content {
+        height: 100%;
+        width: 100%;
+        display: flex;
+    }
+
+    preismeldung-toolbar {
+        flex: 0 0 5.25em;
+        max-width: 5.25em;
+        // order: 1; // TODO: implement left + right handed
+    }
+
+    .work-area {
+        flex: 1;
+        display: flex;
+        background-color: $alto;
+        @include set-padding-vert-horiz(1, 1.5);
+    }
+
+    .preismeldung-details-container {
+        flex: 0 1 66.6%;
+        display: flex;
+        @include set-padding-right(0.75);
+
+        .content-md {
+            background-color: $mercury;
+        }
+    }
+
+    .preismeldung-list-container {
+        flex: 0 1 33.3%;
+        display: flex;
+        @include set-padding-left(0.75);
+    }
+
+    preismeldung-list {
+        flex: 1;
+    }
+}

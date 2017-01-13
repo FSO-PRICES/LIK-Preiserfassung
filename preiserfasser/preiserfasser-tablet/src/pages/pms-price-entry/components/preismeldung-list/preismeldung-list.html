@@ -1,0 +1,25 @@
+<div class="preismeldung-list-scroll-container">
+    <pef-virtual-scroll [items]="filteredPreismeldungen$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="isDesktop">
+        <ion-item
+            class="preismeldung-item"
+            *ngFor="let preismeldung of viewPortItems"
+            (click)="selectPreismeldung.emit(preismeldung)"
+            [class.selected]="preismeldung == (selectedPreismeldung | async)"
+            tappable>
+            <div class="preismeldung-position-number">
+                {{ preismeldung.erhebungspositionsnummer }}<br/>&nbsp;
+            </div>
+            <div class="preismeldung-description">
+                <span class="text">{{ preismeldung.text }}</span>
+                <span class="artikel-text" [innerHTML]="preismeldung.artikelText || '&ndash;'"></span>
+            </div>
+            <div class="preismeldung-status" *ngIf="!preismeldung.isSaved">
+                <pef-icon name="alarmclock_normal" svgCssClasses="green"></pef-icon>
+                <div class="status-bar"></div>
+            </div>
+            <div class="preismeldung-status" *ngIf="preismeldung.isSaved">
+                <div class="percentage">{{ formatPercentageChange(preismeldung.percentageLastPeriodToCurrentPeriod) }}</div>
+            </div>
+        </ion-item>
+    </pef-virtual-scroll>
+</div>

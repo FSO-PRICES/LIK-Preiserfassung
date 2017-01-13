@@ -2,6 +2,7 @@ import { Store } from '@ngrx/store';
 import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { StatusBar, Splashscreen, ScreenOrientation } from 'ionic-native';
+import { TranslateService } from 'ng2-translate';
 
 import { AppState } from '../reducers';
 
@@ -19,7 +20,10 @@ export class MyApp {
     rootPage = DashboardPage;
     isDesktop = false;
 
-    constructor(platform: Platform, private store: Store<AppState>) {
+    constructor(platform: Platform, private store: Store<AppState>, translate: TranslateService) {
+        translate.setDefaultLang('de');
+        translate.use('de');
+
         platform.ready().then(() => {
             // StatusBar.styleDefault();
             // StatusBar.backgroundColorByHexString('#ffffff');

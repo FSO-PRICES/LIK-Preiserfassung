@@ -19,7 +19,7 @@ export interface ErheberProperties {
     email: string;
 }
 
-export interface ProductProperties {
+export interface PreismeldungProperties {
     pmsKey: string;
     erhebungspositionsnummer: string;
     laufnummer: string;
@@ -45,9 +45,14 @@ export interface ProductProperties {
     produktMerkmal4: string;
     produktMerkmal5: string;
 
-    // new period properties
-    currentPrice: number;
-    currentQuantity: number;
+    artikelText: string;
+
+    currentPeriodPrice: number;
+    currentPeriodQuantity: number;
+    currentPeriodIsAktion: boolean;
+    currentPeriodIsAusverkauf: boolean;
+    currentPeriodProcessingCode: string;
+    percentageLastPeriodToCurrentPeriod: number;
 }
 
 export interface CouchProperties {
@@ -57,15 +62,15 @@ export interface CouchProperties {
 
 export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
 export type Erheber = ErheberProperties & CouchProperties;
-export type Product = ProductProperties & CouchProperties;
+export type Preismeldung = PreismeldungProperties & CouchProperties;
 
 export const pmsUriRoute = 'preismeldestelle/:pmsKey';
 export interface PmsUri {
     pmsKey: string;
 }
 
-export const productUriRoute = 'pms-product/:pmsKey/position/:positionNumber/sequence/:sequenceNumber';
-export interface ProductUri {
+export const preismeldungUriRoute = 'preismeldung/:pmsKey/position/:positionNumber/sequence/:sequenceNumber';
+export interface PreismeldungUri {
     pmsKey: string;
     positionNumber: string;
     sequenceNumber: string;

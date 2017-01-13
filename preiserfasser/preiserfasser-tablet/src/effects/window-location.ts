@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import * as docuri from 'docuri';
 
-import { ProductUri, productUriRoute } from '../common-models';
+import { PreismeldungUri, preismeldungUriRoute } from '../common-models';
 
-const productUri = docuri.route(productUriRoute);
+const preismeldungUri = docuri.route(preismeldungUriRoute);
 
 @Injectable()
 export class WindowLocationEffects {
@@ -12,11 +12,11 @@ export class WindowLocationEffects {
     }
 
     @Effect()
-    selectProductNoFurtherAction$ = this.actions$
-        .ofType('SELECT_PRODUCT')
+    selectPreismeldungNoFurtherAction$ = this.actions$
+        .ofType('SELECT_PREISMELDUNG')
         .do(x => {
-            const product = <ProductUri>productUri(x.payload);
+            // const product = <PreismeldungUri>preismeldungUri(x.payload);
             // window.history.replaceState(null, null, `#/price-entry/${product.pmsKey}?position-number=${product.positionNumber}&sequence-number=${product.sequenceNumber}`);
         })
-        .mapTo({});
+        .mapTo({ type: 'SELECT_PREISMELDUNG_NO_FURTHER_ACTION', payload: null });
 }

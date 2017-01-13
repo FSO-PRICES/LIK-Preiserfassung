@@ -7,20 +7,20 @@ import { storeLogger } from "ngrx-store-logger";
 import { environment } from '../environments/environment';
 import * as fromPreismeldestellen from './preismeldestellen';
 import * as fromAppConfig from './app-config';
-import * as fromProducts from './products';
+import * as fromPreismeldungen from './preismeldungen';
 import * as fromTime from './time';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
     preismeldestellen: fromPreismeldestellen.State;
-    products: fromProducts.State
+    preismeldungen: fromPreismeldungen.State
     time: fromTime.State
 }
 
 const reducers = {
     appConfig: fromAppConfig.reducer,
     preismeldestellen: fromPreismeldestellen.reducer,
-    products: fromProducts.reducer,
+    preismeldungen: fromPreismeldungen.reducer,
     time: fromTime.reducer
 };
 
@@ -42,8 +42,9 @@ export const getPreismeldestellenState = (state: AppState) => state.preismeldest
 export const getPreismeldestellen = createSelector(getPreismeldestellenState, fromPreismeldestellen.getAll);
 export const getSelectedPreismeldestelle = createSelector(getPreismeldestellenState, fromPreismeldestellen.getSelected);
 
-export const getProductsState = (state: AppState) => state.products;
-export const getProducts = createSelector(getProductsState, fromProducts.getAll);
+export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
+export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);
+export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
 
 export const getTimeState = (state: AppState) => state.time;
 export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTime);

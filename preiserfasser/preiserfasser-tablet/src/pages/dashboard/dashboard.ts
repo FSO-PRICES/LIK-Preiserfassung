@@ -9,7 +9,7 @@ import * as frLocale from 'date-fns/locale/fr';
 import * as fromRoot from '../../reducers';
 import { Preismeldestelle } from '../../common-models';
 import { PmsDetailsPage } from '../pms-details/pms-details';
-import { PriceEntryPage } from '../price-entry/price-entry';
+import { PmsPriceEntryPage } from '../pms-price-entry';
 import { TestPage } from '../test-page/test-page';
 
 @Component({
@@ -41,6 +41,6 @@ export class DashboardPage {
     }
 
     navigateToPriceEntry(preismeldestelle: Preismeldestelle) {
-        this.navCtrl.push(PriceEntryPage, { pmsKey: preismeldestelle.pmsKey });
+        this.navCtrl.push(PmsPriceEntryPage, { pmsKey: preismeldestelle.pmsKey });
     }
 }

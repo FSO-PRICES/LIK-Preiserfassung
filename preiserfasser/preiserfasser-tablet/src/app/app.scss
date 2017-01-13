@@ -96,6 +96,14 @@ ion-content.content-md {
     font-size: 1.2rem;
 }
 
+form.form-show-validation-hints {
+    .item-md.pef-item.ng-invalid {
+        ion-input, ion-textarea {
+            border-bottom-color: $alizarin-crimson;
+        }
+    }
+}
+
 .item-md.pef-item {
     padding-left: 0;
     background-color: transparent;

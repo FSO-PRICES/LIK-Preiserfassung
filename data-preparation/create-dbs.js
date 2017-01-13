@@ -3,10 +3,11 @@ var request = require('request-promise');
 var _ = require('lodash');
 var docuri = require('docuri');
 var promisified_1 = require('./promisified');
+var models_1 = require('../common/models');
 var _a = process.argv, username = _a[2], password = _a[3];
 var baseUrl = "http://" + username + ":" + password + "@localhost:5986";
-var pmsUri = docuri.route('preismeldestelle/:pmsKey');
-var productUri = docuri.route('pms-product/:pmsKey/position/:positionNumber/sequence/:sequenceNumber');
+var pmsUri = docuri.route(models_1.pmsUriRoute);
+var preismeldungUri = docuri.route(models_1.preismeldungUriRoute);
 var filenameRegex = /erheber__(.*?)\.json/;
 promisified_1.readFile('./warenkorb/flat.json')
     .then(function (x) { return JSON.parse(x.toString()); })
@@ -30,7 +31,7 @@ promisified_1.readFile('./warenkorb/flat.json')
             var data = JSON.parse(buffer.toString());
             var erheber = _.assign({}, data.erheber, { _id: 'erheber' });
             var preismeldestellen = data.preismeldestellen.map(function (x) { return (_.assign({}, x, { _id: pmsUri({ pmsKey: x.pmsKey }) })); });
-            var products = data.products.map(function (x) { return _.assign(x, { _id: productUri({ pmsKey: x.pmsKey, positionNumber: x.erhebungspositionsnummer, sequenceNumber: x.laufnummer }) }); });
+            var products = data.preismeldungen.map(function (x) { return _.assign(x, { _id: preismeldungUri({ pmsKey: x.pmsKey, positionNumber: x.erhebungspositionsnummer, sequenceNumber: x.laufnummer }) }); });
             var warenkorb = {
                 _id: 'warenkorb',
                 products: x.warenkorbProducts

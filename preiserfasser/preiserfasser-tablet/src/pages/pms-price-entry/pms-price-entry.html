@@ -1,0 +1,27 @@
+<div class="pms-price-entry-content">
+    <preismeldung-toolbar
+        [preismeldung]="currentPreismeldung$ | async"
+        (selectedTab)="selectTab$.emit($event)"
+        (buttonClicked)="toolbarButtonClicked$.emit($event)"
+        ></preismeldung-toolbar>
+    <div class="work-area">
+        <div class="preismeldung-details-container">
+            <ion-content>
+                <preismeldung-detail-messages
+                    *ngIf="(selectedTab$ | async) == 'MESSAGES'"
+                    [preismeldung]="currentPreismeldung$ | async"></preismeldung-detail-messages>
+                <preismeldung-detail-price
+                    *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'"
+                    [preismeldung]="currentPreismeldung$ | async"
+                    (preismeldungPricePayload)="store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload: $event })"
+                    (save)="store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload: null })"></preismeldung-detail-price>
+            </ion-content>
+        </div>
+        <div class="preismeldung-list-container">
+            <preismeldung-list
+                [preismeldungen]="preismeldungen$ | async"
+                (selectedPreismeldung)="selectPreismeldung$.emit($event)"
+                [isDesktop]="isDesktop$ | async"></preismeldung-list>
+        </div>
+    </div>
+</div>

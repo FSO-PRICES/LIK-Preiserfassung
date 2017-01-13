@@ -1,5 +1,4 @@
-import { Directive, ElementRef, Input } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Directive, Input } from '@angular/core';
 
 @Directive({
     selector: '[pef-toggle-button]',

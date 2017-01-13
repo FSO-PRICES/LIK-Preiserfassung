@@ -2,7 +2,7 @@ import { EffectsModule } from '@ngrx/effects';
 
 import { PreismeldestelleEffects } from './preismeldestelle';
 import { DatabaseEffects } from './database';
-import { ProductEffects } from './product';
+import { PreismeldungenEffects } from './preismeldungen';
 import { WindowLocationEffects } from './window-location';
 import { TimeEffects } from './time';
 
@@ -10,7 +10,7 @@ import { TimeEffects } from './time';
 export const PEF_EFFECTS = [
     EffectsModule.run(PreismeldestelleEffects),
     EffectsModule.run(DatabaseEffects),
-    EffectsModule.run(ProductEffects),
+    EffectsModule.run(PreismeldungenEffects),
     EffectsModule.run(WindowLocationEffects),
     EffectsModule.run(TimeEffects)
 ];

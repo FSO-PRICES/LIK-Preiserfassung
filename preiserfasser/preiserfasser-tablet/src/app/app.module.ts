@@ -1,7 +1,8 @@
 import { NgModule, ErrorHandler } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { HttpModule, Http } from '@angular/http';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StoreModule } from '@ngrx/store';
+import { TranslateModule, TranslateLoader, TranslateStaticLoader } from 'ng2-translate';
 
 import 'rxjs';
 
@@ -16,10 +17,14 @@ import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
-import { PriceEntryModule, PriceEntryPage } from '../pages/price-entry';
+import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 import { TestPage } from '../pages/test-page/test-page';
 
 import { PefComponentsModule } from '../components';
+
+export function createTranslateLoader(http: Http) {
+    return new TranslateStaticLoader(http, './assets/i18n', '.json');
+}
 
 @NgModule({
     declarations: [
@@ -37,14 +42,20 @@ import { PefComponentsModule } from '../components';
             links: [
                 { component: DashboardPage, name: 'Dashboard', segment: 'home' },
                 { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsKey', defaultHistory: [DashboardPage] },
-                { component: PriceEntryPage, name: 'PriceEntry', segment: 'price-entry/:pmsKey', defaultHistory: [DashboardPage] },
+                { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsKey', defaultHistory: [DashboardPage] },
                 { component: TestPage, name: 'Test', segment: 'test-page', defaultHistory: [DashboardPage] },
             ]
         }),
         PefComponentsModule,
-        PriceEntryModule,
+        PmsPriceEntryModule,
         StoreModule.provideStore(reducer),
-        ...PEF_EFFECTS
+        ...PEF_EFFECTS,
+        HttpModule,
+        TranslateModule.forRoot({
+            provide: TranslateLoader,
+            useFactory: (createTranslateLoader),
+            deps: [Http]
+        })
     ],
     bootstrap: [IonicApp],
     entryComponents: [
@@ -54,7 +65,7 @@ import { PefComponentsModule } from '../components';
         HomePage,
         TabsPage,
         DashboardPage,
-        PriceEntryPage,
+        PmsPriceEntryPage,
         PmsDetailsPage,
         TestPage
     ],
@@ -63,5 +74,3 @@ import { PefComponentsModule } from '../components';
     ]
 })
 export class AppModule { }
-
-
