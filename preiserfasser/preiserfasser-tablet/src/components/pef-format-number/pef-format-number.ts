@@ -8,13 +8,10 @@ import { isString, isObject } from 'lodash';
 export class PefFormatNumber implements OnInit {
     @Input('pef-format-number') formatOptions: string | Object;
 
-    private el: HTMLInputElement;
-
     constructor(private elementRef: ElementRef) {
     }
 
     ngOnInit() {
-        this.el = this.elementRef.nativeElement.getElementsByTagName('input')[0];
         setTimeout(() => this.formatElValue())
     }
 
@@ -31,11 +28,17 @@ export class PefFormatNumber implements OnInit {
 
     @HostListener('ngModelChange', ['$event'])
     onChange(e) {
-        if (this.el !== document.activeElement) setTimeout(() => this.formatElValue());
+        const el = this.getInputElement();
+        if (el !== document.activeElement) setTimeout(() => this.formatElValue());
+    }
+
+    getInputElement() {
+        return this.elementRef.nativeElement.getElementsByTagName('input')[0];
     }
 
     formatElValue() {
-        this.el.value = format(this._formatOptions)(this.el.valueAsNumber);
+        const el = this.getInputElement();
+        el.value = format(this._formatOptions)(el.valueAsNumber);
     }
 
     get _formatOptions(): Object {
