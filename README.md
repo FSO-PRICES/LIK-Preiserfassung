@@ -1,6 +1,63 @@
 # lik-studio
 lik-studio
 
+## Install (Ubuntu 16.04)
+
+Passwords and user information are saved in the KeePass **LIK-BFS** group.
+
+* NodeJs:
+  1. any-user> curl -sL https://deb.nodesource.com/setup\_6.x -o nodesource_setup.sh
+  2. root> bash nodesource_setup.sh
+  3. root> apt-get install nodejs
+  4. root> apt-get install build-essential
+
+* CouchDb
+  1. root> apt-get update
+  2. root> apt-get upgrade
+  3. root> apt-get install software-properties-common # Probably already installed
+  4. root> apt-get update
+  5. root> apt-get install couchdb
+  6. root> chown -R couchdb:couchdb /usr/bin/couchdb /etc/couchdb /usr/share/couchdb
+  7. root> chmod -R 0770 /usr/bin/couchdb /etc/couchdb /usr/share/couchdb
+  8. root> systemctl restart couchdb
+
+* NPM http-server
+  1. root> npm install -g http-server
+  2. root> mkdir /srv/www
+  3. root> adduser npm-http-server
+  4. root> chown -R npm-http-server:npm-http-server /srv/www
+  5. root> chmod 755 /srv/www
+  6. [optional] root> iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080 # To use the default port.
+  7. Add [http-server service](install/lik-http.service) to `/etc/systemd/system/lik-http.service`
+  8. root> systemctl enable lik-http.service
+  9. root> systemctl start lik-http.service
+  10. root> systemctl status lik-http.service
+
+After everything has been installed and configured:
+  1. Secure the couchdb admin interface **futon** `http://13.94.141.213:5984/_utils/index.html` using the `Fix this` link on the bottom right.
+
+## Access
+
+* http-server: http://13.94.141.213
+* Couchdb: http://13.94.141.213:5984/_utils/index.html
+
+## Management
+
+* Enable service (unmask seems not to work):
+  ```
+  systemctl enable lik-http.service
+  systemctl start lik-http.service
+  ```
+* Disable service (mask seems not to work):
+  ```
+  systemctl stop lik-http.service
+  systemctl disable lik-http.service
+  ```
+
+* Logging
+  - http-server: root> journalctl -f -u lik-http.service
+  - couchdb: root> journalctl -f -u couchdb.service
+
 ## Datenanalyse
 
 * **Es gibt ein Feld bei den Preismeldungen, welche nicht in das System von Presta exportiert wird: Ein Feld welches angibt wer eine Preismeldung verifiziert hat.**
@@ -16,6 +73,9 @@ lik-studio
 * PE: Preiserheber
 * PMS: Preismeldestelle
 * PM: Preismeldung
+* PAG: PreisAbweichungsGruppen
+* TD: Tablet-Device
+* HF: Help files (Die PDF zur Unterstützung der PEs)
 
 ## Notizen / Fragen / Referenzen
 
@@ -55,3 +115,68 @@ verrichten (hoch spezialisierter und sehr seltener Fall).
 * Preismeldung Datenstruktur und Erklärung: Seite 128 in `BDA_LIK-Studio_Version_BFS.pdf`
 * Testfälle/Daten welche man übernehmen könnte fürs Testing: Abschnitt 4.4.3 Seite 164 in `BDA_LIK-Studio_Version_BFS.pdf`
 * User Stories Abschnitt 3.4 Seite 71-82 in `BDA_LIK-Studio_Version_BFS.pdf`
+
+
+## Backend Funktionsübersicht
+
+* Beim Löschen von referenzierten Einträgen wird eine Fehlermeldung angezeigt und erklärt dass der Eintrag verwendet wird.
+
+### PM
+
+* Auflistung mit fortgeschrittenem Filter.
+  * Export & Sortierung, Paging
+* Archivieren
+* Archiv herunterladen (Jahr/Monat Schlüssel)
+
+### PE
+
+* Auflistung mit suchfeld.
+  * Erstellen, Export & Sortierung, Paging
+* Aktionen in der Liste für jeden PE
+  * Ansicht, Editieren, Löschen
+  * Arbeitszustellung editieren
+
+**PE zu PMS Zuweisung** (über PE Auflistung erreichbar)
+
+* Auflistung mit suchfeld.
+  * Erstellen, Export & Sortierung, Paging
+* Aktionen in der Liste für jede Zuweisung
+
+### PMS
+
+* Auflistung mit suchfeld.
+  * Erstellen, Export & Sortierung, Paging
+* Nach der einfachen eingabemaske beim Erstellen sind zusätzliche Informationen administrierbar.
+* Aktionen in der Liste für jede PMS
+  * Ansicht, Editieren, Löschen
+  * Papierliste herunterladen, Preismeldestelle wie Vorperiode abbuchen, Zurücksetzen
+
+### TD
+
+* Auflistung mit suchfeld.
+  * Erstellen, Export & Sortierung, Paging
+* Aktionen in der Liste für jeden PE
+  * Ansicht, Editieren, Löschen
+
+### HF
+
+* Auflistung
+  * Hochladen
+* Aktionen in der Liste für jede HF
+  * Löschen, Herunterladen
+
+### Cockpit
+
+* Logout
+* Phasen Übersicht
+* Panic Reset Button
+* Bezugszeitpunkt erfassen
+
+### PAG
+
+* Auflistung mit suchfeld.
+  * Erstellen, Sortierung, Paging
+* Nach der einfachen eingabemaske beim Erstellen sind zusätzliche Informationen administrierbar.
+* Aktionen in der Liste für jede PMS
+  * Ansicht, Editieren, Löschen
+  * Papierliste herunterladen, Preismeldestelle wie Vorperiode abbuchen, Zurücksetzen
