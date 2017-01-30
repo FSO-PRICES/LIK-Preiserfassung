@@ -13,14 +13,17 @@
                 <preismeldung-detail-price
                     *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'"
                     [preismeldung]="currentPreismeldung$ | async"
-                    (preismeldungPricePayload)="store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload: $event })"
-                    (save)="store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload: null })"></preismeldung-detail-price>
+                    [requestPreismeldungSave]="requestPreismeldungSave$ | async"
+                    [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
+                    (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
+                    (save)="save$.emit($event)"></preismeldung-detail-price>
             </ion-content>
         </div>
         <div class="preismeldung-list-container">
             <preismeldung-list
                 [preismeldungen]="preismeldungen$ | async"
-                (selectedPreismeldung)="selectPreismeldung$.emit($event)"
+                [currentPreismeldung]="currentPreismeldung$ | async"
+                (selectPreismeldung)="selectPreismeldung$.emit($event)"
                 [isDesktop]="isDesktop$ | async"></preismeldung-list>
         </div>
     </div>

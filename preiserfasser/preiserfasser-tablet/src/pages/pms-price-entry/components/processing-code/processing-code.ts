@@ -54,7 +54,7 @@ export class ProcessingCodeComponent implements ControlValueAccessor {
 
     constructor(private elementRef: ElementRef, private zone: NgZone) {
         const processingCodeFromInput$ = this.changeFromInput.map(x => this.processingCodes.find(y => y.codeType === x))
-            .publishReplay();
+            .publishReplay(1);
         processingCodeFromInput$.connect();
 
         this.selectedProcessingCode$ = this.selectProcessingCode$
@@ -110,11 +110,12 @@ export class ProcessingCodeComponent implements ControlValueAccessor {
     }
 
     set value(newValue: any) {
+        const wasOriginallyNull = this._value == null;
         if (this._value !== newValue) {
             this._value = newValue;
 
             this.changeFromInput.next(newValue);
-            this._emitChangeEvent();
+            if (!wasOriginallyNull) this._emitChangeEvent();
         }
     }
 

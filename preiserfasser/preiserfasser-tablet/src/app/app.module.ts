@@ -20,6 +20,7 @@ import { PmsDetailsPage } from '../pages/pms-details/pms-details';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 import { TestPage } from '../pages/test-page/test-page';
 
+import { PefDialogService } from '../common/pef-dialog-service';
 import { PefComponentsModule } from '../components';
 
 export function createTranslateLoader(http: Http) {
@@ -38,7 +39,13 @@ export function createTranslateLoader(http: Http) {
         TestPage,
     ],
     imports: [
-        IonicModule.forRoot(MyApp, {}, {
+        IonicModule.forRoot(MyApp, {
+            platforms: {
+                android: {
+                    activator: 'none',
+                }
+            }
+        }, {
             links: [
                 { component: DashboardPage, name: 'Dashboard', segment: 'home' },
                 { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsKey', defaultHistory: [DashboardPage] },
@@ -70,7 +77,8 @@ export function createTranslateLoader(http: Http) {
         TestPage
     ],
     providers: [
-        { provide: ErrorHandler, useClass: IonicErrorHandler }
+        { provide: ErrorHandler, useClass: IonicErrorHandler },
+        PefDialogService
     ]
 })
 export class AppModule { }

@@ -28,7 +28,7 @@ export interface PreismeldungProperties {
     aktionsCode: boolean;
     ausverkauf: boolean;
     preisGueltigSeit: Date;
-    text: string;
+    artikelText: string;
     artikelNummer: string;
     basispreise: number;
     basismenge: number;
@@ -44,8 +44,6 @@ export interface PreismeldungProperties {
     produktMerkmal3: string;
     produktMerkmal4: string;
     produktMerkmal5: string;
-
-    artikelText: string;
 
     currentPeriodPrice: number;
     currentPeriodQuantity: number;

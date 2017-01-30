@@ -22,12 +22,10 @@ export class PreismeldungToolbarComponent {
     }
 
     isSelected$(tabName: string) {
-        console.log('calling isSelected$', tabName)
         return this.selectedTab$.map(x => x === tabName);
     }
 
     isDisabled$(tabName: string) {
-        console.log('calling isDisabled$', tabName)
         return this.selectedTab$.map(x => x === tabName);
     }
 }

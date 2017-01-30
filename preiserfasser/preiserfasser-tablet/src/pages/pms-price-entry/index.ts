@@ -1,4 +1,2 @@
-import { PmsPriceEntryModule } from './pms-price-entry.module';
-import { PmsPriceEntryPage } from './pms-price-entry';
-
-export { PmsPriceEntryModule, PmsPriceEntryPage };
+export { PmsPriceEntryModule } from './pms-price-entry.module';
+export { PmsPriceEntryPage } from './pms-price-entry';

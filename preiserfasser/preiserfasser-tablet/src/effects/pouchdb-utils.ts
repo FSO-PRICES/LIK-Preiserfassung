@@ -16,7 +16,7 @@ function checkIfDatabaseExists(dbName): Promise<boolean> {
 export function getDatabase(): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
     return checkIfDatabaseExists(DB_NAME)
         .then(exists => {
-            if (!exists) throw new Error(`Database 'lik' does not exists`);
+            if (!exists) throw new Error(`Database 'lik' does not exist`);
             return new PouchDB(DB_NAME);
         })
 }

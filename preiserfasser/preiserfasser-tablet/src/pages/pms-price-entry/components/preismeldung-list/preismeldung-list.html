@@ -4,13 +4,13 @@
             class="preismeldung-item"
             *ngFor="let preismeldung of viewPortItems"
             (click)="selectPreismeldung.emit(preismeldung)"
-            [class.selected]="preismeldung == (selectedPreismeldung | async)"
+            [class.selected]="preismeldung._id == (currentPreismeldung$ | async)?._id"
             tappable>
             <div class="preismeldung-position-number">
                 {{ preismeldung.erhebungspositionsnummer }}<br/>&nbsp;
             </div>
             <div class="preismeldung-description">
-                <span class="text">{{ preismeldung.text }}</span>
+                <span class="text">{{ preismeldung.warenkorbPosition.bezeichnung.de }}</span>
                 <span class="artikel-text" [innerHTML]="preismeldung.artikelText || '&ndash;'"></span>
             </div>
             <div class="preismeldung-status" *ngIf="!preismeldung.isSaved">

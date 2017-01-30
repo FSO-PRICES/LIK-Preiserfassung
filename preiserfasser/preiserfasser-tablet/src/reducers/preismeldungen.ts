@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { isEqual, omit } from 'lodash';
 
 import * as P  from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
@@ -43,24 +44,36 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
+
             const valuesFromPayload = {
                 isModified: true,
-                currentPeriodPrice: payload.currentPeriodPrice,
-                currentPeriodQuantity: payload.currentPeriodQuantity,
+                currentPeriodPrice: parseFloat(payload.currentPeriodPrice),
+                currentPeriodQuantity: parseFloat(payload.currentPeriodQuantity),
                 currentPeriodIsAktion: payload.reductionType === 'aktion',
                 currentPeriodIsAusverkauf: payload.reductionType === 'ausverkauf',
-                processingCode: payload.processingCode,
+                currentPeriodProcessingCode: payload.currentPeriodProcessingCode,
                 artikelNummer: payload.artikelNummer,
                 artikelText: payload.artikelText
             };
+
             const currentPreismeldung = Object.assign({}, state.currentPreismeldung, valuesFromPayload, createPercentages(state.currentPreismeldung, action.payload));
             return Object.assign({}, state, { currentPreismeldung });
         }
 
         case 'SAVE_PREISMELDUNG_PRICE': {
+            let nextPriesmeldung;
+            if (action.payload.saveAction === 'SAVE_AND_MOVE_TO_NEXT') {
+                const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung._id);
+                const nextId = state.preismeldungIds[index + 1];
+                nextPriesmeldung = !!nextId ? Object.assign({}, getEntities(state)[nextId], { isModified: false, isSaved: false }) : state.currentPreismeldung;
+            } else {
+                nextPriesmeldung = state.currentPreismeldung;
+            }
+
             const currentPreismeldung = Object.assign({}, state.currentPreismeldung, { isModified: false, isSaved: true });
             // TODO EFFECT!!! -- SUCCESS
-            return Object.assign({}, state, { entities: Object.assign({}, state.entities, { [currentPreismeldung._id]: currentPreismeldung }) });
+            // return Object.assign({}, state, { currentPreismeldung: nextPriesmeldung });
+            return Object.assign({}, state, { currentPreismeldung: nextPriesmeldung, entities: Object.assign({}, state.entities, { [currentPreismeldung._id]: currentPreismeldung }) });
         }
 
         default:

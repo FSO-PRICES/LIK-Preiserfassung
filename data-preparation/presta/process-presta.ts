@@ -97,7 +97,7 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
             mengeT: parseFloat(cells[productIndexes.mengeT]),
             aktionsCode: cells[productIndexes.aktionsCode] === '1',
             ausverkauf: cells[productIndexes.ausverkauf] === '1',
-            text: cells[productIndexes.text],
+            artikelText: cells[productIndexes.text],
             artikelNummer: cells[productIndexes.artikelNummer],
             basispreise: parseFloat(cells[productIndexes.basispreise]),
             basismenge: parseFloat(cells[productIndexes.basismenge]),
@@ -117,7 +117,7 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
             currentPeriodQuantity: null,
             currentPeriodIsAktion: false,
             currentPeriodIsAusverkauf: false,
-            currentPeriodProcessingCode: null,
+            currentPeriodProcessingCode: 'STANDARD_ENTRY',
             percentageLastPeriodToCurrentPeriod: null
         }));
 

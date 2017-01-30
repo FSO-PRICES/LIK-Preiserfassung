@@ -215,6 +215,30 @@ preismeldung-detail-price {
                 max-width: 100%;
             }
 
+            ion-label {
+                padding-left: 0.7em;
+                &.currency-label {
+                    padding-left: 0.8em;
+                }
+                &.unit-button-label {
+                    opacity: 1;
+                }
+            }
+
+            .unit-item-wrapper {
+                display: flex;
+            }
+
+            .unit-button-wrapper {
+                flex: 0 0 3.5em;
+            }
+
+            .unit-button {
+                margin-left: 0.7em;
+                margin-right: 0;
+                width: 3em;
+            }
+
             .reduction-radio-group-list, .code-button-list, processing-code {
                 @include set-padding-top(0.5);
             }
