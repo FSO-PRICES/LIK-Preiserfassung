@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from 'ng2-translate';
 import { keys } from 'lodash';
+import * as format from 'format-number';
 
 import { ReactiveComponent } from '../../../../../common/ReactiveComponent';
 import { formatPercentageChange } from '../../../../../common/formatting-functions';
@@ -30,7 +31,7 @@ export class PreismeldungDetailPriceComponent extends ReactiveComponent implemen
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
     @Output('save') save$: Observable<{ saveAction: P.SavePreismeldungPricePayloadType }>;
 
-    public preismeldung$: Observable<P.Preismeldung>;
+    public preismeldung$: Observable<P.PreismeldungViewModel>;
     public requestPreismeldungSave$: Observable<string>;
     public requestPreismeldungQuickEqual$: Observable<string>;
 
@@ -47,6 +48,7 @@ export class PreismeldungDetailPriceComponent extends ReactiveComponent implemen
     public applyUnitQuickEqual$ = new EventEmitter();
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
+    private formatFn = format(this.numberFormattingOptions);
 
     form: FormGroup;
 
@@ -62,39 +64,39 @@ export class PreismeldungDetailPriceComponent extends ReactiveComponent implemen
             artikelText: [null, Validators.required]
         });
 
-        this.preismeldung$ = this.observePropertyCurrentValue<P.Preismeldung>('preismeldung');
+        this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungViewModel>('preismeldung');
         this.requestPreismeldungSave$ = this.observePropertyCurrentValue<string>('requestPreismeldungSave').filter(x => !!x);
         this.requestPreismeldungQuickEqual$ = this.observePropertyCurrentValue<string>('requestPreismeldungQuickEqual').filter(x => !!x);
 
         const distinctPreismeldung$ = this.preismeldung$
             .filter(x => !!x)
-            .distinctUntilKeyChanged('_id');
+            .distinctUntilKeyChanged('pmId');
 
         distinctPreismeldung$
             .subscribe(preismeldung => {
                 this.form.patchValue({
-                    currentPeriodPrice: preismeldung.currentPeriodPrice,
-                    currentPeriodQuantity: preismeldung.currentPeriodQuantity,
-                    reductionType: preismeldung.currentPeriodIsAktion ? 'aktion' : preismeldung.currentPeriodIsAusverkauf ? 'ausverkauf' : null,
-                    currentPeriodProcessingCode: preismeldung.currentPeriodProcessingCode,
-                    artikelNummer: preismeldung.artikelNummer,
-                    artikelText: preismeldung.artikelText
+                    currentPeriodPrice: preismeldung.preismeldung.preis === 0 ? null : this.formatFn(preismeldung.preismeldung.preis),
+                    currentPeriodQuantity: preismeldung.preismeldung.menge === 0 ? null : `${preismeldung.preismeldung.menge}`,
+                    reductionType: preismeldung.preismeldung.aktion ? 'aktion' : preismeldung.preismeldung.ausverkauf ? 'ausverkauf' : null,
+                    currentPeriodProcessingCode: 'STANDARD_ENTRY',
+                    artikelNummer: preismeldung.preismeldung.artikelnummer,
+                    artikelText: preismeldung.preismeldung.artikeltext
                 });
             });
 
-        this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldung) => preismeldung)
-            .subscribe(preismeldung => {
+        this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungViewModel) => currentPm)
+            .subscribe(currentPm => {
                 this.form.patchValue({
-                    currentPeriodPrice: preismeldung.preisT,
-                    currentPeriodQuantity: preismeldung.mengeT,
+                    currentPeriodPrice: this.formatFn(currentPm.refPreismeldung.preis),
+                    currentPeriodQuantity: currentPm.refPreismeldung.menge,
                 });
                 this.formValueChanged$.emit();
             });
 
-        this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldung) => preismeldung)
+        this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungViewModel) => preismeldung)
             .subscribe(preismeldung => {
                 this.form.patchValue({
-                    currentPeriodQuantity: preismeldung.mengeT,
+                    currentPeriodQuantity: preismeldung.refPreismeldung.menge,
                 });
                 this.formValueChanged$.emit();
             });

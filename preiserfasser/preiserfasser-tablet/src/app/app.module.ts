@@ -48,8 +48,8 @@ export function createTranslateLoader(http: Http) {
         }, {
             links: [
                 { component: DashboardPage, name: 'Dashboard', segment: 'home' },
-                { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsKey', defaultHistory: [DashboardPage] },
-                { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsKey', defaultHistory: [DashboardPage] },
+                { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsNummer', defaultHistory: [DashboardPage] },
+                { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsNummer', defaultHistory: [DashboardPage] },
                 { component: TestPage, name: 'Test', segment: 'test-page', defaultHistory: [DashboardPage] },
             ]
         }),

@@ -1,25 +1,57 @@
-<div class="preismeldung-list-scroll-container">
+<div class="preismeldung-list-flex-container">
+    <div class="preismeldung-list-filter">
+        <pef-search-input class="pms-search" (valueChanges)="filterText$.emit($event)"></pef-search-input>
+    </div>
+    <div class="preismeldung-list-check-filter">
+        <button ion-button icon-only color="wild-sand">
+            <pef-icon name="todo"></pef-icon>
+        </button>
+        <button ion-button icon-only color="wild-sand">
+            <pef-icon name="checkmark"></pef-icon>
+        </button>
+    </div>
     <pef-virtual-scroll [items]="filteredPreismeldungen$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="isDesktop">
         <ion-item
             class="preismeldung-item"
-            *ngFor="let preismeldung of viewPortItems"
-            (click)="selectPreismeldung.emit(preismeldung)"
-            [class.selected]="preismeldung._id == (currentPreismeldung$ | async)?._id"
+            *ngFor="let vm of viewPortItems"
+            (click)="selectClickedPreismeldung$.emit(vm)"
+            [class.selected]="vm.pmId == (currentPreismeldung$ | async)?.pmId"
             tappable>
             <div class="preismeldung-position-number">
-                {{ preismeldung.erhebungspositionsnummer }}<br/>&nbsp;
+                {{ vm.refPreismeldung.epNummer }}<br/>&nbsp;
             </div>
             <div class="preismeldung-description">
-                <span class="text">{{ preismeldung.warenkorbPosition.bezeichnung.de }}</span>
-                <span class="artikel-text" [innerHTML]="preismeldung.artikelText || '&ndash;'"></span>
+                <span class="text">{{ vm.warenkorbPosition.bezeichnung.de }}</span>
+                <span class="artikel-text" [innerHTML]="vm.artikelText || '&ndash;'"></span>
             </div>
-            <div class="preismeldung-status" *ngIf="!preismeldung.isSaved">
+            <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageLastPeriodToCurrentPeriod == null">
                 <pef-icon name="alarmclock_normal" svgCssClasses="green"></pef-icon>
                 <div class="status-bar"></div>
             </div>
-            <div class="preismeldung-status" *ngIf="preismeldung.isSaved">
-                <div class="percentage">{{ formatPercentageChange(preismeldung.percentageLastPeriodToCurrentPeriod) }}</div>
+            <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageLastPeriodToCurrentPeriod != null">
+                <div class="percentage">{{ formatPercentageChange(vm.preismeldung.percentageLastPeriodToCurrentPeriod) }}</div>
             </div>
         </ion-item>
     </pef-virtual-scroll>
+    <div class="preismeldung-list-footer">
+        <div class="preismeldung-list-functions">
+            <button ion-button icon-only color="wild-sand" [disabled]="true">
+                <pef-icon name="sorting_arrows"></pef-icon>
+            </button>
+            <button ion-button icon-only color="wild-sand" [disabled]="true">
+                <pef-icon name="add"></pef-icon>
+            </button>
+        </div>
+        <div class="preismeldung-list-completed-count">
+            {{ completedCount$ | async }}
+        </div>
+        <div class="preismeldung-list-arrows">
+            <button ion-button icon-only (click)="selectPrevPreismeldung$.emit()">
+                <pef-icon name="arrow_left"></pef-icon>
+            </button>
+            <button ion-button icon-only (click)="selectNextPreismeldung$.emit()">
+                <pef-icon name="arrow_right"></pef-icon>
+            </button>
+        </div>
+    </div>
 </div>

@@ -63,8 +63,7 @@ export class PmsPriceEntryPage {
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
-            .withLatestFrom(this.currentPreismeldung$.startWith(null),
-            (selectedPreismeldung: P.Preismeldung, currentPreismeldung: P.CurrentPreismeldung) => ({
+            .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungViewModel, currentPreismeldung: P.CurrentPreismeldungViewModel) => ({
                 selectedPreismeldung,
                 currentPreismeldung,
                 isCurrentModified: !!currentPreismeldung && currentPreismeldung.isModified
@@ -72,17 +71,17 @@ export class PmsPriceEntryPage {
 
         requestSelectPreismeldung$
             .filter(x => !x.isCurrentModified)
-            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung._id }));
+            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
         requestSelectPreismeldung$
             .filter(x => x.isCurrentModified)
             .flatMap(x => cancelEditDialog$.map(y => ({ selectedPreismeldung: x.selectedPreismeldung, dialogCode: y })))
             .filter(x => x.dialogCode === 'THROW_CHANGES')
-            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung._id }));
+            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
     }
 
     ionViewDidLoad() {
-        this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsKey') });
+        this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') });
     }
 
     ionViewDidLeave() {

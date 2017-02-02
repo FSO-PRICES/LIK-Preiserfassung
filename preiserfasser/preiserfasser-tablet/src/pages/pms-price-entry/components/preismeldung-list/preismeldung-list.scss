@@ -4,16 +4,28 @@ preismeldung-list {
     display: flex;
     flex-direction: column;
     background-color: $mercury;
-    @include set-padding(0.625, 0.5, 1.25, 0.5);
+    @include set-padding(0.625, 0.5, 0.625, 0.5);
 
-    .preismeldung-list-scroll-container {
+    .preismeldung-list-flex-container {
         flex: 1;
         background-color: $mercury;
         display: flex;
+        flex-direction: column;
 
         pef-virtual-scroll {
             height: 100%;
             width: 100%;
+        }
+    }
+
+    .preismeldung-list-filter, .preismeldung-list-check-filter {
+        @include set-margin-bottom(0.5);
+    }
+
+    pef-search-input {
+        ion-item {
+            height: 2.25em;
+            min-height: initial;
         }
     }
 
@@ -87,6 +99,22 @@ preismeldung-list {
             .preismeldung-position-number, .preismeldung-description .text, .preismeldung-description .artikel-text {
                 color: $blue-chill;
             }
+        }
+    }
+
+    .preismeldung-list-footer {
+        display: flex;
+        justify-content: space-between;
+        @include set-padding-top(0.625);
+    }
+
+    .preismeldung-list-completed-count {
+        padding-top: 4px;
+    }
+
+    .preismeldung-list-functions, .preismeldung-list-arrows {
+        button:first-of-type {
+            @include set-margin-right(1);
         }
     }
 }

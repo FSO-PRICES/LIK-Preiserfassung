@@ -44,7 +44,7 @@ export function dropAndSyncDatabase() {
             return login('germaine_exemple', 'secret')
                 .then(() => {
                     const sync = bluebird.promisify<any, any, any>(pouch.sync, { context: pouch });
-                    return sync(couch, { push: false, pull: true });
+                    return sync(couch, { push: false, pull: true, batch_size: 1000 });
                 });
         });
 }

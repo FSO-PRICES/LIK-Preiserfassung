@@ -7,7 +7,7 @@ import * as deLocale from 'date-fns/locale/de';
 import * as frLocale from 'date-fns/locale/fr';
 
 import * as fromRoot from '../../reducers';
-import { Preismeldestelle } from '../../common-models';
+import * as P from '../../common-models';
 import { PmsDetailsPage } from '../pms-details/pms-details';
 import { PmsPriceEntryPage } from '../pms-price-entry';
 import { TestPage } from '../test-page/test-page';
@@ -36,11 +36,11 @@ export class DashboardPage {
         this.settingsClicked.subscribe(() => this.store.dispatch({ type: 'DATABASE_SYNC' }));
     }
 
-    navigateToDetails(preismeldestelle: Preismeldestelle) {
-        this.navCtrl.push(PmsDetailsPage, { pmsKey: preismeldestelle.pmsKey });
+    navigateToDetails(pms: P.Preismeldestelle) {
+        this.navCtrl.push(PmsDetailsPage, { pmsNummer: pms.pmsNummer });
     }
 
-    navigateToPriceEntry(preismeldestelle: Preismeldestelle) {
-        this.navCtrl.push(PmsPriceEntryPage, { pmsKey: preismeldestelle.pmsKey });
+    navigateToPriceEntry(pms: P.Preismeldestelle) {
+        this.navCtrl.push(PmsPriceEntryPage, { pmsNummer: pms.pmsNummer });
     }
 }

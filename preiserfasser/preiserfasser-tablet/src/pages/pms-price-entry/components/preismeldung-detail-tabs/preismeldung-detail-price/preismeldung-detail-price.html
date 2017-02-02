@@ -2,7 +2,7 @@
     <div class="header">
         <div class="header-line">
             <div class="product-heading">
-                {{ (preismeldung$ | async).erhebungspositionsnummer }} {{ (preismeldung$ | async).warenkorbPosition.bezeichnung.de }}
+                {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ | async).warenkorbPosition.bezeichnung.de }}
             </div>
             <ion-item class="pef-item on-dark">
                 <ion-label> Artikelnummer </ion-label>
@@ -23,7 +23,7 @@
                     (blur)="formValueChanged$.emit('artikelText')"></ion-input>
             </ion-item>
             <div class="right-column">
-                <button ion-button icon-only class="pef-icon-secondary duplicate">
+                <button ion-button icon-only class="pef-icon-secondary duplicate" [disabled]="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
                         <g fill="none" fill-rule="evenodd" transform="translate(6 5)">
                             <polygon class="background-plus" points="6 6 0 6 0 8 6 8 6 14 8 14 8 8 14 8 14 6 8 6 8 0 6 0"/>
@@ -50,22 +50,22 @@
                 <div class="data-input-area">
                     <h6>Normal Preis &ndash; Alter Artikel</h6>
                     <div class="last-period-price">
-                        <div class="number">{{ (preismeldung$ | async).preisT | pefFormatNumber: numberFormattingOptions }}</div>
+                        <div class="number">{{ (preismeldung$ | async).refPreismeldung.preis | pefFormatNumber: numberFormattingOptions }}</div>
                         <div class="unit">CHF</div>
                     </div>
                     <div class="last-period-quantity">
-                        <div class="number">{{ (preismeldung$ | async).mengeT }}</div>
+                        <div class="number">{{ (preismeldung$ | async).refPreismeldung.menge }}</div>
                         <div class="unit">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit.de }}</div>
                     </div>
                     <div class="last-period-bottom-row">
                         <ion-list radio-group>
                             <ion-item>
                                 <ion-label>Aktion</ion-label>
-                                <ion-radio value="on-sale" [disabled]="true" checked></ion-radio>
+                                <ion-radio value="aktion" [disabled]="true" [checked]="(preismeldung$ | async).refPreismeldung.aktion"></ion-radio>
                             </ion-item>
                             <ion-item>
                                 <ion-label>Ausverkauf</ion-label>
-                                <ion-radio value="sell-out" [disabled]="true"></ion-radio>
+                                <ion-radio value="ausverkauf" [disabled]="true" [checked]="(preismeldung$ | async).refPreismeldung.ausverkauf"></ion-radio>
                             </ion-item>
                         </ion-list>
                         <div class="code">R1</div>
@@ -80,7 +80,7 @@
             </div>
             <div class="middle-section">
                 <div class="box-container">
-                    <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.percentageLastPeriodToCurrentPeriod)"></div>
+                    <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageLastPeriodToCurrentPeriod)"></div>
                     <div class="arrow right"></div>
                 </div>
             </div>
@@ -100,9 +100,7 @@
                         </ion-item>
                         <div class="unit-item-wrapper">
                             <ion-item class="pef-item">
-                                <!--<ion-label class="unit-button-label">-->
-                                    <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqual$.emit()">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit.de }}</button>
-                                <!--</ion-label>-->
+                                <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqual$.emit()">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit.de }}</button>
                                 <ion-input
                                     type="number"
                                     step="any"
@@ -169,5 +167,5 @@
     </div>
 </form>
 <div class="message" *ngIf="!(preismeldung$ | async)">
-    No product selected.
+    Keine Preismeldung selektiert.
 </div>

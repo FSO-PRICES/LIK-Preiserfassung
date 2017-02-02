@@ -3,8 +3,8 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs';
 
 import { format, endOfMinute, differenceInMilliseconds } from 'date-fns';
-import * as deLocale from 'date-fns/locale/de';
-import * as frLocale from 'date-fns/locale/fr';
+// import * as deLocale from 'date-fns/locale/de';
+// import * as frLocale from 'date-fns/locale/fr';
 
 @Injectable()
 export class TimeEffects {

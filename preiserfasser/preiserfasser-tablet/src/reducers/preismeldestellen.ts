@@ -3,25 +3,25 @@ import { Preismeldestelle }  from '../common-models';
 import * as preismeldestellen from '../actions/preismeldestellen';
 
 export interface State {
-    pmsKeys: string[];
-    entities: { [pmsKey: string]: Preismeldestelle };
-    selectedPmsKey: string;
+    pmsNummers: string[];
+    entities: { [pmsNummer: string]: Preismeldestelle };
+    selectedPmsNummer: string;
 }
 
 const initialState: State = {
-    pmsKeys: [],
+    pmsNummers: [],
     entities: {},
-    selectedPmsKey: undefined,
+    selectedPmsNummer: undefined,
 };
 
 export function reducer(state = initialState, action: preismeldestellen.Actions): State {
     switch (action.type) {
         case 'PREISMELDESTELLEN_LOAD_SUCCESS': {
-            const pmsKeys = action.payload.map(x => x.pmsKey);
-            const entities = action.payload.reduce((entities: { [pmsKey: string]: Preismeldestelle }, preismeldestelle: Preismeldestelle) => {
-                return Object.assign(entities, { [preismeldestelle.pmsKey]: preismeldestelle });
+            const pmsNummers = action.payload.map(x => x.pmsNummer);
+            const entities = action.payload.reduce((entities: { [pmsNummer: string]: Preismeldestelle }, preismeldestelle: Preismeldestelle) => {
+                return Object.assign(entities, { [preismeldestelle.pmsNummer]: preismeldestelle });
             }, {});
-            return Object.assign({}, state, { pmsKeys, entities });
+            return Object.assign({}, state, { pmsNummers, entities });
         }
 
         case 'PREISMELDESTELLE_SELECT':
@@ -33,8 +33,8 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
 }
 
 export const getEntities = (state: State) => state.entities;
-export const getPmsKeys = (state: State) => state.pmsKeys;
-export const getSelectedPmsKey = (state: State) => state.selectedPmsKey;
+export const getPmsNummers = (state: State) => state.pmsNummers;
+export const getSelectedPmsNummer = (state: State) => state.selectedPmsNummer;
 
-export const getSelected = createSelector(getEntities, getSelectedPmsKey, (entities, selectedPmsKey) => entities[selectedPmsKey]);
-export const getAll = createSelector(getEntities, getPmsKeys, (entities, pmsKeys) => pmsKeys.map(x => entities[x]));
+export const getSelected = createSelector(getEntities, getSelectedPmsNummer, (entities, selectedPmsNummer) => entities[selectedPmsNummer]);
+export const getAll = createSelector(getEntities, getPmsNummers, (entities, pmsNummers) => pmsNummers.map(x => entities[x]));

@@ -5,14 +5,14 @@ import * as docuri from 'docuri';
 
 import { readFile, writeFile, readdir } from './promisified';
 
-import { pmsUriRoute, preismeldungUriRoute } from '../common/models';
+import { pmsUriRoute, preismeldungReferenceUriRoute } from '../common/models';
 
 const [, , username, password] = process.argv;
 
 const baseUrl = `http://${username}:${password}@localhost:5986`;
 
 const pmsUri = docuri.route(pmsUriRoute);
-const preismeldungUri = docuri.route(preismeldungUriRoute);
+const preismeldungReferenceUri = docuri.route(preismeldungReferenceUriRoute);
 
 const filenameRegex = /erheber__(.*?)\.json/;
 
@@ -37,8 +37,8 @@ readFile('./warenkorb/flat.json')
                 .then(buffer => {
                     const data = JSON.parse(buffer.toString());
                     const erheber = _.assign({}, data.erheber, { _id: 'erheber' });
-                    const preismeldestellen = data.preismeldestellen.map(x => (_.assign({}, x, { _id: pmsUri({ pmsKey: x.pmsKey }) })));
-                    const products = data.preismeldungen.map(x => _.assign(x, { _id: preismeldungUri({ pmsKey: x.pmsKey, positionNumber: x.erhebungspositionsnummer, sequenceNumber: x.laufnummer }) }));
+                    const preismeldestellen = data.preismeldestellen.map(x => (_.assign({}, x, { _id: pmsUri({ pmsNummer: x.pmsNummer }) })));
+                    const products = data.preismeldungen.map(x => _.assign(x, { _id: preismeldungReferenceUri({ pmsNummer: x.pmsNummer, epNummer: x.epNummer, laufnummer: x.laufnummer }) }));
                     const warenkorb = {
                         _id: 'warenkorb',
                         products: x.warenkorbProducts

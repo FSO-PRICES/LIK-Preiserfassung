@@ -1,16 +1,19 @@
 import * as bluebird from 'bluebird';
 import * as _ from 'lodash';
 import * as _urlify from 'urlify';
+import * as docuri from 'docuri';
 
 const urlify = _urlify.create({ addEToUmlauts: true, toLower: true });
 
 import { readFile, writeFile, } from '../promisified';
 import { bufferToCells } from '../utils';
 
-import { Erheber, Preismeldung, Preismeldestelle } from '../../common/models';
+import { Erheber, PreismeldungReferenceProperties, Preismeldung, Preismeldestelle, preismeldungUriRoute } from '../../common/models';
+
+const preismeldungUri = docuri.route(preismeldungUriRoute);
 
 const pmsPreiserheberIndexes = {
-    pmsKey: 0,
+    pmsNummer: 0,
     pmsName: 1,
     pmsSupplement: 2,
     pmsStreet: 3,
@@ -27,26 +30,26 @@ const pmsPreiserheberIndexes = {
     erheberEmail: 14
 };
 
-const productIndexes = {
-    pmsKey: 1,
-    erhebungspositionsnummer: 2,
+const importFromPrestaIndexes = {
+    pmsNummer: 1,
+    epNummer: 2,
     laufnummer: 3,
     preisT: 4,
     mengeT: 5,
     aktionsCode: 6,
     ausverkauf: 7,
-    preisGueltigSeit: 8,
+    preisGueltigSeitDatum: 8,
     text: 9,
     artikelNummer: 10,
     basispreise: 11,
     basismenge: 12,
     sonderpreis: 13,
-    fehlendepreisCode: 14,
+    fehlendePreisR: 14,
     bemerkungen: 15,
-    tableInformationen: 16,
+    tabletInformationen: 16,
     preiseVorReduktion: 17,
     mengeVorReduktion: 18,
-    preiseReiheIstZuBeenden: 19,
+    istPreisreiheZuBeenden: 19,
     produktMerkmal1: 20,
     produktMerkmal2: 21,
     produktMerkmal3: 22,
@@ -58,7 +61,7 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
     .then(lines => {
         const pmsErhebers = lines.map(cells => ({
             pms: <Preismeldestelle>{
-                pmsKey: cells[pmsPreiserheberIndexes.pmsKey],
+                pmsNummer: cells[pmsPreiserheberIndexes.pmsNummer],
                 name: cells[pmsPreiserheberIndexes.pmsName],
                 supplement: cells[pmsPreiserheberIndexes.pmsSupplement],
                 street: cells[pmsPreiserheberIndexes.pmsStreet],
@@ -87,46 +90,40 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
                 };
             });
     })
-    .then(preismeldestellen => readFile('./presta/data/PRICES_PRESTA_BackOffice_12-2016.txt').then(bufferToCells).then(lines => ({ preismeldestellen, lines})))
+    .then(preismeldestellen => readFile('./presta/data/PRICES_PRESTA_BackOffice_12-2016.txt').then(bufferToCells).then(lines => ({ preismeldestellen, lines })))
     .then(data => {
-        const preismeldungen = data.lines.map(cells => (<Preismeldung>{
-            pmsKey: cells[productIndexes.pmsKey],
-            erhebungspositionsnummer: cells[productIndexes.erhebungspositionsnummer],
-            laufnummer: cells[productIndexes.laufnummer],
-            preisT: parseFloat(cells[productIndexes.preisT]),
-            mengeT: parseFloat(cells[productIndexes.mengeT]),
-            aktionsCode: cells[productIndexes.aktionsCode] === '1',
-            ausverkauf: cells[productIndexes.ausverkauf] === '1',
-            artikelText: cells[productIndexes.text],
-            artikelNummer: cells[productIndexes.artikelNummer],
-            basispreise: parseFloat(cells[productIndexes.basispreise]),
-            basismenge: parseFloat(cells[productIndexes.basismenge]),
-            sonderpreis: parseFloat(cells[productIndexes.sonderpreis]),
-            fehlendepreisCode: cells[productIndexes.fehlendepreisCode],
-            bemerkungen: cells[productIndexes.bemerkungen],
-            tableInformationen: cells[productIndexes.tableInformationen],
-            preiseVorReduktion: parseFloat(cells[productIndexes.preiseVorReduktion]),
-            mengeVorReduktion: parseFloat(cells[productIndexes.mengeVorReduktion]),
-            preiseReiheIstZuBeenden: cells[productIndexes.preiseReiheIstZuBeenden] === '1',
-            produktMerkmal1: cells[productIndexes.produktMerkmal1],
-            produktMerkmal2: cells[productIndexes.produktMerkmal2],
-            produktMerkmal3: cells[productIndexes.produktMerkmal3],
-            produktMerkmal4: cells[productIndexes.produktMerkmal4],
-            produktMerkmal5: cells[productIndexes.produktMerkmal5],
-            currentPeriodPrice: null,
-            currentPeriodQuantity: null,
-            currentPeriodIsAktion: false,
-            currentPeriodIsAusverkauf: false,
-            currentPeriodProcessingCode: 'STANDARD_ENTRY',
-            percentageLastPeriodToCurrentPeriod: null
+        const preismeldungen = data.lines.map(cells => (<PreismeldungReferenceProperties>{
+            pmId: preismeldungUri({ pmsNummer: cells[importFromPrestaIndexes.pmsNummer], epNummer: cells[importFromPrestaIndexes.epNummer], laufnummer: cells[importFromPrestaIndexes.laufnummer] }),
+            pmsNummer: cells[importFromPrestaIndexes.pmsNummer],
+            epNummer: cells[importFromPrestaIndexes.epNummer],
+            laufnummer: cells[importFromPrestaIndexes.laufnummer],
+            preis: parseFloat(cells[importFromPrestaIndexes.preisT]),
+            menge: parseFloat(cells[importFromPrestaIndexes.mengeT]),
+            isAktion: cells[importFromPrestaIndexes.aktionsCode] === '1',
+            isAusverkauf: cells[importFromPrestaIndexes.ausverkauf] === '1',
+            preisGueltigSeitDatum: cells[importFromPrestaIndexes.preisGueltigSeitDatum],
+            fehlendePreiseR: cells[importFromPrestaIndexes.fehlendePreisR],
+            istPreisreiheZuBeenden: cells[importFromPrestaIndexes.istPreisreiheZuBeenden] === '1',
+            zeitbereichPos: parseInt(parsePackedField(cells[importFromPrestaIndexes.tabletInformationen]).zeitPos),
+            sortierungsnummer: parseInt(parsePackedField(cells[importFromPrestaIndexes.tabletInformationen]).sortNr),
+            productMerkmale: [
+                cells[importFromPrestaIndexes.produktMerkmal1],
+                cells[importFromPrestaIndexes.produktMerkmal2],
+                cells[importFromPrestaIndexes.produktMerkmal3],
+                cells[importFromPrestaIndexes.produktMerkmal4],
+                cells[importFromPrestaIndexes.produktMerkmal5]
+            ],
+            artikelnummer: cells[importFromPrestaIndexes.artikelNummer],
+            artikeltext: cells[importFromPrestaIndexes.text],
+            bermerkungenVomBfs: cells[importFromPrestaIndexes.bemerkungen]
         }));
 
         return data.preismeldestellen.map(x => {
-            const pmsKeys = x.preismeldestellen.map(y => y.pmsKey);
+            const pmsKeys = x.preismeldestellen.map(y => y.pmsNummer);
             return {
                 erheber: x.erheber,
                 preismeldestellen: _.sortBy(x.preismeldestellen, [x => x.pmsKey]),
-                preismeldungen: _.sortBy(preismeldungen.filter(y => pmsKeys.some(z => z == y.pmsKey)), [x => x.pmsKey, x => x.erhebungspositionsnummer, x => x.laufnummer])
+                preismeldungen: _.sortBy(preismeldungen.filter(y => pmsKeys.some(z => z == y.pmsNummer)), [x => x.pmsKey, x => x.erhebungspositionsnummer, x => x.laufnummer])
             };
         });
     })
@@ -135,3 +132,10 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
         return bluebird.all(promises);
     })
 
+function parsePackedField(s: string): any {
+    return s.split('|')
+        .reduce((o, x) => {
+            const fieldKeyValue = x.split('=');
+            return _.assign({}, o, { [fieldKeyValue[0]]: fieldKeyValue[1] });
+        }, {});
+}

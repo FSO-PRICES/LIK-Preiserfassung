@@ -20,6 +20,17 @@
     background-color: $mercury;
     color: $blue-chill;
     fill: $blue-chill;
+    box-shadow: none;
+}
+
+.button-md-wild-sand {
+    background-color: $wild-sand;
+    color: $blue-chill;
+    fill: $blue-chill;
+    box-shadow: none;
+}
+
+.button-md-mercury, .button-md-wild-sand {
     &:hover:not(.disable-hover) {
         background-color: $blue-chill;
         color: white;
