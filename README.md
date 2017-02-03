@@ -116,6 +116,16 @@ verrichten (hoch spezialisierter und sehr seltener Fall).
 * Testfälle/Daten welche man übernehmen könnte fürs Testing: Abschnitt 4.4.3 Seite 164 in `BDA_LIK-Studio_Version_BFS.pdf`
 * User Stories Abschnitt 3.4 Seite 71-82 in `BDA_LIK-Studio_Version_BFS.pdf`
 
+## Frontend Funktionsübersicht
+
+### Status updates
+
+**Nach Backoffice Sync**
+
+> `LIK_Studio_Android 2.0.0\LIK_Studio_Preiserfasser\src\ch\gfk\likstudio\preiserfasser\hauptprozess\jobs\mainmenu\Upload.java`<br>
+> Line 177
+
+
 
 ## Backend Funktionsübersicht
 
