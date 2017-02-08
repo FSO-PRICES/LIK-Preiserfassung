@@ -34,6 +34,25 @@ interface TreeItemBase {
     periodizitaetscode: PropertyTranslation;
     beispiel: PropertyTranslation;
     info: PropertyTranslation;
+    periodizitaetJan: boolean;
+    periodizitaetFeb: boolean;
+    periodizitaetMaerz: boolean;
+    periodizitaetApril: boolean;
+    periodizitaetMai: boolean;
+    periodizitaetJuni: boolean;
+    periodizitaetJuli: boolean;
+    periodizitaetAug: boolean;
+    periodizitaetSept: boolean;
+    periodizitaetOkt: boolean;
+    periodizitaetNov: boolean;
+    periodizitaetDez: boolean;
+    abweichungPmUG2: number;
+    abweichungPmOG2: number;
+    champSupplementaire1: PropertyTranslation;
+    champSupplementaire2: PropertyTranslation;
+    champSupplementaire3: PropertyTranslation;
+    champSupplementaire4: PropertyTranslation;
+    champSupplementaire5: PropertyTranslation;
 }
 
 interface Branch extends TreeItemBase {
@@ -64,7 +83,26 @@ const indexes = {
     erhebungstyp: 9,
     anzahlPreiseProPMS: 10,
     beispiel: 11,
-    info: 12
+    info: 12,
+    periodizitaetJan: 13,
+    periodizitaetFeb: 14,
+    periodizitaetMaerz: 15,
+    periodizitaetApril: 16,
+    periodizitaetMai: 17,
+    periodizitaetJuni: 18,
+    periodizitaetJuli: 19,
+    periodizitaetAug: 20,
+    periodizitaetSept: 21,
+    periodizitaetOkt: 22,
+    periodizitaetNov: 23,
+    periodizitaetDez: 24,
+    abweichungPmUG2: 25,
+    abweichungPmOG2: 26,
+    champSupplementaire1: 27,
+    champSupplementaire2: 28,
+    champSupplementaire3: 29,
+    champSupplementaire4: 30,
+    champSupplementaire5: 31
 };
 
 function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): TreeItem[] {
@@ -87,7 +125,26 @@ function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): Tr
             erhebungstyp: thisLine[indexes.erhebungstyp],
             anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
             beispiel: { de: parseBeispiel(thisLine[indexes.beispiel]), fr: parseBeispiel(data.fr[i][indexes.beispiel]), it: parseBeispiel(data.it[i][indexes.beispiel]) },
-            info: { de: parseInfo(thisLine[indexes.info]), fr: parseInfo(data.fr[i][indexes.info]), it: parseInfo(data.it[i][indexes.info]) }
+            info: { de: parseInfo(thisLine[indexes.info]), fr: parseInfo(data.fr[i][indexes.info]), it: parseInfo(data.it[i][indexes.info]) },
+            periodizitaetJan: parsePeriodizitaet(thisLine[indexes.periodizitaetJan]),
+            periodizitaetFeb: parsePeriodizitaet(thisLine[indexes.periodizitaetFeb]),
+            periodizitaetMaerz: parsePeriodizitaet(thisLine[indexes.periodizitaetMaerz]),
+            periodizitaetApril: parsePeriodizitaet(thisLine[indexes.periodizitaetApril]),
+            periodizitaetMai: parsePeriodizitaet(thisLine[indexes.periodizitaetMai]),
+            periodizitaetJuni: parsePeriodizitaet(thisLine[indexes.periodizitaetJuni]),
+            periodizitaetJuli: parsePeriodizitaet(thisLine[indexes.periodizitaetJuli]),
+            periodizitaetAug: parsePeriodizitaet(thisLine[indexes.periodizitaetAug]),
+            periodizitaetSept: parsePeriodizitaet(thisLine[indexes.periodizitaetSept]),
+            periodizitaetOkt: parsePeriodizitaet(thisLine[indexes.periodizitaetOkt]),
+            periodizitaetNov: parsePeriodizitaet(thisLine[indexes.periodizitaetNov]),
+            periodizitaetDez: parsePeriodizitaet(thisLine[indexes.periodizitaetDez]),
+            abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
+            abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
+            champSupplementaire1: { de: thisLine[indexes.champSupplementaire1], fr: data.fr[i][indexes.champSupplementaire1], it: data.it[i][indexes.champSupplementaire1] },
+            champSupplementaire2: { de: thisLine[indexes.champSupplementaire2], fr: data.fr[i][indexes.champSupplementaire2], it: data.it[i][indexes.champSupplementaire2] },
+            champSupplementaire3: { de: thisLine[indexes.champSupplementaire3], fr: data.fr[i][indexes.champSupplementaire3], it: data.it[i][indexes.champSupplementaire3] },
+            champSupplementaire4: { de: thisLine[indexes.champSupplementaire4], fr: data.fr[i][indexes.champSupplementaire4], it: data.it[i][indexes.champSupplementaire4] },
+            champSupplementaire5: { de: thisLine[indexes.champSupplementaire5], fr: data.fr[i][indexes.champSupplementaire5], it: data.it[i][indexes.champSupplementaire5] }
         };
         treeItems.push(treeItem);
         const parent = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
@@ -169,3 +226,11 @@ function countHierarchicalBranches(item: HierarchicalTreeItem): number {
     if (item.type === 'LEAF') return 0;
     return item.children.reduce((agg, v) => agg + countHierarchicalBranches(v), 1);
 }
+
+const parsePeriodizitaet = parseBoolean;
+
+function parseBoolean(s: string) {
+    return s.toLocaleLowerCase() === 'x';
+}
+
+const parseAbweichung = parseNumberOrNull;
