@@ -86,3 +86,5 @@ export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
 export type Erheber = ErheberProperties & CouchProperties;
 export type PreismeldungReference = PreismeldungReferenceProperties & CouchProperties;
 export type Preismeldung = PreismeldungProperties & CouchProperties;
+
+export type PmsToPeMap = {erheber: Erheber, preismeldestellen: Preismeldestelle[]}[]
