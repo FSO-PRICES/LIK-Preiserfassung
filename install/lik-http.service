@@ -1,0 +1,17 @@
+[Unit]
+Description=npm http-server instance
+
+[Service]
+# If couchdb is not being server public it is possible to proxy it with the http-server
+# ExecStart=/usr/bin/http-server /srv/www -P http://localhost:5984
+ExecStart=/usr/bin/http-server /srv/www
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=lik-http
+User=npm-http-server
+Group=npm-http-server
+
+[Install]
+WantedBy=multi-user.target
