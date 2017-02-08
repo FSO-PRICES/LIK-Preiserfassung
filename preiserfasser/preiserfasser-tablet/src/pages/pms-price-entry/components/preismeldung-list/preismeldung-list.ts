@@ -23,15 +23,17 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectPrevPreismeldung$ = new EventEmitter();
 
     public viewPortItems: P.Preismeldung[];
-    // public toggleFilter = new EventEmitter<void>();
-    // public showFilter: Observable<boolean>;
-    // public filterButtonText: Observable<string>;
-    // public selectPreismeldung = new EventEmitter<P.Preismeldung>();
     private preismeldungen$: Observable<P.PreismeldungViewModel[]>;
     public filteredPreismeldungen$: Observable<P.PreismeldungViewModel[]>;
     public completedCount$: Observable<string>;
 
     public filterText$ = new EventEmitter<string>();
+
+    public selectFilterTodo$ = new EventEmitter();
+    public selectFilterCompleted$ = new EventEmitter();
+
+    public filterTodoSelected$: Observable<boolean>;
+    public filterCompletedSelected$: Observable<boolean>;
 
     constructor() {
         super();
@@ -39,12 +41,29 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungViewModel[]>('preismeldungen').publishReplay(1).refCount();
         this.currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewModel>('currentPreismeldung').publishReplay(1).refCount();
 
-        this.filteredPreismeldungen$ = this.preismeldungen$
-            .combineLatest(this.filterText$.startWith(null), (preismeldungen: P.PreismeldungViewModel[], filterText: string) => {
-                if (!filterText || filterText.length === 0) return preismeldungen;
+        this.filterTodoSelected$ = this.selectFilterTodo$
+            .scan<boolean>((selected: boolean, _: any) => !selected, false).startWith(false)
+            .publishReplay(1).refCount();
 
-                const lowered = filterText.toLocaleLowerCase();
-                return preismeldungen.filter(pm => pm.warenkorbPosition.gliederungspositionsnummer.toLocaleLowerCase().includes(lowered) || pm.warenkorbPosition.bezeichnung.de.toLocaleLowerCase().includes(lowered));
+        this.filterCompletedSelected$ = this.selectFilterCompleted$
+            .scan<boolean>((selected: boolean, _: any) => !selected, false).startWith(false)
+            .publishReplay(1).refCount();
+
+        this.filteredPreismeldungen$ = this.preismeldungen$
+            .combineLatest(this.filterText$.startWith(null), this.filterTodoSelected$, this.filterCompletedSelected$, (preismeldungen: P.PreismeldungViewModel[], filterText: string, filterTodoSelected: boolean, filterCompletedSelected: boolean) => {
+                let filteredPreismeldungen: P.PreismeldungViewModel[];
+
+                if (!filterText || filterText.length === 0) {
+                    filteredPreismeldungen = preismeldungen;
+                } else {
+                    const lowered = filterText.toLocaleLowerCase();
+                    filteredPreismeldungen = preismeldungen.filter(pm => pm.warenkorbPosition.gliederungspositionsnummer.toLocaleLowerCase().includes(lowered) || pm.warenkorbPosition.bezeichnung.de.toLocaleLowerCase().includes(lowered));
+                }
+
+                if (filterTodoSelected && filterCompletedSelected || !filterTodoSelected && !filterCompletedSelected) return filteredPreismeldungen;
+
+                if (filterTodoSelected) return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
+                if (filterCompletedSelected) return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
             });
 
         const selectNext$ = this.selectNextPreismeldung$

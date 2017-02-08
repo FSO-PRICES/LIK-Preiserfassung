@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 
-import { dropAndSyncDatabase } from './pouchdb-utils';
+import { checkIfDatabaseExists, dropAndSyncDatabase, dropDatabase } from './pouchdb-utils';
 
 @Injectable()
 export class DatabaseEffects {
@@ -11,6 +11,18 @@ export class DatabaseEffects {
     loadPreismeldestellen$ = this.actions$
         .ofType('DATABASE_SYNC')
         .switchMap(() => dropAndSyncDatabase())
-        .mapTo({})
-        .do(() => alert('sync complete'));
+        .map(exists => ({ type: 'SET_DATABASE_EXISTS', payload: true }));
+
+    @Effect()
+    checkDatabaseExists$ = this.actions$
+        .ofType('CHECK_DATABASE_EXISTS')
+        .flatMap(() => checkIfDatabaseExists())
+        .map(exists => ({ type: 'SET_DATABASE_EXISTS', payload: exists }))
+
+    @Effect()
+    deleteDatabase$ = this.actions$
+        .ofType('DELETE_DATABASE')
+        .flatMap(() => dropDatabase())
+        .mapTo({});
+        // .map(exists => ({ type: 'SET_DATABASE_EXISTS', payload: false }))
 }

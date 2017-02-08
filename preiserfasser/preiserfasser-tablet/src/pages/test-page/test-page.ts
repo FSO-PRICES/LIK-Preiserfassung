@@ -11,6 +11,8 @@ import * as fromRoot from '../../reducers';
     templateUrl: 'test-page.html'
 })
 export class TestPage {
+    public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
+
     constructor(private navParams: NavParams, private store: Store<fromRoot.AppState>) {
     }
 }

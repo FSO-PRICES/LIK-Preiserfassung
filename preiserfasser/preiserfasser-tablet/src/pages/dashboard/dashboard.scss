@@ -64,6 +64,8 @@ dashboard {
         background-color: transparent;
         box-shadow: none;
         transition-property: background-color, color;
+        fill: white;
+        color: white;
         &:hover {
             background-color: transparent;
         }

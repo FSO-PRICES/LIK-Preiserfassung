@@ -22,6 +22,12 @@ preismeldung-list {
         @include set-margin-bottom(0.5);
     }
 
+    .preismeldung-list-check-filter {
+        button:first-of-type() {
+            @include set-margin-right(1);
+        }
+    }
+
     pef-search-input {
         ion-item {
             height: 2.25em;

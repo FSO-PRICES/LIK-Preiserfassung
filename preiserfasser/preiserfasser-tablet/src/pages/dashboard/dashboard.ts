@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { Component, EventEmitter } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { LoadingController, NavController } from 'ionic-angular';
 
 import { format } from 'date-fns';
 import * as deLocale from 'date-fns/locale/de';
@@ -31,9 +31,34 @@ export class DashboardPage {
 
     constructor(
         private navCtrl: NavController,
+        private loadingCtrl: LoadingController,
         private store: Store<fromRoot.AppState>
     ) {
-        this.settingsClicked.subscribe(() => this.store.dispatch({ type: 'DATABASE_SYNC' }));
+        this.settingsClicked.subscribe(() => this.store.dispatch({ type: 'DELETE_DATABASE' }));
+
+        const loader = this.loadingCtrl.create({
+            content: "Datensynchronisierung. Bitte warten..."
+        });
+
+        const databaseExists$ = this.store.map(x => x.database)
+            .filter(x => x.databaseExists !== null)
+            .map(x => x.databaseExists)
+            .distinctUntilChanged()
+            .publishReplay(1).refCount();
+
+        databaseExists$
+            .filter(x => x)
+            .subscribe(() => {
+                this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
+                loader.dismiss();
+            });
+
+        databaseExists$
+            .filter(x => !x)
+            .subscribe(() => {
+                loader.present();
+                this.store.dispatch({ type: 'DATABASE_SYNC' });
+            });
     }
 
     navigateToDetails(pms: P.Preismeldestelle) {

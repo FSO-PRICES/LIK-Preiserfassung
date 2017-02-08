@@ -3,10 +3,10 @@
         <pef-search-input class="pms-search" (valueChanges)="filterText$.emit($event)"></pef-search-input>
     </div>
     <div class="preismeldung-list-check-filter">
-        <button ion-button icon-only color="wild-sand">
+        <button ion-button icon-only color="wild-sand" [class.button-radio-selected]="filterTodoSelected$ | async"  (click)="selectFilterTodo$.emit()">
             <pef-icon name="todo"></pef-icon>
         </button>
-        <button ion-button icon-only color="wild-sand">
+        <button ion-button icon-only color="wild-sand" [class.button-radio-selected]="filterCompletedSelected$ | async"  (click)="selectFilterCompleted$.emit()">
             <pef-icon name="checkmark"></pef-icon>
         </button>
     </div>

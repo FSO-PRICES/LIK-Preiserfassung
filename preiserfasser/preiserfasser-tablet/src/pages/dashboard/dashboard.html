@@ -8,10 +8,10 @@
                 </div>
             </div>
             <div class="settings-buttons-container">
-                <button ion-button class="pef-toolbar-button">
+                <button ion-button class="pef-toolbar-button" [disabled]="true">
                     <pef-icon name="info"></pef-icon>
                 </button>
-                <button ion-button class="pef-toolbar-button" (click)="settingsClicked.emit()">
+                <button ion-button class="pef-toolbar-button" (click)="settingsClicked.emit()" [disabled]="true">
                     <pef-icon name="settings"></pef-icon>
                 </button>
             </div>
@@ -20,7 +20,7 @@
             <div class="preismeldestellen">
                 <div class="header-line">
                     <h3>{{ 'choose-preismeldestelle' | translate }}</h3>
-                    <div class="current-time">{{currentTime$ | async}}</div>
+                    <div class="current-time" (dblclick)="settingsClicked.emit()">{{currentTime$ | async}}</div>
                 </div>
                 <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
                 <div class="pms-header-table">

@@ -11,10 +11,6 @@ import { reducer } from '../reducers';
 import { PEF_EFFECTS } from '../effects';
 
 import { MyApp } from './app.component';
-import { AboutPage } from '../pages/about/about';
-import { ContactPage } from '../pages/contact/contact';
-import { HomePage } from '../pages/home/home';
-import { TabsPage } from '../pages/tabs/tabs';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
@@ -30,10 +26,6 @@ export function createTranslateLoader(http: Http) {
 @NgModule({
     declarations: [
         MyApp,
-        AboutPage,
-        ContactPage,
-        HomePage,
-        TabsPage,
         DashboardPage,
         PmsDetailsPage,
         TestPage,
@@ -67,10 +59,6 @@ export function createTranslateLoader(http: Http) {
     bootstrap: [IonicApp],
     entryComponents: [
         MyApp,
-        AboutPage,
-        ContactPage,
-        HomePage,
-        TabsPage,
         DashboardPage,
         PmsPriceEntryPage,
         PmsDetailsPage,

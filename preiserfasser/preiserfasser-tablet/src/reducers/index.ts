@@ -9,8 +9,10 @@ import * as fromPreismeldestellen from './preismeldestellen';
 import * as fromAppConfig from './app-config';
 import * as fromPreismeldungen from './preismeldungen';
 import * as fromTime from './time';
+import * as fromDatabase from './database';
 
 export interface AppState {
+    database: fromDatabase.State;
     appConfig: fromAppConfig.State;
     preismeldestellen: fromPreismeldestellen.State;
     preismeldungen: fromPreismeldungen.State
@@ -18,6 +20,7 @@ export interface AppState {
 }
 
 const reducers = {
+    database: fromDatabase.reducer,
     appConfig: fromAppConfig.reducer,
     preismeldestellen: fromPreismeldestellen.reducer,
     preismeldungen: fromPreismeldungen.reducer,
