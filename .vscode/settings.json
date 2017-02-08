@@ -3,6 +3,7 @@
     "files.insertFinalNewline": true,
     "editor.renderWhitespace": "boundary",
     "editor.formatOnType": true,
+    "editor.tabSize": 4,
     "typescript.format.insertSpaceAfterCommaDelimiter": true,
     "typescript.format.insertSpaceAfterSemicolonInForStatements": true,
     "typescript.format.insertSpaceBeforeAndAfterBinaryOperators": true,
