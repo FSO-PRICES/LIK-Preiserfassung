@@ -20,6 +20,8 @@ Passwords and user information are saved in the KeePass **LIK-BFS** group.
   6. root> chown -R couchdb:couchdb /usr/bin/couchdb /etc/couchdb /usr/share/couchdb
   7. root> chmod -R 0770 /usr/bin/couchdb /etc/couchdb /usr/share/couchdb
   8. root> systemctl restart couchdb
+  9. Modify bind address
+  10. Add cors
 
 * NPM http-server
   1. root> npm install -g http-server
