@@ -2,7 +2,7 @@ import { createPmsToPeMap, preparePms } from "../../common/presta-data-mapper"
 import { PmsToPeMap, Erheber } from "../../../../../common/models"
 import { Component, EventEmitter } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import * as bluebird from 'bluebird';
 import * as _ from 'lodash';
 import * as PouchDB from 'pouchdb';
@@ -13,12 +13,12 @@ PouchDB.plugin(pouchDbAuthentication);
 declare var window: Window & { File: any, FileReader: any, FileList: any };
 
 type UserStatus = { user: string; exists: boolean };
-        
+
 @Component({
     templateUrl: 'initialization.html'
 })
 export class InitializationPage {
-    public credentials: {username: string, password: string};
+    public credentials: { username: string, password: string };
     public canHandleFileApi = true;
     public fileLoaded = false;
     private pmsToPeMap: PmsToPeMap;
@@ -47,46 +47,48 @@ export class InitializationPage {
             'philipp',
             'wayne',
             'edi',
-            'roger'
+            'roger',
+            'foobar',
+            'barfoo',
+            'a',
+            'b',
+            'c',
+            'd',
+            'e',
+            'f',
+            'g',
+            'h',
+            'i',
+            'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'
         ];
 
-
         const login$ = Observable.fromPromise(login(username, password))
-            .publishReplay(1).refCount();
-        
-        this.usersStatuses$ = login$
+        // .publishReplay(1).refCount();
+
+        const createUsersFinished$ = new Subject();
+
+        // this.usersStatuses$ = login$.merge(createUsersFinished$)
+        this.usersStatuses$ = createUsersFinished$.merge(login$)
             .flatMap<string>(() => Observable.from(users))
             .map<Observable<UserStatus>>(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`)).map(_ => ({ user, exists: true })).catch(() => Observable.of({ user, exists: false })))
             .combineAll<UserStatus[]>()
             .publishReplay(1).refCount();
-        
-        const fff = this.createUsersClicked$
-            .combineLatest(this.usersStatuses$, (_, usersStatuses: UserStatus[]) => usersStatuses)
+
+        const createUserObject = user => ({
+            _id: `org.couchdb.user:${user}`,
+            name: user,
+            roles: [],
+            type: 'user',
+            password: 'secret'
+        });
+
+        this.createUsersClicked$
+            .withLatestFrom(this.usersStatuses$, (_, usersStatuses: UserStatus[]) => usersStatuses)
             .map(x => x.filter(u => !u.exists).map(u => u.user))
-            .do(x => console.log('will create', x))
-            .map(users => users.map(user => Observable.fromPromise(couch.put({
-                _id: `org.couchdb.user:${user}`,
-                name: user,
-                roles: [],
-                type: 'user',
-                password: 'secret'
-            }))))
-            // .flatMap(x => x)
-            // .subscribe(() => console.log('done'));
-        
-            // var xxx1 = Observable.from(users)
-            //     .map<Observable<UserStatus>>(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`)).map(_ => ({ user, exists: true })).catch(() => Observable.of({ user, exists: false })))
-            //     // .flatMap(x => x)
-            //     // .filter(res => res.exists)
-            //     .combineAll<UserStatus[]>()
-
-
-        // login(username, password).then(x => console.log(x))
-        
-
-        // const login$ = Observable.fromPromise(login(username, password));
-
+            .flatMap<PouchDB.Core.Response[]>(users => Observable.from(users.map(user => couch.put(createUserObject(user)))).combineAll())
+            .subscribe(x => createUsersFinished$.next());
     }
+
 
     createDb() {
         var erheberList = this.erheberList();
@@ -138,18 +140,18 @@ export class InitializationPage {
     private createCouchDbInstances(users: string[], username: string, password: string) {
         const url = `http://${username}:${password}@localhost:5984/_users`;
 
-    //     bluebird.all(
-    //         users.map(x => this.http.post(url,
-    //             method: 'POST',
-    //             json: {
-    //                 _id: `org.couchdb.user:${x}`,
-    //                 name: x,
-    //                 roles: [],
-    //                 type: 'user',
-    //                 password: 'secret'
-    //             }
-    //         })))
-    //         .then(() => console.log('done!'));
+        //     bluebird.all(
+        //         users.map(x => this.http.post(url,
+        //             method: 'POST',
+        //             json: {
+        //                 _id: `org.couchdb.user:${x}`,
+        //                 name: x,
+        //                 roles: [],
+        //                 type: 'user',
+        //                 password: 'secret'
+        //             }
+        //         })))
+        //         .then(() => console.log('done!'));
     }
 
     foobar() {
@@ -172,21 +174,21 @@ export class InitializationPage {
                 // .flatMap(x => x)
                 // .filter(res => res.exists)
                 .combineAll<UserStatus[]>()
-                // .map(x => x.filter(y => !y.exists).map(y => y.user));
-            
-            xxx1.subscribe(x => console.log('results', x))
-            
-        //     var www = Observable.merge(users.map(user => couch.get(`org.couchdb.user:${user}`)));
-        //     var xxxy = Observable.from(users.map(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`)))).mergeAll()
+            // .map(x => x.filter(y => !y.exists).map(y => y.user));
 
-        //     var xxx = Observable.of(users)
-        //         .map(_users => {
-        //             return Observable.from(_users.map(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`))))
-        //         })
-        //         .flatMap(x => x)
-        //         .subscribe(x => console.log('x is', x))
+            xxx1.subscribe(x => console.log('results', x))
+
+            //     var www = Observable.merge(users.map(user => couch.get(`org.couchdb.user:${user}`)));
+            //     var xxxy = Observable.from(users.map(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`)))).mergeAll()
+
+            //     var xxx = Observable.of(users)
+            //         .map(_users => {
+            //             return Observable.from(_users.map(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`))))
+            //         })
+            //         .flatMap(x => x)
+            //         .subscribe(x => console.log('x is', x))
         })
-            // .then(x => console.log(x));
+        // .then(x => console.log(x));
 
 
         // const url = `http://${username}:${password}@localhost:5984/_users`;
@@ -208,10 +210,10 @@ export class InitializationPage {
         //             password: 'secret'
         //         })
         //     )
-            // .subscribe();
+        // .subscribe();
 
         // foo.
-            // .subscribe(x => console.log('is', x));
+        // .subscribe(x => console.log('is', x));
     }
 
 }
