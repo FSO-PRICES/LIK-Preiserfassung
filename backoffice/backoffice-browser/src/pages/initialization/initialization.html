@@ -17,7 +17,7 @@
 
             <ion-row>
                 <ion-col class="signup-col">
-                    <input class="file-select-btn" type="file" (change)="fileSelected($event)"/>
+                    <input class="file-select-btn" type="file" (change)="fileSelected$.emit($event)"/>
                     <button ion-button class="register-btn" type="button" block clear [disabled]="!credentialsForm.form.valid || !hasErheberList()" (click)="createDb()">Create Db</button>
                 </ion-col>
             </ion-row>
