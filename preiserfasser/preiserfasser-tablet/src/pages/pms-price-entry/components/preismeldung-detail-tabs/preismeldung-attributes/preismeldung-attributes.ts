@@ -3,9 +3,9 @@ import { Component, Input } from '@angular/core';
 import * as P from '../../../../../common-models';
 
 @Component({
-    selector: 'preismeldung-detail-messages',
-    templateUrl: 'preismeldung-detail-messages.html'
+    selector: 'preismeldung-attributes',
+    templateUrl: 'preismeldung-attributes.html'
 })
-export class PreismeldungDetailMessagesComponent {
+export class PreismeldungAttributesComponent {
     @Input() preismeldung: P.Preismeldung;
 }

@@ -35,10 +35,10 @@ export function dropDatabase() {
         .then(exists => {
             if (exists) {
                 const db = new PouchDB(DB_NAME);
-                return db.destroy().then(() => {});
+                return db.destroy().then(() => { });
             }
             return Promise.resolve({});
-        })
+        });
 }
 
 export function dropAndSyncDatabase() {
