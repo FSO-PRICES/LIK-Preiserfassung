@@ -35,31 +35,17 @@ export class InitializationPage {
         const couch = new PouchDB('http://localhost:5984/_users');
         const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
 
-        const users = [
-            'philipp',
-            'wayne',
-            'edi',
-            'roger',
-            'foobar',
-            'barfoo',
-            'a',
-            'b',
-            'c',
-            'd',
-            'e',
-            'f',
-            'g',
-            'h',
-            'i',
-            'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'y', 'x', 'z', 'aa', 'ab', 'ac'
-        ];
-
         const login$ = Observable.fromPromise(login(username, password))
             .publishReplay(1).refCount();
 
-        const usersStatuses$ = Observable.from(users)
-            .map<Observable<UserStatus>>(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`)).map(_ => ({ user, exists: true })).catch(() => Observable.of({ user, exists: false })))
-            .combineAll<UserStatus[]>();
+        const parsedFile$ = this.fileSelected$
+            .map(event => (<HTMLInputElement>event.target).files.item(0))
+            .flatMap<string>(file => this.readFileContents(file))
+            .map(x => this.createMap(this.parseFile(x)))
+            .publishReplay(1).refCount();
+
+        const usersStatuses$ = parsedFile$
+            .flatMap<UserStatus[]>(users => Observable.from(users.map(u => `${u.erheber.firstName}_${u.erheber.surname}c`).map(user => couch.get(`org.couchdb.user:${user}`).then(_ => ({ user, exists: true })).catch(() => ({ user, exists: false })))).combineAll());
 
         const createUserObject = user => ({
             _id: `org.couchdb.user:${user}`,
@@ -75,13 +61,6 @@ export class InitializationPage {
             .flatMap<PouchDB.Core.Response[]>(users => Observable.from(users.map(user => couch.put(createUserObject(user)))).combineAll())
 
         this.usersStatuses$ = login$.merge(createUsers$).flatMap(() => usersStatuses$);
-
-        const parsedFile$ = this.fileSelected$
-            .map(event => (<HTMLInputElement>event.target).files.item(0))
-            .flatMap<string>(file => this.readFileContents(file))
-            .map(x => this.parseFile(x));
-
-        parsedFile$.subscribe();
     }
 
     createDb() {
