@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { readFile, writeFile, } from '../promisified';
 import { bufferToCells } from '../utils';
 
-import { WarenkorbBranch, WarenkorbLeaf, WarenkorbTreeItem, WarenkorbHierarchicalTreeItem, PeriodizitaetMonat } from '../../common/models'
+import { WarenkorbTreeItem, WarenkorbHierarchicalTreeItem, PeriodizitaetMonat } from '../../common/models';
 
 readFile('./warenkorb/data/Erhebungsschema_DE.txt').then(bufferToCells)
     .then(de => readFile('./warenkorb/data/Erhebungsschema_FR.txt').then(bufferToCells).then(fr => ({ de, fr })))
@@ -69,14 +69,14 @@ function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): Wa
             produktecode: parseProduktecode(thisLine[indexes.produktecode]),
             gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
             tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
-            positionsbezeichnung: { de: thisLine[indexes.positionsbezeichnung], fr: data.fr[i][indexes.positionsbezeichnung], it: data.it[i][indexes.positionsbezeichnung] },
-            periodizitaetscode: { de: thisLine[indexes.periodizitaetscode], fr: data.fr[i][indexes.periodizitaetscode], it: data.it[i][indexes.periodizitaetscode] },
+            positionsbezeichnung: translationsToStringOrNull(thisLine[indexes.positionsbezeichnung], data.fr[i][indexes.positionsbezeichnung], data.it[i][indexes.positionsbezeichnung]),
+            periodizitaetscode: translationsToStringOrNull(thisLine[indexes.periodizitaetscode], data.fr[i][indexes.periodizitaetscode], data.it[i][indexes.periodizitaetscode]),
             standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
-            standardeinheit: { de: thisLine[indexes.standardeinheit], fr: data.fr[i][indexes.standardeinheit], it: data.it[i][indexes.standardeinheit] },
+            standardeinheit: translationsToStringOrNull(thisLine[indexes.standardeinheit], data.fr[i][indexes.standardeinheit], data.it[i][indexes.standardeinheit]),
             erhebungstyp: thisLine[indexes.erhebungstyp],
             anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
-            beispiele: { de: parseBeispiel(thisLine[indexes.beispiele]), fr: parseBeispiel(data.fr[i][indexes.beispiele]), it: parseBeispiel(data.it[i][indexes.beispiele]) },
-            info: { de: parseInfo(thisLine[indexes.info]), fr: parseInfo(data.fr[i][indexes.info]), it: parseInfo(data.it[i][indexes.info]) },
+            beispiele: translationsToStringOrNull(parseBeispiel(thisLine[indexes.beispiele]), parseBeispiel(data.fr[i][indexes.beispiele]), parseBeispiel(data.it[i][indexes.beispiele])),
+            info: translationsToStringOrNull(parseInfo(thisLine[indexes.info]), parseInfo(data.fr[i][indexes.info]), parseInfo(data.it[i][indexes.info])),
             periodizitaetMonat: parsePeriodizitaet([
                 thisLine[indexes.periodizitaetMonat1],
                 thisLine[indexes.periodizitaetMonat2],
