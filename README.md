@@ -131,7 +131,9 @@ verrichten (hoch spezialisierter und sehr seltener Fall).
 
 ## Backend Funktionsübersicht
 
+Löschen:
 * Beim Löschen von referenzierten Einträgen wird eine Fehlermeldung angezeigt und erklärt dass der Eintrag verwendet wird.
+* Zudem gibt es bei der Regionen Auflistung ein check gemacht, welcher das Anzeigen ob eine Region verwendet wird ermöglicht.
 
 ### PM
 
@@ -142,7 +144,7 @@ verrichten (hoch spezialisierter und sehr seltener Fall).
 
 ### PE
 
-* Auflistung mit suchfeld.
+* Auflistung mit Suchfeld.
   * Erstellen, Export & Sortierung, Paging
 * Aktionen in der Liste für jeden PE
   * Ansicht, Editieren, Löschen
@@ -150,13 +152,13 @@ verrichten (hoch spezialisierter und sehr seltener Fall).
 
 **PE zu PMS Zuweisung** (über PE Auflistung erreichbar)
 
-* Auflistung mit suchfeld.
+* Auflistung mit Suchfeld.
   * Erstellen, Export & Sortierung, Paging
 * Aktionen in der Liste für jede Zuweisung
 
 ### PMS
 
-* Auflistung mit suchfeld.
+* Auflistung mit Suchfeld.
   * Erstellen, Export & Sortierung, Paging
 * Nach der einfachen eingabemaske beim Erstellen sind zusätzliche Informationen administrierbar.
 * Aktionen in der Liste für jede PMS
@@ -165,7 +167,7 @@ verrichten (hoch spezialisierter und sehr seltener Fall).
 
 ### TD
 
-* Auflistung mit suchfeld.
+* Auflistung mit Suchfeld.
   * Erstellen, Export & Sortierung, Paging
 * Aktionen in der Liste für jeden PE
   * Ansicht, Editieren, Löschen
@@ -186,9 +188,14 @@ verrichten (hoch spezialisierter und sehr seltener Fall).
 
 ### PAG
 
-* Auflistung mit suchfeld.
+* Auflistung mit Suchfeld.
   * Erstellen, Sortierung, Paging
 * Nach der einfachen eingabemaske beim Erstellen sind zusätzliche Informationen administrierbar.
 * Aktionen in der Liste für jede PMS
   * Ansicht, Editieren, Löschen
   * Papierliste herunterladen, Preismeldestelle wie Vorperiode abbuchen, Zurücksetzen
+
+
+### Warenkorb Auflistung
+
+* TreeView mit Suchfeld und fortgeschrittenem Filter.

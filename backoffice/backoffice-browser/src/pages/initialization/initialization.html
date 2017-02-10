@@ -16,17 +16,22 @@
             </ion-row>
 
             <ion-row>
-                <ion-col class="signup-col">
-                    <input class="file-select-btn" type="file" (change)="fileSelected$.emit($event)"/>
-                    <button ion-button class="register-btn" type="button" block clear [disabled]="!credentialsForm.form.valid || !hasErheberList()" (click)="createDb()">Create Db</button>
+                <ion-col>
+                    <label>Erhebungsschema Deutsch</label><br>
+                    <input class="file-select-btn" type="file" [disabled]="warenkorbIsCompleted$ | async" (change)="warenkorbSelectedDe$.emit($event)" multiple/>
+                </ion-col>
+                <ion-col>
+                    <label>Erhebungsschema Französisch</label><br>
+                    <input class="file-select-btn" type="file" [disabled]="warenkorbIsCompleted$ | async" (change)="warenkorbSelectedFr$.emit($event)" multiple/>
+                </ion-col>
+                <ion-col>
+                    <label>Erhebungsschema Italienisch</label><br>
+                    <input class="file-select-btn" type="file" [disabled]="warenkorbIsCompleted$ | async" (change)="warenkorbSelectedIt$.emit($event)" multiple/>
+                </ion-col>
+                <ion-col>
+                    <button ion-button class="register-btn" type="button" block clear [disabled]="!(warenkorbIsCompleted$ | async)" (click)="createWarenkorbClicked$.emit($event)">Import Warenkorb</button>
                 </ion-col>
             </ion-row>
         </form>
-    </div>
-    <div class="new-db-list">
-        <ion-list class="disable-user-behavior">
-            <ion-item *ngFor="let userStatus of usersStatuses$ | async" class="item">{{userStatus.user}} {{userStatus.exists}}</ion-item>
-        </ion-list>
-        <button type="button" ion-button (click)="createUsersClicked$.emit()">Create Users</button>
     </div>
 </ion-content>

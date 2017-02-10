@@ -5,9 +5,11 @@ import * as _ from 'lodash';
 import { readFile, writeFile, } from '../promisified';
 import { bufferToCells } from '../utils';
 
-readFile('./warenkorb/data/Erhebungsschema_DE.csv').then(bufferToCells)
-    .then(de => readFile('./warenkorb/data/Erhebungsschema_FR.csv').then(bufferToCells).then(fr => ({ de, fr })))
-    .then(x => readFile('./warenkorb/data/Erhebungsschema_IT.csv').then(bufferToCells).then(it => ({ de: x.de, fr: x.fr, it })))
+import { WarenkorbTreeItem, WarenkorbHierarchicalTreeItem, PeriodizitaetMonat } from '../../common/models';
+
+readFile('./warenkorb/data/Erhebungsschema_DE.txt').then(bufferToCells)
+    .then(de => readFile('./warenkorb/data/Erhebungsschema_FR.txt').then(bufferToCells).then(fr => ({ de, fr })))
+    .then(x => readFile('./warenkorb/data/Erhebungsschema_IT.txt').then(bufferToCells).then(it => ({ de: x.de, fr: x.fr, it })))
     .then(data => {
         const treeItems = buildTree(data);
         var hierarchy = createHierarchy(treeItems);
@@ -18,133 +20,85 @@ readFile('./warenkorb/data/Erhebungsschema_DE.csv').then(bufferToCells)
             .then(() => writeFile('./warenkorb/hierarchy.json', JSON.stringify(hierarchy), { encoding: 'UTF-8' }));
     });
 
-interface PropertyTranslation {
-    de: string;
-    fr: string;
-    it: string;
-}
-
-interface TreeItemBase {
-    gliederungspositionsnummer: string;
-    parentGliederungspositionsnummer: string
-    produktecode: string;
-    gliederungspositionstyp: number;
-    tiefencode: number;
-    bezeichnung: PropertyTranslation;
-    periodizitaetscode: PropertyTranslation;
-    beispiel: PropertyTranslation;
-    info: PropertyTranslation;
-    periodizitaetJan: boolean;
-    periodizitaetFeb: boolean;
-    periodizitaetMaerz: boolean;
-    periodizitaetApril: boolean;
-    periodizitaetMai: boolean;
-    periodizitaetJuni: boolean;
-    periodizitaetJuli: boolean;
-    periodizitaetAug: boolean;
-    periodizitaetSept: boolean;
-    periodizitaetOkt: boolean;
-    periodizitaetNov: boolean;
-    periodizitaetDez: boolean;
-    abweichungPmUG2: number;
-    abweichungPmOG2: number;
-    champSupplementaire1: PropertyTranslation;
-    champSupplementaire2: PropertyTranslation;
-    champSupplementaire3: PropertyTranslation;
-    champSupplementaire4: PropertyTranslation;
-    champSupplementaire5: PropertyTranslation;
-}
-
-interface Branch extends TreeItemBase {
-    type: 'BRANCH';
-}
-
-interface Leaf extends TreeItemBase {
-    type: 'LEAF';
-    standardmenge: number;
-    standardeinheit: PropertyTranslation;
-    erhebungstyp: string;
-    anzahlPreiseProPMS: number;
-}
-
-type TreeItem = Branch | Leaf;
-
-type HierarchicalTreeItem = (Branch & { children: HierarchicalTreeItem[] }) | Leaf;
-
 const indexes = {
     gliederungspositionsnummer: 1,
     produktecode: 2,
     gliederungspositionstyp: 3,
     tiefencode: 4,
-    bezeichnung: 5,
+    positionsbezeichnung: 5,
     periodizitaetscode: 6,
     standardmenge: 7,
     standardeinheit: 8,
     erhebungstyp: 9,
     anzahlPreiseProPMS: 10,
-    beispiel: 11,
+    beispiele: 11,
     info: 12,
-    periodizitaetJan: 13,
-    periodizitaetFeb: 14,
-    periodizitaetMaerz: 15,
-    periodizitaetApril: 16,
-    periodizitaetMai: 17,
-    periodizitaetJuni: 18,
-    periodizitaetJuli: 19,
-    periodizitaetAug: 20,
-    periodizitaetSept: 21,
-    periodizitaetOkt: 22,
-    periodizitaetNov: 23,
-    periodizitaetDez: 24,
+    periodizitaetMonat1: 13,
+    periodizitaetMonat2: 14,
+    periodizitaetMonat3: 15,
+    periodizitaetMonat4: 16,
+    periodizitaetMonat5: 17,
+    periodizitaetMonat6: 18,
+    periodizitaetMonat7: 19,
+    periodizitaetMonat8: 20,
+    periodizitaetMonat9: 21,
+    periodizitaetMonat10: 22,
+    periodizitaetMonat11: 23,
+    periodizitaetMonat12: 24,
     abweichungPmUG2: 25,
     abweichungPmOG2: 26,
-    champSupplementaire1: 27,
-    champSupplementaire2: 28,
-    champSupplementaire3: 29,
-    champSupplementaire4: 30,
-    champSupplementaire5: 31
+    produktmerkmal1: 27,
+    produktmerkmal2: 28,
+    produktmerkmal3: 29,
+    produktmerkmal4: 30,
+    produktmerkmal5: 31,
+    produktmerkmal6: 32
 };
 
-function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): TreeItem[] {
-    const lastDepthGliederungspositionsnummers: { [index: number]: TreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
 
-    const treeItems: TreeItem[] = [];
+function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): WarenkorbTreeItem[] {
+    const lastDepthGliederungspositionsnummers: { [index: number]: WarenkorbTreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
+
+    const treeItems: WarenkorbTreeItem[] = [];
     for (let i = 0; i < data.de.length; i++) {
         const thisLine = data.de[i];
-        const treeItem: TreeItem = {
+        const treeItem: WarenkorbTreeItem = {
             type: 'LEAF',
             gliederungspositionsnummer: thisLine[indexes.gliederungspositionsnummer],
             parentGliederungspositionsnummer: null,
             produktecode: parseProduktecode(thisLine[indexes.produktecode]),
             gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
             tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
-            bezeichnung: { de: thisLine[indexes.bezeichnung], fr: data.fr[i][indexes.bezeichnung], it: data.it[i][indexes.bezeichnung] },
-            periodizitaetscode: { de: thisLine[indexes.periodizitaetscode], fr: data.fr[i][indexes.periodizitaetscode], it: data.it[i][indexes.periodizitaetscode] },
+            positionsbezeichnung: translationsToStringOrNull(thisLine[indexes.positionsbezeichnung], data.fr[i][indexes.positionsbezeichnung], data.it[i][indexes.positionsbezeichnung]),
+            periodizitaetscode: translationsToStringOrNull(thisLine[indexes.periodizitaetscode], data.fr[i][indexes.periodizitaetscode], data.it[i][indexes.periodizitaetscode]),
             standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
-            standardeinheit: { de: thisLine[indexes.standardeinheit], fr: data.fr[i][indexes.standardeinheit], it: data.it[i][indexes.standardeinheit] },
+            standardeinheit: translationsToStringOrNull(thisLine[indexes.standardeinheit], data.fr[i][indexes.standardeinheit], data.it[i][indexes.standardeinheit]),
             erhebungstyp: thisLine[indexes.erhebungstyp],
             anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
-            beispiel: { de: parseBeispiel(thisLine[indexes.beispiel]), fr: parseBeispiel(data.fr[i][indexes.beispiel]), it: parseBeispiel(data.it[i][indexes.beispiel]) },
-            info: { de: parseInfo(thisLine[indexes.info]), fr: parseInfo(data.fr[i][indexes.info]), it: parseInfo(data.it[i][indexes.info]) },
-            periodizitaetJan: parsePeriodizitaet(thisLine[indexes.periodizitaetJan]),
-            periodizitaetFeb: parsePeriodizitaet(thisLine[indexes.periodizitaetFeb]),
-            periodizitaetMaerz: parsePeriodizitaet(thisLine[indexes.periodizitaetMaerz]),
-            periodizitaetApril: parsePeriodizitaet(thisLine[indexes.periodizitaetApril]),
-            periodizitaetMai: parsePeriodizitaet(thisLine[indexes.periodizitaetMai]),
-            periodizitaetJuni: parsePeriodizitaet(thisLine[indexes.periodizitaetJuni]),
-            periodizitaetJuli: parsePeriodizitaet(thisLine[indexes.periodizitaetJuli]),
-            periodizitaetAug: parsePeriodizitaet(thisLine[indexes.periodizitaetAug]),
-            periodizitaetSept: parsePeriodizitaet(thisLine[indexes.periodizitaetSept]),
-            periodizitaetOkt: parsePeriodizitaet(thisLine[indexes.periodizitaetOkt]),
-            periodizitaetNov: parsePeriodizitaet(thisLine[indexes.periodizitaetNov]),
-            periodizitaetDez: parsePeriodizitaet(thisLine[indexes.periodizitaetDez]),
+            beispiele: translationsToStringOrNull(parseBeispiel(thisLine[indexes.beispiele]), parseBeispiel(data.fr[i][indexes.beispiele]), parseBeispiel(data.it[i][indexes.beispiele])),
+            info: translationsToStringOrNull(parseInfo(thisLine[indexes.info]), parseInfo(data.fr[i][indexes.info]), parseInfo(data.it[i][indexes.info])),
+            periodizitaetMonat: parsePeriodizitaet([
+                thisLine[indexes.periodizitaetMonat1],
+                thisLine[indexes.periodizitaetMonat2],
+                thisLine[indexes.periodizitaetMonat3],
+                thisLine[indexes.periodizitaetMonat4],
+                thisLine[indexes.periodizitaetMonat5],
+                thisLine[indexes.periodizitaetMonat6],
+                thisLine[indexes.periodizitaetMonat7],
+                thisLine[indexes.periodizitaetMonat8],
+                thisLine[indexes.periodizitaetMonat9],
+                thisLine[indexes.periodizitaetMonat10],
+                thisLine[indexes.periodizitaetMonat11],
+                thisLine[indexes.periodizitaetMonat12]
+            ]),
             abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
             abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
-            champSupplementaire1: { de: thisLine[indexes.champSupplementaire1], fr: data.fr[i][indexes.champSupplementaire1], it: data.it[i][indexes.champSupplementaire1] },
-            champSupplementaire2: { de: thisLine[indexes.champSupplementaire2], fr: data.fr[i][indexes.champSupplementaire2], it: data.it[i][indexes.champSupplementaire2] },
-            champSupplementaire3: { de: thisLine[indexes.champSupplementaire3], fr: data.fr[i][indexes.champSupplementaire3], it: data.it[i][indexes.champSupplementaire3] },
-            champSupplementaire4: { de: thisLine[indexes.champSupplementaire4], fr: data.fr[i][indexes.champSupplementaire4], it: data.it[i][indexes.champSupplementaire4] },
-            champSupplementaire5: { de: thisLine[indexes.champSupplementaire5], fr: data.fr[i][indexes.champSupplementaire5], it: data.it[i][indexes.champSupplementaire5] }
+            produktmerkmal1: translationsToStringOrNull(thisLine[indexes.produktmerkmal1], data.fr[i][indexes.produktmerkmal1], data.it[i][indexes.produktmerkmal1]),
+            produktmerkmal2: translationsToStringOrNull(thisLine[indexes.produktmerkmal2], data.fr[i][indexes.produktmerkmal2], data.it[i][indexes.produktmerkmal2]),
+            produktmerkmal3: translationsToStringOrNull(thisLine[indexes.produktmerkmal3], data.fr[i][indexes.produktmerkmal3], data.it[i][indexes.produktmerkmal3]),
+            produktmerkmal4: translationsToStringOrNull(thisLine[indexes.produktmerkmal4], data.fr[i][indexes.produktmerkmal4], data.it[i][indexes.produktmerkmal4]),
+            produktmerkmal5: translationsToStringOrNull(thisLine[indexes.produktmerkmal5], data.fr[i][indexes.produktmerkmal5], data.it[i][indexes.produktmerkmal5]),
+            produktmerkmal6: translationsToStringOrNull(thisLine[indexes.produktmerkmal6], data.fr[i][indexes.produktmerkmal6], data.it[i][indexes.produktmerkmal6])
         };
         treeItems.push(treeItem);
         const parent = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
@@ -194,11 +148,11 @@ function parseNumber(s: string, propertyName: string) {
     return number;
 }
 
-function createHierarchy(treeItems: TreeItem[]): HierarchicalTreeItem {
+function createHierarchy(treeItems: WarenkorbTreeItem[]): WarenkorbHierarchicalTreeItem {
     return createHierarchyRecursive(treeItems[0], 1, treeItems);
 }
 
-function createHierarchyRecursive(parent: TreeItem, currentItemIndex: number, treeItems: TreeItem[]): HierarchicalTreeItem {
+function createHierarchyRecursive(parent: WarenkorbTreeItem, currentItemIndex: number, treeItems: WarenkorbTreeItem[]): WarenkorbHierarchicalTreeItem {
     if (parent.type === 'LEAF') return parent;
 
     const children = [];
@@ -212,25 +166,39 @@ function createHierarchyRecursive(parent: TreeItem, currentItemIndex: number, tr
     return _.assign({}, parent, { children });
 }
 
-function countHierarchicalItems(item: HierarchicalTreeItem): number {
+function countHierarchicalItems(item: WarenkorbHierarchicalTreeItem): number {
     if (item.type === 'LEAF') return 1;
     return item.children.reduce((agg, v) => agg + countHierarchicalItems(v), 1);
 }
 
-function countHierarchicalLeaves(item: HierarchicalTreeItem): number {
+function countHierarchicalLeaves(item: WarenkorbHierarchicalTreeItem): number {
     if (item.type === 'LEAF') return 1;
     return item.children.reduce((agg, v) => agg + countHierarchicalLeaves(v), 0);
 }
 
-function countHierarchicalBranches(item: HierarchicalTreeItem): number {
+function countHierarchicalBranches(item: WarenkorbHierarchicalTreeItem): number {
     if (item.type === 'LEAF') return 0;
     return item.children.reduce((agg, v) => agg + countHierarchicalBranches(v), 1);
 }
-
-const parsePeriodizitaet = parseBoolean;
 
 function parseBoolean(s: string) {
     return s.toLocaleLowerCase() === 'x';
 }
 
+function parsePeriodizitaet(periodizitaten: string[]) {
+    return periodizitaten.reduce((prev, curr, index) => {
+        return prev |= parseBoolean(curr) ? <PeriodizitaetMonat>(1 << index) : PeriodizitaetMonat.None;
+    }, PeriodizitaetMonat.None)
+}
+
 const parseAbweichung = parseNumberOrNull;
+
+function parseStringOrEmpty(s: string) {
+    return !!s ? s.toString() : "";
+}
+
+function translationsToStringOrNull(de: string, fr: string, it: string) {
+    return !!de || !!fr || !!it ?
+        { de: parseStringOrEmpty(de), fr: parseStringOrEmpty(fr), it: parseStringOrEmpty(it) } :
+        null;
+}

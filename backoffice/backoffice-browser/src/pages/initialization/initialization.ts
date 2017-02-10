@@ -1,4 +1,5 @@
 import { createPmsToPeMap, preparePms } from "../../common/presta-data-mapper"
+import { buildTree } from "../../common/presta-warenkorb-mapper"
 import { PmsToPeMap, Erheber } from "../../../../../common/models"
 import { Component, EventEmitter } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
@@ -10,21 +11,19 @@ import * as pouchDbAuthentication from 'pouchdb-authentication';
 
 PouchDB.plugin(pouchDbAuthentication);
 
-type UserStatus = { user: string; exists: boolean };
-
 @Component({
     templateUrl: 'initialization.html'
 })
 export class InitializationPage {
     public credentials: { username: string, password: string };
-    public canHandleFileApi = true;
-    public fileLoaded = false;
-    private pmsToPeMap: PmsToPeMap;
 
-    public usersStatuses$: Observable<UserStatus[]>;
-    public createUsersClicked$ = new EventEmitter();
+    public warenkorbIsCompleted$: Observable<boolean>;
 
-    public fileSelected$ = new EventEmitter<Event>();
+    public warenkorbSelectedDe$ = new EventEmitter<Event>();
+    public warenkorbSelectedFr$ = new EventEmitter<Event>();
+    public warenkorbSelectedIt$ = new EventEmitter<Event>();
+
+    public createWarenkorbClicked$ = new EventEmitter();
 
     constructor(private http: Http) {
         this.credentials = <any>{};
@@ -35,68 +34,39 @@ export class InitializationPage {
         const couch = new PouchDB('http://localhost:5984/_users');
         const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
 
-        const users = [
-            'philipp',
-            'wayne',
-            'edi',
-            'roger',
-            'foobar',
-            'barfoo',
-            'a',
-            'b',
-            'c',
-            'd',
-            'e',
-            'f',
-            'g',
-            'h',
-            'i',
-            'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'y', 'x', 'z', 'aa', 'ab', 'ac'
-        ];
-
         const login$ = Observable.fromPromise(login(username, password))
             .publishReplay(1).refCount();
 
-        const usersStatuses$ = Observable.from(users)
-            .map<Observable<UserStatus>>(user => Observable.fromPromise(couch.get(`org.couchdb.user:${user}`)).map(_ => ({ user, exists: true })).catch(() => Observable.of({ user, exists: false })))
-            .combineAll<UserStatus[]>();
-
-        const createUserObject = user => ({
-            _id: `org.couchdb.user:${user}`,
-            name: user,
-            roles: [],
-            type: 'user',
-            password: 'secret'
-        });
-
-        const createUsers$ = this.createUsersClicked$
-            .flatMap(() => usersStatuses$)
-            .map(x => x.filter(u => !u.exists).map(u => u.user))
-            .flatMap<PouchDB.Core.Response[]>(users => Observable.from(users.map(user => couch.put(createUserObject(user)))).combineAll())
-
-        this.usersStatuses$ = login$.merge(createUsers$).flatMap(() => usersStatuses$);
-
-        const parsedFile$ = this.fileSelected$
-            .map(event => (<HTMLInputElement>event.target).files.item(0))
-            .flatMap<string>(file => this.readFileContents(file))
-            .map(x => this.parseFile(x));
-
-        parsedFile$.subscribe();
-    }
-
-    createDb() {
-        var erheberList = this.erheberList();
-        if (!this.erheberList()) return;
-        this.createCouchDbInstances(_.map(erheberList, e => `${e.firstName}_${e.surname}`), this.credentials.username, this.credentials.password)
-    }
-
-    hasErheberList(): boolean {
-        return !!this.pmsToPeMap;
-    }
-
-    erheberList(): Erheber[] {
-        if (!this.hasErheberList()) return [];
-        return _.map(this.pmsToPeMap, map => map.erheber);
+        const warenkorbDe$ = this.warenkorbSelectedDe$
+            .map(event => _.first((<HTMLInputElement>event.target).files))
+            .filter(f => !!f.name.match('Erhebungsschema_DE'))
+            .flatMap(file => this.readFileContents(file))
+            .map(content => this.parseFile(content))
+        const warenkorbFr$ = this.warenkorbSelectedFr$
+            .map(event => _.first((<HTMLInputElement>event.target).files))
+            .filter(f => !!f.name.match('Erhebungsschema_FR'))
+            .flatMap(file => this.readFileContents(file))
+            .map(content => this.parseFile(content))
+        const warenkorbIt$ = this.warenkorbSelectedIt$
+            .map(event => _.first((<HTMLInputElement>event.target).files))
+            .filter(f => !!f.name.match('Erhebungsschema_IT'))
+            .flatMap(file => this.readFileContents(file))
+            .map(content => this.parseFile(content))
+        
+        const warenkorbCompleted$ = warenkorbDe$
+            .do(x => console.log("warenkorb de", x))
+            .combineLatest(warenkorbFr$, warenkorbIt$, (de: string[][], fr: string[][], it: string[][]) => ({ de, fr, it }))
+            .do(x => console.log("combined_latest", x))
+            .publishReplay(1).refCount();
+        
+        this.warenkorbIsCompleted$ = warenkorbCompleted$.map(_ => true).startWith(false);
+            
+        const createWarenkorb$ = warenkorbCompleted$
+            .combineLatest(this.createWarenkorbClicked$, (warenkorb, _) => warenkorb)
+            .do(x => console.log("combined_latest+click", x))
+            .map(x => this.createWarenkorb(x))
+            .do(x => console.log("warenkorb", x))
+            .publishReplay(1).refCount().subscribe();
     }
 
     readFileContents(file: File) {
@@ -112,11 +82,7 @@ export class InitializationPage {
         return _.drop(lines.filter(x => x.length)).map(x => x.split(';'));
     }
 
-    private createMap(content: string[][]): PmsToPeMap {
-        return createPmsToPeMap(content);
-    }
-
-    private createCouchDbInstances(users: string[], username: string, password: string) {
-        const url = `http://${username}:${password}@localhost:5984/_users`;
+    private createWarenkorb(translations: { de: string[][], fr: string[][], it: string[][] }) {
+        return buildTree(translations);
     }
 }
