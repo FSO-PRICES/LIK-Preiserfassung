@@ -8,7 +8,7 @@ export interface PreismeldungViewModel {
     pmId: string;
     refPreismeldung?: P.PreismeldungReference;
     preismeldung: P.Preismeldung;
-    warenkorbPosition: any
+    warenkorbPosition: P.WarenkorbLeaf;
 }
 
 export type CurrentPreismeldungViewModel = PreismeldungViewModel & {
@@ -25,7 +25,7 @@ export interface State {
 const initialState: State = {
     preismeldungIds: [],
     entities: {},
-    currentPreismeldung: undefined,
+    currentPreismeldung: undefined
 };
 
 // NOTE: only Preismeldungen for currently viewed Preismeldestelle are loaded into State
