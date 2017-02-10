@@ -1,4 +1,5 @@
 import { createPmsToPeMap, preparePms } from "../../common/presta-data-mapper"
+import { buildTree } from "../../common/presta-warenkorb-mapper"
 import { PmsToPeMap, Erheber } from "../../../../../common/models"
 import { Component, EventEmitter } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
@@ -11,6 +12,7 @@ import * as pouchDbAuthentication from 'pouchdb-authentication';
 PouchDB.plugin(pouchDbAuthentication);
 
 type UserStatus = { user: string; exists: boolean };
+type Translations = { de?: string, fr?: string, it?: string };
 
 @Component({
     templateUrl: 'initialization.html'
@@ -38,14 +40,41 @@ export class InitializationPage {
         const login$ = Observable.fromPromise(login(username, password))
             .publishReplay(1).refCount();
 
-        const parsedFile$ = this.fileSelected$
-            .map(event => (<HTMLInputElement>event.target).files.item(0))
-            .flatMap<string>(file => this.readFileContents(file))
-            .map(x => this.createMap(this.parseFile(x)))
+        const getFilesContentByName = (fileName) => (fileList: FileList) => {
+            return _.filter(fileList, f => !!f.name.match(fileName));
+        };
+
+        const filterByFileName = <T>(fileSelect$: Observable<FileList>, fileName: string, mapper: (file: File, content: string) => T = (_, content) => content as any) => {
+            return fileSelect$
+                .map(getFilesContentByName(fileName))
+                .filter(x => !!x)
+                .flatMap<Observable<T>>(files => files.map(file => this.readFileContents(file).map(x => mapper(file, x))))
+                .flatMap<T>(x => x);
+        };
+
+        const warenkorbFileMapper = (file, content) => {
+            const data = this.parseFile(content);
+            const map = { '_DE': { de: data }, '_FR': { fr: data }, '_IT': { it: data } }
+            for (let key in map) if (file.name.indexOf(key) !== -1) return map[key];
+            return null;
+        };
+
+        const selectedFiles$ = this.fileSelected$
+            .map(event => (<HTMLInputElement>event.target).files);
+
+        const pmsToPeMap$ = filterByFileName(selectedFiles$, 'PMS und Preiserheber.csv', (_, content) => this.parseFile(content))
+            .map(x => this.createMap(x))
             .publishReplay(1).refCount();
 
-        const usersStatuses$ = parsedFile$
-            .flatMap<UserStatus[]>(users => Observable.from(users.map(u => `${u.erheber.firstName}_${u.erheber.surname}c`).map(user => couch.get(`org.couchdb.user:${user}`).then(_ => ({ user, exists: true })).catch(() => ({ user, exists: false })))).combineAll());
+        const warenkorb$ = filterByFileName(selectedFiles$, 'Erhebungsschema_(DE|IT|FR).csv', warenkorbFileMapper)
+            .scan((accumulator, value) => Object.assign({}, accumulator, value) as Translations, {})
+            .skip(2)
+            .map(x => this.createWarenkorb(x))
+            .do(x => console.log("warenkorb", x))
+            .publishReplay(1).refCount().subscribe();
+
+        const usersStatuses$ = pmsToPeMap$
+            .flatMap<UserStatus[]>(users => Observable.from(users.map(u => `${u.erheber.firstName}_${u.erheber.surname}e`).map(user => couch.get(`org.couchdb.user:${user}`).then(_ => ({ user, exists: true })).catch(() => ({ user, exists: false })))).combineAll());
 
         const createUserObject = user => ({
             _id: `org.couchdb.user:${user}`,
@@ -61,12 +90,6 @@ export class InitializationPage {
             .flatMap<PouchDB.Core.Response[]>(users => Observable.from(users.map(user => couch.put(createUserObject(user)))).combineAll())
 
         this.usersStatuses$ = login$.merge(createUsers$).flatMap(() => usersStatuses$);
-    }
-
-    createDb() {
-        var erheberList = this.erheberList();
-        if (!this.erheberList()) return;
-        this.createCouchDbInstances(_.map(erheberList, e => `${e.firstName}_${e.surname}`), this.credentials.username, this.credentials.password)
     }
 
     hasErheberList(): boolean {
@@ -95,7 +118,7 @@ export class InitializationPage {
         return createPmsToPeMap(content);
     }
 
-    private createCouchDbInstances(users: string[], username: string, password: string) {
-        const url = `http://${username}:${password}@localhost:5984/_users`;
+    private createWarenkorb(translations: { de: string[][], fr: string[][], it: string[][] }) {
+        return buildTree(translations);
     }
 }
