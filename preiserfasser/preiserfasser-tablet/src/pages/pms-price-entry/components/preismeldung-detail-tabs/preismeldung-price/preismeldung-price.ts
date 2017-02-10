@@ -20,12 +20,12 @@ interface PercentageValues {
 }
 
 @Component({
-    selector: 'preismeldung-detail-price',
-    templateUrl: 'preismeldung-detail-price.html',
+    selector: 'preismeldung-price',
+    templateUrl: 'preismeldung-price.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreismeldungDetailPriceComponent extends ReactiveComponent implements OnChanges {
-    @Input() preismeldung: P.Preismeldung;
+export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges {
+    @Input() preismeldung: P.PreismeldungViewModel;
     @Input() requestPreismeldungSave: string;
     @Input() requestPreismeldungQuickEqual: string;
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;

@@ -7,9 +7,9 @@ import { PefComponentsModule } from '../../components';
 
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 import { PmsPriceEntryPage } from './pms-price-entry';
-import { PreismeldungDetailMessagesComponent } from './components/preismeldung-detail-tabs/messages';
-import { PreismeldungDetailProductAttributesComponent } from './components/preismeldung-detail-tabs/product-attributes';
-import { PreismeldungDetailPriceComponent, DialogValidationErrorsComponent } from './components/preismeldung-detail-tabs/preismeldung-detail-price';
+import { PreismeldungMessagesComponent } from './components/preismeldung-detail-tabs/preismeldung-messages';
+import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
+import { PreismeldungPriceComponent, DialogValidationErrorsComponent } from './components/preismeldung-detail-tabs/preismeldung-price';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
 import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
 import { ProcessingCodeComponent } from './components/processing-code/processing-code';
@@ -20,9 +20,9 @@ import { ProcessingCodeComponent } from './components/processing-code/processing
         DialogCancelEditComponent,
         DialogValidationErrorsComponent,
         PmsPriceEntryPage,
-        PreismeldungDetailMessagesComponent,
-        PreismeldungDetailProductAttributesComponent,
-        PreismeldungDetailPriceComponent,
+        PreismeldungMessagesComponent,
+        PreismeldungAttributesComponent,
+        PreismeldungPriceComponent,
         PreismeldungListComponent,
         PreismeldungToolbarComponent,
         ProcessingCodeComponent
