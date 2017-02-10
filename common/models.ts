@@ -88,3 +88,63 @@ export type PreismeldungReference = PreismeldungReferenceProperties & CouchPrope
 export type Preismeldung = PreismeldungProperties & CouchProperties;
 
 export type PmsToPeMap = {erheber: Erheber, preismeldestellen: Preismeldestelle[]}[]
+
+
+export interface PropertyTranslation {
+    de: string;
+    fr: string;
+    it: string;
+}
+
+export interface WarenkorbTreeItemBase {
+    gliederungspositionsnummer: string;
+    parentGliederungspositionsnummer: string
+    produktecode: string;
+    gliederungspositionstyp: number;
+    tiefencode: number;
+    positionsbezeichnung: PropertyTranslation;
+    periodizitaetscode: PropertyTranslation;
+    beispiele: PropertyTranslation;
+    info: PropertyTranslation;
+}
+
+export interface WarenkorbBranch extends WarenkorbTreeItemBase {
+    type: 'BRANCH';
+}
+
+export enum PeriodizitaetMonat {
+    None = 0,
+    Januar = 1 << 0,
+    Februar = 1 << 1,
+    Maerz = 1 << 2,
+    April = 1 << 3,
+    May = 1 << 4,
+    Juni = 1 << 5,
+    Juli = 1 << 6,
+    August = 1 << 7,
+    September = 1 << 8,
+    Oktober = 1 << 9,
+    November = 1 << 10,
+    Dezember = 1 << 11
+}
+
+export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
+    type: 'LEAF';
+    standardmenge: number;
+    standardeinheit: PropertyTranslation;
+    erhebungstyp: string;
+    anzahlPreiseProPMS: number;
+    periodizitaetMonat: PeriodizitaetMonat;
+    abweichungPmUG2: number;
+    abweichungPmOG2: number;
+    produktmerkmal1: PropertyTranslation;
+    produktmerkmal2: PropertyTranslation;
+    produktmerkmal3: PropertyTranslation;
+    produktmerkmal4: PropertyTranslation;
+    produktmerkmal5: PropertyTranslation;
+    produktmerkmal6: PropertyTranslation;
+}
+
+export type WarenkorbTreeItem = WarenkorbBranch | WarenkorbLeaf;
+
+export type WarenkorbHierarchicalTreeItem = (WarenkorbBranch & { children: WarenkorbHierarchicalTreeItem[] }) | WarenkorbLeaf;
