@@ -31,7 +31,7 @@ export class InitializationPage {
         const username = 'lik-admin';
         const password = 'FwtjYWZW4T2PNWOt4cx3';
 
-        const couch = new PouchDB('http://localhost:5984/_users');
+        const couch = new PouchDB('http://localhost:5984/warenkorb');
         const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
 
         const login$ = Observable.fromPromise(login(username, password))
@@ -62,11 +62,14 @@ export class InitializationPage {
         this.warenkorbIsCompleted$ = warenkorbCompleted$.map(_ => true).startWith(false);
             
         const createWarenkorb$ = warenkorbCompleted$
-            .combineLatest(this.createWarenkorbClicked$, (warenkorb, _) => warenkorb)
+            .combineLatest(this.createWarenkorbClicked$, login$, (warenkorb, ..._) => warenkorb)
             .do(x => console.log("combined_latest+click", x))
             .map(x => this.createWarenkorb(x))
             .do(x => console.log("warenkorb", x))
-            .publishReplay(1).refCount().subscribe();
+            .publishReplay(1).refCount()
+            .do(x => couch.destroy())
+            .map(warenkorb => Observable.fromPromise(couch.bulkDocs(warenkorb)))
+            .flatMap(x => x)
     }
 
     readFileContents(file: File) {
@@ -78,7 +81,7 @@ export class InitializationPage {
     }
 
     private parseFile(data: string): string[][] {
-        const lines = data.split('\u000a');
+        const lines = data.split(/\r?\n/);
         return _.drop(lines.filter(x => x.length)).map(x => x.split(';'));
     }
 
