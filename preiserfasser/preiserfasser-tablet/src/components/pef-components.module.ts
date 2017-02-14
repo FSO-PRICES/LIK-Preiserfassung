@@ -7,6 +7,7 @@ import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-
 import { PefHighlightOnFocus } from './pef-highlight-on-focus/pef-highlight-on-focus';
 import { PefIcon } from './pef-icon/pef-icon';
 import { PefPerfectScrollbar } from './pef-perfect-scrollbar/pef-perfect-scrollbar';
+import { PefPropertyTranslatePipe } from './pef-property-translate-pipe/pef-property-translate-pipe';
 import { PefSearchInput } from './pef-search-input/pef-search-input';
 import { PefSvgIcons } from './pef-svg-icons/pef-svg-icons';
 import { PefToggleButton } from './pef-toggle-button/pef-toggle-button';
@@ -20,6 +21,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefHighlightOnFocus,
         PefIcon,
         PefPerfectScrollbar,
+        PefPropertyTranslatePipe,
         PefSearchInput,
         PefSvgIcons,
         PefToggleButton,
@@ -31,6 +33,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefHighlightOnFocus,
         PefIcon,
         PefPerfectScrollbar,
+        PefPropertyTranslatePipe,
         PefSearchInput,
         PefSvgIcons,
         PefToggleButton,

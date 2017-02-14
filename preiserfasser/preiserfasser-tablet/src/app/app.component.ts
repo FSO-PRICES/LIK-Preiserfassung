@@ -4,7 +4,7 @@ import { Platform } from 'ionic-angular';
 import { StatusBar, Splashscreen, ScreenOrientation } from 'ionic-native';
 import { TranslateService } from 'ng2-translate';
 
-import { AppState } from '../reducers';
+import * as fromRoot from '../reducers';
 
 import { DashboardPage } from '../pages/dashboard/dashboard';
 
@@ -20,9 +20,9 @@ export class MyApp {
     rootPage = DashboardPage;
     isDesktop = false;
 
-    constructor(platform: Platform, private store: Store<AppState>, translate: TranslateService) {
-        translate.setDefaultLang('de');
-        translate.use('de');
+    constructor(platform: Platform, private store: Store<fromRoot.AppState>, private translate: TranslateService) {
+
+        this.initialiseLanguages();
 
         platform.ready().then(() => {
             // StatusBar.styleDefault();
@@ -39,5 +39,15 @@ export class MyApp {
             this.store.dispatch({ type: 'CHECK_DATABASE_EXISTS' });
             initialisePouchForDev();
         });
+    }
+
+    initialiseLanguages() {
+        const defaultLanguage = 'de';
+        this.translate.setDefaultLang(defaultLanguage);
+        this.store.dispatch({ type: 'SET_AVAILABLE_LANGUAGES', payload: [defaultLanguage, 'fr', 'it'] });
+        this.store.select(fromRoot.getCurrentLanguage)
+            .filter(x => !!x)
+            .subscribe(x => this.translate.use(x));
+        this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: 'fr' });
     }
 }
