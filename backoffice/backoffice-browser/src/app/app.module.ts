@@ -1,33 +1,38 @@
-import { HomePage } from '../pages/home/home';
-import { InitializationPage } from '../pages/initialization/initialization';
-import { PreiserfasserPage } from '../pages/preiserfasser/preiserfasser';
-import { Backoffice } from './app.component';
 import { ErrorHandler, NgModule } from '@angular/core';
-// import { StoreModule } from '@ngrx/store';
+import { StoreModule } from '@ngrx/store';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+
+import { Backoffice } from './app.component';
+import { HomePage } from '../pages/home/home';
+import { PreiserheberPage } from '../pages/preiserheber/preiserheber';
+import { InitializationPage } from '../pages/initialization/initialization';
+
+import { BO_EFFECTS } from '../effects';
+import { reducer } from '../reducers';
 
 @NgModule({
     declarations: [
         Backoffice,
         HomePage,
         InitializationPage,
-        PreiserfasserPage
+        PreiserheberPage
     ],
     imports: [
         IonicModule.forRoot(Backoffice, {
             links: [
                 { component: InitializationPage, name: 'Initialization', segment: '' },
-                { component: PreiserfasserPage, name: 'Preiserfasser', segment: 'pe/:peRef', defaultHistory: [InitializationPage] },
+                { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe/:peRef', defaultHistory: [InitializationPage] },
             ]
         }),
-        // StoreModule.provideStore(reducer)
+        StoreModule.provideStore(reducer),
+        ...BO_EFFECTS
     ],
     bootstrap: [IonicApp],
     entryComponents: [
         Backoffice,
         HomePage,
         InitializationPage,
-        PreiserfasserPage
+        PreiserheberPage
     ],
     providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }]
 })
