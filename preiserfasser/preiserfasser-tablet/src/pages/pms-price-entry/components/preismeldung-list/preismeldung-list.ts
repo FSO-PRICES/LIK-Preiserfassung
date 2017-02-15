@@ -57,7 +57,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     filteredPreismeldungen = preismeldungen;
                 } else {
                     const lowered = filterText.toLocaleLowerCase();
-                    filteredPreismeldungen = preismeldungen.filter(pm => pm.warenkorbPosition.gliederungspositionsnummer.toLocaleLowerCase().includes(lowered) || pm.warenkorbPosition.bezeichnung.de.toLocaleLowerCase().includes(lowered));
+                    filteredPreismeldungen = preismeldungen.filter(pm => pm.warenkorbPosition.gliederungspositionsnummer.toLocaleLowerCase().includes(lowered) || pm.warenkorbPosition.positionsbezeichnung.de.toLocaleLowerCase().includes(lowered));
                 }
 
                 if (filterTodoSelected && filterCompletedSelected || !filterTodoSelected && !filterCompletedSelected) return filteredPreismeldungen;

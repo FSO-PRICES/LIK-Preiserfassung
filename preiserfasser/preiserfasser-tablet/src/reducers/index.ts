@@ -10,13 +10,15 @@ import * as fromAppConfig from './app-config';
 import * as fromPreismeldungen from './preismeldungen';
 import * as fromTime from './time';
 import * as fromDatabase from './database';
+import * as fromLanguages from './languages';
 
 export interface AppState {
     database: fromDatabase.State;
     appConfig: fromAppConfig.State;
     preismeldestellen: fromPreismeldestellen.State;
-    preismeldungen: fromPreismeldungen.State
-    time: fromTime.State
+    preismeldungen: fromPreismeldungen.State;
+    time: fromTime.State;
+    languages: fromLanguages.State;
 }
 
 const reducers = {
@@ -24,7 +26,8 @@ const reducers = {
     appConfig: fromAppConfig.reducer,
     preismeldestellen: fromPreismeldestellen.reducer,
     preismeldungen: fromPreismeldungen.reducer,
-    time: fromTime.reducer
+    time: fromTime.reducer,
+    languages: fromLanguages.reducer
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -51,3 +54,7 @@ export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fro
 
 export const getTimeState = (state: AppState) => state.time;
 export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTime);
+
+export const getLanguagesState = (state: AppState) => state.languages;
+export const getLanguages = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
+export const getCurrentLanguage = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
