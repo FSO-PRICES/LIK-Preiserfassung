@@ -1,7 +1,8 @@
 {
-  "name": "ionic-hello-world",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
+  "name": "preiserfasser-tablet",
+  "author": "Lambda IT GmbH",
+  "homepage": "http://lambda-it.ch/",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",

@@ -21,7 +21,7 @@
                 {{ vm.refPreismeldung.epNummer }}<br/>&nbsp;
             </div>
             <div class="preismeldung-description">
-                <span class="text">{{ vm.warenkorbPosition.bezeichnung | pefPropertyTranslate }}</span>
+                <span class="text">{{ vm.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
                 <span class="artikel-text" [innerHTML]="vm.artikelText || '&ndash;'"></span>
             </div>
             <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageLastPeriodToCurrentPeriod == null">

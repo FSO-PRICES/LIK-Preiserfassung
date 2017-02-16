@@ -13,11 +13,13 @@ import * as P from '../../../../common-models';
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
     @Input() isDesktop: boolean;
+    @Input() currentLanguage: string;
     @Input() preismeldungen: P.Preismeldung[];
     @Input() currentPreismeldung: P.CurrentPreismeldungViewModel;
     @Output() selectPreismeldung: Observable<P.Preismeldung>;
 
     public currentPreismeldung$: Observable<P.PreismeldungViewModel>;
+    public currentLanguage$: Observable<string>;
     public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungViewModel>();
     public selectNextPreismeldung$ = new EventEmitter();
     public selectPrevPreismeldung$ = new EventEmitter();
@@ -40,6 +42,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungViewModel[]>('preismeldungen').publishReplay(1).refCount();
         this.currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewModel>('currentPreismeldung').publishReplay(1).refCount();
+        this.currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage').publishReplay(1).refCount();
 
         this.filterTodoSelected$ = this.selectFilterTodo$
             .scan<boolean>((selected: boolean, _: any) => !selected, false).startWith(false)
@@ -50,14 +53,14 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .publishReplay(1).refCount();
 
         this.filteredPreismeldungen$ = this.preismeldungen$
-            .combineLatest(this.filterText$.startWith(null), this.filterTodoSelected$, this.filterCompletedSelected$, (preismeldungen: P.PreismeldungViewModel[], filterText: string, filterTodoSelected: boolean, filterCompletedSelected: boolean) => {
+            .combineLatest(this.filterText$.startWith(null), this.filterTodoSelected$, this.filterCompletedSelected$, this.currentLanguage$, (preismeldungen: P.PreismeldungViewModel[], filterText: string, filterTodoSelected: boolean, filterCompletedSelected: boolean, currentLanguage: string) => {
                 let filteredPreismeldungen: P.PreismeldungViewModel[];
 
                 if (!filterText || filterText.length === 0) {
                     filteredPreismeldungen = preismeldungen;
                 } else {
                     const lowered = filterText.toLocaleLowerCase();
-                    filteredPreismeldungen = preismeldungen.filter(pm => pm.warenkorbPosition.gliederungspositionsnummer.toLocaleLowerCase().includes(lowered) || pm.warenkorbPosition.positionsbezeichnung.de.toLocaleLowerCase().includes(lowered));
+                    filteredPreismeldungen = preismeldungen.filter(pm => pm.warenkorbPosition.gliederungspositionsnummer.toLocaleLowerCase().includes(lowered) || pm.warenkorbPosition.positionsbezeichnung[currentLanguage].toLocaleLowerCase().includes(lowered));
                 }
 
                 if (filterTodoSelected && filterCompletedSelected || !filterTodoSelected && !filterCompletedSelected) return filteredPreismeldungen;
