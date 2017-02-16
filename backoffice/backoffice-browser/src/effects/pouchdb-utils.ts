@@ -40,5 +40,5 @@ function getCouchDb(dbName: string): Promise<PouchDB.Database<PouchDB.Core.Encod
 }
 
 function _checkIfDatabaseExists(dbName) {
-    return new Promise(() => true);
+    return new Promise((resolve, _) => resolve(true));
 }
