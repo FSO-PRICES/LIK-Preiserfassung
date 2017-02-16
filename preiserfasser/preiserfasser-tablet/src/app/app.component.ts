@@ -48,6 +48,6 @@ export class MyApp {
         this.store.select(fromRoot.getCurrentLanguage)
             .filter(x => !!x)
             .subscribe(x => this.translate.use(x));
-        this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: 'fr' });
+        this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: defaultLanguage });
     }
 }

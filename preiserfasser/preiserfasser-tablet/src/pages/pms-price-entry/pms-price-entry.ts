@@ -19,6 +19,7 @@ export class PmsPriceEntryPage {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
+    currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
 
     selectPreismeldung$ = new EventEmitter<P.Preismeldung>();
     save$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();

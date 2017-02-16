@@ -27,6 +27,7 @@
                 [preismeldungen]="preismeldungen$ | async"
                 [currentPreismeldung]="currentPreismeldung$ | async"
                 (selectPreismeldung)="selectPreismeldung$.emit($event)"
+                [currentLanguage]="currentLanguage$ | async"
                 [isDesktop]="isDesktop$ | async"></preismeldung-list>
         </div>
     </div>
