@@ -1,0 +1,14 @@
+<ion-content>
+    <div class="header">
+        <h3>Preiserfasser</h3>
+    </div>
+    <preiserheber-detail
+        [preiserheber]="currentPreiserheber$ | async"
+        (save)="savePreiserheber$.emit($event)"
+        (clear)="clearSelectedPreiserheber$.emit($event)"
+        (update)="updatePreiserheber$.emit($event)"></preiserheber-detail>
+    <preiserheber-list
+        [list]="preiserhebers$ | async"
+        [current]="currentPreiserheber$ | async"
+        (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
+</ion-content>

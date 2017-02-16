@@ -3,14 +3,14 @@ import { Platform } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
 
 import { InitializationPage } from '../pages/initialization/initialization';
-import { PreiserfasserPage } from '../pages/preiserfasser/preiserfasser';
+import { PreiserheberPage } from '../pages/preiserheber/preiserheber';
 
 
 @Component({
   templateUrl: 'app.html'
 })
 export class Backoffice {
-  rootPage = PreiserfasserPage;
+  rootPage = PreiserheberPage;
 
   constructor(platform: Platform) {
     platform.ready().then(() => {
