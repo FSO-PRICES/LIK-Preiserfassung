@@ -26,10 +26,6 @@ export class PreiserheberPage {
     public updatePreiserheber$ = new EventEmitter<M.Erheber>();
 
     constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>) {
-        // this.save$
-        //     .subscribe(x => store.dispatch({ type: 'SAVE_PREISERHEBER' }));
-            // why do I need this setTimeout - is it an Ionic bug?
-            // .subscribe(x => setTimeout(() => store.dispatch({ type: 'SAVE_PREISERHEBER' })));
         this.selectPreiserheber$
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISERHEBER', payload: x }));
 

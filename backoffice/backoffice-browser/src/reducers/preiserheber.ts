@@ -21,7 +21,6 @@ const initialState: State = {
 };
 
 export function reducer(state = initialState, action: preiserheber.Actions): State {
-    // TODO: Check if merge should be replaced by assign in some cases
     switch (action.type) {
         case "PREISERHEBER_LOAD_SUCCESS": {
             const { payload } = action;
@@ -31,12 +30,11 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
             const entities = preiserhebers.reduce((entities: { [_id: string]: Erheber }, preiserheber: Erheber) => {
                 return Object.assign(entities, { [preiserheber._id]: preiserheber });
             }, {});
-            return merge({}, state, { preiserheberIds, entities, currentPreiserheber: undefined });
+            return assign({}, state, { preiserheberIds, entities, currentPreiserheber: undefined });
         }
 
         case 'SELECT_PREISERHEBER': {
             const currentPreiserheber = action.payload == null ? {} : Object.assign({}, getEntities(state)[action.payload], { isModified: false, isSaved: false });
-            // is _.merge the right choice here? Because when switching between PEs it takes the values from the previous, changed it to assign
             return assign({}, state, { currentPreiserheber: currentPreiserheber });
         }
 
@@ -64,7 +62,7 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
         case 'SAVE_PREISERHEBER_SUCCESS': {
             const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload);
             const preiserheberIds = [currentPreiserheber._id, ...state.preiserheberIds.filter(x => x != currentPreiserheber._id)];
-            return merge({}, state, { currentPreiserheber, preiserheberIds, entities: Object.assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber })});
+            return assign({}, state, { currentPreiserheber, preiserheberIds, entities: Object.assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber })});
         }
 
         default:
