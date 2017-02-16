@@ -16,7 +16,7 @@ import { PmsDetailsPage } from '../pages/pms-details/pms-details';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 import { TestPage } from '../pages/test-page/test-page';
 
-import { PefDialogService } from '../common/pef-dialog-service';
+import { PefDialogService } from 'lik-shared';
 import { PefComponentsModule } from '../components';
 
 export function createTranslateLoader(http: Http) {

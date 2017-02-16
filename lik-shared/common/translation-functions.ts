@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import * as P from '../common-models';
+import * as P from './models';
 
 export const getTranslation = (propertyTranslation: P.PropertyTranslation, language: string): string  => propertyTranslation[language];
 

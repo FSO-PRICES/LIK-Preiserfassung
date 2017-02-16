@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent } from '../../../../common/ReactiveComponent';
-import { formatPercentageChange } from '../../../../common/formatting-functions';
+import { ReactiveComponent, formatPercentageChange } from 'lik-shared';
 
 import * as P from '../../../../common-models';
 
@@ -14,9 +13,9 @@ import * as P from '../../../../common-models';
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
     @Input() isDesktop: boolean;
     @Input() currentLanguage: string;
-    @Input() preismeldungen: P.Preismeldung[];
+    @Input() preismeldungen: P.Models.Preismeldung[];
     @Input() currentPreismeldung: P.CurrentPreismeldungViewModel;
-    @Output() selectPreismeldung: Observable<P.Preismeldung>;
+    @Output() selectPreismeldung: Observable<P.Models.Preismeldung>;
 
     public currentPreismeldung$: Observable<P.PreismeldungViewModel>;
     public currentLanguage$: Observable<string>;
@@ -24,7 +23,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectNextPreismeldung$ = new EventEmitter();
     public selectPrevPreismeldung$ = new EventEmitter();
 
-    public viewPortItems: P.Preismeldung[];
+    public viewPortItems: P.Models.Preismeldung[];
     private preismeldungen$: Observable<P.PreismeldungViewModel[]>;
     public filteredPreismeldungen$: Observable<P.PreismeldungViewModel[]>;
     public completedCount$: Observable<string>;

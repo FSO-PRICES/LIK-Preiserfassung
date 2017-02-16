@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import * as docuri from 'docuri';
 
-import { PreismeldungUri, preismeldungUriRoute } from '../common-models';
+import * as P from '../common-models';
 
-const preismeldungUri = docuri.route(preismeldungUriRoute);
+const preismeldungUri = docuri.route(P.Models.preismeldungUriRoute);
 
 @Injectable()
 export class WindowLocationEffects {

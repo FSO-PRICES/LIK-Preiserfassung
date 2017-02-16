@@ -6,9 +6,9 @@ import * as preismeldungen from '../actions/preismeldungen';
 
 export interface PreismeldungViewModel {
     pmId: string;
-    refPreismeldung?: P.PreismeldungReference;
-    preismeldung: P.Preismeldung;
-    warenkorbPosition: P.WarenkorbLeaf;
+    refPreismeldung?: P.Models.PreismeldungReference;
+    preismeldung: P.Models.Preismeldung;
+    warenkorbPosition: P.Models.WarenkorbLeaf;
 }
 
 export type CurrentPreismeldungViewModel = PreismeldungViewModel & {

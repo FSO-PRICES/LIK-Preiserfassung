@@ -5,12 +5,9 @@ import { TranslateService } from 'ng2-translate';
 import { keys } from 'lodash';
 import * as format from 'format-number';
 
-import { ReactiveComponent } from '../../../../../common/ReactiveComponent';
-import { formatPercentageChange } from '../../../../../common/formatting-functions';
-import { maxMinNumberValidatorFactory } from '../../../../../common/validators';
+import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
-import { PefDialogService } from '../../../../../common/pef-dialog-service';
 
 import { DialogCancelEditComponent } from './dialog-cancel-edit/dialog-cancel-edit';
 import { DialogValidationErrorsComponent } from './dialog-validation-errors/dialog-validation-errors';

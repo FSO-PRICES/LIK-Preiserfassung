@@ -1,6 +1,6 @@
 import { Directive, OnChanges, AfterViewInit, ElementRef, Input, SimpleChange } from '@angular/core';
 import * as Ps from 'perfect-scrollbar';
-import { ReactiveComponent } from '../../common/ReactiveComponent';
+import { ReactiveComponent } from 'lik-shared';
 
 @Directive({
     selector: '[pef-perfect-scrollbar]',

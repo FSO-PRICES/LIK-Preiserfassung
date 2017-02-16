@@ -61,11 +61,11 @@ export class DashboardPage {
             });
     }
 
-    navigateToDetails(pms: P.Preismeldestelle) {
+    navigateToDetails(pms: P.Models.Preismeldestelle) {
         this.navCtrl.push(PmsDetailsPage, { pmsNummer: pms.pmsNummer });
     }
 
-    navigateToPriceEntry(pms: P.Preismeldestelle) {
+    navigateToPriceEntry(pms: P.Models.Preismeldestelle) {
         this.navCtrl.push(PmsPriceEntryPage, { pmsNummer: pms.pmsNummer });
     }
 }

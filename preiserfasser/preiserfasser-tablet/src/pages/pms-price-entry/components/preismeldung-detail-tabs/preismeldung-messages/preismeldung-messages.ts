@@ -7,5 +7,5 @@ import * as P from '../../../../../common-models';
     templateUrl: 'preismeldung-messages.html'
 })
 export class PreismeldungMessagesComponent {
-    @Input() preismeldung: P.Preismeldung;
+    @Input() preismeldung: P.Models.Preismeldung;
 }

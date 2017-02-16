@@ -12,7 +12,7 @@ export class PefPropertyTranslatePipe implements PipeTransform {
             .subscribe(lang => this.currentLanguage = lang);
     }
 
-    transform(value: P.PropertyTranslation, formatOptions: any) {
+    transform(value: P.Models.PropertyTranslation, formatOptions: any) {
         if (!value) return undefined;
 
         return value[this.currentLanguage];

@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
-import { Preismeldestelle }  from '../common-models';
+import * as P  from '../common-models';
 import * as preismeldestellen from '../actions/preismeldestellen';
 
 export interface State {
     pmsNummers: string[];
-    entities: { [pmsNummer: string]: Preismeldestelle };
+    entities: { [pmsNummer: string]: P.Models.Preismeldestelle };
     selectedPmsNummer: string;
 }
 
@@ -18,7 +18,7 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
     switch (action.type) {
         case 'PREISMELDESTELLEN_LOAD_SUCCESS': {
             const pmsNummers = action.payload.map(x => x.pmsNummer);
-            const entities = action.payload.reduce((entities: { [pmsNummer: string]: Preismeldestelle }, preismeldestelle: Preismeldestelle) => {
+            const entities = action.payload.reduce((entities: { [pmsNummer: string]: P.Models.Preismeldestelle }, preismeldestelle: P.Models.Preismeldestelle) => {
                 return Object.assign(entities, { [preismeldestelle.pmsNummer]: preismeldestelle });
             }, {});
             return Object.assign({}, state, { pmsNummers, entities });

@@ -9,7 +9,7 @@ import * as P from '../../../../common-models';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldungToolbarComponent {
-    @Input() preismeldung: P.Preismeldung;
+    @Input() preismeldung: P.Models.Preismeldung;
     @Output('selectedTab') selectedTab$: Observable<string>;
     @Output('buttonClicked') buttonClicked$ = new EventEmitter<string>();
 

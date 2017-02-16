@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent } from '../../../../../common/ReactiveComponent';
+import { ReactiveComponent } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
 
@@ -10,7 +10,7 @@ import * as P from '../../../../../common-models';
     templateUrl: 'preismeldung-attributes.html'
 })
 export class PreismeldungAttributesComponent extends ReactiveComponent {
-    @Input() preismeldung: P.Preismeldung;
+    @Input() preismeldung: P.Models.Preismeldung;
 
     public preismeldung$: Observable<P.PreismeldungViewModel>;
 

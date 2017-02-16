@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
-import { PefDialogService } from './../../common/pef-dialog-service';
+import { PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 
@@ -21,7 +21,7 @@ export class PmsPriceEntryPage {
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
 
-    selectPreismeldung$ = new EventEmitter<P.Preismeldung>();
+    selectPreismeldung$ = new EventEmitter<P.Models.Preismeldung>();
     save$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
     updatePreismeldungPreis$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
 

@@ -9,7 +9,7 @@ import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import * as P from '../common-models';
 
-const preismeldungUri = docuri.route(P.preismeldungUriRoute);
+const preismeldungUri = docuri.route(P.Models.preismeldungUriRoute);
 
 @Injectable()
 export class PreismeldungenEffects {
@@ -24,12 +24,12 @@ export class PreismeldungenEffects {
     loadPreismeldungen$ = this.actions$
         .ofType('PREISMELDUNGEN_LOAD_FOR_PMS')
         .switchMap(({ payload }) => getDatabase().then(db => ({ db, pmsNummer: payload })))
-        .flatMap(x => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm-ref/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, pmRefs: res.rows.map(y => y.doc) as P.PreismeldungReference[] })))
-        .flatMap(x => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.pmRefs, preismeldungen: res.rows.map(y => y.doc) as P.Preismeldung[] })))
+        .flatMap(x => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm-ref/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, pmRefs: res.rows.map(y => y.doc) as P.Models.PreismeldungReference[] })))
+        .flatMap(x => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.pmRefs, preismeldungen: res.rows.map(y => y.doc) as P.Models.Preismeldung[] })))
         .flatMap(x => {
             const missingPreismeldungs = x.refPreismeldungen
                 .filter(rpm => !x.preismeldungen.find(pm => pm._id === rpm.pmId))
-                .map<P.Preismeldung>(rpm => ({
+                .map<P.Models.Preismeldung>(rpm => ({
                     _id: preismeldungUri({ pmsNummer: rpm.pmsNummer, epNummer: rpm.epNummer, laufnummer: rpm.laufnummer }),
                     _rev: undefined,
                     pmId: rpm.pmId,
@@ -54,7 +54,7 @@ export class PreismeldungenEffects {
             }
 
             return x.db.bulkDocs(missingPreismeldungs)
-                .then(() => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(x => x.doc) as P.Preismeldung[]))
+                .then(() => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(x => x.doc) as P.Models.Preismeldung[]))
                 .then(preismeldungen => ({
                     db: x.db,
                     refPreismeldungen: x.refPreismeldungen,

@@ -2,7 +2,7 @@ import { Store } from '@ngrx/store';
 import { Component } from '@angular/core';
 import { NavParams } from 'ionic-angular';
 
-import { Preismeldestelle }  from '../../common-models';
+import * as P  from '../../common-models';
 import * as fromRoot from '../../reducers';
 
 @Component({
@@ -23,8 +23,8 @@ export class PmsDetailsPage {
     }
 }
 
-const formatHeader = (pms: Preismeldestelle) => !pms ? '' : joinComma(pms.name, joinSpace(pms.postcode, pms.town));
-const formatAddress = (pms: Preismeldestelle) => !pms ? [] : [pms.name, pms.street, joinSpace(pms.postcode, pms.town)];
+const formatHeader = (pms: P.Models.Preismeldestelle) => !pms ? '' : joinComma(pms.name, joinSpace(pms.postcode, pms.town));
+const formatAddress = (pms: P.Models.Preismeldestelle) => !pms ? [] : [pms.name, pms.street, joinSpace(pms.postcode, pms.town)];
 
 const join = (strings: string[], separator: string) => strings.filter(x => !!x).join(separator);
 
