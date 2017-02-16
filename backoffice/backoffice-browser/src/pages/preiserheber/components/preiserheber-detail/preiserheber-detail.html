@@ -1,0 +1,40 @@
+<div class="pe-details-content">
+    <form [formGroup]="form">
+        <h4 class="large" [ngSwitch]="isEditing() | async">
+            <div *ngSwitchCase="true">
+                Editieren
+                <button type="button" ion-button (click)="clearClicked$.emit($event)">Clear</button>
+            </div>
+            <span *ngSwitchDefault>Erfassen</span>
+        </h4>
+        <ion-list>
+            <ion-item>
+                <ion-label stacked>Vorname</ion-label>
+                <ion-input type="text" formControlName="firstName" (blur)="formValueChanged$.emit('firstName')"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label stacked>Nachname</ion-label>
+                <ion-input type="text" formControlName="surname" (blur)="formValueChanged$.emit('surname')"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label stacked>Funktion</ion-label>
+                <ion-input type="text" formControlName="personFunction" (blur)="formValueChanged$.emit('personFunction')"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label stacked>Sprache</ion-label>
+                <ion-input type="text" formControlName="languageCode" (blur)="formValueChanged$.emit('languageCode')"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label stacked>Telefon</ion-label>
+                <ion-input type="text" formControlName="telephone" (blur)="formValueChanged$.emit('telephone')"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label stacked>Email</ion-label>
+                <ion-input type="text" formControlName="email" (blur)="formValueChanged$.emit('email')"></ion-input>
+            </ion-item>
+            <ion-item>
+                <button type="button" ion-button (click)="saveClicked$.emit($event)">Speichern</button>
+            </ion-item>
+        </ion-list>
+    </form>
+</div>

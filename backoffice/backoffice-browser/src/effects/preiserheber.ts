@@ -30,16 +30,23 @@ export class PreiserheberEffects {
         .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ currentPreiserheber }))
         .switchMap<Erheber>(({ currentPreiserheber }) => {
             return getDatabase(DB_NAME)
-                .then(db => db.get(currentPreiserheber._id).then(doc => ({ db, doc })))
-                .then(({ db, doc }) => db.put(Object.assign({}, doc, {
-                    firstName: currentPreiserheber.firstName,
-                    surname: currentPreiserheber.surname,
-                    personFunction: currentPreiserheber.personFunction,
-                    languageCode: currentPreiserheber.languageCode,
-                    telephone: currentPreiserheber.telephone,
-                    email: currentPreiserheber.email
-                })).then(() => db))
-                .then(db => db.get(currentPreiserheber._id).then(preiserheber => Object.assign({}, preiserheber, { isModified: false, isSaved: true })));
+                .then(db => {
+                    if (!!currentPreiserheber._id) {
+                        return db.get(currentPreiserheber._id).then(doc => ({ db, doc }))
+                    }
+                    return new Promise((resolve, _) => resolve({ db, doc: { _id: `erheber:${currentPreiserheber.firstName}_${currentPreiserheber.surname}` } }))
+                })
+                .then(({ db, doc }) => {
+                    return db.put(Object.assign({}, doc, {
+                        firstName: currentPreiserheber.firstName,
+                        surname: currentPreiserheber.surname,
+                        personFunction: currentPreiserheber.personFunction,
+                        languageCode: currentPreiserheber.languageCode,
+                        telephone: currentPreiserheber.telephone,
+                        email: currentPreiserheber.email
+                    })).then(() => ({ db, id: doc._id }))
+                })
+                .then(({db, id}) => db.get(id).then(preiserheber => Object.assign({}, preiserheber, { isModified: false, isSaved: true })));
         })
         .map<preiserheber.Actions>(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload }))
 }

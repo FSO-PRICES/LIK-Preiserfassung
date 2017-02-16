@@ -4,7 +4,7 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { Backoffice } from './app.component';
 import { HomePage } from '../pages/home/home';
-import { PreiserheberPage } from '../pages/preiserheber/preiserheber';
+import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
 import { InitializationPage } from '../pages/initialization/initialization';
 
 import { BO_EFFECTS } from '../effects';
@@ -15,7 +15,6 @@ import { reducer } from '../reducers';
         Backoffice,
         HomePage,
         InitializationPage,
-        PreiserheberPage
     ],
     imports: [
         IonicModule.forRoot(Backoffice, {
@@ -24,6 +23,7 @@ import { reducer } from '../reducers';
                 { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe/:peRef', defaultHistory: [InitializationPage] },
             ]
         }),
+        PreiserheberModule,
         StoreModule.provideStore(reducer),
         ...BO_EFFECTS
     ],

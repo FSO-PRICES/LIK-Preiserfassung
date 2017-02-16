@@ -26,7 +26,7 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
         case "PREISERHEBER_LOAD_SUCCESS": {
             const { payload } = action;
             const preiserhebers = payload.preiserhebers
-                .map<Erheber>(erheber => Object.assign({}, erheber));;
+                .map<Erheber>(erheber => Object.assign({}, erheber));
             const preiserheberIds = preiserhebers.map(p => p._id);
             const entities = preiserhebers.reduce((entities: { [_id: string]: Erheber }, preiserheber: Erheber) => {
                 return Object.assign(entities, { [preiserheber._id]: preiserheber });
@@ -63,7 +63,8 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
 
         case 'SAVE_PREISERHEBER_SUCCESS': {
             const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload);
-            return merge({}, state, { currentPreiserheber, entities: Object.assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber }) });
+            const preiserheberIds = [currentPreiserheber._id, ...state.preiserheberIds.filter(x => x != currentPreiserheber._id)];
+            return merge({}, state, { currentPreiserheber, preiserheberIds, entities: Object.assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber })});
         }
 
         default:

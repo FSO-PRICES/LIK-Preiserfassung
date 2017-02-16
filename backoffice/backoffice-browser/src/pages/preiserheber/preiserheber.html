@@ -2,54 +2,13 @@
     <div class="header">
         <h3>Preiserfasser</h3>
     </div>
-    <div class="pe-details-content">
-        <form [formGroup]="form">
-            <h4 class="large" [ngSwitch]="isEditing() | async">
-                <div *ngSwitchCase="true">
-                    Editieren
-                    <button type="button" ion-button (click)="clearSelectedPreiserheber$.emit()">Clear</button>
-                </div>
-                <span *ngSwitchDefault>Erfassen</span>
-            </h4>
-            <ion-list>
-                <ion-item>
-                    <ion-label stacked>Vorname</ion-label>
-                    <ion-input type="text" formControlName="firstName" (blur)="formValueChanged$.emit('firstName')"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label stacked>Nachname</ion-label>
-                    <ion-input type="text" formControlName="surname" (blur)="formValueChanged$.emit('surname')"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label stacked>Funktion</ion-label>
-                    <ion-input type="text" formControlName="personFunction" (blur)="formValueChanged$.emit('personFunction')"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label stacked>Sprache</ion-label>
-                    <ion-input type="text" formControlName="languageCode" (blur)="formValueChanged$.emit('languageCode')"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label stacked>Telefon</ion-label>
-                    <ion-input type="text" formControlName="telephone" (blur)="formValueChanged$.emit('telephone')"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label stacked>Email</ion-label>
-                    <ion-input type="text" formControlName="email" (blur)="formValueChanged$.emit('email')"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <button type="button" ion-button (click)="save$.emit()">Speichern</button>
-                </ion-item>
-                <ion-item>
-                    <!--<button type="button" ion-button (click)="reloadList()">Refresh</button>-->
-                </ion-item>
-            </ion-list>
-        </form>
-    </div>
-    <div class="pe-list-content">
-        <h4 class="large">Alle Erfasser</h4>
-        <ion-list>
-            <ion-item *ngFor="let preiserheber of preiserhebers$ | async" (click)="selectPreiserheber$.emit(preiserheber)">{{preiserheber.firstName}} {{preiserheber.surname}}</ion-item>
-            <!--<ion-item *ngFor="let preiserheber of preiserhebers$ | async" (click)="preiserheberEditClicked$.emit(preiserheber)">{{preiserheber.firstName}} {{preiserheber.surname}}</ion-item>-->
-        </ion-list>
-    </div>
+    <preiserheber-detail
+        [preiserheber]="currentPreiserheber$ | async"
+        (save)="savePreiserheber$.emit($event)"
+        (clear)="clearSelectedPreiserheber$.emit($event)"
+        (update)="updatePreiserheber$.emit($event)"></preiserheber-detail>
+    <preiserheber-list
+        [list]="preiserhebers$ | async"
+        [current]="currentPreiserheber$ | async"
+        (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
 </ion-content>
