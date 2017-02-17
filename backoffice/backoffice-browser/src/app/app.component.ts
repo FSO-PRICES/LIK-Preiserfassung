@@ -2,15 +2,14 @@ import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
 
-import { InitializationPage } from '../pages/initialization/initialization';
-import { PreiserheberPage } from '../pages/preiserheber/preiserheber';
+import { PreismeldestellePage } from '../pages/preismeldestelle/preismeldestelle';
 
 
 @Component({
   templateUrl: 'app.html'
 })
 export class Backoffice {
-  rootPage = PreiserheberPage;
+  rootPage = PreismeldestellePage;
 
   constructor(platform: Platform) {
     platform.ready().then(() => {

@@ -2,7 +2,7 @@ import * as bluebird from 'bluebird';
 import * as PouchDB from 'pouchdb';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
 
-const couchDbUrl = 'http://localhost:5984/'
+const couchDbUrl = 'http://localhost:5984/';
 const username = 'lik-admin';
 const password = 'FwtjYWZW4T2PNWOt4cx3';
 
@@ -36,7 +36,7 @@ function getCouchDb(dbName: string): Promise<PouchDB.Database<PouchDB.Core.Encod
     const couch = new PouchDB(`${couchDbUrl}${dbName}`);
     const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
 
-    return login(username, password).then(x => couch) as any
+    return login(username, password).then(x => couch) as any;
 }
 
 function _checkIfDatabaseExists(dbName) {

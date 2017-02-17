@@ -1,19 +1,7 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import * as _ from 'lodash';
-import * as PouchDB from 'pouchdb';
-import * as pouchDbAuthentication from 'pouchdb-authentication';
-import { Observable, ReplaySubject } from 'rxjs';
-import { ReactiveComponent } from 'lik-common';
-
-
-import * as M from '../../../../common-models';
-import * as fromRoot from '../../../../reducers';
-import { getPreiserhebers } from '../../../../reducers/index';
-import { getCurrentPreiserheber, CurrentPreiserheber } from '../../../../reducers/preiserheber';
-
-PouchDB.plugin(pouchDbAuthentication);
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { ReactiveComponent, Models as P } from 'lik-shared';
 
 @Component({
     selector: 'preiserheber-detail',
@@ -21,25 +9,24 @@ PouchDB.plugin(pouchDbAuthentication);
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreiserheberDetailComponent extends ReactiveComponent implements OnChanges {
-    @Input() preiserheber: M.Erheber;
-    @Output("save")
+    @Input() preiserheber: P.Erheber;
+    @Output('save')
     public save$ = new EventEmitter();
-    @Output("clear")
+    @Output('clear')
     public clear$ = new EventEmitter();
-    @Output("update")
-    public update$ = new EventEmitter<M.Erheber>();
+    @Output('update')
+    public update$ = new EventEmitter<P.Erheber>();
 
-    public preiserheber$: Observable<M.Erheber>;
+    public preiserheber$: Observable<P.Erheber>;
     public clearClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
-    public formValueChanged$ = new EventEmitter<string>();
 
     public form: FormGroup;
 
-    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>) {
+    constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preiserheber$ = this.observePropertyCurrentValue<M.Erheber>('preiserheber');
+        this.preiserheber$ = this.observePropertyCurrentValue<P.Erheber>('preiserheber');
 
         this.form = formBuilder.group({
             firstName: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
@@ -67,7 +54,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                 });
             });
 
-        this.formValueChanged$
+        this.form.valueChanges
             .subscribe(x => this.update$.emit(this.form.value));
 
         const canSave$ = this.saveClicked$
@@ -78,7 +65,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
             .publishReplay(1).refCount()
             .withLatestFrom(this.saveClicked$)
             .subscribe(x => this.save$.emit());
-        
+
         this.clearClicked$.subscribe(x => this.clear$.emit());
     }
 

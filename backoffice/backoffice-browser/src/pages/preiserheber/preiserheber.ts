@@ -1,17 +1,9 @@
 import { Component, EventEmitter } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import * as _ from 'lodash';
-import * as PouchDB from 'pouchdb';
-import * as pouchDbAuthentication from 'pouchdb-authentication';
-import { Observable, ReplaySubject } from 'rxjs';
 
 import * as M from '../../common-models';
 import * as fromRoot from '../../reducers';
-import { getPreiserhebers } from '../../reducers/index';
-import { getCurrentPreiserheber, CurrentPreiserheber } from '../../reducers/preiserheber';
-
-PouchDB.plugin(pouchDbAuthentication);
 
 @Component({
     selector: 'preiserheber',
@@ -30,10 +22,10 @@ export class PreiserheberPage {
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISERHEBER', payload: x }));
 
         this.clearSelectedPreiserheber$
-            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISERHEBER', payload: null}))
+            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISERHEBER', payload: null }));
 
         this.updatePreiserheber$
-            .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISERHEBER', payload: x }))
+            .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISERHEBER', payload: x }));
 
         this.savePreiserheber$
             .subscribe(x => store.dispatch({ type: 'SAVE_PREISERHEBER' }));

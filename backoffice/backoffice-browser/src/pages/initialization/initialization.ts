@@ -1,8 +1,6 @@
-import { createPmsToPeMap, preparePms } from "../../common/presta-data-mapper"
-import { buildTree } from "../../common/presta-warenkorb-mapper"
-import { PmsToPeMap, Erheber } from "../../../../../common/models"
+import { buildTree } from '../../common/presta-warenkorb-mapper';
 import { Component, EventEmitter } from '@angular/core';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { Http } from '@angular/http';
 import { Observable } from 'rxjs';
 import * as bluebird from 'bluebird';
 import * as _ from 'lodash';
@@ -41,35 +39,35 @@ export class InitializationPage {
             .map(event => _.first((<HTMLInputElement>event.target).files))
             .filter(f => !!f.name.match('Erhebungsschema_DE'))
             .flatMap(file => this.readFileContents(file))
-            .map(content => this.parseFile(content))
+            .map(content => this.parseFile(content));
         const warenkorbFr$ = this.warenkorbSelectedFr$
             .map(event => _.first((<HTMLInputElement>event.target).files))
             .filter(f => !!f.name.match('Erhebungsschema_FR'))
             .flatMap(file => this.readFileContents(file))
-            .map(content => this.parseFile(content))
+            .map(content => this.parseFile(content));
         const warenkorbIt$ = this.warenkorbSelectedIt$
             .map(event => _.first((<HTMLInputElement>event.target).files))
             .filter(f => !!f.name.match('Erhebungsschema_IT'))
             .flatMap(file => this.readFileContents(file))
-            .map(content => this.parseFile(content))
-        
+            .map(content => this.parseFile(content));
+
         const warenkorbCompleted$ = warenkorbDe$
-            .do(x => console.log("warenkorb de", x))
+            .do(x => console.log('warenkorb de', x))
             .combineLatest(warenkorbFr$, warenkorbIt$, (de: string[][], fr: string[][], it: string[][]) => ({ de, fr, it }))
-            .do(x => console.log("combined_latest", x))
+            .do(x => console.log('combined_latest', x))
             .publishReplay(1).refCount();
-        
+
         this.warenkorbIsCompleted$ = warenkorbCompleted$.map(_ => true).startWith(false);
-            
-        const createWarenkorb$ = warenkorbCompleted$
+
+        warenkorbCompleted$
             .combineLatest(this.createWarenkorbClicked$, login$, (warenkorb, ..._) => warenkorb)
-            .do(x => console.log("combined_latest+click", x))
+            .do(x => console.log('combined_latest+click', x))
             .map(x => this.createWarenkorb(x))
-            .do(x => console.log("warenkorb", x))
+            .do(x => console.log('warenkorb', x))
             .publishReplay(1).refCount()
             .do(x => couch.destroy())
             .map(warenkorb => Observable.fromPromise(couch.bulkDocs(warenkorb)))
-            .flatMap(x => x)
+            .flatMap(x => x);
     }
 
     readFileContents(file: File) {

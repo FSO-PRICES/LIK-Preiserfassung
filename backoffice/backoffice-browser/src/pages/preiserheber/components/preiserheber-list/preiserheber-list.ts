@@ -1,41 +1,32 @@
-import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import * as _ from 'lodash';
-import * as PouchDB from 'pouchdb';
-import * as pouchDbAuthentication from 'pouchdb-authentication';
-import { Observable, ReplaySubject } from 'rxjs';
-import { ReactiveComponent } from 'lik-common';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { ReactiveComponent, Models as P } from 'lik-shared';
 
-import * as M from '../../../../common-models';
-import * as fromRoot from '../../../../reducers';
-import { getPreiserhebers } from '../../reducers/index';
-import { getCurrentPreiserheber, CurrentPreiserheber } from '../../../../reducers/preiserheber';
-
-PouchDB.plugin(pouchDbAuthentication);
+import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 
 @Component({
     selector: 'preiserheber-list',
     templateUrl: 'preiserheber-list.html'
 })
 export class PreiserheberListComponent extends ReactiveComponent implements OnChanges {
-    @Input() list: M.Erheber[];
-    @Input() current: M.Erheber;
-    @Output("selected")
+    @Input() list: P.Erheber[];
+    @Input() current: P.Erheber;
+    @Output('selected')
     public selected$ = new EventEmitter<string>();
 
-    public preiserhebers$: Observable<M.Erheber[]>;
-    public current$: Observable<M.Erheber>;
-    public selectPreiserheber$ = new EventEmitter<M.Erheber>();
+    public preiserhebers$: Observable<P.Erheber[]>;
+    public current$: Observable<P.Erheber>;
+    public selectPreiserheber$ = new EventEmitter<P.Erheber>();
 
-    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>) {
+    constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preiserhebers$ = this.observePropertyCurrentValue<M.Erheber[]>('list');
-        this.current$ = this.observePropertyCurrentValue<M.Erheber>('current');
+        this.preiserhebers$ = this.observePropertyCurrentValue<P.Erheber[]>('list');
+        this.current$ = this.observePropertyCurrentValue<P.Erheber>('current');
 
         const requestSelectPreiserheber$ = this.selectPreiserheber$
-            .withLatestFrom(this.current$.startWith(null), (selectedPreiserheber: M.Erheber, currentPreiserheber: M.CurrentPreiserheber) => ({
+            .withLatestFrom(this.current$.startWith(null), (selectedPreiserheber: P.Erheber, currentPreiserheber: CurrentPreiserheber) => ({
                 selectedPreiserheber,
                 currentPreiserheber,
                 isCurrentModified: !!currentPreiserheber && currentPreiserheber.isModified

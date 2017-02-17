@@ -1,11 +1,12 @@
 import { Erheber } from '../../../../common/models';
 import * as preiserheber from '../actions/preiserheber';
-import { merge, assign } from 'lodash';
+import { assign, cloneDeep } from 'lodash';
 import { createSelector } from 'reselect';
 
 export type CurrentPreiserheber = Erheber & {
     isModified: boolean;
     isSaved: boolean;
+    isCreated: boolean;
 };
 
 export interface State {
@@ -22,7 +23,7 @@ const initialState: State = {
 
 export function reducer(state = initialState, action: preiserheber.Actions): State {
     switch (action.type) {
-        case "PREISERHEBER_LOAD_SUCCESS": {
+        case 'PREISERHEBER_LOAD_SUCCESS': {
             const { payload } = action;
             const preiserhebers = payload.preiserhebers
                 .map<Erheber>(erheber => Object.assign({}, erheber));
@@ -34,7 +35,7 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
         }
 
         case 'SELECT_PREISERHEBER': {
-            const currentPreiserheber = action.payload == null ? {} : Object.assign({}, getEntities(state)[action.payload], { isModified: false, isSaved: false });
+            const currentPreiserheber = action.payload == null ? {} : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false, isCreated: false });
             return assign({}, state, { currentPreiserheber: currentPreiserheber });
         }
 
@@ -50,7 +51,7 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
                 email: payload.email
             };
 
-            const currentPreiserheber = merge({},
+            const currentPreiserheber = assign({},
                 state.currentPreiserheber,
                 valuesFromPayload,
                 { isModified: true }
@@ -61,8 +62,8 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
 
         case 'SAVE_PREISERHEBER_SUCCESS': {
             const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload);
-            const preiserheberIds = [currentPreiserheber._id, ...state.preiserheberIds.filter(x => x != currentPreiserheber._id)];
-            return assign({}, state, { currentPreiserheber, preiserheberIds, entities: Object.assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber })});
+            const preiserheberIds = !!state.preiserheberIds.find(x => x === currentPreiserheber._id) ? state.preiserheberIds : [...state.preiserheberIds, currentPreiserheber._id];
+            return assign({}, state, { currentPreiserheber, preiserheberIds, entities: assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber }) });
         }
 
         default:
@@ -74,4 +75,4 @@ export const getEntities = (state: State) => state.entities;
 export const getPreiserheberIds = (state: State) => state.preiserheberIds;
 export const getCurrentPreiserheber = (state: State) => state.currentPreiserheber;
 
-export const getAll = createSelector(getEntities, getPreiserheberIds, (entities, preismeldungIds) => preismeldungIds.map(x => entities[x]));
+export const getAll = createSelector(getEntities, getPreiserheberIds, (entities, preiserheberIds) => preiserheberIds.map(x => entities[x]));

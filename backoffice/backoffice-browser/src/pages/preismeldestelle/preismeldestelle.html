@@ -1,0 +1,14 @@
+<ion-content>
+    <div class="header">
+        <h3>Alle Preismeldestellen</h3>
+    </div>
+    <preismeldestelle-list
+        [list]="preismeldestellen$ | async"
+        [current]="currentPreismeldestelle$ | async"
+        (selected)="selectPreismeldestelle$.emit($event)"></preismeldestelle-list>
+    <preismeldestelle-detail
+        [preismeldestelle]="currentPreismeldestelle$ | async"
+        (save)="savePreismeldestelle$.emit($event)"
+        (clear)="clearSelectedPreismeldestelle$.emit($event)"
+        (update)="updatePreismeldestelle$.emit($event)"></preismeldestelle-detail>
+</ion-content>
