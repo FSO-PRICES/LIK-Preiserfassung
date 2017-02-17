@@ -3,7 +3,8 @@ import { IonicModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from 'ng2-translate';
 
-import { PefComponentsModule } from '../../components';
+import { PreiserfasserCommonModule } from '../../common';
+import { PefComponentsModule } from 'lik-shared';
 
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 import { PmsPriceEntryPage } from './pms-price-entry';
@@ -15,7 +16,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
 import { ProcessingCodeComponent } from './components/processing-code/processing-code';
 
 @NgModule({
-    imports: [CommonModule, IonicModule, PefComponentsModule, TranslateModule],
+    imports: [CommonModule, IonicModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
     declarations: [
         DialogCancelEditComponent,
         DialogValidationErrorsComponent,

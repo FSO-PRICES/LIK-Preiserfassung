@@ -1,4 +1,6 @@
-@import "../../theme/imports.scss";
+@import "./shadows.scss";
+@import "./mixins.scss";
+@import "./variables.scss";
 
 .pef-dialog {
     display: flex;

@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Store } from '@ngrx/store';
-import * as fromRoot from '../../reducers';
-import * as P from '../../common-models';
+import * as fromRoot from '../../../reducers';
+import * as P from '../../../common-models';
 
 @Pipe({ name: 'pefPropertyTranslate' })
 export class PefPropertyTranslatePipe implements PipeTransform {

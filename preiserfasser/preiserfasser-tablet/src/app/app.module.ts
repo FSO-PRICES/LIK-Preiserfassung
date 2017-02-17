@@ -11,13 +11,14 @@ import { reducer } from '../reducers';
 import { PEF_EFFECTS } from '../effects';
 
 import { MyApp } from './app.component';
+import { PreiserfasserCommonModule } from '../common';
 import { DashboardPage } from '../pages/dashboard/dashboard';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 import { TestPage } from '../pages/test-page/test-page';
 
 import { PefDialogService } from 'lik-shared';
-import { PefComponentsModule } from '../components';
+import { PefComponentsModule } from 'lik-shared';
 
 export function createTranslateLoader(http: Http) {
     return new TranslateStaticLoader(http, './assets/i18n', '.json');
@@ -28,7 +29,7 @@ export function createTranslateLoader(http: Http) {
         MyApp,
         DashboardPage,
         PmsDetailsPage,
-        TestPage,
+        TestPage
     ],
     imports: [
         IonicModule.forRoot(MyApp, {
@@ -47,6 +48,7 @@ export function createTranslateLoader(http: Http) {
         }),
         PefComponentsModule,
         PmsPriceEntryModule,
+        PreiserfasserCommonModule,
         StoreModule.provideStore(reducer),
         ...PEF_EFFECTS,
         HttpModule,

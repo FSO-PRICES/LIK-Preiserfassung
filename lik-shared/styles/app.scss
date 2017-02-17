@@ -1,0 +1,246 @@
+// http://ionicframework.com/docs/v2/theming/
+
+
+// App Global Sass
+// --------------------------------------------------
+// Put style rules here that you want to apply globally. These
+// styles are for the entire app and not just one component.
+// Additionally, this file can be also used as an entry point
+// to import other Sass files to be included in the output CSS.
+//
+// Shared Sass variables, which can be used to adjust Ionic's
+// default Sass variables, belong in "theme/variables.scss".
+//
+// To declare rules for a specific mode, create a child rule
+// for the .md, .ios, or .wp mode classes. The mode class is
+// automatically applied to the <body> element in the app.
+
+// @import "../../node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.css";
+@import "./variables.scss";
+@import "./mixins.scss";
+
+@import "./buttons.scss";
+@import "./dialog.scss";
+
+// .gu-mirror{position:fixed!important;margin:0!important;z-index:9999!important;opacity:.8;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";filter:alpha(opacity=80)}.gu-hide{display:none!important}.gu-unselectable{-webkit-user-select:none!important;-moz-user-select:none!important;-ms-user-select:none!important;user-select:none!important}.gu-transit{opacity:.2;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";filter:alpha(opacity=20)}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Roboto'), local('Roboto-Regular'), url(../assets/fonts/Roboto-Regular.ttf) format('truetype');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    src: local('Roboto Medium'), local('Roboto-Medium'), url(../assets/fonts/Roboto-Medium.ttf) format('truetype');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Roboto Bold'), local('Roboto-Bold'), url(../assets/fonts/Roboto-Bold.ttf) format('truetype');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+html, ion-app.md {
+    font-family: 'Roboto', sans-serif !important;
+    background-color: $outer-space;
+    background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-size: 1em;
+    line-height: 1.25em;
+    font-weight: 500;
+    margin: 0 0 1em 0;
+    &.large {
+        font-size: 1.25em;
+        line-height: 1.5em;
+    }
+    &.small {
+        font-size: 0.75em;
+        line-height: 1em;
+    }
+    &.secondary {
+        font-weight: 400;
+        color: $trout;
+    }
+}
+
+.app-root.pef-desktop {
+    max-width: $pef-app-max-width;
+    margin: 0 auto;
+    position: relative;
+
+    ion-content .scroll-content {
+        overflow-y: auto;
+    }
+}
+
+ion-content.content-md {
+    color: $outer-space
+}
+
+.pef-scroll-container {
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.label-md {
+    font-size: 1.2rem;
+}
+
+form.form-show-validation-hints {
+    .item-md.pef-item.ng-invalid {
+        ion-input, ion-textarea {
+            border-bottom-color: $alizarin-crimson;
+        }
+    }
+}
+
+.item-md.pef-item {
+    padding-left: 0;
+    background-color: transparent;
+    .input-wrapper {
+        height: calc(2.75 * 1em);
+    }
+    &.item-md.item-block .item-inner {
+        padding-right: 0;
+        border-bottom-width: 0;
+    }
+    ion-label {
+        padding-left: 8px;
+        font-weight: 500;
+        color: $oslo-gray;
+        line-height: 1.75em;
+    }
+    &.item-label-stacked .text-input-md, .text-input-md {
+        margin: 6px 0;
+    }
+    ion-input, ion-textarea {
+        background-color: white;
+        border-bottom: 2px solid $hit-gray;
+        padding-left: 8px;
+        padding-right: 8px;
+        ::selection {
+            background-color: $scooter;
+            color: $outer-space;
+        }
+    }
+    &.input-has-focus {
+        ion-input, ion-textarea {
+            border-bottom-color: $blue-chill;
+        }
+        .item-inner {
+            box-shadow: none;
+        }
+        &:last-child {
+            box-shadow: none;
+        }
+    }
+    &.input-has-focus.on-dark {
+        ion-input, ion-textarea {
+            border-bottom-color: $bright-sun;
+        }
+    }
+    input {
+        outline: none;
+    }
+}
+
+// Radio overrides
+
+ion-list[radio-group] {
+    .item-radio {
+        background-color: transparent;
+        padding-left: 0;
+        @include set-min-height(2);
+        .item-inner {
+            border-bottom-width: 0;
+            .input-wrapper {
+                order: 1;
+            }
+        }
+        ion-label {
+            font-weight: 500;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .radio-icon {
+            height: 20px;
+            width: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .radio-inner {
+            position: static;
+            width: 10px;
+            height: 10px;
+        }
+    }
+}
+
+.item-md .radio-md {
+    @include set-margin(0.5625, 0.625, 0.5625, 0);
+}
+
+.item-md.item-radio ion-label {
+    font-size: 1em;
+}
+
+.radio-md.radio-disabled, .item-md.item-radio-disabled ion-label {
+    color: $trout;
+}
+
+.item-radio-disabled {
+    .radio-icon {
+        border-color: $oslo-gray;
+    }
+    .radio-inner {
+        background-color: $oslo-gray;
+    }
+}
+
+.button-md.pef-icon-secondary {
+    background-color: $wild-sand;
+    fill: $blue-chill;
+    box-shadow: none;
+    &:hover:not(.disable-hover) {
+        background-color: $blue-chill;
+        opacity: 1;
+    }
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.visibility-hidden {
+    visibility: hidden;
+}
+
+ion-popover.popover-md {
+    background-color: rgba(0, 0, 0, 0.6);
+
+    .popover-content {
+        width: initial;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    html {
+        font-size: 0.85vw;
+    }
+    .item-md.pef-item .input-wrapper{
+        height: auto;
+    }
+}
