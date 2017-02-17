@@ -1,15 +1,16 @@
-import { AdvancedPreismeldestelle } from '../../../../common/models';
+import { Models as P } from 'lik-shared';
+
 import * as preismeldestelle from '../actions/preismeldestelle';
 import { assign, cloneDeep } from 'lodash';
 import { createSelector } from 'reselect';
 
-export type CurrentPreismeldestelle = AdvancedPreismeldestelle & {
+export type CurrentPreismeldestelle = P.AdvancedPreismeldestelle & {
     isModified: boolean;
 };
 
 export interface State {
     preismeldestelleIds: string[];
-    entities: { [id: string]: AdvancedPreismeldestelle };
+    entities: { [id: string]: P.AdvancedPreismeldestelle };
     currentPreismeldestelle: CurrentPreismeldestelle;
 };
 
@@ -24,9 +25,9 @@ export function reducer(state = initialState, action: preismeldestelle.Actions):
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;
             const preismeldestellen = payload.preismeldestelles
-                .map<AdvancedPreismeldestelle>(preismeldestelle => Object.assign({}, preismeldestelle));
+                .map<P.AdvancedPreismeldestelle>(preismeldestelle => Object.assign({}, preismeldestelle));
             const preismeldestelleIds = preismeldestellen.map(p => p._id);
-            const entities = preismeldestellen.reduce((entities: { [_id: string]: AdvancedPreismeldestelle }, preismeldestelle: AdvancedPreismeldestelle) => {
+            const entities = preismeldestellen.reduce((entities: { [_id: string]: P.AdvancedPreismeldestelle }, preismeldestelle: P.AdvancedPreismeldestelle) => {
                 return Object.assign(entities, { [preismeldestelle._id]: preismeldestelle });
             }, {});
             return assign({}, state, { preismeldestelleIds, entities, currentPreismeldestelle: undefined });

@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
 import { getDatabase } from './pouchdb-utils';
-import { Erheber, CurrentPreiserheber } from '../common-models';;
+import { Models as P, CurrentPreiserheber } from '../common-models';;
 
 const PREISERHEBER_DB_NAME = 'preiserheber';
 
@@ -21,7 +21,7 @@ export class PreiserheberEffects {
     loadPreiserheber$ = this.actions$
         .ofType('PREISERHEBER_LOAD')
         .switchMap(() => getDatabase(PREISERHEBER_DB_NAME).then(db => ({ db })))
-        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as Erheber[] })))
+        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as P.Erheber[] })))
         .map<preiserheber.Actions>(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs }));
 
     @Effect()
@@ -83,6 +83,6 @@ export class PreiserheberEffects {
         .map<preiserheber.Actions>(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload }));
 }
 
-function getPreiserheberDbName(preiserheber: Erheber) {
+function getPreiserheberDbName(preiserheber: P.Erheber) {
     return `erheber_${preiserheber._id}`;
 }
