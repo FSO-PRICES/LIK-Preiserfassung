@@ -1,5 +1,5 @@
-import { Directive, ElementRef, OnDestroy, HostListener } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Directive, ElementRef, HostListener } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Directive({
     selector: '[pef-highlight-on-focus]'

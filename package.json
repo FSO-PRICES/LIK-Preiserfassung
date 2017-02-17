@@ -18,6 +18,9 @@
   },
   "homepage": "https://github.com/Lambda-IT/lik-studio#readme",
   "devDependencies": {
+    "codelyzer": "^2.0.0",
+    "tslint": "^4.4.2",
+    "tslint-eslint-rules": "^3.4.0",
     "typescript": "2.0.10"
   }
 }

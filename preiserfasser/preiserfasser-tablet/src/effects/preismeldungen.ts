@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Observable, ConnectableObservable } from 'rxjs';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';

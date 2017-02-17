@@ -44,6 +44,9 @@
     "@types/bluebird": "^3.0.37",
     "@types/lodash": "4.14.50",
     "@types/pouchdb": "^5.4.28",
+    "codelyzer": "^2.0.0",
+    "tslint": "^4.4.2",
+    "tslint-eslint-rules": "^3.4.0",
     "typescript": "2.0.9"
   },
   "cordovaPlugins": [
