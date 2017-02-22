@@ -1,0 +1,166 @@
+.ion-page {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    
+    .app-title {
+        font-weight: bold;
+        padding-right: 2em;
+    }
+
+    .page-wrapper {
+        flex: 1;
+        display: flex;
+        background-color: $alto;
+        @include set-padding-vert-horiz(1, 1.5);
+    }
+
+    .app-name {
+        font-weight: bold;
+        letter-spacing: 1px;
+        @include set-padding-top-bottom(2.25, 1.25);
+        display: flex;
+        justify-content: center;
+    }
+
+    .page-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        @include set-margin-right(0.75);
+        @include set-padding(1.5, 1, 1, 1);
+        background-color: $mercury;
+    }
+
+    .header-line {
+        display: flex;
+
+        h3 {
+            flex: 1;
+        }
+    }
+
+    .current-time {
+        align-self: flex-end;
+        font-weight: 500;
+        line-height: 1.25em;
+        margin: 0 0 1em 0;
+    }
+
+    .pms-search {
+        @include set-margin-bottom(1.25);
+    }
+
+    .preismeldungen-scroll {
+        flex: 1;
+    }
+
+    .pms-scroll-container {
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
+
+    .pms-header-table {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .pms-header-row {
+        display: table-row;
+    }
+
+    .pms-header-cell {
+        @include set-height(3.5);
+        display: table-cell;
+        @include set-padding-bottom(0.25);
+
+        &.pms-name {
+            .pms-header-cell-content {
+                @include set-padding-left(1);
+            }
+        }
+    }
+
+    .pms-header-cell-content {
+        background-color: $alto;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        color: $trout;
+    }
+
+    .pms-detail-link {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-size: 1em;
+        .button-inner {
+            justify-content: flex-start;
+        }
+        pef-icon {
+            width: 30px;
+            @include set-margin-right(1);
+        }
+    }
+
+    .pms-table {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .pms-row {
+        display: table-row;
+    }
+
+    .pms-cell {
+        @include set-height(3.5);
+        max-height: 56px; // TODO
+        display: table-cell;
+
+        &.pms-name {
+            width: 30%;
+            .pms-cell-content {
+                @include set-padding-left(1);
+                color: $blue-chill;
+                font-weight: 500;
+            }
+        }
+        &.erfassung-starten {
+            width: 70%;
+            .pms-cell-content {
+                @include set-padding-right(1);
+                justify-content: flex-end;
+            }
+        }
+        position: relative;
+    }
+
+    .pms-cell-content {
+        background-color: white;
+        position: absolute;
+        top: 0;
+        height: calc(100% - 4px);
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .button-md.price-entry-button {
+        @include button-color($scooter, white);
+    }
+
+    .preismeldungen {
+        flex: 0 1 33.3%;
+        @include set-margin-left(0.75);
+        @include set-padding-vert-horiz(1.5, 1);
+        background-color: $mercury;
+    }
+
+    h2 {
+        font-size: 1em;
+        margin: 0 0 1em 0;
+    }
+}

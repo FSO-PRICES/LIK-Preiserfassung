@@ -3,14 +3,14 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
-import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
-import { Erheber, CurrentPreiserheber } from '../common-models';
+import { getDatabase, createUser } from './pouchdb-utils';
+import { Models as P, CurrentPreiserheber } from '../common-models';;
 
-const DB_NAME = "preiserheber";
+const PREISERHEBER_DB_NAME = 'preiserheber';
 
 @Injectable()
 export class PreiserheberEffects {
-    currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber)
+    currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber);
 
     constructor(
         private actions$: Actions,
@@ -20,33 +20,79 @@ export class PreiserheberEffects {
     @Effect()
     loadPreiserheber$ = this.actions$
         .ofType('PREISERHEBER_LOAD')
-        .switchMap(({ payload }) => getDatabase(DB_NAME).then(db => ({ db })))
-        .flatMap(x => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix('erheber:'), { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as Erheber[] })))
+        .switchMap(() => getDatabase(PREISERHEBER_DB_NAME).then(db => ({ db })))
+        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as P.Erheber[] })))
         .map<preiserheber.Actions>(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs }));
 
     @Effect()
     savePreiserheber$ = this.actions$
         .ofType('SAVE_PREISERHEBER')
-        .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ currentPreiserheber }))
-        .switchMap<Erheber>(({ currentPreiserheber }) => {
-            return getDatabase(DB_NAME)
-                .then(db => {
-                    if (!!currentPreiserheber._id) {
-                        return db.get(currentPreiserheber._id).then(doc => ({ db, doc }))
+        .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ password: action.payload, currentPreiserheber }))
+        .switchMap<CurrentPreiserheber>(({ password, currentPreiserheber }) => {
+            return getDatabase(PREISERHEBER_DB_NAME)
+                .then(db => { // Only check if the document exists if a revision not already exists
+                    if (!!currentPreiserheber._rev) {
+                        return db.get(currentPreiserheber._id).then(doc => ({ db, doc }));
                     }
-                    return new Promise((resolve, _) => resolve({ db, doc: { _id: `erheber:${currentPreiserheber.firstName}_${currentPreiserheber.surname}` } }))
+                    return new Promise<{ db, doc }>((resolve, _) => resolve({ db, doc: {} }));
                 })
-                .then(({ db, doc }) => {
-                    return db.put(Object.assign({}, doc, {
+                .then(({ db, doc }) => { // Create or update the erheber
+                    const create = !doc._rev;
+                    const dbOperation = (create ? db.post : db.put).bind(db);
+                    return dbOperation(Object.assign({}, doc, {
+                        _id: currentPreiserheber._id,
+                        _rev: currentPreiserheber._rev,
                         firstName: currentPreiserheber.firstName,
                         surname: currentPreiserheber.surname,
                         personFunction: currentPreiserheber.personFunction,
                         languageCode: currentPreiserheber.languageCode,
                         telephone: currentPreiserheber.telephone,
                         email: currentPreiserheber.email
-                    })).then(() => ({ db, id: doc._id }))
+                    })).then((response) => ({ db, id: response.id, created: create }));
                 })
-                .then(({db, id}) => db.get(id).then(preiserheber => Object.assign({}, preiserheber, { isModified: false, isSaved: true })));
+                // Reload the created erheber
+                .then<CurrentPreiserheber>(({ db, id, created }) => db.get(id).then(preiserheber => Object.assign({}, preiserheber, { isModified: false, isSaved: true, isCreated: created })))
+                // Initialize a database for created erheber
+                .then(erheber =>
+                    getDatabase(getPreiserheberDbName(erheber)).then(db => {
+                        const erheberUri = 'erheber';
+                        const tasks = [
+                            // Should we create the warenkorb document here? Or when we deliver the database to the device? Otherwise we multiplicate the warenkorb x-times
+
+                            // Create the erheber document
+                            db.get(erheberUri).then(resp => {
+                                return db.put(Object.assign({}, erheber, { _id: erheberUri, _rev: resp._rev })).then(x => {
+                                    return erheber;
+                                });
+                            }).catch(() => db.put(Object.assign({}, erheber, { _id: erheberUri })).then(x => {
+                                return erheber;
+                            })),
+
+                            // preismeldungReferenceUriRoute = 'pm-ref/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
+                            // preismeldungUriRoute = 'pm/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
+                            // Create the preismeldungen docs
+                            // db.get()
+
+                            // pmsUriRoute = 'pms/:pmsNummer';
+                            // Create the preismeldungstelle(n)
+                        ];
+
+                        if (erheber.isCreated) {
+                            tasks.push(
+                                // Create a new user
+                                createUser(erheber._id, password).then(x => console.log('created:', x))
+                            );
+                        }
+                        // const pmsUri = docuri.route(pmsUriRoute);
+                        // const preismeldungReferenceUri = docuri.route(preismeldungReferenceUriRoute);
+                        // const preismeldungUri = docuri.route(preismeldungUriRoute);
+                        return Promise.all(tasks).then(() => erheber);
+                    })
+                );
         })
-        .map<preiserheber.Actions>(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload }))
+        .map<preiserheber.Actions>(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload }));
+}
+
+function getPreiserheberDbName(preiserheber: P.Erheber) {
+    return `${preiserheber._id}`;
 }

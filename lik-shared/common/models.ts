@@ -24,6 +24,24 @@ export interface PreismeldestelleProperties {
     languageCode: string;
 }
 
+export interface KontaktPerson {
+    firstName: string;
+    surname: string;
+    personFunction: string;
+    languageCode: string;
+    telephone: string;
+    mobile: string;
+    fax: string;
+    email: string;
+}
+
+export interface AdvancedPresimeldestelleProperties {
+    kontaktpersons: KontaktPerson[];
+    erhebungsart: string;
+    erhebungshaeufigkeit: string;
+    erhebungsartComment: string;
+}
+
 export const preismeldungReferenceUriRoute = 'pm-ref/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
 export const preismeldungUriRoute = 'pm/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
 export interface PreismeldungUri {
@@ -96,6 +114,7 @@ export interface CouchProperties {
 }
 
 export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
+export type AdvancedPreismeldestelle = PreismeldestelleProperties & AdvancedPresimeldestelleProperties & CouchProperties;
 export type Erheber = ErheberProperties & CouchProperties;
 export type PreismeldungReference = PreismeldungReferenceProperties & CouchProperties;
 export type Preismeldung = PreismeldungProperties & CouchProperties;

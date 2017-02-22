@@ -1,0 +1,6 @@
+<div class="pe-list-content">
+    <h2 class="large">Alle Preismeldestellen</h2>
+    <ion-list>
+        <ion-item *ngFor="let preiserheber of preiserhebers$ | async" (click)="selectPreiserheber$.emit(preiserheber)">{{preiserheber.firstName}} {{preiserheber.surname}}</ion-item>
+    </ion-list>
+</div>

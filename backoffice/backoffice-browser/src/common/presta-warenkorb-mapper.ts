@@ -1,6 +1,6 @@
+import { Models as P } from 'lik-shared';
 import * as _ from 'lodash';
 
-import { WarenkorbTreeItem, WarenkorbHierarchicalTreeItem, PeriodizitaetMonat } from '../../../../common/models';
 
 const indexes = {
     gliederungspositionsnummer: 1,
@@ -38,13 +38,14 @@ const indexes = {
 };
 
 
-export function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): WarenkorbTreeItem[] {
-    const lastDepthGliederungspositionsnummers: { [index: number]: WarenkorbTreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
+export function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): P.WarenkorbTreeItem[] {
+    const lastDepthGliederungspositionsnummers: { [index: number]: P.WarenkorbTreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
 
-    const treeItems: WarenkorbTreeItem[] = [];
+    const treeItems: P.WarenkorbTreeItem[] = [];
     for (let i = 0; i < data.de.length; i++) {
         const thisLine = data.de[i];
-        const treeItem: WarenkorbTreeItem = {
+        const treeItem: P.WarenkorbTreeItem & { _id: string } = {
+            _id: thisLine[indexes.gliederungspositionsnummer],
             type: 'LEAF',
             gliederungspositionsnummer: thisLine[indexes.gliederungspositionsnummer],
             parentGliederungspositionsnummer: null,
@@ -83,7 +84,7 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             produktmerkmal6: translationsToStringOrNull(thisLine[indexes.produktmerkmal6], data.fr[i][indexes.produktmerkmal6], data.it[i][indexes.produktmerkmal6])
         };
         treeItems.push(treeItem);
-        const parent = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
+        const parent: P.WarenkorbTreeItem = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
         if (!!parent) {
             if (parent.type === 'LEAF') {
                 delete parent.standardmenge;
@@ -93,6 +94,7 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             }
             parent.type = 'BRANCH';
             treeItem.parentGliederungspositionsnummer = parent.gliederungspositionsnummer;
+            treeItem._id = `${(<any>parent)._id}/${treeItem.gliederungspositionsnummer}`;
         }
         lastDepthGliederungspositionsnummers[treeItem.tiefencode] = treeItem;
     }
@@ -130,11 +132,11 @@ function parseNumber(s: string, propertyName: string) {
     return number;
 }
 
-function createHierarchy(treeItems: WarenkorbTreeItem[]): WarenkorbHierarchicalTreeItem {
+function createHierarchy(treeItems: P.WarenkorbTreeItem[]): P.WarenkorbHierarchicalTreeItem {
     return createHierarchyRecursive(treeItems[0], 1, treeItems);
 }
 
-function createHierarchyRecursive(parent: WarenkorbTreeItem, currentItemIndex: number, treeItems: WarenkorbTreeItem[]): WarenkorbHierarchicalTreeItem {
+function createHierarchyRecursive(parent: P.WarenkorbTreeItem, currentItemIndex: number, treeItems: P.WarenkorbTreeItem[]): P.WarenkorbHierarchicalTreeItem {
     if (parent.type === 'LEAF') return parent;
 
     const children = [];
@@ -148,17 +150,17 @@ function createHierarchyRecursive(parent: WarenkorbTreeItem, currentItemIndex: n
     return _.assign({}, parent, { children });
 }
 
-function countHierarchicalItems(item: WarenkorbHierarchicalTreeItem): number {
+function countHierarchicalItems(item: P.WarenkorbHierarchicalTreeItem): number {
     if (item.type === 'LEAF') return 1;
     return item.children.reduce((agg, v) => agg + countHierarchicalItems(v), 1);
 }
 
-function countHierarchicalLeaves(item: WarenkorbHierarchicalTreeItem): number {
+function countHierarchicalLeaves(item: P.WarenkorbHierarchicalTreeItem): number {
     if (item.type === 'LEAF') return 1;
     return item.children.reduce((agg, v) => agg + countHierarchicalLeaves(v), 0);
 }
 
-function countHierarchicalBranches(item: WarenkorbHierarchicalTreeItem): number {
+function countHierarchicalBranches(item: P.WarenkorbHierarchicalTreeItem): number {
     if (item.type === 'LEAF') return 0;
     return item.children.reduce((agg, v) => agg + countHierarchicalBranches(v), 1);
 }
@@ -169,8 +171,8 @@ function parseBoolean(s: string) {
 
 function parsePeriodizitaet(periodizitaten: string[]) {
     return periodizitaten.reduce((prev, curr, index) => {
-        return prev |= parseBoolean(curr) ? <PeriodizitaetMonat>(1 << index) : PeriodizitaetMonat.None;
-    }, PeriodizitaetMonat.None)
+        return prev |= parseBoolean(curr) ? <P.PeriodizitaetMonat>(1 << index) : P.PeriodizitaetMonat.None;
+    }, P.PeriodizitaetMonat.None)
 }
 
 const parseAbweichung = parseNumberOrNull;

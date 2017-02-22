@@ -1,0 +1,15 @@
+<ion-navbar>
+    <ion-buttons start>
+        <button
+            *ngFor="let entry of pages"
+            type="button"
+            ion-button
+            (click)="navigateToPage(entry.page)">
+            {{ entry.name }}
+        </button>
+    </ion-buttons>
+
+    <ion-title>
+        LIK Studio
+    </ion-title>
+</ion-navbar>

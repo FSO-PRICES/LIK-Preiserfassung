@@ -1,20 +1,7 @@
+<ion-header pef-menu></ion-header>
 <ion-content class="login-content" padding>
     <div class="login-box">
         <form #credentialsForm="ngForm">
-            <ion-row>
-                <ion-col>
-                    <ion-list inset>
-                        <ion-item>
-                            <ion-input type="text" placeholder="Username" name="username" [(ngModel)]="credentials.username" required></ion-input>
-                        </ion-item>
-                        <ion-item>
-                            <ion-input type="password" placeholder="Password" name="password" [(ngModel)]="credentials.password" required></ion-input>
-                        </ion-item>
-
-                    </ion-list>
-                </ion-col>
-            </ion-row>
-
             <ion-row>
                 <ion-col>
                     <label>Erhebungsschema Deutsch</label><br>
@@ -32,6 +19,7 @@
                     <button ion-button class="register-btn" type="button" block clear [disabled]="!(warenkorbIsCompleted$ | async)" (click)="createWarenkorbClicked$.emit($event)">Import Warenkorb</button>
                 </ion-col>
             </ion-row>
+            <ion-row *ngIf="isWarenkorbCreated() | async"><ion-col><span ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbCreated$ | async}} Einträge wurden hinzugefügt</span></ion-col></ion-row>
         </form>
     </div>
 </ion-content>

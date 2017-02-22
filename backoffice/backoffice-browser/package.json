@@ -10,7 +10,7 @@
     "ionic:serve": "ionic-app-scripts serve"
   },
   "dependencies": {
-    "lik-common": "file:../../common/component",
+    "lik-shared": "file:../../lik-shared",
     "@angular/common": "2.2.1",
     "@angular/compiler": "2.2.1",
     "@angular/compiler-cli": "2.2.1",

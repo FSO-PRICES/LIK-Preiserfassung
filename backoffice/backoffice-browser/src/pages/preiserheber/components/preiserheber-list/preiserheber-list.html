@@ -1,6 +1,23 @@
 <div class="pe-list-content">
-    <h4 class="large">Alle Erfasser</h4>
-    <ion-list>
-        <ion-item *ngFor="let preiserheber of preiserhebers$ | async" (click)="selectPreiserheber$.emit(preiserheber)">{{preiserheber.firstName}} {{preiserheber.surname}}</ion-item>
-    </ion-list>
+    <h2 class="large">Alle Preiserheber</h2>
+    <ion-grid>
+        <ion-row>
+            <ion-col ion-text color="primary" class="item item-block item-md">Vorname</ion-col>
+            <ion-col ion-text color="primary" class="item item-block item-md">Nachname</ion-col>
+            <ion-col ion-text color="primary" class="item item-block item-md">Sprache</ion-col>
+            <ion-col ion-text color="primary" class="item item-block item-md">Funktion</ion-col>
+            <ion-col ion-text color="primary" class="item item-block item-md" width-10></ion-col>
+        </ion-row>
+        <ion-row *ngFor="let preiserheber of preiserhebers$ | async">
+            <ion-col class="item item-block item-md">{{preiserheber.firstName}}</ion-col>
+            <ion-col class="item item-block item-md">{{preiserheber.surname}}</ion-col>
+            <ion-col class="item item-block item-md">{{preiserheber.languageCode}}</ion-col>
+            <ion-col class="item item-block item-md">{{preiserheber.personFunction}}</ion-col>
+            <ion-col class="item item-block item-md" width-10>
+                <button ion-button type="button" (click)="selectPreiserheber$.emit(preiserheber)">
+                    <ion-icon name="create"></ion-icon>
+                </button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </div>

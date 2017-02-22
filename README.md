@@ -81,6 +81,8 @@ After everything has been installed and configured:
 
 ## Notizen / Fragen / Referenzen
 
+### Fragen/Abklärungen
+
 ### PEs <-> PMS's
 
 Die zuordnung von einem PE zu einer PMS ist meistens simpel, ein PE kann jedoch nur zu gewissen produkten in einer PMS zugewiesen werden.
