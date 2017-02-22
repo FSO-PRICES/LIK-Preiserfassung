@@ -1,13 +1,14 @@
 <div class="pe-details-content">
     <form [formGroup]="form">
-        <h4 class="large" [ngSwitch]="isEditing() | async">
-            <div *ngSwitchCase="true">
-                Editieren
-                <button type="button" ion-button (click)="clearClicked$.emit($event)">Clear</button>
-            </div>
+        <h2 class="large" [ngSwitch]="isEditing() | async">
+            <span *ngSwitchCase="true">Editieren</span>
             <span *ngSwitchDefault>Erfassen</span>
-        </h4>
-        <ion-list>
+        </h2>
+        <ion-list formGroupName="preiserheber">
+            <ion-item>
+                <ion-label stacked>Benutzername</ion-label>
+                <ion-input [disabled]="isEditing() | async" type="text" formControlName="_id"></ion-input>
+            </ion-item>
             <ion-item>
                 <ion-label stacked>Vorname</ion-label>
                 <ion-input type="text" formControlName="firstName"></ion-input>
@@ -32,8 +33,14 @@
                 <ion-label stacked>Email</ion-label>
                 <ion-input type="text" formControlName="email"></ion-input>
             </ion-item>
+        </ion-list>
+        <ion-list>
             <ion-item>
-                <button type="button" ion-button (click)="saveClicked$.emit($event)">Speichern</button>
+                <button type="button" [disabled]="isFormValidAndPristine() | async" ion-button (click)="saveClicked$.emit($event)">Speichern</button>
+            </ion-item>
+            <ion-item *ngIf="!(isEditing() | async)">
+                <ion-input placeholder="Initiales Passwort" type="password" formControlName="password"></ion-input>
+                <!--<button [disabled]="!(hasChanges() | async)" type="button" ion-button (click)="clearClicked$.emit($event)">Clear</button>-->
             </ion-item>
         </ion-list>
     </form>

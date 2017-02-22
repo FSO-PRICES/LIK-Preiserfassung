@@ -4,6 +4,7 @@ import { FormBuilder } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../../reducers';
+import { NavController } from 'ionic-angular';
 
 @Component({
     selector: 'preiserheber',
@@ -17,7 +18,7 @@ export class PreiserheberPage {
     public savePreiserheber$ = new EventEmitter();
     public updatePreiserheber$ = new EventEmitter<P.Erheber>();
 
-    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>) {
+    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>, private  nav: NavController) {
         this.selectPreiserheber$
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISERHEBER', payload: x }));
 
@@ -28,7 +29,7 @@ export class PreiserheberPage {
             .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISERHEBER', payload: x }));
 
         this.savePreiserheber$
-            .subscribe(x => store.dispatch({ type: 'SAVE_PREISERHEBER' }));
+            .subscribe(password => store.dispatch({ type: 'SAVE_PREISERHEBER', payload: password }));
     }
 
     public ionViewDidEnter() {

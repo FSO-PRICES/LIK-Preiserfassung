@@ -1,14 +1,19 @@
+<ion-header pef-menu></ion-header>
 <ion-content>
-    <div class="header">
-        <h3>Alle Preismeldestellen</h3>
+    <div class="page-wrapper">
+        <div class="page-content">
+            <div class="header">
+                <h1 class="large">Preismeldestellen</h1>
+            </div>
+            <preismeldestelle-list
+                [list]="preismeldestellen$ | async"
+                [current]="currentPreismeldestelle$ | async"
+                (selected)="selectPreismeldestelle$.emit($event)"></preismeldestelle-list>
+            <preismeldestelle-detail
+                [preismeldestelle]="currentPreismeldestelle$ | async"
+                (save)="savePreismeldestelle$.emit($event)"
+                (clear)="clearSelectedPreismeldestelle$.emit($event)"
+                (update)="updatePreismeldestelle$.emit($event)"></preismeldestelle-detail>
+        </div>
     </div>
-    <preismeldestelle-list
-        [list]="preismeldestellen$ | async"
-        [current]="currentPreismeldestelle$ | async"
-        (selected)="selectPreismeldestelle$.emit($event)"></preismeldestelle-list>
-    <preismeldestelle-detail
-        [preismeldestelle]="currentPreismeldestelle$ | async"
-        (save)="savePreismeldestelle$.emit($event)"
-        (clear)="clearSelectedPreismeldestelle$.emit($event)"
-        (update)="updatePreismeldestelle$.emit($event)"></preismeldestelle-detail>
 </ion-content>

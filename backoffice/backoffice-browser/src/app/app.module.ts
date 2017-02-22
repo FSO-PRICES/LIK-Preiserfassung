@@ -3,28 +3,38 @@ import { StoreModule } from '@ngrx/store';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { Backoffice } from './app.component';
-import { HomePage } from '../pages/home/home';
+import { PefMenuModule, PefMenuComponent } from '../components/pef-menu';
 import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
 import { PreismeldestelleModule, PreismeldestellePage } from '../pages/preismeldestelle';
 import { InitializationPage } from '../pages/initialization/initialization';
 
+import { PefDialogService } from 'lik-shared';
+import { PefComponentsModule } from 'lik-shared';
+
 import { BO_EFFECTS } from '../effects';
 import { reducer } from '../reducers';
+
+export const MainPages = [
+    { page: PreiserheberPage, name: 'Preiserheber' },
+    { page: PreismeldestellePage, name: 'Preismeldestellen' },
+    { page: InitializationPage, name: 'Initialisierung' },
+];
 
 @NgModule({
     declarations: [
         Backoffice,
-        HomePage,
         InitializationPage,
     ],
     imports: [
         IonicModule.forRoot(Backoffice, {
             links: [
                 { component: InitializationPage, name: 'Initialization', segment: '' },
-                { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe/:peRef', defaultHistory: [InitializationPage] },
-                { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms/:pmsRef', defaultHistory: [InitializationPage] },
+                { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe/:peRef' },
+                { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms/:pmsRef' },
             ]
         }),
+        PefMenuModule,
+        PefComponentsModule,
         PreiserheberModule,
         PreismeldestelleModule,
         StoreModule.provideStore(reducer),
@@ -33,11 +43,14 @@ import { reducer } from '../reducers';
     bootstrap: [IonicApp],
     entryComponents: [
         Backoffice,
-        HomePage,
+        PefMenuComponent,
         InitializationPage,
         PreiserheberPage,
         PreismeldestellePage
     ],
-    providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }]
+    providers: [
+        { provide: ErrorHandler, useClass: IonicErrorHandler },
+        PefDialogService
+    ]
 })
 export class AppModule { }

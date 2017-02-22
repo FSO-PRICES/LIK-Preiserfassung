@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Out
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ReactiveComponent, Models as P } from 'lik-shared';
+import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 
 @Component({
     selector: 'preiserheber-detail',
@@ -10,6 +11,7 @@ import { ReactiveComponent, Models as P } from 'lik-shared';
 })
 export class PreiserheberDetailComponent extends ReactiveComponent implements OnChanges {
     @Input() preiserheber: P.Erheber;
+    @Input() resetForm: boolean;
     @Output('save')
     public save$ = new EventEmitter();
     @Output('clear')
@@ -18,6 +20,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     public update$ = new EventEmitter<P.Erheber>();
 
     public preiserheber$: Observable<P.Erheber>;
+    public resetForm$: Observable<boolean>;
     public clearClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
 
@@ -27,24 +30,40 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         super();
 
         this.preiserheber$ = this.observePropertyCurrentValue<P.Erheber>('preiserheber');
+        this.resetForm$ = this.observePropertyCurrentValue<boolean>('resetForm');
 
         this.form = formBuilder.group({
-            firstName: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
-            surname: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
-            personFunction: [null, Validators.required],
-            languageCode: ['de', Validators.required],
-            telephone: [null],
-            email: [null]
+            preiserheber: formBuilder.group({
+                _id: [null, Validators.compose([Validators.required, Validators.minLength(3)])],
+                firstName: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
+                surname: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
+                personFunction: [null, Validators.required],
+                languageCode: [null, Validators.required],
+                telephone: [null],
+                email: [null]
+            }),
+            password: [null, Validators.required]
         });
 
         const distinctPreiserheber$ = this.preiserheber$
-            .filter(x => !!x)
-            .distinctUntilKeyChanged('_id');
+            .filter(x => !!x);
 
-        distinctPreiserheber$
+        let formValueChangedSubscription = Observable.empty().subscribe();
+
+        const createValueChangedSubscription = () => {
+            formValueChangedSubscription.unsubscribe();
+            formValueChangedSubscription = this.getPreiserheberForm().valueChanges
+                .skip(1)
+                .subscribe(x => {
+                    this.update$.emit(this.getPreiserheberForm().value);
+                });
+        };
+
+        distinctPreiserheber$.startWith((<any>{}))
             .subscribe(erheber => {
-                this.form.patchValue({
-                    id: erheber._id,
+                createValueChangedSubscription();
+                this.getPreiserheberForm().patchValue({
+                    _id: erheber._id,
                     firstName: erheber.firstName,
                     surname: erheber.surname,
                     personFunction: erheber.personFunction,
@@ -54,26 +73,44 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                 });
             });
 
-        this.form.valueChanges
-            .subscribe(x => this.update$.emit(this.form.value));
 
         const canSave$ = this.saveClicked$
-            .map(x => ({ isValid: this.form.valid }))
+            .map(x => ({ isValid: this.getPreiserheberForm().valid }))
             .publishReplay(1).refCount();
 
         canSave$.filter(x => x.isValid)
             .publishReplay(1).refCount()
             .withLatestFrom(this.saveClicked$)
-            .subscribe(x => this.save$.emit());
+            .do(x => console.log('saving?', x))
+            .subscribe(x => this.save$.emit(this.form.get('password').value));
 
         this.clearClicked$.subscribe(x => this.clear$.emit());
+
+        this.resetForm$.subscribe(reset => {
+            this.form.get('password').reset();
+            this.form.markAsPristine();
+        });
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
 
+    public getPreiserheberForm() {
+        return this.form.get('preiserheber');
+    }
+
+    public isFormValidAndPristine() {
+        return this.isEditing().map(editing => {
+            return !this.getPreiserheberForm().valid || this.getPreiserheberForm().pristine || (!editing && !this.form.get('password').valid);
+        });
+    }
+
     public isEditing() {
-        return this.preiserheber$.map(x => !!x && !!x._id);
+        return this.preiserheber$.map(x => !!x && !!x._rev).share();
+    }
+
+    public hasChanges() {
+        return this.preiserheber$.map((x: CurrentPreiserheber) => !!x && x.isModified || (!!x && !!x._id));
     }
 }

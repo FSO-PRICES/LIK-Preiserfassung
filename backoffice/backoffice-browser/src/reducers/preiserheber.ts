@@ -43,6 +43,7 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
             const { payload } = action;
 
             const valuesFromPayload = {
+                _id: payload._id,
                 firstName: payload.firstName,
                 surname: payload.surname,
                 personFunction: payload.personFunction,
