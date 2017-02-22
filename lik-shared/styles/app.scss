@@ -132,6 +132,9 @@ form.form-show-validation-hints {
             background-color: $scooter;
             color: $outer-space;
         }
+        &[ng-reflect-readonly] {
+            background-color: $alto;
+        }
     }
     &.input-has-focus {
         ion-input, ion-textarea {
@@ -152,6 +155,10 @@ form.form-show-validation-hints {
     input {
         outline: none;
     }
+}
+
+.list-md .item-input:last-child {
+    border-bottom: 0;
 }
 
 // Radio overrides
@@ -199,12 +206,46 @@ ion-list[radio-group] {
     color: $trout;
 }
 
-.item-radio-disabled {
+.item-md.item-radio-disabled {
     .radio-icon {
         border-color: $oslo-gray;
     }
     .radio-inner {
         background-color: $oslo-gray;
+    }
+    ion-label {
+        color: $oslo-gray;
+    }
+}
+
+ion-list.checkboxes-as-radios {
+    .item-checkbox {
+        background-color: transparent;
+        padding-left: 0;
+        @include set-min-height(2);
+        .item-inner {
+            border-bottom-width: 0;
+            .input-wrapper {
+                order: 1;
+            }
+        }
+        ion-label {
+            font-weight: 500;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .checkbox-icon {
+            height: 20px;
+            width: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .checkbox-inner {
+            position: static;
+            width: 10px;
+            height: 10px;
+        }
     }
 }
 

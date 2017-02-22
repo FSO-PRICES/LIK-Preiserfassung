@@ -5,7 +5,7 @@ import * as docuri from 'docuri';
 
 import { readFile, writeFile, readdir } from './promisified';
 
-import { pmsUriRoute, preismeldungReferenceUriRoute } from '../common/models';
+import { pmsUriRoute, preismeldungReferenceUriRoute } from '../lik-shared/common/models';
 
 const [, , username, password] = process.argv;
 

@@ -23,6 +23,12 @@
     color: $blue-chill;
     fill: $blue-chill;
     box-shadow: none;
+
+    &[disabled] {
+        color: $oslo-gray;
+        background-color: transparent;
+        opacity: 1;
+    }
 }
 
 .button-md-wild-sand {

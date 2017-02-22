@@ -144,14 +144,22 @@ preismeldung-price {
     }
 
     .product-detail-row {
-        .item-md.pef-item ion-label {
-            order: 1;
-            padding-left: 1.25em;
-            width: 3.5em;
-            margin: 0;
-            font-size: 1em;
-            color: $outer-space;
-            opacity: 0.95;
+        .item-md.pef-item {
+            ion-label {
+                order: 1;
+                padding-left: 1.25em;
+                width: 3.5em;
+                margin: 0;
+                font-size: 1em;
+                color: $outer-space;
+                opacity: 0.95;
+            }
+            &.item-input-disabled {
+                ion-label {
+                    opacity: 1;
+                    color: $oslo-gray;
+                }
+            }
         }
         .item-md.pef-item ion-input input {
             width: 100%;
@@ -168,7 +176,8 @@ preismeldung-price {
                 justify-content: flex-end;
                 font-weight: 500;
                 align-items: center;
-                @include set-padding-bottom(1);
+                height: 2.75em;
+                padding-bottom: 0.25em;
             }
 
             .number {
@@ -203,7 +212,7 @@ preismeldung-price {
 
         .middle-section {
             .box-container {
-                padding-top: 2.75em;
+                padding-top: 4.75em;
             }
         }
 
@@ -214,6 +223,24 @@ preismeldung-price {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
+
+            // .this-period-price, .this-period-quantity {
+            //     display: flex;
+            //     justify-content: flex-end;
+            //     font-weight: 500;
+            //     align-items: center;
+            //     height: 2.75em;
+            // }
+
+            // .number {
+            //     font-size: 1.25em;
+            // }
+
+            // .unit {
+            //     opacity: 0.95;
+            //     width: 3.5em;
+            //     padding-left: 1.25em;
+            // }
 
             ion-label {
                 padding-left: 0.7em;
@@ -237,9 +264,16 @@ preismeldung-price {
                 margin-left: 0.7em;
                 margin-right: 0;
                 width: 3em;
+                &[disabled] {
+                    color: $outer-space;
+                    .button-inner {
+                        justify-content: flex-end;
+                        font-size: 1.6rem;
+                    }
+                }
             }
 
-            .reduction-radio-group-list, .code-button-list, processing-code {
+            .reduction-radio-group-list, .code-button-list, bearbeitungs-type {
                 @include set-padding-top(0.5);
             }
         }

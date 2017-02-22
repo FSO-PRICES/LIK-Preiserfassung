@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { IonicModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from 'ng2-translate';
+import { MaterialModule } from '@angular/material';
 
 import { PreiserfasserCommonModule } from '../../common';
 import { PefComponentsModule } from 'lik-shared';
@@ -13,10 +14,10 @@ import { PreismeldungAttributesComponent } from './components/preismeldung-detai
 import { PreismeldungPriceComponent, DialogValidationErrorsComponent } from './components/preismeldung-detail-tabs/preismeldung-price';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
 import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
-import { ProcessingCodeComponent } from './components/processing-code/processing-code';
+import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
 
 @NgModule({
-    imports: [CommonModule, IonicModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
+    imports: [CommonModule, IonicModule, MaterialModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
     declarations: [
         DialogCancelEditComponent,
         DialogValidationErrorsComponent,
@@ -26,7 +27,7 @@ import { ProcessingCodeComponent } from './components/processing-code/processing
         PreismeldungPriceComponent,
         PreismeldungListComponent,
         PreismeldungToolbarComponent,
-        ProcessingCodeComponent
+        BearbeitungsTypeComponent
     ],
     entryComponents: [
         DialogCancelEditComponent,

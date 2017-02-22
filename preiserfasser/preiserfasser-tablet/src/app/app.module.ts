@@ -3,6 +3,7 @@ import { HttpModule, Http } from '@angular/http';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StoreModule } from '@ngrx/store';
 import { TranslateModule, TranslateLoader, TranslateStaticLoader } from 'ng2-translate';
+import { MaterialModule } from '@angular/material';
 
 import 'rxjs';
 
@@ -45,7 +46,8 @@ export function createTranslateLoader(http: Http) {
                 { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsNummer', defaultHistory: [DashboardPage] },
                 { component: TestPage, name: 'Test', segment: 'test-page', defaultHistory: [DashboardPage] },
             ]
-        }),
+            }),
+        MaterialModule,
         PefComponentsModule,
         PmsPriceEntryModule,
         PreiserfasserCommonModule,

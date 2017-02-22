@@ -1,12 +1,14 @@
 import * as P from '../common-models';
 
 export interface PreismeldungPricePayload {
-    currentPeriodPrice: string;
-    currentPeriodQuantity: string;
-    reductionType: string;
-    currentPeriodProcessingCode: string;
-    artikelNummer: string;
-    artikelText: string;
+    preis: string;
+    menge: string;
+    preisVPNormalOverride: string;
+    mengeVPNormalOverride: string;
+    aktion: boolean;
+    bearbeitungscode: P.Models.Bearbeitungscode;
+    artikelnummer: string;
+    artikeltext: string;
 }
 
 export type SavePreismeldungPricePayloadType = 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_NEXT';

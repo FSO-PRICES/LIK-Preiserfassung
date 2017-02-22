@@ -1,0 +1,17 @@
+<div style="position: relative;">
+    <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)">
+        <div class="description">{{ (selectedBearbeitungsType$ | async)?.description }}</div>
+        <div class="code-name">{{ (selectedBearbeitungsType$ | async)?.codeName }}</div>
+    </button>
+    <div class="bearbeitungs-type-flyout" [class.visible]="buttonOn$ | async" [style.marginBottom]="marginBottom$ | async">
+        <ion-list>
+            <ion-item tappable class="bearbeitungs-type-option" *ngFor="let bearbeitungsType of bearbeitungsTypes" (click)="selectBearbeitungsType$.emit({event: $event, bearbeitungsType: bearbeitungsType})">
+                <div class="icon">
+                    <pef-icon [name]="bearbeitungsType.iconName"></pef-icon>
+                </div>
+                <div class="description">{{ bearbeitungsType.description }}</div>
+                <div class="code-name">{{ bearbeitungsType.codeName }}</div>
+            </ion-item>
+        </ion-list>
+    </div>
+</div>

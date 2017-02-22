@@ -3,7 +3,7 @@ var request = require('request-promise');
 var _ = require('lodash');
 var docuri = require('docuri');
 var promisified_1 = require('./promisified');
-var models_1 = require('../common/models');
+var models_1 = require('../lik-shared/common/models');
 var _a = process.argv, username = _a[2], password = _a[3];
 var baseUrl = "http://" + username + ":" + password + "@localhost:5986";
 var pmsUri = docuri.route(models_1.pmsUriRoute);

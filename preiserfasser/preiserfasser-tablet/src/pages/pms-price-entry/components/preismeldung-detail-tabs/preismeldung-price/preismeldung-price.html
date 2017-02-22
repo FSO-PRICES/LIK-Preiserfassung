@@ -35,7 +35,6 @@
         </div>
     </div>
     <div class="product-detail-body">
-        <h4 class="secondary">Preis und Menge</h4>
         <div class="columns product-detail-row row-1">
             <div class="last-period">
                 <h5 class="large">Vorperiode</h5>
@@ -48,14 +47,14 @@
         <div class="columns product-detail-row row-2">
             <div class="last-period">
                 <div class="data-input-area">
-                    <h6>Normal Preis &ndash; Alter Artikel</h6>
+                    <h6>Normal Preis</h6>
                     <div class="last-period-price">
                         <div class="number">{{ (preismeldung$ | async).refPreismeldung.preis | pefFormatNumber: numberFormattingOptions }}</div>
                         <div class="unit">CHF</div>
                     </div>
                     <div class="last-period-quantity">
                         <div class="number">{{ (preismeldung$ | async).refPreismeldung.menge }}</div>
-                        <div class="unit">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit.de }}</div>
+                        <div class="unit">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit | pefPropertyTranslate }}</div>
                     </div>
                     <div class="last-period-bottom-row">
                         <ion-list radio-group>
@@ -63,30 +62,24 @@
                                 <ion-label>Aktion</ion-label>
                                 <ion-radio value="aktion" [disabled]="true" [checked]="(preismeldung$ | async).refPreismeldung.aktion"></ion-radio>
                             </ion-item>
-                            <ion-item>
-                                <ion-label>Ausverkauf</ion-label>
-                                <ion-radio value="ausverkauf" [disabled]="true" [checked]="(preismeldung$ | async).refPreismeldung.ausverkauf"></ion-radio>
-                            </ion-item>
                         </ion-list>
-                        <div class="code">R1</div>
+                        <div class="code"></div>
                     </div>
                 </div>
-                <div class="box-container" *ngIf="showChainedReplacementFields$ | async">
-                    <div class="box">
-                        &mdash;
-                    </div>
+                <div class="box-container" *ngIf="isVerkettung$ | async">
+                    <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel)"></div>
                     <div class="arrow down"></div>
                 </div>
             </div>
             <div class="middle-section">
                 <div class="box-container">
-                    <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageLastPeriodToCurrentPeriod)"></div>
+                    <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToLVP)"></div>
                     <div class="arrow right"></div>
                 </div>
             </div>
             <div class="current-period">
                 <div class="data-input-area">
-                    <h6>Normal Preis</h6>
+                    <h6 [innerHTML]="currentPeriodHeading$ | async | translate"></h6>
                     <ion-list>
                         <ion-item class="pef-item">
                             <ion-label class="currency-label">CHF</ion-label>
@@ -94,62 +87,55 @@
                                 type="number"
                                 min="0.05" step="0.05"
                                 pef-highlight-on-focus
+                                [readonly]="preisAndMengeDisabled$ | async"
                                 [pef-format-number]="numberFormattingOptions"
-                                (blur)="formValueChanged$.emit('currentPeriodPrice')"
-                                formControlName="currentPeriodPrice"></ion-input>
+                                formControlName="preis"></ion-input>
                         </ion-item>
                         <div class="unit-item-wrapper">
                             <ion-item class="pef-item">
-                                <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqual$.emit()">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit.de }}</button>
                                 <ion-input
                                     type="number"
                                     step="any"
-                                    formControlName="currentPeriodQuantity"
-                                    (blur)="formValueChanged$.emit('currentPeriodQuantity')"
+                                    [readonly]="preisAndMengeDisabled$ | async"
+                                    formControlName="menge"
                                     pef-highlight-on-focus></ion-input>
                             </ion-item>
                             <div class="unit-button-wrapper">
-                                <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqual$.emit()">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit.de }}</button>
+                                <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqual$.emit()" [disabled]="preisAndMengeDisabled$ | async">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit | pefPropertyTranslate }}</button>
                             </div>
                         </div>
                     </ion-list>
                     <ion-list radio-group class="reduction-radio-group-list">
                         <ion-item>
                             <ion-label>Aktion</ion-label>
-                            <ion-radio #radioAktion value="aktion" (click)="toggleReduction$.emit('aktion')" [checked]="(reduction$ | async) == 'aktion'"></ion-radio>
-                        </ion-item>
-                        <ion-item>
-                            <ion-label>Ausverkauf</ion-label>
-                            <ion-radio #radioAusverkauf value="ausverkauf" (click)="toggleReduction$.emit('ausverkauf')" [checked]="(reduction$ | async) == 'ausverkauf'"></ion-radio>
+                            <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit()" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
                         </ion-item>
                     </ion-list>
-                    <processing-code formControlName="currentPeriodProcessingCode" (change)="formValueChanged$.emit('currentPeriodProcessingCode')"></processing-code>
+                    <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)"></bearbeitungs-type>
                 </div>
             </div>
         </div>
         <div class="columns product-detail-row row-3">
             <div class="last-period">
-                <div class="data-input-area" *ngIf="showChainedReplacementFields$ | async">
-                    <h6>Normal Preis &ndash; Neuer Artikel</h6>
+                <div class="data-input-area" *ngIf="isVerkettung$ | async">
+                    <h6 [innerHTML]="'heading_normalPriceNewArticle' | translate"></h6>
                     <ion-list>
                         <ion-item class="pef-item">
                             <ion-label>CHF</ion-label>
-                            <ion-input type="number" min="0.05" step="0.05" pef-highlight-on-focus [pef-format-number]="numberFormattingOptions"></ion-input>
+                            <ion-input type="number" min="0.05" step="0.05" pef-highlight-on-focus [pef-format-number]="numberFormattingOptions" formControlName="preisVPNormalOverride"></ion-input>
                         </ion-item>
                         <ion-item class="pef-item">
-                            <ion-label>{{ (preismeldung$ | async).warenkorbPosition.standardeinheit.de }}</ion-label>
-                            <ion-input type="number" step="any" pef-highlight-on-focus></ion-input>
+                            <ion-label>{{ (preismeldung$ | async).warenkorbPosition.standardeinheit | pefPropertyTranslate }}</ion-label>
+                            <ion-input type="number" step="any" pef-highlight-on-focus formControlName="mengeVPNormalOverride"></ion-input>
                         </ion-item>
                     </ion-list>
                 </div>
             </div>
             <div class="middle-section">
                 <div class="middle-section-container-wrapper">
-                    <div class="box-container" *ngIf="showChainedReplacementFields$ | async">
+                    <div class="box-container" *ngIf="isVerkettung$ | async">
                         <div class="arrow up-right"></div>
-                        <div class="box">
-                            &mdash;
-                        </div>
+                        <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVPNeuerArtikel)"></div>
                     </div>
                 </div>
             </div>

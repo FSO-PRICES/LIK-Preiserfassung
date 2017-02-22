@@ -17,15 +17,15 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() currentPreismeldung: P.CurrentPreismeldungViewModel;
     @Output() selectPreismeldung: Observable<P.Models.Preismeldung>;
 
-    public currentPreismeldung$: Observable<P.PreismeldungViewModel>;
+    public currentPreismeldung$: Observable<P.PreismeldungBag>;
     public currentLanguage$: Observable<string>;
-    public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungViewModel>();
+    public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     public selectNextPreismeldung$ = new EventEmitter();
     public selectPrevPreismeldung$ = new EventEmitter();
 
     public viewPortItems: P.Models.Preismeldung[];
-    private preismeldungen$: Observable<P.PreismeldungViewModel[]>;
-    public filteredPreismeldungen$: Observable<P.PreismeldungViewModel[]>;
+    private preismeldungen$: Observable<P.PreismeldungBag[]>;
+    public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public completedCount$: Observable<string>;
 
     public filterText$ = new EventEmitter<string>();
@@ -39,7 +39,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     constructor() {
         super();
 
-        this.preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungViewModel[]>('preismeldungen').publishReplay(1).refCount();
+        this.preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen').publishReplay(1).refCount();
         this.currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewModel>('currentPreismeldung').publishReplay(1).refCount();
         this.currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage').publishReplay(1).refCount();
 
@@ -52,8 +52,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .publishReplay(1).refCount();
 
         this.filteredPreismeldungen$ = this.preismeldungen$
-            .combineLatest(this.filterText$.startWith(null), this.filterTodoSelected$, this.filterCompletedSelected$, this.currentLanguage$, (preismeldungen: P.PreismeldungViewModel[], filterText: string, filterTodoSelected: boolean, filterCompletedSelected: boolean, currentLanguage: string) => {
-                let filteredPreismeldungen: P.PreismeldungViewModel[];
+            .combineLatest(this.filterText$.startWith(null), this.filterTodoSelected$, this.filterCompletedSelected$, this.currentLanguage$, (preismeldungen: P.PreismeldungBag[], filterText: string, filterTodoSelected: boolean, filterCompletedSelected: boolean, currentLanguage: string) => {
+                let filteredPreismeldungen: P.PreismeldungBag[];
 
                 if (!filterText || filterText.length === 0) {
                     filteredPreismeldungen = preismeldungen;
@@ -69,7 +69,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             });
 
         const selectNext$ = this.selectNextPreismeldung$
-            .withLatestFrom(this.currentPreismeldung$, this.filteredPreismeldungen$, (_, currentPreismeldung: P.PreismeldungViewModel, filteredPreismeldungen: P.PreismeldungViewModel[]) => {
+            .withLatestFrom(this.currentPreismeldung$, this.filteredPreismeldungen$, (_, currentPreismeldung: P.PreismeldungBag, filteredPreismeldungen: P.PreismeldungBag[]) => {
                 if (!currentPreismeldung) return filteredPreismeldungen[0];
                 const currentPreismeldungIndex = filteredPreismeldungen.findIndex(x => x.pmId === currentPreismeldung.pmId);
                 if (currentPreismeldungIndex === filteredPreismeldungen.length - 1) return filteredPreismeldungen[0];
@@ -77,7 +77,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             });
 
         const selectPrev$ = this.selectPrevPreismeldung$
-            .withLatestFrom(this.currentPreismeldung$, this.filteredPreismeldungen$, (_, currentPreismeldung: P.PreismeldungViewModel, filteredPreismeldungen: P.PreismeldungViewModel[]) => {
+            .withLatestFrom(this.currentPreismeldung$, this.filteredPreismeldungen$, (_, currentPreismeldung: P.PreismeldungBag, filteredPreismeldungen: P.PreismeldungBag[]) => {
                 if (!currentPreismeldung) return filteredPreismeldungen[filteredPreismeldungen.length - 1];
                 const currentPreismeldungIndex = filteredPreismeldungen.findIndex(x => x.pmId === currentPreismeldung.pmId);
                 if (currentPreismeldungIndex === 0) return filteredPreismeldungen[filteredPreismeldungen.length - 1];

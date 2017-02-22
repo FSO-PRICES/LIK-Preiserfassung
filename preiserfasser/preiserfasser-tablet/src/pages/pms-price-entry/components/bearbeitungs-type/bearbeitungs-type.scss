@@ -1,6 +1,6 @@
 @import "../../../../theme/imports.scss";
 
-processing-code {
+bearbeitungs-type {
     display: block;
 
     .code-button {
@@ -38,10 +38,9 @@ processing-code {
         }
     }
 
-    .processing-code-flyout {
+    .bearbeitungs-type-flyout {
         box-shadow: $whiteframe-shadow-2dp;
         z-index: 100;
-        // display: flex;
         position: absolute;
         bottom: 0;
         right: 0;
@@ -57,7 +56,7 @@ processing-code {
             opacity: 1;
         }
     }
-    ion-item.processing-code-option {
+    ion-item.bearbeitungs-type-option {
         padding: 0;
         &:not(:last-of-type) .item-inner {
             border-bottom: 2px solid $alto;

@@ -46,8 +46,10 @@ interface _PreismeldungReferenceProperties {
 
     preis: number;
     menge: number;
-    isAktion: boolean;
-    isAusverkauf: boolean;
+    basisPreis: number;
+    basisMenge: number;
+    aktion: boolean;
+    ausverkauf: boolean;
     artikelnummer: string;
     artikeltext: string;
 
@@ -56,19 +58,30 @@ interface _PreismeldungReferenceProperties {
 
 export type PreismeldungReferenceProperties = PreismeldungUri & _PreismeldungReferenceProperties;
 
+export type Bearbeitungscode = 0 | 1 | 7 | 44 | 100 | 101;
+
 interface _PreismeldungProperties {
-    preis: number;
-    menge: number;
+    preis?: string;
+    menge?: string;
+    preisNormal?: string;
+    mengeNormal?: string;
+    preisVPNormalOverride?: string;
+    mengeVPNormalOverride?: string;
+
     aktion: boolean;
     ausverkauf: boolean;
+
     artikelnummer: string;
     artikeltext: string;
+
     bermerkungenAnsBfs: string;
 
-    percentageLastPeriodToCurrentPeriod?: number;
+    percentageDPToLVP?: number;
+    percentageDPToVPNeuerArtikel?: number;
+    percentageVPNeuerArtikelToVPAlterArtikel?: number;
 
     modifiedAt: string;
-    bearbeitungscode: number;
+    bearbeitungscode: Bearbeitungscode;
 
     istAbgebucht: boolean;
 
@@ -88,7 +101,6 @@ export type PreismeldungReference = PreismeldungReferenceProperties & CouchPrope
 export type Preismeldung = PreismeldungProperties & CouchProperties;
 
 export type PmsToPeMap = {erheber: Erheber, preismeldestellen: Preismeldestelle[]}[]
-
 
 export interface PropertyTranslation {
     de: string;

@@ -35,8 +35,12 @@ export class PreismeldungenEffects {
                     pmsNummer: rpm.pmsNummer,
                     epNummer: rpm.epNummer,
                     laufnummer: rpm.laufnummer,
-                    preis: 0,
-                    menge: 0,
+                    preis: null,
+                    menge: null,
+                    preisNormal: null,
+                    mengeNormal: null,
+                    preisVPNormalOverride: null,
+                    mengeVPNormalOverride: null,
                     aktion: false,
                     ausverkauf: false,
                     artikelnummer: rpm.artikelnummer,
@@ -45,7 +49,10 @@ export class PreismeldungenEffects {
                     modifiedAt: format(new Date()),
                     bearbeitungscode: 100,
                     uploadRequestedAt: null,
-                    istAbgebucht: false
+                    istAbgebucht: false,
+                    percentageDPToLVP: null,
+                    percentageDPToVPNeuerArtikel: null,
+                    percentageVPNeuerArtikelToVPAlterArtikel: null
                 }));
 
             if (missingPreismeldungs.length === 0) {
@@ -53,7 +60,7 @@ export class PreismeldungenEffects {
             }
 
             return x.db.bulkDocs(missingPreismeldungs)
-                .then(() => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(x => x.doc) as P.Models.Preismeldung[]))
+                .then(() => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Models.Preismeldung[]))
                 .then(preismeldungen => ({
                     db: x.db,
                     refPreismeldungen: x.refPreismeldungen,
@@ -83,10 +90,12 @@ export class PreismeldungenEffects {
                     preis: currentPreismeldung.preismeldung.preis,
                     bearbeitungscode: currentPreismeldung.preismeldung.bearbeitungscode,
                     menge: currentPreismeldung.preismeldung.menge,
-                    percentageLastPeriodToCurrentPeriod: currentPreismeldung.preismeldung.percentageLastPeriodToCurrentPeriod,
+                    percentageDPToLVP: currentPreismeldung.preismeldung.percentageDPToLVP,
+                    percentageDPToVPNeuerArtikel: currentPreismeldung.preismeldung.percentageDPToVPNeuerArtikel,
+                    percentageVPNeuerArtikelToVPAlterArtikel: currentPreismeldung.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,
                     istAbgebucht: true
                 })).then(() => db))
                 .then(db => db.get(currentPreismeldung.preismeldung._id).then(preismeldung => ({ preismeldung, saveAction: payload.saveAction })));
         })
-        .map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload }))
+        .map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload }));
 }

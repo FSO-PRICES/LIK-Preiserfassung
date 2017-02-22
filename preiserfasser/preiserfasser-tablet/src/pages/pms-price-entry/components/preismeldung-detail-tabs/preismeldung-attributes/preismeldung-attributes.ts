@@ -12,12 +12,12 @@ import * as P from '../../../../../common-models';
 export class PreismeldungAttributesComponent extends ReactiveComponent {
     @Input() preismeldung: P.Models.Preismeldung;
 
-    public preismeldung$: Observable<P.PreismeldungViewModel>;
+    public preismeldung$: Observable<P.PreismeldungBag>;
 
     constructor() {
         super();
 
-        this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungViewModel>('preismeldung');
+        this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
 
         this.preismeldung$
             .subscribe(x => console.log('PreismeldungAttributesComponent preismeldung$', x));

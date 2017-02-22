@@ -1,24 +1,23 @@
 import { createSelector } from 'reselect';
-import { isEqual, omit, merge } from 'lodash';
+import { assign, cloneDeep } from 'lodash';
 
 import * as P  from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
 
-export interface PreismeldungViewModel {
+export interface PreismeldungBag {
     pmId: string;
     refPreismeldung?: P.Models.PreismeldungReference;
     preismeldung: P.Models.Preismeldung;
     warenkorbPosition: P.Models.WarenkorbLeaf;
 }
 
-export type CurrentPreismeldungViewModel = PreismeldungViewModel & {
+export type CurrentPreismeldungViewModel = PreismeldungBag & {
     isModified: boolean;
-    isSaved: boolean;
 };
 
 export interface State {
     preismeldungIds: string[];
-    entities: { [pmsNummer: string]: PreismeldungViewModel };
+    entities: { [pmsNummer: string]: PreismeldungBag };
     currentPreismeldung: CurrentPreismeldungViewModel;
 }
 
@@ -35,7 +34,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'PREISMELDUNGEN_LOAD_SUCCESS': {
             const { payload } = action;
             const preismeldungViewModels = payload.refPreismeldungen
-                .map<P.PreismeldungViewModel>(refPreismeldung => Object.assign({}, {
+                .map<P.PreismeldungBag>(refPreismeldung => Object.assign({}, {
                     pmId: refPreismeldung.pmId,
                     refPreismeldung,
                     preismeldung: payload.preismeldungen.find(pm => pm._id === refPreismeldung.pmId),
@@ -43,37 +42,36 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 }));
 
             const preismeldungIds = preismeldungViewModels.map(x => x.pmId);
-            const entities = preismeldungViewModels.reduce((entities: { [_id: string]: P.PreismeldungViewModel }, preismeldung: P.PreismeldungViewModel) => {
-                return Object.assign(entities, { [preismeldung.pmId]: preismeldung });
+            const entities = preismeldungViewModels.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldung: P.PreismeldungBag) => {
+                return Object.assign(agg, { [preismeldung.pmId]: preismeldung });
             }, {});
-            return merge({}, state, { preismeldungIds, entities, currentPreismeldung: undefined });
+            return assign({}, state, { preismeldungIds, entities, currentPreismeldung: undefined });
         }
 
         case 'PREISMELDUNGEN_CLEAR': {
-            return merge({}, state, { preismeldungIds: [], entities: {}, currentPreismeldung: undefined });
+            return assign({}, state, { preismeldungIds: [], entities: {}, currentPreismeldung: undefined });
         }
 
         case 'SELECT_PREISMELDUNG': {
-            const currentPreismeldung = Object.assign({}, getEntities(state)[action.payload], { isModified: false, isSaved: false });
-            return merge({}, state, { currentPreismeldung });
+            const currentPreismeldung = Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false });
+            return assign({}, state, { currentPreismeldung });
         }
 
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 
-            const valuesFromPayload = {
-                preis: parseFloat(payload.currentPeriodPrice),
-                menge: parseFloat(payload.currentPeriodQuantity),
-                aktion: payload.reductionType === 'aktion',
-                ausverkauf: payload.reductionType === 'ausverkauf',
-                currentPeriodProcessingCode: 'STANDARD_ENTRY',
-                artikelnummer: payload.artikelNummer,
-                artikeltext: payload.artikelText
-            };
+            if (state.currentPreismeldung.preismeldung.preis === payload.preis
+                && state.currentPreismeldung.preismeldung.menge === payload.menge
+                && state.currentPreismeldung.preismeldung.preisVPNormalOverride === payload.preisVPNormalOverride
+                && state.currentPreismeldung.preismeldung.mengeVPNormalOverride === payload.mengeVPNormalOverride
+                && state.currentPreismeldung.preismeldung.aktion === payload.aktion
+                && state.currentPreismeldung.preismeldung.bearbeitungscode === payload.bearbeitungscode
+                && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
+                && state.currentPreismeldung.preismeldung.artikeltext === payload.artikeltext) { return state; }
 
-            const currentPreismeldung = merge({},
+            const currentPreismeldung = assign({},
                 state.currentPreismeldung,
-                { preismeldung: merge({}, state.currentPreismeldung.preismeldung, valuesFromPayload, createPercentages(state.currentPreismeldung, action.payload)) },
+                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createPercentages(state.currentPreismeldung, action.payload)) },
                 { isModified: true }
             );
 
@@ -81,18 +79,18 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         }
 
         case 'SAVE_PREISMELDUNG_PRICE_SUCCESS': {
-            const currentPreismeldung = Object.assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false, isSaved: true });
+            const currentPreismeldung = Object.assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false });
 
             let nextPreismeldung;
             if (action.payload.saveAction === 'SAVE_AND_MOVE_TO_NEXT') {
                 const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung.pmId);
                 const nextId = state.preismeldungIds[index + 1];
-                nextPreismeldung = !!nextId ? Object.assign({}, state.entities[nextId], { isModified: false, isSaved: true }) : state.entities[0];
+                nextPreismeldung = !!nextId ? Object.assign({}, state.entities[nextId], { isModified: false }) : state.entities[0];
             } else {
                 nextPreismeldung = currentPreismeldung;
             }
 
-            return merge({}, state, { currentPreismeldung: nextPreismeldung, entities: Object.assign({}, state.entities, { [currentPreismeldung.pmId]: currentPreismeldung }) });
+            return assign({}, state, { currentPreismeldung: nextPreismeldung, entities: Object.assign({}, state.entities, { [currentPreismeldung.pmId]: currentPreismeldung }) });
         }
 
         default:
@@ -100,20 +98,23 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
     }
 }
 
-function createPercentages(preismeldung: P.PreismeldungViewModel, payload: P.PreismeldungPricePayload) {
+    // percentageDPToLVP?: number;
+    // percentageDPToVPNeuerArtikel?: number;
+    // percentageVPNeuerArtikelToVPAlterArtikel?: number;
+function createPercentages(preismeldung: P.PreismeldungBag, payload: P.PreismeldungPricePayload) {
     return {
-        percentageLastPeriodToCurrentPeriod: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, payload.currentPeriodPrice, payload.currentPeriodQuantity)
-    }
+        percentageDPToLVP: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
+        percentageDPToVPNeuerArtikel: calculatePercentageChange(parseFloat(payload.preisVPNormalOverride), parseFloat(payload.mengeVPNormalOverride), parseFloat(payload.preis), parseFloat(payload.menge)),
+        percentageVPNeuerArtikelToVPAlterArtikel: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalOverride), parseFloat(payload.mengeVPNormalOverride))
+    };
 }
 
-function calculatePercentageChange(originalPrice: number, originalQuantity: number, newPrice: string, newQuantity: string) {
-    const newPriceAsNumber = parseFloat(newPrice);
-    const newQuantityAsNumber = parseFloat(newQuantity);
+function calculatePercentageChange(price1: number, quantity1: number, price2: number, quantity2: number) {
+    if (isNaN(price1) || isNaN(quantity1)) return NaN;
+    if (isNaN(price2) || price2 === 0 || isNaN(quantity2) || quantity2 === 0) return NaN;
 
-    if (isNaN(newPriceAsNumber) || newPriceAsNumber === 0 || isNaN(newQuantityAsNumber) || newQuantityAsNumber === 0) return NaN;
-
-    const originalPriceFactored = originalPrice / originalQuantity;
-    const newPriceFactored = newPriceAsNumber / newQuantityAsNumber;
+    const originalPriceFactored = price1 / quantity1;
+    const newPriceFactored = price2 / quantity2;
 
     return (newPriceFactored - originalPriceFactored) / originalPriceFactored * 100;
 }

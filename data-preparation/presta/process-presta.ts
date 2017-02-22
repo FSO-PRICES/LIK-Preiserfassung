@@ -8,7 +8,7 @@ const urlify = _urlify.create({ addEToUmlauts: true, toLower: true });
 import { readFile, writeFile, } from '../promisified';
 import { bufferToCells } from '../utils';
 
-import { Erheber, PreismeldungReferenceProperties, Preismeldung, Preismeldestelle, preismeldungUriRoute } from '../../common/models';
+import { Erheber, PreismeldungReferenceProperties, Preismeldung, Preismeldestelle, preismeldungUriRoute } from '../../lik-shared/common/models';
 
 const preismeldungUri = docuri.route(preismeldungUriRoute);
 
@@ -41,7 +41,7 @@ const importFromPrestaIndexes = {
     preisGueltigSeitDatum: 8,
     text: 9,
     artikelNummer: 10,
-    basispreise: 11,
+    basispreis: 11,
     basismenge: 12,
     sonderpreis: 13,
     fehlendePreisR: 14,
@@ -99,8 +99,10 @@ readFile('./presta/data/PMS und Preiserheber.csv').then(bufferToCells)
             laufnummer: cells[importFromPrestaIndexes.laufnummer],
             preis: parseFloat(cells[importFromPrestaIndexes.preisT]),
             menge: parseFloat(cells[importFromPrestaIndexes.mengeT]),
-            isAktion: cells[importFromPrestaIndexes.aktionsCode] === '1',
-            isAusverkauf: cells[importFromPrestaIndexes.ausverkauf] === '1',
+            basisPreis: parseFloat(cells[importFromPrestaIndexes.basispreis]),
+            basisMenge: parseFloat(cells[importFromPrestaIndexes.basismenge]),
+            aktion: cells[importFromPrestaIndexes.aktionsCode] === '1',
+            ausverkauf: cells[importFromPrestaIndexes.ausverkauf] === '1',
             preisGueltigSeitDatum: cells[importFromPrestaIndexes.preisGueltigSeitDatum],
             fehlendePreiseR: cells[importFromPrestaIndexes.fehlendePreisR],
             istPreisreiheZuBeenden: cells[importFromPrestaIndexes.istPreisreiheZuBeenden] === '1',

@@ -64,7 +64,7 @@ export class PmsPriceEntryPage {
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
-            .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungViewModel, currentPreismeldung: P.CurrentPreismeldungViewModel) => ({
+            .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungViewModel) => ({
                 selectedPreismeldung,
                 currentPreismeldung,
                 isCurrentModified: !!currentPreismeldung && currentPreismeldung.isModified
