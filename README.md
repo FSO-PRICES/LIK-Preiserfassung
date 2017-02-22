@@ -83,8 +83,6 @@ After everything has been installed and configured:
 
 ### Fragen/Abklärungen
 
-Die einzelne Zuordnung von Preismeldungen (Gliederungspositionsnummern/Erhebungsnummern) zu Preiserhebern wird wie im alten System mit zusätzlichen Preismeldestellen gehandhat, ist dies so korrekt?
-
 ### PEs <-> PMS's
 
 Die zuordnung von einem PE zu einer PMS ist meistens simpel, ein PE kann jedoch nur zu gewissen produkten in einer PMS zugewiesen werden.
