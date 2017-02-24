@@ -39,8 +39,8 @@ export class PreismeldungenEffects {
                     menge: null,
                     preisNormal: null,
                     mengeNormal: null,
-                    preisVPNormalOverride: null,
-                    mengeVPNormalOverride: null,
+                    preisVPNormalNeuerArtikel: null,
+                    mengeVPNormalNeuerArtikel: null,
                     aktion: false,
                     ausverkauf: false,
                     artikelnummer: rpm.artikelnummer,
@@ -60,14 +60,23 @@ export class PreismeldungenEffects {
             }
 
             return x.db.bulkDocs(missingPreismeldungs)
-                .then(() => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Models.Preismeldung[]))
+                .then(pms => x.db.allDocs(Object.assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Models.Preismeldung[]))
                 .then(preismeldungen => ({
+                    pmsNummer: x.pmsNummer,
                     db: x.db,
                     refPreismeldungen: x.refPreismeldungen,
                     preismeldungen
                 }));
         })
+        .flatMap(x => x.db.get(`pms/${x.pmsNummer}`).then((pms: P.Models.Preismeldestelle) => ({
+            db: x.db,
+            pms,
+            refPreismeldungen: x.refPreismeldungen,
+            preismeldungen: x.preismeldungen
+        })))
         .flatMap(x => x.db.get('warenkorb').then((warenkorbDoc: any) => ({ // TODO: add types for warenkorb
+            db: x.db,
+            pms: x.pms,
             warenkorbDoc,
             refPreismeldungen: x.refPreismeldungen,
             preismeldungen: x.preismeldungen
@@ -88,8 +97,10 @@ export class PreismeldungenEffects {
                     aktion: currentPreismeldung.preismeldung.aktion,
                     ausverkauf: currentPreismeldung.preismeldung.ausverkauf,
                     preis: currentPreismeldung.preismeldung.preis,
-                    bearbeitungscode: currentPreismeldung.preismeldung.bearbeitungscode,
                     menge: currentPreismeldung.preismeldung.menge,
+                    bearbeitungscode: currentPreismeldung.preismeldung.bearbeitungscode,
+                    preisVPNormalNeuerArtikel: currentPreismeldung.preismeldung.preisVPNormalNeuerArtikel,
+                    mengeVPNormalNeuerArtikel: currentPreismeldung.preismeldung.mengeVPNormalNeuerArtikel,
                     percentageDPToLVP: currentPreismeldung.preismeldung.percentageDPToLVP,
                     percentageDPToVPNeuerArtikel: currentPreismeldung.preismeldung.percentageDPToVPNeuerArtikel,
                     percentageVPNeuerArtikelToVPAlterArtikel: currentPreismeldung.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,

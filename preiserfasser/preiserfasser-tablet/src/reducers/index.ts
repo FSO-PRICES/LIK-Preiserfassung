@@ -46,7 +46,7 @@ export const getIsDesktop = createSelector(getAppConfigState, fromAppConfig.getI
 
 export const getPreismeldestellenState = (state: AppState) => state.preismeldestellen;
 export const getPreismeldestellen = createSelector(getPreismeldestellenState, fromPreismeldestellen.getAll);
-export const getSelectedPreismeldestelle = createSelector(getPreismeldestellenState, fromPreismeldestellen.getSelected);
+export const getCurrentPreismeldestelle = createSelector(getPreismeldestellenState, fromPreismeldestellen.getCurrentPreismeldestelle);
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);

@@ -60,10 +60,12 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 
+            debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVPNormalNeuerArtikel', 'mengeVPNormalNeuerArtikel', 'aktion', 'bearbeitungscode', 'artikelnummer', 'artikeltext']);
+
             if (state.currentPreismeldung.preismeldung.preis === payload.preis
                 && state.currentPreismeldung.preismeldung.menge === payload.menge
-                && state.currentPreismeldung.preismeldung.preisVPNormalOverride === payload.preisVPNormalOverride
-                && state.currentPreismeldung.preismeldung.mengeVPNormalOverride === payload.mengeVPNormalOverride
+                && state.currentPreismeldung.preismeldung.preisVPNormalNeuerArtikel === payload.preisVPNormalNeuerArtikel
+                && state.currentPreismeldung.preismeldung.mengeVPNormalNeuerArtikel === payload.mengeVPNormalNeuerArtikel
                 && state.currentPreismeldung.preismeldung.aktion === payload.aktion
                 && state.currentPreismeldung.preismeldung.bearbeitungscode === payload.bearbeitungscode
                 && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
@@ -98,14 +100,17 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
     }
 }
 
-    // percentageDPToLVP?: number;
-    // percentageDPToVPNeuerArtikel?: number;
-    // percentageVPNeuerArtikelToVPAlterArtikel?: number;
+function debugDifference(obj1: any, obj2: any, props: string[]) {
+    props.forEach(p => {
+        console.log(p, obj1[p], obj2[p], obj1[p] === obj2[p]);
+    });
+}
+
 function createPercentages(preismeldung: P.PreismeldungBag, payload: P.PreismeldungPricePayload) {
     return {
         percentageDPToLVP: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
-        percentageDPToVPNeuerArtikel: calculatePercentageChange(parseFloat(payload.preisVPNormalOverride), parseFloat(payload.mengeVPNormalOverride), parseFloat(payload.preis), parseFloat(payload.menge)),
-        percentageVPNeuerArtikelToVPAlterArtikel: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalOverride), parseFloat(payload.mengeVPNormalOverride))
+        percentageDPToVPNeuerArtikel: calculatePercentageChange(parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel), parseFloat(payload.preis), parseFloat(payload.menge)),
+        percentageVPNeuerArtikelToVPAlterArtikel: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel))
     };
 }
 

@@ -3,8 +3,8 @@ import * as P from '../common-models';
 export interface PreismeldungPricePayload {
     preis: string;
     menge: string;
-    preisVPNormalOverride: string;
-    mengeVPNormalOverride: string;
+    preisVPNormalNeuerArtikel: string;
+    mengeVPNormalNeuerArtikel: string;
     aktion: boolean;
     bearbeitungscode: P.Models.Bearbeitungscode;
     artikelnummer: string;

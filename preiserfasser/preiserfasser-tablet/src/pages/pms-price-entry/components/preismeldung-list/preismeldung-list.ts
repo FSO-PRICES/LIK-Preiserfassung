@@ -12,6 +12,7 @@ import * as P from '../../../../common-models';
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
     @Input() isDesktop: boolean;
+    @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() currentLanguage: string;
     @Input() preismeldungen: P.Models.Preismeldung[];
     @Input() currentPreismeldung: P.CurrentPreismeldungViewModel;
@@ -36,6 +37,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public filterTodoSelected$: Observable<boolean>;
     public filterCompletedSelected$: Observable<boolean>;
 
+    public preismeldestelle$: Observable<P.Models.Preismeldestelle> = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
+
     constructor() {
         super();
 
@@ -59,7 +62,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     filteredPreismeldungen = preismeldungen;
                 } else {
                     const lowered = filterText.toLocaleLowerCase();
-                    filteredPreismeldungen = preismeldungen.filter(pm => pm.warenkorbPosition.gliederungspositionsnummer.toLocaleLowerCase().includes(lowered) || pm.warenkorbPosition.positionsbezeichnung[currentLanguage].toLocaleLowerCase().includes(lowered));
+                    const tokens = lowered.split(' ').filter(x => !x.match(/^\s*$/));
+                    filteredPreismeldungen = preismeldungen.filter(pm =>
+                        tokens.reduce((agg, t) => agg && (pm.warenkorbPosition.gliederungspositionsnummer + ' ' + pm.warenkorbPosition.positionsbezeichnung[currentLanguage]).toLocaleLowerCase().includes(t), true));
                 }
 
                 if (filterTodoSelected && filterCompletedSelected || !filterTodoSelected && !filterCompletedSelected) return filteredPreismeldungen;
@@ -90,7 +95,11 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .map(x => `${x.filter(y => y.preismeldung.istAbgebucht).length}/${x.length}`);
     }
 
-    formatPercentageChange = percentageChange => formatPercentageChange(percentageChange, 0);
+    formatPercentageChange = (preismeldung: P.Models.Preismeldung) => {
+        return !!preismeldung.percentageVPNeuerArtikelToVPAlterArtikel
+            ? formatPercentageChange(preismeldung.percentageDPToVPNeuerArtikel, 0)
+            : formatPercentageChange(preismeldung.percentageDPToLVP, 0);
+    }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);

@@ -25,6 +25,7 @@
         <div class="preismeldung-list-container">
             <preismeldung-list
                 [preismeldungen]="preismeldungen$ | async"
+                [preismeldestelle]="preismeldestelle$ | async"
                 [currentPreismeldung]="currentPreismeldung$ | async"
                 (selectPreismeldung)="selectPreismeldung$.emit($event)"
                 [currentLanguage]="currentLanguage$ | async"

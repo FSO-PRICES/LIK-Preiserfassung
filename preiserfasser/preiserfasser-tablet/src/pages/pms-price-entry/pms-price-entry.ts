@@ -17,6 +17,7 @@ import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialo
 })
 export class PmsPriceEntryPage {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop);
+    preismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();

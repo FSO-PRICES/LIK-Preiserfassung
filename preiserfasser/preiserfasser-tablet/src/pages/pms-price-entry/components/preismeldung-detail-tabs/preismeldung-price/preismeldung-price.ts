@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output, SimpleChange, OnChanges, ChangeDetectionStrategy } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, EventEmitter, Input, Output, SimpleChange, OnChanges, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from 'ng2-translate';
 import { keys } from 'lodash';
@@ -20,7 +20,7 @@ interface PercentageValues {
     templateUrl: 'preismeldung-price.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges {
+export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.PreismeldungBag;
     @Input() requestPreismeldungSave: string;
     @Input() requestPreismeldungQuickEqual: string;
@@ -35,7 +35,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public preisAndMengeDisabled$: Observable<boolean>;
     public isVerkettung$: Observable<boolean>;
     public selectedProcessingCode$ = new EventEmitter<any>();
-    public formValueChanged$ = new EventEmitter<string>();
+
+    public preisChanged$ = new EventEmitter<string>();
+    public mengeChanged$ = new EventEmitter<string>();
+    public preisVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
+    public mengeVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
 
     public toggleAktion$ = new EventEmitter();
     public showSaveWarning$: Observable<boolean>;
@@ -52,15 +56,22 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     form: FormGroup;
 
+    private subscriptions: Subscription[] = [];
+
     constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService) {
         super();
+
+        this.preisChanged$.subscribe(x => { this.form.patchValue({ preis: `${this.formatFn(x)}` }); });
+        this.mengeChanged$.subscribe(x => { this.form.patchValue({ menge: `${x}` }); });
+        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => { this.form.patchValue({ preisVPNormalNeuerArtikel: `${this.formatFn(x)}` }); });
+        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => { this.form.patchValue({ mengeVPNormalNeuerArtikel: `${x}` }); });
 
         this.form = formBuilder.group({
             pmId: [''],
             preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })])],
             menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 2 })])],
-            preisVPNormalOverride: ['', maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })],
-            mengeVPNormalOverride: ['', maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })],
+            preisVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })],
+            mengeVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })],
             aktion: [false],
             bearbeitungscode: [100, Validators.required],
             artikelNummer: [null],
@@ -76,48 +87,65 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .distinctUntilKeyChanged('pmId')
             .publishReplay(1).refCount();
 
-        distinctPreismeldung$
-            .subscribe(preismeldung => {
-                this.form.reset({
-                    pmId: preismeldung.pmId,
-                    preis: preismeldung.preismeldung.preis,
-                    menge: preismeldung.preismeldung.menge,
-                    aktion: preismeldung.preismeldung.aktion,
-                    bearbeitungscode: preismeldung.preismeldung.bearbeitungscode,
-                    artikelNummer: preismeldung.preismeldung.artikelnummer,
-                    artikelText: preismeldung.preismeldung.artikeltext
-                });
-            });
+        this.subscriptions.push(
+            distinctPreismeldung$
+                .subscribe(preismeldung => {
+                    this.form.reset({
+                        pmId: preismeldung.pmId,
+                        preis: preismeldung.preismeldung.preis,
+                        menge: preismeldung.preismeldung.menge,
+                        aktion: preismeldung.preismeldung.aktion,
+                        preisVPNormalNeuerArtikel: preismeldung.preismeldung.preisVPNormalNeuerArtikel,
+                        mengeVPNormalNeuerArtikel: preismeldung.preismeldung.mengeVPNormalNeuerArtikel,
+                        bearbeitungscode: preismeldung.preismeldung.bearbeitungscode,
+                        artikelNummer: preismeldung.preismeldung.artikelnummer,
+                        artikelText: preismeldung.preismeldung.artikeltext
+                    });
+                })
+        );
 
-        this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungViewModel) => currentPm)
-            .subscribe(currentPm => {
-                this.form.patchValue({
-                    preis: `${this.formatFn(currentPm.refPreismeldung.preis)}`,
-                    menge: `${currentPm.refPreismeldung.menge}`,
-                });
-            });
+        this.subscriptions.push(
+            this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungViewModel) => currentPm)
+                .subscribe(currentPm => {
+                    if (currentPm.preismeldung.bearbeitungscode === 7) {
+                        this.form.patchValue({
+                            preis: currentPm.preismeldung.preisVPNormalNeuerArtikel,
+                            menge: currentPm.preismeldung.mengeVPNormalNeuerArtikel
+                        });
+                    } else {
+                        this.form.patchValue({
+                            preis: `${this.formatFn(currentPm.refPreismeldung.preis)}`,
+                            menge: `${currentPm.refPreismeldung.menge}`
+                        });
+                    }
+                })
+        );
 
-        this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungViewModel) => preismeldung)
-            .subscribe(preismeldung => {
-                this.form.patchValue({
-                    menge: `${preismeldung.refPreismeldung.menge}`,
-                });
-            });
+        this.subscriptions.push(
+            this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungViewModel) => preismeldung)
+                .subscribe(preismeldung => {
+                    this.form.patchValue({
+                        menge: `${preismeldung.refPreismeldung.menge}`,
+                    });
+                })
+        );
 
-        this.toggleAktion$
-            .subscribe(() => {
-                this.form.patchValue({
-                    aktion: !this.form.value.aktion
-                });
-            });
+        this.subscriptions.push(
+            this.toggleAktion$
+                .subscribe(() => {
+                    this.form.patchValue({
+                        aktion: !this.form.value.aktion
+                    });
+                })
+        );
 
         this.preismeldungPricePayload$ = this.form.valueChanges
             .map(() => ({
                 preis: this.form.value.preis,
                 menge: this.form.value.menge,
                 aktion: this.form.value.aktion,
-                preisVPNormalOverride: this.form.value.preisVPNormalOverride,
-                mengeVPNormalOverride: this.form.value.mengeVPNormalOverride,
+                preisVPNormalNeuerArtikel: this.form.value.preisVPNormalNeuerArtikel,
+                mengeVPNormalNeuerArtikel: this.form.value.mengeVPNormalNeuerArtikel,
                 bearbeitungscode: this.form.value.bearbeitungscode,
                 artikelnummer: this.form.value.artikelNummer,
                 artikeltext: this.form.value.artikelText
@@ -134,36 +162,42 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .map(x => x === 7)
             .publishReplay(1).refCount();
 
-        this.isVerkettung$
-            .filter(x => !x && this.form.dirty)
-            .subscribe(() => {
-                this.form.patchValue({
-                    preisVPNormalOverride: '',
-                    mengeVPNormalOverride: ''
-                });
-            });
+        this.subscriptions.push(
+            this.isVerkettung$
+                .filter(x => !x && this.form.dirty)
+                .subscribe(() => {
+                    this.form.patchValue({
+                        preisVPNormalOverride: '',
+                        mengeVPNormalOverride: ''
+                    });
+                })
+        );
 
-        this.preisAndMengeDisabled$
-            .filter(x => x)
-            .withLatestFrom(distinctPreismeldung$.map(x => x.refPreismeldung), (_, refPreismeldung) => refPreismeldung)
-            .subscribe(refPreismeldung => {
-                this.form.patchValue({
-                    preis: `${this.formatFn(refPreismeldung.preis)}`,
-                    menge: `${refPreismeldung.menge}`,
-                    aktion: false
-                });
-            });
+        this.subscriptions.push(
+            this.preisAndMengeDisabled$
+                .filter(x => x && this.form.dirty)
+                .withLatestFrom(distinctPreismeldung$.map(x => x.refPreismeldung), (_, refPreismeldung) => refPreismeldung)
+                .subscribe(refPreismeldung => {
+                    this.form.patchValue({
+                        preis: `${this.formatFn(refPreismeldung.preis)}`,
+                        menge: `${refPreismeldung.menge}`,
+                        aktion: false
+                    });
+                })
+        );
 
-        this.preisAndMengeDisabled$
-            .distinctUntilChanged()
-            .filter(x => !x && this.form.dirty)
-            .subscribe(() => {
-                this.form.patchValue({
-                    preis: '',
-                    menge: '',
-                    aktion: false
-                });
-            });
+        this.subscriptions.push(
+            this.preisAndMengeDisabled$
+                .distinctUntilChanged()
+                .filter(x => !x && this.form.dirty)
+                .subscribe(() => {
+                    this.form.patchValue({
+                        preis: '',
+                        menge: '',
+                        aktion: false
+                    });
+                })
+        );
 
         const canSave$ = this.attemptSave$.map(() => ({ saveAction: 'JUST_SAVE' })).merge(this.requestPreismeldungSave$.map(() => ({ saveAction: 'SAVE_AND_MOVE_TO_NEXT' })))
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
@@ -175,19 +209,21 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(distinctPreismeldung$.mapTo(false));
 
-        canSave$.filter(x => !x)
-            .map(() =>
-                keys(this.form.controls)
-                    .filter(x => !!this.form.controls[x].errors)
-                    .map(controlName => {
-                        const control = this.form.controls[controlName];
-                        const errorKey = keys(control.errors)[0];
-                        const errorParams = Object.assign({}, control.errors[errorKey], { controlName: translateService.instant(`control_${controlName}`) });
-                        return translateService.instant(`validation_formatted_${errorKey}`, errorParams);
-                    })
-            )
-            .flatMap(errorMessages => pefDialogService.displayDialog(DialogValidationErrorsComponent, errorMessages, true))
-            .subscribe();
+        this.subscriptions.push(
+            canSave$.filter(x => !x)
+                .map(() =>
+                    keys(this.form.controls)
+                        .filter(x => !!this.form.controls[x].errors)
+                        .map(controlName => {
+                            const control = this.form.controls[controlName];
+                            const errorKey = keys(control.errors)[0];
+                            const errorParams = Object.assign({}, control.errors[errorKey], { controlName: translateService.instant(`control_${controlName}`) });
+                            return translateService.instant(`validation_formatted_${errorKey}`, errorParams);
+                        })
+                )
+                .flatMap(errorMessages => pefDialogService.displayDialog(DialogValidationErrorsComponent, errorMessages, true))
+                .subscribe()
+        );
 
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .combineLatest(this.form.valueChanges.merge(distinctPreismeldung$.map(x => x.preismeldung)), (bearbeitungscode, preismeldung) => ({ bearbeitungscode, preismeldung }))
@@ -208,5 +244,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.forEach(s => s.unsubscribe());
     }
 }

@@ -24,12 +24,12 @@
                 <span class="text">{{ vm.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
                 <span class="artikel-text" [innerHTML]="vm.artikelText || '&ndash;'"></span>
             </div>
-            <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageLastPeriodToCurrentPeriod == null">
+            <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageDPToLVP == null">
                 <pef-icon name="alarmclock_normal" svgCssClasses="green"></pef-icon>
                 <div class="status-bar"></div>
             </div>
-            <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageLastPeriodToCurrentPeriod != null">
-                <div class="percentage">{{ formatPercentageChange(vm.preismeldung.percentageLastPeriodToCurrentPeriod) }}</div>
+            <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageDPToLVP != null">
+                <div class="percentage">{{ formatPercentageChange(vm.preismeldung) }}</div>
             </div>
         </ion-item>
     </pef-virtual-scroll>
@@ -43,6 +43,7 @@
             </button>
         </div>
         <div class="preismeldung-list-completed-count">
+            {{ (preismeldestelle$ | async)?.name }}<br/>
             {{ completedCount$ | async }}
         </div>
         <div class="preismeldung-list-arrows">

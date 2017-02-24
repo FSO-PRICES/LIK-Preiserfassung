@@ -83,8 +83,8 @@ interface _PreismeldungProperties {
     menge?: string;
     preisNormal?: string;
     mengeNormal?: string;
-    preisVPNormalOverride?: string;
-    mengeVPNormalOverride?: string;
+    preisVPNormalNeuerArtikel?: string;
+    mengeVPNormalNeuerArtikel?: string;
 
     aktion: boolean;
     ausverkauf: boolean;

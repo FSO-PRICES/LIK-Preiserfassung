@@ -11,7 +11,7 @@ import * as fromRoot from '../../reducers';
 })
 export class PmsDetailsPage {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop);
-    pms$ = this.store.select(fromRoot.getSelectedPreismeldestelle);
+    pms$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
     header$ = this.pms$.map(formatHeader);
     address$ = this.pms$.map(formatAddress);
 
