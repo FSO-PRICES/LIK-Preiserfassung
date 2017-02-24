@@ -37,6 +37,7 @@ export interface KontaktPerson {
 
 export interface AdvancedPresimeldestelleProperties {
     kontaktpersons: KontaktPerson[];
+    active: boolean;
     erhebungsart: string;
     erhebungshaeufigkeit: string;
     erhebungsartComment: string;
@@ -44,6 +45,7 @@ export interface AdvancedPresimeldestelleProperties {
 
 export const preismeldungReferenceUriRoute = 'pm-ref/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
 export const preismeldungUriRoute = 'pm/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
+export const preismeldungPmsPrefixUriRoute = 'pm/:pmsNummer';
 export interface PreismeldungUri {
     pmsNummer: string;
     epNummer: string;
@@ -67,7 +69,6 @@ interface _PreismeldungReferenceProperties {
     basisPreis: number;
     basisMenge: number;
     aktion: boolean;
-    ausverkauf: boolean;
     artikelnummer: string;
     artikeltext: string;
 
@@ -87,7 +88,6 @@ interface _PreismeldungProperties {
     mengeVPNormalOverride?: string;
 
     aktion: boolean;
-    ausverkauf: boolean;
 
     artikelnummer: string;
     artikeltext: string;
