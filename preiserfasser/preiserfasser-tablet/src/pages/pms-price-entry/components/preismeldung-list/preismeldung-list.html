@@ -9,6 +9,11 @@
         <button ion-button icon-only color="wild-sand" [class.button-radio-selected]="filterCompletedSelected$ | async"  (click)="selectFilterCompleted$.emit()">
             <pef-icon name="checkmark"></pef-icon>
         </button>
+        <div class="pms-name">
+            <span>
+                {{ (preismeldestelle$ | async)?.name }}
+            </span>
+        </div>
     </div>
     <pef-virtual-scroll [items]="filteredPreismeldungen$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="isDesktop">
         <ion-item
@@ -22,7 +27,7 @@
             </div>
             <div class="preismeldung-description">
                 <span class="text">{{ vm.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
-                <span class="artikel-text" [innerHTML]="vm.artikelText || '&ndash;'"></span>
+                <span class="artikel-text" [innerHTML]="vm.preismeldung.artikeltext || '&ndash;'"></span>
             </div>
             <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageDPToLVP == null">
                 <pef-icon name="alarmclock_normal" svgCssClasses="green"></pef-icon>
@@ -43,7 +48,6 @@
             </button>
         </div>
         <div class="preismeldung-list-completed-count">
-            {{ (preismeldestelle$ | async)?.name }}<br/>
             {{ completedCount$ | async }}
         </div>
         <div class="preismeldung-list-arrows">

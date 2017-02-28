@@ -1,0 +1,18 @@
+<form>
+    <h3>Konto</h3>
+    <ion-list>
+        <ion-item>
+            <ion-label stacked>Benutzername</ion-label>
+            <ion-input type="text" [(ngModel)]="username" [ngModelOptions]="{standalone: true}"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label stacked>Passwort</ion-label>
+            <ion-input type="password" [(ngModel)]="password" [ngModelOptions]="{standalone: true}"></ion-input>
+        </ion-item>
+        <ion-item style="display: none"> <!-- TODO: remove hack -->
+            <ion-label stacked>Passwort</ion-label>
+            <ion-input type="password"></ion-input>
+        </ion-item>
+    </ion-list>
+    <button ion-button type="submit" (click)="login()">Login</button>
+</form>

@@ -42,6 +42,18 @@ preismeldung-price {
         justify-content: flex-end;
     }
 
+    .price-count-status {
+        span {
+            font-size: 1.25em;
+        }
+        &.ok {
+            color: $sulu;
+        }
+        &.no-ok {
+            color: $flamingo;
+        }
+    }
+
     .duplicate {
         .background-plus {
             fill: $scooter;

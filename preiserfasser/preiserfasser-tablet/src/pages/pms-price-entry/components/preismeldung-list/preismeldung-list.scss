@@ -23,8 +23,20 @@ preismeldung-list {
     }
 
     .preismeldung-list-check-filter {
-        button:first-of-type() {
+        display: flex;
+        align-items: center;
+        button {
             @include set-margin-right(1);
+            flex: 0 0 2.25em;
+        }
+    }
+
+    .pms-name {
+        flex: 0 0 calc(100% - 6.25em - 8px);
+        max-width: calc(100% - 6.25em - 8px);
+        span {
+            @include crop-text();
+            text-align: right;
         }
     }
 
@@ -111,6 +123,7 @@ preismeldung-list {
     .preismeldung-list-footer {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         @include set-padding-top(0.625);
     }
 

@@ -1,0 +1,22 @@
+@import "../../theme/imports.scss";
+
+// TODO put this in app.scss
+.md .modal-wrapper {
+    box-shadow: none;
+}
+
+login-modal.ion-page {
+    box-shadow: $whiteframe-shadow-4dp;
+    height: 300px;
+
+    padding: 2em;
+    background-color: white;
+
+    ion-item.item-md {
+        padding-left: 0;
+    }
+
+    button {
+        float: right;
+    }
+}

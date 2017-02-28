@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { assign, cloneDeep } from 'lodash';
+import { assign, cloneDeep, groupBy, keys } from 'lodash';
 
 import * as P  from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
@@ -9,6 +9,10 @@ export interface PreismeldungBag {
     refPreismeldung?: P.Models.PreismeldungReference;
     preismeldung: P.Models.Preismeldung;
     warenkorbPosition: P.Models.WarenkorbLeaf;
+    priceCountStatus: {
+        text: string;
+        ok: boolean
+    };
 }
 
 export type CurrentPreismeldungViewModel = PreismeldungBag & {
@@ -33,17 +37,27 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
     switch (action.type) {
         case 'PREISMELDUNGEN_LOAD_SUCCESS': {
             const { payload } = action;
+            const refPreismeldungenGrouped = groupBy(payload.refPreismeldungen, 'epNummer');
+
             const preismeldungViewModels = payload.refPreismeldungen
-                .map<P.PreismeldungBag>(refPreismeldung => Object.assign({}, {
-                    pmId: refPreismeldung.pmId,
-                    refPreismeldung,
-                    preismeldung: payload.preismeldungen.find(pm => pm._id === refPreismeldung.pmId),
-                    warenkorbPosition: payload.warenkorbDoc.products.find(p => p.gliederungspositionsnummer === refPreismeldung.epNummer)
-                }));
+                .map<P.PreismeldungBag>(refPreismeldung => {
+                    const warenkorbPosition = payload.warenkorbDoc.products.find(p => p.gliederungspositionsnummer === refPreismeldung.epNummer) as P.Models.WarenkorbLeaf;
+                    return assign({}, {
+                        pmId: refPreismeldung.pmId,
+                        refPreismeldung,
+                        preismeldung: payload.preismeldungen.find(pm => pm._id === refPreismeldung.pmId),
+                        warenkorbPosition,
+                        priceCountStatus: {
+                            text: `${refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
+                            // text: '',
+                            ok: true
+                        }
+                    });
+                });
 
             const preismeldungIds = preismeldungViewModels.map(x => x.pmId);
             const entities = preismeldungViewModels.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldung: P.PreismeldungBag) => {
-                return Object.assign(agg, { [preismeldung.pmId]: preismeldung });
+                return assign(agg, { [preismeldung.pmId]: preismeldung });
             }, {});
             return assign({}, state, { preismeldungIds, entities, currentPreismeldung: undefined });
         }
@@ -60,7 +74,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 
-            debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVPNormalNeuerArtikel', 'mengeVPNormalNeuerArtikel', 'aktion', 'bearbeitungscode', 'artikelnummer', 'artikeltext']);
+            // debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVPNormalNeuerArtikel', 'mengeVPNormalNeuerArtikel', 'aktion', 'bearbeitungscode', 'artikelnummer', 'artikeltext']);
 
             if (state.currentPreismeldung.preismeldung.preis === payload.preis
                 && state.currentPreismeldung.preismeldung.menge === payload.menge

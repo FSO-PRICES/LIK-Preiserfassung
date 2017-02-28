@@ -15,7 +15,7 @@ export type SavePreismeldungPricePayloadType = 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_N
 
 export type Actions =
     { type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: number } |
-    { type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: { warenkorbDoc: any, refPreismeldungen: P.Models.PreismeldungReference[], preismeldungen: P.Models.Preismeldung[] } } |
+    { type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: { warenkorbDoc: { products: P.Models.WarenkorbTreeItem[] }, refPreismeldungen: P.Models.PreismeldungReference[], preismeldungen: P.Models.Preismeldung[] } } |
     { type: 'PREISMELDUNGEN_CLEAR' } |
     { type: 'SELECT_PREISMELDUNG', payload: string } |
     { type: 'UPDATE_PREISMELDUNG_PRICE', payload: PreismeldungPricePayload } |

@@ -14,6 +14,7 @@ import { PEF_EFFECTS } from '../effects';
 import { MyApp } from './app.component';
 import { PreiserfasserCommonModule } from '../common';
 import { DashboardPage } from '../pages/dashboard/dashboard';
+import { LoginModal } from '../pages/login/login';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 import { TestPage } from '../pages/test-page/test-page';
@@ -29,6 +30,7 @@ export function createTranslateLoader(http: Http) {
     declarations: [
         MyApp,
         DashboardPage,
+        LoginModal,
         PmsDetailsPage,
         TestPage
     ],
@@ -64,6 +66,7 @@ export function createTranslateLoader(http: Http) {
     entryComponents: [
         MyApp,
         DashboardPage,
+        LoginModal,
         PmsPriceEntryPage,
         PmsDetailsPage,
         TestPage

@@ -64,7 +64,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     const lowered = filterText.toLocaleLowerCase();
                     const tokens = lowered.split(' ').filter(x => !x.match(/^\s*$/));
                     filteredPreismeldungen = preismeldungen.filter(pm =>
-                        tokens.reduce((agg, t) => agg && (pm.warenkorbPosition.gliederungspositionsnummer + ' ' + pm.warenkorbPosition.positionsbezeichnung[currentLanguage]).toLocaleLowerCase().includes(t), true));
+                        tokens.reduce((agg, t) => agg && (pm.warenkorbPosition.gliederungspositionsnummer + ' ' + pm.warenkorbPosition.positionsbezeichnung[currentLanguage] + ' ' + pm.preismeldung.artikeltext).toLocaleLowerCase().includes(t) , true));
                 }
 
                 if (filterTodoSelected && filterCompletedSelected || !filterTodoSelected && !filterCompletedSelected) return filteredPreismeldungen;

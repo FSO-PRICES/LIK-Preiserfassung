@@ -19,6 +19,9 @@
 }
 
 @mixin crop-text() {
+    display: inline-block;
+    width: 100%;
+    max-width: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

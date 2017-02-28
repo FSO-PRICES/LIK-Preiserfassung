@@ -7,6 +7,9 @@
     <div class="work-area">
         <div class="preismeldung-details-container">
             <ion-content>
+                <preismeldung-info
+                    *ngIf="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
+                    [preismeldung]="currentPreismeldung$ | async"></preismeldung-info>
                 <preismeldung-attributes
                     *ngIf="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
                     [preismeldung]="currentPreismeldung$ | async"></preismeldung-attributes>

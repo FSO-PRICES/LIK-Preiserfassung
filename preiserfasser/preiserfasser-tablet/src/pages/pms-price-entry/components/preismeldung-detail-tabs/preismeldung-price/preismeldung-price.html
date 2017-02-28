@@ -10,7 +10,9 @@
                     type="text"
                     formControlName="artikelNummer"></ion-input>
             </ion-item>
-            <div class="right-column"></div>
+            <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus, 'not-ok': !(preismeldung$ | async).priceCountStatus }">
+                <span>{{ (preismeldung$ | async).priceCountStatus.text }}</span>
+            </div>
         </div>
         <div class="header-line">
             <ion-item class="pef-item on-dark">
@@ -45,7 +47,7 @@
         <div class="columns product-detail-row row-2">
             <div class="last-period">
                 <div class="data-input-area">
-                    <h6>Normal Preis</h6>
+                    <h6>{{ 'heading_artikel' | translate }}</h6>
                     <div class="last-period-price">
                         <div class="number">{{ (preismeldung$ | async).refPreismeldung.preis | pefFormatNumber: numberFormattingOptions }}</div>
                         <div class="unit">CHF</div>
@@ -61,7 +63,7 @@
                                 <ion-radio value="aktion" [disabled]="true" [checked]="(preismeldung$ | async).refPreismeldung.aktion"></ion-radio>
                             </ion-item>
                         </ion-list>
-                        <div class="code"></div>
+                        <div class="code">{{ (preismeldung$ | async).refPreismeldung.fehlendePreiseR }}</div>
                     </div>
                 </div>
                 <div class="box-container" *ngIf="isVerkettung$ | async">
@@ -117,7 +119,7 @@
         <div class="columns product-detail-row row-3">
             <div class="last-period">
                 <div class="data-input-area" *ngIf="isVerkettung$ | async">
-                    <h6 [innerHTML]="'heading_normalPriceNewArticle' | translate"></h6>
+                    <h6 [innerHTML]="'heading_artikel-neu' | translate"></h6>
                     <ion-list>
                         <ion-item class="pef-item">
                             <ion-label>CHF</ion-label>

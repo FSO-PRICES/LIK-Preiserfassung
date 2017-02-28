@@ -3,16 +3,22 @@
 </button>
 <div class="preismeldung-buttons" *ngIf="!!preismeldung">
     <button ion-button icon-only class="pef-tab-button"
+        [disabled]="(selectedTab$ | async) == 'INFO_WARENKORB'"
+        [class.selected]="(selectedTab$ | async) == 'INFO_WARENKORB'"
         (click)="selectTab$.emit('INFO_WARENKORB')"
         >
         <pef-icon name="zusatzinfo"></pef-icon>
     </button>
     <button ion-button icon-only class="pef-tab-button"
+        [disabled]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
+        [class.selected]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
         (click)="selectTab$.emit('PREISMELDUNG_INFO')"
         >
         <pef-icon name="price_tag_info"></pef-icon>
     </button>
     <button ion-button icon-only class="pef-tab-button"
+        [disabled]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
+        [class.selected]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
         (click)="selectTab$.emit('PRODUCT_ATTRIBUTES')"
         >
         <pef-icon name="price_tag"></pef-icon>
@@ -31,12 +37,12 @@
         >
         <pef-icon name="notification"></pef-icon>
     </button>
-    <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')">
+    <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')" *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'">
         <div class="pef-inner">
             <pef-icon name="equal"></pef-icon>
         </div>
     </button>
-    <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_SAVE')">
+    <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_SAVE')" *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'">
         <div class="pef-inner">
             <pef-icon name="save"></pef-icon>
         </div>

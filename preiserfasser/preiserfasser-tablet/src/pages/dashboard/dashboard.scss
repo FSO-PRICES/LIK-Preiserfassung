@@ -131,9 +131,14 @@ dashboard {
         @include set-padding-bottom(0.25);
 
         &.pms-name {
+            width: calc(100% - 4.25em);
             .pms-header-cell-content {
                 @include set-padding-left(1);
             }
+        }
+
+        &.erfassung-starten {
+            width: 4.25em;
         }
     }
 
@@ -176,7 +181,7 @@ dashboard {
         display: table-cell;
 
         &.pms-name {
-            width: 30%;
+            width: calc(100% - 4.25em);
             .pms-cell-content {
                 @include set-padding-left(1);
                 color: $blue-chill;
@@ -184,7 +189,7 @@ dashboard {
             }
         }
         &.erfassung-starten {
-            width: 70%;
+            width: 4.25em;
             .pms-cell-content {
                 @include set-padding-right(1);
                 justify-content: flex-end;

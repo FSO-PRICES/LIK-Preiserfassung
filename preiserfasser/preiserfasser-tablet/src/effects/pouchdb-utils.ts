@@ -41,7 +41,7 @@ export function dropDatabase() {
         });
 }
 
-export function dropAndSyncDatabase() {
+export function dropAndSyncDatabase(data: { username: string, password: string }) {
     return _checkIfDatabaseExists(DB_NAME)
         .then(exists => {
             if (exists) {
@@ -51,11 +51,11 @@ export function dropAndSyncDatabase() {
             return Promise.resolve(new PouchDB(DB_NAME));
         })
         .then(pouch => {
+            const couch = new PouchDB('http://bfs-lik.lambda-it.ch:5984/bfs-test') as any;
             // const couch = new PouchDB('http://bfs-lik.lambda-it.ch:5984/germaine_exemple') as any;
-            const couch = new PouchDB('http://localhost:5986/germaine_exemple') as any;
             const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
 
-            return login('germaine_exemple', 'secret')
+            return login(data.username, data.password)
                 .then(() => {
                     const sync = bluebird.promisify<any, any, any>(pouch.sync, { context: pouch });
                     return sync(couch, { push: false, pull: true, batch_size: 1000 });

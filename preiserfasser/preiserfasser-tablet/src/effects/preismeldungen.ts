@@ -75,7 +75,6 @@ export class PreismeldungenEffects {
             preismeldungen: x.preismeldungen
         })))
         .flatMap(x => x.db.get('warenkorb').then((warenkorbDoc: any) => ({ // TODO: add types for warenkorb
-            db: x.db,
             pms: x.pms,
             warenkorbDoc,
             refPreismeldungen: x.refPreismeldungen,

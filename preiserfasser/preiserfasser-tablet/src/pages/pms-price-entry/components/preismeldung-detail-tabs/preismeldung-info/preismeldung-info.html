@@ -1,0 +1,100 @@
+<h5 class="large">{{ 'heading_information-about-preismeldung' | translate }}</h5>
+
+<div class="info-table">
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Preis for Reduktion
+        </div>
+        <div class="info-table-cell-value">
+            ?
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Menge for Reduktion
+        </div>
+        <div class="info-table-cell-value">
+            ?
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Anzahl Fehlende Preis R
+        </div>
+        <div class="info-table-cell-value">
+            {{ (preismeldung$ | async)?.refPreismeldung.fehlendePreiseR.length }}
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Basispreis
+        </div>
+        <div class="info-table-cell-value">
+            {{ (preismeldung$ | async)?.refPreismeldung.basisPreis }}
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Basismenge
+        </div>
+        <div class="info-table-cell-value">
+            {{ (preismeldung$ | async)?.refPreismeldung.basisMenge }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Preis geführt seit
+        </div>
+        <div class="info-table-cell-value">
+            {{ (preismeldung$ | async)?.refPreismeldung.preisGueltigSeitDatum }}
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Artikelnummer
+        </div>
+        <div class="info-table-cell-value">
+            {{ (preismeldung$ | async)?.preismeldung.artikelnummer }}
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+    <div class="info-table-row">
+        <div class="info-table-cell-heading">
+            Internetlink
+        </div>
+        <div class="info-table-cell-value">
+            ?
+        </div>
+        <div class="info-table-cell-heading">
+        </div>
+        <div class="info-table-cell-value">
+        </div>
+    </div>
+</div>

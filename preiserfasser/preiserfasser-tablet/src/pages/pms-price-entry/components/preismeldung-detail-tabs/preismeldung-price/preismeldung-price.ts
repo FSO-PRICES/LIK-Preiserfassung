@@ -226,14 +226,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
-            .combineLatest(this.form.valueChanges.merge(distinctPreismeldung$.map(x => x.preismeldung)), (bearbeitungscode, preismeldung) => ({ bearbeitungscode, preismeldung }))
-            .map(x => {
-                if (x.bearbeitungscode === 7) {
-                    return x.preismeldung.aktion ? 'heading_reducedPriceNewArticle' : 'heading_normalPriceNewArticle';
-                } else {
-                    return x.preismeldung.aktion ? 'heading_reducedPrice' : 'heading_normalPrice';
-                }
-            });
+            .map(x => x === 7 ? 'heading_artikel-neu' : 'heading_artikel');
     }
 
     calcPreisAndMengeDisabled(bearbeitungscode: P.Models.Bearbeitungscode) {

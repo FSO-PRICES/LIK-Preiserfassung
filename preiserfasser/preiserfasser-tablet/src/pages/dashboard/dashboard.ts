@@ -1,16 +1,18 @@
 import { Store } from '@ngrx/store';
 import { Component, EventEmitter } from '@angular/core';
-import { LoadingController, NavController } from 'ionic-angular';
+import { LoadingController, NavController, ModalController } from 'ionic-angular';
+import { LoginModal } from '../login/login';
+import { Observable } from 'rxjs';
 
 import { format } from 'date-fns';
 import * as deLocale from 'date-fns/locale/de';
-import * as frLocale from 'date-fns/locale/fr';
+// import * as frLocale from 'date-fns/locale/fr';
 
 import * as fromRoot from '../../reducers';
 import * as P from '../../common-models';
 import { PmsDetailsPage } from '../pms-details/pms-details';
 import { PmsPriceEntryPage } from '../pms-price-entry';
-import { TestPage } from '../test-page/test-page';
+// import { TestPage } from '../test-page/test-page';
 
 @Component({
     selector: 'dashboard',
@@ -32,13 +34,16 @@ export class DashboardPage {
     constructor(
         private navCtrl: NavController,
         private loadingCtrl: LoadingController,
+        private modalCtrl: ModalController,
         private store: Store<fromRoot.AppState>
     ) {
         this.settingsClicked.subscribe(() => this.store.dispatch({ type: 'DELETE_DATABASE' }));
 
         const loader = this.loadingCtrl.create({
-            content: "Datensynchronisierung. Bitte warten..."
+            content: 'Datensynchronisierung. Bitte warten...'
         });
+
+        const loginModal = this.modalCtrl.create(LoginModal, null, { enableBackdropDismiss: false });
 
         const databaseExists$ = this.store.map(x => x.database)
             .filter(x => x.databaseExists !== null)
@@ -55,9 +60,14 @@ export class DashboardPage {
 
         databaseExists$
             .filter(x => !x)
-            .subscribe(() => {
+            .flatMap(() => {
+                loginModal.present();
+                return Observable.bindCallback(cb => loginModal.onWillDismiss(cb))()
+                    .map(([data, role]) => ({ data, role }));
+            })
+            .subscribe(x => {
                 loader.present();
-                this.store.dispatch({ type: 'DATABASE_SYNC' });
+                this.store.dispatch({ type: 'DATABASE_SYNC', payload: x.data });
             });
     }
 

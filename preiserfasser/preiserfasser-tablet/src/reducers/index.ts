@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 import { compose } from '@ngrx/core/compose';
 import { combineReducers, ActionReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
-import { storeLogger } from "ngrx-store-logger";
+import { storeLogger } from 'ngrx-store-logger';
 
 import { environment } from '../environments/environment';
 import * as fromPreismeldestellen from './preismeldestellen';

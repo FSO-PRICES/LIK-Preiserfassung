@@ -7,27 +7,29 @@ import { MaterialModule } from '@angular/material';
 import { PreiserfasserCommonModule } from '../../common';
 import { PefComponentsModule } from 'lik-shared';
 
+import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 import { PmsPriceEntryPage } from './pms-price-entry';
-import { PreismeldungMessagesComponent } from './components/preismeldung-detail-tabs/preismeldung-messages';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
-import { PreismeldungPriceComponent, DialogValidationErrorsComponent } from './components/preismeldung-detail-tabs/preismeldung-price';
+import { PreismeldungInfoComponent } from './components/preismeldung-detail-tabs/preismeldung-info';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
+import { PreismeldungMessagesComponent } from './components/preismeldung-detail-tabs/preismeldung-messages';
+import { PreismeldungPriceComponent, DialogValidationErrorsComponent } from './components/preismeldung-detail-tabs/preismeldung-price';
 import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
-import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
 
 @NgModule({
     imports: [CommonModule, IonicModule, MaterialModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
     declarations: [
+        BearbeitungsTypeComponent,
         DialogCancelEditComponent,
         DialogValidationErrorsComponent,
         PmsPriceEntryPage,
-        PreismeldungMessagesComponent,
         PreismeldungAttributesComponent,
-        PreismeldungPriceComponent,
+        PreismeldungInfoComponent,
         PreismeldungListComponent,
+        PreismeldungMessagesComponent,
+        PreismeldungPriceComponent,
         PreismeldungToolbarComponent,
-        BearbeitungsTypeComponent
     ],
     entryComponents: [
         DialogCancelEditComponent,
