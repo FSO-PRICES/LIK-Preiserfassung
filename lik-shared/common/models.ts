@@ -64,6 +64,7 @@ interface _PreismeldungReferenceProperties {
     erhebungsZeitpunkt: string;
     erhebungsAnfangsDatum: string;
     erhebungsEndDatum: string;
+    internetLink: string;
 
     productMerkmale: string[];
 
@@ -97,6 +98,7 @@ interface _PreismeldungProperties {
 
     artikelnummer: string;
     artikeltext: string;
+    internetLink: string;
 
     bermerkungenAnsBfs: string;
 
