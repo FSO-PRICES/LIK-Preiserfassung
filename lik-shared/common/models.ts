@@ -59,8 +59,8 @@ interface _PreismeldungReferenceProperties {
     fehlendePreiseR: string;
     istPreisreiheZuBeenden?: boolean;
 
-    zeitbereichPos: number;
     sortierungsnummer: number;
+    erhebungsZeitpunkt: Erhebungszeitpunkt;
     erhebungsAnfangsDatum: string;
     erhebungsEndDatum: string;
     internetLink: string;
@@ -84,6 +84,8 @@ interface _PreismeldungReferenceProperties {
 export type PreismeldungReferenceProperties = PreismeldungUri & _PreismeldungReferenceProperties;
 
 export type Bearbeitungscode = 0 | 1 | 7 | 44 | 100 | 101;
+
+export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
 
 interface _PreismeldungProperties {
     preis?: string;
