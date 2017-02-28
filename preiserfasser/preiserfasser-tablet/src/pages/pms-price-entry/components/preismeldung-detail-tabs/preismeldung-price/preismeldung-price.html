@@ -10,7 +10,7 @@
                     type="text"
                     formControlName="artikelNummer"></ion-input>
             </ion-item>
-            <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus, 'not-ok': !(preismeldung$ | async).priceCountStatus }">
+            <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus.ok, 'not-ok': !(preismeldung$ | async).priceCountStatus.ok }">
                 <span>{{ (preismeldung$ | async).priceCountStatus.text }}</span>
             </div>
         </div>

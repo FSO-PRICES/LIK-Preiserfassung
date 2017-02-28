@@ -49,8 +49,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                         warenkorbPosition,
                         priceCountStatus: {
                             text: `${refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
-                            // text: '',
-                            ok: true
+                            ok: refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length >= warenkorbPosition.anzahlPreiseProPMS
                         }
                     });
                 });

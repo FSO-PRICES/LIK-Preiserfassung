@@ -42,7 +42,6 @@ export class PreismeldungenEffects {
                     preisVPNormalNeuerArtikel: null,
                     mengeVPNormalNeuerArtikel: null,
                     aktion: false,
-                    ausverkauf: false,
                     artikelnummer: rpm.artikelnummer,
                     artikeltext: rpm.artikeltext,
                     bermerkungenAnsBfs: null,
@@ -52,7 +51,8 @@ export class PreismeldungenEffects {
                     istAbgebucht: false,
                     percentageDPToLVP: null,
                     percentageDPToVPNeuerArtikel: null,
-                    percentageVPNeuerArtikelToVPAlterArtikel: null
+                    percentageVPNeuerArtikelToVPAlterArtikel: null,
+                    internetLink: rpm.internetLink
                 }));
 
             if (missingPreismeldungs.length === 0) {
@@ -94,7 +94,7 @@ export class PreismeldungenEffects {
                     artikeltext: currentPreismeldung.preismeldung.artikeltext,
                     artikelnummer: currentPreismeldung.preismeldung.artikelnummer,
                     aktion: currentPreismeldung.preismeldung.aktion,
-                    ausverkauf: currentPreismeldung.preismeldung.ausverkauf,
+                    internetLink: currentPreismeldung.preismeldung.internetLink,
                     preis: currentPreismeldung.preismeldung.preis,
                     menge: currentPreismeldung.preismeldung.menge,
                     bearbeitungscode: currentPreismeldung.preismeldung.bearbeitungscode,
