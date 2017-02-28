@@ -57,10 +57,13 @@ interface _PreismeldungReferenceProperties {
 
     preisGueltigSeitDatum: string;
     fehlendePreiseR: string;
-    istPreisreiheZuBeenden: boolean;
+    istPreisreiheZuBeenden?: boolean;
 
     zeitbereichPos: number;
     sortierungsnummer: number;
+    erhebungsZeitpunkt: string;
+    erhebungsAnfangsDatum: string;
+    erhebungsEndDatum: string;
 
     productMerkmale: string[];
 
@@ -68,6 +71,9 @@ interface _PreismeldungReferenceProperties {
     menge: number;
     basisPreis: number;
     basisMenge: number;
+    preisVorReduktion: number;
+    mengeVorReduktion: number;
+
     aktion: boolean;
     artikelnummer: string;
     artikeltext: string;
@@ -179,3 +185,8 @@ export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
 export type WarenkorbTreeItem = WarenkorbBranch | WarenkorbLeaf;
 
 export type WarenkorbHierarchicalTreeItem = (WarenkorbBranch & { children: WarenkorbHierarchicalTreeItem[] }) | WarenkorbLeaf;
+
+export interface CouchSecurity {
+    admins?: { names?: string[], roles?: string[] },
+    members?: { names?: string[], roles?: string[] }
+}
