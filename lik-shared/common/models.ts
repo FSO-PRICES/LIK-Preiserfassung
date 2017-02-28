@@ -61,6 +61,9 @@ interface _PreismeldungReferenceProperties {
 
     zeitbereichPos: number;
     sortierungsnummer: number;
+    erhebungsZeitpunkt: string;
+    erhebungsAnfangsDatum: string;
+    erhebungsEndDatum: string;
 
     productMerkmale: string[];
 
@@ -68,6 +71,9 @@ interface _PreismeldungReferenceProperties {
     menge: number;
     basisPreis: number;
     basisMenge: number;
+    preisVorReduktion: number;
+    mengeVorReduktion: number;
+
     aktion: boolean;
     artikelnummer: string;
     artikeltext: string;
