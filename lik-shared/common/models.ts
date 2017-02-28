@@ -61,7 +61,6 @@ interface _PreismeldungReferenceProperties {
 
     zeitbereichPos: number;
     sortierungsnummer: number;
-    erhebungsZeitpunkt: string;
     erhebungsAnfangsDatum: string;
     erhebungsEndDatum: string;
     internetLink: string;
