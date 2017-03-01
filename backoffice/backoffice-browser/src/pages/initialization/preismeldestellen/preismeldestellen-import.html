@@ -1,0 +1,22 @@
+<ion-list>
+    <ion-list-header>
+        Preismeldestellen
+    </ion-list-header>
+    <ion-item>
+        <ion-row wrap>
+            <ion-col>
+                <label>Preismeldestellen Import</label><br>
+                <input class="file-select-btn" type="file" (change)="preismeldestellenSelected$.emit($event)"
+                    multiple/>
+            </ion-col>
+        </ion-row>
+        <ion-row left>
+            <ion-col>
+                <button ion-button class="register-btn" type="button" [disabled]="!(parsingIsCompleted$ | async)" (click)="createPreismeldestellenClicked$.emit($event)">Import Preismeldestellen</button>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="arePreistellenImported$ | async">
+            <ion-col><span ion-text color="primary">Preismeldestellen wurden erfolgreich importiert. {{preistellenImported$ | async}} Einträge wurden hinzugefügt</span></ion-col>
+        </ion-row>
+    </ion-item>
+</ion-list>

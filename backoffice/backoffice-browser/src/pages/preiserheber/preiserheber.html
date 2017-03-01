@@ -5,19 +5,23 @@
             <div class="header">
                 <h1 class="large">
                     Preiserheber
-                    <button type="button" ion-button (click)="selectPreiserheber$.emit({})"><ion-icon name="add"></ion-icon></button>
+                    <button ion-button icon-only color="wild-sand"(click)="selectPreiserheber$.emit({})">
+                        <pef-icon name="add"></pef-icon>
+                    </button>
                 </h1>
             </div>
-            <preiserheber-detail
-                [preiserheber]="currentPreiserheber$ | async"
-                [resetForm]="selectPreiserheber$ | async"
-                (save)="savePreiserheber$.emit($event)"
-                (clear)="clearSelectedPreiserheber$.emit($event)"
-                (update)="updatePreiserheber$.emit($event)"></preiserheber-detail>
-            <preiserheber-list
-                [list]="preiserhebers$ | async"
-                [current]="currentPreiserheber$ | async"
-                (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
+            <div class="preiserheber-container">
+                <preiserheber-detail
+                    [preiserheber]="currentPreiserheber$ | async"
+                    [resetForm]="selectPreiserheber$ | async"
+                    (save)="savePreiserheber$.emit($event)"
+                    (clear)="clearSelectedPreiserheber$.emit($event)"
+                    (update)="updatePreiserheber$.emit($event)"></preiserheber-detail>
+                <preiserheber-list
+                    [list]="preiserhebers$ | async"
+                    [current]="currentPreiserheber$ | async"
+                    (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
+            </div>
         </div>
     </div>
 </ion-content>

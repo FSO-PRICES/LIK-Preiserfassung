@@ -1,0 +1,28 @@
+.preismeldestelle-container {
+    display: flex;
+    flex-direction: row;
+
+    preismeldestelle-list {
+        flex: 1 0 0;
+        margin-left: 10px;
+        ion-grid {
+            padding: 0;
+        }
+        ion-row:last-child .item {
+            padding-bottom: 10px;
+        }
+    }
+    preismeldestelle-detail {
+        flex: 3 0 0;
+    }
+
+    .row {
+        display: flex;
+        flex-direction: row;
+        padding: 5px 0;
+    }
+    .column {
+        flex: 1 0 0;
+        margin: 5px;
+    }
+}

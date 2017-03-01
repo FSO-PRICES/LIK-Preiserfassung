@@ -24,7 +24,7 @@ export function reducer(state = initialState, action: preismeldestelle.Actions):
     switch (action.type) {
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;
-            const preismeldestellen = payload.preismeldestelles
+            const preismeldestellen = payload.preismeldestellen
                 .map<P.AdvancedPreismeldestelle>(preismeldestelle => Object.assign({}, preismeldestelle));
             const preismeldestelleIds = preismeldestellen.map(p => p._id);
             const entities = preismeldestellen.reduce((entities: { [_id: string]: P.AdvancedPreismeldestelle }, preismeldestelle: P.AdvancedPreismeldestelle) => {

@@ -1,5 +1,5 @@
-<ion-navbar>
-    <ion-buttons start>
+<ion-navbar [class.danger-zone]="dangerZone">
+    <ion-buttons end>
         <button
             *ngFor="let entry of pages"
             type="button"

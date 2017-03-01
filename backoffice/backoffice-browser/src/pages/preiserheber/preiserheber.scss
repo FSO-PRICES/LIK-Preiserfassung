@@ -1,0 +1,18 @@
+.preiserheber-container {
+    display: flex;
+    flex-direction: row;
+
+    preiserheber-list {
+        flex: 2 0 0;
+        margin-left: 10px;
+        ion-grid {
+            padding: 0;
+        }
+        ion-row:last-child .item {
+            padding-bottom: 10px;
+        }
+    }
+    preiserheber-detail {
+        flex: 1 0 0;
+    }
+}

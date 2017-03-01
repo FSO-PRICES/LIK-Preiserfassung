@@ -19,6 +19,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     @Output('update')
     public update$ = new EventEmitter<P.Erheber>();
 
+    public isEditing$: Observable<boolean>;
     public preiserheber$: Observable<P.Erheber>;
     public resetForm$: Observable<boolean>;
     public clearClicked$ = new EventEmitter<Event>();
@@ -81,7 +82,6 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         canSave$.filter(x => x.isValid)
             .publishReplay(1).refCount()
             .withLatestFrom(this.saveClicked$)
-            .do(x => console.log('saving?', x))
             .subscribe(x => this.save$.emit(this.form.get('password').value));
 
         this.clearClicked$.subscribe(x => this.clear$.emit());
@@ -90,6 +90,16 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
             this.form.get('password').reset();
             this.form.markAsPristine();
         });
+
+        this.isEditing$ = this.preiserheber$.map(x => !!x && !!x._rev)
+            .publishReplay(1).refCount();
+
+        this.isEditing$
+            .publishReplay(1).refCount()
+            .subscribe(editing => {
+                const idField = this.getPreiserheberForm().get('_id');
+                editing ? idField.disable({ onlySelf: true, emitEvent: false }) : idField.enable({ onlySelf: true, emitEvent: false });
+            });
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -101,13 +111,9 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     }
 
     public isFormValidAndPristine() {
-        return this.isEditing().map(editing => {
+        return this.isEditing$.map(editing => {
             return !this.getPreiserheberForm().valid || this.getPreiserheberForm().pristine || (!editing && !this.form.get('password').valid);
         });
-    }
-
-    public isEditing() {
-        return this.preiserheber$.map(x => !!x && !!x._rev).share();
     }
 
     public hasChanges() {

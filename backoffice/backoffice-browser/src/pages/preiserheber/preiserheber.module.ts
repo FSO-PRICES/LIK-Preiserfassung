@@ -7,8 +7,10 @@ import { PreiserheberDetailComponent } from './components/preiserheber-detail/pr
 import { PreiserheberListComponent } from './components/preiserheber-list/preiserheber-list';
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 
+import { PefComponentsModule } from 'lik-shared';
+
 @NgModule({
-    imports: [CommonModule, IonicModule, PefMenuModule],
+    imports: [CommonModule, IonicModule, PefMenuModule, PefComponentsModule],
     declarations: [
         PreiserheberPage,
         PreiserheberDetailComponent,

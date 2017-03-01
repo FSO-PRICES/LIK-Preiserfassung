@@ -1,25 +1,11 @@
 <ion-header pef-menu></ion-header>
-<ion-content class="login-content" padding>
-    <div class="login-box">
-        <form #credentialsForm="ngForm">
-            <ion-row>
-                <ion-col>
-                    <label>Erhebungsschema Deutsch</label><br>
-                    <input class="file-select-btn" type="file" [disabled]="warenkorbIsCompleted$ | async" (change)="warenkorbSelectedDe$.emit($event)" multiple/>
-                </ion-col>
-                <ion-col>
-                    <label>Erhebungsschema Französisch</label><br>
-                    <input class="file-select-btn" type="file" [disabled]="warenkorbIsCompleted$ | async" (change)="warenkorbSelectedFr$.emit($event)" multiple/>
-                </ion-col>
-                <ion-col>
-                    <label>Erhebungsschema Italienisch</label><br>
-                    <input class="file-select-btn" type="file" [disabled]="warenkorbIsCompleted$ | async" (change)="warenkorbSelectedIt$.emit($event)" multiple/>
-                </ion-col>
-                <ion-col>
-                    <button ion-button class="register-btn" type="button" block clear [disabled]="!(warenkorbIsCompleted$ | async)" (click)="createWarenkorbClicked$.emit($event)">Import Warenkorb</button>
-                </ion-col>
-            </ion-row>
-            <ion-row *ngIf="isWarenkorbCreated() | async"><ion-col><span ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbCreated$ | async}} Einträge wurden hinzugefügt</span></ion-col></ion-row>
+<ion-content padding>
+    <div>
+        <form>
+            <warenkorb-import (importCompleted)="warenkorbImportCompleted$.emit($event)"></warenkorb-import>
+            <preismeldestellen-import (importCompleted)="preismeldestellenImportCompleted$.emit($event)"></preismeldestellen-import>
+            <preismeldungen-import (importCompleted)="preismeldungenImportCompleted$.emit($event)"></preismeldungen-import>
+            <pe-to-pms></pe-to-pms>
         </form>
     </div>
 </ion-content>

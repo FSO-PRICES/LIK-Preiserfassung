@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as docuri from 'docuri';
 import { Models as P } from 'lik-shared';
-import { AdvancedPreismeldestelle, KontaktPerson } from '../../../../lik-shared/common/models';
+import { AdvancedPreismeldestelle, KontaktPerson, Erhebungszeitpunkt } from '../../../../lik-shared/common/models';
 
 const preismeldungRefUri = docuri.route(P.preismeldungReferenceUriRoute);
 const preismeldungUri = docuri.route(P.preismeldungUriRoute);
@@ -124,9 +124,8 @@ export function preparePm(lines: string[][]) {
             mengeVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.mengeVorReduktion]),
             fehlendePreiseR: cells[importPmFromPrestaIndexes.fehlendePreisR],
             // istPreisreiheZuBeenden: cells[importFromPrestaIndexes.istPreisreiheZuBeenden] === '1',
-            zeitbereichPos: parseInt(cells[importPmFromPrestaIndexes.erhebungsZeitpunkt], 10),
+            erhebungsZeitpunkt: <P.Erhebungszeitpunkt>parseInt(cells[importPmFromPrestaIndexes.erhebungsZeitpunkt], 10),
             sortierungsnummer: parseInt(cells[importPmFromPrestaIndexes.sortierungsnummer], 10),
-            erhebungsZeitpunkt: cells[importPmFromPrestaIndexes.erhebungsZeitpunkt],
             erhebungsAnfangsDatum: cells[importPmFromPrestaIndexes.erhebungsAnfangsDatum],
             erhebungsEndDatum: cells[importPmFromPrestaIndexes.erhebungsEndDatum],
             productMerkmale: parseProduktMerkmale(cells[importPmFromPrestaIndexes.produktMerkmale]),
