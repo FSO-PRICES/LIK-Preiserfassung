@@ -11,6 +11,8 @@ preismeldung-toolbar {
     }
 
     .button-md.pef-tab-button {
+        fill: white;
+        color: white;
         background-color: transparent;
         border: none;
         box-shadow: none;
@@ -19,9 +21,12 @@ preismeldung-toolbar {
         margin: 0;
         height: auto;
         padding: 16px 0;
-        &[disabled].selected {
+        &[disabled] {
             opacity: 1;
-            background-color: $surfie-green;
+            background-color: #c4eef4;
+            &.selected {
+                background-color: $surfie-green;
+            }
         }
         &:hover:not(.disable-hover) {
             opacity: 1;

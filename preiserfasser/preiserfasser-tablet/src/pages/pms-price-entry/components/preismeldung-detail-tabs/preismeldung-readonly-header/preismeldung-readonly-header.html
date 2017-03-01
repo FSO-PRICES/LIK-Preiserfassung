@@ -1,0 +1,25 @@
+<div class="header-line">
+    <div class="product-heading">
+        {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ | async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
+    </div>
+    <ion-item class="pef-item on-dark">
+        <ion-label> Artikelnummer </ion-label>
+        <ion-input
+            type="text"
+            [readonly]="true"
+            [value]="(preismeldung$ | async).preismeldung.artikelnummer"></ion-input>
+    </ion-item>
+    <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus.ok, 'not-ok': !(preismeldung$ | async).priceCountStatus.ok }">
+        <span>{{ (preismeldung$ | async).priceCountStatus.text }}</span>
+    </div>
+</div>
+<div class="header-line">
+    <ion-item class="pef-item on-dark">
+        <ion-label> Artikeltext <span style="visibility: hidden">*</span> </ion-label>
+        <ion-input
+            type="text"
+            [readonly]="true"
+            [value]="(preismeldung$ | async).preismeldung.artikeltext"></ion-input>
+    </ion-item>
+    <div class="right-column"></div>
+</div>

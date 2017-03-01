@@ -12,6 +12,8 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
     @Input() preismeldung: P.PreismeldungBag;
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
 
+    public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
+
     constructor() {
         super();
     }

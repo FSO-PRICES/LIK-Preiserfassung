@@ -43,4 +43,11 @@ pms-price-entry.ion-page {
         flex: 1;
         max-width: 100%;
     }
+
+    .detail-tab-bottom-part {
+        @include set-padding(1, 1, 1, 1);
+        @include set-margin-top(0.25);
+
+        background-color: $mercury;
+    }
 }

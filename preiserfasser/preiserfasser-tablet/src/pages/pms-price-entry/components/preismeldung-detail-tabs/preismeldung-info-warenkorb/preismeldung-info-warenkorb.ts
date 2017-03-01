@@ -5,16 +5,21 @@ import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../../../common-models';
 
 @Component({
-    selector: 'preismeldung-messages',
-    templateUrl: 'preismeldung-messages.html'
+    selector: 'preismeldung-info-warenkorb',
+    templateUrl: 'preismeldung-info-warenkorb.html'
 })
-export class PreismeldungMessagesComponent extends ReactiveComponent implements OnChanges {
-    @Input() preismeldung: P.Models.Preismeldung;
-
+export class PreismeldungInfoWarenkorbComponent extends ReactiveComponent implements OnChanges {
+    @Input() preismeldung: P.PreismeldungBag;
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
+
+    public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
 
     constructor() {
         super();
+    }
+
+    ifMonth(v: number, m: number) {
+        return v & (1 << m);
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

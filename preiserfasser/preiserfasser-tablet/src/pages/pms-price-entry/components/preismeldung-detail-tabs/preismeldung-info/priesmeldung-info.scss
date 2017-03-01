@@ -1,8 +1,9 @@
 @import "../../../../../theme/imports.scss";
+
 preismeldung-info {
-    @include set-padding(1, 1, 1, 1);
     display: flex;
     flex-direction: column;
+    background-color: $alto;
 
     .info-table {
         display: table;

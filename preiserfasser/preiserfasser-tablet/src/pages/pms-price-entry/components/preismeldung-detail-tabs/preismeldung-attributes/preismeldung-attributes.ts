@@ -1,5 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
 
 import { ReactiveComponent } from 'lik-shared';
 
@@ -9,17 +8,16 @@ import * as P from '../../../../../common-models';
     selector: 'preismeldung-attributes',
     templateUrl: 'preismeldung-attributes.html'
 })
-export class PreismeldungAttributesComponent extends ReactiveComponent {
+export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.Models.Preismeldung;
 
-    public preismeldung$: Observable<P.PreismeldungBag>;
+    public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
 
     constructor() {
         super();
+    }
 
-        this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
-
-        this.preismeldung$
-            .subscribe(x => console.log('PreismeldungAttributesComponent preismeldung$', x));
+    ngOnChanges(changes: { [key: string]: SimpleChange }) {
+        this.baseNgOnChanges(changes);
     }
 }

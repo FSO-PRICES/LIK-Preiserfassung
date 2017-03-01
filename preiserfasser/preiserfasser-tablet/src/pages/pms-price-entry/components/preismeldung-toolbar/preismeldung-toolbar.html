@@ -17,7 +17,7 @@
         <pef-icon name="price_tag_info"></pef-icon>
     </button>
     <button ion-button icon-only class="pef-tab-button"
-        [disabled]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
+        [disabled]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES' || !(hasAttributes$ | async)"
         [class.selected]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
         (click)="selectTab$.emit('PRODUCT_ATTRIBUTES')"
         >
