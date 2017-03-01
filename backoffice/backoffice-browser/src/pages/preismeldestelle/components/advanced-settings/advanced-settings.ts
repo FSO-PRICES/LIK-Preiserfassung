@@ -71,6 +71,7 @@ export class AdvancedSettingsComponent extends ReactiveComponent implements OnCh
     }
 
     private getKontaktPersonMapping(kontaktpersons: P.KontaktPerson[]) {
+        if (!kontaktpersons || kontaktpersons.length == 0) kontaktpersons = [<any>{}, {}];
         return kontaktpersons.map(x => ({
             firstName: x.firstName,
             surname: x.surname,

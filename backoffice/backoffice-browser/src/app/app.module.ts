@@ -6,7 +6,7 @@ import { Backoffice } from './app.component';
 import { PefMenuModule, PefMenuComponent } from '../components/pef-menu';
 import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
 import { PreismeldestelleModule, PreismeldestellePage } from '../pages/preismeldestelle';
-import { InitializationPage } from '../pages/initialization/initialization';
+import { InitializationModule, InitializationPage } from '../pages/initialization';
 
 import { PefDialogService } from 'lik-shared';
 import { PefComponentsModule } from 'lik-shared';
@@ -23,7 +23,6 @@ export const MainPages = [
 @NgModule({
     declarations: [
         Backoffice,
-        InitializationPage,
     ],
     imports: [
         IonicModule.forRoot(Backoffice, {
@@ -33,8 +32,9 @@ export const MainPages = [
                 { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms/:pmsRef' },
             ]
         }),
-        PefMenuModule,
         PefComponentsModule,
+        PefMenuModule,
+        InitializationModule,
         PreiserheberModule,
         PreismeldestelleModule,
         StoreModule.provideStore(reducer),

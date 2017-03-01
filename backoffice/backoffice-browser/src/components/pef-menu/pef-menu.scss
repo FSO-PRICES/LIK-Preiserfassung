@@ -1,0 +1,13 @@
+ion-navbar {
+    .toolbar-title, button.bar-button {
+        color: $white;
+    }
+    .toolbar-background {
+        background-color: $java;
+    }
+    &.danger-zone {
+        .toolbar-background {
+            background-color: $alizarin-crimson;
+        }
+    }
+}

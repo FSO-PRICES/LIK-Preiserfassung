@@ -1,5 +1,4 @@
 import { Component, EventEmitter } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import * as PouchDB from 'pouchdb';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
@@ -21,7 +20,7 @@ export class PreismeldestellePage {
     public savePreismeldestelle$ = new EventEmitter();
     public updatePreismeldestelle$ = new EventEmitter<P.Erheber>();
 
-    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>) {
+    constructor(private store: Store<fromRoot.AppState>) {
         this.selectPreismeldestelle$
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: x }));
 

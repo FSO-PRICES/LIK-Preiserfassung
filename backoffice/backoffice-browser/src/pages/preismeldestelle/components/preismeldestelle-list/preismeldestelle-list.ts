@@ -15,14 +15,14 @@ export class PreismeldestelleListComponent extends ReactiveComponent implements 
     @Output('selected')
     public selected$ = new EventEmitter<string>();
 
-    public preismeldestelles$: Observable<P.Preismeldestelle[]>;
+    public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     public current$: Observable<P.Preismeldestelle>;
     public selectPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
 
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preismeldestelles$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('list');
+        this.preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('list');
         this.current$ = this.observePropertyCurrentValue<P.Preismeldestelle>('current');
 
         const requestSelectPreismeldestelle$ = this.selectPreismeldestelle$

@@ -5,15 +5,17 @@
             <div class="header">
                 <h1 class="large">Preismeldestellen</h1>
             </div>
-            <preismeldestelle-list
-                [list]="preismeldestellen$ | async"
-                [current]="currentPreismeldestelle$ | async"
-                (selected)="selectPreismeldestelle$.emit($event)"></preismeldestelle-list>
-            <preismeldestelle-detail
-                [preismeldestelle]="currentPreismeldestelle$ | async"
-                (save)="savePreismeldestelle$.emit($event)"
-                (clear)="clearSelectedPreismeldestelle$.emit($event)"
-                (update)="updatePreismeldestelle$.emit($event)"></preismeldestelle-detail>
+            <div class="preismeldestelle-container">
+                <preismeldestelle-detail
+                    [preismeldestelle]="currentPreismeldestelle$ | async"
+                    (save)="savePreismeldestelle$.emit($event)"
+                    (clear)="clearSelectedPreismeldestelle$.emit($event)"
+                    (update)="updatePreismeldestelle$.emit($event)"></preismeldestelle-detail>
+                <preismeldestelle-list
+                    [list]="preismeldestellen$ | async"
+                    [current]="currentPreismeldestelle$ | async"
+                    (selected)="selectPreismeldestelle$.emit($event)"></preismeldestelle-list>
+            </div>
         </div>
     </div>
 </ion-content>

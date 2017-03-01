@@ -39,7 +39,8 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         this.preismeldestelle$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle>('preismeldestelle');
 
         this.form = formBuilder.group({
-            pmsId: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
+            pmsNummer: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
+            name: [null],
             regionId: [null],
             supplement: [null, Validators.required],
             street: [null],
@@ -50,6 +51,24 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
         this.form.valueChanges
             .subscribe(x => this.update$.emit(this.form.value));
+
+        const distinctPreiserheber$ = this.preismeldestelle$
+            .filter(x => !!x);
+
+        distinctPreiserheber$.startWith((<P.AdvancedPreismeldestelle>{}))
+            .subscribe(preismeldestelle => {
+                this.form.patchValue(<P.AdvancedPreismeldestelle>{
+                    pmsNummer: preismeldestelle.pmsNummer,
+                    name: preismeldestelle.name,
+                    supplement: preismeldestelle.supplement,
+                    street: preismeldestelle.street,
+                    postcode: preismeldestelle.postcode,
+                    town: preismeldestelle.town,
+                    telephone: preismeldestelle.town,
+                    email: preismeldestelle.email,
+                    languageCode: preismeldestelle.languageCode,
+                });
+            });
 
         const canSave$ = this.saveClicked$
             .combineLatest(this.settingsValidity$, (_, settingsValid: boolean) => ({ isValid: this.form.valid && settingsValid }))

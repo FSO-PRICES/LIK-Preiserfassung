@@ -80,7 +80,7 @@ export class PreiserheberEffects {
                         if (erheber.isCreated) {
                             tasks.push(
                                 // Create a new user
-                                createUser(erheber._id, password).then(x => console.log('created:', x))
+                                createUser(erheber._id, password)
                             );
                         }
                         // const pmsUri = docuri.route(pmsUriRoute);

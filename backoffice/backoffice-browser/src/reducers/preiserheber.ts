@@ -1,9 +1,9 @@
-import { Erheber } from '../../../../common/models';
 import * as preiserheber from '../actions/preiserheber';
 import { assign, cloneDeep } from 'lodash';
 import { createSelector } from 'reselect';
+import { Models as P } from 'lik-shared';
 
-export type CurrentPreiserheber = Erheber & {
+export type CurrentPreiserheber = P.Erheber & {
     isModified: boolean;
     isSaved: boolean;
     isCreated: boolean;
@@ -11,7 +11,7 @@ export type CurrentPreiserheber = Erheber & {
 
 export interface State {
     preiserheberIds: string[];
-    entities: { [id: string]: Erheber };
+    entities: { [id: string]: P.Erheber };
     currentPreiserheber: CurrentPreiserheber;
 };
 
@@ -26,9 +26,9 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
         case 'PREISERHEBER_LOAD_SUCCESS': {
             const { payload } = action;
             const preiserhebers = payload.preiserhebers
-                .map<Erheber>(erheber => Object.assign({}, erheber));
+                .map<P.Erheber>(erheber => Object.assign({}, erheber));
             const preiserheberIds = preiserhebers.map(p => p._id);
-            const entities = preiserhebers.reduce((entities: { [_id: string]: Erheber }, preiserheber: Erheber) => {
+            const entities = preiserhebers.reduce((entities: { [_id: string]: P.Erheber }, preiserheber: P.Erheber) => {
                 return Object.assign(entities, { [preiserheber._id]: preiserheber });
             }, {});
             return assign({}, state, { preiserheberIds, entities, currentPreiserheber: undefined });

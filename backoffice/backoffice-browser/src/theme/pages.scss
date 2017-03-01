@@ -10,6 +10,7 @@
 
     .page-wrapper {
         flex: 1;
+        min-height: 100%;
         display: flex;
         background-color: $alto;
         @include set-padding-vert-horiz(1, 1.5);
