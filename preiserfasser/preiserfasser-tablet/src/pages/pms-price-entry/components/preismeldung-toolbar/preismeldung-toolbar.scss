@@ -23,7 +23,8 @@ preismeldung-toolbar {
         padding: 16px 0;
         &[disabled] {
             opacity: 1;
-            background-color: #c4eef4;
+            background-color: #73CCD9;
+            fill: $mercury;
             &.selected {
                 background-color: $surfie-green;
             }

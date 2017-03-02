@@ -1,6 +1,10 @@
 @import "../../../../theme/imports.scss";
 
 preismeldung-info-popover {
+    &.hidden {
+        visibility: hidden;
+    }
+
     .info-toggle {
         margin-right: 0;
         &.active {

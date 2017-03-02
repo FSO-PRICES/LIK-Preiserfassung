@@ -23,21 +23,5 @@
                 {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
             </div>
         </div>
-        <div class="info-popover-row">
-            <div class="info-popover-cell heading">
-                Basispreis
-            </div>
-            <div class="info-popover-cell value">
-                {{ (preismeldung$ | async)?.refPreismeldung.basisPreis | pefFormatNumber: numberFormattingOptions }}
-            </div>
-        </div>
-        <div class="info-popover-row">
-            <div class="info-popover-cell heading">
-                Basismenge
-            </div>
-            <div class="info-popover-cell value">
-                {{ (preismeldung$ | async)?.refPreismeldung.basisMenge }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
-            </div>
-        </div>
     </div>
 </div>
