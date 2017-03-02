@@ -1,6 +1,16 @@
 # lik-studio
 lik-studio
 
+## TODOS / Discussions
+
+* Flex box styling
+* formValueChanges debounceTime
+* Preiserheber Save -> Save again -> Exception
+* Menu / Page navigation
+* form.patchValue { onlySelf: true, emitEvent: false } ?
+* .do( markPristine )
+* alreadyAssigned filter von PE to PMS
+
 ## Install (Ubuntu 16.04)
 
 Passwords and user information are saved in the KeePass **LIK-BFS** group.
