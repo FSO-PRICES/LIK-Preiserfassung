@@ -1,47 +1,56 @@
-<div class="pe-details-content">
-    <form [formGroup]="form">
-        <h2 class="large" [ngSwitch]="isEditing$ | async">
-            <span *ngSwitchCase="true">Editieren</span>
-            <span *ngSwitchDefault>Erfassen</span>
-        </h2>
-        <ion-list formGroupName="preiserheber">
-            <ion-item>
-                <ion-label stacked>Benutzername</ion-label>
-                <ion-input type="text" formControlName="_id"></ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label stacked>Vorname</ion-label>
-                <ion-input type="text" formControlName="firstName"></ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label stacked>Nachname</ion-label>
-                <ion-input type="text" formControlName="surname"></ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label stacked>Funktion</ion-label>
-                <ion-input type="text" formControlName="personFunction"></ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label stacked>Sprache</ion-label>
-                <ion-input type="text" formControlName="languageCode"></ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label stacked>Telefon</ion-label>
-                <ion-input type="text" formControlName="telephone"></ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label stacked>Email</ion-label>
-                <ion-input type="text" formControlName="email"></ion-input>
-            </ion-item>
-        </ion-list>
-        <ion-list>
-            <ion-item>
-                <button type="button" [disabled]="isFormValidAndPristine() | async" ion-button (click)="saveClicked$.emit($event)">Speichern</button>
-            </ion-item>
-            <ion-item *ngIf="!(isEditing$ | async)">
-                <ion-input placeholder="Initiales Passwort" type="password" formControlName="password"></ion-input>
-                <!--<button [disabled]="!(hasChanges() | async)" type="button" ion-button (click)="clearClicked$.emit($event)">Clear</button>-->
-            </ion-item>
-        </ion-list>
-    </form>
-</div>
+<form [formGroup]="form" class="stacked-form">
+    <ion-row>
+        <ion-col width-33>
+            <h1 class="large" [ngSwitch]="isEditing$ | async">
+                <div *ngSwitchCase="true">Editieren</div>
+                <span *ngSwitchDefault>Erfassen</span>
+            </h1>
+        </ion-col>
+        <ion-col width-67>
+            <ion-buttons end>
+                <button type="button" ion-button [disabled]="!(isEditing$ | async)" (click)="clearClicked$.emit($event)">Neuen Erfassen</button>
+                <button type="button" ion-button (click)="saveClicked$.emit($event)" [disabled]="!(isFormValidAndNotPristine() | async)">Speichern</button>
+            </ion-buttons>
+        </ion-col>
+    </ion-row>
+    <ion-list formGroupName="preiserheber" no-lines>
+        <ion-item class="pef-item">
+            <ion-label stacked>Benutzername</ion-label>
+            <ion-input type="text" formControlName="_id" [readonly]="isEditing$ | async"></ion-input>
+        </ion-item>
+    </ion-list>
+    <ion-list no-lines *ngIf="!(isEditing$ | async)">
+        <ion-item class="pef-item">
+            <ion-label stacked>Initiales Passwort</ion-label>
+            <ion-input type="password" formControlName="password"></ion-input>
+        </ion-item>
+    </ion-list>
+    <ion-list formGroupName="preiserheber" no-lines>
+        <ion-item class="pef-item">
+            <ion-label stacked>Vorname</ion-label>
+            <ion-input type="text" formControlName="firstName"></ion-input>
+        </ion-item>
+        <ion-item class="pef-item">
+            <ion-label stacked>Nachname</ion-label>
+            <ion-input type="text" formControlName="surname"></ion-input>
+        </ion-item>
+        <ion-item class="pef-item">
+            <ion-label stacked>Funktion</ion-label>
+            <ion-input type="text" formControlName="personFunction"></ion-input>
+        </ion-item>
+        <ion-item class="pef-item">
+            <ion-label stacked>Sprache</ion-label>
+            <ion-input type="text" formControlName="languageCode"></ion-input>
+        </ion-item>
+        <ion-item class="pef-item">
+            <ion-label stacked>Telefon</ion-label>
+            <ion-input type="text" formControlName="telephone"></ion-input>
+        </ion-item>
+        <ion-item class="pef-item">
+            <ion-label stacked>Email</ion-label>
+            <ion-input type="text" formControlName="email"></ion-input>
+        </ion-item>
+    </ion-list>
+    <ion-list>
+    </ion-list>
+</form>

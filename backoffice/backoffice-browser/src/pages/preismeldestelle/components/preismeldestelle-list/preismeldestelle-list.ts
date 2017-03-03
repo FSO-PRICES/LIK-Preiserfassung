@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { ReactiveComponent, Models as P } from 'lik-shared';
 
 import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
+import { filterValues } from '../../../../common/angular-form-extensions';
 
 @Component({
     selector: 'preismeldestelle-list',
@@ -19,10 +20,20 @@ export class PreismeldestelleListComponent extends ReactiveComponent implements 
     public current$: Observable<P.Preismeldestelle>;
     public selectPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
 
+    public filterTextValueChanges = new EventEmitter<string>();
+
+    public filteredPreismeldestellen$: Observable<P.Preismeldestelle[]>;
+    public viewPortItems: P.Preismeldestelle[];
+
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('list');
+        this.preismeldestellen$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle[]>('list').publishReplay(1).refCount();
+        this.filteredPreismeldestellen$ = this.preismeldestellen$
+            .combineLatest(this.filterTextValueChanges.startWith(null),
+            (preismeldestellen, filterText) => preismeldestellen
+                .filter(x => filterValues(filterText, [x.name, x.pmsNummer])));
+
         this.current$ = this.observePropertyCurrentValue<P.Preismeldestelle>('current');
 
         const requestSelectPreismeldestelle$ = this.selectPreismeldestelle$

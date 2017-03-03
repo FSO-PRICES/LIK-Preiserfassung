@@ -46,12 +46,17 @@ export class PreismeldestelleEffects {
                         pmsNummer: currentPreismeldestelle.pmsNummer,
                         name: currentPreismeldestelle.name,
                         supplement: currentPreismeldestelle.supplement,
+                        kontaktpersons: currentPreismeldestelle.kontaktpersons,
                         street: currentPreismeldestelle.street,
                         postcode: currentPreismeldestelle.postcode,
                         town: currentPreismeldestelle.town,
+                        regionId: currentPreismeldestelle.regionId,
                         languageCode: currentPreismeldestelle.languageCode,
                         telephone: currentPreismeldestelle.telephone,
-                        email: currentPreismeldestelle.email
+                        email: currentPreismeldestelle.email,
+                        erhebungsart: currentPreismeldestelle.erhebungsart,
+                        erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
+                        erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit
                     })).then((response) => ({ db, id: response.id, created: create }));
                 })
                 .then<CurrentPreismeldestelle>(({ db, id, created }) => db.get(id).then(preismeldestelle => Object.assign({}, preismeldestelle, { isModified: false, isSaved: true, isCreated: created })))

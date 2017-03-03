@@ -1,14 +1,14 @@
 import { Component, EventEmitter } from '@angular/core';
-
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
+import { LoadingController } from 'ionic-angular';
+import { Observable } from 'rxjs';
+import * as _ from 'lodash';
+
+import { Models as P } from 'lik-shared';
 import * as fromRoot from '../../../reducers';
 import { getDatabase, getAllDocumentsForPrefix, dropDatabase, putUserToDatabase } from '../../../effects/pouchdb-utils';
-import { Models as P } from 'lik-shared';
-import { Observable } from 'rxjs';
-import { Http } from '@angular/http';
-import { CouchProperties } from '../../../../../../lik-shared/common/models';
-import * as _ from 'lodash';
 
 @Component({
     selector: 'pe-to-pms',
@@ -26,7 +26,11 @@ export class PreiserheberToPmsComponent {
 
     public form: FormGroup;
 
-    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>, private http: Http) {
+    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>, private http: Http, private loadingCtrl: LoadingController) {
+        const loader = this.loadingCtrl.create({
+            content: 'Datensynchronisierung. Bitte warten...'
+        });
+
         this.form = formBuilder.group({
             preiserheber: [null, Validators.required],
             preismeldestellen: [null, Validators.required]
@@ -51,6 +55,7 @@ export class PreiserheberToPmsComponent {
 
         const assignment$ = this.assignClicked$
             .filter(() => this.form.valid)
+            .do(x => loader.present())
             .map(() => ({ preiserheber: <P.Erheber>this.form.get('preiserheber').value, preismeldestellen: <P.AdvancedPreismeldestelle[]>this.form.get('preismeldestellen').value }))
             .publishReplay(1).refCount();
 
@@ -94,14 +99,10 @@ export class PreiserheberToPmsComponent {
                     ))
             )
             .map(() => true)
+            .do(x => loader.dismiss())
             .startWith(false);
 
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
         this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
-    }
-
-    private getSelectedPreiserheberId() {
-        const erheber = this.form.get('preiserheber').value;
-        return !!erheber ? erheber._id : null;
     }
 }

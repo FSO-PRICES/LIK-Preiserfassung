@@ -1,12 +1,8 @@
 import { Component, EventEmitter } from '@angular/core';
 import { Store } from '@ngrx/store';
-import * as PouchDB from 'pouchdb';
-import * as pouchDbAuthentication from 'pouchdb-authentication';
 
 import * as fromRoot from '../../reducers';
 import { Models as P } from 'lik-shared';
-
-PouchDB.plugin(pouchDbAuthentication);
 
 @Component({
     selector: 'preismeldestelle',
@@ -25,7 +21,7 @@ export class PreismeldestellePage {
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: x }));
 
         this.clearSelectedPreismeldestelle$
-            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: null}));
+            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: null }));
 
         this.updatePreismeldestelle$
             .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload: x }));

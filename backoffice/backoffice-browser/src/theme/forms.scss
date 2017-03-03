@@ -1,0 +1,22 @@
+form.stacked-form {
+    ion-item.item-md.pef-item .input-wrapper {
+        height: auto;
+    }
+    ion-input, ion-textarea {
+        background-color: $white;
+        border-bottom: 2px solid $hit-gray;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+form {
+    ion-item.ng-invalid.ng-touched .input-wrapper {
+        ion-label {
+            color: $flamingo !important;
+        }
+        ion-input {
+            border-bottom: 2px solid $flamingo;
+        }
+    }
+}

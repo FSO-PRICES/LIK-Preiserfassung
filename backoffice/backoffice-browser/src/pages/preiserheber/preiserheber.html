@@ -1,27 +1,33 @@
 <ion-header pef-menu></ion-header>
-<ion-content>
-    <div class="page-wrapper">
-        <div class="page-content">
+<div class="page-wrapper">
+    <div class="page-content">
+        <div class="preiserheber-list-container">
             <div class="header">
                 <h1 class="large">
                     Preiserheber
-                    <button ion-button icon-only color="wild-sand"(click)="selectPreiserheber$.emit({})">
-                        <pef-icon name="add"></pef-icon>
-                    </button>
                 </h1>
             </div>
-            <div class="preiserheber-container">
+            <preiserheber-list
+                [list]="preiserhebers$ | async"
+                [current]="currentPreiserheber$ | async"
+                (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
+        </div>
+        <div class="preiserheber-detail-container">
+            <ion-content>
                 <preiserheber-detail
                     [preiserheber]="currentPreiserheber$ | async"
                     [resetForm]="selectPreiserheber$ | async"
                     (save)="savePreiserheber$.emit($event)"
                     (clear)="clearSelectedPreiserheber$.emit($event)"
                     (update)="updatePreiserheber$.emit($event)"></preiserheber-detail>
-                <preiserheber-list
-                    [list]="preiserhebers$ | async"
-                    [current]="currentPreiserheber$ | async"
-                    (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
-            </div>
+            </ion-content>
+        </div>
+        <div class="preiserheber-preiszuweisung-container">
+            <preiserheber-preiszuweisung
+                [preismeldestellen]="unassignedPreismeldestellen$ | async"
+                [current]="currentPreiszuweisung$ | async"
+                (save)="savePreiserheber$.emit()"
+                (update)="updatePreiszuweisung$.emit($event)"></preiserheber-preiszuweisung>
         </div>
     </div>
-</ion-content>
+</div>

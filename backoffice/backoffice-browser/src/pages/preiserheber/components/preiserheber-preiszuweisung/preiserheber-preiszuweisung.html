@@ -1,0 +1,64 @@
+<ion-row>
+    <ion-col>
+        <div class="header">
+            <h1 class="large">
+                Arbeitzuteilung
+            </h1>
+        </div>
+    </ion-col>
+</ion-row>
+<ion-row>
+    <ion-col>
+        <h2>Nicht zugewiesene Preismeldestellen</h2>
+    </ion-col>
+    <ion-col>
+        <h2>Zugewiesen</h2>
+    </ion-col>
+</ion-row>
+<ion-row>
+    <ion-col width-50>
+        <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
+    </ion-col>
+</ion-row>
+<div class="zuweisung-list">
+    <div class="pef-advanced-item-flex-container all-preismeldestellen">
+        <pef-virtual-scroll [items]="filteredPreismeldestellen$ | async" (update)="allViewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+            <ion-item
+                class="pef-advanced-item"
+                *ngFor="let preismeldestelle of allViewPortItems">
+                <div class="pef-item-title">
+                    {{ preismeldestelle.pmsNummer }}<br/>&nbsp;
+                </div>
+                <div class="pef-item-description">
+                    <span class="text">{{ preismeldestelle.name }}</span>
+                    <span class="artikel-text">{{preismeldestelle.postcode}}&nbsp;{{preismeldestelle.town}}</span>
+                </div>
+                <div class="pef-item-actions">
+                    <button ion-button icon-only color="java" (click)="assignPreismeldestelle$.emit(true)">
+                        <pef-icon name="arrow_right"></pef-icon>
+                    </button>
+                </div>
+            </ion-item>
+        </pef-virtual-scroll>
+    </div>
+    <div class="pef-advanced-item-flex-container assigned-preismeldestellen">
+        <pef-virtual-scroll [items]="assignedPreismeldestellen$ | async" (update)="assignedViewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+            <ion-item
+                class="pef-advanced-item pef-item-left"
+                *ngFor="let preismeldestelle of assignedViewPortItems">
+                <div class="pef-item-actions">
+                    <button ion-button icon-only color="java" (click)="assignPreismeldestelle$.emit(false)">
+                        <pef-icon name="arrow_left"></pef-icon>
+                    </button>
+                </div>
+                <div class="pef-item-title">
+                    {{ preismeldestelle.pmsNummer }}<br/>&nbsp;
+                </div>
+                <div class="pef-item-description">
+                    <span class="text">{{ preismeldestelle.name }}</span>
+                    <span class="artikel-text">{{preismeldestelle.postcode}}&nbsp;{{preismeldestelle.town}}</span>
+                </div>
+            </ion-item>
+        </pef-virtual-scroll>
+    </div>
+</div>

@@ -6,22 +6,21 @@ import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 import { PreismeldestellePage } from './preismeldestelle';
 import { PreismeldestelleDetailComponent } from './components/preismeldestelle-detail/preismeldestelle-detail';
 import { PreismeldestelleListComponent } from './components/preismeldestelle-list/preismeldestelle-list';
-import { AdvancedSettingsComponent } from './components/advanced-settings/advanced-settings';
+
+import { PefComponentsModule } from 'lik-shared';
 
 @NgModule({
-    imports: [CommonModule, IonicModule, PefMenuModule],
+    imports: [CommonModule, IonicModule, PefMenuModule, PefComponentsModule],
     declarations: [
         PreismeldestellePage,
-        AdvancedSettingsComponent,
         PreismeldestelleDetailComponent,
         PreismeldestelleListComponent
     ],
     entryComponents: [
-        AdvancedSettingsComponent,
         PreismeldestelleDetailComponent,
         PreismeldestelleListComponent
     ],
-    exports: [PreismeldestellePage, AdvancedSettingsComponent, PreismeldestelleDetailComponent, PreismeldestelleListComponent]
+    exports: [PreismeldestellePage, PreismeldestelleDetailComponent, PreismeldestelleListComponent]
 })
 export class PreismeldestelleModule {
 }
