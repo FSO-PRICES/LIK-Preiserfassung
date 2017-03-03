@@ -4,6 +4,7 @@
         <ion-item
             class="pef-advanced-item"
             *ngFor="let preismeldestelle of viewPortItems"
+            (click)="selectPreismeldestelle$.emit(preismeldestelle)"
             [class.selected]="preismeldestelle._id == (current$ | async)?._id"
             tappable>
             <div class="pef-item-title">
