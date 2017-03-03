@@ -39,7 +39,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const { payload } = action;
             const refPreismeldungenGrouped = groupBy(payload.refPreismeldungen, 'epNummer');
 
-            const preismeldungViewModels = payload.refPreismeldungen
+            const preismeldungBags = payload.refPreismeldungen
                 .map<P.PreismeldungBag>(refPreismeldung => {
                     const warenkorbPosition = payload.warenkorbDoc.products.find(p => p.gliederungspositionsnummer === refPreismeldung.epNummer) as P.Models.WarenkorbLeaf;
                     return assign({}, {
@@ -52,10 +52,14 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                             ok: refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length >= warenkorbPosition.anzahlPreiseProPMS
                         }
                     });
+                }).sort((a, b) => {
+                    if (a.refPreismeldung.sortierungsnummer == null) return 1;
+                    if (b.refPreismeldung.sortierungsnummer == null) return -1;
+                    return a.refPreismeldung.sortierungsnummer - b.refPreismeldung.sortierungsnummer || parseInt(a.refPreismeldung.epNummer) - parseInt(b.refPreismeldung.epNummer);
                 });
 
-            const preismeldungIds = preismeldungViewModels.map(x => x.pmId);
-            const entities = preismeldungViewModels.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldung: P.PreismeldungBag) => {
+            const preismeldungIds = preismeldungBags.map(x => x.pmId);
+            const entities = preismeldungBags.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldung: P.PreismeldungBag) => {
                 return assign(agg, { [preismeldung.pmId]: preismeldung });
             }, {});
             return assign({}, state, { preismeldungIds, entities, currentPreismeldung: undefined });
@@ -90,7 +94,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 { isModified: true }
             );
 
-            return Object.assign({}, state, { currentPreismeldung });
+            return assign({}, state, { currentPreismeldung });
         }
 
         case 'SAVE_PREISMELDUNG_PRICE_SUCCESS': {
@@ -100,7 +104,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             if (action.payload.saveAction === 'SAVE_AND_MOVE_TO_NEXT') {
                 const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung.pmId);
                 const nextId = state.preismeldungIds[index + 1];
-                nextPreismeldung = !!nextId ? Object.assign({}, state.entities[nextId], { isModified: false }) : state.entities[0];
+                nextPreismeldung = !!nextId ? assign({}, state.entities[nextId], { isModified: false }) : state.entities[0];
             } else {
                 nextPreismeldung = currentPreismeldung;
             }
