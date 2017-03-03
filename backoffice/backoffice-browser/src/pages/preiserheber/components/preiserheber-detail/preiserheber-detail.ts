@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
+
 import { ReactiveComponent, Models as P } from 'lik-shared';
+
 import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 
 @Component({
@@ -15,14 +17,13 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     @Output('save')
     public save$ = new EventEmitter();
     @Output('clear')
-    public clear$ = new EventEmitter();
+    public clearClicked$ = new EventEmitter<Event>();
     @Output('update')
     public update$ = new EventEmitter<P.Erheber>();
 
     public isEditing$: Observable<boolean>;
     public preiserheber$: Observable<P.Erheber>;
     public resetForm$: Observable<boolean>;
-    public clearClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
 
     public form: FormGroup;
@@ -49,20 +50,15 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         const distinctPreiserheber$ = this.preiserheber$
             .filter(x => !!x);
 
-        let formValueChangedSubscription = Observable.empty().subscribe();
-
-        const createValueChangedSubscription = () => {
-            formValueChangedSubscription.unsubscribe();
-            formValueChangedSubscription = this.getPreiserheberForm().valueChanges
-                .skip(1)
-                .subscribe(x => {
-                    this.update$.emit(this.getPreiserheberForm().value);
-                });
-        };
+        this.getPreiserheberForm().valueChanges
+            .subscribe(x => this.update$.emit(this.getPreiserheberForm().value));
 
         distinctPreiserheber$.startWith((<any>{}))
-            .subscribe(erheber => {
-                createValueChangedSubscription();
+            .subscribe((erheber: CurrentPreiserheber) => {
+                if (!erheber.isModified) {
+                    this.form.markAsUntouched();
+                    this.form.markAsPristine();
+                }
                 this.getPreiserheberForm().patchValue({
                     _id: erheber._id,
                     firstName: erheber.firstName,
@@ -71,7 +67,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     languageCode: erheber.languageCode,
                     telephone: erheber.telephone,
                     email: erheber.email
-                });
+                }, { onlySelf: true, emitEvent: false });
             });
 
 
@@ -84,8 +80,6 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
             .withLatestFrom(this.saveClicked$)
             .subscribe(x => this.save$.emit(this.form.get('password').value));
 
-        this.clearClicked$.subscribe(x => this.clear$.emit());
-
         this.resetForm$.subscribe(reset => {
             this.form.get('password').reset();
             this.form.markAsPristine();
@@ -93,13 +87,6 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.isEditing$ = this.preiserheber$.map(x => !!x && !!x._rev)
             .publishReplay(1).refCount();
-
-        this.isEditing$
-            .publishReplay(1).refCount()
-            .subscribe(editing => {
-                const idField = this.getPreiserheberForm().get('_id');
-                editing ? idField.disable({ onlySelf: true, emitEvent: false }) : idField.enable({ onlySelf: true, emitEvent: false });
-            });
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -110,9 +97,9 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         return this.form.get('preiserheber');
     }
 
-    public isFormValidAndPristine() {
+    public isFormValidAndNotPristine() {
         return this.isEditing$.map(editing => {
-            return !this.getPreiserheberForm().valid || this.getPreiserheberForm().pristine || (!editing && !this.form.get('password').valid);
+            return this.getPreiserheberForm().valid && !this.getPreiserheberForm().pristine && (editing || this.form.get('password').valid);
         });
     }
 

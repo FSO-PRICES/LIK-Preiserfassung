@@ -1,4 +1,5 @@
 import { EventEmitter, Output, Component } from '@angular/core';
+import { LoadingController } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { first } from 'lodash';
 
@@ -24,7 +25,11 @@ export class PreismeldestellenImportComponent {
     public preistellenImported$: Observable<number>;
     private arePreistellenImported$: Observable<boolean>;
 
-    constructor(private http: Http) {
+    constructor(private http: Http, private loadingCtrl: LoadingController) {
+        const loader = this.loadingCtrl.create({
+            content: 'Datensynchronisierung. Bitte warten...'
+        });
+
         const parseCompleted$ = this.preismeldestellenSelected$
             .map(event => first((<HTMLInputElement>event.target).files))
             // .filter(f => !!f.name.match('file name?'))
@@ -36,6 +41,7 @@ export class PreismeldestellenImportComponent {
 
         this.importCompleted$ = this.createPreismeldestellenClicked$
             .withLatestFrom(parseCompleted$, (_, preismeldestellen) => preismeldestellen)
+            .do(x => loader.present())
             .map(x => preparePms(x))
             .flatMap(x => dropDatabase('preismeldestellen').then(_ => x).catch(_ => x))
             .flatMap(x => getDatabase('preismeldestellen').then(db => ({ preismeldestellen: x, db })).catch(_ => ({ preismeldestellen: x, db: null })))
@@ -44,6 +50,7 @@ export class PreismeldestellenImportComponent {
 
         this.importCompleted$
             .flatMap(x => putAdminUserToDatabase(http, 'preismeldestellen'))
+            .do(x => loader.dismiss())
             .subscribe();
 
         this.preistellenImported$ = this.importCompleted$.startWith(0)

@@ -1,4 +1,5 @@
-ion-list.large {
-    height: 300px;
-    overflow-y: scroll;
+.pms-list-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }

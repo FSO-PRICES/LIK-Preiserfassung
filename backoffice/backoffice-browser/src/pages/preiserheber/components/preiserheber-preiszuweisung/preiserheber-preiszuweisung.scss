@@ -1,0 +1,13 @@
+ion-row {
+    flex: 0 0 auto;
+}
+
+.zuweisung-list {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    .pef-advanced-item-flex-container {
+        flex: 1 1 0;
+        padding: 5px;
+    }
+}

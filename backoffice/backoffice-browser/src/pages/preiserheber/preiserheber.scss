@@ -1,18 +1,36 @@
-.preiserheber-container {
+.preiserheber-list-container {
+    flex: 0 1 25%;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+}
 
-    preiserheber-list {
-        flex: 2 0 0;
-        margin-left: 10px;
-        ion-grid {
-            padding: 0;
-        }
-        ion-row:last-child .item {
-            padding-bottom: 10px;
-        }
+.preiserheber-detail-container {
+    flex: 0 1 25%;
+    display: flex;
+    flex-direction: column;
+    padding-left: 25px;
+}
+
+.preiserheber-preiszuweisung-container {
+    flex: 0 1 50%;
+    display: flex;
+    flex-direction: column;
+    padding-left: 25px;
+}
+
+preiserheber-list {
+    display: flex;
+    flex: 1 0 0;
+    ion-grid {
+        padding: 0;
     }
-    preiserheber-detail {
-        flex: 1 0 0;
+    ion-row:last-child .item {
+        padding-bottom: 10px;
     }
+}
+
+preiserheber-preiszuweisung {
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: column;
 }

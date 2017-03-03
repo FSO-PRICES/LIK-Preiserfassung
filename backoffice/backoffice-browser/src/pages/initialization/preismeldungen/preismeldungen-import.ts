@@ -1,4 +1,5 @@
 import { EventEmitter, Output, Component } from '@angular/core';
+import { LoadingController } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { first, chunk } from 'lodash';
 
@@ -24,7 +25,11 @@ export class PreismeldungenImportComponent {
     public preismeldungenImported$: Observable<number>;
     private arePreismeldungenImported$: Observable<boolean>;
 
-    constructor(private http: Http) {
+    constructor(private http: Http, private loadingCtrl: LoadingController) {
+        const loader = this.loadingCtrl.create({
+            content: 'Datensynchronisierung. Bitte warten...'
+        });
+
         const parseCompleted$ = this.preismeldungenSelected$
             .map(event => first((<HTMLInputElement>event.target).files))
             // .filter(f => !!f.name.match('file name?'))
@@ -36,7 +41,10 @@ export class PreismeldungenImportComponent {
 
         this.importCompleted$ = this.createPreismeldungenClicked$
             .withLatestFrom(parseCompleted$, (_, preismeldestellen) => preismeldestellen)
+            .do(x => loader.present())
             .map(x => preparePm(x))
+
+            // Slow: about 1 minute 20 seconds
             .flatMap(x => dropLocalDatabase('preismeldungen').then(_ => x))
             .flatMap(x => getLocalDatabase('preismeldungen').then(db => ({ preismeldungen: x, db })))
             .flatMap<number[]>(({ preismeldungen, db }) => {
@@ -47,18 +55,20 @@ export class PreismeldungenImportComponent {
                 ).combineAll();
             })
             .map<number>(x => x.reduce((prev, current) => prev + current, 0))
-            // .do(x => console.time('test'))
+            .flatMap(x => Observable.fromPromise(syncDb('preismeldungen').then(() => x)))
+
+            // Fast: about 9 seconds
             // .flatMap<number>(({ preismeldungen, db }) => Observable.fromPromise(
             //     chunk(preismeldungen, 6000).reduce((previousPromise, preismeldungenBatch) => {
             //         return previousPromise.then(count => db.bulkDocs(preismeldungenBatch, { ajax: { timeout: 3600 } }).then(_ => count + preismeldungenBatch.length));
             //     }, Promise.resolve(0)))
             // )
-            // .do(x => console.timeEnd('test'))
-            .flatMap(x => Observable.fromPromise(syncDb('preismeldungen').then(() => x)))
+
             .publishReplay(1).refCount();
 
         this.importCompleted$
             .flatMap(x => putAdminUserToDatabase(http, 'preismeldungen'))
+            .do(x => loader.dismiss())
             .subscribe();
 
         this.preismeldungenImported$ = this.importCompleted$.startWith(0)

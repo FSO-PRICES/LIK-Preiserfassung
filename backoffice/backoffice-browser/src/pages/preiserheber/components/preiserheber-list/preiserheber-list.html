@@ -1,23 +1,16 @@
-<div class="pe-list-content">
-    <h2 class="large">Alle Preiserheber</h2>
-    <ion-grid>
-        <ion-row>
-            <ion-col ion-text color="primary" class="item item-block item-md">Vorname</ion-col>
-            <ion-col ion-text color="primary" class="item item-block item-md">Nachname</ion-col>
-            <ion-col ion-text color="primary" class="item item-block item-md">Sprache</ion-col>
-            <ion-col ion-text color="primary" class="item item-block item-md">Funktion</ion-col>
-            <ion-col ion-text color="primary" class="item item-block item-md" width-10></ion-col>
-        </ion-row>
-        <ion-row *ngFor="let preiserheber of preiserhebers$ | async">
-            <ion-col class="item item-block item-md">{{preiserheber.firstName}}</ion-col>
-            <ion-col class="item item-block item-md">{{preiserheber.surname}}</ion-col>
-            <ion-col class="item item-block item-md">{{preiserheber.languageCode}}</ion-col>
-            <ion-col class="item item-block item-md">{{preiserheber.personFunction}}</ion-col>
-            <ion-col class="item item-block item-md" width-10>
-                <button ion-button type="button" (click)="selectPreiserheber$.emit(preiserheber)">
-                    <ion-icon name="create"></ion-icon>
-                </button>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
+<div class="pef-advanced-item-flex-container">
+    <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
+    <pef-virtual-scroll [items]="filteredPreiserhebers$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+        <ion-item
+            class="pef-advanced-item"
+            *ngFor="let preiserheber of viewPortItems"
+            (click)="selectPreiserheber$.emit(preiserheber)"
+            [class.selected]="preiserheber._id == (current$ | async)?._id"
+            tappable>
+            <div class="pef-item-description">
+                <span class="text">{{ preiserheber.firstName }} {{preiserheber.surname}}</span>
+                <span class="artikel-text">{{ preiserheber.personFunction }}</span>
+            </div>
+        </ion-item>
+    </pef-virtual-scroll>
 </div>

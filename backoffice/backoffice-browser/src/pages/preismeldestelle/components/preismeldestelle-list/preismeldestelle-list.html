@@ -1,6 +1,18 @@
-<div class="pe-list-content">
-    <h2 class="large">Alle Preismeldestellen</h2>
-    <ion-list class="large">
-        <ion-item *ngFor="let preismeldestelle of preismeldestellen$ | async" (click)="selectPreismeldestelle$.emit(preismeldestelle)">{{preismeldestelle.pmsNummer}} {{preismeldestelle.name}}</ion-item>
-    </ion-list>
+<div class="pef-advanced-item-flex-container">
+    <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
+    <pef-virtual-scroll [items]="filteredPreismeldestellen$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+        <ion-item
+            class="pef-advanced-item"
+            *ngFor="let preismeldestelle of viewPortItems"
+            [class.selected]="preismeldestelle._id == (current$ | async)?._id"
+            tappable>
+            <div class="pef-item-title">
+                {{ preismeldestelle.pmsNummer }}<br/>&nbsp;
+            </div>
+            <div class="pef-item-description">
+                <span class="text">{{ preismeldestelle.name }}</span>
+                <span class="artikel-text">{{preismeldestelle.postcode}}&nbsp;{{preismeldestelle.town}}</span>
+            </div>
+        </ion-item>
+    </pef-virtual-scroll>
 </div>

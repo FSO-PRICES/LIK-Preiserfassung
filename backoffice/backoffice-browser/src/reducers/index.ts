@@ -7,15 +7,18 @@ import { storeLogger } from 'ngrx-store-logger';
 import { environment } from '../environments/environment';
 import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestelle from './preismeldestelle';
+import * as fromPreiszuweisung from './preiszuweisung';
 
 export interface AppState {
     preiserhebers: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestelle.State;
+    preiszuweisungen: fromPreiszuweisung.State;
 }
 
 const reducers = {
     preiserhebers: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestelle.reducer,
+    preiszuweisungen: fromPreiszuweisung.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -37,3 +40,8 @@ export const getCurrentPreiserheber = createSelector(getPreiserheberState, fromP
 export const getPreismeldestelleState = (state: AppState) => state.preismeldestellen;
 export const getPreismeldestellen = createSelector(getPreismeldestelleState, fromPreismeldestelle.getAll);
 export const getCurrentPreismeldestelle = createSelector(getPreismeldestelleState, fromPreismeldestelle.getCurrentPreismeldestelle);
+
+
+export const getPreiszuweisungState = (state: AppState) => state.preiszuweisungen;
+export const getPreiszuweisungen = createSelector(getPreiszuweisungState, fromPreiszuweisung.getAll);
+export const getCurrentPreiszuweisung = createSelector(getPreiszuweisungState, fromPreiszuweisung.getCurrentPreiszuweisung);

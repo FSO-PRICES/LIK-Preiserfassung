@@ -1,11 +1,11 @@
 import { EventEmitter, Output, Component } from '@angular/core';
+import { LoadingController } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { first } from 'lodash';
 
 import { readFileContents, parseFile } from '../../../common/file-select-observable';
 import { buildTree } from '../../../common/presta-warenkorb-mapper';
 import { dropDatabase, getDatabase, putAdminUserToDatabase } from '../../../effects/pouchdb-utils';
-import { environment } from '../../../environments/environment';
 import { Http } from '@angular/http';
 
 @Component({
@@ -27,7 +27,11 @@ export class WarenkorbImportComponent {
     public warenkorbImported$: Observable<number>;
     private isWarenkorbImported$: Observable<boolean>;
 
-    constructor(private http: Http) {
+    constructor(private http: Http, private loadingCtrl: LoadingController) {
+        const loader = this.loadingCtrl.create({
+            content: 'Datensynchronisierung. Bitte warten...'
+        });
+
         const warenkorbDe$ = this.warenkorbSelectedDe$
             .map(event => first((<HTMLInputElement>event.target).files))
             .filter(f => !!f.name.match('Erhebungsschema_DE'))
@@ -52,6 +56,7 @@ export class WarenkorbImportComponent {
 
         this.importCompleted$ = this.createWarenkorbClicked$
             .withLatestFrom(warenkorbCompleted$, (_, warenkorb) => warenkorb)
+            .do(x => loader.present())
             .map(x => buildTree(x))
             .flatMap(x => dropDatabase('warenkorb').then(_ => x).catch(_ => x))
             .flatMap(x => getDatabase('warenkorb').then(db => ({ warenkorb: x, db })).catch(_ => ({ warenkorb: x, db: <PouchDB.Database<PouchDB.Core.Encodable>>null })))
@@ -60,6 +65,7 @@ export class WarenkorbImportComponent {
 
         this.importCompleted$
             .flatMap(x => putAdminUserToDatabase(http, 'warenkorb'))
+            .do(x => loader.dismiss())
             .subscribe();
 
         this.warenkorbImported$ = this.importCompleted$.startWith(0)

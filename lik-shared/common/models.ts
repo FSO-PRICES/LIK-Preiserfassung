@@ -37,6 +37,7 @@ export interface KontaktPerson {
 
 export interface AdvancedPresimeldestelleProperties {
     kontaktpersons: KontaktPerson[];
+    regionId: string;
     active: boolean;
     erhebungsart: string;
     erhebungshaeufigkeit: string;
@@ -193,3 +194,9 @@ export interface CouchSecurity {
     admins?: { names?: string[], roles?: string[] },
     members?: { names?: string[], roles?: string[] }
 }
+
+export interface PreiszuweisungProperties {
+    preismeldestellen: Preismeldestelle[];
+}
+
+export type Preiszuweisung = PreiszuweisungProperties & CouchProperties;
