@@ -39,11 +39,12 @@ export class PreismeldungenImportComponent {
 
         this.parsingIsCompleted$ = parseCompleted$.map(_ => true).startWith(false);
 
+        this.createPreismeldungenClicked$
+            .subscribe(() => loader.present());
+
         this.importCompleted$ = this.createPreismeldungenClicked$
             .withLatestFrom(parseCompleted$, (_, preismeldestellen) => preismeldestellen)
-            .do(x => loader.present())
             .map(x => preparePm(x))
-
             // Slow: about 1 minute 20 seconds
             .flatMap(x => dropLocalDatabase('preismeldungen').then(_ => x))
             .flatMap(x => getLocalDatabase('preismeldungen').then(db => ({ preismeldungen: x, db })))
@@ -56,20 +57,17 @@ export class PreismeldungenImportComponent {
             })
             .map<number>(x => x.reduce((prev, current) => prev + current, 0))
             .flatMap(x => Observable.fromPromise(syncDb('preismeldungen').then(() => x)))
-
             // Fast: about 9 seconds
             // .flatMap<number>(({ preismeldungen, db }) => Observable.fromPromise(
             //     chunk(preismeldungen, 6000).reduce((previousPromise, preismeldungenBatch) => {
             //         return previousPromise.then(count => db.bulkDocs(preismeldungenBatch, { ajax: { timeout: 3600 } }).then(_ => count + preismeldungenBatch.length));
             //     }, Promise.resolve(0)))
             // )
-
             .publishReplay(1).refCount();
 
         this.importCompleted$
             .flatMap(x => putAdminUserToDatabase(http, 'preismeldungen'))
-            .do(x => loader.dismiss())
-            .subscribe();
+            .subscribe(() => loader.dismiss());
 
         this.preismeldungenImported$ = this.importCompleted$.startWith(0)
             .publishReplay(1).refCount();

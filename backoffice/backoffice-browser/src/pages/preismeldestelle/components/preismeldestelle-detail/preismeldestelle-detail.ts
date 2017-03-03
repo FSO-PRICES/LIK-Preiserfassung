@@ -53,13 +53,18 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         this.update$ = delayedFormValueChanges(this.form)
             .map(() => this.form.value)
             .do(x => console.log('updated:', x));
+        // this.update$ = this.form.valueChanges
+        //     .filter(x => this.form.touched) // SUGGESTION -  may not be necessary
+        //     .map(() => this.form.value)
+        //     .do(x => console.log('updated:', x));
 
-        const distinctPreiserheber$ = this.preismeldestelle$
+        const distinctPreismeldestelle$ = this.preismeldestelle$
+            // .distinctUntilKeyChanged('_id'); // SUGGESTION
             .filter(x => !!x);
 
-        distinctPreiserheber$.startWith((<P.AdvancedPreismeldestelle>{}))
+        distinctPreismeldestelle$.startWith((<P.AdvancedPreismeldestelle>{})) // TODO: DELETE startWith()
             .subscribe((preismeldestelle: CurrentPreismeldestelle) => {
-                if (!preismeldestelle.isModified) {
+                if (!preismeldestelle.isModified) { // TODO: DELETE IF
                     this.form.markAsUntouched();
                     this.form.markAsPristine();
                 }
@@ -89,6 +94,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         this.isEditing$ = this.preismeldestelle$
             .map((x: CurrentPreismeldestelle) => !!x && (!!x.isModified || !!x._id))
             .publishReplay(1).refCount();
+        // this.isEditing$ = this.form.valueChanges.map(() => this.form.touched)
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

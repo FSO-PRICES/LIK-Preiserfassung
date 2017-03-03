@@ -3,8 +3,6 @@ lik-studio
 
 ## TODOS / Discussions
 
-* Flex box styling
-* formValueChanges debounceTime
 * Preiserheber Save -> Save again -> Exception
 * Menu / Page navigation
 * form.patchValue { onlySelf: true, emitEvent: false } ?
