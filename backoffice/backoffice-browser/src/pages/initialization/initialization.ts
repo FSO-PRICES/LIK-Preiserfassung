@@ -1,9 +1,4 @@
 import { Component, EventEmitter } from '@angular/core';
-import * as _ from 'lodash';
-import * as PouchDB from 'pouchdb';
-import * as pouchDbAuthentication from 'pouchdb-authentication';
-
-PouchDB.plugin(pouchDbAuthentication);
 
 @Component({
     templateUrl: 'initialization.html'

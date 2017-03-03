@@ -18,6 +18,6 @@ export class PefMenuComponent {
     }
 
     navigateToPage(page) {
-        this.navCtrl.setRoot(page);
+        this.navCtrl.push(page);
     }
 }

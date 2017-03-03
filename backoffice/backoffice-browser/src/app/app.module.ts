@@ -27,9 +27,9 @@ export const MainPages = [
     imports: [
         IonicModule.forRoot(Backoffice, {
             links: [
-                { component: InitializationPage, name: 'Initialization', segment: '' },
-                { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe/:peRef' },
-                { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms/:pmsRef' },
+                { component: InitializationPage, name: 'Initialization', segment: 'init' },
+                { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe' },
+                { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms' },
             ]
         }),
         PefComponentsModule,
