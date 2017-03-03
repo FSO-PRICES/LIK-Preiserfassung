@@ -10,6 +10,7 @@ lik-studio
 * form.patchValue { onlySelf: true, emitEvent: false } ?
 * .do( markPristine )
 * alreadyAssigned filter von PE to PMS
+* reducer action constants
 
 ## Install (Ubuntu 16.04)
 
