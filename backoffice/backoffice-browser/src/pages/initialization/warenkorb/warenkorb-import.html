@@ -1,25 +1,33 @@
-<ion-list-header>
-    Warenkorb
-</ion-list-header>
-<ion-item>
-    <ion-row wrap>
-        <ion-col>
-            <label>Erhebungsschema Deutsch</label><br>
-            <input class="file-select-btn" type="file" (change)="warenkorbSelectedDe$.emit($event)" multiple/>
-        </ion-col>
-        <ion-col>
-            <label>Erhebungsschema Französisch</label><br>
-            <input class="file-select-btn" type="file" (change)="warenkorbSelectedFr$.emit($event)" multiple/>
-        </ion-col>
-        <ion-col>
-            <label>Erhebungsschema Italienisch</label><br>
-            <input class="file-select-btn" type="file" (change)="warenkorbSelectedIt$.emit($event)" multiple/>
-        </ion-col>
-    </ion-row>
-    <ion-row>
-        <ion-col>
-            <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsCompleted$ | async)" (click)="createWarenkorbClicked$.emit($event)">Import Warenkorb</button>
-        </ion-col>
-    </ion-row>
-    <ion-row *ngIf="isWarenkorbImported$ | async"><ion-col><span ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImported$ | async}} Einträge wurden hinzugefügt</span></ion-col></ion-row>
-</ion-item>
+<div class="header">
+    <h1 class="large">Warenkorb</h1>
+</div>
+<ion-row wrap>
+    <ion-col>
+        <label>Erhebungsschema Deutsch</label>
+    </ion-col>
+    <ion-col>
+        <input class="file-select-btn" type="file" (change)="warenkorbSelectedDe$.emit($event)" multiple/>
+    </ion-col>
+<ion-row>
+</ion-row>
+    <ion-col>
+        <label>Erhebungsschema Französisch</label>
+    </ion-col>
+    <ion-col>
+        <input class="file-select-btn" type="file" (change)="warenkorbSelectedFr$.emit($event)" multiple/>
+    </ion-col>
+<ion-row>
+</ion-row>
+    <ion-col>
+        <label>Erhebungsschema Italienisch</label>
+    </ion-col>
+    <ion-col>
+        <input class="file-select-btn" type="file" (change)="warenkorbSelectedIt$.emit($event)" multiple/>
+    </ion-col>
+</ion-row>
+<ion-row>
+    <ion-col>
+        <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsCompleted$ | async)" (click)="createWarenkorbClicked$.emit($event)">Import Warenkorb</button>
+    </ion-col>
+</ion-row>
+<ion-row *ngIf="isWarenkorbImported$ | async"><ion-col><span ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImported$ | async}} Einträge wurden hinzugefügt</span></ion-col></ion-row>
