@@ -178,12 +178,7 @@ export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
     periodizitaetMonat: PeriodizitaetMonat;
     abweichungPmUG2: number;
     abweichungPmOG2: number;
-    produktmerkmal1: PropertyTranslation;
-    produktmerkmal2: PropertyTranslation;
-    produktmerkmal3: PropertyTranslation;
-    produktmerkmal4: PropertyTranslation;
-    produktmerkmal5: PropertyTranslation;
-    produktmerkmal6: PropertyTranslation;
+    productMerkmale: PropertyTranslation[];
 }
 
 export type WarenkorbTreeItem = WarenkorbBranch | WarenkorbLeaf;
