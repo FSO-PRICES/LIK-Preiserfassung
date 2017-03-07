@@ -31,10 +31,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public preismeldung$: Observable<P.PreismeldungBag>;
     public requestPreismeldungSave$: Observable<string>;
     public requestPreismeldungQuickEqual$: Observable<string>;
+    public codeListType$: Observable<string>;
 
     public changeBearbeitungscode$ = new EventEmitter<P.Models.Bearbeitungscode>();
     public preisAndMengeDisabled$: Observable<boolean>;
-    public isVerkettung$: Observable<boolean>;
+    public showVPArtikelNeu$: Observable<boolean>;
     public selectedProcessingCode$ = new EventEmitter<any>();
 
     public preisChanged$ = new EventEmitter<string>();
@@ -51,6 +52,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public attemptSave$ = new EventEmitter();
     public showValidationHints$: Observable<boolean>;
     public applyUnitQuickEqual$ = new EventEmitter();
+    public applyUnitQuickEqualVP$ = new EventEmitter();
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
 
@@ -135,6 +137,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
+            this.applyUnitQuickEqualVP$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
+                .subscribe(preismeldung => {
+                    this.form.patchValue({
+                        mengeVPNormalNeuerArtikel: `${preismeldung.warenkorbPosition.standardmenge}`,
+                    });
+                })
+        );
+
+        this.subscriptions.push(
             this.toggleAktion$
                 .subscribe(() => {
                     this.form.patchValue({
@@ -142,6 +153,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     });
                 })
         );
+
+        this.codeListType$ = this.preismeldung$
+            .map(x => x.preismeldung.bearbeitungscode === 2 || x.preismeldung.bearbeitungscode === 3 ? 'NEW_PM' : 'STANDARD');
 
         this.preismeldungPricePayload$ = this.form.valueChanges
             .map(() => ({
@@ -162,17 +176,17 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.preisAndMengeDisabled$ = bearbeitungscodeChanged$
             .map(x => this.calcPreisAndMengeDisabled(x));
 
-        this.isVerkettung$ = bearbeitungscodeChanged$
-            .map(x => x === 7)
+        this.showVPArtikelNeu$ = bearbeitungscodeChanged$
+            .map(x => x === 7 || x === 2)
             .publishReplay(1).refCount();
 
         this.subscriptions.push(
-            this.isVerkettung$
+            this.showVPArtikelNeu$
                 .filter(x => !x && this.form.dirty)
                 .subscribe(() => {
                     this.form.patchValue({
-                        preisVPNormalOverride: '',
-                        mengeVPNormalOverride: ''
+                        preisVPNormalNeuerArtikel: '',
+                        mengeVPNormalNeuerArtikel: ''
                     });
                 })
         );
@@ -230,7 +244,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
-            .map(x => x === 7 ? 'heading_artikel-neu' : 'heading_artikel');
+            .map(x => x === 7 || x === 2 || x === 3 ? 'heading_artikel-neu' : 'heading_artikel');
 
         this.preisInvalid$ = this.form.valueChanges.merge(this.attemptSave$).map(() => !!this.form.controls['preis'].errors);
         this.mengeInvalid$ = this.form.valueChanges.merge(this.attemptSave$).map(() => !!this.form.controls['menge'].errors);

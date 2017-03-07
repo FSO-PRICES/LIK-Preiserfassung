@@ -152,7 +152,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     percentageDPToVPNeuerArtikel: null,
                     percentageVPNeuerArtikelToVPAlterArtikel: null,
                     modifiedAt: null,
-                    bearbeitungscode: 100,
+                    bearbeitungscode: 2,
                     istAbgebucht: false,
                     uploadRequestedAt: null
                 }),

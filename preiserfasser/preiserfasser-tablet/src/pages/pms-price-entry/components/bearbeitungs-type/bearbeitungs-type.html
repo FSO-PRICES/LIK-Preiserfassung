@@ -5,7 +5,7 @@
     </button>
     <div class="bearbeitungs-type-flyout" [class.visible]="buttonOn$ | async" [style.marginBottom]="marginBottom$ | async">
         <ion-list>
-            <ion-item tappable class="bearbeitungs-type-option" *ngFor="let bearbeitungsType of bearbeitungsTypes" (click)="selectBearbeitungsType$.emit({event: $event, bearbeitungsType: bearbeitungsType})">
+            <ion-item tappable class="bearbeitungs-type-option" *ngFor="let bearbeitungsType of (bearbeitungsTypes$ | async)" (click)="selectBearbeitungsType$.emit({event: $event, bearbeitungsType: bearbeitungsType})">
                 <div class="icon">
                     <pef-icon [name]="bearbeitungsType.iconName"></pef-icon>
                 </div>

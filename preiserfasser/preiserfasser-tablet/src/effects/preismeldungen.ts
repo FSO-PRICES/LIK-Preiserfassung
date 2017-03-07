@@ -69,11 +69,8 @@ export class PreismeldungenEffects {
                 }));
 
             if (missingPreismeldungs.length === 0 && missingSortPriesmeldungen.length === 0) {
-                console.log('resolving')
                 return Promise.resolve(x);
             }
-
-            console.log('creating');
 
             return x.db.bulkDocs((missingPreismeldungs as any[]).concat(missingSortPriesmeldungen))
                 .then(() => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Models.Preismeldung[]))

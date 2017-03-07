@@ -85,7 +85,7 @@ interface _PreismeldungReferenceProperties {
 
 export type PreismeldungReferenceProperties = PreismeldungUri & _PreismeldungReferenceProperties;
 
-export type Bearbeitungscode = 0 | 1 | 7 | 44 | 100 | 101;
+export type Bearbeitungscode = 0 | 1 | 2 | 3 | 7 | 44 | 100 | 101;
 
 export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
 

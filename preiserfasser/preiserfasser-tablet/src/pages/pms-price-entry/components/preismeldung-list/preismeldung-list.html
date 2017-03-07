@@ -23,7 +23,7 @@
             [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
             tappable>
             <div class="preismeldung-position-number">
-                {{ bag.preismeldung.epNummer }}<br/>&nbsp; {{ bag.sortPreismeldung.sortierungsnummer }}
+                {{ bag.preismeldung.epNummer }}<br/>&nbsp;
             </div>
             <div class="preismeldung-description">
                 <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>

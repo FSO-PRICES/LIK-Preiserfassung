@@ -70,7 +70,7 @@
                         <div class="code">{{ (preismeldung$ | async).refPreismeldung.fehlendePreiseR }}</div>
                     </div>
                 </div>
-                <div class="box-container" *ngIf="isVerkettung$ | async">
+                <div class="box-container" *ngIf="showVPArtikelNeu$ | async">
                     <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel)"></div>
                     <div class="arrow down"></div>
                 </div>
@@ -118,13 +118,13 @@
                             <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit()" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
                         </ion-item>
                     </ion-list>
-                    <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)"></bearbeitungs-type>
+                    <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)" [codeListType]="codeListType$ | async"></bearbeitungs-type>
                 </div>
             </div>
         </div>
         <div class="columns product-detail-row row-3">
             <div class="last-period">
-                <div class="data-input-area" *ngIf="isVerkettung$ | async">
+                <div class="data-input-area" *ngIf="showVPArtikelNeu$ | async">
                     <h6 [innerHTML]="'heading_artikel-neu' | translate"></h6>
                     <ion-list>
                         <ion-item class="pef-item">
@@ -137,21 +137,25 @@
                                 (blur)="preisVPNormalNeuerArtikelChanged$.emit(preisVPNormalNeuerArtikel.value)"
                                 [value]="form.value.preisVPNormalNeuerArtikel"></ion-input>
                         </ion-item>
-                        <ion-item class="pef-item">
-                            <ion-label>{{ (preismeldung$ | async).warenkorbPosition.standardeinheit | pefPropertyTranslate }}</ion-label>
-                            <ion-input #mengeVPNormalNeuerArtikel
-                                type="number"
-                                step="any"
-                                pef-highlight-on-focus
-                                (blur)="mengeVPNormalNeuerArtikelChanged$.emit(mengeVPNormalNeuerArtikel.value)"
-                                [value]="form.value.mengeVPNormalNeuerArtikel"></ion-input>
-                        </ion-item>
+                        <div class="unit-item-wrapper">
+                            <ion-item class="pef-item">
+                                <ion-input #mengeVPNormalNeuerArtikel
+                                    type="number"
+                                    step="any"
+                                    pef-highlight-on-focus
+                                    (blur)="mengeVPNormalNeuerArtikelChanged$.emit(mengeVPNormalNeuerArtikel.value)"
+                                    [value]="form.value.mengeVPNormalNeuerArtikel"></ion-input>
+                            </ion-item>
+                            <div class="unit-button-wrapper">
+                                <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqualVP$.emit()" [disabled]="preisAndMengeDisabled$ | async">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit | pefPropertyTranslate }}</button>
+                            </div>
+                        </div>
                     </ion-list>
                 </div>
             </div>
             <div class="middle-section">
                 <div class="middle-section-container-wrapper">
-                    <div class="box-container" *ngIf="isVerkettung$ | async">
+                    <div class="box-container" *ngIf="showVPArtikelNeu$ | async">
                         <div class="arrow up-right"></div>
                         <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVPNeuerArtikel)"></div>
                     </div>
