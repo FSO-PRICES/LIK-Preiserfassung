@@ -90,8 +90,6 @@ export type Bearbeitungscode = 0 | 1 | 7 | 44 | 100 | 101;
 export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
 
 interface _PreismeldungProperties {
-    sortierungsnummer: number;
-
     preis?: string;
     menge?: string;
     preisVPNormalNeuerArtikel?: string;
@@ -119,11 +117,10 @@ interface _PreismeldungProperties {
 
 export type PreismeldungProperties = PreismeldungUri & _PreismeldungProperties;
 
-interface _PreismeldungSortProperties {
+export interface PreismeldungSortProperties {
+    pmId: string;
     sortierungsnummer: number;
 }
-
-export type PreismeldungSortProperties = PreismeldungUri & _PreismeldungSortProperties;
 
 export interface CouchProperties {
     _id: string;

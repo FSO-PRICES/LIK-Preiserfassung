@@ -129,7 +129,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        menge: `${preismeldung.refPreismeldung.menge}`,
+                        menge: `${preismeldung.warenkorbPosition.standardmenge}`,
                     });
                 })
         );

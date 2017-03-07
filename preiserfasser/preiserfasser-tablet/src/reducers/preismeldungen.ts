@@ -8,6 +8,7 @@ import { preismeldungCompareFn } from 'lik-shared';
 export interface PreismeldungBag {
     pmId: string;
     refPreismeldung?: P.Models.PreismeldungReference;
+    sortPreismeldung: P.Models.PreismeldungSort;
     preismeldung: P.Models.Preismeldung;
     warenkorbPosition: P.Models.WarenkorbLeaf;
     priceCountStatus: {
@@ -41,13 +42,14 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const { payload } = action;
             const refPreismeldungenGrouped = groupBy(payload.refPreismeldungen, 'epNummer');
 
-            const preismeldungBags = sortBy(payload.preismeldungen, x => x.sortierungsnummer)
+            const preismeldungBags = payload.preismeldungen
                 .map<P.PreismeldungBag>(preismeldung => {
                     const warenkorbPosition = payload.warenkorbDoc.products.find(p => p.gliederungspositionsnummer === preismeldung.epNummer) as P.Models.WarenkorbLeaf;
                     return assign({}, {
                         pmId: preismeldung._id,
                         preismeldung,
                         refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
+                        sortPreismeldung: payload.sortPreismeldungen.find(spm => spm.pmId === preismeldung._id),
                         warenkorbPosition,
                         priceCountStatus: {
                             text: `${refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
@@ -56,10 +58,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     });
                 });
 
-            const preismeldungIds = preismeldungBags.map(x => x.pmId);
-            const entities = preismeldungBags.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldung: P.PreismeldungBag) => {
-                return assign(agg, { [preismeldung.pmId]: preismeldung });
-            }, {});
+            const preismeldungIds = sortBy(preismeldungBags, x => x.sortPreismeldung.sortierungsnummer).map(x => x.pmId);
+            const entities = preismeldungBags.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldung: P.PreismeldungBag) => assign(agg, { [preismeldung.pmId]: preismeldung }), {});
             return assign({}, state, { preismeldungIds, entities, currentPreismeldung: undefined });
         }
 
@@ -96,7 +96,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         }
 
         case 'SAVE_PREISMELDUNG_PRICE_SUCCESS': {
-            const currentPreismeldung = Object.assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false });
+            const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false });
 
             let nextPreismeldung;
             if (action.payload.saveAction === 'SAVE_AND_MOVE_TO_NEXT') {
@@ -104,10 +104,26 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 const nextId = state.preismeldungIds[index + 1];
                 nextPreismeldung = !!nextId ? assign({}, state.entities[nextId], { isModified: false }) : state.entities[0];
             } else {
-                nextPreismeldung = currentPreismeldung;
+                nextPreismeldung = cloneDeep(currentPreismeldung);
             }
 
-            return assign({}, state, { currentPreismeldung: nextPreismeldung, entities: Object.assign({}, state.entities, { [currentPreismeldung.pmId]: currentPreismeldung }) });
+            return assign({}, state, { currentPreismeldung: nextPreismeldung, entities: assign({}, state.entities, { [currentPreismeldung.pmId]: currentPreismeldung }) });
+        }
+
+        case 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS': {
+            const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false });
+            // recreate priesmeldungIds sorted
+            const preismeldungIds = sortBy(action.payload.sortPreismeldungen, x => x.sortierungsnummer).map(x => x.pmId);
+            // recreate entities with new sortPreismeldung
+            const entities = action.payload.sortPreismeldungen.reduce((agg, sortPreismeldung) => {
+                return assign(agg, { [sortPreismeldung.pmId]: assign({}, state.entities[sortPreismeldung.pmId], { sortPreismeldung }) });
+            }, {});
+
+            return assign({}, state, {
+                currentPreismeldung,
+                entities: assign({}, entities, { [currentPreismeldung.pmId]: assign({}, currentPreismeldung) }),
+                preismeldungIds
+            });
         }
 
         case 'DUPLICATE_PREISMELDUNG': {
@@ -140,6 +156,11 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     istAbgebucht: false,
                     uploadRequestedAt: null
                 }),
+                sortPreismeldung: {
+                    _id: `pm-sort/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`,
+                    pmId: newPmId,
+                    sortierungsnummer: currentPreismeldung.sortPreismeldung.sortierungsnummer + 1
+                },
                 priceCountStatus: {
                     text: `${pms.length + 1}/${currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
                     ok: pms.length >= currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
@@ -147,9 +168,6 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             });
 
             return assign({}, state, { currentPreismeldung: newCurrentPreismeldung });
-            // console.log(newCurrentPreismeldung);
-
-            // return state;
         }
 
         default:
