@@ -4,7 +4,7 @@ import { NavController } from 'ionic-angular';
 import { MainPages } from '../../app/app.module';
 
 @Component({
-    selector: 'ion-header[pef-menu]',
+    selector: 'header[pef-menu]',
     templateUrl: 'pef-menu.html'
 })
 export class PefMenuComponent {
@@ -18,6 +18,6 @@ export class PefMenuComponent {
     }
 
     navigateToPage(page) {
-        this.navCtrl.push(page);
+        this.navCtrl.push(page, {}, { animate: false });
     }
 }

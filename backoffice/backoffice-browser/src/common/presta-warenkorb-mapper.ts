@@ -76,12 +76,14 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             ]),
             abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
             abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
-            produktmerkmal1: translationsToStringOrNull(thisLine[indexes.produktmerkmal1], data.fr[i][indexes.produktmerkmal1], data.it[i][indexes.produktmerkmal1]),
-            produktmerkmal2: translationsToStringOrNull(thisLine[indexes.produktmerkmal2], data.fr[i][indexes.produktmerkmal2], data.it[i][indexes.produktmerkmal2]),
-            produktmerkmal3: translationsToStringOrNull(thisLine[indexes.produktmerkmal3], data.fr[i][indexes.produktmerkmal3], data.it[i][indexes.produktmerkmal3]),
-            produktmerkmal4: translationsToStringOrNull(thisLine[indexes.produktmerkmal4], data.fr[i][indexes.produktmerkmal4], data.it[i][indexes.produktmerkmal4]),
-            produktmerkmal5: translationsToStringOrNull(thisLine[indexes.produktmerkmal5], data.fr[i][indexes.produktmerkmal5], data.it[i][indexes.produktmerkmal5]),
-            produktmerkmal6: translationsToStringOrNull(thisLine[indexes.produktmerkmal6], data.fr[i][indexes.produktmerkmal6], data.it[i][indexes.produktmerkmal6])
+            productMerkmale: prepareProduktmerkmale([
+                translationsToStringOrNull(thisLine[indexes.produktmerkmal1], data.fr[i][indexes.produktmerkmal1], data.it[i][indexes.produktmerkmal1]),
+                translationsToStringOrNull(thisLine[indexes.produktmerkmal2], data.fr[i][indexes.produktmerkmal2], data.it[i][indexes.produktmerkmal2]),
+                translationsToStringOrNull(thisLine[indexes.produktmerkmal3], data.fr[i][indexes.produktmerkmal3], data.it[i][indexes.produktmerkmal3]),
+                translationsToStringOrNull(thisLine[indexes.produktmerkmal4], data.fr[i][indexes.produktmerkmal4], data.it[i][indexes.produktmerkmal4]),
+                translationsToStringOrNull(thisLine[indexes.produktmerkmal5], data.fr[i][indexes.produktmerkmal5], data.it[i][indexes.produktmerkmal5]),
+                translationsToStringOrNull(thisLine[indexes.produktmerkmal6], data.fr[i][indexes.produktmerkmal6], data.it[i][indexes.produktmerkmal6])
+            ])
         };
         treeItems.push(treeItem);
         const parent: P.WarenkorbTreeItem = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
@@ -119,7 +121,7 @@ const parseTiefenCode = (s: string) => parseNumber(s, 'tiefencode');
 
 
 const parseNumberOrNull = (s: string) => {
-    const number = parseInt(s);
+    const number = parseInt(s, 10);
     return isNaN(number) ? null : number;
 };
 
@@ -127,13 +129,9 @@ const parseStandardmenge = parseNumberOrNull;
 const parseAnzahlPreiseProPMS = parseNumberOrNull;
 
 function parseNumber(s: string, propertyName: string) {
-    const number = parseInt(s);
+    const number = parseInt(s, 10);
     if (isNaN(number)) throw new Error(`Invalid ${propertyName}: '${s}'`);
     return number;
-}
-
-function createHierarchy(treeItems: P.WarenkorbTreeItem[]): P.WarenkorbHierarchicalTreeItem {
-    return createHierarchyRecursive(treeItems[0], 1, treeItems);
 }
 
 function createHierarchyRecursive(parent: P.WarenkorbTreeItem, currentItemIndex: number, treeItems: P.WarenkorbTreeItem[]): P.WarenkorbHierarchicalTreeItem {
@@ -178,11 +176,16 @@ function parsePeriodizitaet(periodizitaten: string[]) {
 const parseAbweichung = parseNumberOrNull;
 
 function parseStringOrEmpty(s: string) {
-    return !!s ? s.toString() : "";
+    return !!s ? s.toString() : '';
 }
 
 function translationsToStringOrNull(de: string, fr: string, it: string) {
     return !!de || !!fr || !!it ?
         { de: parseStringOrEmpty(de), fr: parseStringOrEmpty(fr), it: parseStringOrEmpty(it) } :
         null;
+}
+
+function prepareProduktmerkmale(merkmale: P.PropertyTranslation[]) {
+    const lastValueIndex = _.findLastIndex(merkmale, merkmal => merkmal !== null);
+    return merkmale.slice(0, lastValueIndex + 1);
 }

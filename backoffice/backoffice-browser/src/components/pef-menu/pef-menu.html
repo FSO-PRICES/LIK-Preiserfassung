@@ -1,15 +1,16 @@
-<ion-navbar [class.danger-zone]="dangerZone">
+<div class="toolbar toolbar-md" [class.danger-zone]="dangerZone">
     <ion-buttons end>
-        <button
+        <a
             *ngFor="let entry of pages"
-            type="button"
             ion-button
+            clear
+            href="javascript:"
             (click)="navigateToPage(entry.page)">
             {{ entry.name }}
-        </button>
+        </a>
     </ion-buttons>
 
     <ion-title>
         LIK Studio
     </ion-title>
-</ion-navbar>
+</div>

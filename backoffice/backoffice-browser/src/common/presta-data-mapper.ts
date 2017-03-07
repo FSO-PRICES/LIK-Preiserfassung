@@ -55,7 +55,9 @@ const importPmFromPrestaIndexes = {
 };
 
 function parseProduktMerkmale(content: string) {
-    return content.split(';');
+    const merkmale = content.split(';');
+    const lastValueIndex = _.findLastIndex(merkmale, merkmal => !!merkmal && merkmal.trim() !== '');
+    return merkmale.slice(0, lastValueIndex + 1).map(x => x === '' ? null : x);
 }
 
 function parseKontaktPersons(cells: string[]) {
