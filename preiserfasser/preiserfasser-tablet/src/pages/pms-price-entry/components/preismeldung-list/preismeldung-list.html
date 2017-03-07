@@ -23,7 +23,7 @@
             [class.selected]="vm.pmId == (currentPreismeldung$ | async)?.pmId"
             tappable>
             <div class="preismeldung-position-number">
-                {{ vm.refPreismeldung.epNummer }}<br/>&nbsp;
+                {{ vm.preismeldung.epNummer }}<br/>&nbsp; {{ vm.preismeldung.sortierungsnummer }}/{{ vm.refPreismeldung.sortierungsnummer }}
             </div>
             <div class="preismeldung-description">
                 <span class="text">{{ vm.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
@@ -34,7 +34,7 @@
                 <div class="status-bar"></div>
             </div>
             <div class="preismeldung-status" *ngIf="vm.preismeldung.percentageDPToLVP != null">
-                <div class="percentage">{{ formatPercentageChange(vm.preismeldung) }}</div>
+                <div class="percentage" [innerHTML]="formatPercentageChange(vm.preismeldung)"></div>
             </div>
         </ion-item>
     </pef-virtual-scroll>

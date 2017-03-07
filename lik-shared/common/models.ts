@@ -45,6 +45,7 @@ export interface AdvancedPresimeldestelleProperties {
 }
 
 export const preismeldungReferenceUriRoute = 'pm-ref/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
+export const preismeldungSortUriRoute = 'pm-sort/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
 export const preismeldungUriRoute = 'pm/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
 export const preismeldungPmsPrefixUriRoute = 'pm/:pmsNummer';
 export interface PreismeldungUri {
@@ -89,10 +90,10 @@ export type Bearbeitungscode = 0 | 1 | 7 | 44 | 100 | 101;
 export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
 
 interface _PreismeldungProperties {
+    sortierungsnummer: number;
+
     preis?: string;
     menge?: string;
-    preisNormal?: string;
-    mengeNormal?: string;
     preisVPNormalNeuerArtikel?: string;
     mengeVPNormalNeuerArtikel?: string;
 
@@ -118,6 +119,12 @@ interface _PreismeldungProperties {
 
 export type PreismeldungProperties = PreismeldungUri & _PreismeldungProperties;
 
+interface _PreismeldungSortProperties {
+    sortierungsnummer: number;
+}
+
+export type PreismeldungSortProperties = PreismeldungUri & _PreismeldungSortProperties;
+
 export interface CouchProperties {
     _id: string;
     _rev: string;
@@ -127,6 +134,7 @@ export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
 export type AdvancedPreismeldestelle = PreismeldestelleProperties & AdvancedPresimeldestelleProperties & CouchProperties;
 export type Erheber = ErheberProperties & CouchProperties;
 export type PreismeldungReference = PreismeldungReferenceProperties & CouchProperties;
+export type PreismeldungSort = PreismeldungSortProperties & CouchProperties;
 export type Preismeldung = PreismeldungProperties & CouchProperties;
 
 export type PmsToPeMap = {erheber: Erheber, preismeldestellen: Preismeldestelle[]}[]

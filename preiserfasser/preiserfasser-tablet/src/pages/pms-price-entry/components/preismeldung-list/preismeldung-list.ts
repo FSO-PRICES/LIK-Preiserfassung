@@ -15,7 +15,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() currentLanguage: string;
     @Input() preismeldungen: P.Models.Preismeldung[];
-    @Input() currentPreismeldung: P.CurrentPreismeldungViewModel;
+    @Input() currentPreismeldung: P.CurrentPreismeldungBag;
     @Output() selectPreismeldung: Observable<P.Models.Preismeldung>;
 
     public currentPreismeldung$: Observable<P.PreismeldungBag>;
@@ -43,7 +43,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         super();
 
         this.preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen').publishReplay(1).refCount();
-        this.currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewModel>('currentPreismeldung').publishReplay(1).refCount();
+        this.currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung').publishReplay(1).refCount();
         this.currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage').publishReplay(1).refCount();
 
         this.filterTodoSelected$ = this.selectFilterTodo$

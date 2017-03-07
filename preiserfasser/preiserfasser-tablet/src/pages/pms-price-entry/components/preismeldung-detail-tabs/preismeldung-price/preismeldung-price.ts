@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, SimpleChange, OnChanges, Change
 import { Observable, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from 'ng2-translate';
-import { keys } from 'lodash';
+import { keys, assign } from 'lodash';
 import * as format from 'format-number';
 
 import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService } from 'lik-shared';
@@ -26,6 +26,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Input() requestPreismeldungQuickEqual: string;
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
     @Output('save') save$: Observable<{ saveAction: P.SavePreismeldungPricePayloadType }>;
+    @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
 
     public preismeldung$: Observable<P.PreismeldungBag>;
     public requestPreismeldungSave$: Observable<string>;
@@ -37,7 +38,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public selectedProcessingCode$ = new EventEmitter<any>();
 
     public preisChanged$ = new EventEmitter<string>();
+    public preisInvalid$: Observable<boolean>;
     public mengeChanged$ = new EventEmitter<string>();
+    public mengeInvalid$: Observable<boolean>;
+
     public preisVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
     public mengeVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
 
@@ -105,7 +109,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungViewModel) => currentPm)
+            this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
                     if (currentPm.preismeldung.bearbeitungscode === 7) {
                         this.form.patchValue({
@@ -122,7 +126,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungViewModel) => preismeldung)
+            this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
                         menge: `${preismeldung.refPreismeldung.menge}`,
@@ -217,7 +221,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         .map(controlName => {
                             const control = this.form.controls[controlName];
                             const errorKey = keys(control.errors)[0];
-                            const errorParams = Object.assign({}, control.errors[errorKey], { controlName: translateService.instant(`control_${controlName}`) });
+                            const errorParams = assign({}, control.errors[errorKey], { controlName: translateService.instant(`control_${controlName}`) });
                             return translateService.instant(`validation_formatted_${errorKey}`, errorParams);
                         })
                 )
@@ -227,6 +231,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .map(x => x === 7 ? 'heading_artikel-neu' : 'heading_artikel');
+
+        this.preisInvalid$ = this.form.valueChanges.merge(this.attemptSave$).map(() => !!this.form.controls['preis'].errors);
+        this.mengeInvalid$ = this.form.valueChanges.merge(this.attemptSave$).map(() => !!this.form.controls['menge'].errors);
     }
 
     calcPreisAndMengeDisabled(bearbeitungscode: P.Models.Bearbeitungscode) {

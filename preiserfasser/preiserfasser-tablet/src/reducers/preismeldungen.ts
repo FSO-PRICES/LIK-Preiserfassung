@@ -1,8 +1,9 @@
 import { createSelector } from 'reselect';
-import { assign, cloneDeep, groupBy, keys } from 'lodash';
+import { assign, cloneDeep, groupBy, keys, sortBy } from 'lodash';
 
 import * as P  from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
+import { preismeldungCompareFn } from 'lik-shared';
 
 export interface PreismeldungBag {
     pmId: string;
@@ -15,14 +16,15 @@ export interface PreismeldungBag {
     };
 }
 
-export type CurrentPreismeldungViewModel = PreismeldungBag & {
+export type CurrentPreismeldungBag = PreismeldungBag & {
     isModified: boolean;
+    isNew: boolean;
 };
 
 export interface State {
     preismeldungIds: string[];
     entities: { [pmsNummer: string]: PreismeldungBag };
-    currentPreismeldung: CurrentPreismeldungViewModel;
+    currentPreismeldung: CurrentPreismeldungBag;
 }
 
 const initialState: State = {
@@ -39,23 +41,19 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const { payload } = action;
             const refPreismeldungenGrouped = groupBy(payload.refPreismeldungen, 'epNummer');
 
-            const preismeldungBags = payload.refPreismeldungen
-                .map<P.PreismeldungBag>(refPreismeldung => {
-                    const warenkorbPosition = payload.warenkorbDoc.products.find(p => p.gliederungspositionsnummer === refPreismeldung.epNummer) as P.Models.WarenkorbLeaf;
+            const preismeldungBags = sortBy(payload.preismeldungen, x => x.sortierungsnummer)
+                .map<P.PreismeldungBag>(preismeldung => {
+                    const warenkorbPosition = payload.warenkorbDoc.products.find(p => p.gliederungspositionsnummer === preismeldung.epNummer) as P.Models.WarenkorbLeaf;
                     return assign({}, {
-                        pmId: refPreismeldung.pmId,
-                        refPreismeldung,
-                        preismeldung: payload.preismeldungen.find(pm => pm._id === refPreismeldung.pmId),
+                        pmId: preismeldung._id,
+                        preismeldung,
+                        refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
                         warenkorbPosition,
                         priceCountStatus: {
                             text: `${refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
                             ok: refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length >= warenkorbPosition.anzahlPreiseProPMS
                         }
                     });
-                }).sort((a, b) => {
-                    if (a.refPreismeldung.sortierungsnummer == null) return 1;
-                    if (b.refPreismeldung.sortierungsnummer == null) return -1;
-                    return a.refPreismeldung.sortierungsnummer - b.refPreismeldung.sortierungsnummer || parseInt(a.refPreismeldung.epNummer) - parseInt(b.refPreismeldung.epNummer);
                 });
 
             const preismeldungIds = preismeldungBags.map(x => x.pmId);
@@ -70,7 +68,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         }
 
         case 'SELECT_PREISMELDUNG': {
-            const currentPreismeldung = Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false });
+            const currentPreismeldung = Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isNew: false });
             return assign({}, state, { currentPreismeldung });
         }
 
@@ -112,6 +110,48 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             return assign({}, state, { currentPreismeldung: nextPreismeldung, entities: Object.assign({}, state.entities, { [currentPreismeldung.pmId]: currentPreismeldung }) });
         }
 
+        case 'DUPLICATE_PREISMELDUNG': {
+            const pms = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer);
+            const nextLaufnummer = `${pms.map(x => +x.preismeldung.laufnummer).sort()[pms.length - 1] + 1}`;
+            const currentPreismeldung = state.currentPreismeldung;
+            const newPmId = `pm/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`;
+            const newCurrentPreismeldung = assign({}, currentPreismeldung, {
+                pmId: newPmId,
+                isModified: true,
+                isNew: true,
+                refPreismeldung: null,
+                preismeldung: assign(cloneDeep(currentPreismeldung.preismeldung), {
+                    _id: newPmId,
+                    _rev: null,
+                    preis: null,
+                    menge: null,
+                    preisVPNormalNeuerArtikel: null,
+                    mengeVPNormalNeuerArtikel: null,
+                    aktion: false,
+                    artikelnummer: null,
+                    artikeltext: null,
+                    internetLink: null,
+                    bermerkungenAnsBfs: null,
+                    percentageDPToLVP: null,
+                    percentageDPToVPNeuerArtikel: null,
+                    percentageVPNeuerArtikelToVPAlterArtikel: null,
+                    modifiedAt: null,
+                    bearbeitungscode: 100,
+                    istAbgebucht: false,
+                    uploadRequestedAt: null
+                }),
+                priceCountStatus: {
+                    text: `${pms.length + 1}/${currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
+                    ok: pms.length >= currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
+                }
+            });
+
+            return assign({}, state, { currentPreismeldung: newCurrentPreismeldung });
+            // console.log(newCurrentPreismeldung);
+
+            // return state;
+        }
+
         default:
             return state;
     }
@@ -125,9 +165,9 @@ function debugDifference(obj1: any, obj2: any, props: string[]) {
 
 function createPercentages(preismeldung: P.PreismeldungBag, payload: P.PreismeldungPricePayload) {
     return {
-        percentageDPToLVP: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
+        percentageDPToLVP: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
         percentageDPToVPNeuerArtikel: calculatePercentageChange(parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel), parseFloat(payload.preis), parseFloat(payload.menge)),
-        percentageVPNeuerArtikelToVPAlterArtikel: calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel))
+        percentageVPNeuerArtikelToVPAlterArtikel: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel))
     };
 }
 

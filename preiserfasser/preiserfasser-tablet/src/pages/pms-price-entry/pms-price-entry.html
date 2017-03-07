@@ -25,6 +25,7 @@
                     [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
                     (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
+                    (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
                     (save)="save$.emit($event)"></preismeldung-price>
             </ion-content>
         </div>

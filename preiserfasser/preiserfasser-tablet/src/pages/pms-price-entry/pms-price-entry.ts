@@ -25,6 +25,7 @@ export class PmsPriceEntryPage {
     selectPreismeldung$ = new EventEmitter<P.Models.Preismeldung>();
     save$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
     updatePreismeldungPreis$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
+    duplicatePreismeldung$ = new EventEmitter();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -65,7 +66,7 @@ export class PmsPriceEntryPage {
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
-            .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungViewModel) => ({
+            .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({
                 selectedPreismeldung,
                 currentPreismeldung,
                 isCurrentModified: !!currentPreismeldung && currentPreismeldung.isModified
@@ -80,6 +81,9 @@ export class PmsPriceEntryPage {
             .flatMap(x => cancelEditDialog$.map(y => ({ selectedPreismeldung: x.selectedPreismeldung, dialogCode: y })))
             .filter(x => x.dialogCode === 'THROW_CHANGES')
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
+
+        this.duplicatePreismeldung$
+            .subscribe(() => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG' }));
     }
 
     ionViewDidLoad() {

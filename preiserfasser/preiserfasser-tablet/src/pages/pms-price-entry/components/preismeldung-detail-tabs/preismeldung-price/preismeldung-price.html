@@ -23,7 +23,7 @@
                     [class.validation-error]="true"></ion-input>
             </ion-item>
             <div class="right-column">
-                <button ion-button icon-only class="pef-icon-secondary duplicate">
+                <button ion-button icon-only class="pef-icon-secondary duplicate" (click)="duplicatePreismeldung$.emit()" [disabled]="(preismeldung$ | async).isModified">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
                         <g fill="none" fill-rule="evenodd" transform="translate(6 5)">
                             <polygon class="background-plus" points="6 6 0 6 0 8 6 8 6 14 8 14 8 8 14 8 14 6 8 6 8 0 6 0"/>
@@ -38,7 +38,7 @@
         <div class="columns product-detail-row row-1">
             <div class="last-period">
                 <h5 class="large">Vorperiode</h5>
-                <preismeldung-info-popover [class.hidden]="!(preismeldung$ | async).refPreismeldung.aktion" [preismeldung]="preismeldung$ | async"></preismeldung-info-popover>
+                <preismeldung-info-popover [class.hidden]="!(preismeldung$ | async).refPreismeldung || !(preismeldung$ | async).refPreismeldung.aktion" [preismeldung]="preismeldung$ | async"></preismeldung-info-popover>
             </div>
             <div class="middle-section"></div>
             <div class="current-period">
@@ -46,7 +46,10 @@
             </div>
         </div>
         <div class="columns product-detail-row row-2">
-            <div class="last-period">
+            <div class="last-period" *ngIf="!(preismeldung$ | async).refPreismeldung">
+                Nicht zutreffend.
+            </div>
+            <div class="last-period" *ngIf="!!(preismeldung$ | async).refPreismeldung">
                 <div class="data-input-area">
                     <h6>{{ 'heading_artikel' | translate }}</h6>
                     <div class="last-period-price">
@@ -73,7 +76,7 @@
                 </div>
             </div>
             <div class="middle-section">
-                <div class="box-container">
+                <div class="box-container" *ngIf="!!(preismeldung$ | async).refPreismeldung">
                     <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToLVP)"></div>
                     <div class="arrow right"></div>
                 </div>
@@ -82,22 +85,24 @@
                 <div class="data-input-area">
                     <h6 [innerHTML]="currentPeriodHeading$ | async | translate"></h6>
                     <ion-list>
-                        <ion-item class="pef-item">
+                        <ion-item class="pef-item" [class.ng-invalid]="preisInvalid$ | async">
                             <ion-label class="currency-label">CHF</ion-label>
                             <ion-input #preis
                                 type="number"
                                 min="0.05" step="0.05"
                                 pef-highlight-on-focus
+                                [class.ng-invalid]="preisInvalid$ | async"
                                 [readonly]="preisAndMengeDisabled$ | async"
                                 (blur)="preisChanged$.emit(preis.value)"
                                 [value]="form.value.preis"></ion-input>
                         </ion-item>
                         <div class="unit-item-wrapper">
-                            <ion-item class="pef-item">
+                            <ion-item class="pef-item" [class.ng-invalid]="mengeInvalid$ | async">
                                 <ion-input #menge
                                     type="number"
                                     step="any"
                                     pef-highlight-on-focus
+                                    [class.ng-invalid]="mengeInvalid$ | async"
                                     [readonly]="preisAndMengeDisabled$ | async"
                                     (blur)="mengeChanged$.emit(menge.value)"
                                     [value]="form.value.menge"></ion-input>

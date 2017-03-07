@@ -2,6 +2,7 @@
     <pef-icon name="price_tag_info"></pef-icon>
 </button>
 <div class="info-popover"
+    *ngIf="!!(preismeldung$ | async)?.refPreismeldung"
     [style.display]="(popoverActive$ | async) ? 'block' : 'none'"
     [style.left]="sanitizer.bypassSecurityTrustStyle(popoverLeft$ | async)"
     [style.maxHeight]="sanitizer.bypassSecurityTrustStyle(popoverMaxHeight$ | async)"
