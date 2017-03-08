@@ -21,4 +21,4 @@ export type Actions =
     { type: 'UPDATE_PREISMELDUNG_PRICE', payload: PreismeldungPricePayload } |
     { type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung, saveAction: SavePreismeldungPricePayloadType } } |
     { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung, sortPreismeldungen: P.Models.PreismeldungSort[] } } |
-    { type: 'DUPLICATE_PREISMELDUNG' };
+    { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 };

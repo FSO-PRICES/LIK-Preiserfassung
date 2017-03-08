@@ -96,7 +96,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     }
 
     formatPercentageChange = (preismeldung: P.Models.Preismeldung) => {
-        return !!preismeldung.percentageDPToVPNeuerArtikel
+        return preismeldung.percentageDPToVPNeuerArtikel != null && !isNaN(preismeldung.percentageDPToVPNeuerArtikel)
             ? formatPercentageChange(preismeldung.percentageDPToVPNeuerArtikel, 0)
             : formatPercentageChange(preismeldung.percentageDPToLVP, 0);
     }

@@ -60,6 +60,9 @@ preismeldung-toolbar {
                 background-color: $blue-chill;
             }
         }
+        &.hidden {
+            visibility: hidden;
+        }
         // &[disabled] {
         //     opacity: 1;
         //     .pef-inner {

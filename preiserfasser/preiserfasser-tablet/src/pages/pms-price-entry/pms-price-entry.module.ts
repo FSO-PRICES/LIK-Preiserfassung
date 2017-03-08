@@ -9,6 +9,7 @@ import { PefComponentsModule } from 'lik-shared';
 
 import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
+import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
 import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
 import { PreismeldungInfoComponent } from './components/preismeldung-detail-tabs/preismeldung-info';
@@ -25,6 +26,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     declarations: [
         BearbeitungsTypeComponent,
         DialogCancelEditComponent,
+        DialogNewPmBearbeitungsCodeComponent,
         DialogValidationErrorsComponent,
         PmsPriceEntryPage,
         PreismeldungAttributesComponent,
@@ -39,12 +41,13 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     ],
     entryComponents: [
         DialogCancelEditComponent,
+        DialogNewPmBearbeitungsCodeComponent,
         DialogValidationErrorsComponent
     ],
     providers: [
         { provide: "windowObject", useValue: window }
     ],
-    exports: [PmsPriceEntryPage, DialogCancelEditComponent, DialogValidationErrorsComponent]
+    exports: [PmsPriceEntryPage, DialogCancelEditComponent, DialogValidationErrorsComponent, DialogNewPmBearbeitungsCodeComponent]
 })
 export class PmsPriceEntryModule {
 }

@@ -127,7 +127,8 @@ export class PreismeldungenEffects {
                         epNummer: currentPreismeldung.preismeldung.epNummer,
                         laufnummer: currentPreismeldung.preismeldung.laufnummer,
                         pmsNummer: currentPreismeldung.preismeldung.pmsNummer
-                    }, this.propertiesFromCurrentPreismeldung(currentPreismeldung))).then(() => db))
+                    }, this.propertiesFromCurrentPreismeldung(currentPreismeldung))).then(() => db)
+                )
                 .then(db => // increase the sortierungsnummer for all the preismeldung after the new one
                     db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-sort/${currentPreismeldung.preismeldung.pmsNummer}`), { include_docs: true }))
                         .then(res => res.rows.map(y => y.doc) as P.Models.PreismeldungSort[])

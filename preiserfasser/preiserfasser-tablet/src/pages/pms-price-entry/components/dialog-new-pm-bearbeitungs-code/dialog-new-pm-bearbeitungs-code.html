@@ -1,0 +1,15 @@
+<h4>Bearbeitungscode auswählen</h4>
+<ion-list radio-group [(ngModel)]="bearbeitungscode">
+    <ion-item>
+        <ion-label>Neue Preisreihe: Aktuelle Periode bekannt (Code 3)</ion-label>
+        <ion-radio value="3"></ion-radio>
+    </ion-item>
+    <ion-item>
+        <ion-label>Neue Preisreihe: Vorperiode und aktuelle Periode bekannt (Code 2)</ion-label>
+        <ion-radio value="2"></ion-radio>
+    </ion-item>
+</ion-list>
+<div class="button-container">
+    <button ion-button color="secondary" (click)="viewCtrl.dismiss({ action: 'CANCEL' })">Abbrechen</button>
+    <button ion-button color="primary" (click)="viewCtrl.dismiss({ action: 'OK', bearbeitungscode: bearbeitungscode })">OK</button>
+</div>

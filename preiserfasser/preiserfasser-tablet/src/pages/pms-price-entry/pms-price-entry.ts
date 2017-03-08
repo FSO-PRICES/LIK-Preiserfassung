@@ -9,6 +9,7 @@ import { PefDialogService } from 'lik-shared';
 import * as fromRoot from '../../reducers';
 
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
+import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
 
 @Component({
     selector: 'pms-price-entry',
@@ -64,6 +65,7 @@ export class PmsPriceEntryPage {
             .subscribe(x => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload: x })));
 
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
+        const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
             .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({
@@ -83,7 +85,9 @@ export class PmsPriceEntryPage {
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
         this.duplicatePreismeldung$
-            .subscribe(() => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG' }));
+            .flatMap(() => dialogNewPmbearbeitungsCode$)
+            .filter(x => x.action === 'OK')
+            .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }));
     }
 
     ionViewDidLoad() {

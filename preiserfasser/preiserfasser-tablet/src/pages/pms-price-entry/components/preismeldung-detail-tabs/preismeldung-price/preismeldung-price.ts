@@ -113,7 +113,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.subscriptions.push(
             this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
-                    if (currentPm.preismeldung.bearbeitungscode === 7) {
+                    if (currentPm.preismeldung.bearbeitungscode === 7 || currentPm.preismeldung.bearbeitungscode === 2) {
                         this.form.patchValue({
                             preis: currentPm.preismeldung.preisVPNormalNeuerArtikel,
                             menge: currentPm.preismeldung.mengeVPNormalNeuerArtikel

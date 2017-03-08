@@ -40,7 +40,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
     switch (action.type) {
         case 'PREISMELDUNGEN_LOAD_SUCCESS': {
             const { payload } = action;
-            const refPreismeldungenGrouped = groupBy(payload.refPreismeldungen, 'epNummer');
+            const preismeldungenGrouped = groupBy(payload.preismeldungen, 'epNummer');
 
             const preismeldungBags = payload.preismeldungen
                 .map<P.PreismeldungBag>(preismeldung => {
@@ -52,8 +52,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                         sortPreismeldung: payload.sortPreismeldungen.find(spm => spm.pmId === preismeldung._id),
                         warenkorbPosition,
                         priceCountStatus: {
-                            text: `${refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
-                            ok: refPreismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length >= warenkorbPosition.anzahlPreiseProPMS
+                            text: `${preismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
+                            ok: preismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length >= warenkorbPosition.anzahlPreiseProPMS
                         }
                     });
                 });
@@ -111,12 +111,14 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         }
 
         case 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS': {
-            const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false });
+            const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false, isNew: false });
             // recreate priesmeldungIds sorted
             const preismeldungIds = sortBy(action.payload.sortPreismeldungen, x => x.sortierungsnummer).map(x => x.pmId);
             // recreate entities with new sortPreismeldung
             const entities = action.payload.sortPreismeldungen.reduce((agg, sortPreismeldung) => {
-                return assign(agg, { [sortPreismeldung.pmId]: assign({}, state.entities[sortPreismeldung.pmId], { sortPreismeldung }) });
+                const priceCountStatus = !!state.entities[sortPreismeldung.pmId] && state.entities[sortPreismeldung.pmId].preismeldung.epNummer === currentPreismeldung.preismeldung.epNummer
+                    ? assign({}, currentPreismeldung.priceCountStatus) : null;
+                 return assign(agg, { [sortPreismeldung.pmId]: assign({}, state.entities[sortPreismeldung.pmId], { sortPreismeldung }, !!priceCountStatus ? { priceCountStatus } : null ) });
             }, {});
 
             return assign({}, state, {
@@ -127,8 +129,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         }
 
         case 'DUPLICATE_PREISMELDUNG': {
-            const pms = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer);
-            const nextLaufnummer = `${pms.map(x => +x.preismeldung.laufnummer).sort()[pms.length - 1] + 1}`;
+            const preismeldungen = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer);
+            const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort()[preismeldungen.length - 1] + 1}`;
             const currentPreismeldung = state.currentPreismeldung;
             const newPmId = `pm/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`;
             const newCurrentPreismeldung = assign({}, currentPreismeldung, {
@@ -139,6 +141,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 preismeldung: assign(cloneDeep(currentPreismeldung.preismeldung), {
                     _id: newPmId,
                     _rev: null,
+                    laufnummer: nextLaufnummer,
                     preis: null,
                     menge: null,
                     preisVPNormalNeuerArtikel: null,
@@ -152,7 +155,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     percentageDPToVPNeuerArtikel: null,
                     percentageVPNeuerArtikelToVPAlterArtikel: null,
                     modifiedAt: null,
-                    bearbeitungscode: 2,
+                    bearbeitungscode: action.payload,
                     istAbgebucht: false,
                     uploadRequestedAt: null
                 }),
@@ -162,8 +165,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     sortierungsnummer: currentPreismeldung.sortPreismeldung.sortierungsnummer + 1
                 },
                 priceCountStatus: {
-                    text: `${pms.length + 1}/${currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
-                    ok: pms.length >= currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
+                    text: `${preismeldungen.length + 1}/${currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
+                    ok: preismeldungen.length + 1 >= currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
                 }
             });
 
