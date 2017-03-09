@@ -1,0 +1,171 @@
+@import "../../../../theme/imports.scss";
+
+choose-from-warenkorb {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: $trout;
+    color: white;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-width: 1100px;
+        width: 100%;
+        @include set-padding(0.25, 0, 1.5, 0);
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    h3 {
+        @include set-margin-top(0.75);
+    }
+
+    .button.button-md.button-clear.button-clear-md.close-button {
+        font-size: 1em;
+        color: white;
+        fill: white;
+        margin-right: 0;
+        padding-right: 0;
+        &:hover {
+            color: $java;
+            fill: $java;
+        }
+    }
+
+    .content {
+        flex: 1;
+        margin-right: 3em;
+        background-color: $mercury;
+        @include set-padding(1, 1.5, 1, 1.5);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .scroll-container {
+        @include set-margin-top(1);
+        flex: 1;
+    }
+
+    .warenkorb-item-row {
+        position: relative;
+        display: flex;
+        @include set-height(3);
+        border-bottom: 1px solid white;
+        ion-label {
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+        }
+        .icon {
+            flex: 0 0 3em;
+        }
+        &:hover {
+            color: $blue-chill;
+            fill: $blue-chill;
+        }
+    }
+
+    .tiefencode-2 {
+        background-color: $java;
+        padding-left: 1em;
+        color: white;
+        fill: white;
+        .gliederungspositionsnummer {
+            flex: 0 0 2em;
+            font-weight: 500;
+        }
+        &:hover {
+            color: $outer-space;
+            fill: $outer-space;
+        }
+    }
+
+    .tiefencode-3 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: $alto;
+        padding-left: 3em;
+    }
+
+    .tiefencode-4 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: $wild-sand;
+        padding-left: 7em;
+    }
+
+    .tiefencode-5 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: white;
+        padding-left: 11em;
+        border-color: $mercury;
+    }
+
+    .tiefencode-6 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: white;
+        padding-left: 15em;
+        border-color: $mercury;
+    }
+
+    .tiefencode-7 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: white;
+        padding-left: 19em;
+        border-color: $mercury;
+    }
+
+    .tiefencode-8 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: white;
+        padding-left: 23em;
+        border-color: $mercury;
+    }
+
+    .tiefencode-3, .tiefencode-4, .tiefencode-5, .tiefencode-6, .tiefencode-7, .tiefencode-8 {
+        &.leaf {
+            color: $outer-space;
+            background-color: $foam;
+            height: 4.5em;
+            .add-button {
+                fill: white;
+            }
+        }
+    }
+
+    .gliederungspositionsnummer {
+        flex: 0 0 4em;
+        font-weight: 500;
+    }
+    .positionsbezeichnung {
+        flex: 1;
+        font-weight: 500;
+    }
+    .leaf-description {
+        width: 100%;
+        @include set-padding-right(1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .leaf-positionsbezeichnung {
+        font-weight: 500;
+        @include crop-text();
+    }
+    .leaf-beispiele {
+        @include crop-text();
+    }
+}

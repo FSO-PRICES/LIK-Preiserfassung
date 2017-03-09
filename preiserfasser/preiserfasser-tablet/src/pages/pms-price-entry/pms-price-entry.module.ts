@@ -8,6 +8,7 @@ import { PreiserfasserCommonModule } from '../../common';
 import { PefComponentsModule } from 'lik-shared';
 
 import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
+import { ChooseFromWarenkorbComponent } from './components/choose-from-warenkorb/choose-from-warenkorb';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
 import { PmsPriceEntryPage } from './pms-price-entry';
@@ -25,6 +26,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     imports: [CommonModule, IonicModule, MaterialModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
     declarations: [
         BearbeitungsTypeComponent,
+        ChooseFromWarenkorbComponent,
         DialogCancelEditComponent,
         DialogNewPmBearbeitungsCodeComponent,
         DialogValidationErrorsComponent,

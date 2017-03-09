@@ -22,11 +22,14 @@ export class PmsPriceEntryPage {
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
+    warenkorbFlat$ = this.store.select(fromRoot.getWarenkorbFlat);
 
     selectPreismeldung$ = new EventEmitter<P.Models.Preismeldung>();
     save$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
     updatePreismeldungPreis$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
     duplicatePreismeldung$ = new EventEmitter();
+    addNewPreisreihe$ = new EventEmitter();
+    closeChooseFromWarenkorb$ = new EventEmitter<string>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -37,6 +40,8 @@ export class PmsPriceEntryPage {
     selectedTab$ = this.selectTab$
         .startWith('PREISMELDUNG')
         .publishReplay(1).refCount();
+
+    public chooseFromWarenkorbDisplayed$: Observable<boolean>;
 
     constructor(
         private navController: NavController,
@@ -88,10 +93,15 @@ export class PmsPriceEntryPage {
             .flatMap(() => dialogNewPmbearbeitungsCode$)
             .filter(x => x.action === 'OK')
             .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }));
+
+        this.chooseFromWarenkorbDisplayed$ = this.addNewPreisreihe$.mapTo(true)
+            .merge(this.closeChooseFromWarenkorb$.mapTo(false))
+            .startWith(false);
     }
 
     ionViewDidLoad() {
         this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') });
+        this.store.dispatch({ type: 'LOAD_WARENKORB' });
     }
 
     ionViewDidLeave() {

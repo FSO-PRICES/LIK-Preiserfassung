@@ -76,8 +76,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             pmId: [''],
             preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })])],
             menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 2 })])],
-            preisVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })],
-            mengeVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })],
+            // preisVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })],
+            // mengeVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })],
+            preisVPNormalNeuerArtikel: [''],
+            mengeVPNormalNeuerArtikel: [''],
             aktion: [false],
             bearbeitungscode: [100, Validators.required],
             artikelNummer: [null],
@@ -116,12 +118,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     if (currentPm.preismeldung.bearbeitungscode === 7 || currentPm.preismeldung.bearbeitungscode === 2) {
                         this.form.patchValue({
                             preis: currentPm.preismeldung.preisVPNormalNeuerArtikel,
-                            menge: currentPm.preismeldung.mengeVPNormalNeuerArtikel
+                            menge: currentPm.preismeldung.mengeVPNormalNeuerArtikel,
                         });
                     } else {
                         this.form.patchValue({
-                            preis: `${this.formatFn(currentPm.refPreismeldung.preis)}`,
-                            menge: `${currentPm.refPreismeldung.menge}`
+                            preis: `${currentPm.refPreismeldung ? this.formatFn(currentPm.refPreismeldung.preis) : ''}`,
+                            menge: `${currentPm.refPreismeldung ? currentPm.refPreismeldung.menge : currentPm.refPreismeldung.menge}`,
+                            aktion: currentPm.refPreismeldung.aktion
                         });
                     }
                 })
@@ -131,7 +134,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        menge: `${preismeldung.warenkorbPosition.standardmenge}`,
+                        menge: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
                     });
                 })
         );
@@ -140,7 +143,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqualVP$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        mengeVPNormalNeuerArtikel: `${preismeldung.warenkorbPosition.standardmenge}`,
+                        mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
                     });
                 })
         );

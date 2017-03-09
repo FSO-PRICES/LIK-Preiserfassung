@@ -11,23 +11,26 @@ import * as fromPreismeldungen from './preismeldungen';
 import * as fromTime from './time';
 import * as fromDatabase from './database';
 import * as fromLanguages from './languages';
+import * as fromWarenkorb from './warenkorb';
 
 export interface AppState {
-    database: fromDatabase.State;
     appConfig: fromAppConfig.State;
+    database: fromDatabase.State;
+    languages: fromLanguages.State;
     preismeldestellen: fromPreismeldestellen.State;
     preismeldungen: fromPreismeldungen.State;
     time: fromTime.State;
-    languages: fromLanguages.State;
+    warenkorb: fromWarenkorb.State;
 }
 
 const reducers = {
-    database: fromDatabase.reducer,
     appConfig: fromAppConfig.reducer,
+    database: fromDatabase.reducer,
+    languages: fromLanguages.reducer,
     preismeldestellen: fromPreismeldestellen.reducer,
     preismeldungen: fromPreismeldungen.reducer,
     time: fromTime.reducer,
-    languages: fromLanguages.reducer
+    warenkorb: fromWarenkorb.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -58,3 +61,6 @@ export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTi
 export const getLanguagesState = (state: AppState) => state.languages;
 export const getLanguages = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
 export const getCurrentLanguage = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
+
+export const getWarenkorbState = (state: AppState) => state.warenkorb;
+export const getWarenkorbFlat = createSelector(getWarenkorbState, fromWarenkorb.getWarenkorbFlat);

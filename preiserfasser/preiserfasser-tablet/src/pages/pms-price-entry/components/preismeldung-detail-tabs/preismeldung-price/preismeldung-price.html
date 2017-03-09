@@ -89,7 +89,7 @@
                             <ion-label class="currency-label">CHF</ion-label>
                             <ion-input #preis
                                 type="number"
-                                min="0.05" step="0.05"
+                                min="0.01" step="0.01"
                                 pef-highlight-on-focus
                                 [class.ng-invalid]="preisInvalid$ | async"
                                 [readonly]="preisAndMengeDisabled$ | async"
@@ -131,8 +131,8 @@
                             <ion-label>CHF</ion-label>
                             <ion-input #preisVPNormalNeuerArtikel
                                 type="number"
-                                min="0.05"
-                                step="0.05"
+                                min="0.01"
+                                step="0.01"
                                 pef-highlight-on-focus
                                 (blur)="preisVPNormalNeuerArtikelChanged$.emit(preisVPNormalNeuerArtikel.value)"
                                 [value]="form.value.preisVPNormalNeuerArtikel"></ion-input>

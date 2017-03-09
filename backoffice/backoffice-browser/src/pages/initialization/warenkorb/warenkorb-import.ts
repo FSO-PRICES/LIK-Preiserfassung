@@ -58,6 +58,7 @@ export class WarenkorbImportComponent {
             .withLatestFrom(warenkorbCompleted$, (_, warenkorb) => warenkorb)
             .do(x => loader.present())
             .map(x => buildTree(x))
+            // ¡¡ TODO: talk to Wayne about this !!
             .flatMap(x => dropDatabase('warenkorb').then(_ => x).catch(_ => x))
             .flatMap(x => getDatabase('warenkorb').then(db => ({ warenkorb: x, db })).catch(_ => ({ warenkorb: x, db: <PouchDB.Database<PouchDB.Core.Encodable>>null })))
             .flatMap(({ warenkorb, db }) => Observable.fromPromise(db.put({ _id: 'warenkorb', products: warenkorb }).then(_ => warenkorb.length)))

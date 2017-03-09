@@ -1,4 +1,9 @@
 <div class="pms-price-entry-content">
+    <choose-from-warenkorb
+        *ngIf="chooseFromWarenkorbDisplayed$ | async"
+        (closeChooseFromWarenkorb)="closeChooseFromWarenkorb$.emit($event)"
+        [warenkorbFlat]="warenkorbFlat$ | async">
+    </choose-from-warenkorb>
     <preismeldung-toolbar
         [preismeldung]="currentPreismeldung$ | async"
         (selectedTab)="selectTab$.emit($event)"
@@ -35,6 +40,7 @@
                 [preismeldestelle]="preismeldestelle$ | async"
                 [currentPreismeldung]="currentPreismeldung$ | async"
                 (selectPreismeldung)="selectPreismeldung$.emit($event)"
+                (addNewPreisreihe)="addNewPreisreihe$.emit()"
                 [currentLanguage]="currentLanguage$ | async"
                 [isDesktop]="isDesktop$ | async"></preismeldung-list>
         </div>

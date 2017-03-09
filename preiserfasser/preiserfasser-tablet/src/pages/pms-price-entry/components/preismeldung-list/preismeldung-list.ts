@@ -17,6 +17,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() preismeldungen: P.Models.Preismeldung[];
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
     @Output() selectPreismeldung: Observable<P.Models.Preismeldung>;
+    @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
 
     public currentPreismeldung$: Observable<P.PreismeldungBag>;
     public currentLanguage$: Observable<string>;

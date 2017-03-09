@@ -2,7 +2,7 @@
   "name": "preiserfasser-tablet",
   "author": "Lambda IT GmbH",
   "homepage": "http://lambda-it.ch/",
-  "version": "v2.0.0-alpha.4",
+  "version": "v2.0.0-alpha.5",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",

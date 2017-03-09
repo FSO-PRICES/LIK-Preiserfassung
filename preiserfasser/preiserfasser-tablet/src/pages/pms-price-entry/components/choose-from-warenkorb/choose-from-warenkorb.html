@@ -1,0 +1,31 @@
+<div class="wrapper">
+    <div class="header">
+        <h3> Neue Preisreihe hinzufügen </h3>
+        <button ion-button clear class="close-button" (click)="closeChooseFromWarenkorb$.emit(null)">
+            Schliessen
+            <pef-icon name="close_screen"></pef-icon>
+        </button>
+    </div>
+    <div class="content">
+        <!--<pef-search-input></pef-search-input>-->
+        <div pef-perfect-scrollbar class="scroll-container" [enabled]="true">
+            <ion-item *ngFor="let warenkorbItem of (warenkorb$ | async)" class="{{ 'warenkorb-item-row tiefencode-' + warenkorbItem.tiefencode + ' ' + (warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch') }}" (click)="warenkorbItemClicked$.emit(warenkorbItem)" [attr.tappable]="warenkorbItem.type == 'LEAF' ? null : true">
+                <span class="icon">
+                    <pef-icon *ngIf="iconMap[warenkorbItem.gliederungspositionsnummer]" [name]="iconMap[warenkorbItem.gliederungspositionsnummer]"></pef-icon>
+                </span>
+                <span class="gliederungspositionsnummer">{{ warenkorbItem.gliederungspositionsnummer }}<div *ngIf="warenkorbItem.type == 'LEAF'">&nbsp;</div></span>
+
+                <span *ngIf="warenkorbItem.type == 'BRANCH'" class="positionsbezeichnung">{{ warenkorbItem.positionsbezeichnung | pefPropertyTranslate }}</span>
+                <pef-icon class="open-close" *ngIf="warenkorbItem.type == 'BRANCH'" [name]="warenkorbItem.isExpanded ? 'dropdown_close' : 'dropdown_open'"></pef-icon>
+
+                <div class="leaf-description" *ngIf="warenkorbItem.type == 'LEAF'">
+                    <div class="leaf-positionsbezeichnung">{{ (warenkorbItem.positionsbezeichnung | pefPropertyTranslate) || '&ndash;' }}</div>
+                    <div class="leaf-beispiele">{{ (warenkorbItem.beispiele | pefPropertyTranslate) || '&ndash;' }}</div>
+                </div>
+                <button ion-button icon-only *ngIf="warenkorbItem.type == 'LEAF'" class="add-button" (click)="closeChooseFromWarenkorb$.emit(warenkorbItem.gliederungspositionsnummer)">
+                    <pef-icon name="add"></pef-icon>
+                </button>
+            </ion-item>
+        </div>
+    </div>
+</div>
