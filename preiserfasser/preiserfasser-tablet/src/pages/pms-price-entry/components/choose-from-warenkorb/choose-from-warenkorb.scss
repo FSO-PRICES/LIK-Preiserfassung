@@ -168,4 +168,8 @@ choose-from-warenkorb {
     .leaf-beispiele {
         @include crop-text();
     }
+    .count-status {
+        font-weight: 500;
+        @include set-padding-right(1);
+    }
 }

@@ -10,6 +10,7 @@ import * as fromRoot from '../../reducers';
 
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
+import { DialogSufficientPreismeldungenComponent } from './components/dialog-sufficient-preismeldungen/dialog-sufficient-preismeldungen';
 
 @Component({
     selector: 'pms-price-entry',
@@ -71,6 +72,7 @@ export class PmsPriceEntryPage {
 
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(DialogSufficientPreismeldungenComponent, {}).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
             .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({
@@ -90,6 +92,9 @@ export class PmsPriceEntryPage {
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
         this.duplicatePreismeldung$
+            .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.PreismeldungBag) => currentPreismeldung)
+            .flatMap(currentPreismeldung => currentPreismeldung.priceCountStatus.ok ? dialogSufficientPreismeldungen$ : Observable.of('YES'))
+            .filter(x => x === 'YES')
             .flatMap(() => dialogNewPmbearbeitungsCode$)
             .filter(x => x.action === 'OK')
             .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }));

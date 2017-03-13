@@ -11,6 +11,7 @@ import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbe
 import { ChooseFromWarenkorbComponent } from './components/choose-from-warenkorb/choose-from-warenkorb';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
+import { DialogSufficientPreismeldungenComponent } from './components/dialog-sufficient-preismeldungen/dialog-sufficient-preismeldungen';
 import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
 import { PreismeldungInfoComponent } from './components/preismeldung-detail-tabs/preismeldung-info';
@@ -29,6 +30,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
         ChooseFromWarenkorbComponent,
         DialogCancelEditComponent,
         DialogNewPmBearbeitungsCodeComponent,
+        DialogSufficientPreismeldungenComponent,
         DialogValidationErrorsComponent,
         PmsPriceEntryPage,
         PreismeldungAttributesComponent,
@@ -44,6 +46,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     entryComponents: [
         DialogCancelEditComponent,
         DialogNewPmBearbeitungsCodeComponent,
+        DialogSufficientPreismeldungenComponent,
         DialogValidationErrorsComponent
     ],
     providers: [

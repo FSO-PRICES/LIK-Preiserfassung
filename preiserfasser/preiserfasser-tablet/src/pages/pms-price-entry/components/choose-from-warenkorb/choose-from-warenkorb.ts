@@ -2,13 +2,16 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange } from 
 import { Observable } from 'rxjs';
 import { assign, sortBy } from 'lodash'
 
-import { ReactiveComponent } from 'lik-shared';
+import { ReactiveComponent, PefDialogService } from 'lik-shared';
 
 import * as P from '../../../../common-models';
+
+import { DialogSufficientPreismeldungenComponent } from '../dialog-sufficient-preismeldungen/dialog-sufficient-preismeldungen';
 
 type WarenkorbUiItem = P.Models.WarenkorbTreeItem & {
     hasChildren: boolean;
     isExpanded: boolean;
+    preismeldungCount: number;
 };
 
 @Component({
@@ -17,17 +20,21 @@ type WarenkorbUiItem = P.Models.WarenkorbTreeItem & {
 })
 export class ChooseFromWarenkorbComponent extends ReactiveComponent implements OnChanges {
     @Input('warenkorbFlat') warenkorbFlat: P.Models.WarenkorbTreeItem[];
-    @Output('closeChooseFromWarenkorb') closeChooseFromWarenkorb$ = new EventEmitter<P.Models.WarenkorbLeaf>();
+    @Input('preismeldungen') preismeldungen: P.PreismeldungBag[];
+    @Output('closeChooseFromWarenkorb') closeChooseFromWarenkorb$: Observable<P.Models.WarenkorbLeaf>;
 
     private warenkorb$: Observable<P.Models.WarenkorbTreeItem[]>;
 
     public warenkorbItemClicked$ = new EventEmitter<WarenkorbUiItem>();
+    public selectWarenkorbItem$ = new EventEmitter<WarenkorbUiItem>();
+    public closeClicked$ = new EventEmitter();
 
-    constructor() {
+    constructor(private pefDialogService: PefDialogService) {
         super();
 
         const warenkorbFlat$ = this.observePropertyCurrentValue<P.Models.WarenkorbTreeItem[]>('warenkorbFlat')
-            .map(warenkorb => this.sortAndTransformWarenkorb(warenkorb, x => x.tiefencode === 2));
+            .combineLatest(this.observePropertyCurrentValue('preismeldungen'), (warenkorb, preismeldungen) => ({ warenkorb, preismeldungen }))
+            .map(x => this.sortAndTransformWarenkorb(x.warenkorb, x.preismeldungen, y => y.tiefencode === 2));
 
         this.warenkorb$ = this.warenkorbItemClicked$.filter(x => x.type === 'BRANCH').startWith(null)
             .combineLatest(warenkorbFlat$, (warenkorbItemClicked: WarenkorbUiItem, warenkorbFlat: WarenkorbUiItem[]) => ({ warenkorbItemClicked, warenkorbFlat }))
@@ -43,6 +50,13 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                     .map(x => agg.find(y => y.gliederungspositionsnummer === x.gliederungspositionsnummer) || x)
                     .map(x => x.gliederungspositionsnummer === v.warenkorbItemClicked.gliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x);
             }, <WarenkorbUiItem[]>[]);
+
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(DialogSufficientPreismeldungenComponent, {}).map(x => x.data));
+
+        this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.flatMap(warenkorbItem => (warenkorbItem.preismeldungCount >= (warenkorbItem as P.Models.WarenkorbLeaf).anzahlPreiseProPMS ? dialogSufficientPreismeldungen$ : Observable.of('YES')).map(x => ({ answer: x, warenkorbItem })))
+            .filter(x => x.answer === 'YES')
+            .map(x => x.warenkorbItem)
+            .merge(this.closeClicked$.mapTo(null));
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -64,13 +78,14 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         12: 'navigation_services'
     };
 
-    sortAndTransformWarenkorb(warenkorb: P.Models.WarenkorbTreeItem[], filterFn: (item: P.Models.WarenkorbTreeItem) => boolean): WarenkorbUiItem[] {
+    sortAndTransformWarenkorb(warenkorb: P.Models.WarenkorbTreeItem[], preismeldungen: P.PreismeldungBag[], filterFn: (item: P.Models.WarenkorbTreeItem) => boolean): WarenkorbUiItem[] {
         return sortBy(warenkorb.filter(filterFn), x => +x.gliederungspositionsnummer)
             .reduce((agg, v) => {
-                const descendents = this.sortAndTransformWarenkorb(warenkorb, x => x.parentGliederungspositionsnummer === v.gliederungspositionsnummer);
+                const descendents = this.sortAndTransformWarenkorb(warenkorb, preismeldungen, x => x.parentGliederungspositionsnummer === v.gliederungspositionsnummer);
                 const item = assign({}, v, {
                     hasChildren: descendents.length > 0,
                     isExpanded: false,
+                    preismeldungCount: preismeldungen.filter(x => x.preismeldung.epNummer === v.gliederungspositionsnummer).length
                 });
                 return [...agg, item, ...descendents];
             }, []);

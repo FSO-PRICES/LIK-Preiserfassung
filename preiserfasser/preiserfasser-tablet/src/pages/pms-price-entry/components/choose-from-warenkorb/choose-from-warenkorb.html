@@ -1,7 +1,7 @@
 <div class="wrapper">
     <div class="header">
         <h3> Neue Preisreihe hinzufügen </h3>
-        <button ion-button clear class="close-button" (click)="closeChooseFromWarenkorb$.emit(null)">
+        <button ion-button clear class="close-button" (click)="closeClicked$.emit()">
             Schliessen
             <pef-icon name="close_screen"></pef-icon>
         </button>
@@ -22,7 +22,10 @@
                     <div class="leaf-positionsbezeichnung">{{ (warenkorbItem.positionsbezeichnung | pefPropertyTranslate) || '&ndash;' }}</div>
                     <div class="leaf-beispiele">{{ (warenkorbItem.beispiele | pefPropertyTranslate) || '&ndash;' }}</div>
                 </div>
-                <button ion-button icon-only *ngIf="warenkorbItem.type == 'LEAF'" class="add-button" (click)="closeChooseFromWarenkorb$.emit(warenkorbItem)">
+                <div class="count-status" *ngIf="warenkorbItem.type == 'LEAF'">
+                    ({{ warenkorbItem.preismeldungCount }}/{{ warenkorbItem.anzahlPreiseProPMS }})
+                </div>
+                <button ion-button icon-only *ngIf="warenkorbItem.type == 'LEAF'" class="add-button" (click)="selectWarenkorbItem$.emit(warenkorbItem)">
                     <pef-icon name="add"></pef-icon>
                 </button>
             </ion-item>
