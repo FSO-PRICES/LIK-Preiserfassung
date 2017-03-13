@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent, formatPercentageChange } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, pefSearch } from 'lik-shared';
 
 import * as P from '../../../../common-models';
 
@@ -62,10 +62,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 if (!filterText || filterText.length === 0) {
                     filteredPreismeldungen = preismeldungen;
                 } else {
-                    const lowered = filterText.toLocaleLowerCase();
-                    const tokens = lowered.split(' ').filter(x => !x.match(/^\s*$/));
-                    filteredPreismeldungen = preismeldungen.filter(pm =>
-                        tokens.reduce((agg, t) => agg && (pm.warenkorbPosition.gliederungspositionsnummer + ' ' + pm.warenkorbPosition.positionsbezeichnung[currentLanguage] + ' ' + pm.preismeldung.artikeltext).toLocaleLowerCase().includes(t) , true));
+                    filteredPreismeldungen = pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung[currentLanguage], pm => pm.preismeldung.artikeltext]);
                 }
 
                 if (filterTodoSelected && filterCompletedSelected || !filterTodoSelected && !filterCompletedSelected) return filteredPreismeldungen;

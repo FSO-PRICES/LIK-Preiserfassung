@@ -12,7 +12,8 @@ import * as fromRoot from '../../reducers';
 import * as P from '../../common-models';
 import { PmsDetailsPage } from '../pms-details/pms-details';
 import { PmsPriceEntryPage } from '../pms-price-entry';
-// import { TestPage } from '../test-page/test-page';
+
+import { pefSearch } from 'lik-shared';
 
 @Component({
     selector: 'dashboard',
@@ -28,8 +29,8 @@ export class DashboardPage {
     public filterTextValueChanges = new EventEmitter<string>();
 
     public filteredPreismeldestellen$ = this.preismeldestellen$
-        .combineLatest(this.filterTextValueChanges.startWith(null),
-            (preismeldestellen, filterText) => preismeldestellen.filter(x => !filterText || x.name.includes(filterText)));
+        .combineLatest(this.filterTextValueChanges.startWith(''),
+            (preismeldestellen, filterText) => pefSearch(filterText, preismeldestellen, [pms => pms.name]));
 
     constructor(
         private navCtrl: NavController,
