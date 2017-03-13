@@ -22,7 +22,7 @@
                     <div class="leaf-positionsbezeichnung">{{ (warenkorbItem.positionsbezeichnung | pefPropertyTranslate) || '&ndash;' }}</div>
                     <div class="leaf-beispiele">{{ (warenkorbItem.beispiele | pefPropertyTranslate) || '&ndash;' }}</div>
                 </div>
-                <button ion-button icon-only *ngIf="warenkorbItem.type == 'LEAF'" class="add-button" (click)="closeChooseFromWarenkorb$.emit(warenkorbItem.gliederungspositionsnummer)">
+                <button ion-button icon-only *ngIf="warenkorbItem.type == 'LEAF'" class="add-button" (click)="closeChooseFromWarenkorb$.emit(warenkorbItem)">
                     <pef-icon name="add"></pef-icon>
                 </button>
             </ion-item>

@@ -17,7 +17,7 @@ type WarenkorbUiItem = P.Models.WarenkorbTreeItem & {
 })
 export class ChooseFromWarenkorbComponent extends ReactiveComponent implements OnChanges {
     @Input('warenkorbFlat') warenkorbFlat: P.Models.WarenkorbTreeItem[];
-    @Output('closeChooseFromWarenkorb') closeChooseFromWarenkorb$ = new EventEmitter<string>();
+    @Output('closeChooseFromWarenkorb') closeChooseFromWarenkorb$ = new EventEmitter<P.Models.WarenkorbLeaf>();
 
     private warenkorb$: Observable<P.Models.WarenkorbTreeItem[]>;
 

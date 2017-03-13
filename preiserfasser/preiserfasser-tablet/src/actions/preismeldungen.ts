@@ -15,10 +15,11 @@ export type SavePreismeldungPricePayloadType = 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_N
 
 export type Actions =
     { type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: number } |
-    { type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: { warenkorbDoc: { products: P.Models.WarenkorbTreeItem[] }, refPreismeldungen: P.Models.PreismeldungReference[], preismeldungen: P.Models.Preismeldung[], sortPreismeldungen: P.Models.PreismeldungSort[] } } |
+    { type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: { warenkorbDoc: { products: P.Models.WarenkorbTreeItem[] }; refPreismeldungen: P.Models.PreismeldungReference[]; preismeldungen: P.Models.Preismeldung[]; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort } } |
     { type: 'PREISMELDUNGEN_CLEAR' } |
     { type: 'SELECT_PREISMELDUNG', payload: string } |
     { type: 'UPDATE_PREISMELDUNG_PRICE', payload: PreismeldungPricePayload } |
-    { type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung, saveAction: SavePreismeldungPricePayloadType } } |
-    { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung, sortPreismeldungen: P.Models.PreismeldungSort[] } } |
-    { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 };
+    { type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; saveAction: SavePreismeldungPricePayloadType } } |
+    { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort } } |
+    { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 } |
+    { type: 'NEW_PREISMELDUNG', payload: { pmsNummer: string; bearbeitungscode: number; warenkorbPosition: P.Models.WarenkorbLeaf } };

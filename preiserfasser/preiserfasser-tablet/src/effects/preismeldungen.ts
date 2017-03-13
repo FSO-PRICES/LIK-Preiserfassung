@@ -3,7 +3,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';
 import { format } from 'date-fns';
-import { assign } from 'lodash';
+import { assign, keys } from 'lodash';
 
 import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
@@ -11,7 +11,7 @@ import * as P from '../common-models';
 import { preismeldungCompareFn } from 'lik-shared';
 
 const preismeldungUri = docuri.route(P.Models.preismeldungUriRoute);
-const preismeldungSortUri = docuri.route(P.Models.preismeldungSortUriRoute);
+const pmsPreismeldungenSortUri = docuri.route(P.Models.pmsPreismeldungenSortUriRoute);
 
 @Injectable()
 export class PreismeldungenEffects {
@@ -28,7 +28,7 @@ export class PreismeldungenEffects {
         .switchMap(({ payload }) => getDatabase().then(db => ({ db, pmsNummer: payload })))
         .flatMap(x => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-ref/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, pmRefs: res.rows.map(y => y.doc) as P.Models.PreismeldungReference[] })))
         .flatMap(x => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.pmRefs, preismeldungen: res.rows.map(y => y.doc) as P.Models.Preismeldung[] })))
-        .flatMap(x => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-sort/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.refPreismeldungen, preismeldungen: x.preismeldungen, sortPreismeldungen: res.rows.map(y => y.doc) as P.Models.PreismeldungSort[] })))
+        .flatMap(x => x.db.get(`pms-sort/${x.pmsNummer}`).catch(err => null).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.refPreismeldungen, preismeldungen: x.preismeldungen, pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort })))
         .flatMap(x => {
             // Warning: the sorting only works when all the Preismeldungen for this Preismeldestelle are missing. New logic required if it happens that
             // new Preismeldungen start arriving!
@@ -58,29 +58,28 @@ export class PreismeldungenEffects {
                     internetLink: rpm.internetLink
                 }));
 
-            const missingSortPriesmeldungen = x.refPreismeldungen
-                .filter(rpm => !x.sortPreismeldungen.find(spm => spm.pmId === rpm.pmId))
-                .sort(preismeldungCompareFn)
-                .map<P.Models.PreismeldungSort>((rpm, i) => ({
-                    _id: preismeldungSortUri({ pmsNummer: rpm.pmsNummer, epNummer: rpm.epNummer, laufnummer: rpm.laufnummer }),
-                    _rev: undefined,
-                    pmId: rpm.pmId,
-                    sortierungsnummer: i + 1,
-                }));
+            const pmsPreismeldungenSort = x.pmsPreismeldungenSort || { _id: `pms-sort/${x.pmsNummer}`, _rev: null };
 
-            if (missingPreismeldungs.length === 0 && missingSortPriesmeldungen.length === 0) {
+            if (missingPreismeldungs.length === 0) {
                 return Promise.resolve(x);
             }
 
-            return x.db.bulkDocs((missingPreismeldungs as any[]).concat(missingSortPriesmeldungen))
+            const newPmsPreismeldungenSort = assign({}, pmsPreismeldungenSort, {
+                sortOrder: x.refPreismeldungen
+                    .filter(rpm => !pmsPreismeldungenSort[rpm.pmId])
+                    .sort(preismeldungCompareFn)
+                    .map((rpm, i) => ({ pmId: rpm.pmId, sortierungsnummer: i + 1 }))
+            });
+
+            return x.db.bulkDocs((missingPreismeldungs as any[]).concat([ newPmsPreismeldungenSort ]))
                 .then(() => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Models.Preismeldung[]))
-                .then(preismeldungen => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-sort/${x.pmsNummer}`), { include_docs: true })).then(res => ({ preismeldungen, sortPreismeldungen: res.rows.map(y => y.doc) as P.Models.PreismeldungSort[] })))
+                .then(preismeldungen => x.db.get(`pms-sort/${x.pmsNummer}`).then(res => ({ preismeldungen, pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort })))
                 .then(y => ({
                     pmsNummer: x.pmsNummer,
                     db: x.db,
                     refPreismeldungen: x.refPreismeldungen,
                     preismeldungen: y.preismeldungen,
-                    sortPreismeldungen: y.sortPreismeldungen
+                    pmsPreismeldungenSort: y.pmsPreismeldungenSort
                 }));
         })
         .flatMap(x => x.db.get(`pms/${x.pmsNummer}`).then((pms: P.Models.Preismeldestelle) => ({
@@ -88,14 +87,14 @@ export class PreismeldungenEffects {
             pms,
             refPreismeldungen: x.refPreismeldungen,
             preismeldungen: x.preismeldungen,
-            sortPreismeldungen: x.sortPreismeldungen
+            pmsPreismeldungenSort: x.pmsPreismeldungenSort
         })))
         .flatMap(x => x.db.get('warenkorb').then((warenkorbDoc: any) => ({ // TODO: add types for warenkorb
             pms: x.pms,
             warenkorbDoc,
             refPreismeldungen: x.refPreismeldungen,
             preismeldungen: x.preismeldungen,
-            sortPreismeldungen: x.sortPreismeldungen
+            pmsPreismeldungenSort: x.pmsPreismeldungenSort
         })))
         // TODO: import action type
         .map(docs => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: docs }));
@@ -118,8 +117,9 @@ export class PreismeldungenEffects {
     @Effect()
     saveNewPreismeldung$ = this.savePreismeldungPrice
         .filter(x => x.currentPreismeldung.isNew)
-        .switchMap(({ currentPreismeldung, payload }) => {
-            return getDatabase()
+        // .do(x => c)
+        .switchMap(({ currentPreismeldung, payload }) =>
+            getDatabase()
                 .then(db => // save Preismeldung
                     db.put(assign({}, {
                         _id: currentPreismeldung.preismeldung._id,
@@ -129,28 +129,23 @@ export class PreismeldungenEffects {
                         pmsNummer: currentPreismeldung.preismeldung.pmsNummer
                     }, this.propertiesFromCurrentPreismeldung(currentPreismeldung))).then(() => db)
                 )
-                .then(db => // increase the sortierungsnummer for all the preismeldung after the new one
-                    db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-sort/${currentPreismeldung.preismeldung.pmsNummer}`), { include_docs: true }))
-                        .then(res => res.rows.map(y => y.doc) as P.Models.PreismeldungSort[])
-                        .then(preismeldungSorts => {
-                            const changedSorts = preismeldungSorts
-                                .filter(x => x.sortierungsnummer >= currentPreismeldung.sortPreismeldung.sortierungsnummer)
-                                .map(x => {
-                                    // modify in place, not immutable
-                                    x.sortierungsnummer = x.sortierungsnummer + 1;
-                                    return x;
-                                });
-                            return db.bulkDocs(changedSorts).then(() => db);
+                .then(db =>
+                    db.get(`pms-sort/${currentPreismeldung.preismeldung.pmsNummer}`)
+                        .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
+                            const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
+                                sortOrder: [
+                                    ...pmsPreismeldungenSort.sortOrder.filter(x => x.sortierungsnummer < currentPreismeldung.sortierungsnummer),
+                                    { pmId: currentPreismeldung.pmId, sortierungsnummer: currentPreismeldung.sortierungsnummer },
+                                    ...pmsPreismeldungenSort.sortOrder.filter(x => x.sortierungsnummer >= currentPreismeldung.sortierungsnummer).map(x => ({ pmId: x.pmId, sortierungsnummer: x.sortierungsnummer + 1 }))
+                                ]
+                            });
+                            return db.put(newPmsPreismeldungsSort).then(() => db);
                         })
+                        .then(db => // reread from db
+                            db.get(currentPreismeldung.preismeldung._id).then(res => ({ db, preismeldung: res }))
+                                .then(x => x.db.get(`pms-sort/${currentPreismeldung.preismeldung.pmsNummer}`).then(res => ({ pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort, preismeldung: x.preismeldung }))))
                 )
-                .then(db => // save PreismeldungSort
-                    db.put(assign({}, currentPreismeldung.sortPreismeldung)).then(() => db)
-                )
-                .then(db => // reread from db
-                    db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-sort/${currentPreismeldung.preismeldung.pmsNummer}`), { include_docs: true })).then(res => ({ db, sortPreismeldungen: res.rows.map(y => y.doc) as P.Models.PreismeldungSort[] }))
-                        .then(x => x.db.get(currentPreismeldung.preismeldung._id).then(preismeldung => ({ preismeldung, sortPreismeldungen: x.sortPreismeldungen })))
-                );
-        })
+        )
         .map(payload => ({ type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload }));
 
     propertiesFromCurrentPreismeldung(currentPreismeldung: P.CurrentPreismeldungBag) {

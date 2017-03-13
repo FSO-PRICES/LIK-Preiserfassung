@@ -29,7 +29,7 @@ export class PmsPriceEntryPage {
     updatePreismeldungPreis$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
     duplicatePreismeldung$ = new EventEmitter();
     addNewPreisreihe$ = new EventEmitter();
-    closeChooseFromWarenkorb$ = new EventEmitter<string>();
+    closeChooseFromWarenkorb$ = new EventEmitter<P.Models.WarenkorbLeaf>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -97,6 +97,12 @@ export class PmsPriceEntryPage {
         this.chooseFromWarenkorbDisplayed$ = this.addNewPreisreihe$.mapTo(true)
             .merge(this.closeChooseFromWarenkorb$.mapTo(false))
             .startWith(false);
+
+        this.closeChooseFromWarenkorb$
+            .filter(warenkorbPosition => !!warenkorbPosition)
+            .flatMap(warenkorbPosition => dialogNewPmbearbeitungsCode$.map(dialogReturnValue => ({ warenkorbPosition, dialogReturnValue, pmsNummer: this.navParams.get('pmsNummer') })))
+            .filter(x => x.dialogReturnValue.action === 'OK')
+            .subscribe(x => this.store.dispatch({ type: 'NEW_PREISMELDUNG', payload: { warenkorbPosition: x.warenkorbPosition, bearbeitungscode: x.dialogReturnValue.bearbeitungscode, pmsNummer: x.pmsNummer } }));
     }
 
     ionViewDidLoad() {

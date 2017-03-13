@@ -8,7 +8,7 @@ import { preismeldungCompareFn } from 'lik-shared';
 export interface PreismeldungBag {
     pmId: string;
     refPreismeldung?: P.Models.PreismeldungReference;
-    sortPreismeldung: P.Models.PreismeldungSort;
+    sortierungsnummer: number;
     preismeldung: P.Models.Preismeldung;
     warenkorbPosition: P.Models.WarenkorbLeaf;
     priceCountStatus: {
@@ -49,7 +49,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                         pmId: preismeldung._id,
                         preismeldung,
                         refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
-                        sortPreismeldung: payload.sortPreismeldungen.find(spm => spm.pmId === preismeldung._id),
+                        sortierungsnummer: payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id).sortierungsnummer,
                         warenkorbPosition,
                         priceCountStatus: {
                             text: `${preismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
@@ -58,7 +58,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     });
                 });
 
-            const preismeldungIds = sortBy(preismeldungBags, x => x.sortPreismeldung.sortierungsnummer).map(x => x.pmId);
+            const preismeldungIds = sortBy(preismeldungBags, x => x.sortierungsnummer).map(x => x.pmId);
             const entities = preismeldungBags.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldung: P.PreismeldungBag) => assign(agg, { [preismeldung.pmId]: preismeldung }), {});
             return assign({}, state, { preismeldungIds, entities, currentPreismeldung: undefined });
         }
@@ -113,12 +113,12 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS': {
             const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false, isNew: false });
             // recreate priesmeldungIds sorted
-            const preismeldungIds = sortBy(action.payload.sortPreismeldungen, x => x.sortierungsnummer).map(x => x.pmId);
-            // recreate entities with new sortPreismeldung
-            const entities = action.payload.sortPreismeldungen.reduce((agg, sortPreismeldung) => {
-                const priceCountStatus = !!state.entities[sortPreismeldung.pmId] && state.entities[sortPreismeldung.pmId].preismeldung.epNummer === currentPreismeldung.preismeldung.epNummer
+            const preismeldungIds = action.payload.pmsPreismeldungenSort.sortOrder.map(x => x.pmId);
+            // recreate entities with new sortierungsnummer
+            const entities = preismeldungIds.reduce((agg, pmId) => {
+                const priceCountStatus = !!state.entities[pmId] && state.entities[pmId].preismeldung.epNummer === currentPreismeldung.preismeldung.epNummer
                     ? assign({}, currentPreismeldung.priceCountStatus) : null;
-                 return assign(agg, { [sortPreismeldung.pmId]: assign({}, state.entities[sortPreismeldung.pmId], { sortPreismeldung }, !!priceCountStatus ? { priceCountStatus } : null ) });
+                 return assign(agg, { [pmId]: assign({}, state.entities[pmId], { sortierungsnummer: action.payload.pmsPreismeldungenSort.sortOrder.find(x => x.pmId === pmId).sortierungsnummer }, !!priceCountStatus ? { priceCountStatus } : null ) });
             }, {});
 
             return assign({}, state, {
@@ -159,16 +159,56 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     istAbgebucht: false,
                     uploadRequestedAt: null
                 }),
-                sortPreismeldung: {
-                    _id: `pm-sort/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`,
-                    pmId: newPmId,
-                    sortierungsnummer: currentPreismeldung.sortPreismeldung.sortierungsnummer + 1
-                },
+                sortierungsnummer: currentPreismeldung.sortierungsnummer + 1,
                 priceCountStatus: {
                     text: `${preismeldungen.length + 1}/${currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
                     ok: preismeldungen.length + 1 >= currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
                 }
             });
+
+            return assign({}, state, { currentPreismeldung: newCurrentPreismeldung });
+        }
+
+        case 'NEW_PREISMELDUNG': {
+            const allPreismeldungen = getAll(state);
+            const preismeldungen = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === action.payload.warenkorbPosition.gliederungspositionsnummer);
+            const nextLaufnummer = 1;
+            const newPmId = `pm/${action.payload.pmsNummer}/ep/${action.payload.warenkorbPosition.gliederungspositionsnummer}/lauf/${nextLaufnummer}`;
+            const newCurrentPreismeldung = {
+                pmId: newPmId,
+                isModified: true,
+                isNew: true,
+                refPreismeldung: null,
+                warenkorbPosition: action.payload.warenkorbPosition,
+                preismeldung: {
+                    _id: newPmId,
+                    _rev: null,
+                    pmsNummer: action.payload.pmsNummer,
+                    epNummer: action.payload.warenkorbPosition.gliederungspositionsnummer,
+                    laufnummer: nextLaufnummer,
+                    preis: null,
+                    menge: null,
+                    preisVPNormalNeuerArtikel: null,
+                    mengeVPNormalNeuerArtikel: null,
+                    aktion: false,
+                    artikelnummer: null,
+                    artikeltext: null,
+                    internetLink: null,
+                    bermerkungenAnsBfs: null,
+                    percentageDPToLVP: null,
+                    percentageDPToVPNeuerArtikel: null,
+                    percentageVPNeuerArtikelToVPAlterArtikel: null,
+                    modifiedAt: null,
+                    bearbeitungscode: action.payload.bearbeitungscode,
+                    istAbgebucht: false,
+                    uploadRequestedAt: null
+                },
+                sortierungsnummer: allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1,
+                priceCountStatus: {
+                    text: `${preismeldungen.length + 1}/${action.payload.warenkorbPosition.anzahlPreiseProPMS}`,
+                    ok: preismeldungen.length + 1 >= action.payload.warenkorbPosition.anzahlPreiseProPMS
+                }
+            };
 
             return assign({}, state, { currentPreismeldung: newCurrentPreismeldung });
         }
