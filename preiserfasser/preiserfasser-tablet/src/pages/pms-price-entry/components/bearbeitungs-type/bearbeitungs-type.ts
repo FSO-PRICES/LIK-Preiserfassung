@@ -117,7 +117,7 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
     public standardBearbeitungsTypes: BearbeitungsType[] = [
         { code: 100, iconName: 'recommended', description: 'Standardabbuchung', codeName: 'Code 100' },
-        { code: 44, iconName: 'recommended', description: 'Saisonales Product nicht vorhanden', codeName: 'Code S/44' },
+        { code: 44, iconName: 'recommended', description: 'Saisonales Product nicht vorhanden', codeName: 'Code S' },
         { code: 101, iconName: 'recommended', description: 'Aktuell nicht an Lager', codeName: 'Code R' },
         { code: 1, iconName: 'recommended', description: 'Direkter Ersatz', codeName: 'Code 1' },
         { code: 7, iconName: 'recommended', description: 'Verkettung', codeName: 'Code 7' },

@@ -18,6 +18,7 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
     public selectTab$ = new EventEmitter<string>();
     public hasAttributes$: Observable<boolean>;
+    public requestPreismeldungQuickEqualDisabled$: Observable<boolean>;
 
     constructor() {
         super();
@@ -28,6 +29,8 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
 
         this.hasAttributes$ = this.preismeldung$
             .map(p => !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length); // TODO: remove null check
+
+        this.requestPreismeldungQuickEqualDisabled$ = this.preismeldung$.map(x => [2, 3, 7].some(y => y === x.preismeldung.bearbeitungscode))
     }
 
     isSelected$(tabName: string) {

@@ -37,7 +37,7 @@
         >
         <pef-icon name="notification"></pef-icon>
     </button>
-    <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')" [class.hidden]="(selectedTab$ | async) != 'PREISMELDUNG' || (preismeldung$ | async).preismeldung.bearbeitungscode == 3">
+    <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')" [class.hidden]="(selectedTab$ | async) != 'PREISMELDUNG' || requestPreismeldungQuickEqualDisabled$ | async">
         <div class="pef-inner">
             <pef-icon name="equal"></pef-icon>
         </div>
