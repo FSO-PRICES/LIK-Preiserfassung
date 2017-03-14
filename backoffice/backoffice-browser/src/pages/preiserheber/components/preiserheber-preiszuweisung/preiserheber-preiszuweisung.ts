@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnChanges, SimpleChange, Input, EventEmitter, Output } from '@angular/core';
+import { Observable, Subscribable } from 'rxjs/Observable';
+import { some, reduce } from 'lodash';
 
 import { ReactiveComponent, Models as P } from 'lik-shared';
-
-import { Observable } from 'rxjs';
-import { Preiszuweisung } from '../../../../../../../lik-shared/common/models';
 
 @Component({
     selector: 'preiserheber-preiszuweisung',
@@ -13,12 +12,18 @@ import { Preiszuweisung } from '../../../../../../../lik-shared/common/models';
 export class PreiserheberPreiszuweisungComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldestellen: P.Preismeldestelle[];
     @Input() current: P.Preiszuweisung;
+    @Input() preiszuweisungen: P.Preiszuweisung[];
     @Output('save')
     public save$ = new EventEmitter();
-    @Output('update')
-    public update$ = new EventEmitter();
+    @Output('assign')
+    public assign$: Observable<P.Preismeldestelle>;
+    @Output('unassign')
+    public unassign$: Observable<P.Preismeldestelle>;
 
-    public filterTextValueChanges = new EventEmitter<string>();
+    public filterTextValueChanges$ = new EventEmitter<string>();
+    public selectPreismeldestelleClick$ = new EventEmitter<P.Preismeldestelle>();
+    public assignPreismeldestelleClick$ = new EventEmitter();
+    public unassignPreismeldestelleClick$ = new EventEmitter();
 
     public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     public assignedPreismeldestellen$: Observable<P.Preismeldestelle[]>;
@@ -27,23 +32,65 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
     public assignedViewPortItems: P.Preismeldestelle[];
 
     public current$: Observable<P.Preiszuweisung>;
+    public selectedPreismeldestelle$: Observable<P.Preismeldestelle>;
+    public hasSelectedUnassignedPreismeldestelle$: Observable<boolean>;
+    public hasSelectedAssignedPreismeldestelle$: Observable<boolean>;
 
     constructor() {
         super();
-        this.preismeldestellen$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle[]>('preismeldestellen').publishReplay(1).refCount();
-        this.filteredPreismeldestellen$ = this.preismeldestellen$
-            .filter(x => !!x)
-            .combineLatest(this.filterTextValueChanges.startWith(null),
-            (preismeldestellen, filterText) => preismeldestellen.filter(x => !filterText || x.name.includes(filterText) || x.pmsNummer.includes(filterText)));
 
         this.current$ = this.observePropertyCurrentValue<P.Preiszuweisung>('current').publishReplay(1).refCount();
 
+        const preiszuweisungen$ = this.observePropertyCurrentValue<P.Preiszuweisung[]>('preiszuweisungen').publishReplay(1).refCount();
+
+        const preismeldestellen$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle[]>('preismeldestellen').publishReplay(1).refCount();
+
+        const unassignedPreismeldestellen$ = preiszuweisungen$
+            .combineLatest(preismeldestellen$, (preiszuweisungen: P.Preiszuweisung[], preismeldestellen: P.AdvancedPreismeldestelle[]) => ({ preiszuweisungen, preismeldestellen }))
+            .combineLatest(this.current$, ({ preiszuweisungen, preismeldestellen }, preiserheber) => ({ preiszuweisungen, preismeldestellen, preiserheberId: <string>preiserheber._id }))
+            .filter(({ preismeldestellen }) => !!preismeldestellen)
+            .map(({ preiszuweisungen, preismeldestellen, preiserheberId }) => {
+                if (!!preiserheberId && !!preiszuweisungen) {
+                    const alreadyAssigned = reduce(preiszuweisungen, (prev, curr) => {
+                        return curr._id !== preiserheberId ? prev.concat(curr.preismeldestellen) : prev;
+                    }, []);
+                    return preismeldestellen.filter(x => alreadyAssigned.indexOf(x.pmsNummer) === -1);
+                }
+                return preismeldestellen;
+            });
+
         this.assignedPreismeldestellen$ = this.current$
-            .do(x => console.log('checking current preiszuweisung:', x))
             .filter(x => !!x)
             .map(preiszuweisung => preiszuweisung.preismeldestellen)
-            .do(x => console.log('got preiszuweisungen:', x))
             .publishReplay(1).refCount();
+
+        this.filteredPreismeldestellen$ = this.assignedPreismeldestellen$.startWith(null)
+            .withLatestFrom(<Subscribable<P.Preismeldestelle[]>>unassignedPreismeldestellen$, (assigned, preismeldestellen) => ({ preismeldestellen, assigned }))
+            .map(({ preismeldestellen, assigned }) => preismeldestellen.filter(preismeldestelle => !assigned || !assigned.some(x => x._id === preismeldestelle._id)))
+            .filter(x => !!x)
+            .combineLatest(this.filterTextValueChanges$.startWith(null),
+                (preismeldestellen, filterText) => preismeldestellen.filter(x => !filterText || x.name.includes(filterText) || x.pmsNummer.includes(filterText)))
+            .publishReplay(1).refCount();
+
+        this.selectedPreismeldestelle$ = this.selectPreismeldestelleClick$
+            .startWith(null)
+            .merge(preismeldestellen$.mapTo(null), this.filteredPreismeldestellen$.mapTo(null))
+            .scan((previous: P.Preismeldestelle, current: P.Preismeldestelle) => !previous || !current || previous._id !== current._id ? current : null)
+            .publishReplay(1).refCount();
+
+        this.hasSelectedUnassignedPreismeldestelle$ = this.selectedPreismeldestelle$
+            .combineLatest(this.filteredPreismeldestellen$)
+            .map(([preismeldestelle, preismeldestellen]) => !!preismeldestelle && some(preismeldestellen, (x: P.Preismeldestelle) => x._id === preismeldestelle._id))
+            .publishReplay(1).refCount();
+        this.hasSelectedAssignedPreismeldestelle$ = this.selectedPreismeldestelle$
+            .combineLatest(this.assignedPreismeldestellen$)
+            .map(([preismeldestelle, preismeldestellen]) => !!preismeldestelle && some(preismeldestellen, (x: P.Preismeldestelle) => x._id === preismeldestelle._id))
+            .publishReplay(1).refCount();
+
+        this.assign$ = this.assignPreismeldestelleClick$
+            .withLatestFrom(this.selectedPreismeldestelle$, (_, preismeldestelle) => <P.Preismeldestelle>preismeldestelle);
+        this.unassign$ = this.unassignPreismeldestelleClick$
+            .withLatestFrom(this.selectedPreismeldestelle$, (_, preismeldestelle) => <P.Preismeldestelle>preismeldestelle);
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

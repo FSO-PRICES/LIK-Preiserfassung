@@ -1,4 +1,4 @@
-<div class="toolbar toolbar-md" [class.danger-zone]="dangerZone">
+<div class="toolbar toolbar-md" [class.danger-zone]="dangerZone$ | async">
     <ion-buttons end>
         <a
             *ngFor="let entry of pages"
@@ -7,6 +7,13 @@
             href="javascript:"
             (click)="navigateToPage(entry.page)">
             {{ entry.name }}
+        </a>
+        <a
+            ion-button
+            clear
+            href="javascript:"
+            (click)="navigateToPage(settingsPage)">
+            <pef-icon name="settings"></pef-icon>
         </a>
     </ion-buttons>
 

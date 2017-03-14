@@ -2,39 +2,43 @@ import { ErrorHandler, NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
-import { Backoffice } from './app.component';
-import { PefMenuModule, PefMenuComponent } from '../components/pef-menu';
-import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
-import { PreismeldestelleModule, PreismeldestellePage } from '../pages/preismeldestelle';
-import { InitializationModule, InitializationPage } from '../pages/initialization';
-
 import { PefDialogService } from 'lik-shared';
 import { PefComponentsModule } from 'lik-shared';
+
+import { Backoffice } from './app.component';
+import { SettingsLoadedService } from '../common/settings-loaded-service';
+import { PefMenuModule, PefMenuComponent } from '../components/pef-menu';
+import { PefDialogLoginModule, PefDialogLoginComponent } from '../components/pef-dialog-login';
+
+import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
+import { PreismeldestelleModule, PreismeldestellePage } from '../pages/preismeldestelle';
+import { ImportModule, ImportPage } from '../pages/import';
+import { ExportToPrestaModule, ExportToPrestaPage } from '../pages/export-to-presta';
+import { SettingsPage, SettingsModule } from '../pages/settings';
 
 import { BO_EFFECTS } from '../effects';
 import { reducer } from '../reducers';
 
-export const MainPages = [
-    { page: PreiserheberPage, name: 'Preiserheber' },
-    { page: PreismeldestellePage, name: 'Preismeldestellen' },
-    { page: InitializationPage, name: 'Initialisierung' },
-];
-
 @NgModule({
     declarations: [
-        Backoffice,
+        Backoffice
     ],
     imports: [
         IonicModule.forRoot(Backoffice, {
             links: [
-                { component: InitializationPage, name: 'Initialization', segment: 'init' },
+                { component: ImportPage, name: 'Import', segment: 'import' },
+                { component: ExportToPrestaPage, name: 'Export', segment: 'export' },
                 { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe' },
                 { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms' },
+                { component: SettingsPage, name: 'Settings', segment: 'settings' },
             ]
         }),
         PefComponentsModule,
+        PefDialogLoginModule,
         PefMenuModule,
-        InitializationModule,
+        ImportModule,
+        ExportToPrestaModule,
+        SettingsModule,
         PreiserheberModule,
         PreismeldestelleModule,
         StoreModule.provideStore(reducer),
@@ -44,13 +48,17 @@ export const MainPages = [
     entryComponents: [
         Backoffice,
         PefMenuComponent,
-        InitializationPage,
+        PefDialogLoginComponent,
+        ImportPage,
+        ExportToPrestaPage,
+        SettingsPage,
         PreiserheberPage,
         PreismeldestellePage
     ],
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
-        PefDialogService
+        PefDialogService,
+        SettingsLoadedService
     ]
 })
 export class AppModule { }

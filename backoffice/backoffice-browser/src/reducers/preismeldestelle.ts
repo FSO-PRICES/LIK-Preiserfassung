@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 
 export type CurrentPreismeldestelle = P.AdvancedPreismeldestelle & {
     isModified: boolean;
+    isSaved: boolean;
 };
 
 export interface State {
@@ -34,8 +35,33 @@ export function reducer(state = initialState, action: preismeldestelle.Actions):
         }
 
         case 'SELECT_PREISMELDESTELLE': {
-            const currentPreismeldestelle = action.payload == null ? {} : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false });
+            const currentPreismeldestelle = action.payload == null ? null : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false });
             return assign({}, state, { currentPreismeldestelle: currentPreismeldestelle });
+        }
+
+        case 'CREATE_PREISMELDESTELLE': {
+            const newPreismeldestelle: CurrentPreismeldestelle = {
+                _id: '__new',
+                _rev: undefined,
+                pmsNummer: null,
+                name: null,
+                supplement: null,
+                email: null,
+                street: null,
+                postcode: null,
+                town: null,
+                regionId: null,
+                erhebungsart: null,
+                erhebungshaeufigkeit: null,
+                erhebungsartComment: null,
+                kontaktpersons: null,
+                languageCode: null,
+                telephone: null,
+                active: true,
+                isModified: false,
+                isSaved: false
+            };
+            return assign({}, state, { currentPreismeldestelle: newPreismeldestelle });
         }
 
         case 'UPDATE_CURRENT_PREISMELDESTELLE': {
@@ -55,7 +81,8 @@ export function reducer(state = initialState, action: preismeldestelle.Actions):
                 kontaktpersons: payload.kontaktpersons, // TODO: Nested values, how to handle?
                 languageCode: payload.languageCode,
                 telephone: payload.telephone,
-                email: payload.email
+                email: payload.email,
+                active: payload.active
             };
 
             const currentPreismeldestelle = assign({},

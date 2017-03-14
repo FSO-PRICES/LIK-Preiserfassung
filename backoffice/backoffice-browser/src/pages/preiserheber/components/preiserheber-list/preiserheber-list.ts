@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 
 import { ReactiveComponent, Models as P } from 'lik-shared';
 
-import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 import { filterValues } from '../../../../common/angular-form-extensions';
 
 @Component({
@@ -15,11 +14,10 @@ export class PreiserheberListComponent extends ReactiveComponent implements OnCh
     @Input() list: P.Erheber[];
     @Input() current: P.Erheber;
     @Output('selected')
-    public selected$ = new EventEmitter<string>();
+    public selectPreiserheber$ = new EventEmitter<P.Erheber>();
 
     public preiserhebers$: Observable<P.Erheber[]>;
     public current$: Observable<P.Erheber>;
-    public selectPreiserheber$ = new EventEmitter<P.Erheber>();
 
     public filterTextValueChanges = new EventEmitter<string>();
 
@@ -36,17 +34,6 @@ export class PreiserheberListComponent extends ReactiveComponent implements OnCh
                 .filter(x => filterValues(filterText, [x.firstName, x.surname, x.personFunction])));
 
         this.current$ = this.observePropertyCurrentValue<P.Erheber>('current');
-
-        const requestSelectPreiserheber$ = this.selectPreiserheber$
-            .withLatestFrom(this.current$.startWith(null), (selectedPreiserheber: P.Erheber, currentPreiserheber: CurrentPreiserheber) => ({
-                selectedPreiserheber,
-                currentPreiserheber,
-                isCurrentModified: !!currentPreiserheber && currentPreiserheber.isModified
-            }));
-
-        requestSelectPreiserheber$
-            .filter(x => !x.isCurrentModified)
-            .subscribe(x => this.selected$.emit(x.selectedPreiserheber._id));
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

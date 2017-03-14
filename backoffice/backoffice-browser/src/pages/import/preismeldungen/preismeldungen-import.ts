@@ -1,9 +1,9 @@
-import { EventEmitter, Output, Component } from '@angular/core';
-import { LoadingController } from 'ionic-angular';
-import { Observable } from 'rxjs';
+import { EventEmitter, Output, Component, OnDestroy } from '@angular/core';
+import { LoadingController, Loading } from 'ionic-angular';
+import { Observable, Subscription } from 'rxjs';
 import { first, chunk } from 'lodash';
 
-import { readFileContents, parseFile } from '../../../common/file-select-observable';
+import { readFileContents, parseCsv } from '../../../common/file-extensions';
 import { dropLocalDatabase, getLocalDatabase, putAdminUserToDatabase, syncDb } from '../../../effects/pouchdb-utils';
 import { preparePm } from '../../../common/presta-data-mapper';
 import { Http } from '@angular/http';
@@ -12,35 +12,29 @@ import { Http } from '@angular/http';
     selector: 'preismeldungen-import',
     templateUrl: 'preismeldungen-import.html',
 })
-export class PreismeldungenImportComponent {
-    public parsingIsCompleted$: Observable<boolean>;
-
-    public preismeldungenSelected$ = new EventEmitter<Event>();
-
-    public createPreismeldungenClicked$ = new EventEmitter<Event>();
-
+export class PreismeldungenImportComponent implements OnDestroy {
     @Output('importCompleted')
     public importCompleted$: Observable<number>;
 
+    public preismeldungenSelected$ = new EventEmitter<Event>();
+    public createPreismeldungenClicked$ = new EventEmitter<Event>();
+
+    public parsingIsCompleted$: Observable<boolean>;
     public preismeldungenImported$: Observable<number>;
     private arePreismeldungenImported$: Observable<boolean>;
 
-    constructor(private http: Http, private loadingCtrl: LoadingController) {
-        const loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
-        });
+    private subscriptions: Subscription[];
+    private loader: Loading;
 
+    constructor(private http: Http, private loadingCtrl: LoadingController) {
         const parseCompleted$ = this.preismeldungenSelected$
             .map(event => first((<HTMLInputElement>event.target).files))
-            // .filter(f => !!f.name.match('file name?'))
+            // .filter(f => !!f.name.match('file name?')) // TODO Add filename filter for preismeldung import
             .flatMap(file => readFileContents(file))
-            .map(content => parseFile(content))
+            .map(content => parseCsv(content))
             .publishReplay(1).refCount();
 
         this.parsingIsCompleted$ = parseCompleted$.map(_ => true).startWith(false);
-
-        this.createPreismeldungenClicked$
-            .subscribe(() => loader.present());
 
         this.importCompleted$ = this.createPreismeldungenClicked$
             .withLatestFrom(parseCompleted$, (_, preismeldestellen) => preismeldestellen)
@@ -65,12 +59,38 @@ export class PreismeldungenImportComponent {
             // )
             .publishReplay(1).refCount();
 
-        this.importCompleted$
-            .flatMap(x => putAdminUserToDatabase(http, 'preismeldungen'))
-            .subscribe(() => loader.dismiss());
-
         this.preismeldungenImported$ = this.importCompleted$.startWith(0)
             .publishReplay(1).refCount();
         this.arePreismeldungenImported$ = this.preismeldungenImported$.map(x => x > 0);
+
+        this.subscriptions = [
+            this.createPreismeldungenClicked$
+                .subscribe(() => this.presentLoadingScreen()),
+
+            this.importCompleted$
+                .flatMap(x => putAdminUserToDatabase('preismeldungen', 'lik-admin')) // TODO: Find out how to store username of logged in
+                .subscribe(() => this.dismissLoadingScreen())
+        ];
+    }
+
+    public ngOnDestroy() {
+        if (!this.subscriptions || this.subscriptions.length === 0) return;
+        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    }
+
+    private presentLoadingScreen() {
+        this.dismissLoadingScreen();
+
+        this.loader = this.loadingCtrl.create({
+            content: 'Datensynchronisierung. Bitte warten...'
+        });
+
+        this.loader.present();
+    }
+
+    private dismissLoadingScreen() {
+        if (!!this.loader) {
+            this.loader.dismiss();
+        }
     }
 }

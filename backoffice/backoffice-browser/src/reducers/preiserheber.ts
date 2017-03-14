@@ -7,6 +7,7 @@ export type CurrentPreiserheber = P.Erheber & {
     isModified: boolean;
     isSaved: boolean;
     isCreated: boolean;
+    isNew: boolean;
 };
 
 export interface State {
@@ -35,8 +36,26 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
         }
 
         case 'SELECT_PREISERHEBER': {
-            const currentPreiserheber = action.payload == null ? {} : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false, isCreated: false });
+            const currentPreiserheber = action.payload == null ? null : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false, isCreated: false });
             return assign({}, state, { currentPreiserheber: currentPreiserheber });
+        }
+
+        case 'CREATE_PREISERHEBER': {
+            const newPreiserheber: CurrentPreiserheber = {
+                _id: '__new',
+                _rev: undefined,
+                firstName: null,
+                surname: null,
+                personFunction: null,
+                languageCode: null,
+                telephone: null,
+                email: null,
+                isModified: false,
+                isSaved: false,
+                isCreated: false,
+                isNew: true
+            };
+            return assign({}, state, { currentPreiserheber: newPreiserheber });
         }
 
         case 'UPDATE_CURRENT_PREISERHEBER': {
@@ -65,6 +84,15 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
             const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload);
             const preiserheberIds = !!state.preiserheberIds.find(x => x === currentPreiserheber._id) ? state.preiserheberIds : [...state.preiserheberIds, currentPreiserheber._id];
             return assign({}, state, { currentPreiserheber, preiserheberIds, entities: assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber }) });
+        }
+
+        case 'ASSIGN_TO_CURRENT_PREISZUWEISUNG':
+        case 'UNASSIGN_FROM_CURRENT_PREISZUWEISUNG': {
+            const currentPreiserheber = assign({},
+                state.currentPreiserheber,
+                { isModified: true }
+            );
+            return Object.assign({}, state, { currentPreiserheber });
         }
 
         default:
