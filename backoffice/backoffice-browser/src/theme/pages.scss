@@ -34,11 +34,21 @@
         display: flex;
         flex-direction: row;
         flex: 1;
-        background-color: $mercury;;
-        @include set-padding(1, 1, 0, 1);
 
-        .content-md {
+        .container {
             background-color: $mercury;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            h1, h2, h3, h4, h5 {
+                flex: 0;
+            }
+            button {
+                flex: 0 0 25%;
+            }
         }
     }
 
@@ -153,7 +163,7 @@
     }
 
     .pms-cell-content {
-        background-color: white;
+        background-color: $white;
         position: absolute;
         top: 0;
         height: calc(100% - 4px);
@@ -163,7 +173,7 @@
     }
 
     .button-md.price-entry-button {
-        @include button-color($scooter, white);
+        @include button-color($scooter, $white);
     }
 
     .preismeldungen {
@@ -198,9 +208,9 @@
         @include set-margin-bottom(0.25);
         &.selected {
             background-color: $surfie-green;
-            color: white;
+            color: $white;
             .pef-item-title, .pef-item-description .text {
-                color: white;
+                color: $white;
             }
         }
         &.item-md.item-block .item-inner {
@@ -256,17 +266,13 @@
             }
         }
         &[tappable]:hover:not(.selected) {
-            background-color: $java;
+            background-color: $blue-chill;
             .pef-item-title, .pef-item-description .text, .pef-item-description .artikel-text {
                 color: $white;
             }
         }
     }
     .pef-item-left {
-        .item-inner {
-            padding: 0 !important;
-        }
-
         .pef-item-actions {
             flex: 0 0 3em;
             justify-content: flex-start;

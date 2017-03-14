@@ -4,11 +4,11 @@
         <ion-item
             class="pef-advanced-item"
             *ngFor="let preismeldestelle of viewPortItems"
-            (click)="selectPreismeldestelle$.emit(preismeldestelle)"
+            (click)="selectPreismeldestelle$.emit(preismeldestelle._id)"
             [class.selected]="preismeldestelle._id == (current$ | async)?._id"
             tappable>
             <div class="pef-item-title">
-                {{ preismeldestelle.pmsNummer }}<br/>&nbsp;
+                {{ preismeldestelle.pmsNummer }}<br>&nbsp;
             </div>
             <div class="pef-item-description">
                 <span class="text">{{ preismeldestelle.name }}</span>

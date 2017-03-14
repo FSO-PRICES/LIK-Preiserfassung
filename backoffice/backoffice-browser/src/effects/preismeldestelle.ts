@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+
+import { Models as P } from 'lik-shared';
+
 import * as fromRoot from '../reducers';
 import * as preismeldestelle from '../actions/preismeldestelle';
-import { getDatabase } from './pouchdb-utils';
-import { Models as P, CurrentPreismeldestelle } from '../common-models';;
-import { AdvancedPreismeldestelle } from '../../../../lik-shared/common/models';
-
-const PREISMELDESTELLE_DB_NAME = 'preismeldestellen';
+import { getDatabase, dbNames } from './pouchdb-utils';
+import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
+import { loggedIn } from '../common/effects-extensions';
 
 @Injectable()
 export class PreismeldestelleEffects {
     currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
+    isLoggedIn = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(
         private actions$: Actions,
@@ -19,18 +21,18 @@ export class PreismeldestelleEffects {
     }
 
     @Effect()
-    loadPreismeldestelle$ = this.actions$
-        .ofType('PREISMELDESTELLE_LOAD')
-        .switchMap(() => getDatabase(PREISMELDESTELLE_DB_NAME).then(db => ({ db })))
+    loadPreismeldestelle$ = loggedIn(this.isLoggedIn, this.actions$.ofType('PREISMELDESTELLE_LOAD'), loadPreismeldestelle => loadPreismeldestelle
+        .switchMap(() => getDatabase(dbNames.preismeldestelle).then(db => ({ db })))
+        .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preismeldestellen: res.rows.map(y => y.doc) as P.AdvancedPreismeldestelle[] })))
-        .map<preismeldestelle.Actions>(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs }));
+        .map<preismeldestelle.Actions>(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs }))
+    );
 
     @Effect()
-    savePreismeldestelle$ = this.actions$
-        .ofType('SAVE_PREISMELDESTELLE')
+    savePreismeldestelle$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISMELDESTELLE'), savePreismeldestelle => savePreismeldestelle
         .withLatestFrom(this.currentPreismeldestelle$, (action, currentPreismeldestelle: CurrentPreismeldestelle) => ({ currentPreismeldestelle }))
         .switchMap<CurrentPreismeldestelle>(({ currentPreismeldestelle }) => {
-            return getDatabase(PREISMELDESTELLE_DB_NAME)
+            return getDatabase(dbNames.preismeldestelle)
                 .then(db => { // Only check if the document exists if a revision not already exists
                     if (!!currentPreismeldestelle._rev) {
                         return db.get(currentPreismeldestelle._id).then(doc => ({ db, doc }));
@@ -59,7 +61,8 @@ export class PreismeldestelleEffects {
                         erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit
                     })).then((response) => ({ db, id: response.id, created: create }));
                 })
-                .then<CurrentPreismeldestelle>(({ db, id, created }) => db.get(id).then(preismeldestelle => Object.assign({}, preismeldestelle, { isModified: false, isSaved: true, isCreated: created })))
+                .then<CurrentPreismeldestelle>(({ db, id, created }) => db.get(id).then(preismeldestelle => Object.assign({}, preismeldestelle, { isModified: false, isSaved: true, isCreated: created })));
         })
-        .map<preismeldestelle.Actions>(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload }));
+        .map<preismeldestelle.Actions>(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload }))
+    );
 }

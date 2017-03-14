@@ -1,18 +1,8 @@
-<form [formGroup]="form" class="stacked-form">
-    <ion-row>
-        <ion-col>
-            <h1 class="large" [ngSwitch]="isEditing$ | async">
-                <div *ngSwitchCase="true">Editieren</div>
-                <span *ngSwitchDefault>Erfassen</span>
-            </h1>
-        </ion-col>
-        <ion-col>
-            <ion-buttons end>
-                <button type="button" ion-button [disabled]="!(isEditing$ | async)" (click)="clearClicked$.emit($event)">Neuen Erfassen</button>
-                <button type="button" ion-button (click)="saveClicked$.emit($event)" [disabled]="!(isFormValidAndNotPristine() | async)">Speichern</button>
-            </ion-buttons>
-        </ion-col>
-    </ion-row>
+<form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+    <h1 class="large" [ngSwitch]="isEditing$ | async">
+        <div *ngSwitchCase="true">Editieren</div>
+        <span *ngSwitchDefault>Erfassen</span>
+    </h1>
     <ion-row>
         <ion-col width-50>
             <h5>Hauptinformationen zur Preismeldestelle</h5>
@@ -52,7 +42,7 @@
                     <ion-input type="text" formControlName="town"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label stacked>Aktiv</ion-label><!--Add Info <span class='bold'>ACHTUNG:</span> Sobald eine Preismeldestelle deaktiviert wird, werden dessen Preismeldungen beim monatlichen CSV-Import ignoriert und werden entsprechend nicht mehr erhoben. Wird eine Preismeldestelle deaktiviert nachdem die Preismeldungen bereits importiert wurden, hat dies erst Auswirkungen auf den CSV-Import des nächsten Monats.-->
+                    <ion-label>Aktiv</ion-label><!--Add Info <span class='bold'>ACHTUNG:</span> Sobald eine Preismeldestelle deaktiviert wird, werden dessen Preismeldungen beim monatlichen CSV-Import ignoriert und werden entsprechend nicht mehr erhoben. Wird eine Preismeldestelle deaktiviert nachdem die Preismeldungen bereits importiert wurden, hat dies erst Auswirkungen auf den CSV-Import des nächsten Monats.-->
                     <ion-checkbox type="text" formControlName="active"></ion-checkbox>
                 </ion-item>
             </ion-list>
@@ -139,7 +129,7 @@
     <ion-row>
         <ion-col>
             <h5>Bearbeitungsinformationen</h5>
-            <ion-label>Preismeldestelle wurde erstmalig erhoben im: {{firstRecordedOn | async}}</ion-label>
+            Preismeldestelle wurde erstmalig erhoben im: {{firstRecordedOn | async}}
         </ion-col>
         <ion-col>
             <h5>Zusatzinformationen zur Preismeldestelle</h5>
@@ -202,4 +192,6 @@
             </ion-item>
         </ion-list>
     </div>
+    <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
 </form>

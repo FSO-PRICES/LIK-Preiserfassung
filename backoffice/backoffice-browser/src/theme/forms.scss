@@ -1,7 +1,25 @@
 form.stacked-form {
-    ion-item.item-md.pef-item .input-wrapper {
-        height: auto;
+    ion-item.item-md.pef-item {
+        .input-wrapper {
+            height: auto;
+        }
+
+        &.item-checkbox {
+            margin-top: 1em;
+
+            ion-checkbox {
+                margin-right: 0.3em;
+            }
+            ion-checkbox + .item-inner ion-label {
+                font-weight: 500;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                font-size: 1em;
+                color: $outer-space;
+            }
+        }
     }
+
     ion-input, ion-textarea {
         background-color: $white;
         border-bottom: 2px solid $hit-gray;
@@ -11,12 +29,16 @@ form.stacked-form {
 }
 
 form {
-    ion-item.ng-invalid.ng-touched .input-wrapper {
+    &.show-validation-hint ion-item.ng-invalid .input-wrapper {
         ion-label {
             color: $flamingo !important;
         }
         ion-input {
             border-bottom: 2px solid $flamingo;
         }
+    }
+
+    button[color='blue-chill'].button.button-md:hover:not(.disable-hover) {
+        background-color: $surfie-green;
     }
 }

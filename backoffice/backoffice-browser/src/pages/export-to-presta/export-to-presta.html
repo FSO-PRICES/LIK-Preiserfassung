@@ -1,0 +1,12 @@
+<header pef-menu></header>
+<div class="page-wrapper">
+    <div class="page-content">
+        <form>
+            <ion-row>
+                <ion-col width-33>
+                    <preismeldungen-export [preismeldungen]="preismeldungen$ | async" (exportCompleted)="preismeldungenExportCompleted$.emit($event)"></preismeldungen-export>
+                </ion-col>
+            </ion-row>
+        </form>
+    </div>
+</div>

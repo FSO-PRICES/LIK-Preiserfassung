@@ -1,23 +1,42 @@
-import { environment } from '../../environments/environment';
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { MainPages } from '../../app/app.module';
+
+import { PreiserheberPage } from '../../pages/preiserheber/preiserheber';
+import { PreismeldestellePage } from '../../pages/preismeldestelle/preismeldestelle';
+import { ImportPage } from '../../pages/import/import';
+import { ExportToPrestaPage } from '../../pages/export-to-presta/export-to-presta';
+import { SettingsPage } from '../../pages/settings/settings';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../reducers';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'header[pef-menu]',
     templateUrl: 'pef-menu.html'
 })
 export class PefMenuComponent {
-    public pages = MainPages;
-    public dangerZone = false;
+    public pages = [
+        { page: PreiserheberPage, name: 'Preiserheber' },
+        { page: PreismeldestellePage, name: 'Preismeldestellen' },
+        { page: ImportPage, name: 'Import' },
+        { page: ExportToPrestaPage, name: 'Export' }
+    ];
 
-    constructor(
-        private navCtrl: NavController,
-    ) {
-        this.dangerZone = environment.couchSettings.url.indexOf('bfs-lik.lambda-it.ch') !== -1;
+    public settingsPage = SettingsPage;
+
+    public dangerZone$: Observable<boolean>;
+
+    constructor(private store: Store<fromRoot.AppState>, private navCtrl: NavController) {
+        this.store.dispatch({ type: 'SETTING_LOAD' });
+
+        this.dangerZone$ = store.select(fromRoot.getSettings)
+            .filter(setting => !!setting && !!setting.serverConnection && !!setting.serverConnection.url)
+            .map(setting => setting.serverConnection.url.indexOf('bfs-lik.lambda-it.ch') !== -1)
+            .startWith(false);
     }
 
     navigateToPage(page) {
-        this.navCtrl.push(page, {}, { animate: false });
+        this.navCtrl.setRoot(page, {}, { animate: false });
     }
 }

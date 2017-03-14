@@ -190,12 +190,42 @@ export type WarenkorbTreeItem = WarenkorbBranch | WarenkorbLeaf;
 export type WarenkorbHierarchicalTreeItem = (WarenkorbBranch & { children: WarenkorbHierarchicalTreeItem[] }) | WarenkorbLeaf;
 
 export interface CouchSecurity {
-    admins?: { names?: string[], roles?: string[] },
-    members?: { names?: string[], roles?: string[] }
+    admins?: { names?: string[], roles?: string[] };
+    members?: { names?: string[], roles?: string[] };
 }
 
 export interface PreiszuweisungProperties {
+    preiserheberId: string;
     preismeldestellen: Preismeldestelle[];
 }
 
 export type Preiszuweisung = PreiszuweisungProperties & CouchProperties;
+
+export interface SettingProperties {
+    serverConnection: {
+        url: string;
+        loginExpirationTime: number;
+    };
+}
+
+export type Setting = SettingProperties & CouchProperties;
+
+export interface LanguageProperties {
+    languageCode: number;
+    name: string;
+}
+
+export type Language = LanguageProperties & CouchProperties;
+
+export interface RegionProperties {
+    name: string;
+}
+
+export type Region = RegionProperties & CouchProperties;
+
+export interface Credentials {
+    username: string;
+    password: string;
+}
+
+export type CompletePreismeldung = Preismeldung & PmsPreismeldungenSort;

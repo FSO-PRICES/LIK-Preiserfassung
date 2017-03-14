@@ -1,11 +1,11 @@
 import * as preiszuweisung from '../actions/preiszuweisung';
-import { assign, cloneDeep } from 'lodash';
+import { assign, remove, cloneDeep } from 'lodash';
 import { createSelector } from 'reselect';
 import { Models as P } from 'lik-shared';
-import { Preiszuweisung } from '../../../../lik-shared/common/models';
 
 export type CurrentPreiszuweisung = P.Preiszuweisung & {
     isModified: boolean;
+    isNew: boolean;
 };
 
 export interface State {
@@ -33,9 +33,31 @@ export function reducer(state = initialState, action: preiszuweisung.Actions): S
             return assign({}, state, { preiszuweisungIds, entities, currentPreiszuweisung: undefined });
         }
 
-        case 'SELECT_PREISZUWEISUNG': {
-            const currentPreiszuweisung = action.payload == null ? {} : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false, isCreated: false });
+        case 'SELECT_OR_CREATE_PREISZUWEISUNG': {
+            const { payload: preiserheberId } = action;
+            const newPreiszuweisung = {
+                _id: '__new',
+                _rev: undefined,
+                isNew: true,
+                isModified: false,
+                preiserheberId: preiserheberId,
+                preismeldestellen: []
+            };
+            const currentPreiszuweisung: CurrentPreiszuweisung = preiserheberId == null || !state.entities[preiserheberId] ? newPreiszuweisung : Object.assign({}, cloneDeep(state.entities[preiserheberId]), { isModified: false, isNew: false });
+
             return assign({}, state, { currentPreiszuweisung: currentPreiszuweisung });
+        }
+
+        case 'CREATE_PREISZUWEISUNG': {
+            const newPreiszuweisung = {
+                _id: '__new',
+                _rev: undefined,
+                isNew: true,
+                isModified: false,
+                preiserheberId: null,
+                preismeldestellen: []
+            };
+            return assign({}, state, { currentPreiszuweisung: newPreiszuweisung });
         }
 
         case 'UPDATE_CURRENT_PREISZUWEISUNG': {
@@ -43,6 +65,7 @@ export function reducer(state = initialState, action: preiszuweisung.Actions): S
 
             const valuesFromPayload = {
                 _id: payload._id,
+                preiserheberId: payload.preiserheberId,
                 preismeldestellen: payload.preismeldestellen
             };
 
@@ -53,6 +76,20 @@ export function reducer(state = initialState, action: preiszuweisung.Actions): S
             );
 
             return Object.assign({}, state, { currentPreiszuweisung });
+        }
+
+        case 'ASSIGN_TO_CURRENT_PREISZUWEISUNG': {
+            const { payload } = action;
+            const currentPreiszuweisung = Object.assign({}, cloneDeep(state.currentPreiszuweisung));
+            currentPreiszuweisung.preismeldestellen.push(payload);
+            return assign({}, state, { currentPreiszuweisung });
+        }
+
+        case 'UNASSIGN_FROM_CURRENT_PREISZUWEISUNG': {
+            const { payload } = action;
+            const currentPreiszuweisung = Object.assign({}, cloneDeep(state.currentPreiszuweisung));
+            remove(currentPreiszuweisung.preismeldestellen, x => x._id === payload._id);
+            return assign({}, state, { currentPreiszuweisung });
         }
 
         case 'SAVE_PREISZUWEISUNG_SUCCESS': {

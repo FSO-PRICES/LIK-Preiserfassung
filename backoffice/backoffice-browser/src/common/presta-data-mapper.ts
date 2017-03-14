@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 import * as docuri from 'docuri';
 import { Models as P } from 'lik-shared';
-import { AdvancedPreismeldestelle, KontaktPerson, Erhebungszeitpunkt } from '../../../../lik-shared/common/models';
 
 const preismeldungRefUri = docuri.route(P.preismeldungReferenceUriRoute);
 const preismeldungUri = docuri.route(P.preismeldungUriRoute);
@@ -61,7 +60,7 @@ function parseProduktMerkmale(content: string) {
 }
 
 function parseKontaktPersons(cells: string[]) {
-    return <KontaktPerson[]>[
+    return <P.KontaktPerson[]>[
         {
             firstName: cells[importPmsFromPrestaIndexes.firstNameK1],
             surname: cells[importPmsFromPrestaIndexes.surnameK1],
@@ -136,4 +135,32 @@ export function preparePm(lines: string[][]) {
             bermerkungenVomBfs: cells[importPmFromPrestaIndexes.bemerkungen]
         };
     });
+}
+
+export function preparePmForExport(preismeldungen: (P.Preismeldung & P.PmsPreismeldungenSort)[]) {
+    return preismeldungen.map(pm => ({
+        Erhebungsmonat: null, // TODO 1. Tag des Erhebungsmonats
+        Preissubsystem: null, // LIK = 2
+        Schemanummer: 0, // TODO: Alway 0?
+        Preiserhebungsort: pm.pmsNummer,
+        Erhebungspositionnummer: pm.epNummer,
+        Laufnummer: pm.laufnummer,
+        Preis_T: pm.preis,
+        Menge_T: pm.menge,
+        Preis_VPK: null, // TODO: ref_pm preis
+        Menge_VPK: null, // TODO: ref_pm menge
+        Bearbeitungscode: pm.bearbeitungscode,
+        Aktionscode: pm.aktion,
+        Preisbezeichnung: null, // TODO: Find out how to get this
+        Artikelnummer: pm.artikelnummer,
+        Fehlende_Preise: null, // TODO: Find out how to get this
+        Bemerkungen: pm.bermerkungenAnsBfs,
+        Internet_Link: pm.internetLink,
+        Erhebungszeitpunkt: null, // TODO: Find out how to get this
+        Sortiernummer: pm.sortOrder,
+        Preis_vor_Reduktion: null, // TODO: Find out how to get this
+        Menge_vor_Reduktion: null, // TODO: Find out how to get this
+        Datum_vor_Reduktion: null, // TODO: Find out how to get this
+        Produktmerkmale: null // TODO how to get? By ref_pm?
+    }));
 }

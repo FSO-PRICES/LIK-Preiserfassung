@@ -8,6 +8,19 @@ ion-row {
     flex-direction: row;
     .pef-advanced-item-flex-container {
         flex: 1 1 0;
-        padding: 5px;
+        @include set-padding(1, 1, 1, 1);
+    }
+
+    .pef-advanced-item-flex-container {
+        display: flex;
+        flex-direction: row;
+
+        pef-virtual-scroll {
+            flex: 1;
+        }
+        .actions {
+            @include set-margin(4, 0.5, 0, 0.5);
+            flex: 0;
+        }
     }
 }

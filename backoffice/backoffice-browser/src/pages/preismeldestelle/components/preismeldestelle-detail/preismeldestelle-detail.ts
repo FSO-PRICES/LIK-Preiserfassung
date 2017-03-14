@@ -1,10 +1,9 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import * as _ from 'lodash';
 
 import { ReactiveComponent, Models as P } from 'lik-shared';
-import { delayedFormValueChanges } from '../../../../common/angular-form-extensions';
 import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 
 
@@ -13,12 +12,12 @@ import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
     templateUrl: 'preismeldestelle-detail.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges {
+export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldestelle: P.AdvancedPreismeldestelle;
     @Output('save')
     public save$: Observable<{ isValid: boolean }>;
-    @Output('clear')
-    public clearClicked$ = new EventEmitter<Event>();
+    @Output('cancel')
+    public cancelClicked$ = new EventEmitter<Event>();
     @Output('update')
     public update$: Observable<P.AdvancedPreismeldestelle>;
 
@@ -26,6 +25,9 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     public saveClicked$ = new EventEmitter<Event>();
 
     public isEditing$: Observable<boolean>;
+    public showValidationHints$: Observable<boolean>;
+
+    private subscriptions: Subscription[];
 
     public form: FormGroup;
 
@@ -50,61 +52,58 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             active: [true]
         });
 
-        this.update$ = delayedFormValueChanges(this.form)
-            .map(() => this.form.value)
-            .do(x => console.log('updated:', x));
-        // this.update$ = this.form.valueChanges
-        //     .filter(x => this.form.touched) // SUGGESTION -  may not be necessary
-        //     .map(() => this.form.value)
-        //     .do(x => console.log('updated:', x));
+        this.update$ = this.form.valueChanges
+            .map(() => this.form.value);
 
         const distinctPreismeldestelle$ = this.preismeldestelle$
-            // .distinctUntilKeyChanged('_id'); // SUGGESTION
-            .filter(x => !!x);
+            .distinctUntilKeyChanged('_id');
 
-        distinctPreismeldestelle$.startWith((<P.AdvancedPreismeldestelle>{})) // TODO: DELETE startWith()
-            .subscribe((preismeldestelle: CurrentPreismeldestelle) => {
-                if (!preismeldestelle.isModified) { // TODO: DELETE IF
-                    this.form.markAsUntouched();
-                    this.form.markAsPristine();
-                }
-                this.form.patchValue(<P.AdvancedPreismeldestelle>{
-                    kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
-                    regionId: preismeldestelle.regionId,
-                    erhebungsart: preismeldestelle.erhebungsart,
-                    erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
-                    erhebungsartComment: preismeldestelle.erhebungsartComment,
-                    pmsNummer: preismeldestelle.pmsNummer,
-                    name: preismeldestelle.name,
-                    supplement: preismeldestelle.supplement,
-                    street: preismeldestelle.street,
-                    postcode: preismeldestelle.postcode,
-                    town: preismeldestelle.town,
-                    telephone: preismeldestelle.town,
-                    email: preismeldestelle.email,
-                    languageCode: preismeldestelle.languageCode,
-                }, { onlySelf: true, emitEvent: false });
-            });
-
-        this.save$ = this.saveClicked$
+        const canSave$ = this.saveClicked$
             .map(() => ({ isValid: this.form.valid }))
-            .filter(x => x.isValid)
             .publishReplay(1).refCount();
+
+        this.save$ = canSave$.filter(x => x.isValid)
+            .publishReplay(1).refCount();
+
+        this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
+            .merge(distinctPreismeldestelle$.mapTo(false));
 
         this.isEditing$ = this.preismeldestelle$
             .map((x: CurrentPreismeldestelle) => !!x && (!!x.isModified || !!x._id))
             .publishReplay(1).refCount();
-        // this.isEditing$ = this.form.valueChanges.map(() => this.form.touched)
+
+        this.subscriptions = [
+            distinctPreismeldestelle$
+                .subscribe((preismeldestelle: CurrentPreismeldestelle) => {
+                    this.form.markAsUntouched();
+                    this.form.markAsPristine();
+                    this.form.patchValue(<P.AdvancedPreismeldestelle>{
+                        kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
+                        regionId: preismeldestelle.regionId,
+                        erhebungsart: preismeldestelle.erhebungsart,
+                        erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
+                        erhebungsartComment: preismeldestelle.erhebungsartComment,
+                        pmsNummer: preismeldestelle.pmsNummer,
+                        name: preismeldestelle.name,
+                        supplement: preismeldestelle.supplement,
+                        street: preismeldestelle.street,
+                        postcode: preismeldestelle.postcode,
+                        town: preismeldestelle.town,
+                        telephone: preismeldestelle.town,
+                        email: preismeldestelle.email,
+                        languageCode: preismeldestelle.languageCode,
+                    }, { onlySelf: true, emitEvent: false });
+                })
+        ];
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
 
-    public isFormValidAndNotPristine() {
-        return this.isEditing$.map(editing => {
-            return this.form.valid && !this.form.pristine;
-        });
+    public ngOnDestroy() {
+        if (!this.subscriptions || this.subscriptions.length === 0) return;
+        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
     }
 
     private initKontaktpersonGroup({ required }) {

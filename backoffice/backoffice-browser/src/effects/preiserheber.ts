@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+
 import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
-import { getDatabase, createUser } from './pouchdb-utils';
-import { Models as P, CurrentPreiserheber } from '../common-models';;
-
-const PREISERHEBER_DB_NAME = 'preiserheber';
+import { getDatabase, createUser, dbNames } from './pouchdb-utils';
+import { Models as P, CurrentPreiserheber } from '../common-models';
+import { loggedIn } from '../common/effects-extensions';
 
 @Injectable()
 export class PreiserheberEffects {
     currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber);
+    isLoggedIn = this.store.select(fromRoot.getIsLoggedIn).publishReplay(1).refCount();
 
     constructor(
         private actions$: Actions,
@@ -18,18 +19,18 @@ export class PreiserheberEffects {
     }
 
     @Effect()
-    loadPreiserheber$ = this.actions$
-        .ofType('PREISERHEBER_LOAD')
-        .switchMap(() => getDatabase(PREISERHEBER_DB_NAME).then(db => ({ db })))
+    loadPreiserheber$ = loggedIn(this.isLoggedIn, this.actions$.ofType('PREISERHEBER_LOAD'), loadPreiserheber => loadPreiserheber
+        .switchMap(() => getDatabase(dbNames.preiserheber).then(db => ({ db })))
+        .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as P.Erheber[] })))
-        .map<preiserheber.Actions>(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs }));
+        .map<preiserheber.Actions>(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs }))
+    );
 
     @Effect()
-    savePreiserheber$ = this.actions$
-        .ofType('SAVE_PREISERHEBER')
+    savePreiserheber$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISERHEBER'), savePreiserheber => savePreiserheber
         .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ password: action.payload, currentPreiserheber }))
         .switchMap<CurrentPreiserheber>(({ password, currentPreiserheber }) => {
-            return getDatabase(PREISERHEBER_DB_NAME)
+            return getDatabase(dbNames.preiserheber)
                 .then(db => { // Only check if the document exists if a revision not already exists
                     if (!!currentPreiserheber._rev) {
                         return db.get(currentPreiserheber._id).then(doc => ({ db, doc }));
@@ -53,46 +54,8 @@ export class PreiserheberEffects {
                 // Reload the created erheber
                 .then<CurrentPreiserheber>(({ db, id, created }) => db.get(id).then(preiserheber => Object.assign({}, preiserheber, { isModified: false, isSaved: true, isCreated: created })))
                 // Initialize a database for created erheber
-                .then(erheber =>
-                    getDatabase(getPreiserheberDbName(erheber)).then(db => {
-                        const erheberUri = 'erheber';
-                        const tasks = [
-                            // Should we create the warenkorb document here? Or when we deliver the database to the device? Otherwise we multiplicate the warenkorb x-times
-
-                            // Create the erheber document
-                            db.get(erheberUri).then(resp => {
-                                return db.put(Object.assign({}, erheber, { _id: erheberUri, _rev: resp._rev })).then(x => {
-                                    return erheber;
-                                });
-                            }).catch(() => db.put(Object.assign({}, erheber, { _id: erheberUri })).then(x => {
-                                return erheber;
-                            })),
-
-                            // preismeldungReferenceUriRoute = 'pm-ref/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
-                            // preismeldungUriRoute = 'pm/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
-                            // Create the preismeldungen docs
-                            // db.get()
-
-                            // pmsUriRoute = 'pms/:pmsNummer';
-                            // Create the preismeldungstelle(n)
-                        ];
-
-                        if (erheber.isCreated) {
-                            tasks.push(
-                                // Create a new user
-                                createUser(erheber._id, password)
-                            );
-                        }
-                        // const pmsUri = docuri.route(pmsUriRoute);
-                        // const preismeldungReferenceUri = docuri.route(preismeldungReferenceUriRoute);
-                        // const preismeldungUri = docuri.route(preismeldungUriRoute);
-                        return Promise.all(tasks).then(() => erheber);
-                    })
-                );
+                .then(erheber => (erheber.isCreated ? createUser(erheber._id, password) : Promise.resolve(null)).then(() => erheber));
         })
-        .map<preiserheber.Actions>(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload }));
-}
-
-function getPreiserheberDbName(preiserheber: P.Erheber) {
-    return `${preiserheber._id}`;
+        .map<preiserheber.Actions>(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload }))
+    );
 }

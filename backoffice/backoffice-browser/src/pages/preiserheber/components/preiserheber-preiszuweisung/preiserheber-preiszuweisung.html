@@ -9,23 +9,25 @@
 </ion-row>
 <ion-row>
     <ion-col>
-        <h2>Nicht zugewiesene Preismeldestellen</h2>
+        <h2>Zugewiesen</h2>
     </ion-col>
     <ion-col>
-        <h2>Zugewiesen</h2>
+        <h2>Nicht zugewiesene Preismeldestellen</h2>
     </ion-col>
 </ion-row>
 <ion-row>
-    <ion-col width-50>
-        <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
+    <ion-col offset-50>
+        <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
     </ion-col>
 </ion-row>
 <div class="zuweisung-list">
-    <div class="pef-advanced-item-flex-container all-preismeldestellen">
-        <pef-virtual-scroll [items]="filteredPreismeldestellen$ | async" (update)="allViewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+    <div class="pef-advanced-item-flex-container assigned-preismeldestellen">
+        <pef-virtual-scroll [items]="assignedPreismeldestellen$ | async" (update)="assignedViewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
             <ion-item
                 class="pef-advanced-item"
-                *ngFor="let preismeldestelle of allViewPortItems">
+                *ngFor="let preismeldestelle of assignedViewPortItems"
+                (click)="selectPreismeldestelleClick$.emit(preismeldestelle)"
+                [class.selected]="preismeldestelle?._id == (selectedPreismeldestelle$ | async)?._id">
                 <div class="pef-item-title">
                     {{ preismeldestelle.pmsNummer }}<br/>&nbsp;
                 </div>
@@ -33,24 +35,26 @@
                     <span class="text">{{ preismeldestelle.name }}</span>
                     <span class="artikel-text">{{preismeldestelle.postcode}}&nbsp;{{preismeldestelle.town}}</span>
                 </div>
-                <div class="pef-item-actions">
-                    <button ion-button icon-only color="java" (click)="assignPreismeldestelle$.emit(true)">
-                        <pef-icon name="arrow_right"></pef-icon>
-                    </button>
-                </div>
             </ion-item>
         </pef-virtual-scroll>
+        <div class="actions" *ngIf="(assignedPreismeldestellen$ | async)?.length > 0">
+            <button ion-button icon-only color="java" [disabled]="!(hasSelectedAssignedPreismeldestelle$ | async)" (click)="unassignPreismeldestelleClick$.emit()">
+                <pef-icon name="arrow_right"></pef-icon>
+            </button>
+        </div>
     </div>
-    <div class="pef-advanced-item-flex-container assigned-preismeldestellen">
-        <pef-virtual-scroll [items]="assignedPreismeldestellen$ | async" (update)="assignedViewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+    <div class="pef-advanced-item-flex-container all-preismeldestellen">
+        <div class="actions" *ngIf="(filteredPreismeldestellen$ | async)?.length > 0">
+            <button ion-button icon-only color="java" [disabled]="!(hasSelectedUnassignedPreismeldestelle$ | async)" (click)="assignPreismeldestelleClick$.emit()">
+                <pef-icon name="arrow_left"></pef-icon>
+            </button>
+        </div>
+        <pef-virtual-scroll [items]="filteredPreismeldestellen$ | async" (update)="allViewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
             <ion-item
                 class="pef-advanced-item pef-item-left"
-                *ngFor="let preismeldestelle of assignedViewPortItems">
-                <div class="pef-item-actions">
-                    <button ion-button icon-only color="java" (click)="assignPreismeldestelle$.emit(false)">
-                        <pef-icon name="arrow_left"></pef-icon>
-                    </button>
-                </div>
+                *ngFor="let preismeldestelle of allViewPortItems"
+                (click)="selectPreismeldestelleClick$.emit(preismeldestelle)"
+                [class.selected]="preismeldestelle?._id == (selectedPreismeldestelle$ | async)?._id">
                 <div class="pef-item-title">
                     {{ preismeldestelle.pmsNummer }}<br/>&nbsp;
                 </div>

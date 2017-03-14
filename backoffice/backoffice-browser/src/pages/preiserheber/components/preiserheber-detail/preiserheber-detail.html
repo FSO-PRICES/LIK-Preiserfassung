@@ -1,31 +1,17 @@
-<form [formGroup]="form" class="stacked-form">
-    <ion-row>
-        <ion-col width-33>
-            <h1 class="large" [ngSwitch]="isEditing$ | async">
-                <div *ngSwitchCase="true">Editieren</div>
-                <span *ngSwitchDefault>Erfassen</span>
-            </h1>
-        </ion-col>
-        <ion-col width-67>
-            <ion-buttons end>
-                <button type="button" ion-button [disabled]="!(isEditing$ | async)" (click)="clearClicked$.emit($event)">Neuen Erfassen</button>
-                <button type="button" ion-button (click)="saveClicked$.emit($event)" [disabled]="!(isFormValidAndNotPristine() | async)">Speichern</button>
-            </ion-buttons>
-        </ion-col>
-    </ion-row>
+<form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+    <h1 class="large" [ngSwitch]="isEditing$ | async">
+        <div *ngSwitchCase="true">Editieren</div>
+        <span *ngSwitchDefault>Erfassen</span>
+    </h1>
     <ion-list formGroupName="preiserheber" no-lines>
         <ion-item class="pef-item">
             <ion-label stacked>Benutzername</ion-label>
             <ion-input type="text" formControlName="_id" [readonly]="isEditing$ | async"></ion-input>
         </ion-item>
-    </ion-list>
-    <ion-list no-lines *ngIf="!(isEditing$ | async)">
-        <ion-item class="pef-item">
+        <ion-item  formGroupName="password" class="pef-item" *ngIf="!(isEditing$ | async)">
             <ion-label stacked>Initiales Passwort</ion-label>
             <ion-input type="password" formControlName="password"></ion-input>
         </ion-item>
-    </ion-list>
-    <ion-list formGroupName="preiserheber" no-lines>
         <ion-item class="pef-item">
             <ion-label stacked>Vorname</ion-label>
             <ion-input type="text" formControlName="firstName"></ion-input>
@@ -51,6 +37,6 @@
             <ion-input type="text" formControlName="email"></ion-input>
         </ion-item>
     </ion-list>
-    <ion-list>
-    </ion-list>
+    <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
 </form>

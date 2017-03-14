@@ -2,36 +2,54 @@ import * as bluebird from 'bluebird';
 import * as PouchDBAllDbs from 'pouchdb-all-dbs';
 import * as PouchDB from 'pouchdb';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
-import { environment } from '../environments/environment';
-import { Http, Headers } from '@angular/http';
-import { Models as P } from 'lik-shared';
+import { Observable } from 'rxjs';
+import { first } from 'lodash';
+import * as xhr from 'xhr';
 
-const couchDbUrl = environment.couchSettings.url;
-const USERNAME = environment.couchSettings.adminUsername;
-const PASSWORD = environment.couchSettings.adminPassword;
+import { Models as P } from 'lik-shared';
 
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
 
+export const dbNames = {
+    emptyDb: 'inexistant',
+    users: '_users',
+    preiserheber: 'preiserheber',
+    preismeldestelle: 'preismeldestellen',
+    preiszuweisung: 'preiszuweisungen',
+    preismeldung: 'preismeldungen',
+    setting: 'settings'
+};
+
+dropLocalDatabase(dbNames.emptyDb);
 
 export function createUser(username: string, password: string) {
     return getDatabase('_users').then((db: any) => db.signUp(username, password));
 }
 
-
-export function putAdminUserToDatabase(http: Http, dbName, credentials: { username: string, password: string } = { username: USERNAME, password: PASSWORD }) {
-    return putUserToDatabase(http, dbName, { members: { names: [USERNAME] } }, credentials);
+export function putAdminUserToDatabase(dbName, username: string) {
+    return putUserToDatabase(dbName, { members: { names: [username] } });
 }
 
-export function putUserToDatabase(http: Http, dbName, users: P.CouchSecurity, credentials: { username: string, password: string } = { username: USERNAME, password: PASSWORD }) {
-    let headers = new Headers();
-    headers.append('Authorization', `Basic ${btoa(`${credentials.username}:${credentials.password}`)}`);
-    headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    return http.put(`${couchDbUrl}${dbName}/_security`, users, { headers: headers });
+export function putUserToDatabase(dbName, users: P.CouchSecurity) {
+    const put$ = Observable.bindNodeCallback<string, any, XMLHttpRequest>(xhr.put);
+    return Observable.fromPromise(
+        getSettings().then(settings => {
+            return put$(`${settings.serverConnection.url}${dbName}/_security`, {
+                body: users,
+                json: true,
+                withCredentials: true,
+                headers: {
+                    // TODO: Add cookie authentication
+                    'Content-Type': 'application/json'
+                }
+            });
+        }).catch(err => Observable.from([]))
+    ).flatMap(x => x);
 }
 
-export function getDatabase(dbName, credentials: { username: string, password: string } = { username: USERNAME, password: PASSWORD }): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
-    return getCouchDb(dbName, credentials);
+export function getDatabase(dbName): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+    return getCouchDb(dbName);
 }
 
 export function getLocalDatabase(dbName) {
@@ -45,37 +63,64 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
     };
 }
 
-export const checkIfDatabaseExists = (dbName, credentials: { username: string, password: string } = { username: USERNAME, password: PASSWORD }) => _checkIfDatabaseExists(dbName, credentials);
+export const checkIfDatabaseExists = (dbName) => _checkIfDatabaseExists(dbName);
 
-export function dropDatabase(dbName, credentials: { username: string, password: string } = { username: USERNAME, password: PASSWORD }) {
-    return getCouchDb(dbName, credentials).then(db => db.destroy().then(() => true).catch(() => false));
+export function dropDatabase(dbName) {
+    return getCouchDb(dbName).then(db => db.destroy().then(() => true).catch(() => false));
 }
 
 export function dropLocalDatabase(dbName) {
     return getLocalCouchDb(dbName).then(db => db.destroy().then(() => true).catch(() => false));
 }
 
-function getCouchDb(dbName: string, credentials: { username: string, password: string }): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
-    const couch = new PouchDB(`${couchDbUrl}${dbName}`);
-    const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
-
-    return login(credentials.username, credentials.password).then(x => couch) as any;
+function getCouchDb(dbName: string): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+    return getSettings().then(settings => {
+        const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
+        return Promise.resolve(couch);
+    }).catch(err => new PouchDB(dbNames.emptyDb));
 }
 
 function getLocalCouchDb(dbName: string): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
     return Promise.resolve(new PouchDB(dbName));
 }
 
-export function syncDb(dbName: string, credentials: { username: string, password: string } = { username: USERNAME, password: PASSWORD }) {
-    return dropDatabase(dbName, credentials).then(() => {
-        const pouch = new PouchDB(`${dbName}`);
-        const couch = new PouchDB(`${couchDbUrl}${dbName}`);
-        const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
+export function syncDb(dbName: string) {
+    return dropDatabase(dbName).then(() => {
+        return getSettings().then(settings => {
+            const pouch = new PouchDB(`${dbName}`);
+            const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
 
-        return login(credentials.username, credentials.password).then(x => pouch.sync(couch, { push: true, pull: false, batch_size: 1000 }).then(() => true).catch(() => true));
-    });
+            return pouch.sync(couch, { push: true, pull: false, batch_size: 1000 }).then(() => true).catch(() => true);
+        });
+    }).catch(err => new PouchDB(dbNames.emptyDb));
 }
 
-function _checkIfDatabaseExists(dbName, credentials) {
-    return getDatabase(dbName, credentials).then(() => true).catch(() => false);
+function _checkIfDatabaseExists(dbName) {
+    return getDatabase(dbName).then(() => true).catch(() => false);
+}
+
+export function getSettings() {
+    return getLocalDatabase(dbNames.setting).then(db => db.allDocs(Object.assign({}, { include_docs: true })).then(res => first(res.rows.map(y => y.doc)) as P.Setting));
+}
+
+
+export function isLoginExpired(expirationTime: number) {
+    const lastLoginTime = localStorage.getItem('couchdb_lastLoginTime');
+    return true || !lastLoginTime || (+ new Date()) > parseInt(lastLoginTime, 10) + expirationTime;
+}
+
+function setCouchLoginTime(timestamp: number) {
+    return localStorage.setItem('couchdb_lastLoginTime', timestamp.toString());
+}
+
+export function loginToDatabase(credentials: { username: string, password: string }): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+    return getSettings().then(settings => {
+        const couch = new PouchDB(`${settings.serverConnection.url}/${dbNames.users}`);
+        const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
+
+        return login(credentials.username, credentials.password).then(x => {
+            setCouchLoginTime(+ new Date());
+            return couch;
+        }) as any;
+    });
 }
