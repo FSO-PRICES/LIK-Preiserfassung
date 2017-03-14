@@ -70,7 +70,7 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
         this.change$
             .subscribe(x => { this._onChange(x); });
 
-        this.buttonOn$ = this.buttonClicked$.map(() => ({ type: 'TOGGLE' }))
+        this.buttonOn$ = this.buttonClicked$.do(x => { x.cancelBubble = true; }).map(() => ({ type: 'TOGGLE' }))
             .merge(this.selectBearbeitungsType$.do(x => { x.event.cancelBubble = true; }).mapTo({ type: 'CLOSE' }))
             .merge(this.documentClick$.mapTo({ type: 'CLOSE' }))
             .scan((agg, v) => v.type === 'TOGGLE' ? !agg : false, false)
