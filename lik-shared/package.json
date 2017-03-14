@@ -7,15 +7,15 @@
     "postpublish": "npm run build"
   },
   "dependencies": {
-    "@angular/common": "2.2.1",
-    "@angular/core": "2.2.1",
-    "@angular/forms": "2.2.1",
+    "@angular/common": "2.4.8",
+    "@angular/core": "2.4.8",
+    "@angular/forms": "2.4.8",
+    "@angular/platform-browser": "2.4.8",
     "lodash": "^4.17.4",
     "format-number": "^2.0.2",
     "ionic-angular": "^2.0.0",
-    "lodash": "^4.17.4",
     "perfect-scrollbar": "^0.6.16",
-    "rxjs": "5.0.0-beta.12"
+    "rxjs": "5.0.1"
   },
   "devDependencies": {
     "@types/lodash": "4.14.50",

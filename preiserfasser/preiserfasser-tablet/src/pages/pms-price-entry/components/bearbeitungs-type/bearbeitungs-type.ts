@@ -70,10 +70,10 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
         this.change$
             .subscribe(x => { this._onChange(x); });
 
-        this.buttonOn$ = this.buttonClicked$.do(x => { x.cancelBubble = true; }).mapTo({ type: 'TOGGLE' })
+        this.buttonOn$ = this.buttonClicked$.map(() => ({ type: 'TOGGLE' }))
             .merge(this.selectBearbeitungsType$.do(x => { x.event.cancelBubble = true; }).mapTo({ type: 'CLOSE' }))
             .merge(this.documentClick$.mapTo({ type: 'CLOSE' }))
-            .scan<boolean>((agg, v) => v.type === 'TOGGLE' ? !agg : false, false)
+            .scan((agg, v) => v.type === 'TOGGLE' ? !agg : false, false)
             .startWith(false)
             .distinctUntilChanged()
             .observeOnZone(zone)

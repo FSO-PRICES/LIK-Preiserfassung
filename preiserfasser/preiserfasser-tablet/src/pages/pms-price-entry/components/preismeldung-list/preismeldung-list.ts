@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy, NgZone } from '@angular/core';
-import { Observable, ConnectableObservable } from 'rxjs';
-import { isEqual } from 'lodash';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { ReactiveComponent, formatPercentageChange, pefSearch } from 'lik-shared';
 
@@ -17,17 +16,14 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() currentLanguage: string;
     @Input() preismeldungen: P.Models.Preismeldung[];
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
-    @Output() selectPreismeldung: Observable<P.Models.Preismeldung>;
+    @Output() selectPreismeldung: Observable<P.PreismeldungBag>;
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
 
-    public currentPreismeldung$: Observable<P.PreismeldungBag>;
-    public currentLanguage$: Observable<string>;
     public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     public selectNextPreismeldung$ = new EventEmitter();
     public selectPrevPreismeldung$ = new EventEmitter();
 
     public viewPortItems: P.Models.Preismeldung[];
-    private preismeldungen$: Observable<P.PreismeldungBag[]>;
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public completedCount$: Observable<string>;
 
@@ -36,97 +32,53 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectFilterTodo$ = new EventEmitter();
     public selectFilterCompleted$ = new EventEmitter();
 
-    public filterTodoSelected$: ConnectableObservable<boolean>;
-    public filterCompletedSelected$: ConnectableObservable<boolean>;
+    public filterTodoSelected$: Observable<boolean>;
+    public filterCompletedSelected$: Observable<boolean>;
 
-    public preismeldestelle$: Observable<P.Models.Preismeldestelle> = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
+    public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
+    public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung');
+    private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
 
-    constructor(ngZone: NgZone) {
+    constructor() {
         super();
 
-        this.preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen').publishReplay(1).refCount();
-        // this.preismeldungen$.subscribe(x => console.log('asdfasdfasdf', x))
-        this.currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung').publishReplay(1).refCount();
-        this.currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage').publishReplay(1).refCount();
+        const filterStatus$ =
+            this.selectFilterTodo$.mapTo('TODO').merge(this.selectFilterCompleted$.mapTo('COMPLETED'))
+                .scan((agg, v) => {
+                    if (v === 'TODO') {
+                        if (!agg.todo && agg.completed) return { todo: true, completed: true };
+                        return { todo: false, completed: true };
+                    }
+                    if (v === 'COMPLETED') {
+                        if (!agg.completed && agg.todo) return { todo: true, completed: true };
+                        return { todo: true, completed: false };
+                    }
+                }, { todo: true, completed: true })
+                .startWith({ todo: true, completed: true })
+                .publishReplay(1).refCount();
 
-        const localFilterTodoSelected$ = new EventEmitter<boolean>();
-        const localFilterCompletedSelected$ = new EventEmitter<boolean>();
+        this.filterTodoSelected$ = filterStatus$.map(x => x.todo);
+        this.filterCompletedSelected$ = filterStatus$.map(x => x.completed);
 
-        this.filterTodoSelected$ = localFilterTodoSelected$.publishReplay(1);
-        this.filterTodoSelected$.connect();
-
-        this.filterCompletedSelected$ = localFilterCompletedSelected$.publishReplay(1);
-        this.filterCompletedSelected$.connect();
-
-        this.selectFilterTodo$
-            .withLatestFrom(this.filterCompletedSelected$, (todo, selected) => ({ todo, selected }))
-            .scan<boolean>((selected: boolean, _: any) => !selected, true).startWith(true)
-            .distinct()
-            // .observeOnZone(ngZone)
-            .subscribe(x => localFilterTodoSelected$.emit(x));
-
-        this.selectFilterCompleted$
-            .scan<boolean>((selected: boolean, _: any) => !selected, true).startWith(true)
-            .distinct()
-            // .observeOnZone(ngZone)
-            .subscribe(x => localFilterCompletedSelected$.emit(x));
-
-        const filterOptions$ = this.filterText$.startWith('')
-            .combineLatest(this.filterTodoSelected$, this.filterCompletedSelected$, (filterText, filterTodoSelected: boolean, filterCompletedSelected: boolean) => ({ filterText, filterTodoSelected, filterCompletedSelected }))
-            .distinctUntilChanged((x, y) => true)
-            // .do(x => console.log('before distinct'))
-            // .distinctUntilChanged((x, y) => {
-            //     console.log('distinct', x, y, isEqual(x, y))
-            //     // return isEqual(x, y);
-            //     return true;
-            //  })
-            // .do(x => console.log('after distinct'))
-
-        const inputData$ = this.preismeldungen$.combineLatest(this.currentLanguage$, (preismeldungen, currentLanguage) => ({ preismeldungen, currentLanguage }));
-        // inputData$.subscribe(x => console.log('zzzzz', x))
-
-        this.filteredPreismeldungen$ = filterOptions$.do(x => console.log('from filterOptions$'))
-            .combineLatest(inputData$.do(x => console.log('from inputData$')), (filterOptions, inputData: { preismeldungen: P.PreismeldungBag[], currentLanguage: string }) => {
-                console.log('here', filterOptions, inputData)
+        this.filteredPreismeldungen$ = this.preismeldungen$
+            .combineLatest(this.filterText$.startWith(''), filterStatus$, this.currentLanguage$, (preismeldungen: P.PreismeldungBag[], filterText: string, filterStatus: { todo: boolean, completed: boolean }, currentLanguage: string) => {
                 let filteredPreismeldungen: P.PreismeldungBag[];
 
-                if (!filterOptions.filterText || filterOptions.filterText.length === 0) {
-                    filteredPreismeldungen = inputData.preismeldungen;
+                if (!filterText || filterText.length === 0) {
+                    filteredPreismeldungen = preismeldungen;
                 } else {
-                    filteredPreismeldungen = pefSearch(filterOptions.filterText, inputData.preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung[inputData.currentLanguage], pm => pm.preismeldung.artikeltext]);
+                    filteredPreismeldungen = pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung[currentLanguage], pm => pm.preismeldung.artikeltext]);
                 }
 
-                // console.log({ filterTodoSelected, filterCompletedSelected });
-                // console.log(preismeldungen)
+                if (filterStatus.todo && filterStatus.completed) return filteredPreismeldungen;
 
-                if (filterOptions.filterTodoSelected && filterOptions.filterCompletedSelected) return filteredPreismeldungen;
+                if (filterStatus.todo) return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
+                if (filterStatus.completed) return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
 
-                if (!filterOptions.filterTodoSelected) return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
-                if (!filterOptions.filterCompletedSelected) return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
-            });
-
-        // this.filteredPreismeldungen$ = this.preismeldungen$
-        //     .combineLatest(this.filterText$.startWith(null), this.filterTodoSelected$.startWith(true), this.filterCompletedSelected$.startWith(true), this.currentLanguage$, (preismeldungen: P.PreismeldungBag[], filterText: string, filterTodoSelected: boolean, filterCompletedSelected: boolean, currentLanguage: string) => Observable.of({ preismeldungen, filterText, filterTodoSelected, filterCompletedSelected, currentLanguage }))
-        //     // .throttleTime(100)
-        //     .debounceTime(1000)
-        //     .switchMap<{ preismeldungen: P.PreismeldungBag[], filterText: string, filterTodoSelected: boolean, filterCompletedSelected: boolean, currentLanguage: string }>(x => x)
-        //     .map(x => {
-        //         console.log('here')
-        //         let filteredPreismeldungen: P.PreismeldungBag[];
-
-        //         if (!x.filterText || x.filterText.length === 0) {
-        //             filteredPreismeldungen = x.preismeldungen;
-        //         } else {
-        //             filteredPreismeldungen = pefSearch(x.filterText, x.preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung[x.currentLanguage], pm => pm.preismeldung.artikeltext]);
-        //         }
-
-        //         // console.log({ filterTodoSelected, filterCompletedSelected });
-
-        //         if (x.filterTodoSelected && x.filterCompletedSelected) return filteredPreismeldungen;
-
-        //         if (!x.filterTodoSelected) return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
-        //         if (!x.filterCompletedSelected) return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
-        //     }).debounceTime(100);
+                return [];
+            })
+            .publishReplay(1).refCount();
 
         const selectNext$ = this.selectNextPreismeldung$
             .withLatestFrom(this.currentPreismeldung$, this.filteredPreismeldungen$, (_, currentPreismeldung: P.PreismeldungBag, filteredPreismeldungen: P.PreismeldungBag[]) => {

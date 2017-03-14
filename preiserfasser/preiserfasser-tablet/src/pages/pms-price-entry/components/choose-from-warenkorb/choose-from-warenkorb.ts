@@ -33,7 +33,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         super();
 
         const warenkorbFlat$ = this.observePropertyCurrentValue<P.Models.WarenkorbTreeItem[]>('warenkorbFlat')
-            .combineLatest(this.observePropertyCurrentValue('preismeldungen'), (warenkorb, preismeldungen) => ({ warenkorb, preismeldungen }))
+            .combineLatest(this.observePropertyCurrentValue('preismeldungen'), (warenkorb, preismeldungen: P.PreismeldungBag[]) => ({ warenkorb, preismeldungen }))
             .map(x => this.sortAndTransformWarenkorb(x.warenkorb, x.preismeldungen, y => y.tiefencode === 2));
 
         this.warenkorb$ = this.warenkorbItemClicked$.filter(x => x.type === 'BRANCH').startWith(null)
