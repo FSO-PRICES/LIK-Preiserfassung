@@ -1,5 +1,5 @@
 form.stacked-form {
-    ion-item.item-md.pef-item {
+    .item-md.pef-item {
         .input-wrapper {
             height: auto;
         }
@@ -20,11 +20,20 @@ form.stacked-form {
         }
     }
 
-    ion-input, ion-textarea {
+    select {
+        border: none;
+    }
+
+    ion-input, ion-textarea, .pef-select {
         background-color: $white;
         border-bottom: 2px solid $hit-gray;
         padding-left: 8px;
         padding-right: 8px;
+    }
+
+    .pef-select {
+        flex: 1;
+        align-self: stretch;
     }
 }
 

@@ -30,8 +30,8 @@ export class PreiszuweisungEffects {
 
     @Effect()
     savePreiszuweisung$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISZUWEISUNG'), savePreiszuweisung => savePreiszuweisung
-        .withLatestFrom(this.currentPreiszuweisung$, (action, currentPreiszuweisung: CurrentPreiszuweisung) => ({ currentPreiszuweisung }))
-        .switchMap<CurrentPreiszuweisung>(({ currentPreiszuweisung }) => {
+        .withLatestFrom(this.currentPreiszuweisung$, (action, currentPreiszuweisung: CurrentPreiszuweisung) => ({ currentPreiserheberId: action.payload, currentPreiszuweisung }))
+        .switchMap<CurrentPreiszuweisung>(({ currentPreiserheberId, currentPreiszuweisung }) => {
             return getDatabase(dbNames.preiszuweisung)
                 .then(db => { // Only check if the document exists if is not a newly created one
                     if (!currentPreiszuweisung.isNew) {
@@ -43,9 +43,9 @@ export class PreiszuweisungEffects {
                     const data: P.Preiszuweisung = Object.assign({},
                         doc,
                         <P.Preiszuweisung>{
-                            _id: create ? currentPreiszuweisung.preiserheberId : currentPreiszuweisung._id,
+                            _id: create ? currentPreiserheberId : currentPreiszuweisung._id,
                             _rev: currentPreiszuweisung._rev,
-                            preiserheberId: currentPreiszuweisung.preiserheberId,
+                            preiserheberId: currentPreiserheberId,
                             preismeldestellen: currentPreiszuweisung.preismeldestellen
                         }
                     );

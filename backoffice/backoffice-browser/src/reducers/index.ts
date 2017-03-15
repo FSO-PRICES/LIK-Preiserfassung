@@ -7,27 +7,33 @@ import { storeLogger } from 'ngrx-store-logger';
 import { environment } from '../environments/environment';
 import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestelle from './preismeldestelle';
+import * as fromRegion from './region';
 import * as fromPreismeldung from './preismeldung';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
 import * as fromLogin from './login';
+import * as fromLanguage from './language';
 
 export interface AppState {
     settings: fromSetting.State;
     preiserhebers: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestelle.State;
+    regionen: fromRegion.State;
     preismeldungen: fromPreismeldung.State;
     preiszuweisungen: fromPreiszuweisung.State;
     login: fromLogin.State;
+    languages: fromLanguage.State;
 }
 
 const reducers = {
     settings: fromSetting.reducer,
     preiserhebers: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestelle.reducer,
+    regionen: fromRegion.reducer,
     preismeldungen: fromPreismeldung.reducer,
     preiszuweisungen: fromPreiszuweisung.reducer,
     login: fromLogin.reducer,
+    languages: fromLanguage.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -51,6 +57,11 @@ export const getPreismeldestellen = createSelector(getPreismeldestelleState, fro
 export const getCurrentPreismeldestelle = createSelector(getPreismeldestelleState, fromPreismeldestelle.getCurrentPreismeldestelle);
 
 
+export const getRegionState = (state: AppState) => state.regionen;
+export const getRegionen = createSelector(getRegionState, fromRegion.getAll);
+export const getCurrentRegion = createSelector(getRegionState, fromRegion.getCurrentRegion);
+
+
 export const getPreiszuweisungState = (state: AppState) => state.preiszuweisungen;
 export const getPreiszuweisungen = createSelector(getPreiszuweisungState, fromPreiszuweisung.getAll);
 export const getCurrentPreiszuweisung = createSelector(getPreiszuweisungState, fromPreiszuweisung.getCurrentPreiszuweisung);
@@ -67,3 +78,7 @@ export const getPreismeldungenAreLoaded = createSelector(getPreismeldungenState,
 
 
 export const getIsLoggedIn = (state: AppState) => state.login.isLoggedIn;
+
+export const getLanguagesState = (state: AppState) => state.languages;
+export const getLanguages = createSelector(getLanguagesState, fromLanguage.getLanguages);
+export const getLanguagesList = createSelector(getLanguagesState, fromLanguage.getLanguagesList);

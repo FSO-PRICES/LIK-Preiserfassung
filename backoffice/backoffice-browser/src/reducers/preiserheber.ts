@@ -42,7 +42,7 @@ export function reducer(state = initialState, action: preiserheber.Actions): Sta
 
         case 'CREATE_PREISERHEBER': {
             const newPreiserheber: CurrentPreiserheber = {
-                _id: '__new',
+                _id: (+ new Date()).toString(),
                 _rev: undefined,
                 firstName: null,
                 surname: null,

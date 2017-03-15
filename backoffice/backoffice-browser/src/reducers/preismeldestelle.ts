@@ -41,7 +41,7 @@ export function reducer(state = initialState, action: preismeldestelle.Actions):
 
         case 'CREATE_PREISMELDESTELLE': {
             const newPreismeldestelle: CurrentPreismeldestelle = {
-                _id: '__new',
+                _id: (+ new Date()).toString(),
                 _rev: undefined,
                 pmsNummer: null,
                 name: null,

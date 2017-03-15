@@ -36,7 +36,7 @@ export function reducer(state = initialState, action: preiszuweisung.Actions): S
         case 'SELECT_OR_CREATE_PREISZUWEISUNG': {
             const { payload: preiserheberId } = action;
             const newPreiszuweisung = {
-                _id: '__new',
+                _id: (+ new Date()).toString(),
                 _rev: undefined,
                 isNew: true,
                 isModified: false,
@@ -50,7 +50,7 @@ export function reducer(state = initialState, action: preiszuweisung.Actions): S
 
         case 'CREATE_PREISZUWEISUNG': {
             const newPreiszuweisung = {
-                _id: '__new',
+                _id: (+ new Date()).toString(),
                 _rev: undefined,
                 isNew: true,
                 isModified: false,

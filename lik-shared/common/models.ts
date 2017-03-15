@@ -215,7 +215,10 @@ export interface LanguageProperties {
     name: string;
 }
 
-export type Language = LanguageProperties & CouchProperties;
+export type Language = LanguageProperties;
+export interface LanguageDictionary {
+    [name: string]: Language;
+}
 
 export interface RegionProperties {
     name: string;

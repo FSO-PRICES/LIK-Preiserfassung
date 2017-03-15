@@ -16,6 +16,7 @@ export const dbNames = {
     users: '_users',
     preiserheber: 'preiserheber',
     preismeldestelle: 'preismeldestellen',
+    region: 'regionen',
     preiszuweisung: 'preiszuweisungen',
     preismeldung: 'preismeldungen',
     setting: 'settings'

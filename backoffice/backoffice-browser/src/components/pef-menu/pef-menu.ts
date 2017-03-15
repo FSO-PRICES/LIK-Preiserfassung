@@ -3,6 +3,7 @@ import { NavController } from 'ionic-angular';
 
 import { PreiserheberPage } from '../../pages/preiserheber/preiserheber';
 import { PreismeldestellePage } from '../../pages/preismeldestelle/preismeldestelle';
+import { RegionPage } from '../../pages/region/region';
 import { ImportPage } from '../../pages/import/import';
 import { ExportToPrestaPage } from '../../pages/export-to-presta/export-to-presta';
 import { SettingsPage } from '../../pages/settings/settings';
@@ -19,6 +20,7 @@ export class PefMenuComponent {
     public pages = [
         { page: PreiserheberPage, name: 'Preiserheber' },
         { page: PreismeldestellePage, name: 'Preismeldestellen' },
+        { page: RegionPage, name: 'Regionen' },
         { page: ImportPage, name: 'Import' },
         { page: ExportToPrestaPage, name: 'Export' }
     ];
@@ -37,6 +39,9 @@ export class PefMenuComponent {
     }
 
     navigateToPage(page) {
-        this.navCtrl.setRoot(page, {}, { animate: false });
+        this.navCtrl.setRoot(page, {}, { animate: false }).catch(error => {
+            if (error === false) return; // If the error is just a "false" it is that the page cannot be left
+            throw(error);
+        });
     }
 }

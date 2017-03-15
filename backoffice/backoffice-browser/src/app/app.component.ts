@@ -22,7 +22,7 @@ export class Backoffice implements OnInit {
 
     constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>) {
         const loginDialog$ = store.select(fromRoot.getIsLoggedIn)
-            .filter(x => x != null && !x) // Only check if logged in if a result is given
+            .filter(isLoggedIn => isLoggedIn != null && !isLoggedIn) // Only check if logged in if a result is given
             .switchMap(() => Observable.defer(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data)));
 
         platform.ready().then(() => {
@@ -33,7 +33,7 @@ export class Backoffice implements OnInit {
         });
 
         loginDialog$
-            .filter(dialogCode => dialogCode === 'THROW_CHANGES')
+            .filter(dialogCode => dialogCode === 'LOGGED_IN')
             .take(1)
             .subscribe(() => console.log('sucessfully logged in'));
 

@@ -12,6 +12,7 @@ import { PefDialogLoginModule, PefDialogLoginComponent } from '../components/pef
 
 import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
 import { PreismeldestelleModule, PreismeldestellePage } from '../pages/preismeldestelle';
+import { RegionModule, RegionPage } from '../pages/region';
 import { ImportModule, ImportPage } from '../pages/import';
 import { ExportToPrestaModule, ExportToPrestaPage } from '../pages/export-to-presta';
 import { SettingsPage, SettingsModule } from '../pages/settings';
@@ -30,6 +31,7 @@ import { reducer } from '../reducers';
                 { component: ExportToPrestaPage, name: 'Export', segment: 'export' },
                 { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe' },
                 { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms' },
+                { component: RegionPage, name: 'Region', segment: 'reg' },
                 { component: SettingsPage, name: 'Settings', segment: 'settings' },
             ]
         }),
@@ -41,6 +43,7 @@ import { reducer } from '../reducers';
         SettingsModule,
         PreiserheberModule,
         PreismeldestelleModule,
+        RegionModule,
         StoreModule.provideStore(reducer),
         ...BO_EFFECTS
     ],
@@ -53,7 +56,8 @@ import { reducer } from '../reducers';
         ExportToPrestaPage,
         SettingsPage,
         PreiserheberPage,
-        PreismeldestellePage
+        PreismeldestellePage,
+        RegionPage
     ],
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
