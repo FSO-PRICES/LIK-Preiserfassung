@@ -94,7 +94,7 @@ preismeldung-list {
                 }
             }
         }
-        .preismeldung-status {
+        .preismeldung-status-todo {
             max-width: 5em;
             flex: 0 0 5em;
             display: flex;
@@ -107,6 +107,21 @@ preismeldung-list {
                 flex: 0 0 8px;
                 background-color: $bright-sun;
                 height: 3.5em;
+            }
+        }
+        .preismeldung-status-done {
+            max-width: 5em;
+            flex: 0 0 5em;
+            display: flex;
+            flex-direction: column;
+            .code {
+                margin-right: 8px;
+                text-align: right;
+                display: none;
+                &.highlighted {
+                    display: block;
+                    color: orange;
+                }
             }
             .percentage {
                 margin-right: 8px;

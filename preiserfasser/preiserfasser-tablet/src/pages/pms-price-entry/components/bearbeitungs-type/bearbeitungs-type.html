@@ -1,7 +1,7 @@
 <div style="position: relative;">
     <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)">
+        <div class="code-name" [class.highlighted]="(selectedBearbeitungsType$ | async)?.code != 99">{{ (selectedBearbeitungsType$ | async)?.codeName }}</div>
         <div class="description">{{ (selectedBearbeitungsType$ | async)?.description }}</div>
-        <div class="code-name">{{ (selectedBearbeitungsType$ | async)?.codeName }}</div>
     </button>
     <div class="bearbeitungs-type-flyout" [class.visible]="buttonOn$ | async" [style.marginBottom]="marginBottom$ | async">
         <ion-list>

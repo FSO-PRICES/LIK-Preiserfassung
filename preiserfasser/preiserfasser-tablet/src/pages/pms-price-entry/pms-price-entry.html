@@ -5,11 +5,16 @@
         [warenkorbFlat]="warenkorbFlat$ | async"
         [preismeldungen]="preismeldungen$ | async">
     </choose-from-warenkorb>
+    <preismeldungen-sort
+        *ngIf="false"
+        [isDesktop]="isDesktop$ | async"
+        [preismeldungen]="preismeldungen$ | async">
+    </preismeldungen-sort>
     <preismeldung-toolbar
         [preismeldung]="currentPreismeldung$ | async"
         (selectedTab)="selectTab$.emit($event)"
-        (buttonClicked)="toolbarButtonClicked$.emit($event)"
-        ></preismeldung-toolbar>
+        (buttonClicked)="toolbarButtonClicked$.emit($event)">
+    </preismeldung-toolbar>
     <div class="work-area">
         <div class="preismeldung-details-container">
             <ion-content>

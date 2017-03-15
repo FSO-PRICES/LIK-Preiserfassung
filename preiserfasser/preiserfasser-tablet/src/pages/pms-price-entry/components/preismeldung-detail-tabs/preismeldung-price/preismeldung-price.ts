@@ -40,10 +40,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     public preisChanged$ = new EventEmitter<string>();
     public preisInvalid$: Observable<boolean>;
+    public preisCurrentValue$: Observable<{ value: string }>;
     public mengeChanged$ = new EventEmitter<string>();
     public mengeInvalid$: Observable<boolean>;
 
     public preisVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
+    public preisVPNormalNeuerArtikelCurrentValue$: Observable<{ value: string }>;
     public mengeVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
 
     public toggleAktion$ = new EventEmitter();
@@ -54,7 +56,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
 
-    public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
+    public numberFormattingOptions = { padRight: 2, truncate: 4, integerSeparator: '' };
 
     public currentPeriodHeading$: Observable<string>;
 
@@ -74,8 +76,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.form = formBuilder.group({
             pmId: [''],
-            preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })])],
-            menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 2 })])],
+            preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])],
+            menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 4 })])],
             // preisVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })],
             // mengeVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })],
             preisVPNormalNeuerArtikel: [''],
@@ -86,6 +88,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             artikelText: [null, Validators.required]
         });
 
+
         this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
         this.requestPreismeldungSave$ = this.observePropertyCurrentValue<string>('requestPreismeldungSave').filter(x => !!x);
         this.requestPreismeldungQuickEqual$ = this.observePropertyCurrentValue<string>('requestPreismeldungQuickEqual').filter(x => !!x);
@@ -94,6 +97,14 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .filter(x => !!x)
             .distinctUntilKeyChanged('pmId')
             .publishReplay(1).refCount();
+
+        this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)
+            .merge(distinctPreismeldung$.map(x => x.preismeldung.preis))
+            .map(x => ({ value: `${this.formatFn(x)}` }));
+
+        this.preisVPNormalNeuerArtikelCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPNormalNeuerArtikel)
+            .merge(distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
+            .map(x => ({ value: `${this.formatFn(x)}` }));
 
         this.subscriptions.push(
             distinctPreismeldung$
@@ -250,7 +261,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         return [0, 44, 101].some(x => x === bearbeitungscode);
     }
 
-    formatPercentageChange = percentageChange => formatPercentageChange(percentageChange, 2);
+    formatPercentageChange = percentageChange => formatPercentageChange(percentageChange, 1);
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);

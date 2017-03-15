@@ -14,6 +14,7 @@ import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm
 import { DialogSufficientPreismeldungenComponent } from './components/dialog-sufficient-preismeldungen/dialog-sufficient-preismeldungen';
 import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
+import { PreismeldungenSortComponent } from './components/preismeldungen-sort/preismeldungen-sort';
 import { PreismeldungInfoComponent } from './components/preismeldung-detail-tabs/preismeldung-info';
 import { PreismeldungInfoPopover } from './components/preismeldung-info-popover/preismeldung-info-popover';
 import { PreismeldungInfoWarenkorbComponent } from './components/preismeldung-detail-tabs/preismeldung-info-warenkorb';
@@ -34,6 +35,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
         DialogValidationErrorsComponent,
         PmsPriceEntryPage,
         PreismeldungAttributesComponent,
+        PreismeldungenSortComponent,
         PreismeldungInfoComponent,
         PreismeldungInfoPopover,
         PreismeldungInfoWarenkorbComponent,

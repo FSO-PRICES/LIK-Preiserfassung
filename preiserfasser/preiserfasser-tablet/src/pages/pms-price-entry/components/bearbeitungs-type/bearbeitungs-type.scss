@@ -20,16 +20,19 @@ bearbeitungs-type {
             text-align: left;
             flex: 0 0 100%;
             max-width: 100%;
-            font-weight: 500;
-            color: $blue-chill;
+            font-weight: 400;
+            color: $trout;
         }
         .code-name {
             @include crop-text();
             text-align: left;
             flex: 0 0 100%;
             max-width: 100%;
-            font-weight: 400;
-            color: $trout;
+            font-weight: 500;
+            color: $blue-chill;
+            &.highlighted {
+                color: orange;
+            }
         }
         &:hover:not(.disable-hover), &.toggled-on {
             .description, .code-name {

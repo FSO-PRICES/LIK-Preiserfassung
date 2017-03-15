@@ -1,0 +1,19 @@
+<div class="wrapper">
+    <div class="header">
+        <h3>Sortierung der Auswahlliste der Preismeldung anpassen</h3>
+    </div>
+    <div class="content">
+        <div class="toolbar">
+        </div>
+        <div class="detail-content">
+            <div class="instructions"></div>
+            <div class="list-container">
+                <div class="preismeldung-list" pef-perfect-scrollbar [enabled]="true" style="position: relative; height: 300px;"> <!-->TODO: isDesktop</!-->
+                    <div *ngFor="let bag of preismeldungen$ | async">
+                        {{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

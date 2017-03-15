@@ -18,9 +18,9 @@ import { DialogSufficientPreismeldungenComponent } from './components/dialog-suf
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PmsPriceEntryPage {
-    isDesktop$ = this.store.select(fromRoot.getIsDesktop);
+    isDesktop$ = this.store.select(fromRoot.getIsDesktop).publishReplay(1).refCount();
     preismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
-    preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
+    preismeldungen$ = this.store.select(fromRoot.getPreismeldungen).publishReplay(1).refCount();
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
     warenkorbFlat$ = this.store.select(fromRoot.getWarenkorbFlat);
