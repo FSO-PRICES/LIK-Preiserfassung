@@ -1,16 +1,16 @@
 import { Component, EventEmitter, ChangeDetectionStrategy, NgZone } from '@angular/core';
+import { TranslateService } from 'ng2-translate';
 import { NavParams, NavController } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
-import { PefDialogService } from 'lik-shared';
+import { PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
-import { DialogSufficientPreismeldungenComponent } from './components/dialog-sufficient-preismeldungen/dialog-sufficient-preismeldungen';
 
 @Component({
     selector: 'pms-price-entry',
@@ -49,7 +49,8 @@ export class PmsPriceEntryPage {
         private navParams: NavParams,
         private pefDialogService: PefDialogService,
         private store: Store<fromRoot.AppState>,
-        private zone: NgZone
+        private zone: NgZone,
+        translateService: TranslateService
     ) {
         this.toolbarButtonClicked$
             .filter(x => x === 'HOME')
@@ -72,7 +73,7 @@ export class PmsPriceEntryPage {
 
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).map(x => x.data));
-        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(DialogSufficientPreismeldungenComponent, {}).map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_sufficientPreismeldungen')).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
             .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({

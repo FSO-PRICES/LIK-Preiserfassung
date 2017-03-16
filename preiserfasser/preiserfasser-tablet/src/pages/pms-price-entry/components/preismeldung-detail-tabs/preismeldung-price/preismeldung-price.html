@@ -8,7 +8,7 @@
                 <ion-label> Artikelnummer </ion-label>
                 <ion-input
                     type="text"
-                    formControlName="artikelNummer"></ion-input>
+                    formControlName="artikelnummer"></ion-input>
             </ion-item>
             <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus.ok, 'not-ok': !(preismeldung$ | async).priceCountStatus.ok }">
                 <span>{{ (preismeldung$ | async).priceCountStatus.text }}</span>
@@ -19,7 +19,7 @@
                 <ion-label> Artikeltext * </ion-label>
                 <ion-input
                     type="text"
-                    formControlName="artikelText"
+                    formControlName="artikeltext"
                     [class.validation-error]="true"></ion-input>
             </ion-item>
             <div class="right-column">

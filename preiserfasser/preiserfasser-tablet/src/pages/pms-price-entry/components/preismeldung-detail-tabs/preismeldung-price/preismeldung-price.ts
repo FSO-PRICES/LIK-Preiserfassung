@@ -5,7 +5,7 @@ import { TranslateService } from 'ng2-translate';
 import { keys, assign } from 'lodash';
 import * as format from 'format-number';
 
-import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
 
@@ -84,8 +84,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             mengeVPNormalNeuerArtikel: [''],
             aktion: [false],
             bearbeitungscode: [100, Validators.required],
-            artikelNummer: [null],
-            artikelText: [null, Validators.required]
+            artikelnummer: [null],
+            artikeltext: [null, Validators.required]
         });
 
 
@@ -117,8 +117,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         preisVPNormalNeuerArtikel: preismeldung.preismeldung.preisVPNormalNeuerArtikel,
                         mengeVPNormalNeuerArtikel: preismeldung.preismeldung.mengeVPNormalNeuerArtikel,
                         bearbeitungscode: preismeldung.preismeldung.bearbeitungscode,
-                        artikelNummer: preismeldung.preismeldung.artikelnummer,
-                        artikelText: preismeldung.preismeldung.artikeltext
+                        artikelnummer: preismeldung.preismeldung.artikelnummer,
+                        artikeltext: preismeldung.preismeldung.artikeltext
                     });
                 })
         );
@@ -172,8 +172,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 preisVPNormalNeuerArtikel: this.form.value.preisVPNormalNeuerArtikel,
                 mengeVPNormalNeuerArtikel: this.form.value.mengeVPNormalNeuerArtikel,
                 bearbeitungscode: this.form.value.bearbeitungscode,
-                artikelnummer: this.form.value.artikelNummer,
-                artikeltext: this.form.value.artikelText
+                artikelnummer: this.form.value.artikelnummer,
+                artikeltext: this.form.value.artikeltext
             }));
 
         const bearbeitungscodeChanged$ = this.changeBearbeitungscode$
@@ -227,8 +227,17 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         const canSave$ = this.attemptSave$.map(() => ({ saveAction: 'JUST_SAVE' })).merge(this.requestPreismeldungSave$.map(() => ({ saveAction: 'SAVE_AND_MOVE_TO_NEXT' })))
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
             .publishReplay(1).refCount();
+
         this.save$ = canSave$.filter(x => x.isValid)
             .map(x => x.saveAction)
+            .flatMap(saveAction => Observable.defer(() =>
+                distinctPreismeldung$.take(1)
+                    .flatMap(bag =>
+                        ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer)
+                            ? pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false).map(res => res.data) : Observable.of('YES')
+                    )
+                    .filter(y => y === 'YES')
+            ).map(() => saveAction))
             .publishReplay(1).refCount();
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)

@@ -117,11 +117,8 @@ preismeldung-list {
             .code {
                 margin-right: 8px;
                 text-align: right;
-                display: none;
-                &.highlighted {
-                    display: block;
-                    color: orange;
-                }
+                color: orange;
+                font-weight: bold;
             }
             .percentage {
                 margin-right: 8px;
