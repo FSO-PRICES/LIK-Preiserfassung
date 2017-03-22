@@ -1,4 +1,4 @@
-import { ErrorHandler, NgModule } from '@angular/core';
+import { ErrorHandler, NgModule, LOCALE_ID } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
@@ -12,6 +12,7 @@ import { PefDialogLoginModule, PefDialogLoginComponent } from '../components/pef
 
 import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
 import { PreismeldestelleModule, PreismeldestellePage } from '../pages/preismeldestelle';
+import { PreismeldungModule, PreismeldungPage } from '../pages/preismeldung';
 import { RegionModule, RegionPage } from '../pages/region';
 import { ImportModule, ImportPage } from '../pages/import';
 import { ExportToPrestaModule, ExportToPrestaPage } from '../pages/export-to-presta';
@@ -31,6 +32,7 @@ import { reducer } from '../reducers';
                 { component: ExportToPrestaPage, name: 'Export', segment: 'export' },
                 { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe' },
                 { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms' },
+                { component: PreismeldungPage, name: 'Preismeldung', segment: 'pm' },
                 { component: RegionPage, name: 'Region', segment: 'reg' },
                 { component: SettingsPage, name: 'Settings', segment: 'settings' },
             ]
@@ -43,6 +45,7 @@ import { reducer } from '../reducers';
         SettingsModule,
         PreiserheberModule,
         PreismeldestelleModule,
+        PreismeldungModule,
         RegionModule,
         StoreModule.provideStore(reducer),
         ...BO_EFFECTS
@@ -57,10 +60,12 @@ import { reducer } from '../reducers';
         SettingsPage,
         PreiserheberPage,
         PreismeldestellePage,
+        PreismeldungPage,
         RegionPage
     ],
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
+        { provide: LOCALE_ID, useValue: 'de-CH' },
         PefDialogService,
         SettingsLoadedService
     ]

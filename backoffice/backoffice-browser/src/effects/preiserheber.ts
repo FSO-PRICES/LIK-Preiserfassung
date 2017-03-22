@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
@@ -23,14 +24,15 @@ export class PreiserheberEffects {
         .switchMap(() => getDatabase(dbNames.preiserheber).then(db => ({ db })))
         .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as P.Erheber[] })))
-        .map<preiserheber.Actions>(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs }))
+        .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as preiserheber.Action))
     );
 
     @Effect()
     savePreiserheber$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISERHEBER'), savePreiserheber => savePreiserheber
         .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ password: action.payload, currentPreiserheber }))
-        .switchMap<CurrentPreiserheber>(({ password, currentPreiserheber }) => {
-            return getDatabase(dbNames.preiserheber)
+        .switchMap(({ password, currentPreiserheber }) =>
+            Observable.fromPromise(
+                getDatabase(dbNames.preiserheber)
                 .then(db => { // Only check if the document exists if a revision not already exists
                     if (!!currentPreiserheber._rev) {
                         return db.get(currentPreiserheber._id).then(doc => ({ db, doc }));
@@ -54,8 +56,9 @@ export class PreiserheberEffects {
                 // Reload the created erheber
                 .then<CurrentPreiserheber>(({ db, id, created }) => db.get(id).then(preiserheber => Object.assign({}, preiserheber, { isModified: false, isSaved: true, isCreated: created })))
                 // Initialize a database for created erheber
-                .then(erheber => (erheber.isCreated ? createUser(erheber._id, password) : Promise.resolve(null)).then(() => erheber));
-        })
-        .map<preiserheber.Actions>(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload }))
+                .then<CurrentPreiserheber>(erheber => (erheber.isCreated ? createUser(erheber._id, password) : Promise.resolve(null)).then(() => erheber))
+            )
+        )
+        .map(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload } as preiserheber.Action))
     );
 }

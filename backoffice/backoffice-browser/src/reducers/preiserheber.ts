@@ -22,7 +22,7 @@ const initialState: State = {
     currentPreiserheber: undefined,
 };
 
-export function reducer(state = initialState, action: preiserheber.Actions): State {
+export function reducer(state = initialState, action: preiserheber.Action): State {
     switch (action.type) {
         case 'PREISERHEBER_LOAD_SUCCESS': {
             const { payload } = action;

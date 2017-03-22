@@ -47,7 +47,7 @@ export class RegionDetailComponent extends ReactiveComponent implements OnChange
             .publishReplay(1).refCount();
 
         const canSave$ = this.saveClicked$
-            .map(createNew => ({ isValid: this.form.valid, createNew }))
+            .map(createNew => ({ isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
         this.save$ = canSave$.filter(x => x.isValid)

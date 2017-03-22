@@ -14,12 +14,14 @@ PouchDB.plugin(pouchDbAuthentication);
 export const dbNames = {
     emptyDb: 'inexistant',
     users: '_users',
+    warenkorb: 'warenkorb',
     preiserheber: 'preiserheber',
     preismeldestelle: 'preismeldestellen',
     region: 'regionen',
     preiszuweisung: 'preiszuweisungen',
     preismeldung: 'preismeldungen',
-    setting: 'settings'
+    setting: 'settings',
+    import: 'imports'
 };
 
 dropLocalDatabase(dbNames.emptyDb);

@@ -1,6 +1,7 @@
 import { Models as P } from '../common-models';
 
-export type Actions =
+export type Action =
+    { type: 'PREISERHEBER_LOAD' } |
     { type: 'PREISERHEBER_LOAD_SUCCESS', payload: { preiserhebers: P.Erheber[] } } |
     { type: 'SAVE_PREISERHEBER_SUCCESS', payload: P.Erheber } |
     { type: 'SAVE_PREISERHEBER', payload: string } | // payload is password for db creation (only set if creating)

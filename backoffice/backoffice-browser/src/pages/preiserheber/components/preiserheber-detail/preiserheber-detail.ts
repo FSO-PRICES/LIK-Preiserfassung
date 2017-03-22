@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
 import { ReactiveComponent, Models as P } from 'lik-shared';
@@ -15,6 +14,7 @@ import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 })
 export class PreiserheberDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preiserheber: P.Erheber;
+    @Input() languages: P.Language[];
     @Output('save')
     public save$: Observable<P.Erheber>;
     @Output('cancel')
@@ -22,22 +22,22 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     @Output('update')
     public update$: Observable<P.Erheber>;
 
-    public isEditing$: Observable<boolean>;
-    public showValidationHints$: Observable<boolean>;
     public preiserheber$: Observable<P.Erheber>;
+    public languages$: Observable<P.Language[]>;
     public resetForm$: Observable<boolean>;
     public saveClicked$ = new EventEmitter<Event>();
 
-    public languages$ = this.store.select(fromRoot.getLanguagesList).publishReplay(1).refCount();
+    public isEditing$: Observable<boolean>;
+    public showValidationHints$: Observable<boolean>;
 
     private subscriptions: Subscription[];
-
     public form: FormGroup;
 
-    constructor(private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>) {
+    constructor(private formBuilder: FormBuilder) {
         super();
 
         this.preiserheber$ = this.observePropertyCurrentValue<P.Erheber>('preiserheber');
+        this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
 
         this.form = formBuilder.group({
             preiserheber: formBuilder.group({

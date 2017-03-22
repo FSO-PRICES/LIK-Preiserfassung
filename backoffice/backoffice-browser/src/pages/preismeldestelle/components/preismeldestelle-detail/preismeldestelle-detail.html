@@ -11,11 +11,18 @@
                     <ion-label stacked>Preismeldestellen-ID *</ion-label>
                     <ion-input type="text" formControlName="pmsNummer"></ion-input>
                 </ion-item>
-                <ion-item class="pef-item">
-                    <ion-label stacked>Region</ion-label>
-                    <!--- TODO: Select of regions -->
-                    <ion-input type="text" formControlName="regionId"></ion-input>
-                </ion-item>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label stacked>Region</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="regionId">
+                                    <option *ngFor="let region of regionen$ | async" [value]="region._id">{{region.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <ion-item class="pef-item">
                     <ion-label stacked>Name</ion-label>
                     <!--- TODO: Select of regions -->

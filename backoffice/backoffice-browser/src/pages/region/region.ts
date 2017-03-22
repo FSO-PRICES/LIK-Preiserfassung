@@ -6,9 +6,8 @@ import { Loading, LoadingController } from 'ionic-angular';
 import { Models as P, PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
-import { Actions as RegionAction } from '../../actions/region';
+import { Action as RegionAction } from '../../actions/region';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
-import { CurrentRegion } from '../../reducers/region';
 
 @Component({
     selector: 'region',
@@ -22,24 +21,31 @@ export class RegionPage implements OnDestroy {
     public cancelRegion$ = new EventEmitter();
     public saveRegion$ = new EventEmitter();
     public updateRegion$ = new EventEmitter<P.Erheber>();
+
     public isEditing$: Observable<boolean>;
+    public isCurrentModified$: Observable<boolean>;
+    public cancelEditDialog$: Observable<any>;
 
     private subscriptions: Subscription[];
     private loader: Loading;
 
     constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private pefDialogService: PefDialogService) {
-        const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
+        this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
 
         this.isEditing$ = this.currentRegion$
             .map(x => !!x && !!x._id)
             .distinctUntilChanged()
             .publishReplay(1).refCount();
 
+        this.isCurrentModified$ = this.currentRegion$
+            .map(currentRegion => !!currentRegion && currentRegion.isModified)
+            .startWith(null)
+            .publishReplay(1).refCount();
+
         const requestSelectRegion$ = this.selectRegion$
-            .withLatestFrom(this.currentRegion$.startWith(null), (selectedRegion: string, currentRegion: CurrentRegion) => ({
+            .withLatestFrom(this.isCurrentModified$, (selectedRegion: string, isCurrentModified: boolean) => ({
                 selectedRegion,
-                currentRegion,
-                isCurrentModified: !!currentRegion && currentRegion.isModified
+                isCurrentModified
             }))
             .publishReplay(1).refCount();
 
@@ -48,7 +54,7 @@ export class RegionPage implements OnDestroy {
                 .filter(x => !x.isCurrentModified)
                 .merge(requestSelectRegion$
                     .filter(x => x.isCurrentModified)
-                    .flatMap(x => cancelEditDialog$.map(y => ({ selectedRegion: x.selectedRegion, dialogCode: y })))
+                    .flatMap(x => this.cancelEditDialog$.map(y => ({ selectedRegion: x.selectedRegion, dialogCode: y })))
                     .filter(x => x.dialogCode === 'THROW_CHANGES'))
                 .subscribe(x => {
                     store.dispatch({ type: 'SELECT_REGION', payload: x.selectedRegion });
@@ -56,29 +62,43 @@ export class RegionPage implements OnDestroy {
 
             this.createRegion$
                 .subscribe(() => {
-                    store.dispatch(<RegionAction>{ type: 'CREATE_REGION' });
+                    store.dispatch({ type: 'CREATE_REGION' } as RegionAction);
                 }),
 
             this.cancelRegion$
-                .subscribe(x => this.store.dispatch(<RegionAction>{ type: 'SELECT_REGION', payload: null })),
+                .subscribe(x => this.store.dispatch({ type: 'SELECT_REGION', payload: null } as RegionAction)),
 
             this.updateRegion$
-                .subscribe(x => store.dispatch(<RegionAction>{ type: 'UPDATE_CURRENT_REGION', payload: x })),
+                .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_REGION', payload: x } as RegionAction)),
 
             this.saveRegion$
                 .subscribe(x => {
-                    // this.presentLoadingScreen();
-                    store.dispatch(<RegionAction>{ type: 'SAVE_REGION', payload: x.createNew });
+                    this.presentLoadingScreen();
+                    store.dispatch({ type: 'SAVE_REGION' } as RegionAction);
                 }),
 
-            // this.currentRegion$
-            //     .filter(pms => pms != null && pms.isSaved)
-            //     .subscribe(() => this.dismissLoadingScreen())
+            this.currentRegion$
+                .filter(pms => pms != null && pms.isSaved)
+                .subscribe(() => this.dismissLoadingScreen())
         ];
     }
 
+    public ionViewCanLeave(): Promise<boolean> {
+        return Observable.merge(
+                this.isCurrentModified$
+                    .filter(modified => modified === false)
+                    .map(() => true),
+                this.isCurrentModified$
+                    .filter(modified => modified === true)
+                    .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
+                    .map(dialogCode => dialogCode === 'THROW_CHANGES')
+            )
+            .take(1)
+            .toPromise();
+    }
+
     public ionViewDidEnter() {
-        this.store.dispatch(<RegionAction>{ type: 'REGION_LOAD' });
+        this.store.dispatch({ type: 'REGION_LOAD' } as RegionAction);
     }
 
     public ngOnDestroy() {

@@ -1,0 +1,100 @@
+<form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+    <ion-row>
+        <ion-col width-67>
+            <h1 class="large">
+                <div>Editieren</div>
+            </h1>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Bermerkungen ans BFS</ion-label>
+                    <ion-textarea type="text" formControlName="bermerkungenAnsBfs"></ion-textarea>
+                </ion-item>
+            </ion-list>
+            <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+            <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col width-67>
+            <h1 class="large">
+                Hauptinformationen zur Preismeldung
+            </h1>
+            <ion-row>
+                <ion-col>
+                    <h5>Preismeldungn-ID</h5>
+                    {{(preismeldung$ | async).pmsNummer}}
+                </ion-col>
+                <ion-col>
+                    <h5>Artikelnummer</h5>
+                    {{(preismeldung$ | async).artikelnummer}}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <h5>Artikeltext</h5>
+                    {{(preismeldung$ | async).artikeltext}}
+                </ion-col>
+                <ion-col>
+                    <h5>Aktion</h5>
+                    <ion-checkbox type="text" formControlName="aktion"></ion-checkbox>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <h5>Bearbeitungscode</h5>
+                    {{(preismeldung$ | async).bearbeitungscode}}
+                </ion-col>
+                <ion-col>
+                    <h5>Ep Nummer</h5>
+                    {{(preismeldung$ | async).epNummer}}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <h5>Internet Link</h5>
+                    {{(preismeldung$ | async).internetLink}}
+                </ion-col>
+                <ion-col>
+                    <h5>Ist Abgebucht</h5>
+                    <ion-checkbox type="text" formControlName="istAbgebucht"></ion-checkbox>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <h5>Laufnummer</h5>
+                    {{(preismeldung$ | async).laufnummer}}
+                </ion-col>
+                <ion-col>
+                    <h5>Menge</h5>
+                    {{(preismeldung$ | async).menge}}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <h5>Menge Vorperiode Neuer Artikel</h5>
+                    {{(preismeldung$ | async).mengeVPNormalNeuerArtikel}}
+                </ion-col>
+                <ion-col>
+                    <h5>Modifiziert am</h5>
+                    {{(preismeldung$ | async).modifiedAt}}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <h5>Preis</h5>
+                    {{(preismeldung$ | async).preis}}
+                </ion-col>
+                <ion-col>
+                    <h5>Preis Vorperiode Neuer Artikel</h5>
+                    {{(preismeldung$ | async).preisVPNormalNeuerArtikel}}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col width-50>
+                    <h5>Upload verlangt am</h5>
+                    {{(preismeldung$ | async).uploadRequestedAt}}
+                </ion-col>
+            </ion-row>
+        </ion-col>
+    </ion-row>
+</form>

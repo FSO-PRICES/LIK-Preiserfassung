@@ -16,6 +16,7 @@
         <div class="preiserheber-detail-container container">
             <preiserheber-detail *ngIf="isEditing$ | async"
                 [preiserheber]="currentPreiserheber$ | async"
+                [languages]="languages$ | async"
                 (save)="savePreiserheber$.emit($event)"
                 (cancel)="cancelPreiserheber$.emit($event)"
                 (update)="updatePreiserheber$.emit($event)"></preiserheber-detail>

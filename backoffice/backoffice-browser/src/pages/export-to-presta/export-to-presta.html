@@ -4,7 +4,7 @@
         <form>
             <ion-row>
                 <ion-col width-33>
-                    <preismeldungen-export [preismeldungen]="preismeldungen$ | async" (exportCompleted)="preismeldungenExportCompleted$.emit($event)"></preismeldungen-export>
+                    <preismeldungen-export [preismeldungen]="preismeldungen$ | async" [exportCompleted]="exportedPreismeldungen$$ | async" (startExport)="startPreismeldungenExport$.emit($event)"></preismeldungen-export>
                 </ion-col>
             </ion-row>
         </form>

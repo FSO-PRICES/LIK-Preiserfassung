@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 import { Models as P } from 'lik-shared';
 
@@ -25,14 +26,15 @@ export class PreismeldestelleEffects {
         .switchMap(() => getDatabase(dbNames.preismeldestelle).then(db => ({ db })))
         .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preismeldestellen: res.rows.map(y => y.doc) as P.AdvancedPreismeldestelle[] })))
-        .map<preismeldestelle.Actions>(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs }))
+        .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action))
     );
 
     @Effect()
     savePreismeldestelle$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISMELDESTELLE'), savePreismeldestelle => savePreismeldestelle
         .withLatestFrom(this.currentPreismeldestelle$, (action, currentPreismeldestelle: CurrentPreismeldestelle) => ({ currentPreismeldestelle }))
-        .switchMap<CurrentPreismeldestelle>(({ currentPreismeldestelle }) => {
-            return getDatabase(dbNames.preismeldestelle)
+        .switchMap(({ currentPreismeldestelle }) =>
+            Observable.fromPromise(
+                getDatabase(dbNames.preismeldestelle)
                 .then(db => { // Only check if the document exists if a revision not already exists
                     if (!!currentPreismeldestelle._rev) {
                         return db.get(currentPreismeldestelle._id).then(doc => ({ db, doc }));
@@ -61,8 +63,9 @@ export class PreismeldestelleEffects {
                         erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit
                     })).then((response) => ({ db, id: response.id, created: create }));
                 })
-                .then<CurrentPreismeldestelle>(({ db, id, created }) => db.get(id).then(preismeldestelle => Object.assign({}, preismeldestelle, { isModified: false, isSaved: true, isCreated: created })));
-        })
-        .map<preismeldestelle.Actions>(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload }))
+                .then<CurrentPreismeldestelle>(({ db, id, created }) => db.get(id).then(preismeldestelle => Object.assign({}, preismeldestelle, { isModified: false, isSaved: true, isCreated: created })))
+            )
+        )
+        .map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload } as preismeldestelle.Action))
     );
 }

@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { NavController } from 'ionic-angular';
+import { Observable } from 'rxjs/Observable';
 
+import * as fromRoot from '../../reducers';
 import { PreiserheberPage } from '../../pages/preiserheber/preiserheber';
 import { PreismeldestellePage } from '../../pages/preismeldestelle/preismeldestelle';
+import { PreismeldungPage } from '../../pages/preismeldung/preismeldung';
 import { RegionPage } from '../../pages/region/region';
 import { ImportPage } from '../../pages/import/import';
 import { ExportToPrestaPage } from '../../pages/export-to-presta/export-to-presta';
 import { SettingsPage } from '../../pages/settings/settings';
-import { Store } from '@ngrx/store';
-
-import * as fromRoot from '../../reducers';
-import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'header[pef-menu]',
@@ -20,6 +20,7 @@ export class PefMenuComponent {
     public pages = [
         { page: PreiserheberPage, name: 'Preiserheber' },
         { page: PreismeldestellePage, name: 'Preismeldestellen' },
+        { page: PreismeldungPage, name: 'Preismeldungen' },
         { page: RegionPage, name: 'Regionen' },
         { page: ImportPage, name: 'Import' },
         { page: ExportToPrestaPage, name: 'Export' }

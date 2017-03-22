@@ -21,7 +21,7 @@ const initialState: State = {
     currentRegion: undefined,
 };
 
-export function reducer(state = initialState, action: region.Actions): State {
+export function reducer(state = initialState, action: region.Action): State {
     switch (action.type) {
         case 'REGION_LOAD_SUCCESS': {
             const { payload } = action;
@@ -40,7 +40,13 @@ export function reducer(state = initialState, action: region.Actions): State {
         }
 
         case 'CREATE_REGION': {
-            const newRegion: CurrentRegion = createNewRegion();
+            const newRegion: CurrentRegion = {
+                _id: (+ new Date()).toString(),
+                _rev: undefined,
+                name: null,
+                isModified: false,
+                isSaved: false
+            };
             return assign({}, state, { currentRegion: newRegion });
         }
 
@@ -61,10 +67,10 @@ export function reducer(state = initialState, action: region.Actions): State {
         }
 
         case 'SAVE_REGION_SUCCESS': {
-            const { createNew, region } = action.payload;
+            const region = action.payload;
             const currentRegion = Object.assign({}, state.currentRegion, region);
             const regionIds = !!state.regionIds.find(x => x === currentRegion._id) ? state.regionIds : [...state.regionIds, currentRegion._id];
-            return assign({}, state, { currentRegion: createNew ? createNewRegion() : currentRegion, regionIds, entities: assign({}, state.entities, { [currentRegion._id]: currentRegion }) });
+            return assign({}, state, { currentRegion, regionIds, entities: assign({}, state.entities, { [currentRegion._id]: currentRegion }) });
         }
 
         default:
@@ -77,13 +83,3 @@ export const getRegionIds = (state: State) => state.regionIds;
 export const getCurrentRegion = (state: State) => state.currentRegion;
 
 export const getAll = createSelector(getEntities, getRegionIds, (entities, regionIds) => regionIds.map(x => entities[x]));
-
-function createNewRegion(): CurrentRegion {
-    return {
-        _id: (+ new Date()).toString(),
-        _rev: undefined,
-        name: null,
-        isModified: false,
-        isSaved: false
-    }
-}

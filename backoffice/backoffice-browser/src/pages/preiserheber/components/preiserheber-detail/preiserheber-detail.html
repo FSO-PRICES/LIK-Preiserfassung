@@ -29,7 +29,7 @@
                 <div class="input-wrapper">
                     <ion-label stacked>Sprache</ion-label>
                     <div class="input input-md pef-select">
-                        <select formControlName="languageCode" class="text-input text-input-md">
+                        <select formControlName="languageCode">
                             <option [selected]="preiserheber.languageCode === null" value="">Nicht angegeben</option>
                             <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
                         </select>

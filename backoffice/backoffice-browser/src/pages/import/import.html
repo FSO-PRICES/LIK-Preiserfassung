@@ -6,16 +6,28 @@
                 <ion-col width-33>
                     <warenkorb-import (importCompleted)="warenkorbImportCompleted$.emit($event)"></warenkorb-import>
                 </ion-col>
+                <ion-col width-67>Zuletzt importiert am: {{latestWarenkorbImportAt$ | async | date:"medium"}}</ion-col>
             </ion-row>
             <ion-row>
                 <ion-col width-33>
-                    <preismeldestellen-import (importCompleted)="preismeldestellenImportCompleted$.emit($event)"></preismeldestellen-import>
+                    <preismeldestellen-import
+                        (fileSelected)="preismeldestelleFileSelected$.emit($event)"
+                        (import)="preismeldestellenStartImport$.emit($event)"
+                        [parsed]="preismeldestelleFileParsed$ | async"
+                        [importedCount]="preismeldestellenImportedCount$ | async">
+                    </preismeldestellen-import>
                 </ion-col>
+                <ion-col width-67>Zuletzt importiert am: {{latestPreismeldestellenImportAt$ | async | date:"medium"}}</ion-col>
             </ion-row>
             <ion-row>
                 <ion-col width-33>
-                    <preismeldungen-import (importCompleted)="preismeldungenImportCompleted$.emit($event)"></preismeldungen-import>
+                    <preismeldungen-import
+                        (fileSelected)="preismeldungFileSelected$.emit($event)"
+                        (import)="preismeldungenStartImport$.emit($event)"
+                        [parsed]="preismeldungFileParsed$ | async"
+                        [importedCount]="preismeldungenImportedCount$ | async"></preismeldungen-import>
                 </ion-col>
+                <ion-col width-67>Zuletzt importiert am: {{latestPreismeldungenImportAt$ | async | date:"medium"}}</ion-col>
             </ion-row>
         </form>
     </div>

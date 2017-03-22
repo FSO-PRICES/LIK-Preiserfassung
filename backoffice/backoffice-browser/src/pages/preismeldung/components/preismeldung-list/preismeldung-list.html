@@ -1,0 +1,23 @@
+<div class="pef-advanced-item-flex-container">
+    <select (change)="preismeldestelleNummerSelected$.emit($event.target.value)" class="item-md">
+        <option [selected]="true" [disabled]="true" value="">Preismeldestelle auswählen</option>
+        <option *ngFor="let preismeldestelle of preismeldestellen$ | async" [value]="preismeldestelle.pmsNummer">{{preismeldestelle.pmsNummer}}&nbsp;&nbsp;&nbsp;{{preismeldestelle.name}}</option>
+    </select>
+    <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
+    <pef-virtual-scroll [items]="filteredPreismeldungen$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+        <ion-item
+            class="pef-advanced-item"
+            *ngFor="let bag of viewPortItems"
+            (click)="selectPreismeldung$.emit(bag.preismeldung._id)"
+            [class.selected]="bag.preismeldung._id == (current$ | async)?._id"
+            tappable>
+            <div class="pef-item-title">
+                {{ bag.preismeldung.epNummer }}<br/>&nbsp;
+            </div>
+            <div class="pef-item-description">
+                <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung.de }}</span>
+                <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
+            </div>
+        </ion-item>
+    </pef-virtual-scroll>
+</div>

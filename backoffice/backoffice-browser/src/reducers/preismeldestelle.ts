@@ -21,7 +21,7 @@ const initialState: State = {
     currentPreismeldestelle: undefined,
 };
 
-export function reducer(state = initialState, action: preismeldestelle.Actions): State {
+export function reducer(state = initialState, action: preismeldestelle.Action): State {
     switch (action.type) {
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;

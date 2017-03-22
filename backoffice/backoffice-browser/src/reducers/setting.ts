@@ -21,7 +21,7 @@ const initialState: State = {
     currentSettings: undefined
 };
 
-export function reducer(state = initialState, action: setting.Actions): State {
+export function reducer(state = initialState, action: setting.Action): State {
     switch (action.type) {
         case 'SETTING_LOAD_SUCCESS': {
             return assign({}, state, { settings: action.payload, currentSettings: action.payload });
