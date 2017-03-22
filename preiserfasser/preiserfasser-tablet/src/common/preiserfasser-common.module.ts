@@ -6,7 +6,7 @@ import { PefPropertyTranslatePipe } from './pipes/pef-property-translate-pipe';
 @NgModule({
     declarations: [
         PefMonthTranslatePipe,
-        PefPropertyTranslatePipe,
+        PefPropertyTranslatePipe
     ],
     exports: [
         PefMonthTranslatePipe,

@@ -1,9 +1,8 @@
 import { createSelector } from 'reselect';
-import { assign, cloneDeep, groupBy, keys, sortBy } from 'lodash';
+import { assign, cloneDeep, groupBy, sortBy } from 'lodash';
 
 import * as P  from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
-import { preismeldungCompareFn } from 'lik-shared';
 
 export interface PreismeldungBag {
     pmId: string;

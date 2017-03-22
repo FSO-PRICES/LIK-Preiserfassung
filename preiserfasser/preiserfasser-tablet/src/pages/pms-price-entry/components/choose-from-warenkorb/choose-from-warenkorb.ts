@@ -1,17 +1,19 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange } from '@angular/core';
 import { Observable } from 'rxjs';
-import { assign, sortBy } from 'lodash'
+import { TranslateService } from 'ng2-translate';
+import { assign, sortBy } from 'lodash';
 
 import { ReactiveComponent, PefDialogService } from 'lik-shared';
 
 import * as P from '../../../../common-models';
 
-import { DialogSufficientPreismeldungenComponent } from '../dialog-sufficient-preismeldungen/dialog-sufficient-preismeldungen';
+import { PefDialogYesNoComponent } from 'lik-shared';
 
 type WarenkorbUiItem = P.Models.WarenkorbTreeItem & {
     hasChildren: boolean;
     isExpanded: boolean;
     preismeldungCount: number;
+    leaftCount: number;
 };
 
 @Component({
@@ -26,17 +28,19 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     private warenkorb$: Observable<P.Models.WarenkorbTreeItem[]>;
 
     public warenkorbItemClicked$ = new EventEmitter<WarenkorbUiItem>();
+    public warenkorbItemEpExpand$ = new EventEmitter<WarenkorbUiItem>();
     public selectWarenkorbItem$ = new EventEmitter<WarenkorbUiItem>();
     public closeClicked$ = new EventEmitter();
 
-    constructor(private pefDialogService: PefDialogService) {
+    constructor(private pefDialogService: PefDialogService, translateService: TranslateService) {
         super();
 
         const warenkorbFlat$ = this.observePropertyCurrentValue<P.Models.WarenkorbTreeItem[]>('warenkorbFlat')
             .combineLatest(this.observePropertyCurrentValue('preismeldungen'), (warenkorb, preismeldungen: P.PreismeldungBag[]) => ({ warenkorb, preismeldungen }))
             .map(x => this.sortAndTransformWarenkorb(x.warenkorb, x.preismeldungen, y => y.tiefencode === 2));
 
-        this.warenkorb$ = this.warenkorbItemClicked$.filter(x => x.type === 'BRANCH').startWith(null)
+        this.warenkorb$ = this.warenkorbItemClicked$.filter(x => x.type === 'BRANCH')
+            .startWith(null)
             .combineLatest(warenkorbFlat$, (warenkorbItemClicked: WarenkorbUiItem, warenkorbFlat: WarenkorbUiItem[]) => ({ warenkorbItemClicked, warenkorbFlat }))
             .scan((agg, v) => {
                 if (v.warenkorbItemClicked == null) return v.warenkorbFlat.filter(x => x.tiefencode === 2);
@@ -51,7 +55,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                     .map(x => x.gliederungspositionsnummer === v.warenkorbItemClicked.gliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x);
             }, <WarenkorbUiItem[]>[]);
 
-        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(DialogSufficientPreismeldungenComponent, {}).map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_sufficientPreismeldungen')).map(x => x.data));
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.flatMap(warenkorbItem => (warenkorbItem.preismeldungCount >= (warenkorbItem as P.Models.WarenkorbLeaf).anzahlPreiseProPMS ? dialogSufficientPreismeldungen$ : Observable.of('YES')).map(x => ({ answer: x, warenkorbItem })))
             .filter(x => x.answer === 'YES')
@@ -85,7 +89,8 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 const item = assign({}, v, {
                     hasChildren: descendents.length > 0,
                     isExpanded: false,
-                    preismeldungCount: preismeldungen.filter(x => x.preismeldung.epNummer === v.gliederungspositionsnummer).length
+                    preismeldungCount: preismeldungen.filter(x => x.preismeldung.epNummer === v.gliederungspositionsnummer).length,
+                    leafCount: descendents.filter(x => !x.hasChildren).length
                 });
                 return [...agg, item, ...descendents];
             }, []);

@@ -49,7 +49,7 @@ export class PreismeldungenEffects {
                     artikeltext: rpm.artikeltext,
                     bermerkungenAnsBfs: null,
                     modifiedAt: format(new Date()),
-                    bearbeitungscode: 100,
+                    bearbeitungscode: 99,
                     uploadRequestedAt: null,
                     istAbgebucht: false,
                     percentageDPToLVP: null,

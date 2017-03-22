@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { IonicModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
 
+import { PefDialogYesNoComponent } from './pef-dialog-yes-no/pef-dialog-yes-no';
+import { PefDisableInputNumberBehaviourDirective } from './pef-disable-input-number-behaviour/pef-disable-input-number-behaviour';
 import { PefFormatNumber } from './pef-format-number/pef-format-number';
 import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-pipe';
 import { PefHighlightOnFocus } from './pef-highlight-on-focus/pef-highlight-on-focus';
@@ -15,6 +17,8 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
 @NgModule({
     imports: [CommonModule, IonicModule],
     declarations: [
+        PefDialogYesNoComponent,
+        PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,
         PefFormatNumberPipe,
         PefHighlightOnFocus,
@@ -26,6 +30,8 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefVirtualScrollComponent
     ],
     exports: [
+        PefDialogYesNoComponent,
+        PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,
         PefFormatNumberPipe,
         PefHighlightOnFocus,

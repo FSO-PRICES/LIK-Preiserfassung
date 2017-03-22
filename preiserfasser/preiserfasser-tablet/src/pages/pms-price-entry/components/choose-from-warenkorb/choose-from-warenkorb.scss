@@ -59,8 +59,10 @@ choose-from-warenkorb {
         position: relative;
         display: flex;
         @include set-height(3);
+        @include set-padding-right(0.5);
         border-bottom: 1px solid white;
         ion-label {
+            margin: 0;
             font-size: 1.6rem;
             display: flex;
             align-items: center;
@@ -74,6 +76,19 @@ choose-from-warenkorb {
         }
     }
 
+    .ep-expand-button {
+        width: 5em;
+        max-width: 5em;
+        margin-right: 0;
+        .button-inner {
+            justify-content: flex-end;
+        }
+    }
+
+    .open-close {
+        margin-left: 1.5em;
+    }
+
     .tiefencode-2 {
         background-color: $java;
         padding-left: 1em;
@@ -84,8 +99,8 @@ choose-from-warenkorb {
             font-weight: 500;
         }
         &:hover {
-            color: $trout;
-            fill: $trout;
+            color: $surfie-green;
+            fill: $surfie-green;
         }
     }
 

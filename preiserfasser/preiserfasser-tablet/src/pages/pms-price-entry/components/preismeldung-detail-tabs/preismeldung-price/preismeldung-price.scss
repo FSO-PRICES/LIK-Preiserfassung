@@ -50,7 +50,7 @@ preismeldung-price {
             color: $sulu;
         }
         &.not-ok {
-            color: $flamingo;
+            color: $bittersweet;
         }
     }
 
@@ -269,7 +269,6 @@ preismeldung-price {
         }
         .current-period {
             display: flex;
-            justify-content: flex-end;
             flex-direction: column;
             button {
                 align-self: flex-end;

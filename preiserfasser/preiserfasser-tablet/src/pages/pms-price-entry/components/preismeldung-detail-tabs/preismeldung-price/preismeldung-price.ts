@@ -5,7 +5,7 @@ import { TranslateService } from 'ng2-translate';
 import { keys, assign } from 'lodash';
 import * as format from 'format-number';
 
-import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
 
@@ -40,10 +40,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     public preisChanged$ = new EventEmitter<string>();
     public preisInvalid$: Observable<boolean>;
+    public preisCurrentValue$: Observable<{ value: string }>;
     public mengeChanged$ = new EventEmitter<string>();
     public mengeInvalid$: Observable<boolean>;
 
     public preisVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
+    public preisVPNormalNeuerArtikelCurrentValue$: Observable<{ value: string }>;
     public mengeVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
 
     public toggleAktion$ = new EventEmitter();
@@ -54,7 +56,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
 
-    public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
+    public numberFormattingOptions = { padRight: 2, truncate: 4, integerSeparator: '' };
 
     public currentPeriodHeading$: Observable<string>;
 
@@ -74,17 +76,18 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.form = formBuilder.group({
             pmId: [''],
-            preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })])],
-            menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 2 })])],
+            preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])],
+            menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 4 })])],
             // preisVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })],
             // mengeVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })],
             preisVPNormalNeuerArtikel: [''],
             mengeVPNormalNeuerArtikel: [''],
             aktion: [false],
             bearbeitungscode: [100, Validators.required],
-            artikelNummer: [null],
-            artikelText: [null, Validators.required]
+            artikelnummer: [null],
+            artikeltext: [null, Validators.required]
         });
+
 
         this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
         this.requestPreismeldungSave$ = this.observePropertyCurrentValue<string>('requestPreismeldungSave').filter(x => !!x);
@@ -94,6 +97,14 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .filter(x => !!x)
             .distinctUntilKeyChanged('pmId')
             .publishReplay(1).refCount();
+
+        this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)
+            .merge(distinctPreismeldung$.map(x => x.preismeldung.preis))
+            .map(x => ({ value: `${this.formatFn(x)}` }));
+
+        this.preisVPNormalNeuerArtikelCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPNormalNeuerArtikel)
+            .merge(distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
+            .map(x => ({ value: `${this.formatFn(x)}` }));
 
         this.subscriptions.push(
             distinctPreismeldung$
@@ -106,8 +117,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         preisVPNormalNeuerArtikel: preismeldung.preismeldung.preisVPNormalNeuerArtikel,
                         mengeVPNormalNeuerArtikel: preismeldung.preismeldung.mengeVPNormalNeuerArtikel,
                         bearbeitungscode: preismeldung.preismeldung.bearbeitungscode,
-                        artikelNummer: preismeldung.preismeldung.artikelnummer,
-                        artikelText: preismeldung.preismeldung.artikeltext
+                        artikelnummer: preismeldung.preismeldung.artikelnummer,
+                        artikeltext: preismeldung.preismeldung.artikeltext
                     });
                 })
         );
@@ -161,8 +172,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 preisVPNormalNeuerArtikel: this.form.value.preisVPNormalNeuerArtikel,
                 mengeVPNormalNeuerArtikel: this.form.value.mengeVPNormalNeuerArtikel,
                 bearbeitungscode: this.form.value.bearbeitungscode,
-                artikelnummer: this.form.value.artikelNummer,
-                artikeltext: this.form.value.artikelText
+                artikelnummer: this.form.value.artikelnummer,
+                artikeltext: this.form.value.artikeltext
             }));
 
         const bearbeitungscodeChanged$ = this.changeBearbeitungscode$
@@ -216,8 +227,17 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         const canSave$ = this.attemptSave$.map(() => ({ saveAction: 'JUST_SAVE' })).merge(this.requestPreismeldungSave$.map(() => ({ saveAction: 'SAVE_AND_MOVE_TO_NEXT' })))
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
             .publishReplay(1).refCount();
+
         this.save$ = canSave$.filter(x => x.isValid)
             .map(x => x.saveAction)
+            .flatMap(saveAction => Observable.defer(() =>
+                distinctPreismeldung$.take(1)
+                    .flatMap(bag =>
+                        ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer)
+                            ? pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false).map(res => res.data) : Observable.of('YES')
+                    )
+                    .filter(y => y === 'YES')
+            ).map(() => saveAction))
             .publishReplay(1).refCount();
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
@@ -250,7 +270,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         return [0, 44, 101].some(x => x === bearbeitungscode);
     }
 
-    formatPercentageChange = percentageChange => formatPercentageChange(percentageChange, 2);
+    formatPercentageChange = percentageChange => formatPercentageChange(percentageChange, 1);
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);

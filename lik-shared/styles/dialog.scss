@@ -25,9 +25,12 @@
 
 .pef-dialog-button-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding-top: 1em;
     padding-left: calc(1em + 32px);
+    button {
+        min-width: 6em;
+    }
     button:first-of-type {
         margin-left: 0;
     }

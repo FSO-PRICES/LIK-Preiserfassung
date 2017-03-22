@@ -16,6 +16,7 @@
                 <span class="gliederungspositionsnummer">{{ warenkorbItem.gliederungspositionsnummer }}<div *ngIf="warenkorbItem.type == 'LEAF'">&nbsp;</div></span>
 
                 <span *ngIf="warenkorbItem.type == 'BRANCH'" class="positionsbezeichnung">{{ warenkorbItem.positionsbezeichnung | pefPropertyTranslate }}</span>
+                <button *ngIf="warenkorbItem.type == 'BRANCH'" ion-button color="mercury" class="ep-expand-button" (click)="warenkorbItemEpExpand$.emit(warenkorbitem)">{{ warenkorbItem.leafCount }} EP</button>
                 <pef-icon class="open-close" *ngIf="warenkorbItem.type == 'BRANCH'" [name]="warenkorbItem.isExpanded ? 'dropdown_close' : 'dropdown_open'"></pef-icon>
 
                 <div class="leaf-description" *ngIf="warenkorbItem.type == 'LEAF'">

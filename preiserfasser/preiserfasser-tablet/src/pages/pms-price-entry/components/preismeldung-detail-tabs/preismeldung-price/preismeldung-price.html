@@ -8,7 +8,7 @@
                 <ion-label> Artikelnummer </ion-label>
                 <ion-input
                     type="text"
-                    formControlName="artikelNummer"></ion-input>
+                    formControlName="artikelnummer"></ion-input>
             </ion-item>
             <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus.ok, 'not-ok': !(preismeldung$ | async).priceCountStatus.ok }">
                 <span>{{ (preismeldung$ | async).priceCountStatus.text }}</span>
@@ -19,7 +19,7 @@
                 <ion-label> Artikeltext * </ion-label>
                 <ion-input
                     type="text"
-                    formControlName="artikelText"
+                    formControlName="artikeltext"
                     [class.validation-error]="true"></ion-input>
             </ion-item>
             <div class="right-column">
@@ -91,10 +91,11 @@
                                 type="number"
                                 min="0.01" step="0.01"
                                 pef-highlight-on-focus
+                                pef-disable-input-number-behaviour
                                 [class.ng-invalid]="preisInvalid$ | async"
                                 [readonly]="preisAndMengeDisabled$ | async"
                                 (blur)="preisChanged$.emit(preis.value)"
-                                [value]="form.value.preis"></ion-input>
+                                [value]="(preisCurrentValue$ | async)?.value"></ion-input>
                         </ion-item>
                         <div class="unit-item-wrapper">
                             <ion-item class="pef-item" [class.ng-invalid]="mengeInvalid$ | async">
@@ -102,6 +103,7 @@
                                     type="number"
                                     step="any"
                                     pef-highlight-on-focus
+                                    pef-disable-input-number-behaviour
                                     [class.ng-invalid]="mengeInvalid$ | async"
                                     [readonly]="preisAndMengeDisabled$ | async"
                                     (blur)="mengeChanged$.emit(menge.value)"
@@ -135,7 +137,7 @@
                                 step="0.01"
                                 pef-highlight-on-focus
                                 (blur)="preisVPNormalNeuerArtikelChanged$.emit(preisVPNormalNeuerArtikel.value)"
-                                [value]="form.value.preisVPNormalNeuerArtikel"></ion-input>
+                                [value]="(preisVPNormalNeuerArtikelCurrentValue$ | async)?.value"></ion-input>
                         </ion-item>
                         <div class="unit-item-wrapper">
                             <ion-item class="pef-item">

@@ -1,4 +1,4 @@
-import { Directive, OnChanges, AfterViewInit, ElementRef, Input, SimpleChange } from '@angular/core';
+import { Directive, OnChanges, AfterViewInit, ElementRef, Input, SimpleChange, NgZone } from '@angular/core';
 import * as Ps from 'perfect-scrollbar';
 import { ReactiveComponent } from '../../common/ReactiveComponent';
 
@@ -8,14 +8,26 @@ import { ReactiveComponent } from '../../common/ReactiveComponent';
 export class PefPerfectScrollbar extends ReactiveComponent implements OnChanges, AfterViewInit {
     @Input() enabled: boolean;
 
-    constructor(private elementRef: ElementRef) {
+    private container: any;
+
+    constructor(elementRef: ElementRef, private ngZone: NgZone) {
         super();
+
+        this.container = elementRef.nativeElement;
     }
 
     ngAfterViewInit() {
         this.observePropertyCurrentValue<boolean>('enabled')
             .filter(x => x)
-            .subscribe(x => Ps.initialize(this.elementRef.nativeElement));
+            .subscribe(() => {
+                this.ngZone.runOutsideAngular(() => {
+                    Ps.initialize(this.container);
+                    setTimeout(() => {
+                        this.container.scrollTop = 0;
+                        Ps.update(this.container);
+                    }, 1000);
+                });
+             });
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
