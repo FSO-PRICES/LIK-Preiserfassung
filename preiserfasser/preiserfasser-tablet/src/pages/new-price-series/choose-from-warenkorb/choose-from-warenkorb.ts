@@ -75,19 +75,30 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 if (v.clickType.warenkorbItemClicked.isExpanded) {
                     const descendants = this.findDescendantsOfWarenkorbItem(v.warenkorb, clickedGliederungspositionsnummer).map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
                     return v.warenkorb.filter(x => agg.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) && !descendants.some(y => y === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer))
-                        .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: false }) : x);
+                         .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: false }) : x);
                 }
                 if (v.clickType.action === 'EXPAND') {
                     return v.warenkorb
                         .filter(x => agg.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || x.warenkorbInfo.warenkorbItem.parentGliederungspositionsnummer === clickedGliederungspositionsnummer)
-                        .map(x => agg.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || x)
+                        .map(x => {
+                            const itemInAgg = agg.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
+                            return assign({}, x, {
+                                isExpanded: itemInAgg ? itemInAgg.isExpanded : x.isExpanded,
+                            });
+                        })
                         .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x);
                 }
                 else {
                     const descendants = this.findDescendantsOfWarenkorbItem(v.warenkorb, clickedGliederungspositionsnummer).filter(x => x.warenkorbInfo.warenkorbItem.type === 'LEAF').map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
                     return v.warenkorb
                         .filter(x => agg.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || descendants.some(y => y === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer))
-                        .map(x => agg.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || assign({}, x, { depth: v.clickType.warenkorbItemClicked.depth + 1 }))
+                        .map(x => {
+                            const itemInAgg = agg.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
+                            return assign({}, x, {
+                                isExpanded: itemInAgg ? itemInAgg.isExpanded : x.isExpanded,
+                                depth: itemInAgg ? itemInAgg.depth : v.clickType.warenkorbItemClicked.depth + 1
+                            });
+                        })
                         .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x);
                 }
             }, <WarenkorbUiItem[]>[]);
