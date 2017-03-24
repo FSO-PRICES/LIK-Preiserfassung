@@ -90,7 +90,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                         .map(x => agg.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || assign({}, x, { depth: v.clickType.warenkorbItemClicked.depth + 1 }))
                         .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x);
                 }
-            }, <WarenkorbUiItem[]>[]).do(x => console.log(x.map(y => y.filteredLeafCount)));
+            }, <WarenkorbUiItem[]>[]);
 
         this.numberOfEp$ = warenkobUiItemsFiltered$.map(x => x.filter(y => y.warenkorbInfo.warenkorbItem.type === 'LEAF').length).startWith(0);
 

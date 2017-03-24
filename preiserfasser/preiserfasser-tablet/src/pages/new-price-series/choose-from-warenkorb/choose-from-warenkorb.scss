@@ -105,6 +105,10 @@ choose-from-warenkorb {
         .button-inner {
             justify-content: flex-end;
         }
+        &:disabled {
+            background-color: $mercury;
+            opacity: 0.6;
+        }
     }
 
     .open-close {
