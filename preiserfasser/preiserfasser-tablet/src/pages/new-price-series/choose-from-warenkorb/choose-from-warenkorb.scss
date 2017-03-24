@@ -1,4 +1,4 @@
-@import "../../../../theme/imports.scss";
+@import "../../../theme/imports.scss";
 
 choose-from-warenkorb {
     position: absolute;
@@ -17,7 +17,7 @@ choose-from-warenkorb {
         flex-direction: column;
         max-width: 1100px;
         width: 100%;
-        @include set-padding(0.25, 0, 1.5, 0);
+        @include set-padding(0.25, 0, 1.5, 1.5);
     }
 
     .header {
@@ -50,14 +50,36 @@ choose-from-warenkorb {
         flex-direction: column;
     }
 
-    .scroll-container {
-        @include set-margin-top(1);
+    .search-row {
+        @include set-margin-bottom(1);
+        display: flex;
+        align-content: center;
+    }
+
+    pef-search-input {
         flex: 1;
+    }
+
+    .search-summary {
+        flex: 0;
+        min-width: 180px;
+        @include set-padding-left(2);
+        color: $trout;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        .label {
+            font-size: 0.75em;
+        }
+        .number {
+            font-weight: 500;
+        }
     }
 
     .warenkorb-item-row {
         position: relative;
         display: flex;
+        width: 100%;
         @include set-height(3);
         @include set-padding-right(0.5);
         border-bottom: 1px solid white;
@@ -154,7 +176,7 @@ choose-from-warenkorb {
         &.leaf {
             color: $outer-space;
             background-color: $foam;
-            height: 4.5em;
+            @include set-height(4.5);
             .add-button {
                 fill: white;
             }

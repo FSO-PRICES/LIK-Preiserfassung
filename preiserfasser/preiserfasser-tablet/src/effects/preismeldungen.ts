@@ -89,15 +89,14 @@ export class PreismeldungenEffects {
             preismeldungen: x.preismeldungen,
             pmsPreismeldungenSort: x.pmsPreismeldungenSort
         })))
-        .flatMap(x => x.db.get('warenkorb').then((warenkorbDoc: any) => ({ // TODO: add types for warenkorb
+        .withLatestFrom(this.store.select(fromRoot.getWarenkorb), (x, warenkorb) => ({
             pms: x.pms,
-            warenkorbDoc,
+            warenkorb,
             refPreismeldungen: x.refPreismeldungen,
             preismeldungen: x.preismeldungen,
             pmsPreismeldungenSort: x.pmsPreismeldungenSort
-        })))
-        // TODO: import action type
-        .map(docs => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: docs }));
+        }))
+        .map(payload => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload }));
 
     savePreismeldungPrice = this.actions$
         .ofType('SAVE_PREISMELDUNG_PRICE')
@@ -118,7 +117,7 @@ export class PreismeldungenEffects {
     saveNewPreismeldung$ = this.savePreismeldungPrice
         .filter(x => x.currentPreismeldung.isNew)
         // .do(x => c)
-        .switchMap(({ currentPreismeldung, payload }) =>
+        .switchMap(({ currentPreismeldung }) =>
             getDatabase()
                 .then(db => // save Preismeldung
                     db.put(assign({}, {
@@ -141,7 +140,7 @@ export class PreismeldungenEffects {
                             });
                             return db.put(newPmsPreismeldungsSort).then(() => db);
                         })
-                        .then(db => // reread from db
+                        .then(() => // reread from db
                             db.get(currentPreismeldung.preismeldung._id).then(res => ({ db, preismeldung: res }))
                                 .then(x => x.db.get(`pms-sort/${currentPreismeldung.preismeldung.pmsNummer}`).then(res => ({ pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort, preismeldung: x.preismeldung }))))
                 )

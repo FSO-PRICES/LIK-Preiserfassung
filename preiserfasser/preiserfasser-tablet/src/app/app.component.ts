@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
-import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { Platform, NavController } from 'ionic-angular';
 import { StatusBar, Splashscreen, ScreenOrientation } from 'ionic-native';
 import { TranslateService } from 'ng2-translate';
 
@@ -16,7 +16,9 @@ import { initialisePouchForDev } from '../effects/pouchdb-utils';
         <ion-nav [root]="rootPage"></ion-nav>`,
     host: { '[class.pef-desktop]': 'isDesktop', '[class.pef-toolbar-right]': 'false' }
 })
-export class MyApp {
+export class PefApp {
+    @ViewChild('nav') navCtrl: NavController;
+
     rootPage = DashboardPage;
     isDesktop = false;
 
@@ -39,6 +41,20 @@ export class MyApp {
             this.store.dispatch({ type: 'CHECK_DATABASE_EXISTS' });
             initialisePouchForDev();
         });
+
+        const databaseExists$ = this.store.map(x => x.database)
+            .filter(x => x.databaseExists !== null)
+            .map(x => x.databaseExists)
+            .distinctUntilChanged()
+            .publishReplay(1).refCount();
+
+        databaseExists$
+            .filter(x => x)
+            .take(1)
+            .subscribe(() => {
+                this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
+                this.store.dispatch({ type: 'LOAD_WARENKORB' });
+            });
     }
 
     initialiseLanguages() {

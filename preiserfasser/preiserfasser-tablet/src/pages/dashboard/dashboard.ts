@@ -52,12 +52,13 @@ export class DashboardPage {
             .distinctUntilChanged()
             .publishReplay(1).refCount();
 
-        databaseExists$
-            .filter(x => x)
-            .subscribe(() => {
-                this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
-                loader.dismiss();
-            });
+        // databaseExists$
+        //     .filter(x => x)
+        //     .subscribe(() => {
+        //         this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
+        //         this.store.dispatch({ type: 'LOAD_WARENKORB' });
+        //         loader.dismiss();
+        //     });
 
         databaseExists$
             .filter(x => !x)

@@ -1,0 +1,6 @@
+<choose-from-warenkorb
+    (closeChooseFromWarenkorb)="closeChooseFromWarenkorb$.emit($event)"
+    [warenkorb]="warenkorb$ | async"
+    [currentLanguage]="currentLanguage$ | async"
+    [preismeldungen]="preismeldungen$ | async">
+</choose-from-warenkorb>

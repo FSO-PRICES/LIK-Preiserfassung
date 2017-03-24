@@ -13,6 +13,13 @@ pms-price-entry.ion-page {
         // order: 1; // TODO: implement left + right handed
     }
 
+    choose-from-warenkorb {
+        visibility: hidden;
+        &.active {
+            visibility: visible;
+        }
+    }
+
     .work-area {
         flex: 1;
         display: flex;

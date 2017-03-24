@@ -25,7 +25,7 @@ SETUP.exe process not yet finished!
 
 ## ~~Creating the installer~~
 
-~~The installer includes an auto-update mechanism using `electron-winstaller`. Releases and updates are hosted on github repo `lambda-it\bfs-lik-releases`.~~
+~~The installer includes an auto-update mechanism using `electron-winstaller`. Releases and updates are hosted on github repo `lambda-it\lik-studio`.~~
 
 
 

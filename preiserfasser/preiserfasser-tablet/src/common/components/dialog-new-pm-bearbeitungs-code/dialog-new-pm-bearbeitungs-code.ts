@@ -10,7 +10,7 @@ export class DialogNewPmBearbeitungsCodeComponent {
     constructor(public viewCtrl: ViewController) {
     }
 
-    private _bearbeitungscode: number = 3;
+    private _bearbeitungscode = 3;
     get bearbeitungscode() {
         return this._bearbeitungscode;
     }

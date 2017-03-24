@@ -2,13 +2,8 @@
 <div class="body">
     <div class="left">
         <ion-content>
-            <!--<ion-list [virtualScroll]="preismeldestellen$ | async">
+            <ion-list [virtualScroll]="preismeldestellen$ | async">
                 <ion-item *virtualItem="let item">
-                    {{ item._id }}
-                </ion-item>
-            </ion-list>-->
-            <ion-list>
-                <ion-item *ngFor="let item of (preismeldestellen$ | async)">
                     {{ item._id }}
                 </ion-item>
             </ion-list>

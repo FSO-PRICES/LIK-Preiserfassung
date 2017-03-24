@@ -6,11 +6,13 @@ import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
 import { PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
+import { DashboardPage } from '../dashboard/dashboard';
 
 import * as fromRoot from '../../reducers';
 
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
-import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
+import { DialogNewPmBearbeitungsCodeComponent } from '../../common/components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
+import { NewPriceSeriesPage } from '../new-price-series';
 
 @Component({
     selector: 'pms-price-entry',
@@ -23,14 +25,14 @@ export class PmsPriceEntryPage {
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen).publishReplay(1).refCount();
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
-    warenkorbFlat$ = this.store.select(fromRoot.getWarenkorbFlat);
+    warenkorb$ = this.store.select(fromRoot.getWarenkorb);
 
     selectPreismeldung$ = new EventEmitter<P.Models.Preismeldung>();
     save$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
     updatePreismeldungPreis$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
     duplicatePreismeldung$ = new EventEmitter();
     addNewPreisreihe$ = new EventEmitter();
-    closeChooseFromWarenkorb$ = new EventEmitter<P.Models.WarenkorbLeaf>();
+    ionViewDidLoad$ = new EventEmitter();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -54,7 +56,7 @@ export class PmsPriceEntryPage {
     ) {
         this.toolbarButtonClicked$
             .filter(x => x === 'HOME')
-            .subscribe(() => this.navController.pop());
+            .subscribe(() => this.navController.setRoot(DashboardPage));
 
         this.requestPreismeldungSave$ = this.toolbarButtonClicked$
             .filter(x => x === 'PREISMELDUNG_SAVE')
@@ -100,23 +102,18 @@ export class PmsPriceEntryPage {
             .filter(x => x.action === 'OK')
             .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }));
 
-        this.chooseFromWarenkorbDisplayed$ = this.addNewPreisreihe$.mapTo(true)
-            .merge(this.closeChooseFromWarenkorb$.mapTo(false))
-            .startWith(false);
+        this.addNewPreisreihe$
+            .subscribe(() => this.navController.setRoot(NewPriceSeriesPage, { pmsNummer: this.navParams.get('pmsNummer') }));
 
-        this.closeChooseFromWarenkorb$
-            .filter(warenkorbPosition => !!warenkorbPosition)
-            .flatMap(warenkorbPosition => dialogNewPmbearbeitungsCode$.map(dialogReturnValue => ({ warenkorbPosition, dialogReturnValue, pmsNummer: this.navParams.get('pmsNummer') })))
-            .filter(x => x.dialogReturnValue.action === 'OK')
-            .subscribe(x => this.store.dispatch({ type: 'NEW_PREISMELDUNG', payload: { warenkorbPosition: x.warenkorbPosition, bearbeitungscode: x.dialogReturnValue.bearbeitungscode, pmsNummer: x.pmsNummer } }));
+        this.ionViewDidLoad$
+            .withLatestFrom(this.store.select(x => x.preismeldungen), (_, preismeldungen) => preismeldungen.pmsNummer)
+            .filter(pmsNummer => pmsNummer !== this.navParams.get('pmsNummer'))
+            .take(1)
+            .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') }));
     }
 
     ionViewDidLoad() {
-        this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') });
-        this.store.dispatch({ type: 'LOAD_WARENKORB' });
-    }
-
-    ionViewDidLeave() {
-        this.store.dispatch({ type: 'PREISMELDUNGEN_CLEAR' });
+        this.ionViewDidLoad$.emit();
     }
 }
+

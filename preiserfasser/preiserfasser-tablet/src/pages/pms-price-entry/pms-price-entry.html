@@ -1,10 +1,4 @@
 <div class="pms-price-entry-content">
-    <choose-from-warenkorb
-        *ngIf="chooseFromWarenkorbDisplayed$ | async"
-        (closeChooseFromWarenkorb)="closeChooseFromWarenkorb$.emit($event)"
-        [warenkorbFlat]="warenkorbFlat$ | async"
-        [preismeldungen]="preismeldungen$ | async">
-    </choose-from-warenkorb>
     <preismeldungen-sort
         *ngIf="false"
         [isDesktop]="isDesktop$ | async"

@@ -2,15 +2,12 @@ import { NgModule } from '@angular/core';
 import { IonicModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from 'ng2-translate';
-import { MaterialModule } from '@angular/material';
 
 import { PreiserfasserCommonModule } from '../../common';
 import { PefComponentsModule, PefDialogYesNoComponent } from 'lik-shared';
 
 import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
-import { ChooseFromWarenkorbComponent } from './components/choose-from-warenkorb/choose-from-warenkorb';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
-import { DialogNewPmBearbeitungsCodeComponent } from './components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
 import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
 import { PreismeldungenSortComponent } from './components/preismeldungen-sort/preismeldungen-sort';
@@ -24,12 +21,10 @@ import { PreismeldungReadonlyHeader } from './components/preismeldung-detail-tab
 import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
 
 @NgModule({
-    imports: [CommonModule, IonicModule, MaterialModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
+    imports: [CommonModule, IonicModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
     declarations: [
         BearbeitungsTypeComponent,
-        ChooseFromWarenkorbComponent,
         DialogCancelEditComponent,
-        DialogNewPmBearbeitungsCodeComponent,
         DialogValidationErrorsComponent,
         PmsPriceEntryPage,
         PreismeldungAttributesComponent,
@@ -45,14 +40,17 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     ],
     entryComponents: [
         DialogCancelEditComponent,
-        DialogNewPmBearbeitungsCodeComponent,
         DialogValidationErrorsComponent,
-        PefDialogYesNoComponent
+        PefDialogYesNoComponent,
     ],
     providers: [
         { provide: 'windowObject', useValue: window }
     ],
-    exports: [PmsPriceEntryPage, DialogCancelEditComponent, DialogValidationErrorsComponent, DialogNewPmBearbeitungsCodeComponent]
+    exports: [
+        PmsPriceEntryPage,
+        DialogCancelEditComponent,
+        DialogValidationErrorsComponent,
+    ]
 })
 export class PmsPriceEntryModule {
 }

@@ -62,5 +62,4 @@ export const getLanguagesState = (state: AppState) => state.languages;
 export const getLanguages = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
 export const getCurrentLanguage = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
 
-export const getWarenkorbState = (state: AppState) => state.warenkorb;
-export const getWarenkorbFlat = createSelector(getWarenkorbState, fromWarenkorb.getWarenkorbFlat);
+export const getWarenkorb = (state: AppState) => state.warenkorb;
