@@ -108,7 +108,7 @@ export function preparePms(lines: string[][]) {
 
 export function preparePm(lines: string[][]) {
     return lines.map(cells => {
-        return <P.PreismeldungReferenceProperties>{
+        return <P.PreismeldungReference>{
             _id: preismeldungRefUri({ pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer], epNummer: cells[importPmFromPrestaIndexes.epNummer], laufnummer: cells[importPmFromPrestaIndexes.laufnummer] }),
             pmId: preismeldungUri({ pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer], epNummer: cells[importPmFromPrestaIndexes.epNummer], laufnummer: cells[importPmFromPrestaIndexes.laufnummer] }),
             pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer],
@@ -137,7 +137,7 @@ export function preparePm(lines: string[][]) {
     });
 }
 
-export function preparePmForExport(preismeldungen: (P.Preismeldung & P.PmsPreismeldungenSort)[]) {
+export function preparePmForExport(preismeldungen: any[]) {
     return preismeldungen.map(pm => ({
         Erhebungsmonat: null, // TODO 1. Tag des Erhebungsmonats
         Preissubsystem: null, // LIK = 2

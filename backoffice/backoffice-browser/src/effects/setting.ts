@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 import { Models as P } from 'lik-shared';
 
@@ -22,18 +23,18 @@ export class SettingEffects {
     loadSetting$ = this.actions$
         .ofType('SETTING_LOAD')
         .switchMap(() => getSettings())
-        .map<setting.Actions>(docs => {
-            return !!docs ?
-                { type: 'SETTING_LOAD_SUCCESS', payload: docs } :
-                { type: 'SETTING_LOAD_FAIL' } ;
-        });
+        .map(docs => !!docs ?
+                { type: 'SETTING_LOAD_SUCCESS', payload: docs } as setting.Action :
+                { type: 'SETTING_LOAD_FAIL' } as setting.Action
+        );
 
     @Effect()
     saveSetting$ = this.actions$
         .ofType('SAVE_SETTING')
         .withLatestFrom(this.currentSetting$, (action, currentSetting: CurrentSetting) => ({ currentSetting }))
-        .switchMap<CurrentSetting>(({ currentSetting }) => {
-            return getLocalDatabase(dbNames.setting)
+        .switchMap(({ currentSetting }) =>
+            Observable.fromPromise(
+                getLocalDatabase(dbNames.setting)
                 .then(db => { // Only check if the document exists if a revision not already exists
                     if (!!currentSetting._rev) {
                         return db.get(currentSetting._id).then(doc => ({ db, doc }));
@@ -49,7 +50,8 @@ export class SettingEffects {
                         serverConnection: currentSetting.serverConnection
                     })).then((response) => ({ db, id: response.id }));
                 })
-                .then<CurrentSetting>(({ db, id }) => db.get(id).then(setting => Object.assign({}, setting, { isModified: false, isSaved: true })));
-        })
-        .map<setting.Actions>(payload => ({ type: 'SAVE_SETTING_SUCCESS', payload }));
+                .then<CurrentSetting>(({ db, id }) => db.get(id).then(setting => Object.assign({}, setting, { isModified: false, isSaved: true })))
+            )
+        )
+        .map(payload => ({ type: 'SAVE_SETTING_SUCCESS', payload } as setting.Action));
 }

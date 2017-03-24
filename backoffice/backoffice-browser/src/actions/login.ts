@@ -1,8 +1,9 @@
 import { Models as P } from 'lik-shared';
 
-export type Actions =
+export type Action =
     { type: 'LOGIN', payload: P.Credentials } |
-    { type: 'LOGIN_SUCCESS' } |
+    { type: 'LOGIN_SUCCESS', payload: P.User } |
     { type: 'LOGIN_FAIL' } |
     { type: 'CHECK_IS_LOGGED_IN' } |
-    { type: 'SET_IS_LOGGED_IN', payload: boolean };
+    { type: 'SET_IS_LOGGED_OUT' } |
+    { type: 'SET_IS_LOGGED_IN', payload: string };

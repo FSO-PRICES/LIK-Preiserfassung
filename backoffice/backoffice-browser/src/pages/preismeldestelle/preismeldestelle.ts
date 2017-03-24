@@ -6,9 +6,9 @@ import { Loading, LoadingController } from 'ionic-angular';
 import { Models as P, PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
-import { Actions as PreismeldestelleAction } from '../../actions/preismeldestelle';
+import { Action as PreismeldestelleAction } from '../../actions/preismeldestelle';
+import { Action as RegionAction } from '../../actions/region';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
-import { CurrentPreismeldestelle } from '../../reducers/preismeldestelle';
 
 @Component({
     selector: 'preismeldestelle',
@@ -17,29 +17,38 @@ import { CurrentPreismeldestelle } from '../../reducers/preismeldestelle';
 export class PreismeldestellePage implements OnDestroy {
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
     public currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle).publishReplay(1).refCount();
+    public languages$ = this.store.select(fromRoot.getLanguagesList);
+    public regionen$ = this.store.select(fromRoot.getRegionen);
     public createPreismeldestelle$ = new EventEmitter();
     public selectPreismeldestelle$ = new EventEmitter<string>();
     public cancelPreismeldestelle$ = new EventEmitter();
     public savePreismeldestelle$ = new EventEmitter();
     public updatePreismeldestelle$ = new EventEmitter<P.Erheber>();
+
     public isEditing$: Observable<boolean>;
+    public isCurrentModified$: Observable<boolean>;
+    public cancelEditDialog$: Observable<any>;
 
     private subscriptions: Subscription[];
     private loader: Loading;
 
     constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private pefDialogService: PefDialogService) {
-        const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
+        this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
 
         this.isEditing$ = this.currentPreismeldestelle$
             .map(x => !!x && !!x._id)
             .distinctUntilChanged()
             .publishReplay(1).refCount();
 
+        this.isCurrentModified$ = this.currentPreismeldestelle$
+            .map(currentPreismeldestelle => !!currentPreismeldestelle && currentPreismeldestelle.isModified)
+            .startWith(null)
+            .publishReplay(1).refCount();
+
         const requestSelectPreismeldestelle$ = this.selectPreismeldestelle$
-            .withLatestFrom(this.currentPreismeldestelle$.startWith(null), (selectedPreismeldestelle: string, currentPreismeldestelle: CurrentPreismeldestelle) => ({
+            .withLatestFrom(this.isCurrentModified$, (selectedPreismeldestelle: string, isCurrentModified: boolean) => ({
                 selectedPreismeldestelle,
-                currentPreismeldestelle,
-                isCurrentModified: !!currentPreismeldestelle && currentPreismeldestelle.isModified
+                isCurrentModified
             }))
             .publishReplay(1).refCount();
 
@@ -48,7 +57,7 @@ export class PreismeldestellePage implements OnDestroy {
                 .filter(x => !x.isCurrentModified)
                 .merge(requestSelectPreismeldestelle$
                     .filter(x => x.isCurrentModified)
-                    .flatMap(x => cancelEditDialog$.map(y => ({ selectedPreismeldestelle: x.selectedPreismeldestelle, dialogCode: y })))
+                    .flatMap(x => this.cancelEditDialog$.map(y => ({ selectedPreismeldestelle: x.selectedPreismeldestelle, dialogCode: y })))
                     .filter(x => x.dialogCode === 'THROW_CHANGES'))
                 .subscribe(x => {
                     store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: x.selectedPreismeldestelle });
@@ -56,19 +65,19 @@ export class PreismeldestellePage implements OnDestroy {
 
             this.createPreismeldestelle$
                 .subscribe(() => {
-                    store.dispatch(<PreismeldestelleAction>{ type: 'CREATE_PREISMELDESTELLE' });
+                    store.dispatch({ type: 'CREATE_PREISMELDESTELLE' } as PreismeldestelleAction);
                 }),
 
             this.cancelPreismeldestelle$
-                .subscribe(x => this.store.dispatch(<PreismeldestelleAction>{ type: 'SELECT_PREISMELDESTELLE', payload: null })),
+                .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: null } as PreismeldestelleAction)),
 
             this.updatePreismeldestelle$
-                .subscribe(x => store.dispatch(<PreismeldestelleAction>{ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload: x })),
+                .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload: x } as PreismeldestelleAction)),
 
             this.savePreismeldestelle$
                 .subscribe(x => {
                     this.presentLoadingScreen();
-                    store.dispatch(<PreismeldestelleAction>{ type: 'SAVE_PREISMELDESTELLE' });
+                    store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as PreismeldestelleAction);
                 }),
 
             this.currentPreismeldestelle$
@@ -77,8 +86,23 @@ export class PreismeldestellePage implements OnDestroy {
         ];
     }
 
+    public ionViewCanLeave(): Promise<boolean> {
+        return Observable.merge(
+                this.isCurrentModified$
+                    .filter(modified => modified === false)
+                    .map(() => true),
+                this.isCurrentModified$
+                    .filter(modified => modified === true)
+                    .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
+                    .map(dialogCode => dialogCode === 'THROW_CHANGES')
+            )
+            .take(1)
+            .toPromise();
+    }
+
     public ionViewDidEnter() {
-        this.store.dispatch(<PreismeldestelleAction>{ type: 'PREISMELDESTELLE_LOAD' });
+        this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as PreismeldestelleAction);
+        this.store.dispatch({ type: 'REGION_LOAD' } as RegionAction);
     }
 
     public ngOnDestroy() {

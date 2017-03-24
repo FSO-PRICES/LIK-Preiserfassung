@@ -1,7 +1,7 @@
 import { Models as P } from '../common-models';
 import { CurrentPreiszuweisung } from '../reducers/preiszuweisung';
 
-export type Actions =
+export type Action =
     { type: 'CREATE_USER_DATABASE', payload: CurrentPreiszuweisung } |
     { type: 'PREISZUWEISUNG_LOAD', payload: null } |
     { type: 'PREISZUWEISUNG_LOAD_SUCCESS', payload: { preiszuweisungen: P.Preiszuweisung[] } } |

@@ -54,7 +54,7 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
                     const alreadyAssigned = reduce(preiszuweisungen, (prev, curr) => {
                         return curr._id !== preiserheberId ? prev.concat(curr.preismeldestellen) : prev;
                     }, []);
-                    return preismeldestellen.filter(x => alreadyAssigned.indexOf(x.pmsNummer) === -1);
+                    return preismeldestellen.filter(x => !alreadyAssigned.some(y => y.pmsNummer === x.pmsNummer));
                 }
                 return preismeldestellen;
             });

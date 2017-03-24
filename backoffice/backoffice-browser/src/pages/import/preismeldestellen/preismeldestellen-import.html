@@ -11,9 +11,9 @@
 </ion-row>
 <ion-row left>
     <ion-col>
-        <button ion-button class="register-btn" type="button" [disabled]="!(parsingIsCompleted$ | async)" (click)="createPreismeldestellenClicked$.emit($event)">Import Preismeldestellen</button>
+        <button ion-button class="register-btn" type="button" [disabled]="!(preismeldestellenAreParsed$ | async)" (click)="importPreismeldestellenClicked$.emit($event)">Import Preismeldestellen</button>
     </ion-col>
 </ion-row>
-<ion-row *ngIf="arePreistellenImported$ | async">
-    <ion-col><span ion-text color="primary">Preismeldestellen wurden erfolgreich importiert. {{preistellenImported$ | async}} Einträge wurden hinzugefügt</span></ion-col>
+<ion-row *ngIf="arePreismeldestellenImported$ | async">
+    <ion-col><span ion-text color="primary">Preismeldestellen wurden erfolgreich importiert. {{preismeldestellenImportedCount$ | async}} Einträge wurden hinzugefügt</span></ion-col>
 </ion-row>

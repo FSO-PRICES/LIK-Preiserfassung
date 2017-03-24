@@ -1,18 +1,21 @@
 <div class="pef-dialog-message">
     <h3>
+        <pef-icon name="info"></pef-icon>
         Bitte Einloggen
     </h3>
     <form [formGroup]="form" class="stacked-form">
-        <ion-list no-lines>
-            <ion-item class="pef-item">
-                <ion-label stacked>Benutzername</ion-label>
-                <ion-input type="text" formControlName="username"></ion-input>
-            </ion-item>
-            <ion-item class="pef-item">
-                <ion-label stacked>Passwort</ion-label>
-                <ion-input type="password" formControlName="password"></ion-input>
-            </ion-item>
-        </ion-list>
+        <p>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Benutzername</ion-label>
+                    <ion-input type="text" formControlName="username"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Passwort</ion-label>
+                    <ion-input type="password" formControlName="password"></ion-input>
+                </ion-item>
+            </ion-list>
+        </p>
     </form>
 </div>
 

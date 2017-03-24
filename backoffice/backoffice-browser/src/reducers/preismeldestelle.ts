@@ -21,7 +21,7 @@ const initialState: State = {
     currentPreismeldestelle: undefined,
 };
 
-export function reducer(state = initialState, action: preismeldestelle.Actions): State {
+export function reducer(state = initialState, action: preismeldestelle.Action): State {
     switch (action.type) {
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;
@@ -41,7 +41,7 @@ export function reducer(state = initialState, action: preismeldestelle.Actions):
 
         case 'CREATE_PREISMELDESTELLE': {
             const newPreismeldestelle: CurrentPreismeldestelle = {
-                _id: '__new',
+                _id: (+ new Date()).toString(),
                 _rev: undefined,
                 pmsNummer: null,
                 name: null,

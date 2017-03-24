@@ -1,0 +1,22 @@
+<header pef-menu></header>
+<div class="page-wrapper">
+    <div class="page-content">
+        <div class="preismeldung-list-container container">
+            <div class="header">
+                <h1 class="large">Preismeldungen</h1>
+            </div>
+            <preismeldung-list
+                [preismeldungen]="preismeldungen$ | async"
+                [preismeldestellen]="preismeldestellen$ | async"
+                (selectPmsNummer)="selectPreismeldestelleNummer$.emit($event)"
+                (selected)="selectPreismeldung$.emit($event)"></preismeldung-list>
+        </div>
+        <div class="preismeldestelle-detail-container container">
+            <preismeldung-detail *ngIf="isEditing$ | async"
+                [preismeldung]="currentPreismeldung$ | async"
+                (save)="savePreismeldung$.emit($event)"
+                (cancel)="cancelPreismeldung$.emit($event)"
+                (update)="updatePreismeldung$.emit($event)"></preismeldung-detail>
+        </div>
+    </div>
+</div>

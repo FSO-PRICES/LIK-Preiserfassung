@@ -1,6 +1,6 @@
 import { Models as P } from '../common-models';
 
-export type Actions =
+export type Action =
     { type: 'SETTING_LOAD_SUCCESS', payload: P.Setting } |
     { type: 'SETTING_LOAD_FAIL' } |
     { type: 'SETTING_LOAD', payload: null } |

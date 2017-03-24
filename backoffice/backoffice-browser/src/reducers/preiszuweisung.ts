@@ -6,6 +6,7 @@ import { Models as P } from 'lik-shared';
 export type CurrentPreiszuweisung = P.Preiszuweisung & {
     isModified: boolean;
     isNew: boolean;
+    isSaved: boolean;
 };
 
 export interface State {
@@ -20,7 +21,7 @@ const initialState: State = {
     currentPreiszuweisung: undefined,
 };
 
-export function reducer(state = initialState, action: preiszuweisung.Actions): State {
+export function reducer(state = initialState, action: preiszuweisung.Action): State {
     switch (action.type) {
         case 'PREISZUWEISUNG_LOAD_SUCCESS': {
             const { payload } = action;
@@ -36,24 +37,26 @@ export function reducer(state = initialState, action: preiszuweisung.Actions): S
         case 'SELECT_OR_CREATE_PREISZUWEISUNG': {
             const { payload: preiserheberId } = action;
             const newPreiszuweisung = {
-                _id: '__new',
+                _id: (+ new Date()).toString(),
                 _rev: undefined,
                 isNew: true,
                 isModified: false,
+                isSaved: false,
                 preiserheberId: preiserheberId,
                 preismeldestellen: []
             };
-            const currentPreiszuweisung: CurrentPreiszuweisung = preiserheberId == null || !state.entities[preiserheberId] ? newPreiszuweisung : Object.assign({}, cloneDeep(state.entities[preiserheberId]), { isModified: false, isNew: false });
+            const currentPreiszuweisung: CurrentPreiszuweisung = preiserheberId == null || !state.entities[preiserheberId] ? newPreiszuweisung : Object.assign({}, cloneDeep(state.entities[preiserheberId]), { isModified: false, isNew: false, isSaved: false });
 
             return assign({}, state, { currentPreiszuweisung: currentPreiszuweisung });
         }
 
         case 'CREATE_PREISZUWEISUNG': {
-            const newPreiszuweisung = {
-                _id: '__new',
+            const newPreiszuweisung = <CurrentPreiszuweisung>{
+                _id: (+ new Date()).toString(),
                 _rev: undefined,
                 isNew: true,
                 isModified: false,
+                isSaved: false,
                 preiserheberId: null,
                 preismeldestellen: []
             };

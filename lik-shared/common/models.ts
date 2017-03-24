@@ -189,6 +189,12 @@ export type WarenkorbTreeItem = WarenkorbBranch | WarenkorbLeaf;
 
 export type WarenkorbHierarchicalTreeItem = (WarenkorbBranch & { children: WarenkorbHierarchicalTreeItem[] }) | WarenkorbLeaf;
 
+export interface WarenkorbDocumentProperties {
+    products: (WarenkorbBranch | WarenkorbLeaf)[];
+}
+
+export type WarenkorbDocument = WarenkorbDocumentProperties & CouchProperties;
+
 export interface CouchSecurity {
     admins?: { names?: string[], roles?: string[] };
     members?: { names?: string[], roles?: string[] };
@@ -215,7 +221,10 @@ export interface LanguageProperties {
     name: string;
 }
 
-export type Language = LanguageProperties & CouchProperties;
+export type Language = LanguageProperties;
+export interface LanguageDictionary {
+    [name: string]: Language;
+}
 
 export interface RegionProperties {
     name: string;
@@ -229,3 +238,7 @@ export interface Credentials {
 }
 
 export type CompletePreismeldung = Preismeldung & PmsPreismeldungenSort;
+
+export interface User {
+    username: string;
+}

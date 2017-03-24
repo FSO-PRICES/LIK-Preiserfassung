@@ -98,7 +98,7 @@ ion-content.content-md {
 
 form.form-show-validation-hints {
     .item-md.pef-item.ng-invalid {
-        ion-input, ion-textarea {
+        ion-input, ion-textarea, select {
             border-bottom-color: $alizarin-crimson;
         }
     }

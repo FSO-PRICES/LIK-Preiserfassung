@@ -1,6 +1,6 @@
 import { Models as P } from '../common-models';
 
-export type Actions =
+export type Action =
     { type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: { preismeldestellen: P.AdvancedPreismeldestelle[] } } |
     { type: 'PREISMELDESTELLE_LOAD', payload: null } |
     { type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload: P.AdvancedPreismeldestelle } |

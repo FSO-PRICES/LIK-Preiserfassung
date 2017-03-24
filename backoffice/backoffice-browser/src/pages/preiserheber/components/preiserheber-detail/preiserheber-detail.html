@@ -3,36 +3,45 @@
         <div *ngSwitchCase="true">Editieren</div>
         <span *ngSwitchDefault>Erfassen</span>
     </h1>
-    <ion-list formGroupName="preiserheber" no-lines>
-        <ion-item class="pef-item">
+    <ion-list no-lines>
+        <ion-item formGroupName="preiserheber"class="pef-item">
             <ion-label stacked>Benutzername</ion-label>
-            <ion-input type="text" formControlName="_id" [readonly]="isEditing$ | async"></ion-input>
+            <ion-input type="text" formControlName="username" [readonly]="isEditing$ | async"></ion-input>
         </ion-item>
-        <ion-item  formGroupName="password" class="pef-item" *ngIf="!(isEditing$ | async)">
+        <ion-item class="pef-item" *ngIf="!(isEditing$ | async)">
             <ion-label stacked>Initiales Passwort</ion-label>
             <ion-input type="password" formControlName="password"></ion-input>
         </ion-item>
-        <ion-item class="pef-item">
+        <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Vorname</ion-label>
             <ion-input type="text" formControlName="firstName"></ion-input>
         </ion-item>
-        <ion-item class="pef-item">
+        <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Nachname</ion-label>
             <ion-input type="text" formControlName="surname"></ion-input>
         </ion-item>
-        <ion-item class="pef-item">
+        <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Funktion</ion-label>
             <ion-input type="text" formControlName="personFunction"></ion-input>
         </ion-item>
-        <ion-item class="pef-item">
-            <ion-label stacked>Sprache</ion-label>
-            <ion-input type="text" formControlName="languageCode"></ion-input>
-        </ion-item>
-        <ion-item class="pef-item">
+        <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
+            <div class="item-inner">
+                <div class="input-wrapper">
+                    <ion-label stacked>Sprache</ion-label>
+                    <div class="input input-md pef-select">
+                        <select formControlName="languageCode">
+                            <option [selected]="preiserheber.languageCode === null" value="">Nicht angegeben</option>
+                            <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Telefon</ion-label>
             <ion-input type="text" formControlName="telephone"></ion-input>
         </ion-item>
-        <ion-item class="pef-item">
+        <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Email</ion-label>
             <ion-input type="text" formControlName="email"></ion-input>
         </ion-item>

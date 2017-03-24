@@ -4,6 +4,7 @@ import { Observable, Subscription } from 'rxjs';
 import * as _ from 'lodash';
 
 import { ReactiveComponent, Models as P } from 'lik-shared';
+
 import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 
 
@@ -14,6 +15,8 @@ import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 })
 export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldestelle: P.AdvancedPreismeldestelle;
+    @Input() languages: P.Language[];
+    @Input() regionen: P.Region[];
     @Output('save')
     public save$: Observable<{ isValid: boolean }>;
     @Output('cancel')
@@ -22,6 +25,8 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     public update$: Observable<P.AdvancedPreismeldestelle>;
 
     public preismeldestelle$: Observable<P.AdvancedPreismeldestelle>;
+    public languages$: Observable<P.Language[]>;
+    public regionen$: Observable<P.Region[]>;
     public saveClicked$ = new EventEmitter<Event>();
 
     public isEditing$: Observable<boolean>;
@@ -35,6 +40,8 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         super();
 
         this.preismeldestelle$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle>('preismeldestelle');
+        this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
+        this.regionen$ = this.observePropertyCurrentValue<P.Region[]>('regionen');
 
         this.form = formBuilder.group({
             kontaktpersons: formBuilder.array(_.range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
@@ -45,7 +52,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             name: [null],
             regionId: [null],
             languageCode: [null],
-            supplement: [null, Validators.required],
+            supplement: [null],
             street: [null],
             postcode: [null],
             town: [null],
@@ -112,7 +119,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             firstName: [null, r(Validators.compose([Validators.required, Validators.minLength(1)]))],
             surname: [null, r(Validators.compose([Validators.required, Validators.minLength(1)]))],
             personFunction: [null, r(Validators.required)],
-            languageCode: ['de', r(Validators.required)],
+            languageCode: [null],
             telephone: [null],
             mobile: [null],
             fax: [null],
@@ -126,7 +133,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             firstName: x.firstName,
             surname: x.surname,
             personFunction: x.personFunction,
-            languageCode: x.languageCode,
+            languageCode: x.languageCode || null,
             telephone: x.telephone,
             mobile: x.mobile,
             fax: x.fax,

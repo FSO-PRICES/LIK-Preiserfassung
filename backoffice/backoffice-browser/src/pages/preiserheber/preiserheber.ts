@@ -6,11 +6,12 @@ import { Subscription, Observable } from 'rxjs';
 import { Models as P, PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
-import { Actions as PreiszuweisungAction } from '../../actions/preiszuweisung';
-import { Actions as PreiserheberAction } from '../../actions/preiserheber';
+import { Action as PreiszuweisungAction } from '../../actions/preiszuweisung';
+import { Action as PreismeldestelleAction } from '../../actions/preismeldestelle';
+import { Action as PreiserheberAction } from '../../actions/preiserheber';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
-import { CurrentPreiserheber } from '../../reducers/preiserheber';
 import { SettingsLoadedService } from '../../common/settings-loaded-service';
+import { CurrentPreiszuweisung } from '../../reducers/preiszuweisung';
 
 @Component({
     selector: 'preiserheber',
@@ -22,6 +23,8 @@ export class PreiserheberPage implements OnDestroy {
     public preiszuweisungen$ = this.store.select(fromRoot.getPreiszuweisungen);
     public currentPreiszuweisung$ = this.store.select(fromRoot.getCurrentPreiszuweisung).publishReplay(1).refCount();
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
+    public languages$ = this.store.select(fromRoot.getLanguagesList);
+
     public selectPreiserheber$ = new EventEmitter<string>();
     public createPreiserheber$ = new EventEmitter();
     public cancelPreiserheber$ = new EventEmitter();
@@ -29,23 +32,30 @@ export class PreiserheberPage implements OnDestroy {
     public updatePreiserheber$ = new EventEmitter<P.Erheber>();
     public assignPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
     public unassignPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
+
     public isEditing$: Observable<boolean>;
+    public isCurrentModified$: Observable<boolean>;
+    public cancelEditDialog$: Observable<any>;
 
     private subscriptions: Subscription[];
     private loader: Loading;
 
     constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private pefDialogService: PefDialogService, private settingsLoadedService: SettingsLoadedService) {
-        const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
+        this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
 
         this.isEditing$ = this.currentPreiserheber$
             .map(pe => pe != null)
             .publishReplay(1).refCount();
 
+        this.isCurrentModified$ = this.currentPreiserheber$
+            .map(currentPreiserheber => !!currentPreiserheber && currentPreiserheber.isModified)
+            .startWith(null)
+            .publishReplay(1).refCount();
+
         const requestSelectPreiserheber$ = this.selectPreiserheber$
-            .withLatestFrom(this.currentPreiserheber$.startWith(null), (selectedPreiserheber: string, currentPreiserheber: CurrentPreiserheber) => ({
+            .withLatestFrom(this.isCurrentModified$, (selectedPreiserheber: string, isCurrentModified: boolean) => ({
                 selectedPreiserheber,
-                currentPreiserheber,
-                isCurrentModified: !!currentPreiserheber && currentPreiserheber.isModified
+                isCurrentModified
             }))
             .publishReplay(1).refCount();
 
@@ -55,24 +65,24 @@ export class PreiserheberPage implements OnDestroy {
                 .merge(
                     requestSelectPreiserheber$
                         .filter(x => x.isCurrentModified)
-                        .flatMap(x => cancelEditDialog$.map(y => ({ selectedPreiserheber: x.selectedPreiserheber, dialogCode: y })))
+                        .flatMap(x => this.cancelEditDialog$.map(y => ({ selectedPreiserheber: x.selectedPreiserheber, dialogCode: y })))
                         .filter(x => x.dialogCode === 'THROW_CHANGES')
                 )
                 .subscribe(x => {
-                    store.dispatch({ type: 'SELECT_PREISERHEBER', payload: x.selectedPreiserheber });
-                    store.dispatch(<PreiszuweisungAction>{ type: 'SELECT_OR_CREATE_PREISZUWEISUNG', payload: x.selectedPreiserheber });
+                    store.dispatch({ type: 'SELECT_PREISERHEBER', payload: x.selectedPreiserheber } as PreiserheberAction);
+                    store.dispatch({ type: 'SELECT_OR_CREATE_PREISZUWEISUNG', payload: x.selectedPreiserheber } as PreiszuweisungAction);
                 }),
 
             this.createPreiserheber$
                 .subscribe(() => {
-                    store.dispatch(<PreiserheberAction>{ type: 'CREATE_PREISERHEBER' });
-                    store.dispatch(<PreiszuweisungAction>{ type: 'CREATE_PREISZUWEISUNG' });
+                    store.dispatch({ type: 'CREATE_PREISERHEBER' } as PreiserheberAction);
+                    store.dispatch({ type: 'CREATE_PREISZUWEISUNG' } as PreiszuweisungAction);
                 }),
 
             this.cancelPreiserheber$
                 .subscribe(x => {
-                    store.dispatch({ type: 'SELECT_PREISERHEBER', payload: null });
-                    store.dispatch(<PreiszuweisungAction>{ type: 'CREATE_PREISZUWEISUNG' });
+                    store.dispatch({ type: 'SELECT_PREISERHEBER', payload: null } as PreiserheberAction);
+                    store.dispatch({ type: 'CREATE_PREISZUWEISUNG' } as PreiszuweisungAction);
                 }),
 
             this.updatePreiserheber$
@@ -80,30 +90,46 @@ export class PreiserheberPage implements OnDestroy {
 
             this.assignPreismeldestelle$
                 .subscribe((x: P.Preismeldestelle) => {
-                    store.dispatch(<PreiszuweisungAction>{ type: 'ASSIGN_TO_CURRENT_PREISZUWEISUNG', payload: x });
+                    store.dispatch({ type: 'ASSIGN_TO_CURRENT_PREISZUWEISUNG', payload: x } as PreiszuweisungAction);
                 }),
             this.unassignPreismeldestelle$
                 .subscribe((x: P.Preismeldestelle) => {
-                    store.dispatch(<PreiszuweisungAction>{ type: 'UNASSIGN_FROM_CURRENT_PREISZUWEISUNG', payload: x });
+                    store.dispatch({ type: 'UNASSIGN_FROM_CURRENT_PREISZUWEISUNG', payload: x } as PreiszuweisungAction);
                 }),
 
             this.savePreiserheber$
-                .subscribe(password => {
+                .withLatestFrom(this.currentPreiserheber$, (password, current) => ({ password, current }))
+                .subscribe(({ password, current }) => {
                     this.presentLoadingScreen();
-                    store.dispatch({ type: 'SAVE_PREISERHEBER', payload: password });
-                    store.dispatch(<PreiszuweisungAction>{ type: 'SAVE_PREISZUWEISUNG' });
+                    store.dispatch({ type: 'SAVE_PREISERHEBER', payload: password } as PreiserheberAction);
+                    store.dispatch({ type: 'SAVE_PREISZUWEISUNG', payload: current._id } as PreiszuweisungAction);
                 }),
 
             this.currentPreiserheber$
-                .filter(pe => pe != null && pe.isSaved)
+                .combineLatest(this.currentPreiszuweisung$, (currentPreiserheber, currentPreiszuweisung) => ({ currentPreiserheber, currentPreiszuweisung: <CurrentPreiszuweisung>currentPreiszuweisung }))
+                .filter(({ currentPreiserheber, currentPreiszuweisung }) => currentPreiserheber != null && currentPreiserheber.isSaved && currentPreiszuweisung != null && currentPreiszuweisung.isSaved)
                 .subscribe(() => this.dismissLoadingScreen())
         ];
     }
 
+    public ionViewCanLeave(): Promise<boolean> {
+        return Observable.merge(
+                this.isCurrentModified$
+                    .filter(modified => modified === false)
+                    .map(() => true),
+                this.isCurrentModified$
+                    .filter(modified => modified === true)
+                    .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
+                    .map(dialogCode => dialogCode === 'THROW_CHANGES')
+            )
+            .take(1)
+            .toPromise();
+    }
+
     public ionViewDidEnter() {
-        this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
-        this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
-        this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' });
+        this.store.dispatch({ type: 'PREISERHEBER_LOAD' } as PreiserheberAction);
+        this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as PreismeldestelleAction);
+        this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' } as PreiszuweisungAction);
     }
 
     public ngOnDestroy() {
