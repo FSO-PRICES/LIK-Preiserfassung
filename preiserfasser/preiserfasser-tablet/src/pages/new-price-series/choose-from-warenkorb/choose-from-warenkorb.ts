@@ -24,6 +24,7 @@ type WarenkorbUiItem = {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChooseFromWarenkorbComponent extends ReactiveComponent implements OnChanges {
+    @Input() isDesktop: boolean;
     @Input() warenkorb: P.Models.WarenkorbTreeItem[];
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() currentLanguage: string;

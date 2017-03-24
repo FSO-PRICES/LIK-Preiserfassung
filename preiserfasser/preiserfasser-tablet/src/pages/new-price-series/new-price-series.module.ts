@@ -13,7 +13,7 @@ import { NewPriceSeriesPage } from './new-price-series';
     imports: [CommonModule, IonicModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],
     declarations: [
         ChooseFromWarenkorbComponent,
-        NewPriceSeriesPage
+        NewPriceSeriesPage,
     ],
     entryComponents: [
         NewPriceSeriesPage,

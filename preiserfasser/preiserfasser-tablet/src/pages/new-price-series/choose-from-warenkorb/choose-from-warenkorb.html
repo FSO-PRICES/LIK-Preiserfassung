@@ -11,9 +11,7 @@
             <pef-search-input (valueChanges)="searchString$.emit($event)"></pef-search-input>
             <div class="search-summary"><span class="label">Anzahl Ergebisse:</span>&nbsp;<span class="number">{{ numberOfEp$ | async }}</span></div>
         </div>
-        <!--<div pef-perfect-scrollbar class="scroll-container" [enabled]="true">-->
-            <!--<ion-item *ngFor="let warenkorbItem of (warenkorb$ | async)" class="{{ 'warenkorb-item-row tiefencode-' + warenkorbItem.tiefencode + ' ' + (warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch') }}" (click)="warenkorbItemClicked$.emit(warenkorbItem)" [attr.tappable]="warenkorbItem.type == 'LEAF' ? null : true">-->
-        <ion-content>
+        <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
             <ion-list [virtualScroll]="warenkorbUiItems$ | async" [approxItemHeight]="'50px'">
                 <ion-item
                     *virtualItem="let warenkorbUiItem"

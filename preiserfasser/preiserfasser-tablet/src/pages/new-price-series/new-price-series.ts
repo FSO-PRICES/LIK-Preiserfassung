@@ -16,6 +16,7 @@ import * as fromRoot from '../../reducers';
 export class NewPriceSeriesPage implements OnDestroy {
     ionViewDidLoad$ = new EventEmitter();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage);
+    isDesktop$ = this.store.select(fromRoot.getIsDesktop);
 
     warenkorb$ = this.ionViewDidLoad$.combineLatest(this.store.select(fromRoot.getWarenkorb), (_, warenkorb) => warenkorb);
     preismeldungen$ = this.ionViewDidLoad$.combineLatest(this.store.select(fromRoot.getPreismeldungen), (_, preismeldungen) => preismeldungen);
