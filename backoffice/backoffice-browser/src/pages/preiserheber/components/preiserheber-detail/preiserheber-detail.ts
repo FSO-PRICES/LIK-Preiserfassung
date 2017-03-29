@@ -41,7 +41,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.form = formBuilder.group({
             preiserheber: formBuilder.group({
-                username: [null, Validators.compose([Validators.required, Validators.minLength(3)])],
+                username: [null, Validators.compose([Validators.required, Validators.pattern(/^[a-z][a-z0-9_,\$\+\-]{2,}/), Validators.minLength(3)])],
                 firstName: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
                 surname: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
                 personFunction: [null, Validators.required],

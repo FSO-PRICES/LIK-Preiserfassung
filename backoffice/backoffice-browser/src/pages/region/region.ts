@@ -49,6 +49,10 @@ export class RegionPage implements OnDestroy {
             }))
             .publishReplay(1).refCount();
 
+        const requestCreateRegion$ = this.createRegion$
+            .withLatestFrom(this.isCurrentModified$, (_, isCurrentModified: boolean) => isCurrentModified)
+            .publishReplay(1).refCount();
+
         this.subscriptions = [
             requestSelectRegion$
                 .filter(x => !x.isCurrentModified)
@@ -60,7 +64,12 @@ export class RegionPage implements OnDestroy {
                     store.dispatch({ type: 'SELECT_REGION', payload: x.selectedRegion });
                 }),
 
-            this.createRegion$
+            requestCreateRegion$
+                .filter(isCurrentModified => !isCurrentModified)
+                .merge(requestCreateRegion$
+                    .filter(isCurrentModified => isCurrentModified)
+                    .flatMap(x => this.cancelEditDialog$)
+                    .filter(dialogCode => dialogCode === 'THROW_CHANGES'))
                 .subscribe(() => {
                     store.dispatch({ type: 'CREATE_REGION' } as RegionAction);
                 }),
@@ -73,8 +82,7 @@ export class RegionPage implements OnDestroy {
 
             this.saveRegion$
                 .subscribe(x => {
-                    this.presentLoadingScreen();
-                    store.dispatch({ type: 'SAVE_REGION' } as RegionAction);
+                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'SAVE_REGION' } as RegionAction));
                 }),
 
             this.currentRegion$
@@ -113,7 +121,7 @@ export class RegionPage implements OnDestroy {
             content: 'Datensynchronisierung. Bitte warten...'
         });
 
-        this.loader.present();
+        return this.loader.present();
     }
 
     private dismissLoadingScreen() {

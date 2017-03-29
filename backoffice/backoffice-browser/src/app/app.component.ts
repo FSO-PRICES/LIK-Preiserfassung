@@ -43,6 +43,7 @@ export class Backoffice implements OnInit {
     public ngOnInit() {
         this.store.select(fromRoot.getSettings)
             .filter(setting => !!setting && setting.isDefault)
+            .distinctUntilChanged()
             .take(1)
             .subscribe(() => this.navCtrl.setRoot(SettingsPage, {}, { animate: true, direction: 'right' }));
     }

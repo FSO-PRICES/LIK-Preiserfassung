@@ -1,10 +1,10 @@
 export const environment = {
-    production: false,
+    production: true,
+    version: 'v1.0.0-alpha.1',
 
     defaultSettings: {
         serverConnection: {
-            url: 'http://localhost:5984/',
-            loginExpirationTime: 600
+            url: 'http://localhost:5984/'
         }
     }
 };

@@ -8,6 +8,11 @@
             <ion-label stacked>Benutzername</ion-label>
             <ion-input type="text" formControlName="username" [readonly]="isEditing$ | async"></ion-input>
         </ion-item>
+        <div *ngIf="!(isEditing$ | async)" class="help-text">
+            <p>
+                Muss mit einem Buchstaben anfangen, mindestens 3 Zeichen lang sein und darf nur kleine Buchstaben, Zahlen und folgende Zeichen haben: "_ $ , + -"
+            </p>
+        </div>
         <ion-item class="pef-item" *ngIf="!(isEditing$ | async)">
             <ion-label stacked>Initiales Passwort</ion-label>
             <ion-input type="password" formControlName="password"></ion-input>

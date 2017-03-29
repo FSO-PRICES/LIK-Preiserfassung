@@ -1,6 +1,6 @@
 <div class="pef-advanced-item-flex-container">
     <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
-    <pef-virtual-scroll [items]="filteredRegionn$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
+    <pef-virtual-scroll [items]="filteredRegionen$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
         <ion-item
             class="pef-advanced-item"
             *ngFor="let region of viewPortItems"

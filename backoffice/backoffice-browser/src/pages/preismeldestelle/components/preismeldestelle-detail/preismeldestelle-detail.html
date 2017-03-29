@@ -32,10 +32,19 @@
                     <ion-label stacked>Bezeichnung</ion-label>
                     <ion-input type="text" formControlName="supplement"></ion-input>
                 </ion-item>
-                <ion-item class="pef-item">
-                    <ion-label stacked>Sprache</ion-label>
-                    <ion-input type="text" formControlName="languageCode"></ion-input>
-                </ion-item>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label stacked>Sprache</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="languageCode" class="text-input text-input-md">
+                                    <option [selected]="true" value="">Nicht angegeben</option>
+                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <ion-item class="pef-item">
                     <ion-label stacked>Adresse</ion-label>
                     <ion-input type="text" formControlName="street"></ion-input>
@@ -53,6 +62,8 @@
                     <ion-checkbox type="text" formControlName="active"></ion-checkbox>
                 </ion-item>
             </ion-list>
+            <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+            <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
         </ion-col>
         <ion-col width-25 formArrayName="kontaktpersons">
             <div [formGroupName]="0">
@@ -151,14 +162,14 @@
             </div>
         </ion-col>
     </ion-row>
-    <ion-row>
+    <!--<ion-row>
         <ion-col>
             <h5>Bearbeitungsinformationen</h5>
             Preismeldestelle wurde erstmalig erhoben im: {{firstRecordedOn | async}}
         </ion-col>
         <ion-col>
             <h5>Zusatzinformationen zur Preismeldestelle</h5>
-            <ion-input type="text" value="TODO: What is this?"></ion-input>
+            <ion-input type="text" formControlName="additionalInformation"></ion-input>
         </ion-col>
     </ion-row>
     <ion-row>
@@ -216,7 +227,5 @@
                 <ion-textarea formControlName="erhebungsartComment"></ion-textarea>
             </ion-item>
         </ion-list>
-    </div>
-    <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
-    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
+    </div>-->
 </form>

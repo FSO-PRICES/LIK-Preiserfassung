@@ -42,8 +42,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .filter(x => !!x);
 
         this.filteredPreismeldungen$ = this.preismeldungen$
-            .combineLatest(this.filterTextValueChanges.startWith(''), (preismeldungen, filterText) =>
-                pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung.de, pm => pm.preismeldung.artikeltext])
+            .combineLatest(this.filterTextValueChanges.startWith(null), (preismeldungen, filterText) =>
+                !filterText ? preismeldungen : pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung.de, pm => pm.preismeldung.artikeltext])
             );
     }
 

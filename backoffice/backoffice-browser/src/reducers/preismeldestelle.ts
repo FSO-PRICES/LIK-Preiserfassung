@@ -7,6 +7,7 @@ import { createSelector } from 'reselect';
 export type CurrentPreismeldestelle = P.AdvancedPreismeldestelle & {
     isModified: boolean;
     isSaved: boolean;
+    isNew: boolean;
 };
 
 export interface State {
@@ -59,7 +60,8 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
                 telephone: null,
                 active: true,
                 isModified: false,
-                isSaved: false
+                isSaved: false,
+                isNew: true,
             };
             return assign({}, state, { currentPreismeldestelle: newPreismeldestelle });
         }
@@ -68,6 +70,7 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
             const { payload } = action;
 
             const valuesFromPayload = {
+                _id: payload._id,
                 pmsNummer: payload.pmsNummer,
                 name: payload.name,
                 supplement: payload.supplement,
@@ -95,7 +98,7 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
         }
 
         case 'SAVE_PREISMELDESTELLE_SUCCESS': {
-            const currentPreismeldestelle = Object.assign({}, state.currentPreismeldestelle, action.payload);
+            const currentPreismeldestelle = Object.assign({}, state.currentPreismeldestelle, action.payload, { isNew: false });
             const preismeldestelleIds = !!state.preismeldestelleIds.find(x => x === currentPreismeldestelle._id) ? state.preismeldestelleIds : [...state.preismeldestelleIds, currentPreismeldestelle._id];
             return assign({}, state, { currentPreismeldestelle, preismeldestelleIds, entities: assign({}, state.entities, { [currentPreismeldestelle._id]: currentPreismeldestelle }) });
         }

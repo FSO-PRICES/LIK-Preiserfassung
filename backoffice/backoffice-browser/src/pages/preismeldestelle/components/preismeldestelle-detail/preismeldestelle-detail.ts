@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import * as _ from 'lodash';
+import { range, assign } from 'lodash';
 
 import { ReactiveComponent, Models as P } from 'lik-shared';
 
@@ -44,10 +44,11 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         this.regionen$ = this.observePropertyCurrentValue<P.Region[]>('regionen');
 
         this.form = formBuilder.group({
-            kontaktpersons: formBuilder.array(_.range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
-            erhebungsart: [null],
-            erhebungshaeufigkeit: [null],
-            erhebungsartComment: [null],
+            kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
+            erhebungsart: [{ value: null, disabled: true }],
+            erhebungshaeufigkeit: [{ value: null, disabled: true }],
+            erhebungsartComment: [{ value: null, disabled: true }],
+            additionalInformation: [{ value: null, disabled: true }],
             pmsNummer: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
             name: [null],
             regionId: [null],
@@ -60,7 +61,10 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         });
 
         this.update$ = this.form.valueChanges
-            .map(() => this.form.value);
+            .map(() => {
+                const preismeldestelle = this.form.value;
+                return assign({}, preismeldestelle, { _id: `pms/${preismeldestelle.pmsNummer}` });
+            });
 
         const distinctPreismeldestelle$ = this.preismeldestelle$
             .distinctUntilKeyChanged('_id');
@@ -76,7 +80,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             .merge(distinctPreismeldestelle$.mapTo(false));
 
         this.isEditing$ = this.preismeldestelle$
-            .map((x: CurrentPreismeldestelle) => !!x && (!!x.isModified || !!x._id))
+            .map((x: CurrentPreismeldestelle) => !!x && !x.isNew)
             .publishReplay(1).refCount();
 
         this.subscriptions = [
@@ -98,7 +102,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         town: preismeldestelle.town,
                         telephone: preismeldestelle.town,
                         email: preismeldestelle.email,
-                        languageCode: preismeldestelle.languageCode,
+                        languageCode: preismeldestelle.languageCode !== null ? preismeldestelle.languageCode : '',
                     }, { onlySelf: true, emitEvent: false });
                 })
         ];
@@ -128,12 +132,12 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     }
 
     private getKontaktPersonMapping(kontaktpersons: P.KontaktPerson[]) {
-        if (!kontaktpersons || kontaktpersons.length === 0) kontaktpersons = [<any>{}, {}];
+        if (!kontaktpersons || kontaktpersons.length === 0) kontaktpersons = [<any>{ languageCode: '' }, { languageCode: '' }];
         return kontaktpersons.map(x => ({
             firstName: x.firstName,
             surname: x.surname,
             personFunction: x.personFunction,
-            languageCode: x.languageCode || null,
+            languageCode: x.languageCode !== null ? x.languageCode : '',
             telephone: x.telephone,
             mobile: x.mobile,
             fax: x.fax,

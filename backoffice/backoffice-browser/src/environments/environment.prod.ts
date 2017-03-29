@@ -3,8 +3,7 @@ export const environment = {
 
     defaultSettings: {
         serverConnection: {
-            url: 'http://bfs-lik.lambda-it.ch:5984/',
-            loginExpirationTime: 600
+            url: 'http://bfs-lik.lambda-it.ch:5984/'
         }
     }
 };

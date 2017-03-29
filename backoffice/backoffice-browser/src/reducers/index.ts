@@ -87,6 +87,7 @@ export const getUnexportedPreismeldungenAreLoaded = createSelector(getPreismeldu
 
 export const getIsLoggedIn = (state: AppState) => state.login.isLoggedIn;
 export const getLoggedInUser = (state: AppState) => state.login.user;
+export const getLoginError = (state: AppState) => state.login.loginError;
 
 export const getLanguagesState = (state: AppState) => state.languages;
 export const getLanguages = createSelector(getLanguagesState, fromLanguage.getLanguages);

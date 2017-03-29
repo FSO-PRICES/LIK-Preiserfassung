@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnChanges, SimpleChange, Input, Eve
 import { Observable, Subscribable } from 'rxjs/Observable';
 import { some, reduce } from 'lodash';
 
-import { ReactiveComponent, Models as P } from 'lik-shared';
+import { ReactiveComponent, Models as P, pefSearch } from 'lik-shared';
 
 @Component({
     selector: 'preiserheber-preiszuweisung',
@@ -68,8 +68,9 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
             .withLatestFrom(<Subscribable<P.Preismeldestelle[]>>unassignedPreismeldestellen$, (assigned, preismeldestellen) => ({ preismeldestellen, assigned }))
             .map(({ preismeldestellen, assigned }) => preismeldestellen.filter(preismeldestelle => !assigned || !assigned.some(x => x._id === preismeldestelle._id)))
             .filter(x => !!x)
-            .combineLatest(this.filterTextValueChanges$.startWith(null),
-                (preismeldestellen, filterText) => preismeldestellen.filter(x => !filterText || x.name.includes(filterText) || x.pmsNummer.includes(filterText)))
+            .combineLatest(this.filterTextValueChanges$.startWith(null), (preismeldestellen, filterText) =>
+                !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode])
+            )
             .publishReplay(1).refCount();
 
         this.selectedPreismeldestelle$ = this.selectPreismeldestelleClick$

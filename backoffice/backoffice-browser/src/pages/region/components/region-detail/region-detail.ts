@@ -57,7 +57,7 @@ export class RegionDetailComponent extends ReactiveComponent implements OnChange
             .merge(distinctRegion$.mapTo(false));
 
         this.isEditing$ = this.region$
-            .map((x: CurrentRegion) => !!x && (!!x.isModified || !!x._rev))
+            .map((x: CurrentRegion) => !!x && !!x._rev)
             .publishReplay(1).refCount();
 
         this.subscriptions = [

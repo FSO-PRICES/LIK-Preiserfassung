@@ -61,8 +61,7 @@ export class ImportPage {
             this.preismeldestellenStartImport$
                 .withLatestFrom(parsedPreismeldestellen$, (_, parsedPreismeldestellen) => parsedPreismeldestellen)
                 .subscribe(data => {
-                    store.dispatch({ type: 'IMPORT_PREISMELDESTELLEN', payload: data } as importer.Action);
-                    this.presentLoadingScreen();
+                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'IMPORT_PREISMELDESTELLEN', payload: data } as importer.Action));
                 }),
 
 
@@ -71,8 +70,7 @@ export class ImportPage {
             this.preismeldungenStartImport$
                 .withLatestFrom(parsedPreismeldungen$, (_, parsedPreismeldungen) => parsedPreismeldungen)
                 .subscribe(data => {
-                    store.dispatch({ type: 'IMPORT_PREISMELDUNGEN', payload: data } as importer.Action);
-                    this.presentLoadingScreen();
+                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'IMPORT_PREISMELDUNGEN', payload: data } as importer.Action));
                 }),
 
 
@@ -93,7 +91,7 @@ export class ImportPage {
             content: 'Datensynchronisierung. Bitte warten...'
         });
 
-        this.loader.present();
+        return this.loader.present();
     }
 
     private dismissLoadingScreen() {

@@ -49,9 +49,12 @@ export function reducer(state = initialState, action: importer.Action): State {
 
         case 'LOAD_LATEST_IMPORTED_AT_SUCCESS': {
             const { payload } = action;
+            const preismeldestellen = payload.find(x => x._id === importer.Type.preismeldestellen);
+            const preismeldungen = payload.find(x => x._id === importer.Type.preismeldungen);
+
             const latestImportedAt = {
-                importedPreismeldestellenAt: parseDate(payload.find(x => x._id === importer.Type.preismeldestellen).latestImportAt),
-                importedPreismeldungenAt: parseDate(payload.find(x => x._id === importer.Type.preismeldungen).latestImportAt)
+                importedPreismeldestellenAt: !!preismeldestellen ? parseDate(preismeldestellen.latestImportAt) : null,
+                importedPreismeldungenAt: !!preismeldungen ? parseDate(preismeldungen.latestImportAt) : null
             }
             return Object.assign({}, state, latestImportedAt);
         }

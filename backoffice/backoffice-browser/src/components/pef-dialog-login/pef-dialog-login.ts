@@ -16,6 +16,7 @@ export class PefDialogLoginComponent implements OnDestroy {
     public form: FormGroup;
 
     public loginClicked$ = new EventEmitter();
+    public loginError$ = this.store.select(fromRoot.getLoginError).publishReplay(1).refCount();
 
     private subscriptions: Subscription[];
 

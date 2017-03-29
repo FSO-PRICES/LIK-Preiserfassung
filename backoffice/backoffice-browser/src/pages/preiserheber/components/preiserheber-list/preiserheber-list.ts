@@ -2,9 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from 
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent, Models as P } from 'lik-shared';
-
-import { filterValues } from '../../../../common/angular-form-extensions';
+import { ReactiveComponent, Models as P, pefSearch } from 'lik-shared';
 
 @Component({
     selector: 'preiserheber-list',
@@ -29,9 +27,9 @@ export class PreiserheberListComponent extends ReactiveComponent implements OnCh
 
         this.preiserhebers$ = this.observePropertyCurrentValue<P.Erheber[]>('list').publishReplay(1).refCount();
         this.filteredPreiserhebers$ = this.preiserhebers$
-            .combineLatest(this.filterTextValueChanges.startWith(null),
-            (preiserhebers, filterText) => preiserhebers
-                .filter(x => filterValues(filterText, [x.firstName, x.surname, x.personFunction])));
+            .combineLatest(this.filterTextValueChanges.startWith(null), (preiserhebers, filterText) =>
+                !filterText ? preiserhebers : pefSearch(filterText, preiserhebers, [x => x.firstName, x => x.surname, x => x.personFunction])
+            );
 
         this.current$ = this.observePropertyCurrentValue<P.Erheber>('current');
     }

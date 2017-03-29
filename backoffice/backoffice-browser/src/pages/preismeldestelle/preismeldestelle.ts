@@ -76,8 +76,7 @@ export class PreismeldestellePage implements OnDestroy {
 
             this.savePreismeldestelle$
                 .subscribe(x => {
-                    this.presentLoadingScreen();
-                    store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as PreismeldestelleAction);
+                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as PreismeldestelleAction));
                 }),
 
             this.currentPreismeldestelle$
@@ -117,7 +116,7 @@ export class PreismeldestellePage implements OnDestroy {
             content: 'Datensynchronisierung. Bitte warten...'
         });
 
-        this.loader.present();
+        return this.loader.present();
     }
 
     private dismissLoadingScreen() {

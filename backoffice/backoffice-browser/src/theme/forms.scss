@@ -20,6 +20,12 @@ form.stacked-form {
         }
     }
 
+    .help-text {
+        color: $oslo-gray;
+        font-size: 0.8em;
+        p { margin: 0; }
+    }
+
     select {
         flex: 1;
         background-color: $white;

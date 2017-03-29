@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
@@ -37,13 +38,12 @@ export class PreiserheberInitializationEffects {
                 .flatMap(allProducts =>
                     getDatabase(dbNames.warenkorb)
                         .then(
-                        warenkorbDb => warenkorbDb.allDocs({ include_docs: true })
-                            .then(result => result.rows.map(row => Object.assign({}, row.doc, { _rev: undefined })))
-                            .then(warenkorbProducts =>
+                        warenkorbDb => warenkorbDb.get('warenkorb')
+                            .then(doc => assign({}, doc, { _rev: undefined }))
+                            .then(warenkorb =>
                                 getDatabase(getUserDatabaseName(preiserheber)).then(db => {
                                     const erheber = Object.assign({}, preiserheber, { _id: 'erheber', _rev: undefined });
                                     const products = allProducts.reduce((acc, x) => acc.concat(x));
-                                    const warenkorb = { _id: 'warenkorb', products: warenkorbProducts };
                                     return db.bulkDocs(<any>{
                                         docs: [
                                             erheber,

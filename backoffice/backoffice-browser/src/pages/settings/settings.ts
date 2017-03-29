@@ -11,6 +11,7 @@ import { CurrentSetting } from '../../reducers/setting';
     templateUrl: 'settings.html'
 })
 export class SettingsPage implements OnDestroy {
+    public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
@@ -26,7 +27,6 @@ export class SettingsPage implements OnDestroy {
             _id: [null],
             serverConnection: formBuilder.group({
                 url: [null, Validators.required],
-                loginExpirationTime: [60, Validators.pattern(/^\d+$/)]
             })
         });
 
@@ -35,7 +35,8 @@ export class SettingsPage implements OnDestroy {
 
         const distinctSetting$ = currentSettings$
             .filter(x => !!x)
-            .distinctUntilKeyChanged('_id');
+            .distinctUntilKeyChanged('isModified')
+            .publishReplay(1).refCount();
 
         const canSave$ = this.saveClicked$
             .map(x => ({ isValid: this.form.valid }))
@@ -49,13 +50,15 @@ export class SettingsPage implements OnDestroy {
             .merge(distinctSetting$.mapTo(false));
 
         this.subscriptions = [
-            update$
-                .subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x })),
-            save$
-                .subscribe(password => {
-                    this.presentLoadingScreen();
-                    store.dispatch({ type: 'SAVE_SETTING' });
-                }),
+            this.cancelClicked$.subscribe(() => store.dispatch({ type: 'SETTING_LOAD' })),
+
+            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x })),
+
+            save$.subscribe(password => {
+                this.presentLoadingScreen();
+                store.dispatch({ type: 'SAVE_SETTING' });
+            }),
+
             currentSettings$
                 .filter(pe => pe != null && pe.isSaved)
                 .subscribe(() => this.dismissLoadingScreen()),

@@ -208,9 +208,9 @@ export interface PreiszuweisungProperties {
 export type Preiszuweisung = PreiszuweisungProperties & CouchProperties;
 
 export interface SettingProperties {
+    version: string,
     serverConnection: {
         url: string;
-        loginExpirationTime: number;
     };
 }
 

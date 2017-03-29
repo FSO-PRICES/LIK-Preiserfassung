@@ -16,10 +16,6 @@
                         <ion-label stacked>URL</ion-label>
                         <ion-input type="text" formControlName="url"></ion-input>
                     </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Login timeout</ion-label>
-                        <ion-input type="text" formControlName="loginExpirationTime"></ion-input>
-                    </ion-item>
                 </ion-list>
                 <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
                 <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>

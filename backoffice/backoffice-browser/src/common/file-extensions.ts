@@ -7,7 +7,6 @@ export function parseCsv(data: string): string[][] {
 }
 
 export function toCsv(data: any[]): string {
-    console.log('data', data);
     return csvWriter({ data, del: ';' });
 }
 

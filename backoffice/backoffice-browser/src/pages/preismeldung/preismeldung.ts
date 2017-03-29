@@ -76,8 +76,7 @@ export class PreismeldungPage implements OnDestroy {
 
             this.savePreismeldung$
                 .subscribe(x => {
-                    this.presentLoadingScreen();
-                    store.dispatch({ type: 'SAVE_PREISMELDUNG' } as preismeldung.Action);
+                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'SAVE_PREISMELDUNG' } as preismeldung.Action));
                 }),
 
             this.currentPreismeldung$
@@ -117,7 +116,7 @@ export class PreismeldungPage implements OnDestroy {
             content: 'Datensynchronisierung. Bitte warten...'
         });
 
-        this.loader.present();
+        return this.loader.present();
     }
 
     private dismissLoadingScreen() {

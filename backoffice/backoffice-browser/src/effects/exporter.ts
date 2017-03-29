@@ -8,6 +8,24 @@ import * as exporter from '../actions/exporter';
 import { toCsv } from '../common/file-extensions';
 import { preparePmForExport } from '../common/presta-data-mapper';
 
+const EnvelopeContent = `
+<?xml version="1.0"?>
+<eCH-0090:envelope version="1.0" xmlns:eCH-0090="http://www.ech.ch/xmlns/eCH-0090/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0090/1 http://www.ech.ch/xmlns/eCH-0090/1/eCH-0090-1-0.xsd">
+ <eCH-0090:messageId></eCH-0090:messageId>
+ <eCH-0090:messageType>1025</eCH-0090:messageType>
+ <eCH-0090:messageClass>0</eCH-0090:messageClass>
+ <eCH-0090:senderId>4-802346-0</eCH-0090:senderId>
+ <eCH-0090:recipientId>4-802346-0</eCH-0090:recipientId>
+ <eCH-0090:eventDate>2017-02-27T15:30:00</eCH-0090:eventDate>
+ <eCH-0090:messageDate>2017-02-27T15:30:00</eCH-0090:messageDate>
+ <eCH-0090:loopback authorise="true"/>
+ <eCH-0090:testData>
+   <eCH-0090:name>test</eCH-0090:name>
+   <eCH-0090:value>test</eCH-0090:value>
+ </eCH-0090:testData>
+</eCH-0090:envelope>
+`;
+
 @Injectable()
 export class ExporterEffects {
     constructor(
@@ -19,7 +37,7 @@ export class ExporterEffects {
     exportPreismeldungen$ = this.actions$
         .ofType('EXPORT_PREISMELDUNGEN')
         .map(({ payload }) => {
-            FileSaver.saveAs(new Blob(['envelope content'], { type: 'text/plain;charset=utf-8' }), 'envelope');  // TODO: Add envelope content
+            FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
             const content = toCsv(preparePmForExport(payload));
             return { content, count: payload.length };
         })

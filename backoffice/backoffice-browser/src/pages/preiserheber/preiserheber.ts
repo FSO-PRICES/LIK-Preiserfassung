@@ -34,6 +34,7 @@ export class PreiserheberPage implements OnDestroy {
     public unassignPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
 
     public isEditing$: Observable<boolean>;
+    public isCreating$: Observable<boolean>;
     public isCurrentModified$: Observable<boolean>;
     public cancelEditDialog$: Observable<any>;
 
@@ -45,6 +46,10 @@ export class PreiserheberPage implements OnDestroy {
 
         this.isEditing$ = this.currentPreiserheber$
             .map(pe => pe != null)
+            .publishReplay(1).refCount();
+
+        this.isCreating$ = this.currentPreiserheber$
+            .map(pe => pe != null && pe.isNew)
             .publishReplay(1).refCount();
 
         this.isCurrentModified$ = this.currentPreiserheber$
@@ -98,16 +103,20 @@ export class PreiserheberPage implements OnDestroy {
                 }),
 
             this.savePreiserheber$
-                .withLatestFrom(this.currentPreiserheber$, (password, current) => ({ password, current }))
-                .subscribe(({ password, current }) => {
-                    this.presentLoadingScreen();
-                    store.dispatch({ type: 'SAVE_PREISERHEBER', payload: password } as PreiserheberAction);
-                    store.dispatch({ type: 'SAVE_PREISZUWEISUNG', payload: current._id } as PreiszuweisungAction);
+                .subscribe(password => {
+                    this.presentLoadingScreen().then(() => {
+                        store.dispatch({ type: 'SAVE_PREISERHEBER', payload: password } as PreiserheberAction);
+                    });
                 }),
+            this.savePreiserheber$
+                .withLatestFrom(this.currentPreiszuweisung$, (_, currentPreiszuweisung) => currentPreiszuweisung)
+                .filter(currentPreiszuweisung => currentPreiszuweisung.isModified)
+                .withLatestFrom(this.currentPreiserheber$, (_, current) => current)
+                .subscribe(current => store.dispatch({ type: 'SAVE_PREISZUWEISUNG', payload: current._id } as PreiszuweisungAction)),
 
             this.currentPreiserheber$
                 .combineLatest(this.currentPreiszuweisung$, (currentPreiserheber, currentPreiszuweisung) => ({ currentPreiserheber, currentPreiszuweisung: <CurrentPreiszuweisung>currentPreiszuweisung }))
-                .filter(({ currentPreiserheber, currentPreiszuweisung }) => currentPreiserheber != null && currentPreiserheber.isSaved && currentPreiszuweisung != null && currentPreiszuweisung.isSaved)
+                .filter(({ currentPreiserheber, currentPreiszuweisung }) => currentPreiserheber != null && currentPreiserheber.isSaved && currentPreiszuweisung != null && !currentPreiszuweisung.isModified)
                 .subscribe(() => this.dismissLoadingScreen())
         ];
     }
@@ -144,7 +153,7 @@ export class PreiserheberPage implements OnDestroy {
             content: 'Datensynchronisierung. Bitte warten...'
         });
 
-        this.loader.present();
+        return this.loader.present();
     }
 
     private dismissLoadingScreen() {

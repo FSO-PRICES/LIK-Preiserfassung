@@ -81,7 +81,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
         }
 
         case 'SAVE_PREISERHEBER_SUCCESS': {
-            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload);
+            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload, { isNew: false });
             const preiserheberIds = !!state.preiserheberIds.find(x => x === currentPreiserheber._id) ? state.preiserheberIds : [...state.preiserheberIds, currentPreiserheber._id];
             return assign({}, state, { currentPreiserheber, preiserheberIds, entities: assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber }) });
         }

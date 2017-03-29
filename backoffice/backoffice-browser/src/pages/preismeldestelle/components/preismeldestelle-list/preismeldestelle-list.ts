@@ -1,9 +1,7 @@
 import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ReactiveComponent, Models as P } from 'lik-shared';
-
-import { filterValues } from '../../../../common/angular-form-extensions';
+import { ReactiveComponent, Models as P, pefSearch } from 'lik-shared';
 
 @Component({
     selector: 'preismeldestelle-list',
@@ -28,9 +26,9 @@ export class PreismeldestelleListComponent extends ReactiveComponent implements 
 
         this.preismeldestellen$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle[]>('list').publishReplay(1).refCount();
         this.filteredPreismeldestellen$ = this.preismeldestellen$
-            .combineLatest(this.filterTextValueChanges.startWith(null),
-            (preismeldestellen, filterText) => preismeldestellen
-                .filter(x => filterValues(filterText, [x.name, x.pmsNummer, x.town, x.postcode])));
+            .combineLatest(this.filterTextValueChanges.startWith(null), (preismeldestellen, filterText) =>
+                !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode])
+            );
 
         this.current$ = this.observePropertyCurrentValue<P.Preismeldestelle>('current');
     }
