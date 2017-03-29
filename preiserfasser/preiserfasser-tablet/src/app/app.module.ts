@@ -17,6 +17,7 @@ import { LoginModal } from '../pages/login/login';
 import { NewPriceSeriesModule, NewPriceSeriesPage } from '../pages/new-price-series';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
+import { SettingsPage } from '../pages/settings/settings';
 import { TestPage } from '../pages/test-page/test-page';
 
 import { PefDialogService } from 'lik-shared';
@@ -32,6 +33,7 @@ export function createTranslateLoader(http: Http) {
         LoginModal,
         PefApp,
         PmsDetailsPage,
+        SettingsPage,
         TestPage
     ],
     imports: [
@@ -47,6 +49,7 @@ export function createTranslateLoader(http: Http) {
                 { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsNummer', defaultHistory: [DashboardPage] },
                 { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsNummer', defaultHistory: [DashboardPage] },
                 { component: NewPriceSeriesPage, name: 'NewPriceSeries', segment: 'new-price-series/:pmsNummer' },
+                { component: SettingsPage, name: 'Settings', segment: 'settings' },
                 { component: TestPage, name: 'Test', segment: 'test-page', defaultHistory: [DashboardPage] },
             ]
             }),
@@ -71,6 +74,7 @@ export function createTranslateLoader(http: Http) {
         PefApp,
         PmsDetailsPage,
         PmsPriceEntryPage,
+        SettingsPage,
         TestPage
     ],
     providers: [

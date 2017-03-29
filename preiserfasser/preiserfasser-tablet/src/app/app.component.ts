@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { Platform, NavController } from 'ionic-angular';
 import { StatusBar, Splashscreen, ScreenOrientation } from 'ionic-native';
 import { TranslateService } from 'ng2-translate';
@@ -7,19 +7,19 @@ import { TranslateService } from 'ng2-translate';
 import * as fromRoot from '../reducers';
 
 import { DashboardPage } from '../pages/dashboard/dashboard';
+import { SettingsPage } from '../pages/settings/settings';
 
 import { initialisePouchForDev } from '../effects/pouchdb-utils';
 
 @Component({
     template: `
         <pef-svg-icons></pef-svg-icons>
-        <ion-nav [root]="rootPage"></ion-nav>`,
+        <ion-nav [root]="rootPage" #nav></ion-nav>`,
     host: { '[class.pef-desktop]': 'isDesktop', '[class.pef-toolbar-right]': 'false' }
 })
-export class PefApp {
+export class PefApp implements OnInit {
     @ViewChild('nav') navCtrl: NavController;
 
-    rootPage = DashboardPage;
     isDesktop = false;
 
     constructor(platform: Platform, private store: Store<fromRoot.AppState>, private translate: TranslateService) {
@@ -65,5 +65,14 @@ export class PefApp {
             .filter(x => !!x)
             .subscribe(x => this.translate.use(x));
         this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: defaultLanguage });
+    }
+
+    public ngOnInit() {
+        this.store.dispatch({ type: 'LOAD_SETTINGS' });
+        this.store.select(fromRoot.getSettings)
+            .filter(setting => !!setting)
+            .map(setting => !setting.isDefault)
+            .take(1)
+            .subscribe(areSettingsDefined => this.navCtrl.setRoot(areSettingsDefined ? DashboardPage : SettingsPage));
     }
 }

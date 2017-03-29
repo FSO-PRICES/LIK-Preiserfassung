@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 
 import { getDatabase } from './pouchdb-utils';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class WarenkorbEffects {

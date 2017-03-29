@@ -12,6 +12,7 @@ import * as fromTime from './time';
 import * as fromDatabase from './database';
 import * as fromLanguages from './languages';
 import * as fromWarenkorb from './warenkorb';
+import * as fromSettings from './setting';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
@@ -21,6 +22,7 @@ export interface AppState {
     preismeldungen: fromPreismeldungen.State;
     time: fromTime.State;
     warenkorb: fromWarenkorb.State;
+    settings: fromSettings.State;
 }
 
 const reducers = {
@@ -31,6 +33,7 @@ const reducers = {
     preismeldungen: fromPreismeldungen.reducer,
     time: fromTime.reducer,
     warenkorb: fromWarenkorb.reducer,
+    settings: fromSettings.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -63,3 +66,7 @@ export const getLanguages = createSelector(getLanguagesState, fromLanguages.getC
 export const getCurrentLanguage = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
 
 export const getWarenkorb = (state: AppState) => state.warenkorb;
+
+export const getSettingsState = (state: AppState) => state.settings;
+export const getSettings = createSelector(getSettingsState, fromSettings.getSettings);
+export const getCurrentSettings = createSelector(getSettingsState, fromSettings.getCurrentSettings);
