@@ -1,13 +1,14 @@
 {
-  "name": "ionic-hello-world",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
+  "name": "bfs-backoffice",
+  "author": "Philipp Schärer",
+  "homepage": "http://lambda-it.ch/",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",
     "build": "ionic-app-scripts build",
     "ionic:build": "ionic-app-scripts build",
-    "ionic:serve": "ionic-app-scripts serve"
+    "ionic:serve": "ionic-app-scripts serve",
+    "test": "ng test"
   },
   "dependencies": {
     "@angular/common": "2.4.8",

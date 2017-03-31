@@ -45,10 +45,6 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
         this.form = formBuilder.group({
             kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
-            erhebungsart: [{ value: null, disabled: true }],
-            erhebungshaeufigkeit: [{ value: null, disabled: true }],
-            erhebungsartComment: [{ value: null, disabled: true }],
-            additionalInformation: [{ value: null, disabled: true }],
             pmsNummer: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
             name: [null],
             regionId: [null],
@@ -57,7 +53,11 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             street: [null],
             postcode: [null],
             town: [null],
-            active: [true]
+            active: [true],
+            erhebungsart: [{ value: null, disabled: true }],
+            erhebungshaeufigkeit: [{ value: null, disabled: true }],
+            erhebungsartComment: [{ value: null, disabled: true }],
+            additionalInformation: [{ value: null, disabled: true }],
         });
 
         this.update$ = this.form.valueChanges
