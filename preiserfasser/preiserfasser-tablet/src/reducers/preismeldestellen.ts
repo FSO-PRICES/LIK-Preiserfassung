@@ -1,12 +1,16 @@
 import { createSelector } from 'reselect';
-import * as P  from '../common-models';
+import { Models as P }  from 'lik-shared';
 import * as preismeldestellen from '../actions/preismeldestellen';
 import { assign, cloneDeep } from 'lodash';
 
+export type CurrentPreismeldestelle = P.AdvancedPreismeldestelle & {
+    isModified: boolean;
+};
+
 export interface State {
     pmsNummers: string[];
-    entities: { [pmsNummer: string]: P.Models.Preismeldestelle };
-    currentPreismeldestelle: P.Models.Preismeldestelle;
+    entities: { [pmsNummer: string]: P.Preismeldestelle };
+    currentPreismeldestelle: CurrentPreismeldestelle;
 }
 
 const initialState: State = {
@@ -19,7 +23,7 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
     switch (action.type) {
         case 'PREISMELDESTELLEN_LOAD_SUCCESS': {
             const pmsNummers = action.payload.map(x => x.pmsNummer);
-            const entities = action.payload.reduce((agg: { [pmsNummer: string]: P.Models.Preismeldestelle }, preismeldestelle: P.Models.Preismeldestelle) => {
+            const entities = action.payload.reduce((agg: { [pmsNummer: string]: P.Preismeldestelle }, preismeldestelle: P.Preismeldestelle) => {
                 return assign(agg, { [preismeldestelle.pmsNummer]: preismeldestelle });
             }, {});
             return assign({}, state, { pmsNummers, entities });
@@ -30,6 +34,31 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
 
         case 'PREISMELDESTELLE_SELECT':
             return assign({}, state, { currentPreismeldestelle: cloneDeep(state.entities[action.payload]) });
+
+        case 'UPDATE_CURRENT_PREISMELDESTELLE': {
+            const { payload } = action;
+
+            const valuesFromPayload = {
+                erhebungsart: payload.erhebungsart,
+                erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
+                erhebungsartComment: payload.erhebungsartComment,
+                kontaktpersons: cloneDeep(payload.kontaktpersons),
+            };
+
+            const currentPreismeldestelle = assign({},
+                state.currentPreismeldestelle,
+                valuesFromPayload,
+                { isModified: true }
+            );
+
+            return Object.assign({}, state, { currentPreismeldestelle });
+        }
+
+        case 'SAVE_PREISMELDESTELLE_SUCCESS': {
+            const currentPreismeldestelle = Object.assign({}, state.currentPreismeldestelle, action.payload, { isModified: false });
+            const preismeldestelleIds = !!state.pmsNummers.find(x => x === currentPreismeldestelle.pmsNummer) ? state.pmsNummers : [...state.pmsNummers, currentPreismeldestelle.pmsNummer];
+            return assign({}, state, { currentPreismeldestelle, preismeldestelleIds, entities: assign({}, state.entities, { [currentPreismeldestelle.pmsNummer]: currentPreismeldestelle }) });
+        }
 
         default:
             return state;

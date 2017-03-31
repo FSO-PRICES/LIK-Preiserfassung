@@ -1,22 +1,31 @@
 import { Store } from '@ngrx/store';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { NavParams } from 'ionic-angular';
 
-import { range } from 'lodash';
+import { range, mapValues, values } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 import * as fromRoot from '../../reducers';
+import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'pms-details',
     templateUrl: 'pms-details.html'
 })
-export class PmsDetailsPage {
+export class PmsDetailsPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     public pms$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
     public header$ = this.pms$.map(formatHeader);
     public address$ = this.pms$.map(formatAddress);
+
+    public formErrors$: Observable<{ [key: string]: any }>;
+
+    public saveClicked$ = new EventEmitter();
+    public showValidationHints$: Observable<boolean>;
+
+    private subscriptions: Subscription[];
 
     public form: FormGroup;
 
@@ -25,9 +34,6 @@ export class PmsDetailsPage {
             .filter(x => !!x && x.length > 0).subscribe(() => {
                 this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
             });
-        this.pms$.subscribe(x => {
-            console.log('xx', JSON.stringify(x, null, 4));
-        });
 
         this.form = formBuilder.group({
             kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
@@ -35,40 +41,60 @@ export class PmsDetailsPage {
             erhebungshaeufigkeit: [{ value: null, disabled: true }],
             erhebungsartComment: [{ value: null, disabled: true }],
             additionalInformation: [{ value: null, disabled: true }],
-            pmsNummer: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
-            name: [null],
-            regionId: [null],
-            languageCode: [null],
-            supplement: [null],
-            street: [null],
-            postcode: [null],
-            town: [null],
-            active: [true]
         });
 
-        this.pms$
+        const distinctPreismeldestelle$ = this.pms$
             .filter(x => !!x)
             .distinctUntilKeyChanged('_rev')
+            .publishReplay(1).refCount();
+
+        distinctPreismeldestelle$
             .subscribe((preismeldestelle: P.AdvancedPreismeldestelle) => {
                 this.form.markAsUntouched();
                 this.form.markAsPristine();
                 this.form.patchValue(<P.AdvancedPreismeldestelle>{
                     kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
-                    regionId: preismeldestelle.regionId,
                     erhebungsart: preismeldestelle.erhebungsart,
                     erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
                     erhebungsartComment: preismeldestelle.erhebungsartComment,
-                    pmsNummer: preismeldestelle.pmsNummer,
-                    name: preismeldestelle.name,
-                    supplement: preismeldestelle.supplement,
-                    street: preismeldestelle.street,
-                    postcode: preismeldestelle.postcode,
-                    town: preismeldestelle.town,
-                    telephone: preismeldestelle.town,
-                    email: preismeldestelle.email,
-                    languageCode: preismeldestelle.languageCode !== null ? preismeldestelle.languageCode : '',
                 }, { onlySelf: true, emitEvent: false });
             });
+
+        const canSave$ = this.saveClicked$
+            .map(() => ({ isValid: this.form.valid }))
+            .publishReplay(1).refCount();
+
+        const save$ = canSave$.filter(x => x.isValid)
+            .publishReplay(1).refCount();
+
+        this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
+            .merge(distinctPreismeldestelle$.mapTo(false))
+            .publishReplay(1).refCount();
+
+        this.formErrors$ = this.showValidationHints$.map(showErrors => showErrors ? this.getFormErrors() : []);
+
+        this.subscriptions = [
+            this.form.valueChanges
+                .map(() => this.form.value)
+                .subscribe(payload => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction)),
+
+            save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction))
+        ];
+    }
+
+    public ngOnDestroy() {
+        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    }
+
+    public getFormErrors() {
+        const getErrors = (control, name) => {
+            const controls = values(mapValues<{ [key: string]: { name: string, control: {} } }>(control.controls, (value, key) => ({ name: key, control: value })));
+            if (controls.length === 0) {
+                return !control.errors ? [] : Object.keys(control.errors).map(errorType => `error-${name}-${errorType}`);
+            }
+            return controls.reduce((prev, curr) => [...prev, ...getErrors(curr.control, curr.name)], []);
+        };
+        return getErrors(this.form, 'form');
     }
 
     private initKontaktpersonGroup({ required }) {

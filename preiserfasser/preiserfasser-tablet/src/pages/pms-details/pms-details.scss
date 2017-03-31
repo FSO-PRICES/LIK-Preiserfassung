@@ -84,4 +84,26 @@ pms-details.ion-page {
         padding: 2em;
         text-align: right;
     }
+
+    .form-error {
+        padding: 0.6em 1.2em;
+        background-color: $alizarin-crimson;
+        color: $white;
+        display: flex;
+
+        pef-icon {
+            flex: 0;
+        }
+        .messages {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+
+            span {
+                padding: 0.2em 0;
+                flex: 1;
+                display: block;
+            }
+        }
+    }
 }

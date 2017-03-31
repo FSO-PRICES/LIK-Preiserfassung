@@ -12,6 +12,9 @@ const initialState: State = {
 
 export function reducer(state = initialState, action: appConfig.Actions): State {
     switch (action.type) {
+        case 'DATABASE_SYNC':
+            return Object.assign({}, state, { databaseExists: null });
+
         case 'SET_DATABASE_EXISTS':
             return Object.assign({}, state, { databaseExists: action.payload });
 

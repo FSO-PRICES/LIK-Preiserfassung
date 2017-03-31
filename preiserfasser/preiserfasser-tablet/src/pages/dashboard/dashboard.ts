@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { LoadingController, NavController, ModalController } from 'ionic-angular';
+import { LoadingController, NavController, ModalController, Modal, Loading } from 'ionic-angular';
 import { LoginModal } from '../login/login';
 import { Observable, Subscription } from 'rxjs';
 import { assign } from 'lodash';
@@ -35,6 +35,8 @@ export class DashboardPage implements OnDestroy {
             (preismeldestellen, filterText) => pefSearch(filterText, preismeldestellen, [pms => pms.name]));
 
     private subscriptions: Subscription[];
+    private loader: Loading;
+    private loginModal: Modal;
 
     constructor(
         private navCtrl: NavController,
@@ -48,14 +50,12 @@ export class DashboardPage implements OnDestroy {
             content: 'Datensynchronisierung. Bitte warten...'
         });
 
-        const loginModal = this.modalCtrl.create(LoginModal, null, { enableBackdropDismiss: false });
-
         const settings$ = this.store.select(fromRoot.getSettings);
 
         const databaseExists$ = this.store.map(x => x.database)
-            .filter(x => x.databaseExists !== null)
             .map(x => x.databaseExists)
             .distinctUntilChanged()
+            .filter(exists => exists !== null)
             .publishReplay(1).refCount();
 
         // databaseExists$
@@ -68,24 +68,58 @@ export class DashboardPage implements OnDestroy {
 
         this.subscriptions = [
             databaseExists$
-                .combineLatest(settings$, (databaseExists, settings) => databaseExists || settings.isDefault) // Do not try to login if settings are not set yet
+                .withLatestFrom(settings$, (databaseExists, settings) => databaseExists || settings.isDefault) // Do not try to login if settings are not set yet
                 .filter(x => !x)
-                .flatMap(() => {
-                    loginModal.present();
-                    return Observable.bindCallback(cb => loginModal.onWillDismiss(cb))()
-                        .map(([data, role]) => ({ data, role }));
-                })
+                .flatMap(() =>
+                    Observable.fromPromise(this.presentLoginDialog())
+                        .switchMap(() =>
+                            Observable.bindCallback(cb => this.loginModal.onWillDismiss(cb))()
+                                .map(([data, role]) => ({ data, role }))
+                        )
+                )
                 .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
                 .subscribe(payload => {
-                    loader.present().then(() => this.store.dispatch({ type: 'DATABASE_SYNC', payload }));
+                    this.presentLoadingScreen().then(() => this.store.dispatch({ type: 'DATABASE_SYNC', payload }));
                 }),
 
-            store.select(fromRoot.getPreismeldestellen).filter(x => x != null).subscribe(() => loader.dismiss())
+            store.select(fromRoot.getPreismeldestellen)
+                .filter(x => x != null)
+                .merge(databaseExists$.filter(exists => !exists))
+                .subscribe(() => this.dismissLoadingScreen())
         ];
     }
 
     public ngOnDestroy() {
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    }
+
+    private presentLoginDialog() {
+        this.loginModal = this.modalCtrl.create(LoginModal, null, { enableBackdropDismiss: false });
+
+        return this.loginModal.present().catch(error => {
+            if (error !== false) throw (error);
+        });
+    }
+
+    private presentLoadingScreen() {
+        return this.dismissLoadingScreen().then(() => {
+            this.loader = this.loadingCtrl.create({
+                content: 'Datensynchronisierung. Bitte warten...'
+            });
+
+            return this.loader.present().catch(error => {
+                if (error !== false) throw (error);
+            });
+        });
+    }
+
+    private dismissLoadingScreen() {
+        if (!!this.loader) {
+            return this.loader.dismiss().catch(error => {
+                if (error !== false) throw (error);
+            });
+        }
+        return Promise.resolve(true);
     }
 
     navigateToDetails(pms: P.Models.Preismeldestelle) {
@@ -97,6 +131,6 @@ export class DashboardPage implements OnDestroy {
     }
 
     navigateToSettings() {
-        this.navCtrl.push(SettingsPage).catch(() => {});
+        this.navCtrl.setRoot(SettingsPage).catch(() => {});
     }
 }

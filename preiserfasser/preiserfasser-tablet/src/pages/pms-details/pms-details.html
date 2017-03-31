@@ -2,15 +2,21 @@
     <div class="header">
         <h3>{{'title-pms-details' | translate}}</h3>
         <a ion-button large clear class="align-right" color="white" href="javascript:history.go(-1)">
-            Schliessen
+            {{'btn-close' | translate}}
             <pef-icon name="close_screen"></pef-icon>
         </a>
     </div>
     <div class="content pms-details-content">
-        <form [formGroup]="form" class="stacked-form">
+        <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
             <div class="pef-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                 <div class="pms-scroll-content">
                     <h4 class="large">{{ header$ | async }}</h4>
+                    <div class="form-error" *ngIf="showValidationHints$ | async">
+                        <pef-icon name="survey"></pef-icon>
+                        <div class="messages">
+                            <span *ngFor="let error of formErrors$ | async">{{error | translate}}</span>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="column">
                             <h5>Preismeldestellenummer</h5>
@@ -101,10 +107,22 @@
                             </ion-list>
                         </div>
                     </div>
+                    <!--TODO: Check if needed-->
+                    <!--
+                    <div class="row">
+                        <div class="column">
+                            <h5>Bearbeitungsinformationen</h5>
+                            Preismeldestelle wurde erstmalig erhoben im: {{firstRecordedOn | async}}
+                        </div>
+                        <div class="column">
+                            <h5>Zusatzinformationen zur Preismeldestelle</h5>
+                            <ion-input type="text" formControlName="additionalInformation"></ion-input>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="column">
                             <h5>Erhebungsart</h5>
-                            <ion-list radio-group class="padding-to-header">
+                            <ion-list radio-group class="padding-to-header" formControlName="erhebungsart">
                                 <ion-item>
                                     <ion-label>Vor Ort mit Tablet</ion-label>
                                     <ion-radio value="tablet"></ion-radio>
@@ -129,21 +147,21 @@
                         </div>
                         <div class="column">
                             <h5>Erhebungshäufigkeit</h5>
-                            <ion-list radio-group class="padding-to-header">
+                            <ion-list radio-group class="padding-to-header" formControlName="erhebungshaeufigkeit">
                                 <ion-item>
-                                    <ion-label>monatlich</ion-label>
+                                    <ion-label>Monatlich</ion-label>
                                     <ion-radio value="monthly"></ion-radio>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-label>quartalsweise</ion-label>
+                                    <ion-label>Quartalsweise</ion-label>
                                     <ion-radio value="quarterly"></ion-radio>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-label>halbjährlich</ion-label>
+                                    <ion-label>Halbjährlich</ion-label>
                                     <ion-radio value="half-yearly"></ion-radio>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-label>jährlich</ion-label>
+                                    <ion-label>Jährlich</ion-label>
                                     <ion-radio value="yearly"></ion-radio>
                                 </ion-item>
                             </ion-list>
@@ -153,14 +171,14 @@
                         <h5>Bemerkungen zur Erhebungsart</h5>
                         <ion-list class="padding-to-header">
                             <ion-item class="pef-item">
-                                <ion-textarea></ion-textarea>
+                                <ion-textarea formControlName="erhebungsartComment"></ion-textarea>
                             </ion-item>
                         </ion-list>
-                    </div>
+                    </div>-->
                 </div>
             </div>
             <div class="actions">
-                <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="true">Speichern</button>
+                <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
                 <a type="button" ion-button href="javascript:history.go(-1)">Abbrechen</a>
             </div>
         </form>

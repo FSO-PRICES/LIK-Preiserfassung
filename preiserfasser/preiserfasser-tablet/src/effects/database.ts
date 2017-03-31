@@ -10,8 +10,9 @@ export class DatabaseEffects {
     @Effect()
     loadPreismeldestellen$ = this.actions$
         .ofType('DATABASE_SYNC')
-        .switchMap(x => dropAndSyncDatabase(x.payload))
-        .map(exists => ({ type: 'SET_DATABASE_EXISTS', payload: true }));
+        .switchMap(x => dropAndSyncDatabase(x.payload)
+            .then(() => ({ type: 'SET_DATABASE_EXISTS', payload: true }))
+            .catch(() => dropDatabase().then(() => ({ type: 'SET_DATABASE_EXISTS', payload: false }))));
 
     @Effect()
     checkDatabaseExists$ = this.actions$
@@ -23,6 +24,6 @@ export class DatabaseEffects {
     deleteDatabase$ = this.actions$
         .ofType('DELETE_DATABASE')
         .flatMap(() => dropDatabase())
-        .mapTo({});
+        .mapTo({ type: 'SET_DATABASE_EXISTS', payload: false });
         // .map(exists => ({ type: 'SET_DATABASE_EXISTS', payload: false }))
 }

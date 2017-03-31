@@ -65,14 +65,16 @@ export class SettingsPage implements OnDestroy {
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(distinctSetting$.mapTo(false));
 
+        const databaseExists$ = this.store.map(x => x.database)
+            .map(x => x.databaseExists)
+            .filter(exists => exists !== null)
+            .publishReplay(1).refCount();
+
         this.subscriptions = [
-            this.cancelClicked$.subscribe(() => this.navCtrl.pop().catch(() => this.navCtrl.setRoot(DashboardPage))),
+            this.cancelClicked$.subscribe(() => this.navCtrl.canGoBack() ? this.navCtrl.pop() : this.navCtrl.setRoot(DashboardPage)),
 
             this.deleteAllClicked$.subscribe(() => {
-                this.store.dispatch({ type: 'DELETE_DATABASE' });
-                this.presentLoadingScreen().then(() => {
-                    setTimeout(() => location.href = '/', 1000);
-                });
+                this.presentLoadingScreen('Lösche lokale Daten. Bitte warten...').then(() => this.store.dispatch({ type: 'DELETE_DATABASE' }));
             }),
 
             update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTINGS', payload: x })),
@@ -81,6 +83,10 @@ export class SettingsPage implements OnDestroy {
                 this.presentLoadingScreen();
                 store.dispatch({ type: 'SAVE_SETTINGS' });
             }),
+
+            databaseExists$
+                .filter(exists => !exists)
+                .subscribe(() => this.dismissLoadingScreen()),
 
             this.currentSettings$
                 .filter(pe => pe != null && pe.isSaved)
@@ -112,7 +118,7 @@ export class SettingsPage implements OnDestroy {
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
     }
 
-    private presentLoadingScreen() {
+    private presentLoadingScreen(message = 'Datensynchronisierung. Bitte warten...') {
         this.dismissLoadingScreen();
 
         this.loader = this.loadingCtrl.create({
@@ -124,7 +130,11 @@ export class SettingsPage implements OnDestroy {
 
     private dismissLoadingScreen() {
         if (!!this.loader) {
-            this.loader.dismiss();
+            this.loader.dismiss().catch(error => {
+                if (error !== false) {
+                    throw (error);
+                }
+            });
         }
     }
 }

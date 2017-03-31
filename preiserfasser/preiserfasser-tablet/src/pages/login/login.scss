@@ -19,4 +19,13 @@ login-modal.ion-page {
     button {
         float: right;
     }
+
+    .header {
+        display: flex;
+        h3 { flex: 1; }
+        a {
+            flex: 0;
+            fill: $outer-space;
+        }
+    }
 }
