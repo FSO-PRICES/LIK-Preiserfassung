@@ -1,7 +1,8 @@
 {
   "name": "bfs-backoffice",
-  "author": "Philipp Schärer",
+  "author": "Lambda IT GmbH",
   "homepage": "http://lambda-it.ch/",
+  "version": "v1.0.0-alpha.2",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",
@@ -45,7 +46,7 @@
     "zone.js": "0.7.2"
   },
   "devDependencies": {
-    "@ionic/app-scripts": "1.0.0",
+    "@ionic/app-scripts": "^1.1.4",
     "@types/bluebird": "^3.0.37",
     "@types/lodash": "4.14.50",
     "@types/pouchdb": "^5.4.28",
