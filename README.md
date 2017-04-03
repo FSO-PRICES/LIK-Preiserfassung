@@ -1,14 +1,4 @@
-# lik-studio
-lik-studio
-
-## TODOS / Discussions
-
-* Preiserheber Save -> Save again -> Exception
-* Menu / Page navigation
-* form.patchValue { onlySelf: true, emitEvent: false } ?
-* .do( markPristine )
-* alreadyAssigned filter von PE to PMS
-* reducer action constants
+# BFS/Lik - Studio
 
 ## Install (Ubuntu 16.04)
 
