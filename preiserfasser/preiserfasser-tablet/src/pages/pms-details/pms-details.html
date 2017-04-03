@@ -10,7 +10,8 @@
         <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
             <div class="pef-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                 <div class="pms-scroll-content">
-                    <div class="form-error" *ngIf="showValidationHints$ | async">
+                    <h4 class="large">{{ header$ | async }}</h4>
+                    <div class="form-error" *ngIf="hasErrors$ | async">
                         <pef-icon name="survey"></pef-icon>
                         <div class="messages">
                             <span *ngFor="let error of formErrors$ | async">{{error | translate}}</span>

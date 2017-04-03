@@ -26,7 +26,7 @@ import { reducer } from '../reducers';
         Backoffice
     ],
     imports: [
-        IonicModule.forRoot(Backoffice, {
+        IonicModule.forRoot(Backoffice, {}, {
             links: [
                 { component: ImportPage, name: 'Import', segment: 'import' },
                 { component: ExportToPrestaPage, name: 'Export', segment: 'export' },

@@ -14,6 +14,7 @@
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
 
     "heading_settings": "Einstellungen",
+    "heading_danger-zone": "Gefährlicher Abschnitt",
     "heading_pms-details": "Daten zur Preismeldestelle",
     "server-connection-url": "URL des Datenbank-Servers",
     "installed-software-version": "Installierte Software Version",

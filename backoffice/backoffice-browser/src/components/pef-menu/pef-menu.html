@@ -1,23 +1,25 @@
 <div class="toolbar toolbar-md" [class.danger-zone]="dangerZone$ | async">
-    <ion-buttons end>
+    <ion-buttons>
         <a
             *ngFor="let entry of pages"
             ion-button
             clear
             href="javascript:"
-            (click)="navigateToPage(entry.page)">
+            (click)="navigateToPage(entry.page)"
+            [class.active]="isCurrentPage(entry.page.name)">
             {{ entry.name }}
         </a>
         <a
             ion-button
             clear
             href="javascript:"
-            (click)="navigateToPage(settingsPage)">
+            (click)="navigateToPage(settingsPage)"
+            [class.active]="isCurrentPage('SettingsPage')">
             <pef-icon name="settings"></pef-icon>
         </a>
     </ion-buttons>
 
     <ion-title>
-        LIK Studio
+        BFS LIK - Studio
     </ion-title>
 </div>
