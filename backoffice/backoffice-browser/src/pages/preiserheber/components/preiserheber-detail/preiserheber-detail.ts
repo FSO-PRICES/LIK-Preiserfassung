@@ -67,7 +67,8 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     telephone: erheber.telephone,
                     email: erheber.email
                 };
-            });
+            })
+            .publishReplay(1).refCount();
 
         const canSave$ = this.saveClicked$
             .map(x => ({ isValid: this.getPreiserheberForm().valid }))
@@ -75,7 +76,6 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.save$ = canSave$.filter(x => x.isValid)
             .publishReplay(1).refCount()
-            .withLatestFrom(this.saveClicked$)
             .map(x => this.form.get('password').value);
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
