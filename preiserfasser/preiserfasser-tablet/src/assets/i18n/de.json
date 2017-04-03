@@ -1,0 +1,15 @@
+{
+    "choose-preismeldestelle": "Preismeldestelle auswählen",
+    "preismeldestelle": "Preismeldestelle",
+    "control_artikelText": "Artikeltext",
+    "control_currentPeriodPrice": "Preis",
+    "control_currentPeriodQuantity": "Menge",
+    "heading_artikel": "Artikel",
+    "heading_artikel-neu": "Artikel neu",
+    "heading_information-about-preismeldung": "Information über die Preismeldung",
+    "heading_information-about-warenkorbposition": "Information über die Warenkorbposition",
+    "dialogText_sufficientPreismeldungen": "Es sind bereits ausreichend Artikel in der EP erfasst. Wollen Sie dennoch ein neues Produkt erfassen?",
+    "dialogText_unchangedPmText": "Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?",
+    "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
+    "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden."
+}
