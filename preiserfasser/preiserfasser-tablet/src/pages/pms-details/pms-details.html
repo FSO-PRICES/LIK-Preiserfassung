@@ -1,8 +1,8 @@
 <div class="wrapper">
     <div class="header">
-        <h3>{{'title-pms-details' | translate}}</h3>
-        <a ion-button large clear class="align-right" color="white" href="javascript:history.go(-1)">
-            {{'btn-close' | translate}}
+        <h3>{{'heading_pms-details' | translate}}</h3>
+        <a ion-button large clear class="align-right" color="white" (click)="cancelClicked$.emit($event)">
+            {{'btn_close' | translate}}
             <pef-icon name="close_screen"></pef-icon>
         </a>
     </div>
@@ -10,7 +10,6 @@
         <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
             <div class="pef-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                 <div class="pms-scroll-content">
-                    <h4 class="large">{{ header$ | async }}</h4>
                     <div class="form-error" *ngIf="showValidationHints$ | async">
                         <pef-icon name="survey"></pef-icon>
                         <div class="messages">
@@ -178,8 +177,8 @@
                 </div>
             </div>
             <div class="actions">
-                <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
-                <a type="button" ion-button href="javascript:history.go(-1)">Abbrechen</a>
+                <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">{{'btn_save' | translate}}</button>
+                <button type="button" ion-button (click)="cancelClicked$.emit($event)">{{'btn_cancel' | translate}}</button>
             </div>
         </form>
     </div>

@@ -1,14 +1,15 @@
 import { Store } from '@ngrx/store';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { NavParams } from 'ionic-angular';
-
+import { NavParams, NavController } from 'ionic-angular';
+import { Observable, Subscription } from 'rxjs';
 import { range, mapValues, values } from 'lodash';
 
 import { Models as P } from 'lik-shared';
+
 import * as fromRoot from '../../reducers';
+import { DashboardPage } from '../dashboard/dashboard';
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
-import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'pms-details',
@@ -22,6 +23,7 @@ export class PmsDetailsPage implements OnDestroy {
 
     public formErrors$: Observable<{ [key: string]: any }>;
 
+    public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter();
     public showValidationHints$: Observable<boolean>;
 
@@ -29,7 +31,12 @@ export class PmsDetailsPage implements OnDestroy {
 
     public form: FormGroup;
 
-    constructor(private navParams: NavParams, private store: Store<fromRoot.AppState>, private formBuilder: FormBuilder) {
+    constructor(
+        private navCtrl: NavController,
+        private navParams: NavParams,
+        private store: Store<fromRoot.AppState>,
+        private formBuilder: FormBuilder
+    ) {
         this.store.select(fromRoot.getPreismeldestellen)
             .filter(x => !!x && x.length > 0).subscribe(() => {
                 this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
@@ -74,6 +81,8 @@ export class PmsDetailsPage implements OnDestroy {
         this.formErrors$ = this.showValidationHints$.map(showErrors => showErrors ? this.getFormErrors() : []);
 
         this.subscriptions = [
+            this.cancelClicked$.subscribe(() => this.navCtrl.canGoBack() ? this.navCtrl.pop() : this.navCtrl.setRoot(DashboardPage)),
+
             this.form.valueChanges
                 .map(() => this.form.value)
                 .subscribe(payload => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction)),
@@ -90,7 +99,7 @@ export class PmsDetailsPage implements OnDestroy {
         const getErrors = (control, name) => {
             const controls = values(mapValues<{ [key: string]: { name: string, control: {} } }>(control.controls, (value, key) => ({ name: key, control: value })));
             if (controls.length === 0) {
-                return !control.errors ? [] : Object.keys(control.errors).map(errorType => `error-${name}-${errorType}`);
+                return !control.errors ? [] : Object.keys(control.errors).map(errorType => `validation_${name}_${errorType}`);
             }
             return controls.reduce((prev, curr) => [...prev, ...getErrors(curr.control, curr.name)], []);
         };

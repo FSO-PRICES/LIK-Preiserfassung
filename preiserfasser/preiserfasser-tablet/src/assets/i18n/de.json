@@ -11,5 +11,19 @@
     "dialogText_sufficientPreismeldungen": "Es sind bereits ausreichend Artikel in der EP erfasst. Wollen Sie dennoch ein neues Produkt erfassen?",
     "dialogText_unchangedPmText": "Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?",
     "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
-    "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden."
+    "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
+
+    "heading_settings": "Einstellungen",
+    "heading_pms-details": "Daten zur Preismeldestelle",
+    "server-connection-url": "URL des Datenbank-Servers",
+    "installed-software-version": "Installierte Software Version",
+
+    "btn_delete-local-entries": "Lokale Daten löschen",
+    "btn_save": "Speichern",
+    "btn_cancel": "Abbrechen",
+    "btn_close": "Schliessen",
+
+    "validation_firstName_required": "Bitte erfassen Sie den Vorname der 1. Kontaktperson.",
+    "validation_surname_required": "Bitte erfassen Sie den Name der 1. Kontaktperson.",
+    "validation_personFunction_required": "Bitte erfassen Sie die Funktion der 1. Kontaktperson."
 }

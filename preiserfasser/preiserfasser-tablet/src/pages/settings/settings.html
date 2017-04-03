@@ -1,21 +1,19 @@
 <div class="wrapper">
     <div class="header">
-        <h3>{{'title-settings' | translate}}</h3>
+        <h3>{{'heading_settings' | translate}}</h3>
         <a ion-button large clear class="align-right" color="white" (click)="cancelClicked$.emit($event)" [hidden]="!(canLeave$ | async)">
-            Schliessen
+            {{'btn_close' | translate}}
             <pef-icon name="close_screen"></pef-icon>
         </a>
     </div>
     <div class="content">
         <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
-        <!--<div class="header">-->
             <h3><pef-icon name="settings"></pef-icon> {{'server-connection-url' | translate}}</h3>
             <ion-list formGroupName="serverConnection">
                 <ion-item class="pef-item">
                     <ion-input type="text" formControlName="url"></ion-input>
                 </ion-item>
             </ion-list>
-        <!--</div>-->
             <ion-row>
                 <ion-col>
                     <ion-label>{{'installed-software-version' | translate}}</ion-label>
@@ -25,10 +23,10 @@
                 </ion-col>
             </ion-row>
         </form>
-        <button type="button" ion-button color="blue-chill" (click)="deleteAllClicked$.emit($event)">{{'btn-delete-local-entries' | translate}} <pef-icon name="warning"></pef-icon></button>
+        <button type="button" ion-button color="blue-chill" (click)="deleteAllClicked$.emit($event)">{{'btn_delete-local-entries' | translate}} <pef-icon name="warning"></pef-icon></button>
     </div>
     <div class="actions">
-        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">{{'btn-save' | translate}}</button>
-        <button type="button" ion-button (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">{{'btn-cancel' | translate}}</button>
+        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">{{'btn_save' | translate}}</button>
+        <button type="button" ion-button (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">{{'btn_cancel' | translate}}</button>
     </div>
 </div>
