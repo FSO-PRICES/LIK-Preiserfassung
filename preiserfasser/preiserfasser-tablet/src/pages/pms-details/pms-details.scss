@@ -4,6 +4,10 @@ pms-details.ion-page {
     background-color: $trout;
     display: flex;
 
+    h5 {
+        font-size: 0.75em;
+    }
+
     .wrapper {
         color: $white;
         margin: 0 6em;
@@ -57,7 +61,7 @@ pms-details.ion-page {
     }
 
     .row {
-        padding: 0 4px 40px 4px;
+        padding: 0 4px 20px 4px;
         display: flex;
         .column {
             flex: 1;
@@ -87,6 +91,7 @@ pms-details.ion-page {
 
     .form-error {
         padding: 0.6em 1.2em;
+        margin-bottom: 1em;
         background-color: $alizarin-crimson;
         color: $white;
         display: flex;
