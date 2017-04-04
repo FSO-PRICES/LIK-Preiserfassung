@@ -1,14 +1,4 @@
-# lik-studio
-lik-studio
-
-## TODOS / Discussions
-
-* Preiserheber Save -> Save again -> Exception
-* Menu / Page navigation
-* form.patchValue { onlySelf: true, emitEvent: false } ?
-* .do( markPristine )
-* alreadyAssigned filter von PE to PMS
-* reducer action constants
+# BFS/Lik - Studio
 
 ## Install (Ubuntu 16.04)
 
@@ -46,6 +36,21 @@ Passwords and user information are saved in the KeePass **LIK-BFS** group.
 
 After everything has been installed and configured:
   1. Secure the couchdb admin interface **futon** `http://13.94.141.213:5984/_utils/index.html` using the `Fix this` link on the bottom right.
+
+### Android (SDK, APK build)
+
+1. Java SDK installieren: `jdk-8u121`
+2. Android Studio installieren: `android-studio-bundle-162.3764568`
+3. Spezifische Android SDK Tools installieren: `tools_r25.2.3-windows.zip`
+  * Mit den inhalten das tools Verzeichnis von Android Studio ersetzen: zB. `%HomePath%\AppData\Local\Android\sdk\tools` oder mit linux tools `$HOME/AppData/Local/Android/sdk/tools`
+4. PATH und Environment Variablen setzen:
+  * `JAVA_HOME`: zb: `C:\Program Files\Java\jdk1.8.0_121`
+  * `ANDROID_HOME`: zb: `%HomePath%\AppData\Local\Android\sdk` oder mit linux tools `$HOME/AppData/Local/Android/sdk`
+5. Android SDK Tools ausführen: Cmd + R `%HomePath%\AppData\Local\Android\sdk\tools\android.bat`
+  * Folgende Pakete installieren:
+    * Android SDK Tools
+    * Android SDK Platform-tools
+    * Android 5.1.1 (API 22). (Unconfirmed) Android 5.0.1 (API 21) könnte auch funktionieren.
 
 ## Access
 

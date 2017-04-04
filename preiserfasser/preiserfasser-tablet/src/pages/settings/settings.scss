@@ -13,7 +13,6 @@ settings-page {
     h3 > pef-icon {
         display: inline-block;
         vertical-align: middle;
-        margin: 0 1.2em;
     }
 
     .wrapper {
@@ -24,7 +23,7 @@ settings-page {
         color: $white;
         display: flex;
         align-items: center;
-        margin-bottom: 2.2em;
+        margin-bottom: 1.2em;
         h3 {
             flex: 1;
             margin: 0;
@@ -38,8 +37,16 @@ settings-page {
 
     .content {
         width: 67%;
+
+        ion-row {
+            margin-bottom: 1em;
+        }
+
         ion-col {
             flex: 0;
+            div {
+                white-space: nowrap;
+            }
             & + ion-col {
                 flex: 1;
             }
@@ -48,12 +55,20 @@ settings-page {
                 font-size: 1em;
             }
         }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
     }
 
-    .actions {
-        position: absolute;
-        padding: 2em;
-        bottom: 0;
-        right: 0;
+    .danger-zone {
+        margin: 2.5em 0;
+
+        button > pef-icon {
+            margin-top: -0.2em;
+            margin-left: -0.7em;
+            margin-right: 0.5em;
+        }
     }
 }

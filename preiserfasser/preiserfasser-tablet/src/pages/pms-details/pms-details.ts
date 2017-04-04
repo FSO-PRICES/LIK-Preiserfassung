@@ -21,7 +21,8 @@ export class PmsDetailsPage implements OnDestroy {
     public header$ = this.pms$.map(formatHeader);
     public address$ = this.pms$.map(formatAddress);
 
-    public formErrors$: Observable<{ [key: string]: any }>;
+    public formErrors$: Observable<string[]>;
+    public hasErrors$: Observable<boolean>;
 
     public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter();
@@ -79,6 +80,7 @@ export class PmsDetailsPage implements OnDestroy {
             .publishReplay(1).refCount();
 
         this.formErrors$ = this.showValidationHints$.map(showErrors => showErrors ? this.getFormErrors() : []);
+        this.hasErrors$ = this.formErrors$.map(x => !!x && x.length > 0);
 
         this.subscriptions = [
             this.cancelClicked$.subscribe(() => this.navCtrl.canGoBack() ? this.navCtrl.pop() : this.navCtrl.setRoot(DashboardPage)),

@@ -45,4 +45,8 @@ export class PefMenuComponent {
             throw(error);
         });
     }
+
+    isCurrentPage(pageName) {
+        return this.navCtrl.getActive().name === pageName;
+    }
 }
