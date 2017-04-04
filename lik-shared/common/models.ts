@@ -90,6 +90,16 @@ interface _PreismeldungReferenceProperties {
 export type PreismeldungReferenceProperties = PreismeldungUri & _PreismeldungReferenceProperties;
 
 export type Bearbeitungscode = 0 | 1 | 2 | 3 | 7 | 44 | 99 | 101;
+export const bearbeitungscodeDescriptions = {
+    0: '0',
+    1: '1',
+    2: '2',
+    3: '3',
+    7: '7',
+    44: 'S',
+    99: '99',
+    101: 'R'
+};
 
 export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
 

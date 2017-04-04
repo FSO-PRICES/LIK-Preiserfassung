@@ -56,11 +56,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
 
-    public numberFormattingOptions = { padRight: 2, truncate: 4, integerSeparator: '' };
+    public priceNumberFormattingOptions = { padRight: 2, truncate: 4, integerSeparator: '' };
+    public mengeNumberFormattingOptions = { padRight: 0, truncate: 3, integerSeparator: '' };
 
     public currentPeriodHeading$: Observable<string>;
 
-    private formatFn = format(this.numberFormattingOptions);
+    private preiseFormatFn = format(this.priceNumberFormattingOptions);
+    private mengeFormatFn = format(this.mengeNumberFormattingOptions);
 
     form: FormGroup;
 
@@ -69,15 +71,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService) {
         super();
 
-        this.preisChanged$.subscribe(x => { this.form.patchValue({ preis: `${this.formatFn(x)}` }); });
-        this.mengeChanged$.subscribe(x => { this.form.patchValue({ menge: `${x}` }); });
-        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => { this.form.patchValue({ preisVPNormalNeuerArtikel: `${this.formatFn(x)}` }); });
-        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => { this.form.patchValue({ mengeVPNormalNeuerArtikel: `${x}` }); });
+        this.preisChanged$.subscribe(x => { this.form.patchValue({ preis: `${this.preiseFormatFn(x)}` }); });
+        this.mengeChanged$.subscribe(x => { this.form.patchValue({ menge: `${this.mengeFormatFn(x)}` }); });
+        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => { this.form.patchValue({ preisVPNormalNeuerArtikel: `${this.preiseFormatFn(x)}` }); });
+        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => { this.form.patchValue({ mengeVPNormalNeuerArtikel: `${this.mengeFormatFn(x)}` }); });
 
         this.form = formBuilder.group({
             pmId: [''],
             preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])],
-            menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 4 })])],
+            menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 3 })])],
             // preisVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 2 })],
             // mengeVPNormalNeuerArtikel: ['', maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })],
             preisVPNormalNeuerArtikel: [''],
@@ -87,7 +89,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             artikelnummer: [null],
             artikeltext: [null, Validators.required]
         });
-
 
         this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
         this.requestPreismeldungSave$ = this.observePropertyCurrentValue<string>('requestPreismeldungSave').filter(x => !!x);
@@ -100,11 +101,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)
             .merge(distinctPreismeldung$.map(x => x.preismeldung.preis))
-            .map(x => ({ value: `${this.formatFn(x)}` }));
+            .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
 
         this.preisVPNormalNeuerArtikelCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPNormalNeuerArtikel)
             .merge(distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
-            .map(x => ({ value: `${this.formatFn(x)}` }));
+            .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
 
         this.subscriptions.push(
             distinctPreismeldung$
@@ -127,7 +128,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
                     this.form.patchValue({
-                        preis: `${currentPm.refPreismeldung ? this.formatFn(currentPm.refPreismeldung.preis) : ''}`,
+                        preis: `${currentPm.refPreismeldung ? this.preiseFormatFn(currentPm.refPreismeldung.preis) : ''}`,
                         menge: `${currentPm.refPreismeldung ? currentPm.refPreismeldung.menge : currentPm.refPreismeldung.menge}`,
                         aktion: currentPm.refPreismeldung.aktion
                     });
@@ -204,7 +205,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .withLatestFrom(distinctPreismeldung$.map(x => x.refPreismeldung), (_, refPreismeldung) => refPreismeldung)
                 .subscribe(refPreismeldung => {
                     this.form.patchValue({
-                        preis: `${this.formatFn(refPreismeldung.preis)}`,
+                        preis: `${this.preiseFormatFn(refPreismeldung.preis)}`,
                         menge: `${refPreismeldung.menge}`,
                         aktion: false
                     });

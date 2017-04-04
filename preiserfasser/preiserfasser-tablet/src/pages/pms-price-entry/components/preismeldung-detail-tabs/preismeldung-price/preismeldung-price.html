@@ -53,11 +53,11 @@
                 <div class="data-input-area">
                     <h6>{{ 'heading_artikel' | translate }}</h6>
                     <div class="last-period-price">
-                        <div class="number">{{ (preismeldung$ | async).refPreismeldung.preis | pefFormatNumber: numberFormattingOptions }}</div>
+                        <div class="number">{{ (preismeldung$ | async).refPreismeldung.preis | pefFormatNumber: priceNumberFormattingOptions }}</div>
                         <div class="unit">CHF</div>
                     </div>
                     <div class="last-period-quantity">
-                        <div class="number">{{ (preismeldung$ | async).refPreismeldung.menge }}</div>
+                        <div class="number">{{ (preismeldung$ | async).refPreismeldung.menge | pefFormatNumber: mengeFormattingOptions  }}</div>
                         <div class="unit">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit | pefPropertyTranslate }}</div>
                     </div>
                     <div class="last-period-bottom-row">
@@ -89,9 +89,10 @@
                             <ion-label class="currency-label">CHF</ion-label>
                             <ion-input #preis
                                 type="number"
-                                min="0.01" step="0.01"
+                                min="0.00" step="0.01"
                                 pef-highlight-on-focus
                                 pef-disable-input-number-behaviour
+                                pef-disable-input-negative-number
                                 [class.ng-invalid]="preisInvalid$ | async"
                                 [readonly]="preisAndMengeDisabled$ | async"
                                 (blur)="preisChanged$.emit(preis.value)"
@@ -104,6 +105,7 @@
                                     step="any"
                                     pef-highlight-on-focus
                                     pef-disable-input-number-behaviour
+                                    pef-disable-input-negative-number
                                     [class.ng-invalid]="mengeInvalid$ | async"
                                     [readonly]="preisAndMengeDisabled$ | async"
                                     (blur)="mengeChanged$.emit(menge.value)"
@@ -133,9 +135,10 @@
                             <ion-label>CHF</ion-label>
                             <ion-input #preisVPNormalNeuerArtikel
                                 type="number"
-                                min="0.01"
-                                step="0.01"
+                                min="0.00" step="0.01"
                                 pef-highlight-on-focus
+                                pef-disable-input-number-behaviour
+                                pef-disable-input-negative-number
                                 (blur)="preisVPNormalNeuerArtikelChanged$.emit(preisVPNormalNeuerArtikel.value)"
                                 [value]="(preisVPNormalNeuerArtikelCurrentValue$ | async)?.value"></ion-input>
                         </ion-item>
@@ -145,6 +148,8 @@
                                     type="number"
                                     step="any"
                                     pef-highlight-on-focus
+                                    pef-disable-input-number-behaviour
+                                    pef-disable-input-negative-number
                                     (blur)="mengeVPNormalNeuerArtikelChanged$.emit(mengeVPNormalNeuerArtikel.value)"
                                     [value]="form.value.mengeVPNormalNeuerArtikel"></ion-input>
                             </ion-item>

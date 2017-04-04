@@ -3,8 +3,6 @@ import { NavParams } from 'ionic-angular';
 import { Store } from '@ngrx/store';
 import { flatten, times, constant } from 'lodash';
 
-import * as P from '../../common-models';
-
 import * as fromRoot from '../../reducers';
 
 @Component({

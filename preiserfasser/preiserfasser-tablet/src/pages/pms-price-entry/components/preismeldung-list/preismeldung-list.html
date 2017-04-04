@@ -34,7 +34,7 @@
                 <div class="status-bar"></div>
             </div>
             <div class="preismeldung-status-done" *ngIf="bag.preismeldung.percentageDPToLVP != null">
-                <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : bag.preismeldung.bearbeitungscode"></div>
+                <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)"></div>
                 <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
             </div>
         </ion-item>

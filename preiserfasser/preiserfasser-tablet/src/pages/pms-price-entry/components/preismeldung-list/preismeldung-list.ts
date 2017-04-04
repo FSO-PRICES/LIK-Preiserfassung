@@ -109,6 +109,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             : formatPercentageChange(preismeldung.percentageDPToLVP, 1);
     }
 
+    getBearbeitungscodeDescription(bearbeitungscode: P.Models.Bearbeitungscode) {
+        return P.Models.bearbeitungscodeDescriptions[bearbeitungscode];
+    }
+
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }

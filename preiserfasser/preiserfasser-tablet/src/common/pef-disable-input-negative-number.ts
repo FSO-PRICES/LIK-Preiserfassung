@@ -1,10 +1,9 @@
 import { Directive, HostListener, Renderer, ElementRef } from '@angular/core';
 
 @Directive({
-    selector: '[pef-disable-input-number-behaviour]',
+    selector: '[pef-disable-input-negative-number]',
 })
-export class PefDisableInputNumberBehaviourDirective {
-    private mousewheelDisableScrollListener: Function = null;
+export class PefDisableInputNegativeNumberDirective {
     private keydownListener: Function = null;
 
     constructor(private elementRef: ElementRef, private renderer: Renderer) {
@@ -13,11 +12,8 @@ export class PefDisableInputNumberBehaviourDirective {
     @HostListener('focus')
     onFocus() {
         const inputElement = this.elementRef.nativeElement.getElementsByTagName('input')[0] as HTMLInputElement;
-        this.mousewheelDisableScrollListener = this.renderer.listen(inputElement, 'mousewheel', (e: Event) => {
-            e.preventDefault();
-        });
         this.keydownListener = this.renderer.listen(inputElement, 'keydown', (e: KeyboardEvent) => {
-            if (e.which === 38 || e.which === 40) {
+            if (e.key === '-') {
                 e.preventDefault();
             }
         });
@@ -25,10 +21,6 @@ export class PefDisableInputNumberBehaviourDirective {
 
     @HostListener('blur')
     onBlur() {
-        if (!!this.mousewheelDisableScrollListener) {
-            this.mousewheelDisableScrollListener();
-            this.mousewheelDisableScrollListener = null;
-        }
         if (!!this.keydownListener) {
             this.keydownListener();
             this.keydownListener = null;
