@@ -3,7 +3,6 @@ import { assign } from 'lodash';
 import { Models as P } from 'lik-shared';
 
 import * as setting from '../actions/setting';
-import { environment } from '../environments/environment';
 
 export type CurrentSetting = P.Setting & {
     isModified: boolean;
@@ -28,10 +27,15 @@ export function reducer(state = initialState, action: setting.Action): State {
         }
 
         case 'SETTING_LOAD_FAIL': {
-            const settings = assign({},
-                environment.defaultSettings,
-                { isDefault: true }
-            );
+            const settings: CurrentSetting = {
+                _id: undefined,
+                _rev: undefined,
+                serverConnection: { url: null },
+                version: null,
+                isModified: false,
+                isSaved: false,
+                isDefault: true
+            };
             return assign({}, state, { settings, currentSettings: settings });
         }
 

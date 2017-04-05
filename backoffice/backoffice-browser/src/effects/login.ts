@@ -32,7 +32,10 @@ export class LoginEffects {
                 return false;
             })
         )
-        .map(isLoggedIn => (!isLoggedIn ? { type: 'SET_IS_LOGGED_OUT' } as login.Action : { type: 'SET_IS_LOGGED_IN', payload: getCurrentLoggedInUser() } as login.Action));
+        .map(isLoggedIn => (!isLoggedIn ?
+            { type: 'SET_IS_LOGGED_OUT' } as login.Action :
+            { type: 'SET_IS_LOGGED_IN', payload: getCurrentLoggedInUser() } as login.Action)
+        );
 
     @Effect()
     login$ = this.actions$

@@ -1,8 +1,5 @@
 <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
-    <h1 class="large" [ngSwitch]="isEditing$ | async">
-        <div *ngSwitchCase="true">Editieren</div>
-        <span *ngSwitchDefault>Erfassen</span>
-    </h1>
+    <h1 class="large">Editieren</h1>
     <ion-row>
         <ion-col width-50>
             <h5>Hauptinformationen zur Preismeldestelle</h5>

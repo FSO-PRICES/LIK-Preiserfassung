@@ -6,7 +6,6 @@ import { Models as P } from 'lik-shared';
 export type CurrentPreiserheber = P.Erheber & {
     isModified: boolean;
     isSaved: boolean;
-    isCreated: boolean;
     isNew: boolean;
 };
 
@@ -36,7 +35,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
         }
 
         case 'SELECT_PREISERHEBER': {
-            const currentPreiserheber = action.payload == null ? null : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false, isCreated: false });
+            const currentPreiserheber = action.payload == null ? null : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false });
             return assign({}, state, { currentPreiserheber: currentPreiserheber });
         }
 
@@ -52,7 +51,6 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 email: null,
                 isModified: false,
                 isSaved: false,
-                isCreated: false,
                 isNew: true
             };
             return assign({}, state, { currentPreiserheber: newPreiserheber });
@@ -81,7 +79,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
         }
 
         case 'SAVE_PREISERHEBER_SUCCESS': {
-            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload, { isNew: false });
+            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload, { isNew: false, isModified: false, isSaved: true });
             const preiserheberIds = !!state.preiserheberIds.find(x => x === currentPreiserheber._id) ? state.preiserheberIds : [...state.preiserheberIds, currentPreiserheber._id];
             return assign({}, state, { currentPreiserheber, preiserheberIds, entities: assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber }) });
         }

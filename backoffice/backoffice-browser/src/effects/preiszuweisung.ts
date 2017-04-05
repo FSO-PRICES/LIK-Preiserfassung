@@ -35,27 +35,25 @@ export class PreiszuweisungEffects {
         .switchMap(({ currentPreiserheberId, currentPreiszuweisung }) =>
             Observable.fromPromise(
                 getDatabase(dbNames.preiszuweisung)
-                .then(db => { // Only check if the document exists if is not a newly created one
-                    if (!currentPreiszuweisung.isNew) {
-                        return db.get(currentPreiszuweisung._id).then(doc => ({ db, doc, create: false }));
-                    }
-                    return new Promise<{ db, doc, create }>((resolve, _) => resolve({ db, doc: {}, create: true }));
-                })
-                .then(({ db, doc, create }) => {
-                    const data: P.Preiszuweisung = Object.assign({},
-                        doc,
-                        <P.Preiszuweisung>{
-                            _id: create ? currentPreiserheberId : currentPreiszuweisung._id,
-                            _rev: currentPreiszuweisung._rev,
-                            preiserheberId: currentPreiserheberId,
-                            preismeldestellen: currentPreiszuweisung.preismeldestellen
+                    .then(db => { // Only check if the document exists if is not a newly created one
+                        if (!currentPreiszuweisung.isNew) {
+                            return db.get(currentPreiszuweisung._id).then(doc => ({ db, doc, create: false }));
                         }
-                    );
-                    return db.put(data).then((response) => {
-                        return ({ db, id: response.id, created: create })
-                    });
-                })
-                .then<CurrentPreiszuweisung>(({ db, id }) => db.get(id).then(preiszuweisung => Object.assign({}, preiszuweisung, { isModified: false, isSaved: true })))
+                        return Promise.resolve({ db, doc: {}, create: true });
+                    })
+                    .then(({ db, doc, create }) => {
+                        const data: P.Preiszuweisung = Object.assign({},
+                            doc,
+                            <P.Preiszuweisung>{
+                                _id: create ? currentPreiserheberId : currentPreiszuweisung._id,
+                                _rev: currentPreiszuweisung._rev,
+                                preiserheberId: currentPreiserheberId,
+                                preismeldestellen: currentPreiszuweisung.preismeldestellen
+                            }
+                        );
+                        return db.put(data).then((response) => ({ db, id: response.id }));
+                    })
+                    .then<CurrentPreiszuweisung>(({ db, id }) => db.get(id))
             )
         )
         .map(payload => ({ type: 'CREATE_USER_DATABASE', payload } as preiszuweisung.Action))

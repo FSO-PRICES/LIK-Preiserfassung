@@ -6,5 +6,4 @@ export type Action =
     { type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload: P.AdvancedPreismeldestelle } |
     { type: 'SAVE_PREISMELDESTELLE', payload: null } |
     { type: 'SELECT_PREISMELDESTELLE', payload: string } |
-    { type: 'CREATE_PREISMELDESTELLE', payload: null } |
     { type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload: P.AdvancedPreismeldestelle };

@@ -46,7 +46,7 @@ export class PreismeldungEffects {
     loadPreismeldungen$ = loggedIn(this.isLoggedIn, this.actions$.ofType('PREISMELDUNG_LOAD_UNEXPORTED'), loadPreismeldung => loadPreismeldung
         .switchMap(() => getDatabase(dbNames.preismeldung).then(db => ({ db })))
         .filter(({ db }) => db != null)
-        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true }, getAllDocumentsForPrefix('pm-ref/'))).then(res => res.rows.map(y => y.doc) as P.CompletePreismeldung[] ))
+        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true }, getAllDocumentsForPrefix('pm-ref/'))).then(res => res.rows.map(y => y.doc) as P.CompletePreismeldung[]))
         .map(docs => ({ type: 'PREISMELDUNG_LOAD_UNEXPORTED_SUCCESS', payload: docs } as preismeldung.Action))
     );
 
@@ -56,21 +56,23 @@ export class PreismeldungEffects {
         .switchMap(({ currentPreismeldung }) =>
             Observable.fromPromise(
                 getDatabase(dbNames.preismeldung)
-                .then(db => { // Only check if the document exists if a revision not already exists
-                    if (!!currentPreismeldung._rev) {
-                        return db.get(currentPreismeldung._id).then(doc => ({ db, doc }));
-                    }
-                    return new Promise<{ db, doc }>((resolve, _) => resolve({ db, doc: {} }));
-                })
-                .then(({ db, doc }) => { // Create or update the preismeldung
-                    const dbOperation = (!doc._rev ? db.post : db.put).bind(db);
-                    return dbOperation(Object.assign({}, doc, <P.Preismeldung>{
-                        _id: currentPreismeldung._id,
-                        _rev: currentPreismeldung._rev,
-                        bermerkungenAnsBfs: currentPreismeldung.bermerkungenAnsBfs
-                    })).then((response) => ({ db, id: response.id }));
-                })
-                .then<CurrentPreismeldung>(({ db, id }) => db.get(id).then(preismeldung => Object.assign({}, preismeldung, { isModified: false, isSaved: true })))
+                    .then(db => { // Only check if the document exists if a revision already exists
+                        if (!!currentPreismeldung._rev) {
+                            return db.get(currentPreismeldung._id).then(doc => ({ db, doc }));
+                        }
+                        return Promise.resolve({ db, doc: {} });
+                    })
+                    .then(({ db, doc }) => { // Create or update the preismeldung
+                        const create = !doc._rev;
+                        const preismeldung = Object.assign({}, doc, <P.Preismeldung>{
+                            _id: currentPreismeldung._id,
+                            _rev: currentPreismeldung._rev,
+                            bermerkungenAnsBfs: currentPreismeldung.bermerkungenAnsBfs
+                        });
+                        return (create ? db.post(preismeldung) : db.put(preismeldung))
+                            .then((response) => ({ db, id: response.id }));
+                    })
+                    .then<CurrentPreismeldung>(({ db, id }) => db.get(id))
             )
         )
         .map(payload => ({ type: 'SAVE_PREISMELDUNG_SUCCESS', payload } as preismeldung.Action))

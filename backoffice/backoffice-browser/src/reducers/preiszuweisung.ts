@@ -96,7 +96,7 @@ export function reducer(state = initialState, action: preiszuweisung.Action): St
         }
 
         case 'SAVE_PREISZUWEISUNG_SUCCESS': {
-            const currentPreiszuweisung = Object.assign({}, state.currentPreiszuweisung, action.payload, { isModified: false });
+            const currentPreiszuweisung = Object.assign({}, state.currentPreiszuweisung, action.payload, { isModified: false, isSaved: true });
             const preiszuweisungIds = !!state.preiszuweisungIds.find(x => x === currentPreiszuweisung._id) ? state.preiszuweisungIds : [...state.preiszuweisungIds, currentPreiszuweisung._id];
             return assign({}, state, { currentPreiszuweisung, preiszuweisungIds, entities: assign({}, state.entities, { [currentPreiszuweisung._id]: currentPreiszuweisung }) });
         }

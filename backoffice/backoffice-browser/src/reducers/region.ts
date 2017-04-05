@@ -68,7 +68,7 @@ export function reducer(state = initialState, action: region.Action): State {
 
         case 'SAVE_REGION_SUCCESS': {
             const region = action.payload;
-            const currentRegion = Object.assign({}, state.currentRegion, region);
+            const currentRegion = Object.assign({}, state.currentRegion, region, { isModified: false, isSaved: true });
             const regionIds = !!state.regionIds.find(x => x === currentRegion._id) ? state.regionIds : [...state.regionIds, currentRegion._id];
             return assign({}, state, { currentRegion, regionIds, entities: assign({}, state.entities, { [currentRegion._id]: currentRegion }) });
         }

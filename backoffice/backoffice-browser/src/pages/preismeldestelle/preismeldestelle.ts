@@ -19,7 +19,6 @@ export class PreismeldestellePage implements OnDestroy {
     public currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle).publishReplay(1).refCount();
     public languages$ = this.store.select(fromRoot.getLanguagesList);
     public regionen$ = this.store.select(fromRoot.getRegionen);
-    public createPreismeldestelle$ = new EventEmitter();
     public selectPreismeldestelle$ = new EventEmitter<string>();
     public cancelPreismeldestelle$ = new EventEmitter();
     public savePreismeldestelle$ = new EventEmitter();
@@ -61,11 +60,6 @@ export class PreismeldestellePage implements OnDestroy {
                     .filter(x => x.dialogCode === 'THROW_CHANGES'))
                 .subscribe(x => {
                     store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: x.selectedPreismeldestelle });
-                }),
-
-            this.createPreismeldestelle$
-                .subscribe(() => {
-                    store.dispatch({ type: 'CREATE_PREISMELDESTELLE' } as PreismeldestelleAction);
                 }),
 
             this.cancelPreismeldestelle$
