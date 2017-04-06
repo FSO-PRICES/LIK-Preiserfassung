@@ -38,9 +38,9 @@
         <div class="columns product-detail-row row-1">
             <div class="last-period">
                 <h5 class="large">Vorperiode</h5>
-                <preismeldung-info-popover [class.hidden]="!(preismeldung$ | async).refPreismeldung || !(preismeldung$ | async).refPreismeldung.aktion" [preismeldung]="preismeldung$ | async"></preismeldung-info-popover>
+                <preismeldung-info-popover [class.hidden]="!(preismeldung$ | async).refPreismeldung || !(preismeldung$ | async).refPreismeldung.aktion" [preismeldung]="preismeldung$ | async" [extraWidth]="window.document.getElementById('last-period-middle-section').offsetWidth + 'px'"></preismeldung-info-popover>
             </div>
-            <div class="middle-section"></div>
+            <div class="middle-section" id="last-period-middle-section"></div>
             <div class="current-period">
                 <h5 class="large">Aktuelle Periode</h5>
             </div>
@@ -67,7 +67,7 @@
                                 <ion-radio value="aktion" [disabled]="true" [checked]="(preismeldung$ | async).refPreismeldung.aktion"></ion-radio>
                             </ion-item>
                         </ion-list>
-                        <div class="code">{{ (preismeldung$ | async).refPreismeldung.fehlendePreiseR }}</div>
+                        <div class="code">{{ formatFehlendePreiseR((preismeldung$ | async).refPreismeldung.fehlendePreiseR) }}</div>
                     </div>
                 </div>
                 <div class="box-container" *ngIf="showVPArtikelNeu$ | async">
@@ -85,7 +85,7 @@
                 <div class="data-input-area">
                     <h6 [innerHTML]="currentPeriodHeading$ | async | translate"></h6>
                     <ion-list>
-                        <ion-item class="pef-item" [class.ng-invalid]="preisInvalid$ | async">
+                        <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('preis') | async">
                             <ion-label class="currency-label">CHF</ion-label>
                             <ion-input #preis
                                 type="number"
@@ -93,20 +93,20 @@
                                 pef-highlight-on-focus
                                 pef-disable-input-number-behaviour
                                 pef-disable-input-negative-number
-                                [class.ng-invalid]="preisInvalid$ | async"
+                                [class.ng-invalid]="createInvalidObservableFor('preis') | async"
                                 [readonly]="preisAndMengeDisabled$ | async"
                                 (blur)="preisChanged$.emit(preis.value)"
                                 [value]="(preisCurrentValue$ | async)?.value"></ion-input>
                         </ion-item>
                         <div class="unit-item-wrapper">
-                            <ion-item class="pef-item" [class.ng-invalid]="mengeInvalid$ | async">
+                            <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('menge') | async">
                                 <ion-input #menge
                                     type="number"
                                     step="any"
                                     pef-highlight-on-focus
                                     pef-disable-input-number-behaviour
                                     pef-disable-input-negative-number
-                                    [class.ng-invalid]="mengeInvalid$ | async"
+                                    [class.ng-invalid]="createInvalidObservableFor('menge') | async"
                                     [readonly]="preisAndMengeDisabled$ | async"
                                     (blur)="mengeChanged$.emit(menge.value)"
                                     [value]="form.value.menge"></ion-input>
@@ -116,12 +116,15 @@
                             </div>
                         </div>
                     </ion-list>
-                    <ion-list radio-group class="reduction-radio-group-list">
-                        <ion-item>
-                            <ion-label>Aktion</ion-label>
-                            <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit()" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
-                        </ion-item>
-                    </ion-list>
+                    <div class="current-period-aktion-row">
+                        <ion-list radio-group class="reduction-radio-group-list">
+                            <ion-item>
+                                <ion-label>Aktion</ion-label>
+                                <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit()" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
+                            </ion-item>
+                        </ion-list>
+                        <div class="code">{{ formatFehlendePreiseR(thisPeriodFehlendePreiseR$ | async) }}</div>
+                    </div>
                     <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)" [codeListType]="codeListType$ | async"></bearbeitungs-type>
                 </div>
             </div>
@@ -131,7 +134,7 @@
                 <div class="data-input-area" *ngIf="showVPArtikelNeu$ | async">
                     <h6 [innerHTML]="'heading_artikel-neu' | translate"></h6>
                     <ion-list>
-                        <ion-item class="pef-item">
+                        <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('preisVPNormalNeuerArtikel') | async">
                             <ion-label>CHF</ion-label>
                             <ion-input #preisVPNormalNeuerArtikel
                                 type="number"
@@ -139,17 +142,19 @@
                                 pef-highlight-on-focus
                                 pef-disable-input-number-behaviour
                                 pef-disable-input-negative-number
+                                [class.ng-invalid]="createInvalidObservableFor('preisVPNormalNeuerArtikel') | async"
                                 (blur)="preisVPNormalNeuerArtikelChanged$.emit(preisVPNormalNeuerArtikel.value)"
                                 [value]="(preisVPNormalNeuerArtikelCurrentValue$ | async)?.value"></ion-input>
                         </ion-item>
                         <div class="unit-item-wrapper">
-                            <ion-item class="pef-item">
+                            <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('mengeVPNormalNeuerArtikel') | async">
                                 <ion-input #mengeVPNormalNeuerArtikel
                                     type="number"
                                     step="any"
                                     pef-highlight-on-focus
                                     pef-disable-input-number-behaviour
                                     pef-disable-input-negative-number
+                                    [class.ng-invalid]="createInvalidObservableFor('mengeVPNormalNeuerArtikel') | async"
                                     (blur)="mengeVPNormalNeuerArtikelChanged$.emit(mengeVPNormalNeuerArtikel.value)"
                                     [value]="form.value.mengeVPNormalNeuerArtikel"></ion-input>
                             </ion-item>

@@ -58,10 +58,6 @@ export class PmsPriceEntryPage {
             .filter(x => x === 'HOME')
             .subscribe(() => this.navController.setRoot(DashboardPage));
 
-        this.requestPreismeldungSave$ = this.toolbarButtonClicked$
-            .filter(x => x === 'PREISMELDUNG_SAVE')
-            .map(() => new Date());
-
         this.requestPreismeldungQuickEqual$ = this.toolbarButtonClicked$
             .filter(x => x === 'PREISMELDUNG_QUICK_EQUAL')
             .map(() => new Date());
@@ -88,11 +84,19 @@ export class PmsPriceEntryPage {
             .filter(x => !x.isCurrentModified)
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
-        requestSelectPreismeldung$
+        const cancelEditReponse$ = requestSelectPreismeldung$
             .filter(x => x.isCurrentModified)
             .flatMap(x => cancelEditDialog$.map(y => ({ selectedPreismeldung: x.selectedPreismeldung, dialogCode: y })))
+            .publishReplay(1).refCount();
+
+        cancelEditReponse$
             .filter(x => x.dialogCode === 'THROW_CHANGES')
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
+
+        this.requestPreismeldungSave$ = this.toolbarButtonClicked$
+            .filter(x => x === 'PREISMELDUNG_SAVE')
+            .merge(cancelEditReponse$.filter(x => x.dialogCode === 'SAVE'))
+            .map(() => new Date());
 
         this.duplicatePreismeldung$
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.PreismeldungBag) => currentPreismeldung)

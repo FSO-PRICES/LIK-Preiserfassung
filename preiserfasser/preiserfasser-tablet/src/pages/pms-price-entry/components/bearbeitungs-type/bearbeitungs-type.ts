@@ -113,7 +113,6 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
-        // P.WarenkorbInfo
     }
 
     public standardBearbeitungsTypes: BearbeitungsType[] = [

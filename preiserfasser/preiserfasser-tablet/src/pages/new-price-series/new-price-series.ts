@@ -36,9 +36,10 @@ export class NewPriceSeriesPage implements OnDestroy {
 
         this.subscriptions.push(
             this.closeChooseFromWarenkorb$
-                .filter(x => !!x)
                 .subscribe(x => {
-                    this.store.dispatch({ type: 'NEW_PREISMELDUNG', payload: { warenkorbPosition: x.warenkorbPosition, bearbeitungscode: x.bearbeitungscode, pmsNummer: this.navParams.get('pmsNummer') } });
+                    if (!!x) {
+                        this.store.dispatch({ type: 'NEW_PREISMELDUNG', payload: { warenkorbPosition: x.warenkorbPosition, bearbeitungscode: x.bearbeitungscode, pmsNummer: this.navParams.get('pmsNummer') } });
+                    }
                     this.navController.setRoot(PmsPriceEntryPage, { pmsNummer: this.navParams.get('pmsNummer') });
                 })
         );

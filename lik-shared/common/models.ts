@@ -108,6 +108,7 @@ interface _PreismeldungProperties {
     menge?: string;
     preisVPNormalNeuerArtikel?: string;
     mengeVPNormalNeuerArtikel?: string;
+    fehlendePreiseR: string;
 
     aktion: boolean;
 

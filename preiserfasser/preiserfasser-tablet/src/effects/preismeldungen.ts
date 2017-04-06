@@ -44,6 +44,7 @@ export class PreismeldungenEffects {
                     menge: null,
                     preisVPNormalNeuerArtikel: null,
                     mengeVPNormalNeuerArtikel: null,
+                    fehlendePreiseR: '',
                     aktion: false,
                     artikelnummer: rpm.artikelnummer,
                     artikeltext: rpm.artikeltext,
@@ -164,6 +165,7 @@ export class PreismeldungenEffects {
             percentageVPNeuerArtikelToVPAlterArtikel: currentPreismeldung.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,
             preis: currentPreismeldung.preismeldung.preis,
             preisVPNormalNeuerArtikel: currentPreismeldung.preismeldung.preisVPNormalNeuerArtikel,
+            fehlendePreiseR: currentPreismeldung.preismeldung.fehlendePreiseR,
         };
     }
 }

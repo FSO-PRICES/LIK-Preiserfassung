@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, SimpleChange, ElementRef, In
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange } from 'lik-shared';
 
 import * as P from '../../../../common-models';
 
@@ -12,6 +12,7 @@ import * as P from '../../../../common-models';
 })
 export class PreismeldungInfoPopover extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
+    @Input() extraWidth: string;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
     public buttonClicked$ = new EventEmitter();
@@ -19,11 +20,14 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
     public popoverLeft$: Observable<string>;
     public popoverWidth$: Observable<string>;
     public popoverMaxHeight$: Observable<string>;
+    public comparisonContainerWidth$: Observable<number>;
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
 
     constructor(elementRef: ElementRef, private sanitizer: DomSanitizer, @Inject('windowObject') window: Window) {
         super();
+
+        this.comparisonContainerWidth$ = Observable.of(300);
 
         this.popoverActive$ = this.buttonClicked$
             .scan<boolean>((active: boolean, _) => !active, false)
@@ -33,7 +37,7 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
             .publishReplay(1).refCount();
 
         this.popoverWidth$ = recalcPopover$
-            .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px - ${this.pefRelativeSize(window.innerWidth, 1)})`);
+            .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px + ${this.extraWidth || '0px'} - 16px - ${this.pefRelativeSize(window.innerWidth, 1)})`);
 
         this.popoverLeft$ = recalcPopover$
             .map(() => `calc(${this.pefRelativeSize(window.innerWidth, 1)})`);
@@ -41,6 +45,8 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
         this.popoverMaxHeight$ = recalcPopover$
             .map(() => `calc(${elementRef.nativeElement.offsetParent.clientHeight}px - ${elementRef.nativeElement.offsetTop}px - ${elementRef.nativeElement.clientHeight}px - ${this.pefRelativeSize(window.innerWidth, 1)})`);
     }
+
+    formatPercentageChange = percentageChange => formatPercentageChange(percentageChange, 1);
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);

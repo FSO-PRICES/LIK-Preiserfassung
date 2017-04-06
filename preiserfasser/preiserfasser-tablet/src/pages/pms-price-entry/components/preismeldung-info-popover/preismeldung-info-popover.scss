@@ -15,11 +15,13 @@ preismeldung-info-popover {
 
     .info-popover {
         display: none;
+        align-items: center;
         box-shadow: $whiteframe-shadow-2dp;
         position: absolute;
         background-color: white;
         z-index: 100;
         width: 100%;
+        @include set-min-height(12.5);
         @include set-padding(1, 1, 1, 1);
     }
 
@@ -55,6 +57,18 @@ preismeldung-info-popover {
         }
     }
 
+    .info-popover-table-container {
+        flex: 1 1 100%;
+    }
 
+    .comparison-container {
+        flex: 1 0 auto;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .box-container {
+        flex: none;
+    }
 
 }

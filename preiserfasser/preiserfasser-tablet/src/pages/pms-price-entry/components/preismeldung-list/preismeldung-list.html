@@ -15,30 +15,32 @@
             </span>
         </div>
     </div>
-    <pef-virtual-scroll [items]="filteredPreismeldungen$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="isDesktop">
-        <ion-item
-            class="preismeldung-item"
-            *ngFor="let bag of viewPortItems"
-            (click)="selectClickedPreismeldung$.emit(bag)"
-            [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
-            tappable>
-            <div class="preismeldung-position-number">
-                {{ bag.preismeldung.epNummer }}<br/>&nbsp;
-            </div>
-            <div class="preismeldung-description">
-                <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
-                <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
-            </div>
-            <div class="preismeldung-status-todo" *ngIf="bag.preismeldung.percentageDPToLVP == null">
-                <pef-icon name="alarmclock_normal" svgCssClasses="green"></pef-icon>
-                <div class="status-bar"></div>
-            </div>
-            <div class="preismeldung-status-done" *ngIf="bag.preismeldung.percentageDPToLVP != null">
-                <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)"></div>
-                <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
-            </div>
-        </ion-item>
-    </pef-virtual-scroll>
+    <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
+        <ion-list [virtualScroll]="filteredPreismeldungen$ | async" [approxItemHeight]="'50px'">
+            <ion-item
+                *virtualItem="let bag"
+                class="preismeldung-item"
+                (click)="selectClickedPreismeldung$.emit(bag)"
+                [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
+                tappable>
+                <div class="preismeldung-position-number">
+                    {{ bag.preismeldung.epNummer }}<br/>&nbsp;
+                </div>
+                <div class="preismeldung-description">
+                    <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
+                    <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
+                </div>
+                <div class="preismeldung-status-todo" *ngIf="bag.preismeldung.percentageDPToLVP == null">
+                    <pef-icon name="alarmclock_normal" svgCssClasses="green"></pef-icon>
+                    <div class="status-bar"></div>
+                </div>
+                <div class="preismeldung-status-done" *ngIf="bag.preismeldung.percentageDPToLVP != null">
+                    <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)"></div>
+                    <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
+                </div>
+            </ion-item>
+        </ion-list>
+    </ion-content>
     <div class="preismeldung-list-footer">
         <div class="preismeldung-list-functions">
             <button ion-button icon-only color="wild-sand" [disabled]="true">

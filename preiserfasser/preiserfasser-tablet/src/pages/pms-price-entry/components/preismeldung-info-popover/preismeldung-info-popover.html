@@ -3,26 +3,34 @@
 </button>
 <div class="info-popover"
     *ngIf="!!(preismeldung$ | async)?.refPreismeldung"
-    [style.display]="(popoverActive$ | async) ? 'block' : 'none'"
+    [style.display]="(popoverActive$ | async) ? 'flex' : 'none'"
     [style.left]="sanitizer.bypassSecurityTrustStyle(popoverLeft$ | async)"
     [style.maxHeight]="sanitizer.bypassSecurityTrustStyle(popoverMaxHeight$ | async)"
     [style.width]="sanitizer.bypassSecurityTrustStyle(popoverWidth$ | async)">
-    <div class="info-popover-table">
-        <div class="info-popover-row">
-            <div class="info-popover-cell heading">
-                Preis for Reduktion
+    <div class="info-popover-table-container">
+        <div class="info-popover-table">
+            <div class="info-popover-row">
+                <div class="info-popover-cell heading">
+                    Preis for Reduktion
+                </div>
+                <div class="info-popover-cell value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
+                </div>
             </div>
-            <div class="info-popover-cell value">
-                {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
+            <div class="info-popover-row">
+                <div class="info-popover-cell heading">
+                    Menge for Reduktion
+                </div>
+                <div class="info-popover-cell value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
+                </div>
             </div>
         </div>
-        <div class="info-popover-row">
-            <div class="info-popover-cell heading">
-                Menge for Reduktion
-            </div>
-            <div class="info-popover-cell value">
-                {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
-            </div>
+    </div>
+    <div class="comparison-container" [style.minWidth]="'calc(' + extraWidth + ' - 32px)'">
+        <div class="box-container">
+            <div class="box" [innerHTML]="'TODO'"></div>
+            <div class="arrow right"></div>
         </div>
     </div>
 </div>
