@@ -39,32 +39,32 @@ export class PreiserheberInitializationEffects {
                 .combineAll<Promise<P.Preismeldung[]>, P.Preismeldung[][]>()
                 .flatMap(allProducts =>
                     getDatabase(dbNames.warenkorb)
-                        .then(
-                        warenkorbDb => warenkorbDb.get('warenkorb')
-                            .then(doc => assign({}, doc, { _rev: undefined }))
-                            .then(warenkorb =>
-                                getDatabase(getUserDatabaseName(preiserheber)).then(db => {
-                                    const erheber = Object.assign({}, preiserheber, { _id: 'erheber', _rev: undefined });
-                                    const products = allProducts.reduce((acc, x) => acc.concat(x), []);
-                                    return db.bulkDocs(<any>{
-                                        docs: [
-                                            erheber,
-                                            ...currentPreiszuweisung.preismeldestellen,
-                                            ...products,
-                                            warenkorb
-                                        ]
-                                    }).then(() => ({ preiserheber, preismeldestellen: currentPreiszuweisung.preismeldestellen }));
-                                })
-                            )
+                        .then(warenkorbDb =>
+                            warenkorbDb.get('warenkorb')
+                                .then(doc => assign({}, doc, { _rev: undefined }))
+                                .then(warenkorb =>
+                                    getDatabase(getUserDatabaseName(preiserheber)).then(db => {
+                                        const erheber = Object.assign({}, preiserheber, { _id: 'erheber', _rev: undefined });
+                                        const products = allProducts.reduce((acc, x) => acc.concat(x), []);
+                                        return db.bulkDocs(<any>{
+                                            docs: [
+                                                erheber,
+                                                ...currentPreiszuweisung.preismeldestellen,
+                                                ...products,
+                                                warenkorb
+                                            ]
+                                        });
+                                    })
+                                )
                         )
+                        .then(() => ({ preiserheber, currentPreiszuweisung }))
                 )
-                .map(() => ({ preiserheber, currentPreiszuweisung }))
         )
         .flatMap(({ preiserheber, currentPreiszuweisung }) =>
             putUserToDatabase(getUserDatabaseName(preiserheber), { members: { names: [preiserheber._id] } })
                 .map(() => currentPreiszuweisung)
         )
-        .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as  preiszuweisung.Action))
+        .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action))
     );
 }
 

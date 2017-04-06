@@ -4,7 +4,6 @@
         <div class="preismeldestelle-list-container container">
             <div class="header">
                 <h1 class="large">Preismeldestellen</h1>
-                <button *ngIf="!(isEditing$ | async)" ion-button type="button" end (click)="createPreismeldestelle$.emit($event)">Erstellen</button>
             </div>
             <preismeldestelle-list
                 [list]="preismeldestellen$ | async"

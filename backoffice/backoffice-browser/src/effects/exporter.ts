@@ -37,13 +37,12 @@ export class ExporterEffects {
     exportPreismeldungen$ = this.actions$
         .ofType('EXPORT_PREISMELDUNGEN')
         .map(({ payload }) => {
-            FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
             const content = toCsv(preparePmForExport(payload));
-            return { content, count: payload.length };
-        })
-        .map(({ content, count }) => {
+            const count = payload.length;
+
+            FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
             FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-to-presta.csv');
-            return count;
-        })
-        .map(count => ({ type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count } as exporter.Action));
+
+            return ({ type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count } as exporter.Action);
+        });
 }

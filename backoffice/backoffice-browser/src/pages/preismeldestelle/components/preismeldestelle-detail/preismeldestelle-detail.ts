@@ -29,7 +29,6 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     public regionen$: Observable<P.Region[]>;
     public saveClicked$ = new EventEmitter<Event>();
 
-    public isEditing$: Observable<boolean>;
     public showValidationHints$: Observable<boolean>;
 
     private subscriptions: Subscription[];
@@ -78,10 +77,6 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(distinctPreismeldestelle$.mapTo(false));
-
-        this.isEditing$ = this.preismeldestelle$
-            .map((x: CurrentPreismeldestelle) => !!x && !x.isNew)
-            .publishReplay(1).refCount();
 
         this.subscriptions = [
             distinctPreismeldestelle$

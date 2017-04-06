@@ -9,7 +9,6 @@ import * as region from '../actions/region';
 import { getDatabase, dbNames } from './pouchdb-utils';
 import { CurrentRegion } from '../reducers/region';
 import { loggedIn } from '../common/effects-extensions';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class RegionEffects {
@@ -33,25 +32,24 @@ export class RegionEffects {
     saveRegion$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_REGION'), saveRegion => saveRegion
         .withLatestFrom(this.currentRegion$, (action, currentRegion: CurrentRegion) => currentRegion)
         .switchMap(currentRegion =>
-            Observable.fromPromise(
-                getDatabase(dbNames.region)
-                .then(db => { // Only check if the document exists if a revision not already exists
+            getDatabase(dbNames.region)
+                .then(db => { // Only check if the document exists if a revision already exists
                     if (!!currentRegion._rev) {
                         return db.get(currentRegion._id).then(doc => ({ db, doc }));
                     }
-                    return new Promise<{ db, doc }>((resolve, _) => resolve({ db, doc: {} }));
+                    return Promise.resolve({ db, doc: {} });
                 })
                 .then(({ db, doc }) => { // Create or update the region
                     const create = !doc._rev;
-                    const dbOperation = (create ? db.post : db.put).bind(db);
-                    return dbOperation(Object.assign({}, doc, <P.Region>{
+                    const region = Object.assign({}, doc, <P.Region>{
                         _id: !create ? currentRegion._id : undefined,
                         _rev: currentRegion._rev,
                         name: currentRegion.name
-                    })).then((response) => ({ db, id: response.id, created: create }));
+                    });
+                    return (create ? db.post(region) : db.put(region))
+                        .then((response) => ({ db, id: response.id }));
                 })
-                .then<CurrentRegion>(({ db, id, created }) => db.get(id).then(region => Object.assign({}, region, { isModified: false, isSaved: true, isCreated: created })))
-            )
+                .then<CurrentRegion>(({ db, id }) => db.get(id))
         )
         .map(payload => ({ type: 'SAVE_REGION_SUCCESS', payload } as region.Action))
     );

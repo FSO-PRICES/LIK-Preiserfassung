@@ -31,18 +31,16 @@ export class PreiserheberEffects {
     savePreiserheber$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISERHEBER'), savePreiserheber => savePreiserheber
         .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ password: action.payload, currentPreiserheber }))
         .switchMap(({ password, currentPreiserheber }) =>
-            Observable.fromPromise(
-                getDatabase(dbNames.preiserheber)
-                .then(db => { // Only check if the document exists if a revision not already exists
+            getDatabase(dbNames.preiserheber)
+                .then(db => { // Only check if the document exists if a revision already exists
                     if (!!currentPreiserheber._rev) {
                         return db.get(currentPreiserheber._id).then(doc => ({ db, doc }));
                     }
-                    return new Promise<{ db, doc }>((resolve, _) => resolve({ db, doc: {} }));
+                    return Promise.resolve({ db, doc: {} });
                 })
                 .then(({ db, doc }) => { // Create or update the erheber
                     const create = !doc._rev;
-                    const dbOperation = (create ? db.post : db.put).bind(db);
-                    return dbOperation(Object.assign({}, doc, {
+                    const preiserheber = Object.assign({}, doc, {
                         _id: currentPreiserheber._id,
                         _rev: currentPreiserheber._rev,
                         firstName: currentPreiserheber.firstName,
@@ -51,13 +49,14 @@ export class PreiserheberEffects {
                         languageCode: currentPreiserheber.languageCode,
                         telephone: currentPreiserheber.telephone,
                         email: currentPreiserheber.email
-                    })).then((response) => ({ db, id: response.id, created: create }));
+                    });
+                    return (create ? db.post(preiserheber) : db.put(preiserheber))
+                        .then((response) => ({ db, id: response.id, created: create }));
                 })
                 // Reload the created erheber
-                .then<CurrentPreiserheber>(({ db, id, created }) => db.get(id).then(preiserheber => Object.assign({}, preiserheber, { isModified: false, isSaved: true, isCreated: created })))
+                .then(({ db, id, created }) => db.get(id).then(preiserheber => ({ preiserheber, created })))
                 // Initialize a database for created erheber
-                .then<CurrentPreiserheber>(erheber => (erheber.isCreated ? createUser(erheber._id, password) : Promise.resolve(null)).then(() => erheber))
-            )
+                .then<CurrentPreiserheber>(({ preiserheber, created }) => (created ? createUser(preiserheber._id, password) : Promise.resolve(null)).then(() => preiserheber))
         )
         .map(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload } as preiserheber.Action))
     );

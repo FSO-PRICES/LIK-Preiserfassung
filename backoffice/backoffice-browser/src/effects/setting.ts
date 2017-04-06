@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
 
 import { Models as P } from 'lik-shared';
 
@@ -24,34 +23,33 @@ export class SettingEffects {
         .ofType('SETTING_LOAD')
         .switchMap(() => getSettings())
         .map(docs => !!docs ?
-                { type: 'SETTING_LOAD_SUCCESS', payload: docs } as setting.Action :
-                { type: 'SETTING_LOAD_FAIL' } as setting.Action
+            { type: 'SETTING_LOAD_SUCCESS', payload: docs } as setting.Action :
+            { type: 'SETTING_LOAD_FAIL' } as setting.Action
         );
 
     @Effect()
     saveSetting$ = this.actions$
         .ofType('SAVE_SETTING')
         .withLatestFrom(this.currentSetting$, (action, currentSetting: CurrentSetting) => ({ currentSetting }))
-        .switchMap(({ currentSetting }) =>
-            Observable.fromPromise(
-                getLocalDatabase(dbNames.setting)
-                .then(db => { // Only check if the document exists if a revision not already exists
+        .flatMap(({ currentSetting }) =>
+            getLocalDatabase(dbNames.setting)
+                .then(db => { // Only check if the document exists if a revision already exists
                     if (!!currentSetting._rev) {
                         return db.get(currentSetting._id).then(doc => ({ db, doc }));
                     }
-                    return new Promise<{ db, doc }>((resolve, _) => resolve({ db, doc: {} }));
+                    return Promise.resolve({ db, doc: {} });
                 })
-                .then(({ db, doc }) => { // Create or update the preismeldestelle
+                .then(({ db, doc }) => { // Create or update the setting
                     const create = !doc._rev;
-                    const dbOperation = (create ? db.post : db.put).bind(db);
-                    return dbOperation(Object.assign({}, doc, <P.Setting>{
+                    const setting = Object.assign({}, doc, <P.Setting>{
                         _id: currentSetting._id,
                         _rev: currentSetting._rev,
                         serverConnection: currentSetting.serverConnection
-                    })).then((response) => ({ db, id: response.id }));
+                    });
+                    return (create ? db.post(setting) : db.put(setting))
+                        .then((response) => ({ db, id: response.id }));
                 })
                 .then<CurrentSetting>(({ db, id }) => db.get(id).then(setting => Object.assign({}, setting, { isModified: false, isSaved: true })))
-            )
         )
         .map(payload => ({ type: 'SAVE_SETTING_SUCCESS', payload } as setting.Action));
 }

@@ -96,7 +96,7 @@ export function reducer(state = initialState, action: preismeldung.Action): Stat
         }
 
         case 'SAVE_PREISMELDUNG_SUCCESS': {
-            const currentPreismeldung = Object.assign({}, state.currentPreismeldung, action.payload);
+            const currentPreismeldung = Object.assign({}, state.currentPreismeldung, action.payload, { isModified: false, isSaved: true });
             const preismeldungIds = !!state.preismeldungIds.find(x => x === currentPreismeldung._id) ? state.preismeldungIds : [...state.preismeldungIds, currentPreismeldung._id];
             const currentBag = cloneDeep(state.entities[currentPreismeldung._id]);
             currentBag.preismeldung = currentPreismeldung;

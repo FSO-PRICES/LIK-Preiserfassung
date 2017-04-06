@@ -5,6 +5,7 @@ import * as pouchDbAuthentication from 'pouchdb-authentication';
 import { Observable } from 'rxjs';
 import { first } from 'lodash';
 import * as xhr from 'xhr';
+import 'rxjs/add/observable/dom/ajax';
 
 import { Models as P } from 'lik-shared';
 
@@ -35,19 +36,18 @@ export function putAdminUserToDatabase(dbName, username: string) {
 }
 
 export function putUserToDatabase(dbName, users: P.CouchSecurity) {
-    const put$ = Observable.bindNodeCallback<string, any, XMLHttpRequest>(xhr.put);
     return Observable.fromPromise(
-        getSettings().then(settings => {
-            return put$(`${settings.serverConnection.url}${dbName}/_security`, {
-                body: users,
-                json: true,
-                withCredentials: true,
-                headers: {
-                    // TODO: Add cookie authentication
-                    'Content-Type': 'application/json'
-                }
-            });
-        }).catch(err => Observable.from([]))
+        getSettings().then(settings => Observable.ajax({
+            url: `${settings.serverConnection.url}/${dbName}/_security`,
+            body: users,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            crossDomain: true,
+            withCredentials: true,
+            responseType: 'json',
+            method: 'PUT'
+        }))
     ).flatMap(x => x);
 }
 

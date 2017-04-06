@@ -5,7 +5,7 @@
             class="pef-advanced-item"
             *ngFor="let preiserheber of viewPortItems"
             (click)="selectPreiserheber$.emit(preiserheber._id)"
-            [class.selected]="preiserheber._id == (current$ | async)?._id"
+            [class.selected]="preiserheber._rev == (current$ | async)?._rev"
             tappable>
             <div class="pef-item-description">
                 <span class="text">{{ preiserheber.firstName }} {{preiserheber.surname}}</span>
