@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ViewController, NavController } from 'ionic-angular';
+
 import { SettingsPage } from '../settings/settings';
 
 // TODO: integrate method with other dialogs / modals
@@ -14,10 +15,10 @@ export class LoginModal {
     constructor(public viewCtrl: ViewController, public navController: NavController) { }
 
     login() {
-        this.viewCtrl.dismiss({ username: this.username, password: this.password });
+        this.viewCtrl.dismiss({ username: this.username, password: this.password, navigateTo: null });
     }
 
-    navigateToSettingsPage() {
-        this.navController.push(SettingsPage);
+    navigateToSettings() {
+        this.viewCtrl.dismiss({ username: null, password: null, navigateTo: SettingsPage });
     }
 }

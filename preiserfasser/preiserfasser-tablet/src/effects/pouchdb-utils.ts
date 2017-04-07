@@ -2,6 +2,7 @@ import * as bluebird from 'bluebird';
 import * as PouchDB from 'pouchdb';
 import * as PouchDBAllDbs from 'pouchdb-all-dbs';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
+import { Observable } from 'rxjs';
 
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
@@ -18,7 +19,7 @@ export function getDatabase(): Promise<PouchDB.Database<PouchDB.Core.Encodable>>
         .then(exists => {
             if (!exists) throw new Error(`Database 'lik' does not exist`);
             return new PouchDB(DB_NAME);
-        })
+        });
 }
 
 export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWithinRangeOptions {
@@ -30,15 +31,24 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
 
 export const checkIfDatabaseExists = () => _checkIfDatabaseExists(DB_NAME);
 
+export function checkConnectivity(url) {
+    return Observable.ajax({
+        url,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        crossDomain: true,
+        withCredentials: true,
+        responseType: 'json',
+        method: 'GET',
+        timeout: 1000
+    })
+        .map(resp => resp.response['version'] === '1.6.1');
+}
+
 export function dropDatabase() {
-    return _checkIfDatabaseExists(DB_NAME)
-        .then(exists => {
-            if (exists) {
-                const db = new PouchDB(DB_NAME);
-                return db.destroy().then(() => { });
-            }
-            return Promise.resolve({});
-        });
+    const db = new PouchDB(DB_NAME);
+    return db.destroy().then(() => { }); // It is not necessary to check if the database exists
 }
 
 export function dropAndSyncDatabase(data: { url: string, username: string, password: string }) {

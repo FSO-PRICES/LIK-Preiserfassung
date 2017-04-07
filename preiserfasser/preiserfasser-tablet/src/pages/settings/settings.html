@@ -20,6 +20,7 @@
             <ion-list formGroupName="serverConnection">
                 <ion-item class="pef-item on-dark">
                     <ion-input type="text" formControlName="url"></ion-input>
+                    <pef-icon item-right name="home" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
                 </ion-item>
             </ion-list>
             <div class="actions">

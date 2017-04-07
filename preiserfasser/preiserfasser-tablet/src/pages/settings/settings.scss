@@ -60,6 +60,14 @@ settings-page {
             display: flex;
             flex-direction: column;
         }
+
+        pef-icon.connectivity {
+            margin: 0 0 0 0.5em;
+            fill: $emerald;
+            &.error {
+                fill: $alizarin-crimson;
+            }
+        }
     }
 
     .danger-zone {

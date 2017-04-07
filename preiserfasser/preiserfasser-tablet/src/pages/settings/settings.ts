@@ -8,6 +8,9 @@ import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
 import { DashboardPage } from '../dashboard/dashboard';
 
+import { Actions as DatabaseAction } from '../../actions/database';
+import { Action as SettingsAction } from '../../actions/setting';
+
 @Component({
     selector: 'settings-page',
     templateUrl: 'settings.html'
@@ -18,6 +21,7 @@ export class SettingsPage implements OnDestroy {
     public deleteAllClicked$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
+    public canConnectToDatabase$: Observable<boolean>;
     public currentSettings$: Observable<CurrentSetting>;
     public canLeave$: Observable<boolean>;
 
@@ -32,6 +36,9 @@ export class SettingsPage implements OnDestroy {
         private formBuilder: FormBuilder
     ) {
         this.currentSettings$ = store.select(fromRoot.getCurrentSettings)
+            .publishReplay(1).refCount();
+
+        this.canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase)
             .publishReplay(1).refCount();
 
         this.canLeave$ = this.currentSettings$
@@ -50,47 +57,42 @@ export class SettingsPage implements OnDestroy {
             .map(() => this.form.value);
 
         const distinctSetting$ = this.currentSettings$
-            .filter(x => !!x)
+            .filter(x => !!x && !x.isDefault)
             .distinctUntilKeyChanged('isModified')
             .publishReplay(1).refCount();
 
         const canSave$ = this.saveClicked$
-            .map(x => ({ isValid: this.form.valid }))
+            .map(() => ({ isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
-        const save$ = canSave$.filter(x => x.isValid)
+        const save$ = canSave$
+            .filter(x => x.isValid)
             .publishReplay(1).refCount()
             .withLatestFrom(this.saveClicked$);
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(distinctSetting$.mapTo(false));
 
-        const databaseExists$ = this.store.map(x => x.database)
-            .map(x => x.databaseExists)
-            .filter(exists => exists !== null)
-            .publishReplay(1).refCount();
-
         this.subscriptions = [
             this.cancelClicked$.subscribe(() => this.navCtrl.canGoBack() ? this.navCtrl.pop() : this.navCtrl.setRoot(DashboardPage)),
 
             this.deleteAllClicked$.subscribe(() => {
-                this.presentLoadingScreen('Lösche lokale Daten. Bitte warten...').then(() => this.store.dispatch({ type: 'DELETE_DATABASE' }));
+                this.store.dispatch({ type: 'DELETE_DATABASE' } as DatabaseAction);
             }),
 
-            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTINGS', payload: x })),
+            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTINGS', payload: x } as SettingsAction)),
 
             save$.subscribe(password => {
                 this.presentLoadingScreen();
-                store.dispatch({ type: 'SAVE_SETTINGS' });
+                store.dispatch({ type: 'SAVE_SETTINGS' } as SettingsAction);
             }),
 
-            databaseExists$
-                .filter(exists => !exists)
-                .subscribe(() => this.dismissLoadingScreen()),
-
-            this.currentSettings$
+            distinctSetting$
                 .filter(pe => pe != null && pe.isSaved)
-                .subscribe(() => this.dismissLoadingScreen()),
+                .subscribe(() => {
+                    this.dismissLoadingScreen();
+                    this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction);
+                }),
 
             distinctSetting$
                 .filter(settings => !!settings.serverConnection)
@@ -106,7 +108,8 @@ export class SettingsPage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
-        this.store.dispatch({ type: 'LOAD_SETTINGS' });
+        this.store.dispatch({ type: 'LOAD_SETTINGS' } as SettingsAction);
+        this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction);
     }
 
     public ionViewCanLeave() {

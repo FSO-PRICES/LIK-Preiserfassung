@@ -12,12 +12,19 @@ export type State = WarenkorbInfo[];
 const initialState: State = [];
 
 type Actions =
-    { type: 'LOAD_WARENKORB_SUCCESS', payload: P.Models.WarenkorbTreeItem[] };
+    { type: 'LOAD_WARENKORB_SUCCESS', payload: P.Models.WarenkorbTreeItem[] } |
+    { type: 'LOAD_WARENKORB_FAIL', payload: null } |
+    { type: 'WARENKORB_RESET', payload: null };
 
 export function reducer(state = initialState, action: Actions): State {
     switch (action.type) {
         case 'LOAD_WARENKORB_SUCCESS': {
             return sortAndTransformWarenkorb(action.payload);
+        }
+
+        case 'LOAD_WARENKORB_FAIL':
+        case 'WARENKORB_RESET': {
+            return initialState;
         }
 
         default:

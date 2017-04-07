@@ -1,9 +1,6 @@
 <form>
     <div class="header">
         <h3>Konto</h3>
-        <a href="javascript:" (click)="navigateToSettingsPage()">
-            <pef-icon name="settings-colored"></pef-icon>
-        </a>
     </div>
     <ion-list>
         <ion-item>
@@ -19,5 +16,11 @@
             <ion-input type="password"></ion-input>
         </ion-item>
     </ion-list>
-    <button ion-button type="submit" (click)="login()">Login</button>
+    <div class="actions">
+        <a (click)="navigateToSettings()" href="javascript:">
+            <pef-icon name="settings"></pef-icon>
+            {{'a_navigate-to-settings' | translate}}
+        </a>
+        <button ion-button type="submit" (click)="login()">Login</button>
+    </div>
 </form>

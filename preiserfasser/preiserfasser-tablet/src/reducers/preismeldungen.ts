@@ -64,6 +64,9 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             return assign({}, state, { pmsNummer: action.payload.pms.pmsNummer, preismeldungIds, entities, currentPreismeldung: null });
         }
 
+        case 'PREISMELDUNGEN_RESET':
+            return assign({}, initialState);
+
         case 'SELECT_PREISMELDUNG': {
             const currentPreismeldung = Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isNew: false });
             return assign({}, state, { currentPreismeldung });

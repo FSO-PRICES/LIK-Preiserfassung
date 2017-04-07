@@ -27,6 +27,8 @@
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
 
+    "a_navigate-to-settings": "Einstellungen bearbeiten",
+
     "validation_firstName_required": "Bitte erfassen Sie den Vorname der 1. Kontaktperson.",
     "validation_surname_required": "Bitte erfassen Sie den Name der 1. Kontaktperson.",
     "validation_personFunction_required": "Bitte erfassen Sie die Funktion der 1. Kontaktperson."

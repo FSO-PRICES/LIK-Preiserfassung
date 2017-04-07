@@ -3,16 +3,25 @@ import * as appConfig from '../actions/database';
 export interface State {
     databaseExists?: boolean;
     isDatabaseSyncing: boolean;
+    canConnectToDatabase: boolean;
 }
 
 const initialState: State = {
     databaseExists: null,
-    isDatabaseSyncing: false
+    isDatabaseSyncing: false,
+    canConnectToDatabase: false
 };
 
 export function reducer(state = initialState, action: appConfig.Actions): State {
     switch (action.type) {
+        case 'CHECK_CONNECTIVITY_TO_DATABASE':
+            return Object.assign({}, state, { canConnectToDatabase: null });
+
+        case 'SET_CONNECTIVITY_STATUS':
+            return Object.assign({}, state, { canConnectToDatabase: action.payload });
+
         case 'DATABASE_SYNC':
+        case 'CHECK_DATABASE_EXISTS':
             return Object.assign({}, state, { databaseExists: null });
 
         case 'SET_DATABASE_EXISTS':

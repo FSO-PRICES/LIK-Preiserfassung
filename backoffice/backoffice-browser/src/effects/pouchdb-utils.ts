@@ -5,7 +5,6 @@ import * as pouchDbAuthentication from 'pouchdb-authentication';
 import { Observable } from 'rxjs';
 import { first } from 'lodash';
 import * as xhr from 'xhr';
-import 'rxjs/add/observable/dom/ajax';
 
 import { Models as P } from 'lik-shared';
 

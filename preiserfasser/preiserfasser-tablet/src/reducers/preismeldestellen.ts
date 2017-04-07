@@ -28,6 +28,8 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
             }, {});
             return assign({}, state, { pmsNummers, entities });
         }
+        case 'PREISMELDESTELLEN_RESET':
+            return assign({}, initialState);
 
         case 'PREISMELDUNGEN_LOAD_SUCCESS':
             return assign({}, state, { currentPreismeldestelle: action.payload.pms });

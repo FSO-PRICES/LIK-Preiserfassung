@@ -15,7 +15,7 @@ import { PmsDetailsPage } from '../pms-details/pms-details';
 import { PmsPriceEntryPage } from '../pms-price-entry';
 import { SettingsPage } from '../settings/settings';
 
-import { pefSearch } from 'lik-shared';
+import { pefSearch, PefDialogService } from 'lik-shared';
 
 @Component({
     selector: 'dashboard',
@@ -36,19 +36,15 @@ export class DashboardPage implements OnDestroy {
 
     private subscriptions: Subscription[];
     private loader: Loading;
-    private loginModal: Modal;
 
     constructor(
         private navCtrl: NavController,
+        private pefDialogService: PefDialogService,
         private loadingCtrl: LoadingController,
         private modalCtrl: ModalController,
         private store: Store<fromRoot.AppState>
     ) {
         this.settingsClicked.subscribe(() => this.navigateToSettings());
-
-        const loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
-        });
 
         const settings$ = this.store.select(fromRoot.getSettings);
 
@@ -56,6 +52,13 @@ export class DashboardPage implements OnDestroy {
             .map(x => x.databaseExists)
             .distinctUntilChanged()
             .filter(exists => exists !== null)
+            .publishReplay(1).refCount();
+
+        const loginDialogDismiss$ = databaseExists$
+            .withLatestFrom(settings$, (databaseExists, settings) => databaseExists || settings.isDefault) // Do not try to login if settings are not set yet
+            .filter(x => !x)
+            .flatMap(() => pefDialogService.displayModal(LoginModal))
+            .filter(x => x.data !== null)
             .publishReplay(1).refCount();
 
         // databaseExists$
@@ -67,20 +70,16 @@ export class DashboardPage implements OnDestroy {
         //     });
 
         this.subscriptions = [
-            databaseExists$
-                .withLatestFrom(settings$, (databaseExists, settings) => databaseExists || settings.isDefault) // Do not try to login if settings are not set yet
-                .filter(x => !x)
-                .flatMap(() =>
-                    Observable.fromPromise(this.presentLoginDialog())
-                        .switchMap(() =>
-                            Observable.bindCallback(cb => this.loginModal.onWillDismiss(cb))()
-                                .map(([data, role]) => ({ data, role }))
-                        )
-                )
+            loginDialogDismiss$ // In case of login data entered
+                .filter(x => x.data.username !== null)
                 .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
                 .subscribe(payload => {
                     this.presentLoadingScreen().then(() => this.store.dispatch({ type: 'DATABASE_SYNC', payload }));
                 }),
+
+            loginDialogDismiss$ // In case of navigate to was set
+                .filter(x => !!x.data.navigateTo)
+                .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo)),
 
             store.select(fromRoot.getPreismeldestellen)
                 .filter(x => x != null)
@@ -91,14 +90,6 @@ export class DashboardPage implements OnDestroy {
 
     public ngOnDestroy() {
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
-    }
-
-    private presentLoginDialog() {
-        this.loginModal = this.modalCtrl.create(LoginModal, null, { enableBackdropDismiss: false });
-
-        return this.loginModal.present().catch(error => {
-            if (error !== false) throw (error);
-        });
     }
 
     private presentLoadingScreen() {

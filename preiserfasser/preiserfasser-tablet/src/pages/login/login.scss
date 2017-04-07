@@ -23,9 +23,15 @@ login-modal.ion-page {
     .header {
         display: flex;
         h3 { flex: 1; }
+    }
+
+    .actions {
         a {
-            flex: 0;
-            fill: $outer-space;
+            flex: 1;
+
+            pef-icon {
+                margin: -0.5em 0;
+            }
         }
     }
 }
