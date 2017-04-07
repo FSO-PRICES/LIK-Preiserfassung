@@ -1,8 +1,11 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { TranslateService } from 'ng2-translate';
 import { Store } from '@ngrx/store';
-import { Loading, LoadingController, NavController } from 'ionic-angular';
+import { NavController } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
+
+import { PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
@@ -24,27 +27,32 @@ export class SettingsPage implements OnDestroy {
     public canConnectToDatabase$: Observable<boolean>;
     public currentSettings$: Observable<CurrentSetting>;
     public canLeave$: Observable<boolean>;
+    public allowToSave$: Observable<boolean>;
 
     public form: FormGroup;
     private subscriptions: Subscription[];
-    private loader: Loading;
 
     constructor(
         private navCtrl: NavController,
         private store: Store<fromRoot.AppState>,
-        private loadingCtrl: LoadingController,
+        private pefDialogService: PefDialogService,
+        private translateService: TranslateService,
         private formBuilder: FormBuilder
     ) {
-        this.currentSettings$ = store.select(fromRoot.getCurrentSettings)
-            .publishReplay(1).refCount();
+        this.currentSettings$ = store.select(fromRoot.getCurrentSettings);
 
         this.canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase)
             .publishReplay(1).refCount();
+
+        const loadingText$ = translateService.get('text_saving-settings');
 
         this.canLeave$ = this.currentSettings$
             .map(x => !!x && !x.isDefault)
             .startWith(false)
             .publishReplay(1).refCount();
+
+        this.allowToSave$ = this.currentSettings$
+            .map(x => !!x && x.isModified && !x.isSaved);
 
         this.form = formBuilder.group({
             _id: [null],
@@ -70,11 +78,14 @@ export class SettingsPage implements OnDestroy {
             .publishReplay(1).refCount()
             .withLatestFrom(this.saveClicked$);
 
+        const settingsSaved$ = this.currentSettings$
+            .filter(x => x != null && x.isSaved);
+
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(distinctSetting$.mapTo(false));
 
         this.subscriptions = [
-            this.cancelClicked$.subscribe(() => this.navCtrl.canGoBack() ? this.navCtrl.pop() : this.navCtrl.setRoot(DashboardPage)),
+            this.cancelClicked$.subscribe(() => this.navCtrl.setRoot(DashboardPage)),
 
             this.deleteAllClicked$.subscribe(() => {
                 this.store.dispatch({ type: 'DELETE_DATABASE' } as DatabaseAction);
@@ -82,15 +93,15 @@ export class SettingsPage implements OnDestroy {
 
             update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTINGS', payload: x } as SettingsAction)),
 
-            save$.subscribe(password => {
-                this.presentLoadingScreen();
-                store.dispatch({ type: 'SAVE_SETTINGS' } as SettingsAction);
-            }),
-
-            distinctSetting$
-                .filter(pe => pe != null && pe.isSaved)
+            save$
+                .withLatestFrom(loadingText$, (_, loadingText) => loadingText)
+                .flatMap(loadingText => this.pefDialogService.displayLoading(loadingText, settingsSaved$))
                 .subscribe(() => {
-                    this.dismissLoadingScreen();
+                    store.dispatch({ type: 'SAVE_SETTINGS' } as SettingsAction);
+                }),
+
+            settingsSaved$
+                .subscribe(() => {
                     this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction);
                 }),
 
@@ -119,25 +130,5 @@ export class SettingsPage implements OnDestroy {
     public ngOnDestroy() {
         if (!this.subscriptions || this.subscriptions.length === 0) return;
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
-    }
-
-    private presentLoadingScreen(message = 'Datensynchronisierung. Bitte warten...') {
-        this.dismissLoadingScreen();
-
-        this.loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
-        });
-
-        return this.loader.present();
-    }
-
-    private dismissLoadingScreen() {
-        if (!!this.loader) {
-            this.loader.dismiss().catch(error => {
-                if (error !== false) {
-                    throw (error);
-                }
-            });
-        }
     }
 }

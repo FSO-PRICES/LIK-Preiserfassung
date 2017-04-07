@@ -26,8 +26,13 @@ login-modal.ion-page {
     }
 
     .actions {
+        display: flex;
+        justify-content: space-between;
+
         a {
-            flex: 1;
+            flex: 0;
+            white-space: nowrap;
+            align-self: center;
 
             pef-icon {
                 margin: -0.5em 0;

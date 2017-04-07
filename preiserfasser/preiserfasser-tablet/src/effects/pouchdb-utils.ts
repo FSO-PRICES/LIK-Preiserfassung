@@ -48,7 +48,7 @@ export function checkConnectivity(url) {
 
 export function dropDatabase() {
     const db = new PouchDB(DB_NAME);
-    return db.destroy().then(() => { }); // It is not necessary to check if the database exists
+    return db.destroy().then(() => { }).catch(() => { }); // Always try to delete, because the checkIfDatabaseExists could return a false negative
 }
 
 export function dropAndSyncDatabase(data: { url: string, username: string, password: string }) {

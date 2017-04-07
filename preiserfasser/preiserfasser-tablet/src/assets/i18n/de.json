@@ -16,6 +16,9 @@
     "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
 
+    "text_synchronizing-data": "Datensynchronisierung. Bitte warten...",
+    "text_saving-settings": "Einstellungen werden gespeichert. Bitte warten...",
+
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",
     "heading_pms-details": "Daten zur Preismeldestelle",

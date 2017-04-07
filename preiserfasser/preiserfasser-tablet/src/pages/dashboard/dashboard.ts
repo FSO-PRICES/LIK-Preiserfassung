@@ -1,14 +1,15 @@
 import { Store } from '@ngrx/store';
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { LoadingController, NavController, ModalController, Modal, Loading } from 'ionic-angular';
-import { LoginModal } from '../login/login';
-import { Observable, Subscription } from 'rxjs';
+import { NavController } from 'ionic-angular';
+import { TranslateService } from 'ng2-translate';
+import { Subscription } from 'rxjs';
 import { assign } from 'lodash';
 
 import { format } from 'date-fns';
 import * as deLocale from 'date-fns/locale/de';
 // import * as frLocale from 'date-fns/locale/fr';
 
+import { LoginModal } from '../login/login';
 import * as fromRoot from '../../reducers';
 import * as P from '../../common-models';
 import { PmsDetailsPage } from '../pms-details/pms-details';
@@ -35,18 +36,18 @@ export class DashboardPage implements OnDestroy {
             (preismeldestellen, filterText) => pefSearch(filterText, preismeldestellen, [pms => pms.name]));
 
     private subscriptions: Subscription[];
-    private loader: Loading;
 
     constructor(
         private navCtrl: NavController,
         private pefDialogService: PefDialogService,
-        private loadingCtrl: LoadingController,
-        private modalCtrl: ModalController,
+        private translateService: TranslateService,
         private store: Store<fromRoot.AppState>
     ) {
         this.settingsClicked.subscribe(() => this.navigateToSettings());
 
         const settings$ = this.store.select(fromRoot.getSettings);
+
+        const loadingText$ = translateService.get('text_synchronizing-data');
 
         const databaseExists$ = this.store.map(x => x.database)
             .map(x => x.databaseExists)
@@ -69,48 +70,30 @@ export class DashboardPage implements OnDestroy {
         //         loader.dismiss();
         //     });
 
+        const dismissLoading$ = store.select(fromRoot.getPreismeldestellen)
+            .filter(x => x != null && x.length !== 0)
+            .merge(databaseExists$
+                .skip(1) // Skip the first value because it is republished, we wait for a new one
+                .filter(exists => exists === false)
+            );
+
         this.subscriptions = [
             loginDialogDismiss$ // In case of login data entered
                 .filter(x => x.data.username !== null)
-                .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
-                .subscribe(payload => {
-                    this.presentLoadingScreen().then(() => this.store.dispatch({ type: 'DATABASE_SYNC', payload }));
-                }),
+                .withLatestFrom(settings$, loadingText$, (x, settings, loadingText) =>
+                    ({ loadingText, payload: assign({}, x.data, { url: settings.serverConnection.url }) })
+                )
+                .flatMap(({ loadingText, payload }) => pefDialogService.displayLoading(loadingText, dismissLoading$).map(() => payload))
+                .subscribe(payload => this.store.dispatch({ type: 'DATABASE_SYNC', payload })),
 
             loginDialogDismiss$ // In case of navigate to was set
                 .filter(x => !!x.data.navigateTo)
-                .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo)),
-
-            store.select(fromRoot.getPreismeldestellen)
-                .filter(x => x != null)
-                .merge(databaseExists$.filter(exists => !exists))
-                .subscribe(() => this.dismissLoadingScreen())
+                .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo))
         ];
     }
 
     public ngOnDestroy() {
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
-    }
-
-    private presentLoadingScreen() {
-        return this.dismissLoadingScreen().then(() => {
-            this.loader = this.loadingCtrl.create({
-                content: 'Datensynchronisierung. Bitte warten...'
-            });
-
-            return this.loader.present().catch(error => {
-                if (error !== false) throw (error);
-            });
-        });
-    }
-
-    private dismissLoadingScreen() {
-        if (!!this.loader) {
-            return this.loader.dismiss().catch(error => {
-                if (error !== false) throw (error);
-            });
-        }
-        return Promise.resolve(true);
     }
 
     navigateToDetails(pms: P.Models.Preismeldestelle) {

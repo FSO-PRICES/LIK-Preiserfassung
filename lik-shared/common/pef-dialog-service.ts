@@ -1,5 +1,5 @@
 import { Component, Injectable } from '@angular/core';
-import { PopoverController, ModalController } from 'ionic-angular';
+import { PopoverController, ModalController, LoadingController } from 'ionic-angular';
 import { Observable } from 'rxjs';
 
 export interface DialogOptions {
@@ -16,7 +16,7 @@ const defaultOptions: DialogOptions = {
 
 @Injectable()
 export class PefDialogService {
-    constructor(private popoverController: PopoverController, private modalController: ModalController) { }
+    constructor(private popoverController: PopoverController, private modalController: ModalController, private loadingController: LoadingController) { }
 
     displayDialog(dialogComponent: Component, params: any, enableBackdropDismiss = false, requestDismiss$: Observable<{}> = null) {
         const dialog = this.popoverController.create(dialogComponent, { params }, { enableBackdropDismiss });
@@ -36,5 +36,15 @@ export class PefDialogService {
         }
         return Observable.bindCallback(cb => dialog.onWillDismiss(cb))()
             .map(([data, role]) => ({ data, role }));
+    }
+
+    displayLoading(text: string, options: DialogOptions = defaultOptions) {
+        const loader = this.loadingController.create({
+            content: text
+        });
+        if (options.requestDismiss$ !== null) {
+            options.requestDismiss$.take(1).subscribe(() => loader.dismiss());
+        }
+        return Observable.fromPromise(loader.present());
     }
 }
