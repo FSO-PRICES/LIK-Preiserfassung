@@ -71,7 +71,7 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
         }
 
         case 'SAVE_PREISMELDESTELLE_SUCCESS': {
-            const currentPreismeldestelle = Object.assign({}, state.currentPreismeldestelle, action.payload, { isSaved: true });
+            const currentPreismeldestelle = Object.assign({}, state.currentPreismeldestelle, action.payload, { isSaved: true, isModified: false });
             const preismeldestelleIds = !!state.preismeldestelleIds.find(x => x === currentPreismeldestelle._id) ? state.preismeldestelleIds : [...state.preismeldestelleIds, currentPreismeldestelle._id];
             return assign({}, state, { currentPreismeldestelle, preismeldestelleIds, entities: assign({}, state.entities, { [currentPreismeldestelle._id]: currentPreismeldestelle }) });
         }
