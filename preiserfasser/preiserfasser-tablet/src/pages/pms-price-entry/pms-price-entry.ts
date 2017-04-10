@@ -109,16 +109,9 @@ export class PmsPriceEntryPage {
         this.addNewPreisreihe$
             .subscribe(() => this.navController.setRoot(NewPriceSeriesPage, { pmsNummer: this.navParams.get('pmsNummer') }));
 
-        this.store.select(x => x.preismeldungen.pmsNummer)
-            .filter(pmsNummer => pmsNummer !== this.navParams.get('pmsNummer'))
-            .take(1)
-            .subscribe(() => {
-                this.store.select(x => x.preismeldungen)
-                    .filter(p => p.preismeldungIds.length === 0)
-                    .take(1)
-                    .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') }));
-                this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
-            });
+        this.ionViewDidLoad$
+            .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') }));
+        this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
     }
 
     ionViewDidLoad() {

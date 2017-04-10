@@ -11,7 +11,7 @@
     </preismeldung-toolbar>
     <div class="work-area">
         <div class="preismeldung-details-container">
-            <ion-content>
+            <ion-content *ngIf="!!(currentPreismeldung$ | async)">
                 <preismeldung-info-warenkorb
                     *ngIf="(selectedTab$ | async) == 'INFO_WARENKORB'"
                     [preismeldung]="currentPreismeldung$ | async"></preismeldung-info-warenkorb>
@@ -33,6 +33,9 @@
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
                     (save)="save$.emit($event)"></preismeldung-price>
             </ion-content>
+            <div class="message" *ngIf="!(currentPreismeldung$ | async)">
+                Keine Preismeldung selektiert
+            </div>
         </div>
         <div class="preismeldung-list-container">
             <preismeldung-list

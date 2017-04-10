@@ -62,14 +62,6 @@ export class DashboardPage implements OnDestroy {
             .filter(x => x.data !== null)
             .publishReplay(1).refCount();
 
-        // databaseExists$
-        //     .filter(x => x)
-        //     .subscribe(() => {
-        //         this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
-        //         this.store.dispatch({ type: 'LOAD_WARENKORB' });
-        //         loader.dismiss();
-        //     });
-
         const dismissLoading$ = store.select(fromRoot.getPreismeldestellen)
             .filter(x => x != null && x.length !== 0)
             .merge(databaseExists$

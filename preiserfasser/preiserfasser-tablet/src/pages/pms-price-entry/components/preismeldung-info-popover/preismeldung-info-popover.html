@@ -11,7 +11,7 @@
         <div class="info-popover-table">
             <div class="info-popover-row">
                 <div class="info-popover-cell heading">
-                    Preis for Reduktion
+                    Preis vor Reduktion
                 </div>
                 <div class="info-popover-cell value">
                     {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
@@ -19,7 +19,7 @@
             </div>
             <div class="info-popover-row">
                 <div class="info-popover-cell heading">
-                    Menge for Reduktion
+                    Menge vor Reduktion
                 </div>
                 <div class="info-popover-cell value">
                     {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}

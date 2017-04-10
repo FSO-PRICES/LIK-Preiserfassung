@@ -1,4 +1,4 @@
-<form [formGroup]="form" *ngIf="!!(preismeldung$ | async)" [class.form-show-validation-hints]="showValidationHints$ | async" novalidate>
+<form [formGroup]="form" [class.form-show-validation-hints]="showValidationHints$ | async" novalidate>
     <div class="header">
         <div class="header-line">
             <div class="product-heading">
@@ -186,6 +186,3 @@
         </div>
     </div>
 </form>
-<div class="message" *ngIf="!(preismeldung$ | async)">
-    Keine Preismeldung selektiert.
-</div>

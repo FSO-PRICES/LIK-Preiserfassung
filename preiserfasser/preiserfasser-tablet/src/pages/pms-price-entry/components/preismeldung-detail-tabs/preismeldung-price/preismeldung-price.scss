@@ -5,11 +5,6 @@ preismeldung-price {
     flex-direction: column;
     background-color: $alto;
 
-    .message {
-        @include set-padding(1, 1, 1, 1);
-        background-color: $mercury;
-    }
-
     .header {
         @include set-padding-vert-horiz(0.5, 1);
         flex: 0 0 auto;

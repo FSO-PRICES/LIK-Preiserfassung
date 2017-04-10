@@ -28,9 +28,9 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
             .publishReplay(1).refCount();
 
         this.hasAttributes$ = this.preismeldung$
-            .map(p => !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length); // TODO: remove null check
+            .map(p => !!p && !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length); // TODO: remove null check
 
-        this.requestPreismeldungQuickEqualDisabled$ = this.preismeldung$.map(x => [2, 3, 7].some(y => y === x.preismeldung.bearbeitungscode))
+        this.requestPreismeldungQuickEqualDisabled$ = this.preismeldung$.map(x => !!x && [2, 3, 7].some(y => y === x.preismeldung.bearbeitungscode)).startWith(false);
     }
 
     isSelected$(tabName: string) {

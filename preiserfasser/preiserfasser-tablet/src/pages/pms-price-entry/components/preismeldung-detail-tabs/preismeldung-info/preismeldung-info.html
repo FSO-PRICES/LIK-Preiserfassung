@@ -6,7 +6,7 @@
     <div class="info-table">
         <div class="info-table-row">
             <div class="info-table-cell-heading">
-                Preis for Reduktion
+                Preis vor Reduktion
             </div>
             <div class="info-table-cell-value">
                 {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
@@ -18,7 +18,7 @@
         </div>
         <div class="info-table-row">
             <div class="info-table-cell-heading">
-                Menge for Reduktion
+                Menge vor Reduktion
             </div>
             <div class="info-table-cell-value">
                 {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
