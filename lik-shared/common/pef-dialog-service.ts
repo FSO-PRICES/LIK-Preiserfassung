@@ -38,12 +38,12 @@ export class PefDialogService {
             .map(([data, role]) => ({ data, role }));
     }
 
-    displayLoading(text: string, options: DialogOptions = defaultOptions) {
+    displayLoading(text: string, requestDismiss$: Observable<{}>) {
         const loader = this.loadingController.create({
             content: text
         });
-        if (options.requestDismiss$ !== null) {
-            options.requestDismiss$.take(1).subscribe(() => loader.dismiss());
+        if (requestDismiss$ !== null) {
+            requestDismiss$.take(1).subscribe(() => loader.dismiss());
         }
         return Observable.fromPromise(loader.present());
     }
