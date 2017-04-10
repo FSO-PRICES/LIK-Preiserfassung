@@ -22,6 +22,7 @@ export class SettingsPage implements OnDestroy {
     public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
     public deleteAllClicked$ = new EventEmitter<Event>();
+    public databaseIsDeleted$: Observable<boolean>;
 
     public showValidationHints$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
@@ -81,8 +82,18 @@ export class SettingsPage implements OnDestroy {
         const settingsSaved$ = this.currentSettings$
             .filter(x => x != null && x.isSaved);
 
+        const databaseExists$ = this.store.map(x => x.database)
+            .map(x => x.databaseExists)
+            .distinctUntilChanged()
+            .filter(exists => exists !== null)
+            .publishReplay(1).refCount();
+
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(distinctSetting$.mapTo(false));
+
+        this.databaseIsDeleted$ = this.deleteAllClicked$
+            .combineLatest(databaseExists$.filter(exists => !exists).take(1), (_, databaseExists) => databaseExists)
+            .map(databaseExists => !databaseExists);
 
         this.subscriptions = [
             this.cancelClicked$.subscribe(() => this.navCtrl.setRoot(DashboardPage)),

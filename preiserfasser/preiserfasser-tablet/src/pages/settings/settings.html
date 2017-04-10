@@ -31,6 +31,7 @@
         <div class="danger-zone">
             <h3><pef-icon name="warning"></pef-icon> {{'heading_danger-zone' | translate}}</h3>
             <button type="button" ion-button color="blue-chill" (click)="deleteAllClicked$.emit($event)"><pef-icon name="warning"></pef-icon><span>{{'btn_delete-local-entries' | translate}}</span></button>
+            <p *ngIf="databaseIsDeleted$ | async" class="info-text">{{'text_database-successfully-deleted' | translate}}</p>
         </div>
     </div>
 </div>
