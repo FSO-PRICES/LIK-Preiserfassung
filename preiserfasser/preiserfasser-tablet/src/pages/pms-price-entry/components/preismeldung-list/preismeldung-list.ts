@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
 
 import { ReactiveComponent, formatPercentageChange, pefSearch } from 'lik-shared';
@@ -11,6 +12,7 @@ import * as P from '../../../../common-models';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
+    @ViewChild(Content) content: Content;
     @Input() isDesktop: boolean;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() currentLanguage: string;
@@ -96,11 +98,22 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 return filteredPreismeldungen[currentPreismeldungIndex - 1];
             });
 
-        this.selectPreismeldung = this.selectClickedPreismeldung$.merge(selectNext$).merge(selectPrev$);
+        this.selectPreismeldung = this.selectClickedPreismeldung$.merge(selectNext$).merge(selectPrev$)
+            .publishReplay(1).refCount();
+
+        this.selectPreismeldung
+            .withLatestFrom(this.filteredPreismeldungen$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[]) => filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId))
+            .subscribe(newPreismeldungIndex => {
+                if ((newPreismeldungIndex + 1) * 61 > this.content.scrollTop + this.content.contentHeight) {
+                    this.content.scrollTo(0, ((newPreismeldungIndex + 1) * 61) - this.content.contentHeight, 0);
+                }
+                if (newPreismeldungIndex * 61 < this.content.scrollTop) {
+                    this.content.scrollTo(0, (newPreismeldungIndex * 61), 0);
+                }
+            });
 
         this.completedCount$ = this.preismeldungen$
             .map(x => `${x.filter(y => y.preismeldung.istAbgebucht).length}/${x.length}`);
-
     }
 
     formatPercentageChange = (preismeldung: P.Models.Preismeldung) => {
