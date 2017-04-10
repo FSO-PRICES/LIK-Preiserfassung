@@ -59,8 +59,6 @@
                     <ion-checkbox type="text" formControlName="active"></ion-checkbox>
                 </ion-item>
             </ion-list>
-            <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
-            <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
         </ion-col>
         <ion-col width-25 formArrayName="kontaktpersons">
             <div [formGroupName]="0">
@@ -158,6 +156,8 @@
                 </ion-list>
             </div>
         </ion-col>
+        <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
     </ion-row>
     <!--<ion-row>
         <ion-col>

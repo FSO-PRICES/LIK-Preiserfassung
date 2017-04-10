@@ -18,6 +18,7 @@
 
     "text_synchronizing-data": "Datensynchronisierung. Bitte warten...",
     "text_saving-settings": "Einstellungen werden gespeichert. Bitte warten...",
+    "text_database-successfully-deleted": "Lokale Daten wurden erfolgreich gelöscht.",
 
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",
