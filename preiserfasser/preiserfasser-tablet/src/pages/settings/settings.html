@@ -6,32 +6,34 @@
             <pef-icon name="close_screen"></pef-icon>
         </a>
     </div>
-    <div class="content">
-        <ion-row>
-            <ion-col>
-                <div>{{'installed-software-version' | translate}}:</div>
-            </ion-col>
-            <ion-col>
-                <div>{{(currentSettings$ | async)?.version}}</div>
-            </ion-col>
-        </ion-row>
-        <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
-            <h3><pef-icon name="settings"></pef-icon> {{'server-connection-url' | translate}}</h3>
-            <ion-list formGroupName="serverConnection">
-                <ion-item class="pef-item on-dark">
-                    <ion-input type="text" formControlName="url"></ion-input>
-                    <pef-icon item-right name="home" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
-                </ion-item>
-            </ion-list>
-            <div class="actions">
-                <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(allowToSave$ | async)">{{'btn_save' | translate}}</button>
-                <button type="button" ion-button (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">{{'btn_cancel' | translate}}</button>
+    <ion-content no-scroll>
+        <div class="settings-content">
+            <ion-row>
+                <ion-col>
+                    <div>{{'installed-software-version' | translate}}:</div>
+                </ion-col>
+                <ion-col>
+                    <div>{{(currentSettings$ | async)?.version}}</div>
+                </ion-col>
+            </ion-row>
+            <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+                <h3><pef-icon name="settings"></pef-icon> {{'server-connection-url' | translate}}</h3>
+                <ion-list formGroupName="serverConnection">
+                    <ion-item class="pef-item on-dark">
+                        <ion-input type="text" formControlName="url" type="url"></ion-input>
+                        <pef-icon item-right name="home" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
+                    </ion-item>
+                </ion-list>
+                <div class="actions">
+                    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(allowToSave$ | async)">{{'btn_save' | translate}}</button>
+                    <button type="button" ion-button (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">{{'btn_cancel' | translate}}</button>
+                </div>
+            </form>
+            <div class="danger-zone">
+                <h3><pef-icon name="warning"></pef-icon> {{'heading_danger-zone' | translate}}</h3>
+                <button type="button" ion-button color="blue-chill" (click)="deleteAllClicked$.emit($event)"><pef-icon name="warning"></pef-icon><span>{{'btn_delete-local-entries' | translate}}</span></button>
+                <p *ngIf="databaseIsDeleted$ | async" class="info-text">{{'text_database-successfully-deleted' | translate}}</p>
             </div>
-        </form>
-        <div class="danger-zone">
-            <h3><pef-icon name="warning"></pef-icon> {{'heading_danger-zone' | translate}}</h3>
-            <button type="button" ion-button color="blue-chill" (click)="deleteAllClicked$.emit($event)"><pef-icon name="warning"></pef-icon><span>{{'btn_delete-local-entries' | translate}}</span></button>
-            <p *ngIf="databaseIsDeleted$ | async" class="info-text">{{'text_database-successfully-deleted' | translate}}</p>
         </div>
-    </div>
+    </ion-content>
 </div>

@@ -1,14 +1,6 @@
-settings-page {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+settings-page.ion-page {
     background-color: $trout;
-    color: $white;
-    z-index: 100;
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.1em 2em;
+    display: flex;
 
     h3 > pef-icon {
         display: inline-block;
@@ -16,7 +8,16 @@ settings-page {
     }
 
     .wrapper {
-        width: 100%;
+        flex: 1;
+        margin: 1.1em 2em;
+        display: flex;
+        flex-direction: column;
+        color: $white;
+
+        ion-content.content-md {
+            background-color: transparent;
+            flex: 1;
+        }
     }
 
     .header {
@@ -35,8 +36,9 @@ settings-page {
         }
     }
 
-    .content {
+    .settings-content {
         width: 67%;
+        color: $white;
 
         ion-row {
             margin-bottom: 1em;
