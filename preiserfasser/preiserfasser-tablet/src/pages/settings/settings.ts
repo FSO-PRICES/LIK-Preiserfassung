@@ -130,7 +130,6 @@ export class SettingsPage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
-        this.store.dispatch({ type: 'LOAD_SETTINGS' } as SettingsAction);
         this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction);
     }
 
