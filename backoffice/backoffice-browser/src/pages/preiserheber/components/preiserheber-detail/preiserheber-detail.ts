@@ -2,9 +2,8 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnD
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 
-import { ReactiveComponent, Models as P } from 'lik-shared';
+import { ReactiveComponent, Models as P, PefDialogService } from 'lik-shared';
 
-import * as fromRoot from '../../../../reducers';
 import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 
 @Component({
@@ -17,6 +16,8 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     @Input() languages: P.Language[];
     @Output('save')
     public save$: Observable<P.Erheber>;
+    @Output('delete')
+    public delete$: Observable<string>;
     @Output('cancel')
     public cancelClicked$ = new EventEmitter<Event>();
     @Output('update')
@@ -26,6 +27,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     public languages$: Observable<P.Language[]>;
     public resetForm$: Observable<boolean>;
     public saveClicked$ = new EventEmitter<Event>();
+    public deleteClicked$ = new EventEmitter<Event>();
 
     public isEditing$: Observable<boolean>;
     public showValidationHints$: Observable<boolean>;
@@ -71,10 +73,10 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
             .publishReplay(1).refCount();
 
         const canSave$ = this.saveClicked$
-            .map(x => ({ isValid: this.getPreiserheberForm().valid }))
+            .map(x => this.getPreiserheberForm().valid)
             .publishReplay(1).refCount();
 
-        this.save$ = canSave$.filter(x => x.isValid)
+        this.save$ = canSave$.filter(isValid => isValid)
             .publishReplay(1).refCount()
             .map(x => this.form.get('password').value);
 
@@ -84,15 +86,21 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         this.isEditing$ = this.preiserheber$.map(x => !!x && !!x._rev)
             .publishReplay(1).refCount();
 
+        const canDelete$ = this.deleteClicked$
+            .withLatestFrom(this.isEditing$, (_, isEditing) => isEditing)
+            .publishReplay(1).refCount();
+
+        this.delete$ = canDelete$.filter(isEditing => isEditing)
+            .publishReplay(1).refCount()
+            .map(x => this.form.get('password').value);
+
         this.subscriptions = [
             distinctPreiserheber$
                 .subscribe((erheber: CurrentPreiserheber) => {
                     this.form.markAsUntouched();
                     this.form.markAsPristine();
-                    if (!erheber.isNew) {
-                        this.getPreiserheberForm().patchValue({ username: erheber._id }, { emitEvent: false });
-                    }
                     this.getPreiserheberForm().patchValue({
+                        username: erheber._id,
                         firstName: erheber.firstName,
                         surname: erheber.surname,
                         personFunction: erheber.personFunction,

@@ -30,6 +30,12 @@ export function createUser(username: string, password: string) {
     return getDatabase('_users').then((db: any) => db.signUp(username, password));
 }
 
+export function deleteUser(username: string) {
+    return getDatabase('_users').then((db: any) =>
+        db.get(`org.couchdb.user:${username}`).then(doc => db.remove(doc))
+    ).then(() => true).catch(() => false);
+}
+
 export function putAdminUserToDatabase(dbName, username: string) {
     return putUserToDatabase(dbName, { members: { names: [username] } });
 }
@@ -125,4 +131,8 @@ export function loginToDatabase(credentials: { username: string, password: strin
             return couch;
         }) as any;
     });
+}
+
+export function getUserDatabaseName(preiserheber: P.Erheber) {
+    return `user_${preiserheber._id}`;
 }

@@ -25,7 +25,7 @@ export function reducer(state = initialState, action: preiszuweisung.Action): St
     switch (action.type) {
         case 'PREISZUWEISUNG_LOAD_SUCCESS': {
             const { payload } = action;
-            const preiszuweisungen = payload.preiszuweisungen
+            const preiszuweisungen = payload
                 .map<P.Preiszuweisung>(preiszuweisung => Object.assign({}, preiszuweisung));
             const preiszuweisungIds = preiszuweisungen.map(p => p._id);
             const entities = preiszuweisungen.reduce((entities: { [_id: string]: P.Preiszuweisung }, preiszuweisung: P.Preiszuweisung) => {
@@ -99,6 +99,16 @@ export function reducer(state = initialState, action: preiszuweisung.Action): St
             const currentPreiszuweisung = Object.assign({}, state.currentPreiszuweisung, action.payload, { isModified: false, isSaved: true });
             const preiszuweisungIds = !!state.preiszuweisungIds.find(x => x === currentPreiszuweisung._id) ? state.preiszuweisungIds : [...state.preiszuweisungIds, currentPreiszuweisung._id];
             return assign({}, state, { currentPreiszuweisung, preiszuweisungIds, entities: assign({}, state.entities, { [currentPreiszuweisung._id]: currentPreiszuweisung }) });
+        }
+
+        case 'DELETE_PREISZUWEISUNG_SUCCESS': {
+            const currentPreiszuweisungId = state.currentPreiszuweisung._id;
+            const preiszuweisungIds = state.preiszuweisungIds.slice();
+            const entities = Object.assign({}, state.entities);
+            remove(preiszuweisungIds, id => id === currentPreiszuweisungId);
+            delete entities[currentPreiszuweisungId];
+
+            return assign({}, state, { currentPreiszuweisung: undefined, preiszuweisungIds, entities });
         }
 
         default:

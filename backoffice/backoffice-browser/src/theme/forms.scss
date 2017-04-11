@@ -26,6 +26,12 @@ form.stacked-form {
         p { margin: 0; }
     }
 
+    .error-text {
+        color: $alizarin-crimson;
+        font-size: 0.8em;
+        p { margin: 0; }
+    }
+
     select {
         flex: 1;
         background-color: $white;
@@ -60,5 +66,13 @@ form {
 
     button[color='blue-chill'].button.button-md:hover:not(.disable-hover) {
         background-color: $surfie-green;
+    }
+}
+
+button.danger.button.button-md {
+    background-color: $alizarin-crimson;
+
+    &.button.button-md:hover {
+        background-color: $flamingo;
     }
 }

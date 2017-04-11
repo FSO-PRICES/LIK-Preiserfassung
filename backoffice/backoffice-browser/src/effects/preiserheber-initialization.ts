@@ -6,7 +6,7 @@ import { assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
-import { dropDatabase, getAllDocumentsForPrefix, getDatabase, putUserToDatabase, dbNames } from './pouchdb-utils';
+import { dropDatabase, getAllDocumentsForPrefix, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import * as preiszuweisung from '../actions/preiszuweisung';
 import { CurrentPreiszuweisung } from '../reducers/preiszuweisung';
@@ -66,8 +66,4 @@ export class PreiserheberInitializationEffects {
         )
         .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action))
     );
-}
-
-function getUserDatabaseName(preiserheber: P.Erheber) {
-    return `user_${preiserheber._id}`;
 }

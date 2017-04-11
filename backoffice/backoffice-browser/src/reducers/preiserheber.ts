@@ -7,6 +7,7 @@ export type CurrentPreiserheber = P.Erheber & {
     isModified: boolean;
     isSaved: boolean;
     isNew: boolean;
+    error?: string;
 };
 
 export interface State {
@@ -39,9 +40,19 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
             return assign({}, state, { currentPreiserheber: currentPreiserheber });
         }
 
+        case 'DELETE_PREISERHEBER_SUCCESS': {
+            const entities = Object.assign({}, state.entities);
+            if (state.preiserheberIds.some(pId => pId === action.payload)) {
+                const preiserheberIds = state.preiserheberIds.filter(pId => pId !== action.payload);
+                delete entities[action.payload];
+                return assign({}, state, { currentPreiserheber: undefined, entities, preiserheberIds });
+            }
+            return state;
+        }
+
         case 'CREATE_PREISERHEBER': {
             const newPreiserheber: CurrentPreiserheber = {
-                _id: (+ new Date()).toString(),
+                _id: null,
                 _rev: undefined,
                 firstName: null,
                 surname: null,
@@ -79,9 +90,14 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
         }
 
         case 'SAVE_PREISERHEBER_SUCCESS': {
-            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload, { isNew: false, isModified: false, isSaved: true });
+            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, action.payload, { isNew: false, isModified: false, isSaved: true, error: null });
             const preiserheberIds = !!state.preiserheberIds.find(x => x === currentPreiserheber._id) ? state.preiserheberIds : [...state.preiserheberIds, currentPreiserheber._id];
             return assign({}, state, { currentPreiserheber, preiserheberIds, entities: assign({}, state.entities, { [currentPreiserheber._id]: currentPreiserheber }) });
+        }
+
+        case 'SAVE_PREISERHEBER_FAILURE': {
+            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, { error: action.payload });
+            return assign({}, state, { currentPreiserheber });
         }
 
         case 'ASSIGN_TO_CURRENT_PREISZUWEISUNG':
