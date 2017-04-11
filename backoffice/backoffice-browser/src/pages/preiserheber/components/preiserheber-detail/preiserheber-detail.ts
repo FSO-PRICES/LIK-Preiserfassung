@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnD
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 
-import { ReactiveComponent, Models as P, PefDialogService } from 'lik-shared';
+import { ReactiveComponent, Models as P } from 'lik-shared';
 
 import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 
