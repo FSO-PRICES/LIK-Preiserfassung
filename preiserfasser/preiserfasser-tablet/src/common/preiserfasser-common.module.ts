@@ -16,7 +16,7 @@ import { PefDisableInputNegativeNumberDirective } from './pef-disable-input-nega
         PefMonthTranslatePipe,
         PefPropertyTranslatePipe,
         DialogNewPmBearbeitungsCodeComponent,
-        PefDisableInputNegativeNumberDirective
+        PefDisableInputNegativeNumberDirective,
     ],
     entryComponents: [
         DialogNewPmBearbeitungsCodeComponent,
@@ -25,7 +25,7 @@ import { PefDisableInputNegativeNumberDirective } from './pef-disable-input-nega
         PefMonthTranslatePipe,
         PefPropertyTranslatePipe,
         DialogNewPmBearbeitungsCodeComponent,
-        PefDisableInputNegativeNumberDirective
+        PefDisableInputNegativeNumberDirective,
     ]
 })
 export class PreiserfasserCommonModule {

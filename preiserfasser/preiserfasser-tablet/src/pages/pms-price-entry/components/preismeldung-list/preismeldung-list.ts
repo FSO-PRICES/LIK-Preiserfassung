@@ -42,6 +42,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung');
     private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
 
+    public ionItemHeight$ = new EventEmitter<number>();
+    public itemHeight$ = this.ionItemHeight$.startWith(50);
+
     constructor() {
         super();
 
@@ -102,13 +105,13 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .publishReplay(1).refCount();
 
         this.selectPreismeldung
-            .withLatestFrom(this.filteredPreismeldungen$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[]) => filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId))
-            .subscribe(newPreismeldungIndex => {
-                if ((newPreismeldungIndex + 1) * 61 > this.content.scrollTop + this.content.contentHeight) {
-                    this.content.scrollTo(0, ((newPreismeldungIndex + 1) * 61) - this.content.contentHeight, 0);
+            .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[], ionItemHeight) => ({ newPreismeldungIndex: filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId), ionItemHeight }))
+            .subscribe(({newPreismeldungIndex, ionItemHeight }) => {
+                if ((newPreismeldungIndex + 1) * ionItemHeight > this.content.scrollTop + this.content.contentHeight) {
+                    this.content.scrollTo(0, ((newPreismeldungIndex + 1) * ionItemHeight) - this.content.contentHeight, 0);
                 }
-                if (newPreismeldungIndex * 61 < this.content.scrollTop) {
-                    this.content.scrollTo(0, (newPreismeldungIndex * 61), 0);
+                if (newPreismeldungIndex * ionItemHeight < this.content.scrollTop) {
+                    this.content.scrollTo(0, (newPreismeldungIndex * ionItemHeight), 0);
                 }
             });
 

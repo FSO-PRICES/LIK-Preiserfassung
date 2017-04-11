@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { IonicModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
 
+import { PefDetectIonListItemHeightDirective } from './pef-detect-ion-list-item-height/pef-detect-ion-list-item-height';
 import { PefDialogYesNoComponent } from './pef-dialog-yes-no/pef-dialog-yes-no';
 import { PefDisableInputNumberBehaviourDirective } from './pef-disable-input-number-behaviour/pef-disable-input-number-behaviour';
 import { PefFormatNumber } from './pef-format-number/pef-format-number';
@@ -18,6 +19,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
 @NgModule({
     imports: [CommonModule, IonicModule],
     declarations: [
+        PefDetectIonListItemHeightDirective,
         PefDialogYesNoComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,
@@ -32,6 +34,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefVirtualScrollComponent
     ],
     exports: [
+        PefDetectIonListItemHeightDirective,
         PefDialogYesNoComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,

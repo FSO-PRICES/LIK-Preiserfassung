@@ -96,6 +96,7 @@ preismeldung-list {
         .preismeldung-status-todo {
             max-width: 5em;
             flex: 0 0 5em;
+            height: 100%;
             display: flex;
             justify-content: flex-end;
             align-items: center;
@@ -105,7 +106,7 @@ preismeldung-list {
             .status-bar {
                 flex: 0 0 8px;
                 background-color: $bright-sun;
-                height: 3.5em;
+                height: 100%;
             }
         }
         .preismeldung-status-done {
