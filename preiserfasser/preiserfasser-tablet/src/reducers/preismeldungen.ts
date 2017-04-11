@@ -151,7 +151,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     artikeltext: null,
                     internetLink: null,
                     bermerkungenAnsBfs: null,
-                    percentageDPToLVP: null,
+                    percentageDPToVP: null,
                     percentageDPToVPNeuerArtikel: null,
                     percentageVPNeuerArtikelToVPAlterArtikel: null,
                     modifiedAt: null,
@@ -196,7 +196,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     artikeltext: null,
                     internetLink: null,
                     bermerkungenAnsBfs: null,
-                    percentageDPToLVP: null,
+                    percentageDPToVP: null,
                     percentageDPToVPNeuerArtikel: null,
                     percentageVPNeuerArtikelToVPAlterArtikel: null,
                     modifiedAt: null,
@@ -227,7 +227,8 @@ function debugDifference(obj1: any, obj2: any, props: string[]) {
 
 function createPercentages(preismeldung: P.PreismeldungBag, payload: P.PreismeldungPricePayload) {
     return {
-        percentageDPToLVP: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
+        percentageDPToVP: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
+        percentageDPToVPVorReduktion: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preisVorReduktion, preismeldung.refPreismeldung.mengeVorReduktion, parseFloat(payload.preis), parseFloat(payload.menge)),
         percentageDPToVPNeuerArtikel: calculatePercentageChange(parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel), parseFloat(payload.preis), parseFloat(payload.menge)),
         percentageVPNeuerArtikelToVPAlterArtikel: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel))
     };

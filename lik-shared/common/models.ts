@@ -118,9 +118,11 @@ interface _PreismeldungProperties {
 
     bermerkungenAnsBfs: string;
 
-    percentageDPToLVP?: number;
+    percentageDPToVP?: number;
+    percentageDPToVPVorReduktion?: number;
     percentageDPToVPNeuerArtikel?: number;
     percentageVPNeuerArtikelToVPAlterArtikel?: number;
+    // percentageVPNeuerArtikelToVPAlterArtikel?: number;
 
     modifiedAt: string;
     bearbeitungscode: Bearbeitungscode;

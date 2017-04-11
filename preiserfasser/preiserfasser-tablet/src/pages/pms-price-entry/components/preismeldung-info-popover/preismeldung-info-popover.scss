@@ -48,6 +48,21 @@ preismeldung-info-popover {
         &.value {
             width: 40%;
             font-weight: 500;
+            @include set-padding-right(1);
+            text-align: right;
+
+            .number {
+                display: inline-block;
+                font-size: 1.25em;
+                font-weight: 500;
+            }
+
+            .label {
+                display: inline-block;
+                @include set-padding-left(0.8);
+                width: 3.5em;
+                text-align: left;
+            }
         }
     }
 

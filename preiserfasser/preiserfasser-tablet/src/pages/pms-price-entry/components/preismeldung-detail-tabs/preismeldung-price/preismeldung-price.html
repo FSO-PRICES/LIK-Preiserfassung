@@ -77,7 +77,7 @@
             </div>
             <div class="middle-section">
                 <div class="box-container" *ngIf="!!(preismeldung$ | async).refPreismeldung">
-                    <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToLVP)"></div>
+                    <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
                     <div class="arrow right"></div>
                 </div>
             </div>

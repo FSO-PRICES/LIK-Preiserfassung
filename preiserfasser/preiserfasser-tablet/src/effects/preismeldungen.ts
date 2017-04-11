@@ -53,7 +53,7 @@ export class PreismeldungenEffects {
                     bearbeitungscode: 99,
                     uploadRequestedAt: null,
                     istAbgebucht: false,
-                    percentageDPToLVP: null,
+                    percentageDPToVP: null,
                     percentageDPToVPNeuerArtikel: null,
                     percentageVPNeuerArtikelToVPAlterArtikel: null,
                     internetLink: rpm.internetLink
@@ -160,7 +160,8 @@ export class PreismeldungenEffects {
             menge: currentPreismeldung.preismeldung.menge,
             mengeVPNormalNeuerArtikel: currentPreismeldung.preismeldung.mengeVPNormalNeuerArtikel,
             modifiedAt: new Date(),
-            percentageDPToLVP: currentPreismeldung.preismeldung.percentageDPToLVP,
+            percentageDPToVP: currentPreismeldung.preismeldung.percentageDPToVP,
+            percentageDPToVPVorReduktion: currentPreismeldung.preismeldung.percentageDPToVPVorReduktion,
             percentageDPToVPNeuerArtikel: currentPreismeldung.preismeldung.percentageDPToVPNeuerArtikel,
             percentageVPNeuerArtikelToVPAlterArtikel: currentPreismeldung.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,
             preis: currentPreismeldung.preismeldung.preis,

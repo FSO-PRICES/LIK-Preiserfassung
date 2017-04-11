@@ -14,7 +14,10 @@
                     Preis vor Reduktion
                 </div>
                 <div class="info-popover-cell value">
-                    {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
+                    <span class="number">
+                        {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
+                    </span>
+                    <span class="label">CHF</span>
                 </div>
             </div>
             <div class="info-popover-row">
@@ -22,14 +25,15 @@
                     Menge vor Reduktion
                 </div>
                 <div class="info-popover-cell value">
-                    {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
+                    <span class="number">{{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }}</span>
+                    <span class="label">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</span>
                 </div>
             </div>
         </div>
     </div>
     <div class="comparison-container" [style.minWidth]="'calc(' + extraWidth + ' - 32px)'">
         <div class="box-container">
-            <div class="box" [innerHTML]="'TODO'"></div>
+            <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVPVorReduktion)"></div>
             <div class="arrow right"></div>
         </div>
     </div>
