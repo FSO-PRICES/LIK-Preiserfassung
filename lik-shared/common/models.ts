@@ -84,7 +84,8 @@ interface _PreismeldungReferenceProperties {
     artikelnummer: string;
     artikeltext: string;
 
-    bermerkungenVomBfs: string;
+    notiz: string;
+    bemerkungen: string;
 }
 
 export type PreismeldungReferenceProperties = PreismeldungUri & _PreismeldungReferenceProperties;
@@ -116,7 +117,9 @@ interface _PreismeldungProperties {
     artikeltext: string;
     internetLink: string;
 
-    bermerkungenAnsBfs: string;
+    notiz: string;
+    kommentar: string;
+    bemerkungen: string;
 
     percentageDPToVP?: number;
     percentageDPToVPVorReduktion?: number;
