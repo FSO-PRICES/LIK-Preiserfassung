@@ -9,10 +9,11 @@ import { PreiserheberPreiszuweisungComponent } from './components/preiserheber-p
 
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 import { PefDialogCancelEditModule } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit.module';
+import { PefDialogConfirmDeleteModule } from '../../components/pef-dialog-confirm-delete/pef-dialog-confirm-delete.module';
 import { PefComponentsModule } from 'lik-shared';
 
 @NgModule({
-    imports: [CommonModule, IonicModule, PefComponentsModule, PefMenuModule, PefDialogCancelEditModule],
+    imports: [CommonModule, IonicModule, PefComponentsModule, PefMenuModule, PefDialogCancelEditModule, PefDialogConfirmDeleteModule],
     declarations: [
         PreiserheberPage,
         PreiserheberDetailComponent,

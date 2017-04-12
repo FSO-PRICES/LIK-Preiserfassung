@@ -4,6 +4,9 @@
         <span *ngSwitchDefault>Erfassen</span>
     </h1>
     <ion-list no-lines>
+        <div *ngIf="!!(preiserheber$ | async)?.error" class="error-text">
+            <p>{{(preiserheber$ | async)?.error}}</p>
+        </div>
         <ion-item formGroupName="preiserheber"class="pef-item">
             <ion-label stacked>Benutzername</ion-label>
             <ion-input type="text" formControlName="username" [readonly]="isEditing$ | async"></ion-input>
@@ -53,4 +56,5 @@
     </ion-list>
     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
     <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
+    <button type="button" ion-button class="danger" (click)="deleteClicked$.emit($event)" [disabled]="!(isEditing$ | async)">Löschen</button>
 </form>
