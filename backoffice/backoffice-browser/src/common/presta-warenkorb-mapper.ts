@@ -1,40 +1,48 @@
 import { Models as P } from 'lik-shared';
 import * as _ from 'lodash';
+import { mapValues, values, keys } from 'lodash';
+import { bearbeitungscodeDescriptions, PropertyTranslation } from '../../../../lik-shared/common/models';
+import * as csvParser from 'js-csvparser';
 
 
 const indexes = {
-    gliederungspositionsnummer: 1,
-    produktecode: 2,
-    gliederungspositionstyp: 3,
-    tiefencode: 4,
-    positionsbezeichnung: 5,
-    periodizitaetscode: 6,
-    standardmenge: 7,
-    standardeinheit: 8,
-    erhebungstyp: 9,
-    anzahlPreiseProPMS: 10,
-    beispiele: 11,
-    info: 12,
-    periodizitaetMonat1: 13,
-    periodizitaetMonat2: 14,
-    periodizitaetMonat3: 15,
-    periodizitaetMonat4: 16,
-    periodizitaetMonat5: 17,
-    periodizitaetMonat6: 18,
-    periodizitaetMonat7: 19,
-    periodizitaetMonat8: 20,
-    periodizitaetMonat9: 21,
-    periodizitaetMonat10: 22,
-    periodizitaetMonat11: 23,
-    periodizitaetMonat12: 24,
-    abweichungPmUG2: 25,
-    abweichungPmOG2: 26,
-    produktmerkmal1: 27,
-    produktmerkmal2: 28,
-    produktmerkmal3: 29,
-    produktmerkmal4: 30,
-    produktmerkmal5: 31,
-    produktmerkmal6: 32
+    erhebungsschemaperiode: 0,
+    erhebungsschemanummer: 1,
+    gliederungspositionsnummer: 2,
+    produktecode: 3,
+    gliederungspositionstyp: 4,
+    tiefencode: 5,
+    positionsbezeichnung: 6,
+    periodizitaetscode: 7,
+    standardmenge: 8,
+    standardeinheit: 9,
+    erhebungstyp: 10,
+    anzahlPreiseProPMS: 11,
+    beispiele: 12,
+    info: 13,
+    periodizitaetMonat1: 14,
+    periodizitaetMonat2: 15,
+    periodizitaetMonat3: 16,
+    periodizitaetMonat4: 17,
+    periodizitaetMonat5: 18,
+    periodizitaetMonat6: 19,
+    periodizitaetMonat7: 20,
+    periodizitaetMonat8: 21,
+    periodizitaetMonat9: 22,
+    periodizitaetMonat10: 23,
+    periodizitaetMonat11: 24,
+    periodizitaetMonat12: 25,
+    abweichungPmUG2: 26,
+    abweichungPmOG2: 27,
+    negativeLimite: 28,
+    positiveLimite: 29,
+    negativeLimite_1: 30,
+    positiveLimite_1: 31,
+    negativeLimite_7: 32,
+    positiveLimite_7: 33,
+    nichtEmpfohleneBc: 34,
+    erhebungszeitpunkte: 35,
+    produktmerkmale: 36
 };
 
 
@@ -53,6 +61,7 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
             tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
             positionsbezeichnung: translationsToStringOrNull(thisLine[indexes.positionsbezeichnung], data.fr[i][indexes.positionsbezeichnung], data.it[i][indexes.positionsbezeichnung]),
+            erhebungsschemaperiode: parseNumber(thisLine[indexes.erhebungsschemaperiode], 'erhebungsschemaperiode'),
             periodizitaetscode: translationsToStringOrNull(thisLine[indexes.periodizitaetscode], data.fr[i][indexes.periodizitaetscode], data.it[i][indexes.periodizitaetscode]),
             standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
             standardeinheit: translationsToStringOrNull(thisLine[indexes.standardeinheit], data.fr[i][indexes.standardeinheit], data.it[i][indexes.standardeinheit]),
@@ -76,14 +85,15 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             ]),
             abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
             abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
-            productMerkmale: prepareProduktmerkmale([
-                translationsToStringOrNull(thisLine[indexes.produktmerkmal1], data.fr[i][indexes.produktmerkmal1], data.it[i][indexes.produktmerkmal1]),
-                translationsToStringOrNull(thisLine[indexes.produktmerkmal2], data.fr[i][indexes.produktmerkmal2], data.it[i][indexes.produktmerkmal2]),
-                translationsToStringOrNull(thisLine[indexes.produktmerkmal3], data.fr[i][indexes.produktmerkmal3], data.it[i][indexes.produktmerkmal3]),
-                translationsToStringOrNull(thisLine[indexes.produktmerkmal4], data.fr[i][indexes.produktmerkmal4], data.it[i][indexes.produktmerkmal4]),
-                translationsToStringOrNull(thisLine[indexes.produktmerkmal5], data.fr[i][indexes.produktmerkmal5], data.it[i][indexes.produktmerkmal5]),
-                translationsToStringOrNull(thisLine[indexes.produktmerkmal6], data.fr[i][indexes.produktmerkmal6], data.it[i][indexes.produktmerkmal6])
-            ])
+            negativeLimite: parseNumberOrNull(thisLine[indexes.negativeLimite]),
+            positiveLimite: parseNumberOrNull(thisLine[indexes.positiveLimite]),
+            negativeLimite_1: parseNumberOrNull(thisLine[indexes.negativeLimite_1]),
+            positiveLimite_1: parseNumberOrNull(thisLine[indexes.positiveLimite_1]),
+            negativeLimite_7: parseNumberOrNull(thisLine[indexes.negativeLimite_7]),
+            positiveLimite_7: parseNumberOrNull(thisLine[indexes.positiveLimite_7]),
+            nichtEmpfohleneBc: parseBearbeitungscode(thisLine[indexes.nichtEmpfohleneBc]),
+            erhebungszeitpunkte: 1,
+            productMerkmale: prepareProduktmerkmale({ de: thisLine[indexes.produktmerkmale], fr: data.fr[i][indexes.produktmerkmale], it: data.it[i][indexes.produktmerkmale] })
         };
         treeItems.push(treeItem);
         const parent: P.WarenkorbTreeItem = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
@@ -118,7 +128,6 @@ function parseOutQuotes(s: string) {
 
 const parseGliederungspositionstyp = (s: string) => parseNumber(s, 'gliederungspositionstyp');
 const parseTiefenCode = (s: string) => parseNumber(s, 'tiefencode');
-
 
 const parseNumberOrNull = (s: string) => {
     const number = parseInt(s, 10);
@@ -185,7 +194,25 @@ function translationsToStringOrNull(de: string, fr: string, it: string) {
         null;
 }
 
-function prepareProduktmerkmale(merkmale: P.PropertyTranslation[]) {
-    const lastValueIndex = _.findLastIndex(merkmale, merkmal => merkmal !== null);
-    return merkmale.slice(0, lastValueIndex + 1);
+function prepareProduktmerkmale(rawMerkmale: { de: string, fr: string, it: string }): PropertyTranslation[] {
+    const merkmale = mapValues(rawMerkmale, text => !text ? [] : parseSingleCsvText(text)) as any;
+    const merkmaleList = [];
+    Object.keys(merkmale).map(language => {
+        merkmale[language].map((merkmal, i) => merkmaleList[i] = Object.assign({}, merkmaleList[i], { [language]: merkmal || null }));
+    });
+
+    return merkmaleList;
+}
+
+function parseBearbeitungscode(bearbeitungcodes) {
+    const getCodeNumber = (code) => {
+        const index = values(bearbeitungscodeDescriptions).indexOf(code);
+        return index !== -1 ? keys(bearbeitungcodes)[index] : code;
+    };
+
+    return parseSingleCsvText(bearbeitungcodes).map(getCodeNumber);
+}
+
+function parseSingleCsvText(text: string): string[] {
+    return csvParser(text, { delimiter: ';' }).data[0] || [];
 }
