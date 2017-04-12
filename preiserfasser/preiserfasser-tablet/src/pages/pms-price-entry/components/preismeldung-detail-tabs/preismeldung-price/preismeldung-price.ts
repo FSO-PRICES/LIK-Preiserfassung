@@ -212,7 +212,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     this.form.patchValue({
                         preis: `${this.preiseFormatFn(refPreismeldung.preis)}`,
                         menge: `${refPreismeldung.menge}`,
-                        aktion: false
+                        aktion: refPreismeldung.aktion
                     });
                 })
         );

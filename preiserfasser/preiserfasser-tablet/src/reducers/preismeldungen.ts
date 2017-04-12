@@ -26,6 +26,7 @@ export interface State {
     preismeldungIds: string[];
     entities: { [pmsNummer: string]: PreismeldungBag };
     currentPreismeldung: CurrentPreismeldungBag;
+
 }
 
 const initialState: State = {
@@ -46,6 +47,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const preismeldungBags = payload.preismeldungen
                 .map<P.PreismeldungBag>(preismeldung => {
                     const warenkorbPosition = payload.warenkorb.find(p => p.warenkorbItem.gliederungspositionsnummer === preismeldung.epNummer).warenkorbItem as P.Models.WarenkorbLeaf;
+                    const numberOfPms = preismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].filter(x => x.bearbeitungscode !== 0).length;
                     return assign({}, {
                         pmId: preismeldung._id,
                         preismeldung,
@@ -53,8 +55,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                         sortierungsnummer: payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id).sortierungsnummer,
                         warenkorbPosition,
                         priceCountStatus: {
-                            text: `${preismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,
-                            ok: preismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length >= warenkorbPosition.anzahlPreiseProPMS
+                            text: `${numberOfPms}/${warenkorbPosition.anzahlPreiseProPMS}`,
+                            ok: numberOfPms >= warenkorbPosition.anzahlPreiseProPMS
                         }
                     });
                 });
@@ -97,6 +99,13 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
         case 'SAVE_PREISMELDUNG_PRICE_SUCCESS': {
             const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false });
+            const preismeldungen = [...getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer && x.pmId !== state.currentPreismeldung.pmId), currentPreismeldung];
+            const preismeldungenCount = preismeldungen.filter(x => x.preismeldung.bearbeitungscode !== 0).length;
+            const priceCountStatus = {
+                text: `${preismeldungenCount}/${state.currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
+                ok: preismeldungenCount >= state.currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
+            };
+            const entitiesToModify = preismeldungen.reduce((agg, pm) => assign(agg, { [pm.pmId]: assign({}, pm, { priceCountStatus }) }), {});
 
             let nextPreismeldung;
             if (action.payload.saveAction === 'SAVE_AND_MOVE_TO_NEXT') {
@@ -104,10 +113,10 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 const nextId = state.preismeldungIds[index + 1];
                 nextPreismeldung = !!nextId ? assign({}, state.entities[nextId], { isModified: false }) : state.entities[0];
             } else {
-                nextPreismeldung = cloneDeep(currentPreismeldung);
+                nextPreismeldung = cloneDeep(entitiesToModify[currentPreismeldung.pmId]);
             }
 
-            return assign({}, state, { currentPreismeldung: nextPreismeldung, entities: assign({}, state.entities, { [currentPreismeldung.pmId]: currentPreismeldung }) });
+            return assign({}, state, { currentPreismeldung: nextPreismeldung, entities: assign({}, state.entities, entitiesToModify) });
         }
 
         case 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS': {
@@ -130,6 +139,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
         case 'DUPLICATE_PREISMELDUNG': {
             const preismeldungen = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer);
+            const numberOfPms = preismeldungen.filter(x => x.preismeldung.bearbeitungscode !== 0).length + 1;
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort()[preismeldungen.length - 1] + 1}`;
             const currentPreismeldung = state.currentPreismeldung;
             const newPmId = `pm/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`;
@@ -161,8 +171,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 }),
                 sortierungsnummer: currentPreismeldung.sortierungsnummer + 1,
                 priceCountStatus: {
-                    text: `${preismeldungen.length + 1}/${currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
-                    ok: preismeldungen.length + 1 >= currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
+                    text: `${numberOfPms}/${currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS}`,
+                    ok: numberOfPms >= currentPreismeldung.warenkorbPosition.anzahlPreiseProPMS
                 }
             });
 
