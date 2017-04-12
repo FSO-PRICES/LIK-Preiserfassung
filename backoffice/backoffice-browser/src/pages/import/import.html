@@ -4,8 +4,14 @@
         <form>
             <ion-row class="container">
                 <ion-col width-50>
-                    <warenkorb-import (importCompleted)="warenkorbImportCompleted$.emit($event)"></warenkorb-import>
+                    <warenkorb-import
+                        (fileSelected)="warenkorbFileSelected$.emit($event)"
+                        (import)="warenkorbStartImport$.emit($event)"
+                        [parsed]="warenkorbFileParsed$ | async"
+                        [importedCount]="warenkorbImportedCount$ | async">
+                    </warenkorb-import>
                 </ion-col>
+                <ion-col width-33>Zuletzt importiert am: {{latestWarenkorbImportAt$ | async | date:"medium"}}</ion-col>
             </ion-row>
             <ion-row class="container">
                 <ion-col width-50>
