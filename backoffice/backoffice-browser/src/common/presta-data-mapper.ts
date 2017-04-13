@@ -41,16 +41,17 @@ const importPmFromPrestaIndexes = {
     basispreis: 12,
     basismenge: 13,
     fehlendePreisR: 14,
-    bemerkungen: 15,
-    internetLink: 16,
-    erhebungsZeitpunkt: 17,
-    erhebungsAnfangsDatum: 18,
-    erhebungsEndDatum: 19,
-    sortierungsnummer: 20,
-    preisVorReduktion: 21,
-    mengeVorReduktion: 22,
-    datumVorReduktion: 23,
-    produktMerkmale: 24,
+    notiz: 15,
+    bemerkungen: 16,
+    internetLink: 17,
+    erhebungsZeitpunkt: 18,
+    erhebungsAnfangsDatum: 19,
+    erhebungsEndDatum: 20,
+    sortierungsnummer: 21,
+    preisVorReduktion: 22,
+    mengeVorReduktion: 23,
+    datumVorReduktion: 24,
+    produktMerkmale: 25,
 };
 
 function parseProduktMerkmale(content: string) {
@@ -135,16 +136,17 @@ export function preparePm(lines: string[][]) {
             productMerkmale: parseProduktMerkmale(cells[importPmFromPrestaIndexes.produktMerkmale]),
             artikelnummer: cells[importPmFromPrestaIndexes.artikelNummer],
             artikeltext: cells[importPmFromPrestaIndexes.text],
-            bermerkungenVomBfs: cells[importPmFromPrestaIndexes.bemerkungen]
+            notiz: cells[importPmFromPrestaIndexes.notiz],
+            bemerkungen: cells[importPmFromPrestaIndexes.bemerkungen]
         };
     });
 }
 
-export function preparePmForExport(preismeldungen: any[]) {
+export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P.PreismeldungReferenceProperties & P.PmsPreismeldungenSortProperties)[]) {
     return preismeldungen.map(pm => ({
         Erhebungsmonat: null, // TODO 1. Tag des Erhebungsmonats
         Preissubsystem: null, // LIK = 2
-        Schemanummer: 0, // TODO: Alway 0?
+        Schemanummer: 0, // TODO: Always 0?
         Preiserhebungsort: pm.pmsNummer,
         Erhebungspositionnummer: pm.epNummer,
         Laufnummer: pm.laufnummer,
@@ -156,13 +158,15 @@ export function preparePmForExport(preismeldungen: any[]) {
         Aktionscode: pm.aktion,
         Preisbezeichnung: null, // TODO: Find out how to get this
         Artikelnummer: pm.artikelnummer,
-        Fehlende_Preise: null, // TODO: Find out how to get this
-        Bemerkungen: pm.bermerkungenAnsBfs,
+        Fehlende_Preise: pm.fehlendePreiseR,
+        PE_Notiz: pm.notiz,
+        PE_Kommentar: pm.kommentar,
+        Bemerkungen: pm.bemerkungen,
         Internet_Link: pm.internetLink,
-        Erhebungszeitpunkt: null, // TODO: Find out how to get this
+        Erhebungszeitpunkt: pm.erhebungsZeitpunkt,
         Sortiernummer: pm.sortOrder,
-        Preis_vor_Reduktion: null, // TODO: Find out how to get this
-        Menge_vor_Reduktion: null, // TODO: Find out how to get this
+        Preis_vor_Reduktion: pm.preisVorReduktion,
+        Menge_vor_Reduktion: pm.mengeVorReduktion,
         Datum_vor_Reduktion: null, // TODO: Find out how to get this
         Produktmerkmale: null // TODO how to get? By ref_pm?
     }));

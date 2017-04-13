@@ -95,6 +95,10 @@ export const getLanguagesList = createSelector(getLanguagesState, fromLanguage.g
 
 
 export const getImporterState = (state: AppState) => state.importer;
+export const getImporterParsedWarenkorb = createSelector(getImporterState, fromImporter.getParsedWarenkorb);
+export const getImportedWarenkorb = createSelector(getImporterState, fromImporter.getImportedWarenkorb);
+export const getImportedWarenkorbAt = createSelector(getImporterState, fromImporter.getImportedWarenkorbAt);
+
 export const getImporterParsedPreismeldestellen = createSelector(getImporterState, fromImporter.getParsedPreismeldestellen);
 export const getImportedPreismeldestellen = createSelector(getImporterState, fromImporter.getImportedPreismeldestellen);
 export const getImportedPreismeldestellenAt = createSelector(getImporterState, fromImporter.getImportedPreismeldestellenAt);

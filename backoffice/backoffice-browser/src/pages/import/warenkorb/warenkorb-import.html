@@ -6,7 +6,7 @@
         <label>Erhebungsschema Deutsch</label>
     </ion-col>
     <ion-col>
-        <input class="file-select-btn" type="file" (change)="warenkorbSelectedDe$.emit($event)" multiple/>
+        <input class="file-select-btn" type="file" (change)="warenkorbSelectedDe$.emit($event)"/>
     </ion-col>
 </ion-row>
 <ion-row>
@@ -14,7 +14,7 @@
         <label>Erhebungsschema Französisch</label>
     </ion-col>
     <ion-col>
-        <input class="file-select-btn" type="file" (change)="warenkorbSelectedFr$.emit($event)" multiple/>
+        <input class="file-select-btn" type="file" (change)="warenkorbSelectedFr$.emit($event)"/>
     </ion-col>
 </ion-row>
 <ion-row>
@@ -22,12 +22,12 @@
         <label>Erhebungsschema Italienisch</label>
     </ion-col>
     <ion-col>
-        <input class="file-select-btn" type="file" (change)="warenkorbSelectedIt$.emit($event)" multiple/>
+        <input class="file-select-btn" type="file" (change)="warenkorbSelectedIt$.emit($event)"/>
     </ion-col>
 </ion-row>
 <ion-row>
     <ion-col>
-        <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsCompleted$ | async)" (click)="createWarenkorbClicked$.emit($event)">Import Warenkorb</button>
+        <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsParsed$ | async)" (click)="importWarenkorbClicked$.emit($event)">Import Warenkorb</button>
     </ion-col>
 </ion-row>
-<ion-row *ngIf="isWarenkorbImported$ | async"><ion-col><span ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImported$ | async}} Einträge wurden hinzugefügt</span></ion-col></ion-row>
+<ion-row *ngIf="isWarenkorbImported$ | async"><ion-col><span ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImportedCount$ | async}} Einträge wurden hinzugefügt</span></ion-col></ion-row>

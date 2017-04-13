@@ -67,7 +67,7 @@ export class PreismeldungEffects {
                         const preismeldung = Object.assign({}, doc, <P.Preismeldung>{
                             _id: currentPreismeldung._id,
                             _rev: currentPreismeldung._rev,
-                            bermerkungenAnsBfs: currentPreismeldung.bermerkungenAnsBfs
+                            bemerkungen: currentPreismeldung.bemerkungen
                         });
                         return (create ? db.post(preismeldung) : db.put(preismeldung))
                             .then((response) => ({ db, id: response.id }));

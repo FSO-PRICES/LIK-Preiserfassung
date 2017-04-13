@@ -84,7 +84,8 @@ interface _PreismeldungReferenceProperties {
     artikelnummer: string;
     artikeltext: string;
 
-    bermerkungenVomBfs: string;
+    notiz: string;
+    bemerkungen: string;
 }
 
 export type PreismeldungReferenceProperties = PreismeldungUri & _PreismeldungReferenceProperties;
@@ -116,7 +117,9 @@ interface _PreismeldungProperties {
     artikeltext: string;
     internetLink: string;
 
-    bermerkungenAnsBfs: string;
+    notiz: string;
+    kommentar: string;
+    bemerkungen: string;
 
     percentageDPToVP?: number;
     percentageDPToVPVorReduktion?: number;
@@ -192,9 +195,18 @@ export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
     standardeinheit: PropertyTranslation;
     erhebungstyp: string;
     anzahlPreiseProPMS: number;
+    erhebungsschemaperiode: number;
     periodizitaetMonat: PeriodizitaetMonat;
     abweichungPmUG2: number;
     abweichungPmOG2: number;
+    negativeLimite: number;
+    positiveLimite: number;
+    negativeLimite_1: number;
+    positiveLimite_1: number;
+    negativeLimite_7: number;
+    positiveLimite_7: number;
+    nichtEmpfohleneBc: number[];
+    erhebungszeitpunkte: number;
     productMerkmale: PropertyTranslation[];
 }
 

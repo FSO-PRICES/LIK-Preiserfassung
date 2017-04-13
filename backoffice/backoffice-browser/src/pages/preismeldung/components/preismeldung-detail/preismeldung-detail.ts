@@ -70,7 +70,7 @@ export class PreismeldungDetailComponent extends ReactiveComponent implements On
                     this.form.markAsUntouched();
                     this.form.markAsPristine();
                     this.form.patchValue({
-                        bermerkungenAnsBfs: preismeldung.bermerkungenAnsBfs,
+                        bemerkungen: preismeldung.bemerkungen,
                         aktion: preismeldung.aktion,
                         istAbgebucht: preismeldung.istAbgebucht,
                     }, { onlySelf: true, emitEvent: false });

@@ -83,7 +83,7 @@ export function reducer(state = initialState, action: preismeldung.Action): Stat
             const { payload } = action;
 
             const valuesFromPayload = {
-                bermerkungenAnsBfs: payload.bermerkungenAnsBfs,
+                bemerkungen: payload.bemerkungen,
             };
 
             const currentPreismeldung = assign({},
