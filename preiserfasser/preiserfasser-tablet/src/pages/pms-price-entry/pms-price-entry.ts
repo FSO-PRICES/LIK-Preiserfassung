@@ -25,7 +25,9 @@ export class PmsPriceEntryPage {
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen).publishReplay(1).refCount();
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
+    priceCountStatuses$ = this.store.select(fromRoot.getPriceCountStatuses);
     warenkorb$ = this.store.select(fromRoot.getWarenkorb);
+    currentPriceCountStatus$ = this.currentPreismeldung$.combineLatest(this.priceCountStatuses$, (currentPreismeldung, priceCountStatuses) => priceCountStatuses[currentPreismeldung.preismeldung.epNummer]);
 
     selectPreismeldung$ = new EventEmitter<P.Models.Preismeldung>();
     save$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
@@ -99,8 +101,8 @@ export class PmsPriceEntryPage {
             .map(() => new Date());
 
         this.duplicatePreismeldung$
-            .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.PreismeldungBag) => currentPreismeldung)
-            .flatMap(currentPreismeldung => currentPreismeldung.priceCountStatus.ok ? dialogSufficientPreismeldungen$ : Observable.of('YES'))
+            .withLatestFrom(this.currentPreismeldung$, this.priceCountStatuses$, (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) => priceCountStatuses[currentPreismeldung.pmId])
+            .flatMap(priceCountStatus => priceCountStatus.ok ? dialogSufficientPreismeldungen$ : Observable.of('YES'))
             .filter(x => x === 'YES')
             .flatMap(() => dialogNewPmbearbeitungsCode$)
             .filter(x => x.action === 'OK')

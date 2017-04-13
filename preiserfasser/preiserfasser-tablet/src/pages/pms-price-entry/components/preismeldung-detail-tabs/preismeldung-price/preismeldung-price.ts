@@ -22,6 +22,7 @@ interface PercentageValues {
 })
 export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.PreismeldungBag;
+    @Input() priceCountStatus: P.PriceCountStatus;
     @Input() requestPreismeldungSave: string;
     @Input() requestPreismeldungQuickEqual: string;
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
@@ -43,7 +44,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public mengeChanged$ = new EventEmitter<string>();
     public createInvalidObservableFor: (controlName: string) => Observable<boolean>;
 
-
     public preisVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
     public preisVPNormalNeuerArtikelCurrentValue$: Observable<{ value: string }>;
     public mengeVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
@@ -64,6 +64,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     private preiseFormatFn = format(this.priceNumberFormattingOptions);
     private mengeFormatFn = format(this.mengeNumberFormattingOptions);
+
+    priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
 
     form: FormGroup;
 

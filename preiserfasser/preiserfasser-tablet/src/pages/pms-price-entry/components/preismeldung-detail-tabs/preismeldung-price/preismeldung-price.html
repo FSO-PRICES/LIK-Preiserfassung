@@ -10,8 +10,8 @@
                     type="text"
                     formControlName="artikelnummer"></ion-input>
             </ion-item>
-            <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus.ok, 'not-ok': !(preismeldung$ | async).priceCountStatus.ok }">
-                <span>{{ (preismeldung$ | async).priceCountStatus.text }}</span>
+            <div class="right-column price-count-status" [ngClass]="{ 'ok': (priceCountStatus$ | async).ok, 'not-ok': !(priceCountStatus$ | async).ok }">
+                <span>{{ (priceCountStatus$ | async).numActivePrices }}/{{ (priceCountStatus$ | async).anzahlPreiseProPMS }}</span>
             </div>
         </div>
         <div class="header-line">

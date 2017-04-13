@@ -27,6 +27,7 @@
                 <preismeldung-price
                     *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'"
                     [preismeldung]="currentPreismeldung$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"
                     [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
                     (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
