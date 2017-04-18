@@ -26,8 +26,17 @@ export const dbNames = {
 
 dropLocalDatabase(dbNames.emptyDb);
 
-export function createUser(username: string, password: string) {
-    return getDatabase('_users').then((db: any) => db.signUp(username, password));
+export function createUser(erheber: P.Erheber, password: string) {
+    return getDatabase('_users').then((db: any) => db.signUp(erheber._id, password));
+}
+
+export function updateUser(erheber: P.Erheber, password: string) {
+    return getDatabase('_users').then((db: any) => {
+        if (!!password) {
+            return db.changePassword(erheber._id, password);
+        }
+        return Promise.resolve(true);
+    });
 }
 
 export function deleteUser(username: string) {

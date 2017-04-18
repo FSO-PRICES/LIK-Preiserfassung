@@ -20,6 +20,8 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     public delete$: Observable<string>;
     @Output('cancel')
     public cancelClicked$ = new EventEmitter<Event>();
+    @Output('resetPassword')
+    public resetPasswordClicked$ = new EventEmitter<Event>();
     @Output('update')
     public update$: Observable<P.Erheber>;
 
@@ -51,7 +53,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                 telephone: [null],
                 email: [null],
             }),
-            password: [null, Validators.required]
+            password: [null, Validators.compose([Validators.required, Validators.maxLength(35)])]
         });
 
         const distinctPreiserheber$ = this.preiserheber$

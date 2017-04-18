@@ -1,6 +1,6 @@
 <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
     <h1 class="large" [ngSwitch]="isEditing$ | async">
-        <div *ngSwitchCase="true">Editieren</div>
+        <span *ngSwitchCase="true">Editieren</span>
         <span *ngSwitchDefault>Erfassen</span>
     </h1>
     <ion-list no-lines>
@@ -18,7 +18,12 @@
         </div>
         <ion-item class="pef-item" *ngIf="!(isEditing$ | async)">
             <ion-label stacked>Initiales Passwort</ion-label>
-            <ion-input type="password" formControlName="password"></ion-input>
+            <ion-input type="password" formControlName="password" maxlength="35"></ion-input>
+        </ion-item>
+        <ion-item class="pef-item" *ngIf="isEditing$ | async">
+            <p>
+                <a href="javascript:" (click)="resetPasswordClicked$.emit($event)">Passwort zurücksetzen</a>
+            </p>
         </ion-item>
         <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Vorname</ion-label>

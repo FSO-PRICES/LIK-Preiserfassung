@@ -8,6 +8,7 @@ export type CurrentPreiserheber = P.Erheber & {
     isSaved: boolean;
     isNew: boolean;
     error?: string;
+    isPasswordResetted?: boolean;
 };
 
 export interface State {
@@ -38,6 +39,16 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
         case 'SELECT_PREISERHEBER': {
             const currentPreiserheber = action.payload == null ? null : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false });
             return assign({}, state, { currentPreiserheber: currentPreiserheber });
+        }
+
+        case 'RESET_PASSWORD_SUCCESS': {
+            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, { isPasswordResetted: true });
+            return assign({}, state, { currentPreiserheber });
+        }
+
+        case 'CLEAR_RESET_PASSWORD_STATE': {
+            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, { isPasswordResetted: null });
+            return assign({}, state, { currentPreiserheber });
         }
 
         case 'DELETE_PREISERHEBER_SUCCESS': {
