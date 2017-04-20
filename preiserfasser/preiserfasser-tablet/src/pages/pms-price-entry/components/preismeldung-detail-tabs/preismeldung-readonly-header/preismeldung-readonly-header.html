@@ -10,7 +10,7 @@
             [value]="(preismeldung$ | async).preismeldung.artikelnummer"></ion-input>
     </ion-item>
     <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async).priceCountStatus.ok, 'not-ok': !(preismeldung$ | async).priceCountStatus.ok }">
-        <span>{{ (preismeldung$ | async).priceCountStatus.text }}</span>
+        <span>{{ (preismeldung$ | async).priceCountStatus.numActivePrices }}/{{ (preismeldung$ | async).priceCountStatus.anzahlPreiseProPMS }}</span>
     </div>
 </div>
 <div class="header-line">

@@ -33,7 +33,7 @@ export class DatabaseEffects {
     @Effect()
     loadPreismeldestellen$ = this.actions$
         .ofType('DATABASE_SYNC')
-        .switchMap(x => dropAndSyncDatabase(x.payload)
+        .flatMap(x => dropAndSyncDatabase(x.payload)
             .then(() => ({ type: 'SET_DATABASE_EXISTS', payload: true }))
             .catch(() => dropDatabase().then(() => ({ type: 'SET_DATABASE_EXISTS', payload: false })))
         );

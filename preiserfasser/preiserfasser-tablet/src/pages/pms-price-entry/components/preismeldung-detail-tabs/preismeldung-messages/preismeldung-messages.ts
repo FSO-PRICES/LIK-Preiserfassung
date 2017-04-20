@@ -10,8 +10,10 @@ import * as P from '../../../../../common-models';
 })
 export class PreismeldungMessagesComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.Models.Preismeldung;
+    @Input() priceCountStatus: P.PriceCountStatus;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
+    public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
 
     constructor() {
         super();

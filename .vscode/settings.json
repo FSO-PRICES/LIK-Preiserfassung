@@ -21,5 +21,6 @@
         "**/.DS_Store": true,
         "lik-shared/**/*.js": true,
         "lik-shared/**/*.js.map": true
-    }
+    },
+    "vsicons.presets.angular": true
 }

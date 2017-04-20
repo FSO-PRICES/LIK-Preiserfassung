@@ -14,16 +14,20 @@
             <ion-content *ngIf="!!(currentPreismeldung$ | async)">
                 <preismeldung-info-warenkorb
                     *ngIf="(selectedTab$ | async) == 'INFO_WARENKORB'"
-                    [preismeldung]="currentPreismeldung$ | async"></preismeldung-info-warenkorb>
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
                 <preismeldung-info
                     *ngIf="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
-                    [preismeldung]="currentPreismeldung$ | async"></preismeldung-info>
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info>
                 <preismeldung-attributes
                     *ngIf="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
-                    [preismeldung]="currentPreismeldung$ | async"></preismeldung-attributes>
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-attributes>
                 <preismeldung-messages
                     *ngIf="(selectedTab$ | async) == 'MESSAGES'"
-                    [preismeldung]="currentPreismeldung$ | async"></preismeldung-messages>
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-messages>
                 <preismeldung-price
                     *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'"
                     [preismeldung]="currentPreismeldung$ | async"
