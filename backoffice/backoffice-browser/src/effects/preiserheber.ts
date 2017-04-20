@@ -7,7 +7,7 @@ import { has } from 'lodash';
 import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
 import * as preiszuweisung from '../actions/preiszuweisung';
-import { getDatabase, dropDatabase, createUser, dbNames, getUserDatabaseName, deleteUser } from './pouchdb-utils';
+import { getDatabase, dropDatabase, createUser, dbNames, getUserDatabaseName, deleteUser, updateUser } from './pouchdb-utils';
 import { Models as P, CurrentPreiserheber } from '../common-models';
 import { loggedIn } from '../common/effects-extensions';
 
@@ -31,6 +31,16 @@ export class PreiserheberEffects {
         .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as P.Erheber[] })))
         .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as preiserheber.Action))
+    );
+
+    @Effect()
+    resetPassword$ = loggedIn(this.isLoggedIn, this.actions$.ofType('RESET_PASSWORD'), resetPassword$ => resetPassword$
+        .withLatestFrom(this.currentPreiserheber$, (action, preiserheber) => ({ password: action.payload, preiserheber }))
+        .switchMap(({ password, preiserheber }) => updateUser(preiserheber, password).then(() => true).catch(error => false))
+        .map(success => success ?
+            { type: 'RESET_PASSWORD_SUCCESS', payload: null } :
+            { type: 'RESET_PASSWORD_FAILURE', payload: 'Password ist ungültig' }
+        )
     );
 
     @Effect()
@@ -73,7 +83,7 @@ export class PreiserheberEffects {
                 // Reload the created erheber
                 .then(({ db, id, created }) => db.get(id).then((preiserheber: P.Erheber) => ({ preiserheber, created })))
                 // Initialize a database for created erheber
-                .then(({ preiserheber, created }) => (created ? createUser(preiserheber._id, password) : Promise.resolve(null)).then(() => ({ preiserheber, error: null })))
+                .then(({ preiserheber, created }) => (created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null })))
                 .catch(error => ({ preiserheber: null as P.Erheber, error: this.getErrorText(error) }))
         )
         .map(result => !result.error ?

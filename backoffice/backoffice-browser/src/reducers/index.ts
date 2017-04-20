@@ -15,6 +15,7 @@ import * as fromLogin from './login';
 import * as fromLanguage from './language';
 import * as fromImporter from './importer';
 import * as fromExporter from './exporter';
+import * as fromError from './error';
 
 export interface AppState {
     settings: fromSetting.State;
@@ -27,6 +28,7 @@ export interface AppState {
     languages: fromLanguage.State;
     importer: fromImporter.State;
     exporter: fromExporter.State;
+    errors: fromError.State;
 }
 
 const reducers = {
@@ -39,7 +41,8 @@ const reducers = {
     login: fromLogin.reducer,
     languages: fromLanguage.reducer,
     importer: fromImporter.reducer,
-    exporter: fromExporter.reducer
+    exporter: fromExporter.reducer,
+    errors: fromError.reducer
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -88,6 +91,9 @@ export const getUnexportedPreismeldungenAreLoaded = createSelector(getPreismeldu
 export const getIsLoggedIn = (state: AppState) => state.login.isLoggedIn;
 export const getLoggedInUser = (state: AppState) => state.login.user;
 export const getLoginError = (state: AppState) => state.login.loginError;
+
+export const getLastErrors = (state: AppState) => state.errors;
+export const getResetPasswordError = (state: AppState) => state.errors.passwordReset;
 
 export const getLanguagesState = (state: AppState) => state.languages;
 export const getLanguages = createSelector(getLanguagesState, fromLanguage.getLanguages);

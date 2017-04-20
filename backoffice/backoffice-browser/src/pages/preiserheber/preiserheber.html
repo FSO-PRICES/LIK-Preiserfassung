@@ -20,7 +20,8 @@
                 (save)="savePreiserheber$.emit($event)"
                 (delete)="deletePreiserheber$.emit($event)"
                 (cancel)="cancelPreiserheber$.emit($event)"
-                (update)="updatePreiserheber$.emit($event)"></preiserheber-detail>
+                (update)="updatePreiserheber$.emit($event)"
+                (resetPassword)="resetPassword$.emit($event)"></preiserheber-detail>
         </div>
         <div class="preiserheber-preiszuweisung-container container">
             <preiserheber-preiszuweisung  *ngIf="(isEditing$ | async) && !(isCreating$ | async)"

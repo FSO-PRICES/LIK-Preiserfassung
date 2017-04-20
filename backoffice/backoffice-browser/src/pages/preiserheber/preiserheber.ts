@@ -11,6 +11,7 @@ import { Action as PreismeldestelleAction } from '../../actions/preismeldestelle
 import { Action as PreiserheberAction } from '../../actions/preiserheber';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
 import { PefDialogConfirmDeleteComponent } from '../../components/pef-dialog-confirm-delete/pef-dialog-confirm-delete';
+import { PefDialogResetPasswordComponent } from '../../components/pef-dialog-reset-password/pef-dialog-reset-password';
 import { SettingsLoadedService } from '../../common/settings-loaded-service';
 import { CurrentPreiszuweisung } from '../../reducers/preiszuweisung';
 
@@ -29,6 +30,7 @@ export class PreiserheberPage implements OnDestroy {
     public selectPreiserheber$ = new EventEmitter<string>();
     public createPreiserheber$ = new EventEmitter();
     public cancelPreiserheber$ = new EventEmitter();
+    public resetPassword$ = new EventEmitter();
     public savePreiserheber$ = new EventEmitter();
     public deletePreiserheber$ = new EventEmitter();
     public updatePreiserheber$ = new EventEmitter<P.Erheber>();
@@ -38,6 +40,7 @@ export class PreiserheberPage implements OnDestroy {
     public isEditing$: Observable<boolean>;
     public isCreating$: Observable<boolean>;
     public isCurrentModified$: Observable<boolean>;
+    public resetPasswordDialog$: Observable<any>;
     public cancelEditDialog$: Observable<any>;
     public confirmDeleteDialog$: Observable<any>;
 
@@ -46,6 +49,7 @@ export class PreiserheberPage implements OnDestroy {
 
     constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private pefDialogService: PefDialogService, private settingsLoadedService: SettingsLoadedService) {
         const confirmDeleteText = 'Die Preiserheber können nicht mehr mit diesem Konto synchronisieren und alle aktuell erfassten Preismeldungen gehen verloren.';
+        this.resetPasswordDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogResetPasswordComponent, {}).map(x => x.data));
         this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
         this.confirmDeleteDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogConfirmDeleteComponent, { text: confirmDeleteText }).map(x => x.data));
 
@@ -134,6 +138,11 @@ export class PreiserheberPage implements OnDestroy {
                 .flatMap(currentPreiserheber => this.confirmDeleteDialog$.map(y => ({ currentPreiserheber, dialogCode: y })))
                 .filter(x => x.dialogCode === 'CONFIRM_DELETE')
                 .subscribe(({ currentPreiserheber }) => store.dispatch({ type: 'DELETE_PREISERHEBER', payload: currentPreiserheber } as PreiserheberAction)),
+
+            this.resetPassword$
+                .withLatestFrom(this.currentPreiserheber$, (_, currentPreiserheber) => currentPreiserheber)
+                .flatMap(currentPreiserheber => this.resetPasswordDialog$.map(y => ({ currentPreiserheber, dialogCode: y })))
+                .subscribe(() => store.dispatch({ type: 'CLEAR_RESET_PASSWORD_STATE' } as PreiserheberAction)),
 
             this.currentPreiserheber$
                 .combineLatest(this.currentPreiszuweisung$, (currentPreiserheber, currentPreiszuweisung) => ({ currentPreiserheber, currentPreiszuweisung: <CurrentPreiszuweisung>currentPreiszuweisung }))
