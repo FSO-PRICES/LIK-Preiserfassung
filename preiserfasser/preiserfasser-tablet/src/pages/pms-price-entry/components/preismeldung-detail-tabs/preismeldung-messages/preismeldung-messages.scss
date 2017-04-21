@@ -4,4 +4,39 @@ preismeldung-messages {
     display: flex;
     flex-direction: column;
     background-color: $alto;
+
+    h3:not(:first-child) {
+        margin-top: 2em;
+    }
+
+    ion-item.pef-textarea-item {
+        max-width: 40em;
+        padding-left: 0;
+        margin-bottom: 0.5em;
+        &.item-md.item-block .item-inner {
+            padding-right: 0;
+            border-bottom-width: 0;
+        }
+        ion-textarea {
+            border-bottom: 2px solid $hit-gray;
+            &[disabled] {
+                border-bottom-width: 0px;
+                background-color: $wild-sand;
+                text-area {
+                    opacity: 0.6;
+                }
+            }
+        }
+        &.input-has-focus {
+            ion-input, ion-textarea {
+                border-bottom-color: $blue-chill;
+            }
+            .item-inner {
+                box-shadow: none;
+            }
+            &:last-child {
+                box-shadow: none;
+            }
+        }
+    }
 }

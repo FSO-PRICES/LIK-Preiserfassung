@@ -45,6 +45,13 @@ pms-price-entry.ion-page {
         }
     }
 
+    .tabs-container {
+        flex: 1;
+        > * {
+            height: 100%;
+        }
+    }
+
     .preismeldung-list-container {
         flex: 0 1 33.3%;
         max-width: 33.3%;
@@ -60,7 +67,7 @@ pms-price-entry.ion-page {
     .detail-tab-bottom-part {
         @include set-padding(1, 1, 1, 1);
         @include set-margin-top(0.25);
-
+        flex: 1;
         background-color: $mercury;
     }
 }

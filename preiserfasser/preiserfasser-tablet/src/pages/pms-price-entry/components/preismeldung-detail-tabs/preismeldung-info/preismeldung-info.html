@@ -4,7 +4,7 @@
     <h5 class="large">{{ 'heading_information-about-preismeldung' | translate }}</h5>
 
     <div class="info-table">
-        <div class="info-table-row">
+        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
             <div class="info-table-cell-heading">
                 Preis vor Reduktion
             </div>
@@ -16,7 +16,7 @@
             <div class="info-table-cell-value">
             </div>
         </div>
-        <div class="info-table-row">
+        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
             <div class="info-table-cell-heading">
                 Menge vor Reduktion
             </div>
@@ -28,7 +28,7 @@
             <div class="info-table-cell-value">
             </div>
         </div>
-        <div class="info-table-row">
+        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
             <div class="info-table-cell-heading">
                 Anzahl Fehlende Preis R
             </div>
@@ -40,7 +40,7 @@
             <div class="info-table-cell-value">
             </div>
         </div>
-        <div class="info-table-row">
+        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
             <div class="info-table-cell-heading">
                 Basispreis
             </div>
@@ -52,7 +52,7 @@
             <div class="info-table-cell-value">
             </div>
         </div>
-        <div class="info-table-row">
+        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
             <div class="info-table-cell-heading">
                 Basismenge
             </div>
@@ -64,7 +64,7 @@
             <div class="info-table-cell-value">
             </div>
         </div>
-        <div class="info-table-row">
+        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
             <div class="info-table-cell-heading">
                 Preis geführt seit
             </div>

@@ -263,7 +263,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         numActivePrices: x.priceCountStatus.numActivePrices - 1,
                         anzahlPreiseProPMS: x.priceCountStatus.anzahlPreiseProPMS
                     };
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => res.data === 'YES' ? 'SAVE_AND_DUPLICATE_PREISMELDUNG' : x.saveAction);
+                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => res.data === 'YES' ? { saveAction: 'SAVE_AND_DUPLICATE_PREISMELDUNG' } : x.saveAction);
                 }
                 return Observable.of(x.saveAction);
             });

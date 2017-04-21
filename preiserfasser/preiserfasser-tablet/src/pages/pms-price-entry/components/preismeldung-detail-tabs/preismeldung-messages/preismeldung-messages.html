@@ -1,5 +1,21 @@
-<preismeldung-readonly-header [preismeldung]="preismeldung$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-readonly-header>
+<ion-content>
+    <preismeldung-readonly-header [preismeldung]="preismeldung$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-readonly-header>
 
-<div class="detail-tab-bottom-part">
-    <h3>preismeldung-messages</h3>
-</div>
+    <div class="detail-tab-bottom-part">
+        <h3>Meine Notiz</h3>
+        <ion-item class="pef-textarea-item">
+            <ion-textarea></ion-textarea>
+        </ion-item>
+        <button ion-button color="java" class="save-button">Leeren</button>
+        <h3>Kommentar zum aktuellen Monat</h3>
+        <ion-item class="pef-textarea-item">
+            <ion-textarea></ion-textarea>
+        </ion-item>
+        <button ion-button color="java" class="save-button">Leeren</button>
+        <h3>Kommunikation/Chat/Q&amp;A</h3>
+        <ion-item class="pef-textarea-item">
+            <ion-textarea [value]="'xxx'"></ion-textarea>
+        </ion-item>
+        <button ion-button color="java" class="save-button">Erledigt</button>
+    </div>
+</ion-content>

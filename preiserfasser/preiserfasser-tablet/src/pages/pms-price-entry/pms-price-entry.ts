@@ -81,13 +81,9 @@ export class PmsPriceEntryPage {
             .subscribe(x => store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload: x }));
 
         this.save$
-            .do(x => console.log('aasdf', x))
             // why do I need this setTimeout - is it an Ionic bug? requires two touches on tablet to register 'SAVE_AND_MOVE_TO_NEXT'
             .subscribe(x => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload: x.saveAction })));
 
-        // this.save$
-        //     .filter(x => x === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
-        //     .subscribe(x => setTimeout(() => this.navController.setRoot(DashboardPage), 1000)); // TODO:
         this.currentPreismeldung$
             .filter(x => !!x && x.lastSaveAction === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
             .subscribe(() => this.navController.setRoot(DashboardPage).then(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null })));

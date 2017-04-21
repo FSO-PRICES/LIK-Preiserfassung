@@ -11,25 +11,25 @@
     </preismeldung-toolbar>
     <div class="work-area">
         <div class="preismeldung-details-container">
-            <ion-content *ngIf="!!(currentPreismeldung$ | async)">
+            <div class="tabs-container" [class.display-none]="!(currentPreismeldung$ | async)">
                 <preismeldung-info-warenkorb
-                    *ngIf="(selectedTab$ | async) == 'INFO_WARENKORB'"
+                    [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
                 <preismeldung-info
-                    *ngIf="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
+                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info>
                 <preismeldung-attributes
-                    *ngIf="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
+                    [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-attributes>
                 <preismeldung-messages
-                    *ngIf="(selectedTab$ | async) == 'MESSAGES'"
+                    [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-messages>
                 <preismeldung-price
-                    *ngIf="(selectedTab$ | async) == 'PREISMELDUNG'"
+                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     [requestPreismeldungSave]="requestPreismeldungSave$ | async"
@@ -37,8 +37,8 @@
                     (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
                     (save)="save$.emit($event)"></preismeldung-price>
-            </ion-content>
-            <div class="message" *ngIf="!(currentPreismeldung$ | async)">
+            </div>
+            <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
                 Keine Preismeldung selektiert
             </div>
         </div>

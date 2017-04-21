@@ -1,4 +1,4 @@
-<div class="header-line">
+<div class="header-line" *ngIf="!!(preismeldung$ | async)">
     <div class="product-heading">
         {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ | async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
     </div>
@@ -13,7 +13,7 @@
         <span>{{ (preismeldung$ | async).priceCountStatus.numActivePrices }}/{{ (preismeldung$ | async).priceCountStatus.anzahlPreiseProPMS }}</span>
     </div>
 </div>
-<div class="header-line">
+<div class="header-line" *ngIf="!!(preismeldung$ | async)">
     <ion-item class="pef-item on-dark">
         <ion-label> Artikeltext <span style="visibility: hidden">*</span> </ion-label>
         <ion-input

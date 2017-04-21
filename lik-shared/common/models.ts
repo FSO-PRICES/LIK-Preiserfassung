@@ -125,7 +125,6 @@ interface _PreismeldungProperties {
     percentageDPToVPVorReduktion?: number;
     percentageDPToVPNeuerArtikel?: number;
     percentageVPNeuerArtikelToVPAlterArtikel?: number;
-    // percentageVPNeuerArtikelToVPAlterArtikel?: number;
 
     modifiedAt: string;
     bearbeitungscode: Bearbeitungscode;
