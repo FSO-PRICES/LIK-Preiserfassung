@@ -17,11 +17,11 @@
                 </ion-col>
             </ion-row>
             <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
-                <h3><pef-icon name="settings"></pef-icon> {{'server-connection-url' | translate}}</h3>
+                <h3><pef-icon name="server_url"></pef-icon> {{'server-connection-url' | translate}}</h3>
                 <ion-list formGroupName="serverConnection">
                     <ion-item class="pef-item on-dark">
                         <ion-input type="text" formControlName="url" type="url"></ion-input>
-                        <pef-icon item-right name="home" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
+                        <pef-icon item-right name="wifi" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
                     </ion-item>
                 </ion-list>
                 <div class="actions">

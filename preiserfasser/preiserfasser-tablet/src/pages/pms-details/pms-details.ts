@@ -83,7 +83,7 @@ export class PmsDetailsPage implements OnDestroy {
         this.hasErrors$ = this.formErrors$.map(x => !!x && x.length > 0);
 
         this.subscriptions = [
-            this.cancelClicked$.subscribe(() => this.navCtrl.canGoBack() ? this.navCtrl.pop() : this.navCtrl.setRoot(DashboardPage)),
+            this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
             this.form.valueChanges
                 .map(() => this.form.value)
@@ -134,6 +134,10 @@ export class PmsDetailsPage implements OnDestroy {
             fax: x.fax,
             email: x.email
         }));
+    }
+
+    navigateToDashboard() {
+        return this.navCtrl.setRoot(DashboardPage, {}, { animate: true, direction: 'back' });
     }
 }
 

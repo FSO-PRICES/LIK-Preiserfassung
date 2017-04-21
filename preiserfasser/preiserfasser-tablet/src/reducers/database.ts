@@ -4,16 +4,21 @@ export interface State {
     databaseExists?: boolean;
     isDatabaseSyncing: boolean;
     canConnectToDatabase: boolean;
+    lastUploadedAt: Date;
 }
 
 const initialState: State = {
     databaseExists: null,
     isDatabaseSyncing: false,
-    canConnectToDatabase: false
+    canConnectToDatabase: false,
+    lastUploadedAt: null
 };
 
 export function reducer(state = initialState, action: appConfig.Actions): State {
     switch (action.type) {
+        case 'SET_DATABASE_LAST_UPLOADED_AT':
+            return Object.assign({}, state, { lastUploadedAt: action.payload });
+
         case 'CHECK_CONNECTIVITY_TO_DATABASE':
             return Object.assign({}, state, { canConnectToDatabase: null });
 

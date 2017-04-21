@@ -1,42 +1,55 @@
-<ion-content no-scroll>
-    <div class="dashboard-content">
-        <div class="pef-toolbar">
-            <div class="app-info-container">
-                <div class="app-name">LIK</div>
-                <div class="person">
-                    <div class="person-icon"></div>
-                </div>
-            </div>
-            <div class="settings-buttons-container">
-                <button ion-button class="pef-toolbar-button" [disabled]="true">
-                    <pef-icon name="info"></pef-icon>
-                </button>
-                <button ion-button class="pef-toolbar-button" (click)="settingsClicked.emit()">
-                    <pef-icon name="settings"></pef-icon>
-                </button>
+<div class="dashboard-content">
+    <div class="pef-toolbar">
+        <div class="app-info-container">
+            <div class="app-name">LIK</div>
+            <div class="person">
+                <div class="person-icon"></div>
             </div>
         </div>
-        <div class="work-area">
-            <div class="preismeldestellen">
-                <div class="header-line">
-                    <h3>{{ 'choose-preismeldestelle' | translate }}</h3>
-                    <div class="current-time">{{currentTime$ | async}}</div>
-                </div>
-                <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
-                <div class="pms-header-table">
-                    <div class="pms-header-row">
-                        <div class="pms-header-cell pms-name">
-                            <div class="pms-header-cell-content">{{ 'preismeldestelle' | translate }}</div>
-                        </div>
+        <div class="settings-buttons-container">
+            <button ion-button class="pef-toolbar-button" [disabled]="true">
+                <pef-icon name="info"></pef-icon>
+            </button>
+            <button ion-button class="pef-toolbar-button" (click)="settingsClicked.emit()">
+                <pef-icon name="settings"></pef-icon>
+            </button>
+        </div>
+    </div>
+    <div class="work-area">
+        <div class="preismeldestellen">
+            <div class="header-line">
+                <h3>{{ 'choose-preismeldestelle' | translate }}</h3>
+                <div class="current-time">{{currentTime$ | async}}</div>
+            </div>
+            <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
+            <div class="pms-header-table">
+                <div class="pms-header-row">
+                    <div class="pms-header-cell pms-name">
+                        <div class="pms-header-cell-content">{{ 'preismeldestelle' | translate }}</div>
+                    </div>
+                    <div class="pms-header-cell pms-flag">
+                        <div class="pms-header-cell-content"></div>
+                    </div>
+                    <div class="pms-header-cell pms-open-unsaved">
+                        <div class="pms-header-cell-content"><pef-icon name="todo"></pef-icon></div>
+                    </div>
+                    <div class="pms-header-cell pms-open-saved">
+                        <div class="pms-header-cell-content"><pef-icon name="checkmark"></pef-icon></div>
+                    </div>
+                    <div class="pms-header-cell pms-uploaded">
+                        <div class="pms-header-cell-content"><pef-icon name="upload"></pef-icon></div>
+                    </div>
+                    <div class="pms-header-cell pms-actions">
+                        <div class="pms-header-cell-content"></div>
                     </div>
                 </div>
-                <pef-virtual-scroll
-                    class="preismeldungen-scroll"
-                    [items]="filteredPreismeldestellen$ | async"
-                    (update)="viewPortItems = $event"
-                    pef-perfect-scrollbar [enabled]="isDesktop$ | async">
-                    <div class="pms-table">
-                        <div class="pms-row" *ngFor="let preismeldestelle of filteredPreismeldestellen$ | async">
+            </div>
+            <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop">
+                <div class="pms-table" [virtualScroll]="filteredPreismeldestellen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)">
+                    <div
+                        class="pms-row"
+                        *virtualItem="let preismeldestelle"
+                    >
                             <div class="pms-cell pms-name">
                                 <div class="pms-cell-content">
                                     <a ion-button clear icon-left
@@ -48,7 +61,21 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="pms-cell erfassung-starten">
+                            <div class="pms-cell pms-flag">
+                                <div class="pms-cell-content"></div>
+                            </div>
+                            <div class="pms-cell pms-open-unsaved">
+                                <div class="pms-cell-content">{{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'openUnsavedCount') | async }}</div>
+                            </div>
+                            <div class="pms-cell pms-open-saved">
+                                <div class="pms-cell-content">{{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'openSavedCount') | async }}</div>
+                            </div>
+                            <div class="pms-cell pms-uploaded">
+                                <div class="pms-cell-content" [class.completed-pms]="isPreismeldestelleCompleted(preismeldestelle.pmsNummer) | async">
+                                    {{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'uploadedCount') | async }}/{{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'totalCount') | async }}
+                                </div>
+                            </div>
+                            <div class="pms-cell pms-actions">
                                 <div class="pms-cell-content">
                                     <a ion-button icon-only
                                         class="price-entry-button"
@@ -58,11 +85,49 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>
                     </div>
-                </pef-virtual-scroll>
+                </div>
+            </ion-content>
+        </div>
+        <div class="preismeldungen">
+            <div class="header-line">
+                <h3>{{ 'heading_manage-preismeldestelle' | translate }}</h3>
             </div>
-            <div class="preismeldungen"></div>
+            <div class="summary">
+            {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | date:'MMMM y' }}
+            </div>
+            <div class="statistics">
+                <ion-content>
+                    <div class="row">
+                        <pef-icon name="download"></pef-icon>
+                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.totalCount }}</div>
+                        <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
+                    </div>
+                    <div class="row">
+                        <pef-icon name="upload"></pef-icon>
+                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.uploadedCount }}</div>
+                        <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
+                    </div>
+                    <div class="row">
+                        <pef-icon name="checkmark"></pef-icon>
+                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount }}</div>
+                        <div class="text">{{ 'text_preismeldung_offen-erfasst' | translate }}</div>
+                    </div>
+                    <div class="row">
+                        <pef-icon name="todo"></pef-icon>
+                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openUnsavedCount }}</div>
+                        <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
+                    </div>
+                </ion-content>
+            </div>
+            <div class="actions">
+                <pef-icon name="wifi" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
+                <div class="row">
+                    <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount }}</div>
+                    <div class="text">{{ 'text_preismeldung_erfasste' | translate }}</div>
+                </div>
+                <button ion-button type="button" (click)="uploadPreismeldungenClicked$.emit($event)" [disabled]="!(canConnectToDatabase$ | async) || !(hasOpenSavedPreismeldungen() | async)">{{ 'btn_upload-now' | translate }}</button>
+            </div>
         </div>
     </div>
-</ion-content>
+</div>

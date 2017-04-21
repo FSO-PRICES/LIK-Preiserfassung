@@ -58,7 +58,7 @@ export class PmsPriceEntryPage {
     ) {
         this.toolbarButtonClicked$
             .filter(x => x === 'HOME')
-            .subscribe(() => this.navController.setRoot(DashboardPage));
+            .subscribe(() => this.navigateToDashboard());
 
         this.requestPreismeldungQuickEqual$ = this.toolbarButtonClicked$
             .filter(x => x === 'PREISMELDUNG_QUICK_EQUAL')
@@ -109,7 +109,7 @@ export class PmsPriceEntryPage {
             .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }));
 
         this.addNewPreisreihe$
-            .subscribe(() => this.navController.setRoot(NewPriceSeriesPage, { pmsNummer: this.navParams.get('pmsNummer') }));
+            .subscribe(() => this.navigateToNewPriceSeries());
 
         this.ionViewDidLoad$
             .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') }));
@@ -118,6 +118,14 @@ export class PmsPriceEntryPage {
 
     ionViewDidLoad() {
         this.ionViewDidLoad$.emit();
+    }
+
+    navigateToDashboard() {
+        return this.navController.setRoot(DashboardPage, {}, { animate: true, direction: 'back' });
+    }
+
+    navigateToNewPriceSeries() {
+        return this.navController.setRoot(NewPriceSeriesPage, { pmsNummer: this.navParams.get('pmsNummer') }, { animate: true, direction: 'forward' });
     }
 }
 

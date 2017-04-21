@@ -10,6 +10,7 @@
     "heading_artikel-neu": "Artikel neu",
     "heading_information-about-preismeldung": "Information über die Preismeldung",
     "heading_information-about-warenkorbposition": "Information über die Warenkorbposition",
+    "heading_manage-preismeldestelle": "Preismeldungen verwalten",
     "dialogText_sufficientPreismeldungen": "Es sind bereits ausreichend Artikel in der EP erfasst. Wollen Sie dennoch ein neues Produkt erfassen?",
     "dialogText_unchangedPmText": "Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?",
     "dialogText_rrr-message-mit-aufforderung-zu-produktersatz": "Der Artikel fehlt bereits längere Zeit. Gibt es eine mögliches Ersatzproduct?",
@@ -19,6 +20,14 @@
     "text_synchronizing-data": "Datensynchronisierung. Bitte warten...",
     "text_saving-settings": "Einstellungen werden gespeichert. Bitte warten...",
     "text_database-successfully-deleted": "Lokale Daten wurden erfolgreich gelöscht.",
+    "text_erhebungsmonat": "Erhebungsmonat",
+
+    "text_preismeldung_heruntergeladene": "Heruntergeladene",
+    "text_preismeldung_hochgeladene": "Hochgeladene",
+    "text_preismeldung_offen-erfasst": "Offen: Erfasst",
+    "text_preismeldung_offen-nicht-erfasst": "Offen: Nicht erfasst",
+
+    "text_preismeldung_erfasste": "erfasste Preismeldungen",
 
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",
@@ -30,6 +39,7 @@
     "btn_save": "Speichern",
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
+    "btn_upload-now": "jetzt hochladen",
 
     "a_navigate-to-settings": "Einstellungen bearbeiten",
 

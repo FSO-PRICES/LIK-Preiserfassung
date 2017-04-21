@@ -68,6 +68,7 @@ export class PefApp implements OnInit {
 
     public ngOnInit() {
         this.store.dispatch({ type: 'LOAD_SETTINGS' });
+        this.store.dispatch({ type: 'CHECK_DATABASE_LAST_UPLOADED_AT' });
         this.store.select(fromRoot.getSettings)
             .filter(setting => !!setting)
             .map(setting => !setting.isDefault)
