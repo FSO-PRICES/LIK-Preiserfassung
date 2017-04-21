@@ -1,10 +1,10 @@
 import { Component, HostBinding, EventEmitter, OnDestroy } from '@angular/core';
-import { ViewController } from 'ionic-angular';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { ViewController } from 'ionic-angular';
+import { Subscription } from 'rxjs';
 
 import * as fromRoot from '../../reducers';
-import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'pef-dialog-login',
@@ -45,5 +45,9 @@ export class PefDialogLoginComponent implements OnDestroy {
     public ngOnDestroy() {
         if (!this.subscriptions || this.subscriptions.length === 0) return;
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    }
+
+    navigateToSettings() {
+        this.viewCtrl.dismiss('NAVIGATE_TO_SETTINGS');
     }
 }

@@ -7,6 +7,7 @@ import { TimeEffects } from './time';
 import { WarenkorbEffects } from './warenkorb';
 import { WindowLocationEffects } from './window-location';
 import { SettingEffects } from './setting';
+import { StatisticsEffects } from './statistics';
 
 export const PEF_EFFECTS = [
     EffectsModule.run(DatabaseEffects),
@@ -15,5 +16,6 @@ export const PEF_EFFECTS = [
     EffectsModule.run(TimeEffects),
     EffectsModule.run(WindowLocationEffects),
     EffectsModule.run(WarenkorbEffects),
-    EffectsModule.run(SettingEffects)
+    EffectsModule.run(SettingEffects),
+    EffectsModule.run(StatisticsEffects)
 ];

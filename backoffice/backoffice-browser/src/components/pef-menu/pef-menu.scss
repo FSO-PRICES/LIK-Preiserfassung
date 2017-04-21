@@ -8,6 +8,10 @@
         color: $white;
     }
 
+    ion-title {
+        flex: 0;
+    }
+
     ion-buttons {
         flex: 1;
         height: 3em;

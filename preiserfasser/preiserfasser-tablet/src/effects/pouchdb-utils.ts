@@ -14,6 +14,10 @@ function _checkIfDatabaseExists(dbName): Promise<boolean> {
         .then((dbs: string[]) => (dbs || []).some(x => x === dbName));
 }
 
+export function getOrCreateDatabase() {
+    return Promise.resolve(new PouchDB(DB_NAME));
+}
+
 export function getDatabase(): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
     return _checkIfDatabaseExists(DB_NAME)
         .then(exists => {
@@ -51,25 +55,30 @@ export function dropDatabase() {
     return db.destroy().then(() => { }).catch(() => { }); // Always try to delete, because the checkIfDatabaseExists could return a false negative
 }
 
-export function dropAndSyncDatabase(data: { url: string, username: string, password: string }) {
-    return _checkIfDatabaseExists(DB_NAME)
-        .then(exists => {
-            if (exists) {
-                const db = new PouchDB(DB_NAME);
-                return db.destroy().then(() => new PouchDB(DB_NAME));
-            }
-            return Promise.resolve(new PouchDB(DB_NAME));
-        })
+export function downloadDatabase(data: { url: string, username: string, password: string }) {
+    return getOrCreateDatabase()
         .then(pouch => {
             const couch = new PouchDB(`${data.url}/user_${data.username}`) as any;
-            // const couch = new PouchDB('http://bfs-lik.lambda-it.ch:5984/bfs-test') as any;
-            // const couch = new PouchDB('http://bfs-lik.lambda-it.ch:5984/germaine_exemple') as any;
             const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
 
             return login(data.username, data.password)
                 .then(() => {
                     const sync = bluebird.promisify<any, any, any>(pouch.sync, { context: pouch });
                     return sync(couch, { push: false, pull: true, batch_size: 1000 });
+                });
+        });
+}
+
+export function uploadDatabase(data: { url: string, username: string, password: string }) {
+    return getDatabase()
+        .then(pouch => {
+            const couch = new PouchDB(`${data.url}/user_${data.username}`) as any;
+            const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
+
+            return login(data.username, data.password)
+                .then(() => {
+                    const sync = bluebird.promisify<any, any, any>(pouch.sync, { context: pouch });
+                    return pouch.compact().then(() => sync(couch, { push: true, pull: false, batch_size: 1000 }));
                 });
         });
 }

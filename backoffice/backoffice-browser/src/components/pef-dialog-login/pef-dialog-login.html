@@ -21,6 +21,9 @@
             </span>
         </p>
         <div class="pef-dialog-button-row">
+            <a (click)="navigateToSettings()" href="javascript:">
+                Einstellungen bearbeiten
+            </a>
             <button type="submit" ion-button (click)="loginClicked$.emit($event)" color="secondary">Login</button>
         </div>
     </form>

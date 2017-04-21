@@ -96,7 +96,7 @@ export class SettingsPage implements OnDestroy {
             .map(databaseExists => !databaseExists);
 
         this.subscriptions = [
-            this.cancelClicked$.subscribe(() => this.navCtrl.setRoot(DashboardPage)),
+            this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
             this.deleteAllClicked$.subscribe(() => {
                 this.store.dispatch({ type: 'DELETE_DATABASE' } as DatabaseAction);
@@ -140,5 +140,9 @@ export class SettingsPage implements OnDestroy {
     public ngOnDestroy() {
         if (!this.subscriptions || this.subscriptions.length === 0) return;
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    }
+
+    public navigateToDashboard() {
+        return this.navCtrl.setRoot(DashboardPage, {}, { animate: true, direction: 'back' });
     }
 }

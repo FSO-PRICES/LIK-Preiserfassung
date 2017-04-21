@@ -40,7 +40,7 @@ export class NewPriceSeriesPage implements OnDestroy {
                     if (!!x) {
                         this.store.dispatch({ type: 'NEW_PREISMELDUNG', payload: { warenkorbPosition: x.warenkorbPosition, bearbeitungscode: x.bearbeitungscode, pmsNummer: this.navParams.get('pmsNummer') } });
                     }
-                    this.navController.setRoot(PmsPriceEntryPage, { pmsNummer: this.navParams.get('pmsNummer') });
+                    this.navigateToPmsPriceEntry();
                 })
         );
     }
@@ -51,5 +51,9 @@ export class NewPriceSeriesPage implements OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.forEach(s => s.unsubscribe());
+    }
+
+    navigateToPmsPriceEntry() {
+        return this.navController.setRoot(PmsPriceEntryPage, { pmsNummer: this.navParams.get('pmsNummer') }, { animate: true, direction: 'back' });
     }
 }
