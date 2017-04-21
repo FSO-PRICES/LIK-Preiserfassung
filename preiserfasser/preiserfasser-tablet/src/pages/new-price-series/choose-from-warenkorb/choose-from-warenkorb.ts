@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TranslateService } from 'ng2-translate';
 import { assign } from 'lodash';
@@ -48,7 +48,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 return warenkorb.map(warenkorbInfo => ({
                     isExpanded: false,
                     depth: warenkorbInfo.warenkorbItem.tiefencode,
-                    preismeldungCount: preismeldungen.filter(y => y.preismeldung.epNummer === warenkorbInfo.warenkorbItem.gliederungspositionsnummer).length,
+                    preismeldungCount: preismeldungen.filter(y => y.preismeldung.epNummer === warenkorbInfo.warenkorbItem.gliederungspositionsnummer && y.preismeldung.bearbeitungscode !== 0).length,
                     filteredLeafCount: warenkorbInfo.leafCount,
                     warenkorbInfo
                 }));
@@ -59,7 +59,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 if (searchString === null) return warenkobUiItems;
                 const filtered = warenkobUiItems
                     .filter(x => x.warenkorbInfo.warenkorbItem.type === 'BRANCH'
-                        || (x.warenkorbInfo.warenkorbItem.type === 'LEAF' && pefContains(searchString, x, [y => y.warenkorbInfo.warenkorbItem.positionsbezeichnung[currentLanguage], y => !y.warenkorbInfo.warenkorbItem.beispiele ? null : y.warenkorbInfo.warenkorbItem.beispiele[currentLanguage]])));
+                        || (x.warenkorbInfo.warenkorbItem.type === 'LEAF' && pefContains(searchString, x, [y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer, y => y.warenkorbInfo.warenkorbItem.positionsbezeichnung[currentLanguage], y => !y.warenkorbInfo.warenkorbItem.beispiele ? null : y.warenkorbInfo.warenkorbItem.beispiele[currentLanguage]])));
                 return filtered.map(x => assign({}, x, { filteredLeafCount: x.warenkorbInfo.warenkorbItem.type === 'LEAF' ? 0 : this.findDescendantsOfWarenkorbItem(filtered, x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer).filter(y => y.warenkorbInfo.warenkorbItem.type === 'LEAF').length }));
             })
             .publishReplay(1).refCount();

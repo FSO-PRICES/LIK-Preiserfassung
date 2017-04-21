@@ -23,14 +23,14 @@ interface PercentageValues {
 export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.PreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
-    @Input() requestPreismeldungSave: string;
+    @Input() requestPreismeldungSave: { saveAction: P.SavePreismeldungPricePayloadType };
     @Input() requestPreismeldungQuickEqual: string;
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
     @Output('save') save$: Observable<{ saveAction: P.SavePreismeldungPricePayloadType }>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
 
     public preismeldung$: Observable<P.PreismeldungBag>;
-    public requestPreismeldungSave$: Observable<string>;
+    public requestPreismeldungSave$: Observable<{saveAction: P.SavePreismeldungPricePayloadType}>;
     public requestPreismeldungQuickEqual$: Observable<string>;
     public codeListType$: Observable<string>;
 
@@ -92,7 +92,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         }, { validator: this.formLevelValidationFactory() });
 
         this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
-        this.requestPreismeldungSave$ = this.observePropertyCurrentValue<string>('requestPreismeldungSave').filter(x => !!x);
+        this.requestPreismeldungSave$ = this.observePropertyCurrentValue<{ saveAction: P.SavePreismeldungPricePayloadType }>('requestPreismeldungSave').filter(x => !!x);
         this.requestPreismeldungQuickEqual$ = this.observePropertyCurrentValue<string>('requestPreismeldungQuickEqual').filter(x => !!x);
 
         const distinctPreismeldung$ = this.preismeldung$
@@ -126,7 +126,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.requestPreismeldungQuickEqual$.withLatestFrom(this.preismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
+            this.requestPreismeldungQuickEqual$.withLatestFrom(distinctPreismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
                     this.form.patchValue({
                         preis: `${currentPm.refPreismeldung ? this.preiseFormatFn(currentPm.refPreismeldung.preis) : ''}`,
@@ -137,7 +137,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.applyUnitQuickEqual$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
+            this.applyUnitQuickEqual$.withLatestFrom(distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
                         menge: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
@@ -146,7 +146,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.applyUnitQuickEqualVP$.withLatestFrom(this.preismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
+            this.applyUnitQuickEqualVP$.withLatestFrom(distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
                         mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
@@ -163,7 +163,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 })
         );
 
-        this.codeListType$ = this.preismeldung$
+        this.codeListType$ = distinctPreismeldung$
             .map(x => x.preismeldung.bearbeitungscode === 2 || x.preismeldung.bearbeitungscode === 3 ? 'NEW_PM' : 'STANDARD');
 
         this.preismeldungPricePayload$ = this.form.valueChanges
@@ -232,11 +232,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 })
         );
 
-        const canSave$ = this.attemptSave$.map(() => ({ saveAction: 'JUST_SAVE' })).merge(this.requestPreismeldungSave$.map(() => ({ saveAction: 'SAVE_AND_MOVE_TO_NEXT' })))
+        const canSave$ = this.attemptSave$.mapTo('JUST_SAVE').merge(this.requestPreismeldungSave$)
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
-        this.save$ = canSave$.filter(x => x.isValid)
+        const save$ = canSave$.filter(x => x.isValid)
             .map(x => x.saveAction)
             .flatMap(saveAction => Observable.defer(() =>
                 distinctPreismeldung$.take(1)
@@ -254,8 +254,19 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     })
                     // TODO: change from yes to close or something ....
                     .filter(y => y === 'YES')
-            ).map(() => saveAction))
-            .publishReplay(1).refCount();
+            ).map(() => saveAction));
+
+        this.save$ = save$.withLatestFrom(this.preismeldungPricePayload$, this.priceCountStatus$, distinctPreismeldung$, (saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung) => ({ saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung }))
+            .flatMap(x => {
+                if (x.preismeldungPricePayload.bearbeitungscode === 0 && x.distinctPreismeldung.preismeldung.bearbeitungscode !== 0) {
+                    const params = {
+                        numActivePrices: x.priceCountStatus.numActivePrices - 1,
+                        anzahlPreiseProPMS: x.priceCountStatus.anzahlPreiseProPMS
+                    };
+                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => res.data === 'YES' ? 'SAVE_AND_DUPLICATE_PREISMELDUNG' : x.saveAction);
+                }
+                return Observable.of(x.saveAction);
+            });
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(distinctPreismeldung$.mapTo(false));

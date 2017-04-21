@@ -25,7 +25,7 @@ export class PreismeldungenEffects {
     @Effect()
     loadPreismeldungen$ = this.actions$
         .ofType('PREISMELDUNGEN_LOAD_FOR_PMS')
-        .switchMap(({ payload }) => getDatabase().then(db => ({ db, pmsNummer: payload })))
+        .flatMap(({ payload }) => getDatabase().then(db => ({ db, pmsNummer: payload })))
         .flatMap(x => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-ref/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, pmRefs: res.rows.map(y => y.doc) as P.Models.PreismeldungReference[] })))
         .flatMap(x => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.pmRefs, preismeldungen: res.rows.map(y => y.doc) as P.Models.Preismeldung[] })))
         .flatMap(x => x.db.get(`pms-sort/${x.pmsNummer}`).catch(err => null).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.refPreismeldungen, preismeldungen: x.preismeldungen, pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort })))
@@ -108,19 +108,18 @@ export class PreismeldungenEffects {
     @Effect()
     savePreismeldung$ = this.savePreismeldungPrice
         .filter(x => !x.currentPreismeldung.isNew)
-        .switchMap(({ currentPreismeldung, payload }) => {
+        .flatMap(({ currentPreismeldung, payload }) => {
             return getDatabase()
                 .then(db => db.get(currentPreismeldung.preismeldung._id).then(doc => ({ db, doc })))
                 .then(({ db, doc }) => db.put(assign({}, doc, this.propertiesFromCurrentPreismeldung(currentPreismeldung))).then(() => db))
-                .then(db => db.get(currentPreismeldung.preismeldung._id).then(preismeldung => ({ preismeldung, saveAction: payload.saveAction })));
+                .then(db => db.get(currentPreismeldung.preismeldung._id).then(preismeldung => ({ preismeldung, saveAction: payload })));
         })
         .map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload }));
 
     @Effect()
     saveNewPreismeldung$ = this.savePreismeldungPrice
         .filter(x => x.currentPreismeldung.isNew)
-        // .do(x => c)
-        .switchMap(({ currentPreismeldung }) =>
+        .flatMap(({ currentPreismeldung }) =>
             getDatabase()
                 .then(db => // save Preismeldung
                     db.put(assign({}, {

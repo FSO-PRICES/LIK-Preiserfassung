@@ -37,7 +37,7 @@ export class DatabaseEffects {
     @Effect()
     loadPreismeldestellen$ = this.actions$
         .ofType('DOWNLOAD_DATABASE')
-        .switchMap(x => downloadDatabase(x.payload)
+        .flatMap(x => downloadDatabase(x.payload)
             .then(() => ({ type: 'SET_DATABASE_EXISTS', payload: true }))
             .catch(() => ({ type: 'SET_DATABASE_EXISTS', payload: false }))
         );

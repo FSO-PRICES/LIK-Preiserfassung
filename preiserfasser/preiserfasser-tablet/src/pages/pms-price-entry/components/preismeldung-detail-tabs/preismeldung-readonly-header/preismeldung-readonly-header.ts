@@ -11,8 +11,10 @@ import * as P from '../../../../../common-models';
 })
 export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
+    @Input() priceCountStatus: P.PriceCountStatus;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
+    public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
 
     constructor() {
         super();

@@ -20,7 +20,7 @@ export class PreismeldestelleEffects {
     @Effect()
     loadPreismeldestellen$ = this.actions$
         .ofType('PREISMELDESTELLEN_LOAD_ALL')
-        .switchMap(() => getDatabase())
+        .flatMap(() => getDatabase())
         .flatMap(db => db.allDocs(Object.assign({}, getAllDocumentsForPrefix('pms'), { include_docs: true })))
         .map(allDocs => ({ type: 'PREISMELDESTELLEN_LOAD_SUCCESS', payload: allDocs.rows.map(x => x.doc) }));
 
@@ -28,7 +28,7 @@ export class PreismeldestelleEffects {
     savePreismeldung$ = this.actions$
         .ofType('SAVE_PREISMELDESTELLE')
         .withLatestFrom(this.currentPreismeldestelle$, (_, currentPreismeldestelle) => currentPreismeldestelle)
-        .switchMap(currentPreismeldestelle => {
+        .flatMap(currentPreismeldestelle => {
             return getDatabase()
                 .then(db => db.get(`pms/${currentPreismeldestelle.pmsNummer}`).then(doc => ({ db, doc })))
                 .then(({ db, doc }) => db.put(assign({}, doc, this.propertiesFromCurrentPreismeldestelle(currentPreismeldestelle))).then(() => db))
