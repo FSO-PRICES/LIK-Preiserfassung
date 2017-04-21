@@ -1,21 +1,22 @@
 <ion-content>
     <preismeldung-readonly-header [preismeldung]="preismeldung$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-readonly-header>
-
-    <div class="detail-tab-bottom-part">
-        <h3>Meine Notiz</h3>
-        <ion-item class="pef-textarea-item">
-            <ion-textarea></ion-textarea>
-        </ion-item>
-        <button ion-button color="java" class="save-button">Leeren</button>
-        <h3>Kommentar zum aktuellen Monat</h3>
-        <ion-item class="pef-textarea-item">
-            <ion-textarea></ion-textarea>
-        </ion-item>
-        <button ion-button color="java" class="save-button">Leeren</button>
-        <h3>Kommunikation/Chat/Q&amp;A</h3>
-        <ion-item class="pef-textarea-item">
-            <ion-textarea [value]="'xxx'"></ion-textarea>
-        </ion-item>
-        <button ion-button color="java" class="save-button">Erledigt</button>
-    </div>
+    <form [formGroup]="form" novalidate>
+        <div class="detail-tab-bottom-part">
+            <h3>Meine Notiz</h3>
+            <ion-item class="pef-textarea-item">
+                <ion-textarea formControlName="notiz" (blur)="onBlur$.emit()"></ion-textarea>
+            </ion-item>
+            <button ion-button color="java" class="save-button" (click)="notizClear$.emit()">Leeren</button>
+            <h3>Kommentar zum aktuellen Monat</h3>
+            <ion-item class="pef-textarea-item">
+                <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()"></ion-textarea>
+            </ion-item>
+            <button ion-button color="java" class="save-button" (click)="kommentarClear$.emit()">Leeren</button>
+            <h3>Kommunikation/Chat/Q&amp;A</h3>
+            <ion-item class="pef-textarea-item">
+                <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [readonly]="erledigtDisabled$ | async"></ion-textarea>
+            </ion-item>
+            <button ion-button color="java" class="save-button" [disabled]="erledigtDisabled$ | async" (click)="erledigt$.emit()">Erledigt</button>
+        </div>
+    </form>
 </ion-content>

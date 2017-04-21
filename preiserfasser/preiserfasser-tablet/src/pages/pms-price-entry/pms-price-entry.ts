@@ -145,7 +145,7 @@ export class PmsPriceEntryPage {
     }
 
     navigateToDashboard() {
-        return this.navController.setRoot(DashboardPage, {}, { animate: true, direction: 'back' });
+        return this.navController.setRoot(DashboardPage);
     }
 
     navigateToNewPriceSeries() {

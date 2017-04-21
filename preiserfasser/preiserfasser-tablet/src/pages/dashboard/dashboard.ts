@@ -130,7 +130,7 @@ export class DashboardPage implements OnDestroy {
     }
 
     navigateToPriceEntry(pms: P.Preismeldestelle) {
-        this.navCtrl.setRoot(PmsPriceEntryPage, { pmsNummer: pms.pmsNummer }, { animate: true, direction: 'forward' });
+        this.navCtrl.setRoot(PmsPriceEntryPage, { pmsNummer: pms.pmsNummer });
     }
 
     navigateToSettings() {
