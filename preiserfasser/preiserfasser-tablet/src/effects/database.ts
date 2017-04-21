@@ -11,6 +11,7 @@ import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, do
 
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
 import { Actions as PreismeldungAction } from '../actions/preismeldungen';
+import { Action as StatisticsAction } from '../actions/statistics';
 import * as fromRoot from '../reducers';
 
 @Injectable()
@@ -20,8 +21,9 @@ export class DatabaseEffects {
     private resetActions = [
         { type: 'PREISMELDESTELLEN_RESET' } as PreismeldestelleAction,
         { type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction, // Also affects PreismeldestellenAction
-        { type: 'WARENKORB_RESET' }
-    ]
+        { type: 'WARENKORB_RESET' },
+        { type: 'PREISMELDUNG_STATISTICS_RESET' } as StatisticsAction
+    ];
 
     @Effect()
     checkConnectivity$ = this.actions$
