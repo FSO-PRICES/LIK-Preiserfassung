@@ -23,7 +23,8 @@ export class Backoffice implements OnInit {
     constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>) {
         const loginDialog$ = store.select(fromRoot.getIsLoggedIn)
             .filter(isLoggedIn => isLoggedIn != null && !isLoggedIn) // Only check if logged in if a result is given
-            .switchMap(() => Observable.defer(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data)));
+            .switchMap(() => Observable.defer(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data)))
+            .publishReplay(1).refCount();
 
         platform.ready().then(() => {
             // Okay, so the platform is ready and our plugins are available.
@@ -37,6 +38,11 @@ export class Backoffice implements OnInit {
             .take(1)
             .subscribe(() => console.log('sucessfully logged in'));
 
+        loginDialog$
+            .filter(dialogCode => dialogCode === 'NAVIGATE_TO_SETTINGS')
+            .take(1)
+            .subscribe(() => this.navigateToSettings());
+
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
     }
 
@@ -45,6 +51,10 @@ export class Backoffice implements OnInit {
             .filter(setting => !!setting && setting.isDefault)
             .distinctUntilChanged()
             .take(1)
-            .subscribe(() => this.navCtrl.setRoot(SettingsPage, {}, { animate: true, direction: 'right' }));
+            .subscribe(() => this.navigateToSettings());
+    }
+
+    public navigateToSettings() {
+        return this.navCtrl.setRoot(SettingsPage, {}, { animate: false });
     }
 }
