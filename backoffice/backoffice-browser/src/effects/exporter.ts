@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { Observer } from 'rxjs/Observer';
+import { Observable } from 'rxjs/Observable';
 import * as FileSaver from 'file-saver';
 
 import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
 import { toCsv } from '../common/file-extensions';
-import { preparePmForExport } from '../common/presta-data-mapper';
+import { preparePmForExport, preparePmsForExport, preparePreiserheberForExport } from '../common/presta-data-mapper';
 
 const EnvelopeContent = `
 <?xml version="1.0"?>
@@ -36,13 +38,57 @@ export class ExporterEffects {
     @Effect()
     exportPreismeldungen$ = this.actions$
         .ofType('EXPORT_PREISMELDUNGEN')
-        .map(({ payload }) => {
-            const content = toCsv(preparePmForExport(payload));
-            const count = payload.length;
+        .flatMap(({ payload }) =>
+            Observable.of({ type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action)
+                .merge(Observable.create((observer: Observer<exporter.Action>) => {
+                    setTimeout(() => {
+                        const content = toCsv(preparePmForExport(payload));
+                        const count = payload.length;
 
-            FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-            FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-to-presta.csv');
+                        FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
+                        FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-preismeldungen-to-presta.csv');
 
-            return ({ type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count } as exporter.Action);
-        });
+                        observer.next({ type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count } as exporter.Action);
+                        observer.complete();
+                    });
+                }))
+        );
+
+    @Effect()
+    exportPreismeldestellen$ = this.actions$
+        .ofType('EXPORT_PREISMELDESTELLEN')
+        .flatMap(({ payload }) =>
+            Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action)
+                .merge(Observable.create((observer: Observer<exporter.Action>) => {
+                    setTimeout(() => {
+                        const content = toCsv(preparePmsForExport(payload));
+                        const count = payload.length;
+
+                        FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
+                        FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pms-to-presta.csv');
+
+                        observer.next({ type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count } as exporter.Action);
+                        observer.complete();
+                    });
+                }))
+        );
+
+    @Effect()
+    exportPreiserheber$ = this.actions$
+        .ofType('EXPORT_PREISERHEBER')
+        .flatMap(({ payload }) =>
+            Observable.of({ type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action)
+                .merge(Observable.create((observer: Observer<exporter.Action>) => {
+                    setTimeout(() => {
+                        const content = toCsv(preparePreiserheberForExport(payload));
+                        const count = payload.length;
+
+                        FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
+                        FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-preiserheber-to-presta.csv');
+
+                        observer.next({ type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count } as exporter.Action);
+                        observer.complete();
+                    });
+                }))
+        );
 }

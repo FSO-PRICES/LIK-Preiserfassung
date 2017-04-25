@@ -3,12 +3,12 @@
 </div>
 <ion-row wrap>
     <ion-col>
-        <label>Preismeldeungen Export</label>
+        Preismeldungen Export
+        <div class="export-completed">
+            <span [hidden]="!(arePreismeldungenExported$ | async)" ion-text color="primary">{{exportCompleted$ | async}} Einträge wurden erfolgreich exportiert</span>&nbsp;
+        </div>
     </ion-col>
     <ion-col>
         <button ion-button class="register-btn" type="button" [disabled]="!(canExport$ | async)" (click)="createPreismeldungenClicked$.emit($event)">Export starten</button>
     </ion-col>
-</ion-row>
-<ion-row *ngIf="arePreismeldungenExported$ | async">
-    <ion-col><span ion-text color="primary">{{exportCompleted$ | async}} Einträge wurden erfolgreich exportiert</span></ion-col>
 </ion-row>

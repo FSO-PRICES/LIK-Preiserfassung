@@ -25,9 +25,7 @@
         <input class="file-select-btn" type="file" (change)="warenkorbSelectedIt$.emit($event)"/>
     </ion-col>
 </ion-row>
-<ion-row>
-    <ion-col>
-        <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsParsed$ | async)" (click)="importWarenkorbClicked$.emit($event)">Import Warenkorb</button>
-    </ion-col>
-</ion-row>
-<ion-row *ngIf="isWarenkorbImported$ | async"><ion-col><span ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImportedCount$ | async}} Einträge wurden hinzugefügt</span></ion-col></ion-row>
+<div class="actions">
+    <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsParsed$ | async)" (click)="importWarenkorbClicked$.emit($event)">Import Preismeldestellen</button>
+    <span *ngIf="isWarenkorbImported$ | async" ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImportedCount$ | async}} Einträge wurden hinzugefügt</span>
+</div>

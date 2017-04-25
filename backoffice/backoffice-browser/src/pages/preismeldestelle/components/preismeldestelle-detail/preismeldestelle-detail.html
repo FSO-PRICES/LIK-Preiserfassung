@@ -131,7 +131,7 @@
                                 <div class="input input-md pef-select">
                                     <select formControlName="languageCode" class="text-input text-input-md">
                                         <option [selected]="true" value="">Nicht angegeben</option>
-                                        <option *ngFor="let language of Languages" [value]="language.languageCode">{{language.name}}</option>
+                                        <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
                                     </select>
                                 </div>
                             </div>

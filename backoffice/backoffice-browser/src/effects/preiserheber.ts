@@ -75,7 +75,14 @@ export class PreiserheberEffects {
                         personFunction: currentPreiserheber.personFunction,
                         languageCode: currentPreiserheber.languageCode,
                         telephone: currentPreiserheber.telephone,
-                        email: currentPreiserheber.email
+                        mobilephone: currentPreiserheber.mobilephone,
+                        email: currentPreiserheber.email,
+                        fax: currentPreiserheber.fax,
+                        webseite: currentPreiserheber.webseite,
+                        street: currentPreiserheber.street,
+                        postcode: currentPreiserheber.postcode,
+                        town: currentPreiserheber.town,
+                        preissubsystem: currentPreiserheber.preissubsystem
                     });
                     return (create ? db.post(preiserheber) : db.put(preiserheber))
                         .then((response) => ({ db, id: response.id, created: create }));

@@ -14,6 +14,8 @@ import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 export class PreiserheberDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preiserheber: P.Erheber;
     @Input() languages: P.Language[];
+    @Input() preissubsysteme: P.Preissubsystem[];
+
     @Output('save')
     public save$: Observable<P.Erheber>;
     @Output('delete')
@@ -27,6 +29,8 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
     public preiserheber$: Observable<P.Erheber>;
     public languages$: Observable<P.Language[]>;
+    public preissubsysteme$: Observable<P.Preissubsystem[]>;
+
     public resetForm$: Observable<boolean>;
     public saveClicked$ = new EventEmitter<Event>();
     public deleteClicked$ = new EventEmitter<Event>();
@@ -42,6 +46,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.preiserheber$ = this.observePropertyCurrentValue<P.Erheber>('preiserheber');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
+        this.preissubsysteme$ = this.observePropertyCurrentValue<P.Preissubsystem[]>('preissubsysteme');
 
         this.form = formBuilder.group({
             preiserheber: formBuilder.group({
@@ -51,7 +56,14 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                 personFunction: [null, Validators.required],
                 languageCode: [null],
                 telephone: [null],
+                mobilephone: [null],
                 email: [null],
+                fax: [null],
+                webseite: [null],
+                street: [null],
+                postcode: [null],
+                town: [null],
+                preissubsystem: [null]
             }),
             password: [null, Validators.compose([Validators.required, Validators.maxLength(35)])]
         });
@@ -69,7 +81,14 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     personFunction: erheber.personFunction,
                     languageCode: erheber.languageCode === '' ? null : erheber.languageCode,
                     telephone: erheber.telephone,
-                    email: erheber.email
+                    mobilephone: erheber.mobilephone,
+                    email: erheber.email,
+                    fax: erheber.fax,
+                    webseite: erheber.webseite,
+                    street: erheber.street,
+                    postcode: erheber.postcode,
+                    town: erheber.town,
+                    preissubsystem: erheber.preissubsystem
                 };
             })
             .publishReplay(1).refCount();
@@ -108,7 +127,14 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                         personFunction: erheber.personFunction,
                         languageCode: erheber.languageCode !== null ? erheber.languageCode : '',
                         telephone: erheber.telephone,
-                        email: erheber.email
+                        mobilephone: erheber.mobilephone,
+                        email: erheber.email,
+                        fax: erheber.fax,
+                        webseite: erheber.webseite,
+                        street: erheber.street,
+                        postcode: erheber.postcode,
+                        town: erheber.town,
+                        preissubsystem: erheber.preissubsystem
                     }, { emitEvent: false });
                 })
         ];

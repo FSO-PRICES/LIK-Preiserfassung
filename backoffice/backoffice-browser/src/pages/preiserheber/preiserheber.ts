@@ -26,6 +26,7 @@ export class PreiserheberPage implements OnDestroy {
     public currentPreiszuweisung$ = this.store.select(fromRoot.getCurrentPreiszuweisung).publishReplay(1).refCount();
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
     public languages$ = this.store.select(fromRoot.getLanguagesList);
+    public preissubsysteme = P.Preissubsysteme;
 
     public selectPreiserheber$ = new EventEmitter<string>();
     public createPreiserheber$ = new EventEmitter();

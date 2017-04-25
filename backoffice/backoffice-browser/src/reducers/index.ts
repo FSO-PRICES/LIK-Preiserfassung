@@ -116,3 +116,5 @@ export const getImportedPreismeldungenAt = createSelector(getImporterState, from
 
 export const getExporterState = (state: AppState) => state.exporter;
 export const getExportedPreismeldungen = createSelector(getExporterState, fromExporter.getExportedPreismeldungen);
+export const getExportedPreismeldestellen = createSelector(getExporterState, fromExporter.getExportedPreismeldestellen);
+export const getExportedPreiserheber = createSelector(getExporterState, fromExporter.getExportedPreiserheber);

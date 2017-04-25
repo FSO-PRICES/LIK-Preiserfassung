@@ -70,7 +70,14 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 personFunction: null,
                 languageCode: null,
                 telephone: null,
+                mobilephone: null,
                 email: null,
+                fax: null,
+                webseite: null,
+                street: null,
+                postcode: null,
+                town: null,
+                preissubsystem: null,
                 isModified: false,
                 isSaved: false,
                 isNew: true
@@ -88,7 +95,14 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 personFunction: payload.personFunction,
                 languageCode: payload.languageCode,
                 telephone: payload.telephone,
-                email: payload.email
+                mobilephone: payload.mobilephone,
+                email: payload.email,
+                fax: payload.fax,
+                webseite: payload.webseite,
+                street: payload.street,
+                postcode: payload.postcode,
+                town: payload.town,
+                preissubsystem: payload.preissubsystem
             };
 
             const currentPreiserheber = assign({},
