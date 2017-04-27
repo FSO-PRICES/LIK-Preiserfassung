@@ -6,7 +6,6 @@ import { PefDialogService } from 'lik-shared';
 import { PefComponentsModule } from 'lik-shared';
 
 import { Backoffice } from './app.component';
-import { SettingsLoadedService } from '../common/settings-loaded-service';
 import { PefMenuModule, PefMenuComponent } from '../components/pef-menu';
 import { PefDialogLoginModule, PefDialogLoginComponent } from '../components/pef-dialog-login';
 
@@ -66,8 +65,7 @@ import { reducer } from '../reducers';
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         { provide: LOCALE_ID, useValue: 'de-CH' },
-        PefDialogService,
-        SettingsLoadedService
+        PefDialogService
     ]
 })
 export class AppModule { }

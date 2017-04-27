@@ -19,17 +19,15 @@ export class SettingEffects {
     }
 
     @Effect()
-    loadSetting$ = this.actions$
-        .ofType('SETTING_LOAD')
-        .switchMap(() => getSettings())
+    loadSetting$ = this.actions$.ofType('SETTING_LOAD')
+        .flatMap(() => getSettings())
         .map(docs => !!docs ?
             { type: 'SETTING_LOAD_SUCCESS', payload: docs } as setting.Action :
             { type: 'SETTING_LOAD_FAIL' } as setting.Action
         );
 
     @Effect()
-    saveSetting$ = this.actions$
-        .ofType('SAVE_SETTING')
+    saveSetting$ = this.actions$.ofType('SAVE_SETTING')
         .withLatestFrom(this.currentSetting$, (action, currentSetting: CurrentSetting) => ({ currentSetting }))
         .flatMap(({ currentSetting }) =>
             getLocalDatabase(dbNames.setting)

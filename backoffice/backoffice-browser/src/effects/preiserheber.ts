@@ -7,14 +7,14 @@ import { has } from 'lodash';
 import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
 import * as preiszuweisung from '../actions/preiszuweisung';
+import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { getDatabase, dropDatabase, createUser, dbNames, getUserDatabaseName, deleteUser, updateUser } from './pouchdb-utils';
 import { Models as P, CurrentPreiserheber } from '../common-models';
-import { loggedIn } from '../common/effects-extensions';
 
 @Injectable()
 export class PreiserheberEffects {
     currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber);
-    isLoggedIn = this.store.select(fromRoot.getIsLoggedIn).publishReplay(1).refCount();
+    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     private errorCodes: { [code: string]: string } = {
         '409': 'Es gibt schon ein Preiserheber mit diesem Benutzernamen.'
@@ -26,38 +26,39 @@ export class PreiserheberEffects {
     }
 
     @Effect()
-    loadPreiserheber$ = loggedIn(this.isLoggedIn, this.actions$.ofType('PREISERHEBER_LOAD'), loadPreiserheber => loadPreiserheber
-        .switchMap(() => getDatabase(dbNames.preiserheber).then(db => ({ db })))
+    loadPreiserheber$ = this.actions$.ofType('PREISERHEBER_LOAD')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(() => getDatabase(dbNames.preiserheber).then(db => ({ db })))
         .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as P.Erheber[] })))
-        .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as preiserheber.Action))
-    );
+        .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as preiserheber.Action));
 
     @Effect()
-    resetPassword$ = loggedIn(this.isLoggedIn, this.actions$.ofType('RESET_PASSWORD'), resetPassword$ => resetPassword$
+    resetPassword$ = this.actions$.ofType('RESET_PASSWORD')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .withLatestFrom(this.currentPreiserheber$, (action, preiserheber) => ({ password: action.payload, preiserheber }))
-        .switchMap(({ password, preiserheber }) => updateUser(preiserheber, password).then(() => true).catch(error => false))
+        .flatMap(({ password, preiserheber }) => updateUser(preiserheber, password).then(() => true).catch(error => false))
         .map(success => success ?
             { type: 'RESET_PASSWORD_SUCCESS', payload: null } :
             { type: 'RESET_PASSWORD_FAILURE', payload: 'Password ist ungültig' }
-        )
-    );
+        );
 
     @Effect()
-    deletePreiserheber$ = loggedIn(this.isLoggedIn, this.actions$.ofType('DELETE_PREISERHEBER'), deletePreiserheber$ => deletePreiserheber$
+    deletePreiserheber$ = this.actions$.ofType('DELETE_PREISERHEBER')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action => deletePreiserheber(action.payload).then(success => ({ preiserheberId: action.payload._id as string, success })))
         .flatMap(({ preiserheberId, success }) => [
             { type: 'DELETE_PREISZUWEISUNG_SUCCESS' } as preiszuweisung.Action,
             success ?
                 { type: 'DELETE_PREISERHEBER_SUCCESS', payload: preiserheberId } as preiserheber.Action :
                 { type: 'DELETE_PREISERHEBER_FAILURE', payload: preiserheberId } as preiserheber.Action
-        ])
-    );
+        ]);
 
     @Effect()
-    savePreiserheber$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISERHEBER'), savePreiserheber => savePreiserheber
+    savePreiserheber$ = this.actions$.ofType('SAVE_PREISERHEBER')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ password: action.payload, currentPreiserheber }))
-        .switchMap(({ password, currentPreiserheber }) =>
+        .flatMap(({ password, currentPreiserheber }) =>
             getDatabase(dbNames.preiserheber)
                 .then(db => { // Only check if the document exists if a revision already exists
                     if (!!currentPreiserheber._rev) {
@@ -96,8 +97,7 @@ export class PreiserheberEffects {
         .map(result => !result.error ?
             { type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber } as preiserheber.Action :
             { type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error } as preiserheber.Action
-        )
-    );
+        );
 
     private getErrorText(error: any) {
         if (!error || !has(error, 'status')) throw error;

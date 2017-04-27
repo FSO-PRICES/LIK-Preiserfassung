@@ -6,15 +6,15 @@ import { assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
-import { dropDatabase, getAllDocumentsForPrefix, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
+import { dropDatabase, getAllDocumentsForPrefix, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName } from './pouchdb-utils';
+import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import * as preiszuweisung from '../actions/preiszuweisung';
 import { CurrentPreiszuweisung } from '../reducers/preiszuweisung';
-import { loggedIn } from '../common/effects-extensions';
 
 @Injectable()
 export class PreiserheberInitializationEffects {
-    isLoggedIn = this.store.select(fromRoot.getIsLoggedIn);
+    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(
         private actions$: Actions,
@@ -22,8 +22,9 @@ export class PreiserheberInitializationEffects {
     }
 
     @Effect()
-    createUserDatabase$ = loggedIn(this.isLoggedIn, this.actions$.ofType('CREATE_USER_DATABASE'), createUserDatabase => createUserDatabase
-        .switchMap(action => getDatabase(dbNames.preiserheber).then(db => ({ currentPreiszuweisung: <CurrentPreiszuweisung>action.payload, db })))
+    createUserDatabase$ = this.actions$.ofType('CREATE_USER_DATABASE')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(action => getDatabase(dbNames.preiserheber).then(db => ({ currentPreiszuweisung: <CurrentPreiszuweisung>action.payload, db })))
         .flatMap(({ currentPreiszuweisung, db }) => db.get(currentPreiszuweisung.preiserheberId).then(doc => ({ preiserheber: <P.Erheber>doc, currentPreiszuweisung })))
         .flatMap(data => dropDatabase(getUserDatabaseName(data.preiserheber)).then(db => data))
         .flatMap(({ preiserheber, currentPreiszuweisung }) =>
@@ -64,6 +65,5 @@ export class PreiserheberInitializationEffects {
             putUserToDatabase(getUserDatabaseName(preiserheber), { members: { names: [preiserheber._id] } })
                 .map(() => currentPreiszuweisung)
         )
-        .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action))
-    );
+        .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action));
 }

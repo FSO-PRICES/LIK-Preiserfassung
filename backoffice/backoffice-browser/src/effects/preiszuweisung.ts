@@ -7,14 +7,14 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as preiszuweisung from '../actions/preiszuweisung';
+import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { getDatabase, dbNames } from './pouchdb-utils';
 import { CurrentPreiszuweisung } from '../reducers/preiszuweisung';
-import { loggedIn } from '../common/effects-extensions';
 
 @Injectable()
 export class PreiszuweisungEffects {
     currentPreiszuweisung$ = this.store.select(fromRoot.getCurrentPreiszuweisung);
-    isLoggedIn = this.store.select(fromRoot.getIsLoggedIn);
+    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(
         private actions$: Actions,
@@ -22,17 +22,18 @@ export class PreiszuweisungEffects {
     }
 
     @Effect()
-    loadPreiszuweisung$ = loggedIn(this.isLoggedIn, this.actions$.ofType('PREISZUWEISUNG_LOAD'), loadPreiszuweisung => loadPreiszuweisung
-        .switchMap(() => getDatabase(dbNames.preiszuweisung).then(db => ({ db })))
+    loadPreiszuweisung$ = this.actions$.ofType('PREISZUWEISUNG_LOAD')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(() => getDatabase(dbNames.preiszuweisung).then(db => ({ db })))
         .filter(({ db }) => db != null)
-        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Preiszuweisung[] ))
-        .map(docs => ({ type: 'PREISZUWEISUNG_LOAD_SUCCESS', payload: docs } as preiszuweisung.Action))
-    );
+        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Preiszuweisung[]))
+        .map(docs => ({ type: 'PREISZUWEISUNG_LOAD_SUCCESS', payload: docs } as preiszuweisung.Action));
 
     @Effect()
-    savePreiszuweisung$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISZUWEISUNG'), savePreiszuweisung => savePreiszuweisung
+    savePreiszuweisung$ = this.actions$.ofType('SAVE_PREISZUWEISUNG')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .withLatestFrom(this.currentPreiszuweisung$, (action, currentPreiszuweisung: CurrentPreiszuweisung) => ({ currentPreiserheberId: action.payload, currentPreiszuweisung }))
-        .switchMap(({ currentPreiserheberId, currentPreiszuweisung }) =>
+        .flatMap(({ currentPreiserheberId, currentPreiszuweisung }) =>
             Observable.fromPromise(
                 getDatabase(dbNames.preiszuweisung)
                     .then(db => { // Only check if the document exists if is not a newly created one
@@ -56,6 +57,5 @@ export class PreiszuweisungEffects {
                     .then<CurrentPreiszuweisung>(({ db, id }) => db.get(id))
             )
         )
-        .map(payload => ({ type: 'CREATE_USER_DATABASE', payload } as preiszuweisung.Action))
-    );
+        .map(payload => ({ type: 'CREATE_USER_DATABASE', payload } as preiszuweisung.Action));
 }

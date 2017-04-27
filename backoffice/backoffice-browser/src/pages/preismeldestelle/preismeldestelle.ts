@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { Loading, LoadingController } from 'ionic-angular';
 
 import { Models as P, PefDialogService } from 'lik-shared';
 
@@ -29,9 +28,8 @@ export class PreismeldestellePage implements OnDestroy {
     public cancelEditDialog$: Observable<any>;
 
     private subscriptions: Subscription[];
-    private loader: Loading;
 
-    constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private pefDialogService: PefDialogService) {
+    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
 
         this.isEditing$ = this.currentPreismeldestelle$
@@ -69,13 +67,8 @@ export class PreismeldestellePage implements OnDestroy {
                 .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload: x } as PreismeldestelleAction)),
 
             this.savePreismeldestelle$
-                .subscribe(x => {
-                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as PreismeldestelleAction));
-                }),
-
-            this.currentPreismeldestelle$
-                .filter(pms => pms != null && pms.isSaved)
-                .subscribe(() => this.dismissLoadingScreen())
+                .flatMap(() => this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', this.currentPreismeldestelle$.skip(1).filter(pms => pms != null && pms.isSaved)))
+                .subscribe(x => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as PreismeldestelleAction))
         ];
     }
 
@@ -94,6 +87,7 @@ export class PreismeldestellePage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
+        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as PreismeldestelleAction);
         this.store.dispatch({ type: 'REGION_LOAD' } as RegionAction);
     }
@@ -101,21 +95,5 @@ export class PreismeldestellePage implements OnDestroy {
     public ngOnDestroy() {
         if (!this.subscriptions || this.subscriptions.length === 0) return;
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
-    }
-
-    private presentLoadingScreen() {
-        this.dismissLoadingScreen();
-
-        this.loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
-        });
-
-        return this.loader.present();
-    }
-
-    private dismissLoadingScreen() {
-        if (!!this.loader) {
-            this.loader.dismiss();
-        }
     }
 }

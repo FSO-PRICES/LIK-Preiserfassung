@@ -36,8 +36,7 @@ export class ExporterEffects {
     }
 
     @Effect()
-    exportPreismeldungen$ = this.actions$
-        .ofType('EXPORT_PREISMELDUNGEN')
+    exportPreismeldungen$ = this.actions$.ofType('EXPORT_PREISMELDUNGEN')
         .flatMap(({ payload }) =>
             Observable.of({ type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action)
                 .merge(Observable.create((observer: Observer<exporter.Action>) => {
@@ -55,8 +54,7 @@ export class ExporterEffects {
         );
 
     @Effect()
-    exportPreismeldestellen$ = this.actions$
-        .ofType('EXPORT_PREISMELDESTELLEN')
+    exportPreismeldestellen$ = this.actions$.ofType('EXPORT_PREISMELDESTELLEN')
         .flatMap(({ payload }) =>
             Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action)
                 .merge(Observable.create((observer: Observer<exporter.Action>) => {
@@ -74,8 +72,7 @@ export class ExporterEffects {
         );
 
     @Effect()
-    exportPreiserheber$ = this.actions$
-        .ofType('EXPORT_PREISERHEBER')
+    exportPreiserheber$ = this.actions$.ofType('EXPORT_PREISERHEBER')
         .flatMap(({ payload }) =>
             Observable.of({ type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action)
                 .merge(Observable.create((observer: Observer<exporter.Action>) => {

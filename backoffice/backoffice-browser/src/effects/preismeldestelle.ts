@@ -7,14 +7,14 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as preismeldestelle from '../actions/preismeldestelle';
+import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { getDatabase, dbNames } from './pouchdb-utils';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
-import { loggedIn } from '../common/effects-extensions';
 
 @Injectable()
 export class PreismeldestelleEffects {
     currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
-    isLoggedIn = this.store.select(fromRoot.getIsLoggedIn);
+    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(
         private actions$: Actions,
@@ -22,17 +22,18 @@ export class PreismeldestelleEffects {
     }
 
     @Effect()
-    loadPreismeldestelle$ = loggedIn(this.isLoggedIn, this.actions$.ofType('PREISMELDESTELLE_LOAD'), loadPreismeldestelle => loadPreismeldestelle
-        .switchMap(() => getDatabase(dbNames.preismeldestelle).then(db => ({ db })))
+    loadPreismeldestelle$ = this.actions$.ofType('PREISMELDESTELLE_LOAD')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(() => getDatabase(dbNames.preismeldestelle).then(db => ({ db })))
         .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preismeldestellen: res.rows.map(y => y.doc) as P.AdvancedPreismeldestelle[] })))
-        .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action))
-    );
+        .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action));
 
     @Effect()
-    savePreismeldestelle$ = loggedIn(this.isLoggedIn, this.actions$.ofType('SAVE_PREISMELDESTELLE'), savePreismeldestelle => savePreismeldestelle
+    savePreismeldestelle$ = this.actions$.ofType('SAVE_PREISMELDESTELLE')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .withLatestFrom(this.currentPreismeldestelle$, (action, currentPreismeldestelle: CurrentPreismeldestelle) => ({ currentPreismeldestelle }))
-        .switchMap(({ currentPreismeldestelle }) =>
+        .flatMap(({ currentPreismeldestelle }) =>
             Observable.fromPromise(
                 getDatabase(dbNames.preismeldestelle)
                     .then(db => db.get(currentPreismeldestelle._id).then(doc => ({ db, doc })))
@@ -60,6 +61,5 @@ export class PreismeldestelleEffects {
                     .then<CurrentPreismeldestelle>(({ db, id }) => db.get(id))
             )
         )
-        .map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload } as preismeldestelle.Action))
-    );
+        .map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload } as preismeldestelle.Action));
 }

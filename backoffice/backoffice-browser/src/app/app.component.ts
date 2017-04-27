@@ -23,7 +23,7 @@ export class Backoffice implements OnInit {
     constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>) {
         const loginDialog$ = store.select(fromRoot.getIsLoggedIn)
             .filter(isLoggedIn => isLoggedIn != null && !isLoggedIn) // Only check if logged in if a result is given
-            .switchMap(() => Observable.defer(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data)))
+            .flatMap(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data))
             .publishReplay(1).refCount();
 
         platform.ready().then(() => {
@@ -33,25 +33,22 @@ export class Backoffice implements OnInit {
             Splashscreen.hide();
         });
 
-        loginDialog$
-            .filter(dialogCode => dialogCode === 'LOGGED_IN')
-            .take(1)
-            .subscribe(() => console.log('sucessfully logged in'));
-
-        loginDialog$
-            .filter(dialogCode => dialogCode === 'NAVIGATE_TO_SETTINGS')
-            .take(1)
-            .subscribe(() => this.navigateToSettings());
-
-        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
-    }
-
-    public ngOnInit() {
         this.store.select(fromRoot.getSettings)
             .filter(setting => !!setting && setting.isDefault)
             .distinctUntilChanged()
             .take(1)
             .subscribe(() => this.navigateToSettings());
+
+        loginDialog$
+            .filter(dialogCode => dialogCode === 'LOGGED_IN')
+            .subscribe(() => console.log('sucessfully logged in'));
+
+        loginDialog$
+            .filter(dialogCode => dialogCode === 'NAVIGATE_TO_SETTINGS')
+            .subscribe(() => this.navigateToSettings());
+    }
+
+    public ngOnInit() {
     }
 
     public navigateToSettings() {
