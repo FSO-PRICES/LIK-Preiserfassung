@@ -2,20 +2,14 @@
     <div class="header">
         <h3>Konto</h3>
     </div>
-    <ion-list>
-        <ion-item>
-            <ion-label stacked>Benutzername</ion-label>
-            <ion-input type="text" [(ngModel)]="username" [ngModelOptions]="{standalone: true}" autocapitalize="none"></ion-input>
-        </ion-item>
-        <ion-item>
-            <ion-label stacked>Passwort</ion-label>
-            <ion-input type="password" [(ngModel)]="password" [ngModelOptions]="{standalone: true}"></ion-input>
-        </ion-item>
-        <ion-item style="display: none"> <!-- TODO: remove hack -->
-            <ion-label stacked>Passwort</ion-label>
-            <ion-input type="password"></ion-input>
-        </ion-item>
-    </ion-list>
+    <ion-item>
+        <ion-label stacked>Benutzername</ion-label>
+        <ion-input type="text" [(ngModel)]="username" [ngModelOptions]="{standalone: true}" autocapitalize="none"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label stacked>Passwort</ion-label>
+        <ion-input type="password" [(ngModel)]="password" [ngModelOptions]="{standalone: true}"></ion-input>
+    </ion-item>
     <div class="actions">
         <a (click)="navigateToSettings()" href="javascript:">
             {{'a_navigate-to-settings' | translate}}

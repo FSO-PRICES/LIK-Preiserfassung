@@ -23,14 +23,14 @@ interface PercentageValues {
 export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.PreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
-    @Input() requestPreismeldungSave: { saveAction: P.SavePreismeldungPricePayloadType };
+    @Input() requestPreismeldungSave: P.SavePreismeldungPriceSaveAction;
     @Input() requestPreismeldungQuickEqual: string;
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
-    @Output('save') save$: Observable<{ saveAction: P.SavePreismeldungPricePayloadType }>;
+    @Output('save') save$: Observable<P.SavePreismeldungPriceSaveAction>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
 
     public preismeldung$: Observable<P.PreismeldungBag>;
-    public requestPreismeldungSave$: Observable<{saveAction: P.SavePreismeldungPricePayloadType}>;
+    public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     public requestPreismeldungQuickEqual$: Observable<string>;
     public codeListType$: Observable<string>;
 
@@ -92,7 +92,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         }, { validator: this.formLevelValidationFactory() });
 
         this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
-        this.requestPreismeldungSave$ = this.observePropertyCurrentValue<{ saveAction: P.SavePreismeldungPricePayloadType }>('requestPreismeldungSave').filter(x => !!x);
+        this.requestPreismeldungSave$ = this.observePropertyCurrentValue<P.SavePreismeldungPriceSaveAction>('requestPreismeldungSave').filter(x => !!x);
         this.requestPreismeldungQuickEqual$ = this.observePropertyCurrentValue<string>('requestPreismeldungQuickEqual').filter(x => !!x);
 
         const distinctPreismeldung$ = this.preismeldung$
@@ -232,7 +232,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 })
         );
 
-        const canSave$ = this.attemptSave$.mapTo('JUST_SAVE').merge(this.requestPreismeldungSave$)
+        const canSave$ = this.attemptSave$.mapTo({ type: 'JUST_SAVE' }).merge(this.requestPreismeldungSave$)
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
@@ -242,19 +242,16 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 distinctPreismeldung$.take(1)
                     .flatMap(bag => {
                         if ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer) {
-                            return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false).map(res => res.data);
+                            return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false).map(res => ({ type: res.data === 'YES' ? 'JUST_SAVE' : 'CANCEL' }));
                         }
-                        if (this.form.value.bearbeitungscode === 101 && /^R$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 1) {
+                        if (this.form.value.bearbeitungscode === 101 && /^R$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 2) {
                             return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_rrr-message-mit-aufforderung-zu-produktersatz'), false)
-                                .map(res => res.data)
-                                // TODO write bermerkung, see issue #27
-                                .map(() => 'YES');
+                                .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: 'COMMENT', data: 'Keine Ersatzprodukte in Sortiment vorhanden' });
                         }
-                        return Observable.of('YES');
+                        return Observable.of(saveAction);
                     })
-                    // TODO: change from yes to close or something ....
-                    .filter(y => y === 'YES')
-            ).map(() => saveAction));
+                    .filter(y => y.type !== 'CANCEL')
+            ));
 
         this.save$ = save$.withLatestFrom(this.preismeldungPricePayload$, this.priceCountStatus$, distinctPreismeldung$, (saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung) => ({ saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung }))
             .flatMap(x => {
@@ -263,7 +260,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         numActivePrices: x.priceCountStatus.numActivePrices - 1,
                         anzahlPreiseProPMS: x.priceCountStatus.anzahlPreiseProPMS
                     };
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => res.data === 'YES' ? { saveAction: 'SAVE_AND_DUPLICATE_PREISMELDUNG' } : x.saveAction);
+                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => ({ type: res.data === 'YES' ? 'SAVE_AND_DUPLICATE_PREISMELDUNG' : x.saveAction }));
                 }
                 return Observable.of(x.saveAction);
             });

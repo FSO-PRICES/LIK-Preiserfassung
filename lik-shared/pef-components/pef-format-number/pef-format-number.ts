@@ -30,6 +30,8 @@ export class PefFormatNumber implements OnInit {
     onChange(e) {
         const el = this.getInputElement();
         if (el !== document.activeElement) setTimeout(() => this.formatElValue());
+
+
     }
 
     getInputElement() {
@@ -42,7 +44,7 @@ export class PefFormatNumber implements OnInit {
     }
 
     get _formatOptions(): Object {
-        if (isString(this.formatOptions)) return JSON.parse(this.formatOptions);
+        if (isString(this.formatOptions)) return JSON.parse(this.formatOptions as string);
         if (isObject(this.formatOptions)) return this.formatOptions;
         return undefined;
     }

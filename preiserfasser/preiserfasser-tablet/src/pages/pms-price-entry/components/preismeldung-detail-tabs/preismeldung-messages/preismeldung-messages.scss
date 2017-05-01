@@ -19,7 +19,7 @@ preismeldung-messages {
         }
         ion-textarea {
             border-bottom: 2px solid $hit-gray;
-            &[disabled] {
+            &.readonly {
                 border-bottom-width: 0px;
                 background-color: $wild-sand;
                 text-area {
@@ -38,5 +38,15 @@ preismeldung-messages {
                 box-shadow: none;
             }
         }
+    }
+
+    .message-author {
+        font-weight: 500;
+        min-width: 3em;
+        display: inline-block;
+    }
+
+    .kommentar-autotext, .message-history:last-of-type {
+        margin-bottom: 0.5em;
     }
 }
