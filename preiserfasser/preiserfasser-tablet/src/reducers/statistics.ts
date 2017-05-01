@@ -29,6 +29,10 @@ export function reducer(state = initialState, action: statistics.Action): State 
             return assign({}, state, { preismeldungen: assign({}, action.payload, { total }) });
         }
 
+        case 'PREISMELDUNG_STATISTICS_RESET': {
+            return initialState;
+        }
+
         default:
             return state;
     }

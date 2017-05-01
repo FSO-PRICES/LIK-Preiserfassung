@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { Loading, LoadingController } from 'ionic-angular';
 
 import { Models as P, PefDialogService } from 'lik-shared';
 
@@ -27,9 +26,8 @@ export class RegionPage implements OnDestroy {
     public cancelEditDialog$: Observable<any>;
 
     private subscriptions: Subscription[];
-    private loader: Loading;
 
-    constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private pefDialogService: PefDialogService) {
+    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
 
         this.isEditing$ = this.currentRegion$
@@ -81,24 +79,19 @@ export class RegionPage implements OnDestroy {
                 .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_REGION', payload: x } as RegionAction)),
 
             this.saveRegion$
-                .subscribe(x => {
-                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'SAVE_REGION' } as RegionAction));
-                }),
-
-            this.currentRegion$
-                .filter(pms => pms != null && pms.isSaved)
-                .subscribe(() => this.dismissLoadingScreen())
+                .flatMap(() => this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', this.currentRegion$.skip(1).filter(pms => pms != null && pms.isSaved)))
+                .subscribe(x => store.dispatch({ type: 'SAVE_REGION' } as RegionAction))
         ];
     }
 
     public ionViewCanLeave(): Promise<boolean> {
         return Observable.merge(
                 this.isCurrentModified$
-                    .filter(modified => modified === false)
+                    .filter(modified => modified === false || modified === null)
                     .map(() => true),
                 this.isCurrentModified$
                     .filter(modified => modified === true)
-                    .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
+                    .flatMap(() => this.cancelEditDialog$)
                     .map(dialogCode => dialogCode === 'THROW_CHANGES')
             )
             .take(1)
@@ -106,27 +99,12 @@ export class RegionPage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
+        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'REGION_LOAD' } as RegionAction);
     }
 
     public ngOnDestroy() {
         if (!this.subscriptions || this.subscriptions.length === 0) return;
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
-    }
-
-    private presentLoadingScreen() {
-        this.dismissLoadingScreen();
-
-        this.loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
-        });
-
-        return this.loader.present();
-    }
-
-    private dismissLoadingScreen() {
-        if (!!this.loader) {
-            this.loader.dismiss();
-        }
     }
 }

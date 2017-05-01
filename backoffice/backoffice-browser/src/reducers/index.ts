@@ -88,9 +88,11 @@ export const getUnexportedPreismeldungen = createSelector(getPreismeldungenState
 export const getUnexportedPreismeldungenAreLoaded = createSelector(getPreismeldungenState, fromPreismeldung.getAreUnexportedLoaded);
 
 
-export const getIsLoggedIn = (state: AppState) => state.login.isLoggedIn;
-export const getLoggedInUser = (state: AppState) => state.login.user;
-export const getLoginError = (state: AppState) => state.login.loginError;
+export const getLoginState = (state: AppState) => state.login;
+export const getIsLoggedIn = createSelector(getLoginState, fromLogin.getIsLoggedIn);
+export const getLoggedInUser = createSelector(getLoginState, fromLogin.getLoggedInUser);
+export const getLoginError = createSelector(getLoginState, fromLogin.getLoginError);
+
 
 export const getLastErrors = (state: AppState) => state.errors;
 export const getResetPasswordError = (state: AppState) => state.errors.passwordReset;
@@ -116,3 +118,5 @@ export const getImportedPreismeldungenAt = createSelector(getImporterState, from
 
 export const getExporterState = (state: AppState) => state.exporter;
 export const getExportedPreismeldungen = createSelector(getExporterState, fromExporter.getExportedPreismeldungen);
+export const getExportedPreismeldestellen = createSelector(getExporterState, fromExporter.getExportedPreismeldestellen);
+export const getExportedPreiserheber = createSelector(getExporterState, fromExporter.getExportedPreiserheber);

@@ -16,6 +16,9 @@ const initialState: State = {
 
 export function reducer(state = initialState, action: login.Action): State {
     switch (action.type) {
+        case 'RESET_IS_LOGGED_IN_STATE': {
+            return Object.assign({}, state, { isLoggedIn: null });
+        }
         case 'SET_IS_LOGGED_OUT': {
             return Object.assign({}, state, { isLoggedIn: false, user: null });
         }

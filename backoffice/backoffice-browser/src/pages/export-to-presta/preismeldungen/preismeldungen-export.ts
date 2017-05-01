@@ -1,5 +1,4 @@
 import { EventEmitter, Output, Component, Input, OnChanges, SimpleChange } from '@angular/core';
-import { Http } from '@angular/http';
 import { Observable } from 'rxjs';
 
 import { ReactiveComponent } from 'lik-shared';
@@ -12,7 +11,7 @@ import { PreismeldungBag } from '../../../reducers/preismeldung';
 })
 export class PreismeldungenExportComponent extends ReactiveComponent implements OnChanges {
     @Input('preismeldungen') preismeldungen: PreismeldungBag[];
-    @Input('exportCompleted') exportCompleted: boolean;
+    @Input('exportCompleted') exportCompleted: number;
 
     @Output('startExport')
     public startExport$: Observable<boolean>;
@@ -24,7 +23,7 @@ export class PreismeldungenExportComponent extends ReactiveComponent implements 
 
     private preismeldungen$: Observable<PreismeldungBag[]>;
 
-    constructor(private http: Http) {
+    constructor() {
         super();
 
         this.preismeldungen$ = this.observePropertyCurrentValue<PreismeldungBag[]>('preismeldungen').publishReplay(1).refCount();

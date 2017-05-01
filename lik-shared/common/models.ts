@@ -1,10 +1,17 @@
 export interface ErheberProperties {
+    preissubsystem: number; // LIK = 2
     firstName: string;
     surname: string;
     personFunction: string;
     languageCode: string;
     telephone: string;
+    mobilephone: string;
     email: string;
+    fax: string;
+    webseite: string;
+    street: string;
+    postcode: string;
+    town: string;
 }
 
 export const pmsUriRoute = 'pms/:pmsNummer';
@@ -15,8 +22,11 @@ export interface PmsUri {
 
 export interface PreismeldestelleProperties {
     pmsNummer: string;
+    erhebungsmonat: Date;
+    preissubsystem: number; // LIK = 2
     name: string;
     supplement: string;
+    zusatzInformationen: string;
     street: string;
     postcode: string;
     town: string;
@@ -30,6 +40,7 @@ export interface PmsPreismeldungenSortProperties {
 }
 
 export interface KontaktPerson {
+    oid: string; // Set by presta (null if new to presta)
     firstName: string;
     surname: string;
     personFunction: string;
@@ -266,3 +277,13 @@ export type CompletePreismeldung = Preismeldung & PmsPreismeldungenSort;
 export interface User {
     username: string;
 }
+
+export interface Preissubsystem {
+    id: number;
+    name: string;
+}
+
+export const Preissubsysteme: Preissubsystem[] = [
+    { id: 1, name: 'GFK' },
+    { id: 2, name: 'BFS' },
+];

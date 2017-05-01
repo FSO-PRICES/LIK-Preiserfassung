@@ -1,9 +1,10 @@
 import { Component, EventEmitter } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { LoadingController, Loading } from 'ionic-angular';
-import * as importer from '../../actions/importer';
 
+import { PefDialogService } from 'lik-shared';
+
+import * as importer from '../../actions/importer';
 import * as fromRoot from '../../reducers';
 
 @Component({
@@ -34,9 +35,8 @@ export class ImportPage {
     // public preismeldungenImportCompleted$ = new EventEmitter<number>();
 
     private subscriptions: Subscription[];
-    private loader: Loading;
 
-    constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController) {
+    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         const parsedWarenkorb$ = this.store.select(fromRoot.getImporterParsedWarenkorb)
             .publishReplay(1).refCount();
         const parsedPreismeldestellen$ = this.store.select(fromRoot.getImporterParsedPreismeldestellen)
@@ -74,51 +74,32 @@ export class ImportPage {
                 .subscribe(data => store.dispatch({ type: 'PARSE_WARENKORB_FILE', payload: { file: data.file, language: data.language } } as importer.Action)),
             this.warenkorbStartImport$
                 .withLatestFrom(parsedWarenkorb$, (_, parsedWarenkorb) => parsedWarenkorb)
-                .subscribe(data => {
-                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'IMPORT_WARENKORB', payload: data } as importer.Action));
-                }),
+                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', warenkorbImported$).map(() => data))
+                .subscribe(data => store.dispatch({ type: 'IMPORT_WARENKORB', payload: data } as importer.Action)),
 
             this.preismeldestelleFileSelected$
                 .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldestellen } } as importer.Action)),
             this.preismeldestellenStartImport$
                 .withLatestFrom(parsedPreismeldestellen$, (_, parsedPreismeldestellen) => parsedPreismeldestellen)
-                .subscribe(data => {
-                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'IMPORT_PREISMELDESTELLEN', payload: data } as importer.Action));
-                }),
+                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', preismeldestellenImported$).map(() => data))
+                .subscribe(data => store.dispatch({ type: 'IMPORT_PREISMELDESTELLEN', payload: data } as importer.Action)),
 
 
             this.preismeldungFileSelected$
                 .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldungen } } as importer.Action)),
             this.preismeldungenStartImport$
                 .withLatestFrom(parsedPreismeldungen$, (_, parsedPreismeldungen) => parsedPreismeldungen)
-                .subscribe(data => {
-                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'IMPORT_PREISMELDUNGEN', payload: data } as importer.Action));
-                }),
+                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', preismeldungenImported$).map(() => data))
+                .subscribe(data => store.dispatch({ type: 'IMPORT_PREISMELDUNGEN', payload: data } as importer.Action)),
 
 
             Observable.merge(warenkorbImported$, preismeldungenImported$, preismeldestellenImported$)
-                .subscribe(() => {
-                    this.dismissLoadingScreen();
-                    this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
-                })
+                .subscribe(() => this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action))
         ];
+    }
 
+    public ionViewDidEnter() {
+        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
-    }
-
-    private presentLoadingScreen() {
-        this.dismissLoadingScreen();
-
-        this.loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
-        });
-
-        return this.loader.present();
-    }
-
-    private dismissLoadingScreen() {
-        if (!!this.loader) {
-            this.loader.dismiss();
-        }
     }
 }

@@ -9,11 +9,7 @@
         <input class="file-select-btn" type="file" (change)="preismeldungenSelected$.emit($event)"/>
     </ion-col>
 </ion-row>
-<ion-row left>
-    <ion-col>
-        <button ion-button class="register-btn" type="button" [disabled]="!(preismeldungenAreParsed$ | async)" (click)="importPreismeldungenClicked$.emit($event)">Import Preismeldungen</button>
-    </ion-col>
-</ion-row>
-<ion-row *ngIf="arePreismeldungenImported$ | async">
-    <ion-col><span ion-text color="primary">Preismeldungen wurden erfolgreich importiert. {{preismeldungenImportedCount$ | async}} Einträge wurden hinzugefügt</span></ion-col>
-</ion-row>
+<div class="actions">
+    <button ion-button class="register-btn" type="button" [disabled]="!(preismeldungenAreParsed$ | async)" (click)="importPreismeldungenClicked$.emit($event)">Import Preismeldungen</button>
+    <span *ngIf="arePreismeldungenImported$ | async" ion-text color="primary">Preismeldungen wurden erfolgreich importiert. {{preismeldungenImportedCount$ | async}} Einträge wurden hinzugefügt</span>
+</div>

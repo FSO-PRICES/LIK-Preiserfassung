@@ -1,6 +1,6 @@
 <header pef-menu></header>
 <div class="page-wrapper">
-    <div class="page-content">
+    <ion-content class="page-content">
         <form>
             <ion-row class="container">
                 <ion-col width-50>
@@ -10,8 +10,8 @@
                         [parsed]="warenkorbFileParsed$ | async"
                         [importedCount]="warenkorbImportedCount$ | async">
                     </warenkorb-import>
+                    <div class="text-info">Zuletzt importiert am: {{latestWarenkorbImportAt$ | async | date:"medium"}}</div>
                 </ion-col>
-                <ion-col width-33>Zuletzt importiert am: {{latestWarenkorbImportAt$ | async | date:"medium"}}</ion-col>
             </ion-row>
             <ion-row class="container">
                 <ion-col width-50>
@@ -21,8 +21,8 @@
                         [parsed]="preismeldestelleFileParsed$ | async"
                         [importedCount]="preismeldestellenImportedCount$ | async">
                     </preismeldestellen-import>
+                    <div class="text-info">Zuletzt importiert am: {{latestPreismeldestellenImportAt$ | async | date:"medium"}}</div>
                 </ion-col>
-                <ion-col width-33>Zuletzt importiert am: {{latestPreismeldestellenImportAt$ | async | date:"medium"}}</ion-col>
             </ion-row>
             <ion-row class="container">
                 <ion-col width-50>
@@ -31,9 +31,9 @@
                         (import)="preismeldungenStartImport$.emit($event)"
                         [parsed]="preismeldungFileParsed$ | async"
                         [importedCount]="preismeldungenImportedCount$ | async"></preismeldungen-import>
+                    <div class="text-info">Zuletzt importiert am: {{latestPreismeldungenImportAt$ | async | date:"medium"}}</div>
                 </ion-col>
-                <ion-col width-33>Zuletzt importiert am: {{latestPreismeldungenImportAt$ | async | date:"medium"}}</ion-col>
             </ion-row>
         </form>
-    </div>
+    </ion-content>
 </div>

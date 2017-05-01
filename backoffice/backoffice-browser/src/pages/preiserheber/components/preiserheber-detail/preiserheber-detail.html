@@ -51,13 +51,49 @@
             </div>
         </div>
         <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label stacked>Telefon</ion-label>
+            <ion-label stacked>Festnetznummer</ion-label>
             <ion-input type="text" formControlName="telephone"></ion-input>
+        </ion-item>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label stacked>Mobilnummer</ion-label>
+            <ion-input type="text" formControlName="mobilephone"></ion-input>
         </ion-item>
         <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Email</ion-label>
             <ion-input type="text" formControlName="email"></ion-input>
         </ion-item>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label stacked>Fax</ion-label>
+            <ion-input type="text" formControlName="fax"></ion-input>
+        </ion-item>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label stacked>Webseite</ion-label>
+            <ion-input type="text" formControlName="webseite"></ion-input>
+        </ion-item>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label stacked>Strasse</ion-label>
+            <ion-input type="text" formControlName="street"></ion-input>
+        </ion-item>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label stacked>Ort</ion-label>
+            <ion-input type="text" formControlName="town"></ion-input>
+        </ion-item>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label stacked>PLZ</ion-label>
+            <ion-input type="text" formControlName="postcode"></ion-input>
+        </ion-item>
+        <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
+            <div class="item-inner">
+                <div class="input-wrapper">
+                    <ion-label stacked>Mitarbeiter von</ion-label>
+                    <div class="input input-md pef-select">
+                        <select formControlName="preissubsystem">
+                            <option *ngFor="let preissubsystem of preissubsysteme$ | async" [value]="preissubsystem.id">{{preissubsystem.name}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
     </ion-list>
     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
     <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>

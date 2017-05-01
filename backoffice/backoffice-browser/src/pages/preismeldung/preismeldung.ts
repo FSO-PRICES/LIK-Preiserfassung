@@ -1,7 +1,6 @@
 import { Component, OnDestroy, EventEmitter } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription, Observable } from 'rxjs';
-import { Loading, LoadingController } from 'ionic-angular';
 
 import { Models as P, PefDialogService } from 'lik-shared';
 
@@ -31,9 +30,8 @@ export class PreismeldungPage implements OnDestroy {
     public cancelEditDialog$: Observable<any>;
 
     private subscriptions: Subscription[];
-    private loader: Loading;
 
-    constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private pefDialogService: PefDialogService) {
+    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
 
         this.isEditing$ = this.currentPreismeldung$
@@ -75,24 +73,19 @@ export class PreismeldungPage implements OnDestroy {
                 .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDUNG', payload: x } as preismeldung.Action)),
 
             this.savePreismeldung$
-                .subscribe(x => {
-                    this.presentLoadingScreen().then(() => store.dispatch({ type: 'SAVE_PREISMELDUNG' } as preismeldung.Action));
-                }),
-
-            this.currentPreismeldung$
-                .filter(pms => pms != null && pms.isSaved)
-                .subscribe(() => this.dismissLoadingScreen())
+                .flatMap(() => this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', this.currentPreismeldung$.skip(1).filter(pms => pms != null && pms.isSaved)))
+                .subscribe(x => store.dispatch({ type: 'SAVE_PREISMELDUNG' } as preismeldung.Action))
         ];
     }
 
     public ionViewCanLeave(): Promise<boolean> {
         return Observable.merge(
                 this.isCurrentModified$
-                    .filter(modified => modified === false)
+                    .filter(modified => modified === false || modified === null)
                     .map(() => true),
                 this.isCurrentModified$
                     .filter(modified => modified === true)
-                    .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
+                    .flatMap(() => this.cancelEditDialog$)
                     .map(dialogCode => dialogCode === 'THROW_CHANGES')
             )
             .take(1)
@@ -100,6 +93,7 @@ export class PreismeldungPage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
+        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as preismeldestelle.Action);
     }
 
@@ -107,21 +101,5 @@ export class PreismeldungPage implements OnDestroy {
         this.store.dispatch({ type: 'CLEAR_PREISMELDUNG_FOR_PMS' } as preismeldung.Action);
         this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null } as preismeldung.Action);
         this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
-    }
-
-    private presentLoadingScreen() {
-        this.dismissLoadingScreen();
-
-        this.loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
-        });
-
-        return this.loader.present();
-    }
-
-    private dismissLoadingScreen() {
-        if (!!this.loader) {
-            this.loader.dismiss();
-        }
     }
 }

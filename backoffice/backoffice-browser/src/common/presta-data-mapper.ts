@@ -1,28 +1,47 @@
 import * as _ from 'lodash';
 import * as docuri from 'docuri';
 import { Models as P } from 'lik-shared';
+import * as moment from 'moment';
 
 const preismeldungRefUri = docuri.route(P.preismeldungReferenceUriRoute);
 const preismeldungUri = docuri.route(P.preismeldungUriRoute);
 const preismeldestelleUri = docuri.route(P.pmsUriRoute);
 
 const importPmsFromPrestaIndexes = {
-    pmsNummer: 0, // PARTNER_NB
-    name: 1, // PARTNER_NAME_TX
-    supplement: 2,
-    street: 3,
-    postcode: 4,
-    town: 5,
-    telephone: 6, // PARTNER_TEL_NB_TX
-    email: 7, // PARTNER_E_MAIL_TX
-    languageCode: 8, // PARTNER_LANGUAGE_CD
-    firstNameK1: 9, // FIRST_NAME_TX
-    surnameK1: 10,
-    personFunctionK1: 11,
-    languageCodeK1: 12, // PERSON_LANGUAGE_CD
-    telephoneK1: 13,
-    emailK1: 14,
-    // TODO: Add kontaktperson 2
+    erhebungsmonat: 0,
+    preissubsystem: 1,
+    pmsNummer: 2,
+    pmsName: 3,
+    pmsZusatzname: 4,
+    pmsStrasse: 5,
+    pmsPlz: 6,
+    pmsOrt: 7,
+    pmsTelefon: 8,
+    pmsEMail: 9,
+    pmsSprache: 10,
+    pmsErhebungsregion: 11,
+    pmsErhebungsart: 12,
+    pmsErhebungshäufigkeit: 13,
+    bemerkungZurErhebungsart: 14,
+    pmsZusatzinformationen: 15,
+    kp1Oid: 16,
+    kp1Vorname: 17,
+    kp1Name: 18,
+    kp1Funktion: 19,
+    kp1Telefon: 20,
+    kp1Mobile: 21,
+    kp1Fax: 22,
+    kp1EMail: 23,
+    kp1Sprache: 24,
+    kp2Oid: 25,
+    kp2Vorname: 26,
+    kp2Name: 27,
+    kp2Funktion: 28,
+    kp2Telefon: 29,
+    kp2Mobile: 30,
+    kp2Fax: 31,
+    kp2EMail: 32,
+    kp2Sprache: 33,
 };
 
 const importPmFromPrestaIndexes = {
@@ -66,25 +85,26 @@ function parseProduktMerkmale(content: string) {
 function parseKontaktPersons(cells: string[]) {
     return <P.KontaktPerson[]>[
         {
-            firstName: cells[importPmsFromPrestaIndexes.firstNameK1],
-            surname: cells[importPmsFromPrestaIndexes.surnameK1],
-            personFunction: cells[importPmsFromPrestaIndexes.personFunctionK1],
-            languageCode: cells[importPmsFromPrestaIndexes.languageCodeK1],
-            telephone: cells[importPmsFromPrestaIndexes.telephoneK1],
-            mobile: null,
-            fax: null,
-            email: cells[importPmsFromPrestaIndexes.emailK1]
+            oid: cells[importPmsFromPrestaIndexes.kp1Oid],
+            firstName: cells[importPmsFromPrestaIndexes.kp1Vorname],
+            surname: cells[importPmsFromPrestaIndexes.kp1Name],
+            personFunction: cells[importPmsFromPrestaIndexes.kp1Funktion],
+            languageCode: cells[importPmsFromPrestaIndexes.kp1Sprache],
+            telephone: cells[importPmsFromPrestaIndexes.kp1Telefon],
+            mobile: cells[importPmsFromPrestaIndexes.kp1Mobile],
+            fax: cells[importPmsFromPrestaIndexes.kp1Fax],
+            email: cells[importPmsFromPrestaIndexes.kp1EMail]
         },
         {
-            // TODO: Add kontaktperson 2
-            firstName: null, //cells[importPmsFromPrestaIndexes.firstNameK2],
-            surname: null, //cells[importPmsFromPrestaIndexes.surnameK2],
-            personFunction: null, //cells[importPmsFromPrestaIndexes.personFunctionK2],
-            languageCode: null, //cells[importPmsFromPrestaIndexes.languageCodeK2],
-            telephone: null, //cells[importPmsFromPrestaIndexes.telephoneK2],
-            mobile: null,
-            fax: null,
-            email: null, //cells[importPmsFromPrestaIndexes.emailK2]
+            oid: cells[importPmsFromPrestaIndexes.kp2Oid],
+            firstName: cells[importPmsFromPrestaIndexes.kp2Vorname],
+            surname: cells[importPmsFromPrestaIndexes.kp2Name],
+            personFunction: cells[importPmsFromPrestaIndexes.kp2Funktion],
+            languageCode: cells[importPmsFromPrestaIndexes.kp2Sprache],
+            telephone: cells[importPmsFromPrestaIndexes.kp2Telefon],
+            mobile: cells[importPmsFromPrestaIndexes.kp2Mobile],
+            fax: cells[importPmsFromPrestaIndexes.kp2Fax],
+            email: cells[importPmsFromPrestaIndexes.kp2EMail]
         },
     ]
 }
@@ -96,14 +116,17 @@ export function preparePms(lines: string[][]) {
         return <P.AdvancedPreismeldestelle>{
             _id: id,
             pmsNummer: cells[importPmsFromPrestaIndexes.pmsNummer],
-            name: cells[importPmsFromPrestaIndexes.name],
-            supplement: cells[importPmsFromPrestaIndexes.supplement],
-            street: cells[importPmsFromPrestaIndexes.street],
-            postcode: cells[importPmsFromPrestaIndexes.postcode],
-            town: cells[importPmsFromPrestaIndexes.town],
-            telephone: cells[importPmsFromPrestaIndexes.telephone],
-            email: cells[importPmsFromPrestaIndexes.email],
-            languageCode: cells[importPmsFromPrestaIndexes.languageCode],
+            erhebungsmonat: parseDate(cells[importPmsFromPrestaIndexes.erhebungsmonat], 'erhebungsmonat'),
+            preissubsystem: parseInt(cells[importPmsFromPrestaIndexes.preissubsystem], 10),
+            zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
+            name: cells[importPmsFromPrestaIndexes.pmsName],
+            supplement: cells[importPmsFromPrestaIndexes.pmsZusatzname],
+            street: cells[importPmsFromPrestaIndexes.pmsStrasse],
+            postcode: cells[importPmsFromPrestaIndexes.pmsPlz],
+            town: cells[importPmsFromPrestaIndexes.pmsOrt],
+            telephone: cells[importPmsFromPrestaIndexes.pmsTelefon],
+            email: cells[importPmsFromPrestaIndexes.pmsEMail],
+            languageCode: cells[importPmsFromPrestaIndexes.pmsSprache],
             kontaktpersons: parseKontaktPersons(cells),
             active: true
         };
@@ -144,30 +167,99 @@ export function preparePm(lines: string[][]) {
 
 export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P.PreismeldungReferenceProperties & P.PmsPreismeldungenSortProperties)[]) {
     return preismeldungen.map(pm => ({
-        Erhebungsmonat: null, // TODO 1. Tag des Erhebungsmonats
-        Preissubsystem: null, // LIK = 2
-        Schemanummer: 0, // TODO: Always 0?
-        Preiserhebungsort: pm.pmsNummer,
-        Erhebungspositionnummer: pm.epNummer,
-        Laufnummer: pm.laufnummer,
-        Preis_T: pm.preis,
-        Menge_T: pm.menge,
-        Preis_VPK: null, // TODO: ref_pm preis
-        Menge_VPK: null, // TODO: ref_pm menge
-        Bearbeitungscode: pm.bearbeitungscode,
-        Aktionscode: pm.aktion,
-        Preisbezeichnung: null, // TODO: Find out how to get this
-        Artikelnummer: pm.artikelnummer,
-        Fehlende_Preise: pm.fehlendePreiseR,
-        PE_Notiz: pm.notiz,
-        PE_Kommentar: pm.kommentar,
-        Bemerkungen: pm.bemerkungen,
-        Internet_Link: pm.internetLink,
-        Erhebungszeitpunkt: pm.erhebungsZeitpunkt,
-        Sortiernummer: pm.sortOrder,
-        Preis_vor_Reduktion: pm.preisVorReduktion,
-        Menge_vor_Reduktion: pm.mengeVorReduktion,
-        Datum_vor_Reduktion: null, // TODO: Find out how to get this
-        Produktmerkmale: null // TODO how to get? By ref_pm?
+        'Erhebungsmonat': null, // TODO 1. Tag des Erhebungsmonats
+        'Preissubsystem': null, // LIK = 2
+        'Schemanummer': 0, // TODO: Always 0?
+        'Preiserhebungsort': pm.pmsNummer,
+        'Erhebungspositionnummer': pm.epNummer,
+        'Laufnummer': pm.laufnummer,
+        'Preis_T': pm.preis,
+        'Menge_T': pm.menge,
+        'Preis_VPK': null, // TODO: ref_pm preis
+        'Menge_VPK': null, // TODO: ref_pm menge
+        'Bearbeitungscode': pm.bearbeitungscode,
+        'Aktionscode': pm.aktion,
+        'Preisbezeichnung': null, // TODO: Find out how to get this
+        'Artikelnummer': pm.artikelnummer,
+        'Fehlende_Preise': pm.fehlendePreiseR,
+        'PE_Notiz': pm.notiz,
+        'PE_Kommentar': pm.kommentar,
+        'Bemerkungen': pm.bemerkungen,
+        'Internet_Link': pm.internetLink,
+        'Erhebungszeitpunkt': pm.erhebungsZeitpunkt,
+        'Sortiernummer': pm.sortOrder,
+        'Preis_vor_Reduktion': pm.preisVorReduktion,
+        'Menge_vor_Reduktion': pm.mengeVorReduktion,
+        'Datum_vor_Reduktion': null, // TODO: Find out how to get this
+        'Produktmerkmale': null // TODO how to get? By ref_pm?
     }));
+}
+
+export function preparePmsForExport(preismeldestellen: P.AdvancedPreismeldestelle[]) {
+    return preismeldestellen.map(pms => ({
+        'Erhebungsmonat': pms.erhebungsmonat,
+        'Preissubsystem': pms.preissubsystem,
+        'PMS_Nummer': pms.pmsNummer,
+        'PMS_Name': pms.name,
+        'PMS_Zusatzname': pms.supplement,
+        'PMS_Strasse': pms.street,
+        'PMS_PLZ': pms.postcode,
+        'PMS_Ort': pms.town,
+        'PMS_Telefon': pms.telephone,
+        'PMS_eMail': pms.email,
+        'PMS_Sprache': pms.languageCode,
+        'PMS_Erhebungsregion': pms.regionId,
+        'PMS_Erhebungsart': pms.erhebungsart,
+        'PMS_Erhebungshäufigkeit': pms.erhebungshaeufigkeit,
+        'Bemerkung_zur_Erhebungsart': pms.erhebungsartComment,
+        'PMS_Zusatzinformationen': pms.zusatzInformationen,
+        'KP1_OID': pms.kontaktpersons[0].oid,
+        'KP1_Vorname': pms.kontaktpersons[0].firstName,
+        'KP1_Name': pms.kontaktpersons[0].surname,
+        'KP1_Funktion': pms.kontaktpersons[0].personFunction,
+        'KP1_Telefon': pms.kontaktpersons[0].telephone,
+        'KP1_Mobile': pms.kontaktpersons[0].mobile,
+        'KP1_Fax': pms.kontaktpersons[0].fax,
+        'KP1_eMail': pms.kontaktpersons[0].email,
+        'KP1_Sprache': pms.kontaktpersons[0].languageCode,
+        'KP2_OID': pms.kontaktpersons[1].oid,
+        'KP2_Vorname': pms.kontaktpersons[1].firstName,
+        'KP2_Name': pms.kontaktpersons[1].surname,
+        'KP2_Funktion': pms.kontaktpersons[1].personFunction,
+        'KP2_Telefon': pms.kontaktpersons[1].telephone,
+        'KP2_Mobile': pms.kontaktpersons[1].mobile,
+        'KP2_Fax': pms.kontaktpersons[1].fax,
+        'KP2_eMail': pms.kontaktpersons[1].email,
+        'KP2_Sprache': pms.kontaktpersons[1].languageCode,
+    }));
+}
+
+export function preparePreiserheberForExport(preiserhebers: { preiserheber: P.Erheber, pmsNummers: string[] }[], data: { erhebungsmonat: Date, erhebungsorgannummer: number } = null) {
+    return preiserhebers.map(({ preiserheber, pmsNummers }) => ({
+        'Erhebungsmonat': data != null ? data.erhebungsmonat.toString() : null,
+        'Preissubsystem': preiserheber.preissubsystem,
+        'Erhebungsorgannummer': data != null ? data.erhebungsorgannummer : null,
+        'PE_Nummer': null, // TODO: Check if needed, because we don't parse an import file
+        'PE_Vorname': preiserheber.firstName,
+        'PE_Name': preiserheber.surname,
+        'PE_Funktion': preiserheber.personFunction,
+        'PE_Telefon': preiserheber.telephone,
+        'PE_Mobile': preiserheber.mobilephone,
+        'PE_Fax': preiserheber.fax,
+        'PE_eMail': preiserheber.email,
+        'PE_Webseite': preiserheber.webseite,
+        'PE_Sprache': preiserheber.languageCode,
+        'PE_Strasse': preiserheber.street,
+        'PE_PLZ': preiserheber.postcode,
+        'PE_Ort': preiserheber.town,
+        'PE_Zuweisung_PMS': pmsNummers.join(','),
+    }));
+}
+
+function parseDate(text: string, field: string) {
+    const date = moment.utc(text, 'DD.MM.YYYY');
+    if (!date.isValid()) {
+        throw new Error(`Invalid date format for field: ${field} ['${text}']`);
+    }
+    return date.toDate();
 }
