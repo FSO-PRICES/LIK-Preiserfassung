@@ -110,16 +110,15 @@ export class PreismeldungenEffects {
         .filter(x => !x.currentPreismeldung.isNew)
         .flatMap(x => {
             const saveAction = x.payload as P.SavePreismeldungPriceSaveAction;
+            let currentPreismeldung = x.currentPreismeldung;
             if (saveAction.saveWithData === 'COMMENT') {
-                const currentPreismeldung = assign({}, x.currentPreismeldung, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext: saveAction.data }) });
-                return this.savePreismeldungMessages(currentPreismeldung)
-                    .then(preismeldung => ({ preismeldung, saveAction }));
-            } else {
-                return getDatabase()
-                    .then(db => db.get(x.currentPreismeldung.preismeldung._id).then(doc => ({ db, doc })))
-                    .then(({ db, doc }) => db.put(assign({}, doc, this.propertiesFromCurrentPreismeldung(x.currentPreismeldung))).then(() => db))
-                    .then(db => db.get(x.currentPreismeldung.preismeldung._id).then(preismeldung => ({ preismeldung, saveAction: x.payload })));
+                currentPreismeldung = assign({}, x.currentPreismeldung, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext: saveAction.data }) });
             }
+            if (saveAction.saveWithData === 'AKTION') {
+                currentPreismeldung = assign({}, x.currentPreismeldung, { preismeldung: assign({}, x.currentPreismeldung.preismeldung, { aktion: saveAction.data }) }, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext: '' }) });
+            }
+            return this.savePreismeldungMessages(currentPreismeldung)
+                .then(preismeldung => ({ preismeldung, saveAction }));
         })
         .map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload }));
 

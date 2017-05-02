@@ -124,9 +124,9 @@
                                     <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit()" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
                                 </ion-item>
                             </ion-list>
-                            <div class="code">{{ formatFehlendePreiseR(thisPeriodFehlendePreiseR$ | async) }}</div>
+                            <div class="code">{{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}</div>
                         </div>
-                        <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)" [codeListType]="codeListType$ | async"></bearbeitungs-type>
+                        <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)" [codeListType]="codeListType$ | async" [nichtEmpfohleneBc]="(distinctPreismeldung$ | async)?.warenkorbPosition.nichtEmpfohleneBc"></bearbeitungs-type>
                     </div>
                 </div>
             </div>

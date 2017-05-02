@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 
 import { PefDetectIonListItemHeightDirective } from './pef-detect-ion-list-item-height/pef-detect-ion-list-item-height';
 import { PefDialogYesNoComponent } from './pef-dialog-yes-no/pef-dialog-yes-no';
+import { PefDialogYesNoEditComponent } from './pef-dialog-yes-no-edit/pef-dialog-yes-no-edit';
 import { PefDisableInputNumberBehaviourDirective } from './pef-disable-input-number-behaviour/pef-disable-input-number-behaviour';
 import { PefFormatNumber } from './pef-format-number/pef-format-number';
 import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-pipe';
@@ -21,6 +22,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
     declarations: [
         PefDetectIonListItemHeightDirective,
         PefDialogYesNoComponent,
+        PefDialogYesNoEditComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,
         PefFormatNumberPipe,
@@ -36,6 +38,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
     exports: [
         PefDetectIonListItemHeightDirective,
         PefDialogYesNoComponent,
+        PefDialogYesNoEditComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,
         PefFormatNumberPipe,

@@ -5,7 +5,7 @@ import { TranslateService } from 'ng2-translate';
 import { keys, assign } from 'lodash';
 import * as format from 'format-number';
 
-import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
 
@@ -55,7 +55,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public showValidationHints$: Observable<boolean>;
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
-    public thisPeriodFehlendePreiseR$: Observable<string>;
 
     public priceNumberFormattingOptions = { padRight: 2, truncate: 4, integerSeparator: '' };
     public mengeNumberFormattingOptions = { padRight: 0, truncate: 3, integerSeparator: '' };
@@ -126,6 +125,16 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
+            this.preismeldung$
+                .filter(x => !!x)
+                .subscribe(preismeldung => {
+                    this.form.patchValue({
+                        aktion: preismeldung.preismeldung.aktion,
+                    });
+                })
+        );
+
+        this.subscriptions.push(
             this.requestPreismeldungQuickEqual$.withLatestFrom(distinctPreismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
                     this.form.patchValue({
@@ -189,12 +198,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .map(x => x === 7 || x === 2)
             .publishReplay(1).refCount();
 
-        this.thisPeriodFehlendePreiseR$ = bearbeitungscodeChanged$
-            .withLatestFrom(distinctPreismeldung$, (bearbeitungscode: P.Models.Bearbeitungscode, bag: P.PreismeldungBag) => {
-                if (bearbeitungscode !== 101) return '';
-                return bag.refPreismeldung.fehlendePreiseR + 'R';
-            });
-
         this.subscriptions.push(
             this.showVPArtikelNeu$
                 .filter(x => !x && this.form.dirty)
@@ -247,6 +250,20 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         if (this.form.value.bearbeitungscode === 101 && /^R$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 2) {
                             return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_rrr-message-mit-aufforderung-zu-produktersatz'), false)
                                 .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: 'COMMENT', data: 'Keine Ersatzprodukte in Sortiment vorhanden' });
+                        }
+                        if (this.form.value.aktion && bag.refPreismeldung.aktion && this.form.value.preis > bag.refPreismeldung.preis) {
+                            return pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_aktion-message-preis_hoeher'), false)
+                                .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
+                                    res.data === 'YES'
+                                        ? { type: saveAction.type, saveWithData: 'COMMENT', data: 'Steigender Aktionspreis bestätigt' }
+                                        : { type: saveAction.type, saveWithData: 'AKTION', data: false });
+                        }
+                        if (!this.form.value.aktion && bag.refPreismeldung.aktion && this.form.value.preis <= bag.refPreismeldung.preis) {
+                            return pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_not-aktion-message-billiger'), false)
+                                .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
+                                    res.data === 'YES'
+                                        ? { type: saveAction.type, saveWithData: 'AKTION', data: true }
+                                        : { type: saveAction.type, saveWithData: 'COMMENT', data: 'Akteuller Normalpreis billiger als Aktionspreis VP' });
                         }
                         return Observable.of(saveAction);
                     })

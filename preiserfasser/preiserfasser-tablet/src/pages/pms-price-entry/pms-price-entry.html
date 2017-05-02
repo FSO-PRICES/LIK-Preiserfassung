@@ -26,6 +26,7 @@
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-attributes>
                 <preismeldung-messages
                     [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
+                    [isActive]="(selectedTab$ | async) == 'MESSAGES'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"></preismeldung-messages>

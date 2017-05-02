@@ -13,11 +13,13 @@ import { PreismeldungMessagesPayload } from '../../../../../actions/preismeldung
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldungMessagesComponent extends ReactiveComponent implements OnChanges {
+    @Input() isActive: boolean;
     @Input() preismeldung: P.CurrentPreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Output('preismeldungMessagesPayload') preismeldungMessagesPayload$: Observable<P.PreismeldungMessagesPayload>;
 
-    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
+    public isActive$ = this.observePropertyCurrentValue<boolean>('isActive');
+    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung').publishReplay(1).refCount();
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
 
     public bemerkungenHistory$: Observable<{ author: string, text: string }[]>;
@@ -42,6 +44,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
         const distinctPreismeldung$ = this.preismeldung$
             .filter(x => !!x)
             .distinctUntilKeyChanged('pmId')
+            .merge(this.isActive$.filter(x => x).flatMap(() => Observable.defer(() => this.preismeldung$.filter(x => !!x).take(1))))
             .publishReplay(1).refCount();
 
         this.bemerkungenHistory$ = distinctPreismeldung$

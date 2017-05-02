@@ -145,7 +145,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 const preismeldungToMakeCurrent = !!nextId ? state.entities[nextId] : state.entities[0];
                 nextPreismeldung = assign({}, preismeldungToMakeCurrent, { priceCountStatus: state.priceCountStatuses[preismeldungToMakeCurrent.preismeldung.epNummer], isModified: false, isNew: false, originalBearbeitungscode: preismeldungToMakeCurrent.preismeldung.bearbeitungscode, messages: parsePreismeldungMessages(preismeldungToMakeCurrent.preismeldung) });
             } else {
-                nextPreismeldung = cloneDeep(currentPreismeldung);
+                nextPreismeldung = assign(cloneDeep(currentPreismeldung), { messages: parsePreismeldungMessages(currentPreismeldung.preismeldung) });
             }
 
             const entities = assign({}, state.entities, { [currentPreismeldung.pmId]: assign({}, currentPreismeldung) });
@@ -260,7 +260,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 sortierungsnummer
             };
 
-            return assign({}, state, { currentPreismeldung: assign(newCurrentPreismeldung, { messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung) }) });
+            return assign({}, state, { currentPreismeldung: assign({}, newCurrentPreismeldung, { messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung) }) });
         }
 
         default:

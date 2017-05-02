@@ -17,7 +17,7 @@ export interface PreismeldungMessagesPayload {
     bemerkungen: string;
 }
 
-export type SavePreismeldungPriceSaveAction = { type: 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_NEXT' | 'SAVE_AND_DUPLICATE_PREISMELDUNG' | 'SAVE_AND_NAVIGATE_TO_DASHBOARD', data: string, saveWithData: 'COMMENT' | null };
+export type SavePreismeldungPriceSaveAction = { type: 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_NEXT' | 'SAVE_AND_DUPLICATE_PREISMELDUNG' | 'SAVE_AND_NAVIGATE_TO_DASHBOARD', data: string, saveWithData: 'COMMENT' | 'AKTION' | null };
 
 export type Actions =
     { type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: number } |
