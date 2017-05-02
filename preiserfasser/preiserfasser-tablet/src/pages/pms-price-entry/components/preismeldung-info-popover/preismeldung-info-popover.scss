@@ -42,12 +42,7 @@ preismeldung-info-popover {
         line-height: 1.5em;
         padding: 5px 0;
 
-        &.heading {
-            width: 60%;
-        }
-
         &.value {
-            width: 40%;
             font-weight: 500;
             @include set-padding-right(1);
             text-align: right;
