@@ -34,6 +34,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     public requestPreismeldungQuickEqual$: Observable<string>;
     public codeListType$: Observable<string>;
+    public showPercentageWarning$: Observable<boolean>;
 
     public changeBearbeitungscode$ = new EventEmitter<P.Models.Bearbeitungscode>();
     public preisAndMengeDisabled$: Observable<boolean>;
@@ -209,6 +210,20 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     });
                 })
         );
+
+        this.showPercentageWarning$ = this.preismeldung$
+            .map(bag => {
+                switch (bag.preismeldung.bearbeitungscode) {
+                    case 1:
+                        return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite_1 || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite_1;
+                    case 7:
+                        return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite_7 || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite_7;
+                    case 99:
+                        return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite;
+                    default:
+                        return false;
+                }
+            });
 
         this.subscriptions.push(
             this.preisAndMengeDisabled$

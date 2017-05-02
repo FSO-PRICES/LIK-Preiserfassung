@@ -62,7 +62,7 @@
                             <div class="unit">CHF</div>
                         </div>
                         <div class="last-period-quantity">
-                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.menge | pefFormatNumber: mengeFormattingOptions  }}</div>
+                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.menge | pefFormatNumber: mengeNumberFormattingOptions  }}</div>
                             <div class="unit">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</div>
                         </div>
                         <div class="last-period-bottom-row">
@@ -82,7 +82,12 @@
                 </div>
                 <div class="middle-section">
                     <div class="box-container" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-                        <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
+                        <div class="box" >
+                            <div class="percentage-wrapper">
+                                <div [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
+                                <pef-floating-icon [icon-name]="(showPercentageWarning$ | async) ? 'warning' : ''"></pef-floating-icon>
+                            </div>
+                        </div>
                         <div class="arrow right"></div>
                     </div>
                 </div>

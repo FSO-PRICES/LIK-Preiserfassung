@@ -10,7 +10,6 @@ export class PefDialogConfirmDeleteComponent {
     public text: string;
 
     constructor(public viewCtrl: ViewController) {
-        console.log('delete_dialog data:', viewCtrl.data);
         this.text = viewCtrl.data.params.text;
     }
 }
