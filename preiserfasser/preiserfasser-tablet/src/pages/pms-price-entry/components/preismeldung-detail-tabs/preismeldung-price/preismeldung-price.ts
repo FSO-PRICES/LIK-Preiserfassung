@@ -30,6 +30,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
 
     public preismeldung$: Observable<P.PreismeldungBag>;
+    public distinctPreismeldung$: Observable<P.PreismeldungBag>;
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     public requestPreismeldungQuickEqual$: Observable<string>;
     public codeListType$: Observable<string>;
@@ -94,21 +95,21 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.requestPreismeldungSave$ = this.observePropertyCurrentValue<P.SavePreismeldungPriceSaveAction>('requestPreismeldungSave').filter(x => !!x);
         this.requestPreismeldungQuickEqual$ = this.observePropertyCurrentValue<string>('requestPreismeldungQuickEqual').filter(x => !!x);
 
-        const distinctPreismeldung$ = this.preismeldung$
+        this.distinctPreismeldung$ = this.preismeldung$
             .filter(x => !!x)
             .distinctUntilKeyChanged('pmId')
             .publishReplay(1).refCount();
 
         this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)
-            .merge(distinctPreismeldung$.map(x => x.preismeldung.preis))
+            .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preis))
             .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
 
         this.preisVPNormalNeuerArtikelCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPNormalNeuerArtikel)
-            .merge(distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
+            .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
             .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
 
         this.subscriptions.push(
-            distinctPreismeldung$
+            this.distinctPreismeldung$
                 .subscribe(preismeldung => {
                     this.form.reset({
                         pmId: preismeldung.pmId,
@@ -135,7 +136,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.requestPreismeldungQuickEqual$.withLatestFrom(distinctPreismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
+            this.requestPreismeldungQuickEqual$.withLatestFrom(this.distinctPreismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
                     this.form.patchValue({
                         preis: `${currentPm.refPreismeldung ? this.preiseFormatFn(currentPm.refPreismeldung.preis) : ''}`,
@@ -146,7 +147,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.applyUnitQuickEqual$.withLatestFrom(distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
+            this.applyUnitQuickEqual$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
                         menge: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
@@ -155,7 +156,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.applyUnitQuickEqualVP$.withLatestFrom(distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
+            this.applyUnitQuickEqualVP$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
                         mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
@@ -172,7 +173,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 })
         );
 
-        this.codeListType$ = distinctPreismeldung$
+        this.codeListType$ = this.distinctPreismeldung$
             .map(x => x.preismeldung.bearbeitungscode === 2 || x.preismeldung.bearbeitungscode === 3 ? 'NEW_PM' : 'STANDARD');
 
         this.preismeldungPricePayload$ = this.form.valueChanges
@@ -188,7 +189,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             }));
 
         const bearbeitungscodeChanged$ = this.changeBearbeitungscode$
-            .merge(distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
+            .merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .publishReplay(1).refCount();
 
         this.preisAndMengeDisabled$ = bearbeitungscodeChanged$
@@ -212,7 +213,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.subscriptions.push(
             this.preisAndMengeDisabled$
                 .filter(x => x && this.form.dirty)
-                .withLatestFrom(distinctPreismeldung$.map(x => x.refPreismeldung), (_, refPreismeldung) => refPreismeldung)
+                .withLatestFrom(this.distinctPreismeldung$.map(x => x.refPreismeldung), (_, refPreismeldung) => refPreismeldung)
                 .subscribe(refPreismeldung => {
                     this.form.patchValue({
                         preis: `${this.preiseFormatFn(refPreismeldung.preis)}`,
@@ -242,7 +243,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         const save$ = canSave$.filter(x => x.isValid)
             .map(x => x.saveAction)
             .flatMap(saveAction => Observable.defer(() =>
-                distinctPreismeldung$.take(1)
+                this.distinctPreismeldung$.take(1)
                     .flatMap(bag => {
                         if ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer) {
                             return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false).map(res => ({ type: res.data === 'YES' ? 'JUST_SAVE' : 'CANCEL' }));
@@ -270,7 +271,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     .filter(y => y.type !== 'CANCEL')
             ));
 
-        this.save$ = save$.withLatestFrom(this.preismeldungPricePayload$, this.priceCountStatus$, distinctPreismeldung$, (saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung) => ({ saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung }))
+        this.save$ = save$.withLatestFrom(this.preismeldungPricePayload$, this.priceCountStatus$, this.distinctPreismeldung$, (saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung) => ({ saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung }))
             .flatMap(x => {
                 if (x.preismeldungPricePayload.bearbeitungscode === 0 && x.distinctPreismeldung.preismeldung.bearbeitungscode !== 0) {
                     const params = {
@@ -283,7 +284,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             });
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
-            .merge(distinctPreismeldung$.mapTo(false));
+            .merge(this.distinctPreismeldung$.mapTo(false));
 
         this.subscriptions.push(
             canSave$
@@ -302,7 +303,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .subscribe()
         );
 
-        this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
+        this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .map(x => x === 7 || x === 2 || x === 3 ? 'heading_artikel-neu' : 'heading_artikel');
 
         const showInvalid$ = this.form.valueChanges.merge(this.attemptSave$).publishReplay(1).refCount();

@@ -8,10 +8,11 @@
     [style.maxHeight]="sanitizer.bypassSecurityTrustStyle(popoverMaxHeight$ | async)"
     [style.width]="sanitizer.bypassSecurityTrustStyle(popoverWidth$ | async)">
     <div class="info-popover-table-container">
+        <h6>{{ 'heading_artikel-vor-reduktion' | translate }}</h6>
         <div class="info-popover-table">
             <div class="info-popover-row">
                 <div class="info-popover-cell heading">
-                    Preis vor Reduktion
+                    Preis
                 </div>
                 <div class="info-popover-cell value">
                     <span class="number">
@@ -22,7 +23,7 @@
             </div>
             <div class="info-popover-row">
                 <div class="info-popover-cell heading">
-                    Menge vor Reduktion
+                    Menge
                 </div>
                 <div class="info-popover-cell value">
                     <span class="number">{{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }}</span>

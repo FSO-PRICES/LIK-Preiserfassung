@@ -39,7 +39,11 @@
             <div class="columns product-detail-row row-1">
                 <div class="last-period">
                     <h5 class="large">Vorperiode</h5>
-                    <preismeldung-info-popover [class.hidden]="!(preismeldung$ | async)?.refPreismeldung || !(preismeldung$ | async)?.refPreismeldung.aktion" [preismeldung]="preismeldung$ | async" [extraWidth]="window.document.getElementById('last-period-middle-section').offsetWidth + 'px'"></preismeldung-info-popover>
+                    <preismeldung-info-popover
+                        [class.hidden]="!(preismeldung$ | async)?.refPreismeldung || !(preismeldung$ | async)?.refPreismeldung.aktion"
+                        [preismeldung]="preismeldung$ | async"
+                        [forceClose]="distinctPreismeldung$ | async"
+                        [extraWidth]="window.document.getElementById('last-period-middle-section').offsetWidth + 'px'"></preismeldung-info-popover>
                 </div>
                 <div class="middle-section" id="last-period-middle-section"></div>
                 <div class="current-period">
