@@ -30,8 +30,9 @@ export class PmsPriceEntryPage {
     currentPriceCountStatus$ = this.currentPreismeldung$.combineLatest(this.priceCountStatuses$, (currentPreismeldung, priceCountStatuses) => !currentPreismeldung ? null : priceCountStatuses[currentPreismeldung.preismeldung.epNummer]);
 
     selectPreismeldung$ = new EventEmitter<P.Models.Preismeldung>();
-    save$ = new EventEmitter<{ saveAction: P.SavePreismeldungPricePayloadType }>();
-    updatePreismeldungPreis$ = new EventEmitter<P.SavePreismeldungPricePayloadType>();
+    save$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
+    updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
+    updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     duplicatePreismeldung$ = new EventEmitter();
     addNewPreisreihe$ = new EventEmitter();
     ionViewDidLoad$ = new EventEmitter();
@@ -39,7 +40,7 @@ export class PmsPriceEntryPage {
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
 
-    requestPreismeldungSave$: Observable<{ saveAction: P.SavePreismeldungPricePayloadType}>;
+    requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     requestPreismeldungQuickEqual$: Observable<{}>;
 
     selectedTab$ = this.selectTab$
@@ -69,6 +70,17 @@ export class PmsPriceEntryPage {
             })
             .publishReplay(1).refCount();
 
+        const tabPair$ = this.selectedTab$
+            .scan((agg, v) => ({ from: agg.to, to: v }), { from: null, to: null })
+            .publishReplay(1).refCount();
+
+        tabPair$
+            .filter(x => x.from === 'MESSAGES')
+            .merge(this.toolbarButtonClicked$.filter(x => x === 'HOME').withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === 'MESSAGES'))
+            .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
+            .filter(currentPreismeldung => currentPreismeldung.isMessagesModified)
+            .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_MESSAGES' }));
+
         requestNavigateHome$
             .filter(x => x === 'THROW_CHANGES')
             .subscribe(() => this.navigateToDashboard().then(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null })));
@@ -80,12 +92,15 @@ export class PmsPriceEntryPage {
         this.updatePreismeldungPreis$
             .subscribe(x => store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload: x }));
 
+        this.updatePreismeldungMessages$
+            .subscribe(x => store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload: x }));
+
         this.save$
             // why do I need this setTimeout - is it an Ionic bug? requires two touches on tablet to register 'SAVE_AND_MOVE_TO_NEXT'
-            .subscribe(x => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload: x.saveAction })));
+            .subscribe(payload => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload })));
 
         this.currentPreismeldung$
-            .filter(x => !!x && x.lastSaveAction === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
+            .filter(x => !!x && !!x.lastSave && x.lastSave.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
             .subscribe(() => this.navController.setRoot(DashboardPage).then(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null })));
 
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).map(x => x.data));
@@ -111,15 +126,15 @@ export class PmsPriceEntryPage {
             .filter(x => x.dialogCode === 'THROW_CHANGES')
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
-        this.requestPreismeldungSave$ = this.toolbarButtonClicked$.filter(x => x === 'PREISMELDUNG_SAVE').map(() => ({ saveAction: 'SAVE_AND_MOVE_TO_NEXT' }))
-            .merge(cancelEditReponse$.filter(x => x.dialogCode === 'SAVE').map(() => ({ saveAction: 'SAVE_AND_MOVE_TO_NEXT' })))
-            .merge(requestNavigateHome$.filter(x => x === 'SAVE').map(() => ({ saveAction: 'SAVE_AND_NAVIGATE_TO_DASHBOARD' })));
+        this.requestPreismeldungSave$ = this.toolbarButtonClicked$.filter(x => x === 'PREISMELDUNG_SAVE').map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' }))
+            .merge(cancelEditReponse$.filter(x => x.dialogCode === 'SAVE').map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' })))
+            .merge(requestNavigateHome$.filter(x => x === 'SAVE').map(() => ({ type: 'SAVE_AND_NAVIGATE_TO_DASHBOARD' })));
 
         this.duplicatePreismeldung$
             .withLatestFrom(this.currentPreismeldung$, this.priceCountStatuses$, (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) => priceCountStatuses[currentPreismeldung.preismeldung.epNummer])
             .flatMap(priceCountStatus => priceCountStatus.enough ? dialogSufficientPreismeldungen$ : Observable.of('YES'))
             .filter(x => x === 'YES')
-            .merge(this.save$.filter(x => x.saveAction === 'SAVE_AND_DUPLICATE_PREISMELDUNG'))
+            .merge(this.save$.filter(x => x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG'))
             .flatMap(() => dialogNewPmbearbeitungsCode$)
             .filter(x => x.action === 'OK')
             .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }));

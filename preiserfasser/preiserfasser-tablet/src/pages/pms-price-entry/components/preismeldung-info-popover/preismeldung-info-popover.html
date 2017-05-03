@@ -8,11 +8,9 @@
     [style.maxHeight]="sanitizer.bypassSecurityTrustStyle(popoverMaxHeight$ | async)"
     [style.width]="sanitizer.bypassSecurityTrustStyle(popoverWidth$ | async)">
     <div class="info-popover-table-container">
+        <h6>{{ 'heading_artikel-vor-reduktion' | translate }}</h6>
         <div class="info-popover-table">
             <div class="info-popover-row">
-                <div class="info-popover-cell heading">
-                    Preis vor Reduktion
-                </div>
                 <div class="info-popover-cell value">
                     <span class="number">
                         {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
@@ -21,9 +19,6 @@
                 </div>
             </div>
             <div class="info-popover-row">
-                <div class="info-popover-cell heading">
-                    Menge vor Reduktion
-                </div>
                 <div class="info-popover-cell value">
                     <span class="number">{{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }}</span>
                     <span class="label">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</span>

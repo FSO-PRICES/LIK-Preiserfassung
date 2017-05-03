@@ -1,7 +1,6 @@
 import { Models as P } from 'lik-shared';
 import * as _ from 'lodash';
 import { mapValues, values, keys } from 'lodash';
-import { bearbeitungscodeDescriptions, PropertyTranslation } from '../../../../lik-shared/common/models';
 import * as csvParser from 'js-csvparser';
 
 
@@ -194,7 +193,7 @@ function translationsToStringOrNull(de: string, fr: string, it: string) {
         null;
 }
 
-function prepareProduktmerkmale(rawMerkmale: { de: string, fr: string, it: string }): PropertyTranslation[] {
+function prepareProduktmerkmale(rawMerkmale: { de: string, fr: string, it: string }): P.PropertyTranslation[] {
     const merkmale = mapValues(rawMerkmale, text => !text ? [] : parseSingleCsvText(text)) as any;
     const merkmaleList = [];
     Object.keys(merkmale).map(language => {
@@ -206,8 +205,8 @@ function prepareProduktmerkmale(rawMerkmale: { de: string, fr: string, it: strin
 
 function parseBearbeitungscode(bearbeitungcodes) {
     const getCodeNumber = (code) => {
-        const index = values(bearbeitungscodeDescriptions).indexOf(code);
-        return index !== -1 ? keys(bearbeitungcodes)[index] : code;
+        const index = values(P.bearbeitungscodeDescriptions).indexOf(code);
+        return index !== -1 ? +keys(P.bearbeitungscodeDescriptions)[index] : code;
     };
 
     return parseSingleCsvText(bearbeitungcodes).map(getCodeNumber);

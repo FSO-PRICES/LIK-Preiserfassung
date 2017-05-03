@@ -39,7 +39,11 @@
             <div class="columns product-detail-row row-1">
                 <div class="last-period">
                     <h5 class="large">Vorperiode</h5>
-                    <preismeldung-info-popover [class.hidden]="!(preismeldung$ | async)?.refPreismeldung || !(preismeldung$ | async)?.refPreismeldung.aktion" [preismeldung]="preismeldung$ | async" [extraWidth]="window.document.getElementById('last-period-middle-section').offsetWidth + 'px'"></preismeldung-info-popover>
+                    <preismeldung-info-popover
+                        [class.hidden]="!(preismeldung$ | async)?.refPreismeldung || !(preismeldung$ | async)?.refPreismeldung.aktion"
+                        [preismeldung]="preismeldung$ | async"
+                        [forceClose]="distinctPreismeldung$ | async"
+                        [extraWidth]="window.document.getElementById('last-period-middle-section').offsetWidth + 'px'"></preismeldung-info-popover>
                 </div>
                 <div class="middle-section" id="last-period-middle-section"></div>
                 <div class="current-period">
@@ -58,7 +62,7 @@
                             <div class="unit">CHF</div>
                         </div>
                         <div class="last-period-quantity">
-                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.menge | pefFormatNumber: mengeFormattingOptions  }}</div>
+                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.menge | pefFormatNumber: mengeNumberFormattingOptions  }}</div>
                             <div class="unit">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</div>
                         </div>
                         <div class="last-period-bottom-row">
@@ -78,7 +82,12 @@
                 </div>
                 <div class="middle-section">
                     <div class="box-container" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-                        <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
+                        <div class="box" >
+                            <div class="percentage-wrapper">
+                                <div [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
+                                <pef-floating-icon [icon-name]="(showPercentageWarning$ | async) ? 'warning' : ''"></pef-floating-icon>
+                            </div>
+                        </div>
                         <div class="arrow right"></div>
                     </div>
                 </div>
@@ -124,9 +133,9 @@
                                     <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit()" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
                                 </ion-item>
                             </ion-list>
-                            <div class="code">{{ formatFehlendePreiseR(thisPeriodFehlendePreiseR$ | async) }}</div>
+                            <div class="code">{{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}</div>
                         </div>
-                        <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)" [codeListType]="codeListType$ | async"></bearbeitungs-type>
+                        <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)" [codeListType]="codeListType$ | async" [nichtEmpfohleneBc]="(distinctPreismeldung$ | async)?.warenkorbPosition.nichtEmpfohleneBc"></bearbeitungs-type>
                     </div>
                 </div>
             </div>

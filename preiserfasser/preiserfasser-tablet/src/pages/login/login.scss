@@ -26,6 +26,7 @@ login-modal.ion-page {
     }
 
     .actions {
+        @include set-margin-top(1);
         display: flex;
         justify-content: space-between;
 

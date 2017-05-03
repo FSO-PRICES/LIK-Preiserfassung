@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from 'ng2-translate';
 
 import { PreiserfasserCommonModule } from '../../common';
-import { PefComponentsModule, PefDialogYesNoComponent } from 'lik-shared';
+import { PefComponentsModule, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
 
 import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
@@ -42,6 +42,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
         DialogCancelEditComponent,
         DialogValidationErrorsComponent,
         PefDialogYesNoComponent,
+        PefDialogYesNoEditComponent,
     ],
     providers: [
         { provide: 'windowObject', useValue: window }

@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { assign, cloneDeep, sortBy, keys } from 'lodash';
+import { assign, cloneDeep, sortBy, keys, initial, last } from 'lodash';
 
 import * as P  from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
@@ -14,10 +14,18 @@ export interface PreismeldungBag {
 
 export type CurrentPreismeldungBag = PreismeldungBag & {
     isModified: boolean;
+    isMessagesModified: boolean;
     isNew: boolean;
     priceCountStatus: PriceCountStatus;
     originalBearbeitungscode: P.Models.Bearbeitungscode;
-    lastSaveAction: P.SavePreismeldungPricePayloadType
+    lastSave: P.SavePreismeldungPriceSaveAction;
+    messages: {
+        notiz: string;
+        kommentarAutotext: string;
+        kommentar: string;
+        bemerkungenHistory: string;
+        bemerkungen: string;
+    };
 };
 
 export interface PriceCountStatus {
@@ -75,7 +83,14 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
         case 'SELECT_PREISMELDUNG': {
             const entity = state.entities[action.payload];
-            const currentPreismeldung = !action.payload ? null : Object.assign({}, cloneDeep(entity), { priceCountStatus: state.priceCountStatuses[entity.preismeldung.epNummer], isModified: false, isNew: false, originalBearbeitungscode: entity.preismeldung.bearbeitungscode });
+            const currentPreismeldung = !entity ? null : Object.assign({}, cloneDeep(entity), {
+                priceCountStatus: state.priceCountStatuses[entity.preismeldung.epNummer],
+                isModified: false,
+                isMessagesModified: false,
+                isNew: false,
+                originalBearbeitungscode: entity.preismeldung.bearbeitungscode,
+                messages: parsePreismeldungMessages(entity.preismeldung)
+            });
             return assign({}, state, { currentPreismeldung });
         }
 
@@ -103,17 +118,34 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             return assign({}, state, { currentPreismeldung });
         }
 
+        case 'UPDATE_PREISMELDUNG_MESSAGES': {
+            const { payload } = action;
+
+            if (state.currentPreismeldung.preismeldung.notiz === payload.notiz
+                && state.currentPreismeldung.preismeldung.kommentar === payload.kommentar
+                && state.currentPreismeldung.preismeldung.bemerkungen === payload.bemerkungen) { return state; }
+
+            const currentPreismeldung = assign({},
+                state.currentPreismeldung, {
+                    messages: assign({}, state.currentPreismeldung.messages, payload),
+                },
+                { isMessagesModified: true }
+            );
+
+            return assign({}, state, { currentPreismeldung });
+        }
+
         case 'SAVE_PREISMELDUNG_PRICE_SUCCESS': {
             const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false, lastSaveAction: action.payload.saveAction });
 
             let nextPreismeldung;
-            if (action.payload.saveAction === 'SAVE_AND_MOVE_TO_NEXT') {
+            if (action.payload.saveAction.type === 'SAVE_AND_MOVE_TO_NEXT') {
                 const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung.pmId);
                 const nextId = state.preismeldungIds[index + 1];
                 const preismeldungToMakeCurrent = !!nextId ? state.entities[nextId] : state.entities[0];
-                nextPreismeldung = assign({}, preismeldungToMakeCurrent, { priceCountStatus: state.priceCountStatuses[preismeldungToMakeCurrent.preismeldung.epNummer], isModified: false, isNew: false, originalBearbeitungscode: preismeldungToMakeCurrent.preismeldung.bearbeitungscode });
+                nextPreismeldung = assign({}, preismeldungToMakeCurrent, { priceCountStatus: state.priceCountStatuses[preismeldungToMakeCurrent.preismeldung.epNummer], isModified: false, isNew: false, originalBearbeitungscode: preismeldungToMakeCurrent.preismeldung.bearbeitungscode, messages: parsePreismeldungMessages(preismeldungToMakeCurrent.preismeldung) });
             } else {
-                nextPreismeldung = cloneDeep(currentPreismeldung);
+                nextPreismeldung = assign(cloneDeep(currentPreismeldung), { messages: parsePreismeldungMessages(currentPreismeldung.preismeldung) });
             }
 
             const entities = assign({}, state.entities, { [currentPreismeldung.pmId]: assign({}, currentPreismeldung) });
@@ -131,6 +163,15 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 entities,
                 preismeldungIds,
                 priceCountStatuses: createPriceCountStatuses(entities)
+            });
+        }
+
+        case 'SAVE_PREISMELDING_MESSAGES_SUCCESS': {
+            const entities = assign({}, state.entities, { [action.payload._id]: assign({}, state.entities[action.payload._id], action.payload) });
+
+            return assign({}, state, {
+                currentPreismeldung: assign({}, state.currentPreismeldung, { messages: parsePreismeldungMessages(action.payload) }, { isMessagesModified: false }),
+                entities
             });
         }
 
@@ -203,19 +244,23 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                     artikelnummer: null,
                     artikeltext: null,
                     internetLink: null,
+                    fehlendePreiseR: null,
+                    notiz: null,
+                    kommentar: null,
+                    bemerkungen: null,
                     bermerkungenAnsBfs: null,
                     percentageDPToVP: null,
                     percentageDPToVPNeuerArtikel: null,
                     percentageVPNeuerArtikelToVPAlterArtikel: null,
                     modifiedAt: null,
-                    bearbeitungscode: action.payload.bearbeitungscode,
+                    bearbeitungscode: action.payload.bearbeitungscode as P.Models.Bearbeitungscode,
                     istAbgebucht: false,
                     uploadRequestedAt: null
                 },
                 sortierungsnummer
             };
 
-            return assign({}, state, { currentPreismeldung: newCurrentPreismeldung });
+            return assign({}, state, { currentPreismeldung: assign({}, newCurrentPreismeldung, { messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung) }) });
         }
 
         default:
@@ -285,6 +330,19 @@ function calculatePercentageChange(price1: number, quantity1: number, price2: nu
     const newPriceFactored = price2 / quantity2;
 
     return (newPriceFactored - originalPriceFactored) / originalPriceFactored * 100;
+}
+
+function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung) {
+    const { kommentar, bemerkungen, notiz } = preismeldung;
+    const kommentarResult = (kommentar || '').split('\\n');
+    const bemerkungenResult = (bemerkungen || '').split('\\n');
+    return {
+        notiz,
+        kommentarAutotext: kommentarResult.length === 2 ? kommentarResult[0] : '',
+        kommentar: kommentarResult.length === 2 ? kommentarResult[1] : kommentar,
+        bemerkungenHistory: !bemerkungen || !last(bemerkungenResult).startsWith('PE:') ? bemerkungen || '' : initial(bemerkungenResult).join('\\n'),
+        bemerkungen: !bemerkungen || !last(bemerkungenResult).startsWith('PE:') ? '' : last(bemerkungenResult).substring(3),
+    };
 }
 
 export const getEntities = (state: State) => state.entities;

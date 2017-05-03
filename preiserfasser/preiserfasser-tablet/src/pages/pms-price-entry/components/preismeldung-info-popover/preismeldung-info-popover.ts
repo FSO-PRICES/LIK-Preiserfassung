@@ -12,6 +12,7 @@ import * as P from '../../../../common-models';
 })
 export class PreismeldungInfoPopover extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
+    @Input() forceClose: {};
     @Input() extraWidth: string;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
@@ -29,9 +30,14 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
 
         this.comparisonContainerWidth$ = Observable.of(300);
 
-        this.popoverActive$ = this.buttonClicked$
-            .scan<boolean>((active: boolean, _) => !active, false)
-            .startWith(false);
+        this.popoverActive$ = this.buttonClicked$.map(x => ({ type: 'TOGGLE' }))
+            .merge(this.observePropertyCurrentValue<{}>('forceClose').map(_ => ({ type: 'SET', value: false })))
+            .scan<{}, boolean>((active: boolean, v) => {
+                if (v.type === 'TOGGLE') return !active;
+                return v.value;
+            }, false)
+            .startWith(false)
+            .publishReplay(1).refCount();
 
         const recalcPopover$ = this.popoverActive$.filter(x => x)
             .publishReplay(1).refCount();

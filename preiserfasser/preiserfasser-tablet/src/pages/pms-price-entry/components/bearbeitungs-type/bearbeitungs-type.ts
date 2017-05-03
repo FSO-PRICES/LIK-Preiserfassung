@@ -1,6 +1,7 @@
 import { Component, EventEmitter, ElementRef, NgZone, forwardRef, HostListener, Input, Output, ChangeDetectionStrategy, SimpleChange, OnChanges } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { assign } from 'lodash';
 import 'rxjs-ng-extras/add/operator/observeOnZone';
 
 import * as P from '../../../../common-models';
@@ -30,6 +31,7 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
 })
 export class BearbeitungsTypeComponent extends ReactiveComponent implements ControlValueAccessor, OnChanges {
     @Input() codeListType: CodeListType = 'STANDARD';
+    @Input() nichtEmpfohleneBc: P.Models.Bearbeitungscode[];
     @Output('change') change$: Observable<P.Models.Bearbeitungscode>;
 
     public codeListType$ = this.observePropertyCurrentValue<CodeListType>('codeListType');
@@ -49,6 +51,9 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
         this.bearbeitungsTypes$ = this.codeListType$
             .map(codeListType => codeListType === 'NEW_PM' ? this.newPmBearbeitungsTypes : this.standardBearbeitungsTypes)
+            .combineLatest(this.observePropertyCurrentValue<P.Models.Bearbeitungscode[]>('nichtEmpfohleneBc'), (bearbeitungsTypes, nichtEmpfohleneBc) =>
+                bearbeitungsTypes.map(x => (nichtEmpfohleneBc || []).some(y => y === x.code) ? assign({}, x, { iconName: 'not_recommended' }) : x)
+            )
             .publishReplay(1).refCount();
 
         const bearbeitungsTypeFromInput$ = this.changeFromInput$
