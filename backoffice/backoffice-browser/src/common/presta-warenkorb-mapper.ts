@@ -92,7 +92,7 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             negativeLimite_7: parseNumberOrNull(thisLine[indexes.negativeLimite_7]),
             positiveLimite_7: parseNumberOrNull(thisLine[indexes.positiveLimite_7]),
             nichtEmpfohleneBc: parseBearbeitungscode(thisLine[indexes.nichtEmpfohleneBc]),
-            erhebungszeitpunkte: 1,
+            erhebungszeitpunkte: parseNumberOrNull(thisLine[indexes.erhebungszeitpunkte]),
             productMerkmale: prepareProduktmerkmale({ de: thisLine[indexes.produktmerkmale], fr: data.fr[i][indexes.produktmerkmale], it: data.it[i][indexes.produktmerkmale] })
         };
         treeItems.push(treeItem);
