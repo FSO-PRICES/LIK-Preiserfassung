@@ -30,7 +30,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
 
     public preismeldung$: Observable<P.PreismeldungBag>;
-    public distinctPreismeldung$: Observable<P.PreismeldungBag>;
+    public distinctPreismeldung$: Observable<P.CurrentPreismeldungBag>;
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     public requestPreismeldungQuickEqual$: Observable<string>;
     public codeListType$: Observable<string>;
@@ -260,6 +260,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .flatMap(saveAction => Observable.defer(() =>
                 this.distinctPreismeldung$.take(1)
                     .flatMap(bag => {
+                        if (bag.isNew) {
+                            return Observable.of(saveAction);
+                        }
                         if ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer) {
                             return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false).map(res => ({ type: res.data === 'YES' ? 'JUST_SAVE' : 'CANCEL' }));
                         }
