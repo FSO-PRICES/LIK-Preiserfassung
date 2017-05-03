@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild } from '@angular/core';
 import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
 
@@ -8,8 +8,7 @@ import * as P from '../../../../common-models';
 
 @Component({
     selector: 'preismeldung-list',
-    templateUrl: 'preismeldung-list.html',
-    // changeDetection: ChangeDetectionStrategy.OnPush
+    templateUrl: 'preismeldung-list.html'
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
     @ViewChild(Content) content: Content;

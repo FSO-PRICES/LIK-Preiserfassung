@@ -33,10 +33,6 @@ preismeldung-toolbar {
             opacity: 1;
             background-color: $blue-chill;
         }
-        // &[disabled].pef-tab-button {
-        //     opacity: 1;
-        //     background-color: $blue-chill;
-        // }
    }
 
     button[icon-only].pef-toolbar-button {
@@ -63,12 +59,15 @@ preismeldung-toolbar {
         &.hidden {
             visibility: hidden;
         }
-        // &[disabled] {
-        //     opacity: 1;
-        //     .pef-inner {
-        //         background-color: $blue-chill;
-        //     }
-        // }
+    }
+
+    .tab-icon-with-warning {
+        position: relative;
+        .warning-icon {
+            position: absolute;
+            top: -1em;
+            right: -1em;
+        }
     }
 
     .pef-tab-button + .button[icon-only].pef-toolbar-button {

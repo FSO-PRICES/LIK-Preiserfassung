@@ -12,6 +12,14 @@ export interface PreismeldungBag {
     warenkorbPosition: P.Models.WarenkorbLeaf;
 }
 
+export interface CurrentPreismeldungBagMessages {
+    notiz: string;
+    kommentarAutotext: string;
+    kommentar: string;
+    bemerkungenHistory: string;
+    bemerkungen: string;
+}
+
 export type CurrentPreismeldungBag = PreismeldungBag & {
     isModified: boolean;
     isMessagesModified: boolean;
@@ -19,13 +27,8 @@ export type CurrentPreismeldungBag = PreismeldungBag & {
     priceCountStatus: PriceCountStatus;
     originalBearbeitungscode: P.Models.Bearbeitungscode;
     lastSave: P.SavePreismeldungPriceSaveAction;
-    messages: {
-        notiz: string;
-        kommentarAutotext: string;
-        kommentar: string;
-        bemerkungenHistory: string;
-        bemerkungen: string;
-    };
+    hasMessageToCheck: boolean;
+    messages: CurrentPreismeldungBagMessages;
 };
 
 export interface PriceCountStatus {
@@ -83,13 +86,15 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
         case 'SELECT_PREISMELDUNG': {
             const entity = state.entities[action.payload];
+            const messages = parsePreismeldungMessages(entity.preismeldung);
             const currentPreismeldung = !entity ? null : Object.assign({}, cloneDeep(entity), {
                 priceCountStatus: state.priceCountStatuses[entity.preismeldung.epNummer],
                 isModified: false,
                 isMessagesModified: false,
                 isNew: false,
                 originalBearbeitungscode: entity.preismeldung.bearbeitungscode,
-                messages: parsePreismeldungMessages(entity.preismeldung)
+                messages: parsePreismeldungMessages(entity.preismeldung),
+                hasMessageToCheck: calcHasMessageToCheck(messages)
             });
             return assign({}, state, { currentPreismeldung });
         }
@@ -125,11 +130,10 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 && state.currentPreismeldung.preismeldung.kommentar === payload.kommentar
                 && state.currentPreismeldung.preismeldung.bemerkungen === payload.bemerkungen) { return state; }
 
+            const messages = assign({}, state.currentPreismeldung.messages, payload);
+
             const currentPreismeldung = assign({},
-                state.currentPreismeldung, {
-                    messages: assign({}, state.currentPreismeldung.messages, payload),
-                },
-                { isMessagesModified: true }
+                state.currentPreismeldung, { messages, isMessagesModified: true, hasMessageToCheck: calcHasMessageToCheck(messages) }
             );
 
             return assign({}, state, { currentPreismeldung });
@@ -356,6 +360,9 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung) {
         bemerkungen: !bemerkungen || !last(bemerkungenResult).startsWith('PE:') ? '' : last(bemerkungenResult).substring(3),
     };
 }
+
+const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) => !!messages.notiz || !!messages.bemerkungen || !!messages.bemerkungenHistory;
+
 
 export const getEntities = (state: State) => state.entities;
 export const getPreismeldungIds = (state: State) => state.preismeldungIds;

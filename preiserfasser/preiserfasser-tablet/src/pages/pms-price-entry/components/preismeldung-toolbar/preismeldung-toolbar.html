@@ -28,14 +28,20 @@
         [class.selected]="(selectedTab$ | async) == 'MESSAGES'"
         (click)="selectTab$.emit('MESSAGES')"
         >
-        <pef-icon name="produkteigenschaften"></pef-icon>
+        <div class="tab-icon-with-warning">
+            <pef-icon name="produkteigenschaften"></pef-icon>
+            <pef-icon class="warning-icon" [name]="'warning'" *ngIf="(preismeldung$ | async).hasMessageToCheck"></pef-icon>
+        </div>
     </button>
     <button ion-button icon-only class="pef-tab-button"
         [disabled]="(selectedTab$ | async) == 'PREISMELDUNG'"
         [class.selected]="(selectedTab$ | async) == 'PREISMELDUNG'"
         (click)="selectTab$.emit('PREISMELDUNG')"
         >
-        <pef-icon name="notification"></pef-icon>
+        <div class="tab-icon-with-warning">
+            <pef-icon name="notification"></pef-icon>
+            <pef-icon class="warning-icon" [name]="'warning'"></pef-icon>
+        </div>
     </button>
     <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')" [class.hidden]="((selectedTab$ | async) != 'PREISMELDUNG') || (requestPreismeldungQuickEqualDisabled$ | async)">
         <div class="pef-inner">
