@@ -9,7 +9,7 @@ import * as P from '../../../../common-models';
 @Component({
     selector: 'preismeldung-list',
     templateUrl: 'preismeldung-list.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
     @ViewChild(Content) content: Content;

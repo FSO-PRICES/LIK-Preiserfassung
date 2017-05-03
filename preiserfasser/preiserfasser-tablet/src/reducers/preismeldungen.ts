@@ -167,10 +167,22 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         }
 
         case 'SAVE_PREISMELDING_MESSAGES_SUCCESS': {
-            const entities = assign({}, state.entities, { [action.payload._id]: assign({}, state.entities[action.payload._id], action.payload) });
+            const messages = parsePreismeldungMessages(action.payload);
+            const attrs = {
+                _rev: action.payload._rev,
+                bemerkungen: action.payload.bemerkungen,
+                kommentar: action.payload.kommentar,
+                notiz: action.payload.notiz
+            };
+
+            const currentPreismeldung = state.currentPreismeldung.pmId !== action.payload._id
+                ? state.currentPreismeldung
+                : assign({}, state.currentPreismeldung, { messages, preismeldung: assign({}, state.currentPreismeldung.preismeldung, attrs) });
+
+            const entities = assign({}, state.entities, { [action.payload._id]: assign({}, state.entities[action.payload._id], { messages, preismeldung: assign({}, state.entities[action.payload._id].preismeldung, attrs) }) });
 
             return assign({}, state, {
-                currentPreismeldung: assign({}, state.currentPreismeldung, { messages: parsePreismeldungMessages(action.payload) }, { isMessagesModified: false }),
+                currentPreismeldung,
                 entities
             });
         }

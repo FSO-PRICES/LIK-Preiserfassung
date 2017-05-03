@@ -9,7 +9,6 @@ import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import * as P from '../common-models';
 import { preismeldungCompareFn } from 'lik-shared';
-import { Observable } from 'rxjs/Observable';
 
 const preismeldungUri = docuri.route(P.Models.preismeldungUriRoute);
 
@@ -74,7 +73,7 @@ export class PreismeldungenEffects {
                     .map((rpm, i) => ({ pmId: rpm.pmId, sortierungsnummer: i + 1 }))
             });
 
-            return x.db.bulkDocs((missingPreismeldungs as any[]).concat([ newPmsPreismeldungenSort ]))
+            return x.db.bulkDocs((missingPreismeldungs as any[]).concat([newPmsPreismeldungenSort]))
                 .then(() => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm/${x.pmsNummer}`), { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Models.Preismeldung[]))
                 .then(preismeldungen => x.db.get(`pms-sort/${x.pmsNummer}`).then(res => ({ preismeldungen, pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort })))
                 .then(y => ({
@@ -101,12 +100,12 @@ export class PreismeldungenEffects {
         }))
         .map(payload => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload }));
 
-    savePreismeldungPrice = this.actions$
+    savePreismeldungPrice$ = this.actions$
         .ofType('SAVE_PREISMELDUNG_PRICE')
         .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => ({ currentPreismeldung, payload: action.payload }));
 
     @Effect()
-    savePreismeldung$ = this.savePreismeldungPrice
+    savePreismeldung$ = this.savePreismeldungPrice$
         .filter(x => !x.currentPreismeldung.isNew)
         .flatMap(x => {
             const saveAction = x.payload as P.SavePreismeldungPriceSaveAction;
@@ -117,13 +116,13 @@ export class PreismeldungenEffects {
             if (saveAction.saveWithData === 'AKTION') {
                 currentPreismeldung = assign({}, x.currentPreismeldung, { preismeldung: assign({}, x.currentPreismeldung.preismeldung, { aktion: saveAction.data }) }, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext: '' }) });
             }
-            return this.savePreismeldungMessages(currentPreismeldung)
+            return this.savePreismeldungPrice(currentPreismeldung)
                 .then(preismeldung => ({ preismeldung, saveAction }));
         })
         .map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload }));
 
     @Effect()
-    saveNewPreismeldung$ = this.savePreismeldungPrice
+    saveNewPreismeldung$ = this.savePreismeldungPrice$
         .filter(x => x.currentPreismeldung.isNew)
         .flatMap(({ currentPreismeldung }) =>
             getDatabase()
@@ -162,38 +161,52 @@ export class PreismeldungenEffects {
         .flatMap(currentPreismeldung => this.savePreismeldungMessages(currentPreismeldung))
         .map(payload => ({ type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload }));
 
-    savePreismeldungMessages(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+    savePreismeldung(currentPreismeldungBag: P.CurrentPreismeldungBag, copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]) {
         return getDatabase()
             .then(db => db.get(currentPreismeldungBag.preismeldung._id).then(doc => ({ db, doc })))
-            .then(({ db, doc }) =>
-                db.put(assign({}, doc, this.propertiesFromCurrentPreismeldung(currentPreismeldungBag), {
-                    notiz: currentPreismeldungBag.messages.notiz,
-                    kommentar: currentPreismeldungBag.messages.kommentarAutotext + (!!currentPreismeldungBag.messages.kommentarAutotext ? '\\n' : '') + currentPreismeldungBag.messages.kommentar,
-                    bemerkungen: currentPreismeldungBag.messages.bemerkungenHistory + '\\nPE:' + currentPreismeldungBag.messages.bemerkungen
-                })).then(() => db)
-            )
+            .then(({ db, doc }) => {
+                const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
+                return db.put(assign({}, doc, ...copyObjects)).then(() => db);
+            })
             .then(db => db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
     }
 
-    propertiesFromCurrentPreismeldung(currentPreismeldung: P.CurrentPreismeldungBag) {
-        return {
-            aktion: currentPreismeldung.preismeldung.aktion,
-            artikelnummer: currentPreismeldung.preismeldung.artikelnummer,
-            artikeltext: currentPreismeldung.preismeldung.artikeltext,
-            bearbeitungscode: currentPreismeldung.preismeldung.bearbeitungscode,
-            bemerkungen: currentPreismeldung.preismeldung.bemerkungen,
-            internetLink: currentPreismeldung.preismeldung.internetLink,
-            istAbgebucht: true,
-            menge: currentPreismeldung.preismeldung.menge,
-            mengeVPNormalNeuerArtikel: currentPreismeldung.preismeldung.mengeVPNormalNeuerArtikel,
-            modifiedAt: new Date(),
-            percentageDPToVP: currentPreismeldung.preismeldung.percentageDPToVP,
-            percentageDPToVPVorReduktion: currentPreismeldung.preismeldung.percentageDPToVPVorReduktion,
-            percentageDPToVPNeuerArtikel: currentPreismeldung.preismeldung.percentageDPToVPNeuerArtikel,
-            percentageVPNeuerArtikelToVPAlterArtikel: currentPreismeldung.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,
-            preis: currentPreismeldung.preismeldung.preis,
-            preisVPNormalNeuerArtikel: currentPreismeldung.preismeldung.preisVPNormalNeuerArtikel,
-            fehlendePreiseR: currentPreismeldung.preismeldung.fehlendePreiseR,
-        };
+    savePreismeldungMessages(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+        return this.savePreismeldung(currentPreismeldungBag, [
+            bag => this.messagesFromCurrentPreismeldung(bag)
+        ]);
     }
+
+    savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+        return this.savePreismeldung(currentPreismeldungBag, [
+            bag => this.propertiesFromCurrentPreismeldung(bag),
+            bag => this.messagesFromCurrentPreismeldung(bag)
+        ]);
+    }
+
+    propertiesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
+        aktion: bag.preismeldung.aktion,
+        artikelnummer: bag.preismeldung.artikelnummer,
+        artikeltext: bag.preismeldung.artikeltext,
+        bearbeitungscode: bag.preismeldung.bearbeitungscode,
+        bemerkungen: bag.preismeldung.bemerkungen,
+        internetLink: bag.preismeldung.internetLink,
+        istAbgebucht: true,
+        menge: bag.preismeldung.menge,
+        mengeVPNormalNeuerArtikel: bag.preismeldung.mengeVPNormalNeuerArtikel,
+        modifiedAt: new Date(),
+        percentageDPToVP: bag.preismeldung.percentageDPToVP,
+        percentageDPToVPVorReduktion: bag.preismeldung.percentageDPToVPVorReduktion,
+        percentageDPToVPNeuerArtikel: bag.preismeldung.percentageDPToVPNeuerArtikel,
+        percentageVPNeuerArtikelToVPAlterArtikel: bag.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,
+        preis: bag.preismeldung.preis,
+        preisVPNormalNeuerArtikel: bag.preismeldung.preisVPNormalNeuerArtikel,
+        fehlendePreiseR: bag.preismeldung.fehlendePreiseR,
+    })
+
+    messagesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
+        notiz: bag.messages.notiz,
+        kommentar: bag.messages.kommentarAutotext + (!!bag.messages.kommentarAutotext ? '\\n' : '') + bag.messages.kommentar,
+        bemerkungen: bag.messages.bemerkungenHistory + '\\nPE:' + bag.messages.bemerkungen
+    })
 }

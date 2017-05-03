@@ -77,13 +77,14 @@ export class PmsPriceEntryPage {
         tabPair$
             .filter(x => x.from === 'MESSAGES')
             .merge(this.toolbarButtonClicked$.filter(x => x === 'HOME').withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === 'MESSAGES'))
+            .merge(this.selectPreismeldung$.withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === 'MESSAGES'))
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
             .filter(currentPreismeldung => currentPreismeldung.isMessagesModified)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_MESSAGES' }));
 
         requestNavigateHome$
             .filter(x => x === 'THROW_CHANGES')
-            .subscribe(() => this.navigateToDashboard().then(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null })));
+            .subscribe(() => this.navigateToDashboard().then(() => setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100)));
 
         this.requestPreismeldungQuickEqual$ = this.toolbarButtonClicked$
             .filter(x => x === 'PREISMELDUNG_QUICK_EQUAL')
@@ -101,7 +102,7 @@ export class PmsPriceEntryPage {
 
         this.currentPreismeldung$
             .filter(x => !!x && !!x.lastSave && x.lastSave.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
-            .subscribe(() => this.navController.setRoot(DashboardPage).then(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null })));
+            .subscribe(() => this.navController.setRoot(DashboardPage).then(() => setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100)));
 
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).map(x => x.data));
         const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_sufficientPreismeldungen')).map(x => x.data));
@@ -115,6 +116,7 @@ export class PmsPriceEntryPage {
 
         requestSelectPreismeldung$
             .filter(x => !x.isCurrentModified)
+            .delay(100)
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
         const cancelEditReponse$ = requestSelectPreismeldung$
@@ -124,6 +126,7 @@ export class PmsPriceEntryPage {
 
         cancelEditReponse$
             .filter(x => x.dialogCode === 'THROW_CHANGES')
+            .delay(100)
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
         this.requestPreismeldungSave$ = this.toolbarButtonClicked$.filter(x => x === 'PREISMELDUNG_SAVE').map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' }))
