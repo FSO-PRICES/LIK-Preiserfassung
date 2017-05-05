@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import { assign, cloneDeep, sortBy, keys, initial, last } from 'lodash';
 
-import * as P  from '../common-models';
+import * as P from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
 
 export interface PreismeldungBag {
@@ -87,8 +87,11 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
         case 'SELECT_PREISMELDUNG': {
             const entity = state.entities[action.payload];
+            if (!entity) {
+                return assign({}, state, { currentPreismeldung: null });
+            }
             const messages = parsePreismeldungMessages(entity.preismeldung);
-            const currentPreismeldung = !entity ? null : Object.assign({}, cloneDeep(entity), {
+            const currentPreismeldung = assign({}, cloneDeep(entity), {
                 priceCountStatus: state.priceCountStatuses[entity.preismeldung.epNummer],
                 isModified: false,
                 isMessagesModified: false,
@@ -115,11 +118,20 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
                 && state.currentPreismeldung.preismeldung.artikeltext === payload.artikeltext) { return state; }
 
+            let messages = state.currentPreismeldung.messages;
+            if (payload.bearbeitungscode === 0 && state.currentPreismeldung.refPreismeldung.aktion) {
+                messages = assign({}, messages, { kommentarAutotext: 'kommentar-autotext_presta-setzt-normalpreis' });
+            } else {
+                if (messages.kommentarAutotext === 'kommentar-autotext_presta-setzt-normalpreis') {
+                    messages = assign({}, messages, { kommentarAutotext: null });
+                }
+            }
+
             const tempCurrentPreismeldung = assign({},
                 state.currentPreismeldung,
                 { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createPercentages(state.currentPreismeldung, action.payload), createFehlendePreiseR(state.currentPreismeldung, action.payload)) },
                 createNewPriceCountStatus(state.currentPreismeldung, state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer], action.payload),
-                { isModified: true }
+                { isModified: true, messages }
             );
 
             const currentPreismeldung = assign({}, tempCurrentPreismeldung, { hasPriceWarning: calcHasPriceWarning(tempCurrentPreismeldung) });
@@ -328,14 +340,14 @@ function createFehlendePreiseR(preismeldung: CurrentPreismeldungBag, payload: P.
     };
 }
 
-function createNewPriceCountStatus(preismeldung: CurrentPreismeldungBag, originalPriceCountStatus: PriceCountStatus, payload: P.PreismeldungPricePayload) {
-    let priceCountStatus = preismeldung.priceCountStatus;
+function createNewPriceCountStatus(bag: CurrentPreismeldungBag, originalPriceCountStatus: PriceCountStatus, payload: P.PreismeldungPricePayload) {
+    let priceCountStatus = assign({}, bag.isNew ? bag.priceCountStatus : originalPriceCountStatus);
 
-    if (preismeldung.originalBearbeitungscode === 0 && payload.bearbeitungscode !== 0) {
+    if (bag.originalBearbeitungscode === 0 && payload.bearbeitungscode !== 0) {
         priceCountStatus = createPriceCountStatus(originalPriceCountStatus.numActivePrices + 1, originalPriceCountStatus.anzahlPreiseProPMS);
     }
 
-    if (preismeldung.originalBearbeitungscode !== 0 && payload.bearbeitungscode === 0) {
+    if (bag.originalBearbeitungscode !== 0 && payload.bearbeitungscode === 0) {
         priceCountStatus = createPriceCountStatus(originalPriceCountStatus.numActivePrices - 1, originalPriceCountStatus.anzahlPreiseProPMS);
     }
 

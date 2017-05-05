@@ -267,7 +267,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                 ? { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_steigender_aktionspreis_bestätigt' }
                                 : { type: saveAction.type, saveWithData: 'AKTION', data: false });
                 }
-                if (!this.form.value.aktion && bag.refPreismeldung.aktion && this.form.value.preis <= bag.refPreismeldung.preis) {
+                if (!this.form.value.aktion && !!bag.refPreismeldung && bag.refPreismeldung.aktion && this.form.value.preis <= bag.refPreismeldung.preis) {
                     return pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_not-aktion-message-billiger'), false)
                         .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
                             res.data === 'YES'
