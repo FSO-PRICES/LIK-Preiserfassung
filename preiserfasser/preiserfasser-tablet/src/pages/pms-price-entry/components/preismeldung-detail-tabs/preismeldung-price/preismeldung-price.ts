@@ -253,13 +253,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         }
                         if (this.form.value.bearbeitungscode === 101 && /^R$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 2) {
                             return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_rrr-message-mit-aufforderung-zu-produktersatz'), false)
-                                .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: 'COMMENT', data: 'Keine Ersatzprodukte in Sortiment vorhanden' });
+                                .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_keine_ersatzprodukte' });
                         }
                         if (this.form.value.aktion && bag.refPreismeldung.aktion && this.form.value.preis > bag.refPreismeldung.preis) {
                             return pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_aktion-message-preis_hoeher'), false)
                                 .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
                                     res.data === 'YES'
-                                        ? { type: saveAction.type, saveWithData: 'COMMENT', data: 'Steigender Aktionspreis bestätigt' }
+                                        ? { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_steigender_aktionspreis_bestätigt' }
                                         : { type: saveAction.type, saveWithData: 'AKTION', data: false });
                         }
                         if (!this.form.value.aktion && bag.refPreismeldung.aktion && this.form.value.preis <= bag.refPreismeldung.preis) {
@@ -267,7 +267,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                 .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
                                     res.data === 'YES'
                                         ? { type: saveAction.type, saveWithData: 'AKTION', data: true }
-                                        : { type: saveAction.type, saveWithData: 'COMMENT', data: 'Akteuller Normalpreis billiger als Aktionspreis VP' });
+                                        : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_normalpreis_billiger' });
                         }
                         return Observable.of(saveAction);
                     })

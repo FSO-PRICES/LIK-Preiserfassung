@@ -21,6 +21,10 @@
     "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
 
+    "kommentar-autotext_steigender_aktionspreis_bestätigt": "Steigender Aktionspreis bestätigt",
+    "kommentar-autotext_normalpreis_billiger": "Akteuller Normalpreis billiger als Aktionspreis VP",
+    "kommentar-autotext_keine_ersatzprodukte": "Keine Ersatzprodukte in Sortiment vorhanden",
+
     "text_synchronizing-data": "Datensynchronisierung. Bitte warten...",
     "text_saving-settings": "Einstellungen werden gespeichert. Bitte warten...",
     "text_database-successfully-deleted": "Lokale Daten wurden erfolgreich gelöscht.",
