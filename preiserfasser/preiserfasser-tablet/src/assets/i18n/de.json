@@ -18,12 +18,14 @@
     "dialogText_aktion-message-preis_hoeher": "Aktueller Preis ist höher als in VP. Ist der Artikel wirklich erneut in Aktion?",
     "dialogText_not-aktion-message-billiger": "Aktionspreis der VP war gleich oder höher als aktueller Normalpreis. Ist der akteulle Preis ein Aktionspreis?",
     "dialogText_aufforderung_ersatzsuche": "In der EP sind nur {{numActivePrices}}/{{anzahlPreiseProPMS}} Produkte erfasst. Wollen Sie ein neues Produkt erfassen?",
+    "dialogText_abnormal_preisentwicklung": "Die Normalpreisentwicklung unterschreitet/überschreitet den im Warenkorb für diese Position definierten Wert. Ist der aktuelle Preis richtig?",
     "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
 
     "kommentar-autotext_steigender_aktionspreis_bestätigt": "Steigender Aktionspreis bestätigt",
     "kommentar-autotext_normalpreis_billiger": "Akteuller Normalpreis billiger als Aktionspreis VP",
     "kommentar-autotext_keine_ersatzprodukte": "Keine Ersatzprodukte in Sortiment vorhanden",
+    "kommentar-autotext_abnormale_preisentwicklung_bestätigt": "Abnormale Preisentwicklung bestätigt",
 
     "text_synchronizing-data": "Datensynchronisierung. Bitte warten...",
     "text_saving-settings": "Einstellungen werden gespeichert. Bitte warten...",
