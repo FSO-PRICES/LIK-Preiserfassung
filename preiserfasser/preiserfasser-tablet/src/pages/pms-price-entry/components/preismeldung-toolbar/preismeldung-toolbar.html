@@ -40,7 +40,7 @@
         >
         <div class="tab-icon-with-warning">
             <pef-icon name="notification"></pef-icon>
-            <pef-icon class="warning-icon" [name]="'warning'"></pef-icon>
+            <pef-icon class="warning-icon" [name]="'warning'" *ngIf="(preismeldung$ | async).hasPriceWarning"></pef-icon>
         </div>
     </button>
     <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')" [class.hidden]="((selectedTab$ | async) != 'PREISMELDUNG') || (requestPreismeldungQuickEqualDisabled$ | async)">

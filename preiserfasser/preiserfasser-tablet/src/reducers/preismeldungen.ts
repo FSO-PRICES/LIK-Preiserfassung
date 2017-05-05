@@ -28,6 +28,7 @@ export type CurrentPreismeldungBag = PreismeldungBag & {
     originalBearbeitungscode: P.Models.Bearbeitungscode;
     lastSave: P.SavePreismeldungPriceSaveAction;
     hasMessageToCheck: boolean;
+    hasPriceWarning: boolean;
     messages: CurrentPreismeldungBagMessages;
 };
 
@@ -94,7 +95,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 isNew: false,
                 originalBearbeitungscode: entity.preismeldung.bearbeitungscode,
                 messages: parsePreismeldungMessages(entity.preismeldung),
-                hasMessageToCheck: calcHasMessageToCheck(messages)
+                hasMessageToCheck: calcHasMessageToCheck(messages),
+                hasPriceWarning: calcHasPriceWarning(entity)
             });
             return assign({}, state, { currentPreismeldung });
         }
@@ -113,12 +115,14 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
                 && state.currentPreismeldung.preismeldung.artikeltext === payload.artikeltext) { return state; }
 
-            const currentPreismeldung = assign({},
+            const tempCurrentPreismeldung = assign({},
                 state.currentPreismeldung,
                 { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createPercentages(state.currentPreismeldung, action.payload), createFehlendePreiseR(state.currentPreismeldung, action.payload)) },
                 createNewPriceCountStatus(state.currentPreismeldung, state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer], action.payload),
                 { isModified: true }
             );
+
+            const currentPreismeldung = assign({}, tempCurrentPreismeldung, { hasPriceWarning: calcHasPriceWarning(tempCurrentPreismeldung) });
 
             return assign({}, state, { currentPreismeldung });
         }
@@ -363,6 +367,18 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung) {
 
 const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) => !!messages.notiz || !!messages.bemerkungen || !!messages.bemerkungenHistory;
 
+function calcHasPriceWarning(bag: PreismeldungBag): boolean {
+    switch (bag.preismeldung.bearbeitungscode) {
+        case 1:
+            return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite_1 || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite_1;
+        case 7:
+            return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite_7 || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite_7;
+        case 99:
+            return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite;
+        default:
+            return false;
+    }
+}
 
 export const getEntities = (state: State) => state.entities;
 export const getPreismeldungIds = (state: State) => state.preismeldungIds;

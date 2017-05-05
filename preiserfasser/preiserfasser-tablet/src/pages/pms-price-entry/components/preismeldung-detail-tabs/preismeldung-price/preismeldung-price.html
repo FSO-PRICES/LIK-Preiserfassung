@@ -85,7 +85,7 @@
                         <div class="box" >
                             <div class="percentage-wrapper">
                                 <div [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
-                                <pef-floating-icon [icon-name]="(showPercentageWarning$ | async) ? 'warning' : ''"></pef-floating-icon>
+                                <pef-floating-icon [icon-name]="(preismeldung$ | async)?.hasPriceWarning ? 'warning' : ''"></pef-floating-icon>
                             </div>
                         </div>
                         <div class="arrow right"></div>
