@@ -21,6 +21,7 @@
     "dialogText_abnormal_preisentwicklung": "Die Normalpreisentwicklung unterschreitet/überschreitet den im Warenkorb für diese Position definierten Wert. Ist der aktuelle Preis richtig?",
     "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
+    "validation_produktMerkmale_erfassen": "Bitte Produktmerkmale erfassen",
 
     "kommentar-autotext_steigender_aktionspreis_bestätigt": "Steigender Aktionspreis bestätigt",
     "kommentar-autotext_normalpreis_billiger": "Akteuller Normalpreis billiger als Aktionspreis VP",
@@ -44,6 +45,7 @@
     "heading_danger-zone": "Gefährlicher Abschnitt",
     "heading_pms-details": "Daten zur Preismeldestelle",
     "heading_preismeldung-attributes": "Produkteigenschaften",
+    "heading_validation-error": "Validierungsfehler",
     "server-connection-url": "URL des Datenbank-Servers",
     "installed-software-version": "Installierte Software Version",
 
@@ -52,6 +54,7 @@
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
     "btn_upload-now": "jetzt hochladen",
+    "btn_continue-editing": "Weiterbearbeiten",
 
     "a_navigate-to-settings": "Einstellungen bearbeiten",
 

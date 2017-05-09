@@ -8,6 +8,7 @@ import { PefComponentsModule, PefDialogYesNoComponent, PefDialogYesNoEditCompone
 
 import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
+import { DialogValidationErrorsComponent } from './components/dialog-validation-errors/dialog-validation-errors';
 import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
 import { PreismeldungenSortComponent } from './components/preismeldungen-sort/preismeldungen-sort';
@@ -16,9 +17,10 @@ import { PreismeldungInfoPopover } from './components/preismeldung-info-popover/
 import { PreismeldungInfoWarenkorbComponent } from './components/preismeldung-detail-tabs/preismeldung-info-warenkorb';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
 import { PreismeldungMessagesComponent } from './components/preismeldung-detail-tabs/preismeldung-messages';
-import { PreismeldungPriceComponent, DialogValidationErrorsComponent } from './components/preismeldung-detail-tabs/preismeldung-price';
+import { PreismeldungPriceComponent } from './components/preismeldung-detail-tabs/preismeldung-price';
 import { PreismeldungReadonlyHeader } from './components/preismeldung-detail-tabs/preismeldung-readonly-header';
 import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
+
 
 @NgModule({
     imports: [CommonModule, IonicModule, PefComponentsModule, PreiserfasserCommonModule, TranslateModule],

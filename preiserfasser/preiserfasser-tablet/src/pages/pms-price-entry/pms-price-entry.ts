@@ -83,12 +83,12 @@ export class PmsPriceEntryPage {
 
         createTabLeaveObservable('MESSAGES')
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
-            .filter(currentPreismeldung => currentPreismeldung.isMessagesModified)
+            .filter(currentPreismeldung => !currentPreismeldung.isNew && currentPreismeldung.isMessagesModified)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_MESSAGES' }));
 
         createTabLeaveObservable('PRODUCT_ATTRIBUTES')
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
-            .filter(currentPreismeldung => currentPreismeldung.isAttributesModified)
+            .filter(currentPreismeldung => !currentPreismeldung.isNew && currentPreismeldung.isAttributesModified)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_ATTRIBUTES' }));
 
         requestNavigateHome$

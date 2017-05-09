@@ -9,7 +9,7 @@ import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory
 
 import * as P from '../../../../../common-models';
 
-import { DialogValidationErrorsComponent } from './dialog-validation-errors/dialog-validation-errors';
+import { DialogValidationErrorsComponent } from '../../dialog-validation-errors/dialog-validation-errors';
 
 interface PercentageValues {
     lastPeriodToThisPeriod: string;
@@ -87,8 +87,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             mengeVPNormalNeuerArtikel: [''],
             aktion: [false],
             bearbeitungscode: [100, Validators.required],
-            artikelnummer: [null],
-            artikeltext: [null, Validators.required]
+            artikelnummer: [''],
+            artikeltext: ['', Validators.required]
         }, { validator: this.formLevelValidationFactory() });
 
         this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
@@ -240,9 +240,19 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
-        const save$ = canSave$.filter(x => x.isValid)
+        const saveWithBag$ = canSave$.filter(x => x.isValid)
             .map(x => x.saveAction)
             .withLatestFrom(this.preismeldung$, (saveAction, bag) => ({ saveAction, bag }))
+            .publishReplay(1).refCount();
+
+        this.subscriptions.push(
+            saveWithBag$.filter(x => x.bag.hasAttributeWarning)
+                .flatMap(() => pefDialogService.displayDialog(DialogValidationErrorsComponent, [translateService.instant('validation_produktMerkmale_erfassen')], true))
+                .subscribe()
+        );
+
+        const save$ = saveWithBag$
+            .filter(x => !x.bag.hasAttributeWarning)
             .flatMap(({ saveAction, bag }) => {
                 if (bag.isNew) {
                     return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT', data: '' });
