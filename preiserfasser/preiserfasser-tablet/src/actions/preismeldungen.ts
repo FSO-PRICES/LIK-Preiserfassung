@@ -32,4 +32,4 @@ export type Actions =
     { type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload: P.Models.Preismeldung } |
     { type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload: P.Models.Preismeldung } |
     { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 } |
-    { type: 'NEW_PREISMELDUNG', payload: { pmsNummer: string; bearbeitungscode: number; warenkorbPosition: P.Models.WarenkorbLeaf } };
+    { type: 'NEW_PREISMELDUNG', payload: { pmsNummer: string; bearbeitungscode: P.Models.Bearbeitungscode; warenkorbPosition: P.Models.WarenkorbLeaf } };

@@ -3,6 +3,7 @@ import { assign, cloneDeep, sortBy, keys, initial, last } from 'lodash';
 
 import * as P from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
+import { bearbeitungscodeDescriptions, Bearbeitungscode } from '../../../../lik-shared/common/models';
 
 export interface PreismeldungBag {
     pmId: string;
@@ -235,33 +236,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             // console.log('nextLaufnummer', preismeldungen.map(x => +x.preismeldung.laufnummer), nextLaufnummer)
             const currentPreismeldung = state.currentPreismeldung;
             const newPmId = `pm/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`;
-            const newPreismeldung: P.Models.Preismeldung = {
-                _id: newPmId,
-                _rev: null,
-                pmsNummer: currentPreismeldung.preismeldung.pmsNummer,
-                epNummer: currentPreismeldung.preismeldung.epNummer,
-                fehlendePreiseR: null,
-                notiz: null,
-                kommentar: null,
-                bemerkungen: null,
-                productMerkmale: [],
-                laufnummer: nextLaufnummer,
-                preis: null,
-                menge: null,
-                preisVPNormalNeuerArtikel: null,
-                mengeVPNormalNeuerArtikel: null,
-                aktion: false,
-                artikelnummer: null,
-                artikeltext: null,
-                internetLink: null,
-                percentageDPToVP: null,
-                percentageDPToVPNeuerArtikel: null,
-                percentageVPNeuerArtikelToVPAlterArtikel: null,
-                modifiedAt: null,
-                bearbeitungscode: action.payload,
-                istAbgebucht: false,
-                uploadRequestedAt: null
-            };
+            const newPreismeldung = createFreshPreismeldung(newPmId, currentPreismeldung.preismeldung.pmsNummer, currentPreismeldung.preismeldung.epNummer, nextLaufnummer, action.payload);
             const newCurrentPreismeldung = assign({}, createCurrentPreismeldungBag({
                 pmId: newPmId,
                 refPreismeldung: null,
@@ -279,50 +254,22 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'NEW_PREISMELDUNG': {
             const allPreismeldungen = getAll(state);
             const preismeldungen = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === action.payload.warenkorbPosition.gliederungspositionsnummer);
-            const nextLaufnummer = `${preismeldungen.length === 0 ? 1 : preismeldungen.map(x => +x.preismeldung.laufnummer).sort()[preismeldungen.length - 1] + 1}`;
+            const nextLaufnummer = `${preismeldungen.length === 0 ? 1 : preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[preismeldungen.length - 1] + 1}`;
             const newPmId = `pm/${action.payload.pmsNummer}/ep/${action.payload.warenkorbPosition.gliederungspositionsnummer}/lauf/${nextLaufnummer}`;
             const sortierungsnummer = preismeldungen.length === 0 ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1 : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
             const priceCountStatus = state.priceCountStatuses[action.payload.warenkorbPosition.gliederungspositionsnummer];
             const numActivePrices = !priceCountStatus ? 0 : priceCountStatus.numActivePrices;
-            const newCurrentPreismeldung = {
+            const newPreismeldung = createFreshPreismeldung(newPmId, action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer, nextLaufnummer, action.payload.bearbeitungscode);
+            const newCurrentPreismeldung = assign({}, createCurrentPreismeldungBag({
                 pmId: newPmId,
-                isModified: true,
-                isNew: true,
                 refPreismeldung: null,
-                warenkorbPosition: action.payload.warenkorbPosition,
-                originalBearbeitungscode: action.payload.bearbeitungscode,
+                sortierungsnummer,
+                preismeldung: newPreismeldung,
+                warenkorbPosition: action.payload.warenkorbPosition
+            }, state.priceCountStatuses), {
                 priceCountStatus: createPriceCountStatus(numActivePrices + 1, action.payload.warenkorbPosition.anzahlPreiseProPMS),
-                preismeldung: {
-                    _id: newPmId,
-                    _rev: null,
-                    pmsNummer: action.payload.pmsNummer,
-                    epNummer: action.payload.warenkorbPosition.gliederungspositionsnummer,
-                    laufnummer: nextLaufnummer,
-                    preis: null,
-                    menge: null,
-                    preisVPNormalNeuerArtikel: null,
-                    mengeVPNormalNeuerArtikel: null,
-                    aktion: false,
-                    artikelnummer: null,
-                    artikeltext: null,
-                    internetLink: null,
-                    fehlendePreiseR: null,
-                    notiz: null,
-                    kommentar: null,
-                    bemerkungen: null,
-                    bermerkungenAnsBfs: null,
-                    percentageDPToVP: null,
-                    percentageDPToVPNeuerArtikel: null,
-                    percentageVPNeuerArtikelToVPAlterArtikel: null,
-                    productMerkmale: [],
-                    modifiedAt: null,
-                    bearbeitungscode: action.payload.bearbeitungscode as P.Models.Bearbeitungscode,
-                    istAbgebucht: false,
-                    uploadRequestedAt: null
-                },
-                sortierungsnummer
-            };
-
+                isNew: true
+            });
             return assign({}, state, { currentPreismeldung: assign({}, newCurrentPreismeldung, { messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung) }) });
         }
 
@@ -331,11 +278,40 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
     }
 }
 
+// tslint:disable-next-line:no-unused-variable
 function debugDifference(obj1: any, obj2: any, props: string[]) {
     props.forEach(p => {
         console.log(p, obj1[p], obj2[p], obj1[p] === obj2[p]);
     });
 }
+
+const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: string, laufnummer: string, bearbeitungscode: P.Models.Bearbeitungscode): P.Models.Preismeldung => ({
+    _id: pmId,
+    _rev: null,
+    pmsNummer: pmsNummer,
+    epNummer: epNummer,
+    laufnummer: laufnummer,
+    preis: null,
+    menge: null,
+    preisVPNormalNeuerArtikel: null,
+    mengeVPNormalNeuerArtikel: null,
+    aktion: false,
+    artikelnummer: null,
+    artikeltext: null,
+    internetLink: null,
+    fehlendePreiseR: null,
+    notiz: null,
+    kommentar: null,
+    bemerkungen: null,
+    percentageDPToVP: null,
+    percentageDPToVPNeuerArtikel: null,
+    percentageVPNeuerArtikelToVPAlterArtikel: null,
+    productMerkmale: [],
+    modifiedAt: null,
+    bearbeitungscode: bearbeitungscode,
+    istAbgebucht: false,
+    uploadRequestedAt: null
+});
 
 function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatuses: PriceCountStatusMap) {
     const messages = parsePreismeldungMessages(entity.preismeldung);
