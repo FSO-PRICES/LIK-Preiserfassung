@@ -17,7 +17,7 @@ export interface PreismeldungMessagesPayload {
     bemerkungen: string;
 }
 
-export type SavePreismeldungPriceSaveAction = { type: 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_NEXT' | 'SAVE_AND_DUPLICATE_PREISMELDUNG' | 'SAVE_AND_NAVIGATE_TO_DASHBOARD', data: string, saveWithData: 'COMMENT' | 'AKTION' | null };
+export type SavePreismeldungPriceSaveAction = { type: 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_NEXT' | 'SAVE_AND_DUPLICATE_PREISMELDUNG' | 'SAVE_AND_NAVIGATE_TO_DASHBOARD' | 'RESET', data: string, saveWithData: 'COMMENT' | 'AKTION' | null };
 
 export type Actions =
     { type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: number } |
@@ -29,6 +29,8 @@ export type Actions =
     { type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload: string[] } |
     { type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; saveAction: SavePreismeldungPriceSaveAction } } |
     { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort } } |
+    { type: 'RESET_PREISMELDUNG_SUCCESS', payload: P.Models.Preismeldung } |
+    { type: 'DELETE_PREISMELDUNG_SUCCESS', payload: string } |
     { type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload: P.Models.Preismeldung } |
     { type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload: P.Models.Preismeldung } |
     { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 } |

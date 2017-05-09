@@ -97,7 +97,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.distinctPreismeldung$ = this.preismeldung$
             .filter(x => !!x)
-            .distinctUntilKeyChanged('pmId')
+            .distinctUntilChanged((x, y) => x.pmId === y.pmId && x.resetEvent === y.resetEvent)
             .publishReplay(1).refCount();
 
         this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)

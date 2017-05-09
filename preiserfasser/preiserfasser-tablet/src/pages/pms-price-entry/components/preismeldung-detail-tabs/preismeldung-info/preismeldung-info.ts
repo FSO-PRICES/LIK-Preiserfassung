@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
+import { Component, Input, Output, OnChanges, SimpleChange, EventEmitter } from '@angular/core';
 
 import { ReactiveComponent } from 'lik-shared';
 
@@ -11,6 +11,7 @@ import * as P from '../../../../../common-models';
 export class PreismeldungInfoComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
+    @Output('resetClicked') resetClicked$ = new EventEmitter();
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');

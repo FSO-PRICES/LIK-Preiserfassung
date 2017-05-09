@@ -89,4 +89,5 @@
             </div>
         </div>
     </div>
+    <button ion-button class="reset-button" (click)="resetClicked$.emit()">{{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate}}</button>
 </div>

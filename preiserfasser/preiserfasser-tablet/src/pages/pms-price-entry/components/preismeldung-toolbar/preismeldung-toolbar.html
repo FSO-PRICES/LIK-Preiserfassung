@@ -9,7 +9,7 @@
         <pef-icon name="zusatzinfo"></pef-icon>
     </button>
     <button ion-button icon-only class="pef-tab-button"
-        [disabled]="(selectedTab$ | async) == 'PREISMELDUNG_INFO' || !(preismeldung$ | async).refPreismeldung"
+        [disabled]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
         [class.selected]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
         (click)="selectTab$.emit('PREISMELDUNG_INFO')">
         <pef-icon name="price_tag_info"></pef-icon>

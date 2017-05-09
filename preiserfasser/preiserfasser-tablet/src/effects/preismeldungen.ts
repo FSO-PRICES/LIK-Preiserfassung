@@ -3,7 +3,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';
 import { format } from 'date-fns';
-import { assign, cloneDeep } from 'lodash';
+import { assign, cloneDeep, remove } from 'lodash';
 
 import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
@@ -158,16 +158,64 @@ export class PreismeldungenEffects {
     @Effect()
     savePreismeldungMessages$ = this.actions$
         .ofType('SAVE_PREISMELDING_MESSAGES')
-        .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
+        .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
         .flatMap(currentPreismeldung => this.savePreismeldungMessages(currentPreismeldung))
         .map(payload => ({ type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload }));
 
     @Effect()
     savePreismeldungAttributes$ = this.actions$
         .ofType('SAVE_PREISMELDING_ATTRIBUTES')
-        .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
+        .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
         .flatMap(currentPreismeldung => this.savePreismeldungAttributes(currentPreismeldung))
         .map(payload => ({ type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload }));
+
+    @Effect()
+    resetPreismeldung$ = this.actions$
+        .ofType('RESET_PREISMELDUNG')
+        .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
+        .filter(x => !!x.refPreismeldung)
+        .flatMap(currentPreismeldung =>
+            this.savePreismeldung(currentPreismeldung, [
+                bag => ({
+                    preis: '',
+                    menge: '',
+                    preisVPNormalNeuerArtikel: '',
+                    mengeVPNormalNeuerArtikel: '',
+                    bearbeitungscode: 99,
+                    aktion: false,
+                    artikelnummer: bag.refPreismeldung.artikelnummer,
+                    artikeltext: bag.refPreismeldung.artikeltext,
+                    bemerkungen: bag.refPreismeldung.bemerkungen,
+                    notiz: bag.refPreismeldung.notiz,
+                    kommentar: '\\n',
+                    productMerkmale: bag.refPreismeldung.productMerkmale,
+                    internetLink: bag.refPreismeldung.internetLink,
+                    percentageDPToVP: null,
+                    percentageDPToVPNeuerArtikel: null,
+                    percentageVPNeuerArtikelToVPAlterArtikel: null,
+                })
+            ])
+        )
+        .map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload }));
+
+    @Effect()
+    deletePreismeldung$ = this.actions$
+        .ofType('RESET_PREISMELDUNG')
+        .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
+        .filter(x => !x.refPreismeldung)
+        .flatMap(bag => getDatabase()
+            .then(db => db.get(bag.preismeldung._id).then(doc => ({ db, doc })))
+            .then(x => x.db.remove(x.doc._id, x.doc._rev).then(() => x.db))
+            .then(db => db.get(`pms-sort/${bag.preismeldung.pmsNummer}`)
+                .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
+                    const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
+                        sortOrder: pmsPreismeldungenSort.sortOrder.filter(x => x.pmId !== bag.pmId)
+                    });
+                    return db.put(newPmsPreismeldungsSort).then(() => db);
+                })
+                .then(() => bag.preismeldung._id)
+            ))
+        .map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload }));
 
     savePreismeldung(currentPreismeldungBag: P.CurrentPreismeldungBag, copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]) {
         return getDatabase()
@@ -207,7 +255,7 @@ export class PreismeldungenEffects {
         istAbgebucht: true,
         menge: bag.preismeldung.menge,
         mengeVPNormalNeuerArtikel: bag.preismeldung.mengeVPNormalNeuerArtikel,
-        modifiedAt: new Date(),
+        modifiedAt: format(new Date()),
         percentageDPToVP: bag.preismeldung.percentageDPToVP,
         percentageDPToVPVorReduktion: bag.preismeldung.percentageDPToVPVorReduktion,
         percentageDPToVPNeuerArtikel: bag.preismeldung.percentageDPToVPNeuerArtikel,
@@ -220,8 +268,12 @@ export class PreismeldungenEffects {
     messagesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
         notiz: bag.messages.notiz,
         kommentar: bag.messages.kommentarAutotext + (!!bag.messages.kommentarAutotext ? '\\n' : '') + bag.messages.kommentar,
-        bemerkungen: bag.messages.bemerkungenHistory + '\\nPE:' + bag.messages.bemerkungen
+        bemerkungen: bag.messages.bemerkungenHistory + '\\nPE:' + bag.messages.bemerkungen,
+        modifiedAt: format(new Date()),
     })
 
-    productMerkmaleFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({ productMerkmale: cloneDeep(bag.attributes) });
+    productMerkmaleFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
+        productMerkmale: cloneDeep(bag.attributes),
+        modifiedAt: format(new Date())
+    })
 }

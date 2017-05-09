@@ -1,9 +1,8 @@
 import { createSelector } from 'reselect';
-import { assign, cloneDeep, sortBy, keys, initial, last } from 'lodash';
+import { assign, cloneDeep, sortBy, keys, initial, last, omit } from 'lodash';
 
 import * as P from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
-import { bearbeitungscodeDescriptions, Bearbeitungscode } from '../../../../lik-shared/common/models';
 
 export interface PreismeldungBag {
     pmId: string;
@@ -34,6 +33,7 @@ export type CurrentPreismeldungBag = PreismeldungBag & {
     hasAttributeWarning: boolean;
     messages: CurrentPreismeldungBagMessages;
     attributes: string[];
+    resetEvent: number;
 };
 
 export interface PriceCountStatus {
@@ -48,7 +48,7 @@ export type PriceCountStatusMap = { [pmsNummer: string]: PriceCountStatus };
 export interface State {
     pmsNummer: string;
     preismeldungIds: string[];
-    entities: { [pmsNummer: string]: PreismeldungBag };
+    entities: { [pmNummer: string]: PreismeldungBag };
     currentPreismeldung: CurrentPreismeldungBag;
     priceCountStatuses: PriceCountStatusMap;
 }
@@ -177,6 +177,27 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 preismeldungIds,
                 priceCountStatuses: createPriceCountStatuses(entities)
             });
+        }
+
+        case 'RESET_PREISMELDUNG_SUCCESS': {
+            const resettedEntity = assign({}, state.entities[action.payload._id], { preismeldung: action.payload });
+            const entities = assign({}, state.entities, { [action.payload._id]: assign({}, resettedEntity) });
+            const priceCountStatuses = createPriceCountStatuses(entities);
+            const currentPreismeldung = assign({},
+                createCurrentPreismeldungBag(resettedEntity, priceCountStatuses), {
+                    isModified: false,
+                    lastSaveAction: 'RESET',
+                    resetEvent: new Date().getTime()
+                });
+            return assign({}, state, { currentPreismeldung, entities, priceCountStatuses });
+        }
+
+        case 'DELETE_PREISMELDUNG_SUCCESS': {
+            const { payload: pmId } = action;
+            const entities = omit(state.entities, pmId) as { [pmNummer: string]: PreismeldungBag };
+            const priceCountStatuses = createPriceCountStatuses(entities);
+            const preismeldungIds = state.preismeldungIds.filter(x => x !== pmId);
+            return assign({}, state, { currentPreismeldung: null, entities, priceCountStatuses, preismeldungIds });
         }
 
         case 'SAVE_PREISMELDING_MESSAGES_SUCCESS': {
@@ -327,7 +348,8 @@ function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatu
         attributes,
         hasMessageToCheck: calcHasMessageToCheck(messages),
         hasPriceWarning: calcHasPriceWarning(entity),
-        hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale)
+        hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
+        resetEvent: null
     });
 }
 

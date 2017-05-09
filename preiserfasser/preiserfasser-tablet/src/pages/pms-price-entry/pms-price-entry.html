@@ -19,7 +19,8 @@
                 <preismeldung-info
                     [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
                     [preismeldung]="currentPreismeldung$ | async"
-                    [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info>
+                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                    (resetClicked)="resetPreismeldung$.emit()"></preismeldung-info>
                 <preismeldung-attributes
                     [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
                     [preismeldung]="currentPreismeldung$ | async"

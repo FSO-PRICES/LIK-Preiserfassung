@@ -5,6 +5,11 @@ preismeldung-info {
     flex-direction: column;
     background-color: $alto;
 
+    .detail-tab-bottom-part {
+        display: flex;
+        flex-direction: column;
+    }
+
     .info-table {
         display: table;
         width: 100%;
@@ -29,5 +34,10 @@ preismeldung-info {
         font-weight: 500;
         border-bottom: 2px solid $alto;
         padding: 5px 0;
+    }
+
+    .reset-button {
+        @include set-margin-top(2);
+        align-self: flex-end;
     }
 }
