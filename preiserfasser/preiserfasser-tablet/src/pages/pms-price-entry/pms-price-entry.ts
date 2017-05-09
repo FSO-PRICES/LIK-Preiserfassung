@@ -33,6 +33,7 @@ export class PmsPriceEntryPage {
     save$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
+    updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     duplicatePreismeldung$ = new EventEmitter();
     addNewPreisreihe$ = new EventEmitter();
     ionViewDidLoad$ = new EventEmitter();
@@ -74,13 +75,21 @@ export class PmsPriceEntryPage {
             .scan((agg, v) => ({ from: agg.to, to: v }), { from: null, to: null })
             .publishReplay(1).refCount();
 
-        tabPair$
-            .filter(x => x.from === 'MESSAGES')
-            .merge(this.toolbarButtonClicked$.filter(x => x === 'HOME').withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === 'MESSAGES'))
-            .merge(this.selectPreismeldung$.withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === 'MESSAGES'))
+        const createTabLeaveObservable = (tabName: string) =>
+            tabPair$
+                .filter(x => x.from === tabName)
+                .merge(this.toolbarButtonClicked$.filter(x => x === 'HOME').withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName))
+                .merge(this.selectPreismeldung$.withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName));
+
+        createTabLeaveObservable('MESSAGES')
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
             .filter(currentPreismeldung => currentPreismeldung.isMessagesModified)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_MESSAGES' }));
+
+        createTabLeaveObservable('PRODUCT_ATTRIBUTES')
+            .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
+            .filter(currentPreismeldung => currentPreismeldung.isAttributesModified)
+            .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_ATTRIBUTES' }));
 
         requestNavigateHome$
             .filter(x => x === 'THROW_CHANGES')
@@ -91,10 +100,13 @@ export class PmsPriceEntryPage {
             .map(() => new Date());
 
         this.updatePreismeldungPreis$
-            .subscribe(x => store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload: x }));
+            .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload }));
 
         this.updatePreismeldungMessages$
-            .subscribe(x => store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload: x }));
+            .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload }));
+
+        this.updatePreismeldungAttributes$
+            .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload }));
 
         this.save$
             // why do I need this setTimeout - is it an Ionic bug? requires two touches on tablet to register 'SAVE_AND_MOVE_TO_NEXT'

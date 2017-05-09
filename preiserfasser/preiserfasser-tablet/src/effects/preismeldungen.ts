@@ -3,7 +3,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';
 import { format } from 'date-fns';
-import { assign } from 'lodash';
+import { assign, cloneDeep } from 'lodash';
 
 import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
@@ -50,6 +50,7 @@ export class PreismeldungenEffects {
                     bemerkungen: rpm.bemerkungen,
                     notiz: rpm.notiz,
                     kommentar: '\\n',
+                    productMerkmale: rpm.productMerkmale,
                     modifiedAt: format(new Date()),
                     bearbeitungscode: 99,
                     uploadRequestedAt: null,
@@ -133,7 +134,7 @@ export class PreismeldungenEffects {
                         epNummer: currentPreismeldung.preismeldung.epNummer,
                         laufnummer: currentPreismeldung.preismeldung.laufnummer,
                         pmsNummer: currentPreismeldung.preismeldung.pmsNummer
-                    }, this.propertiesFromCurrentPreismeldung(currentPreismeldung))).then(() => db)
+                    }, this.propertiesFromCurrentPreismeldung(currentPreismeldung), this.messagesFromCurrentPreismeldung(currentPreismeldung), this.productMerkmaleFromCurrentPreismeldung(currentPreismeldung))).then(() => db)
                 )
                 .then(db =>
                     db.get(`pms-sort/${currentPreismeldung.preismeldung.pmsNummer}`)
@@ -161,6 +162,13 @@ export class PreismeldungenEffects {
         .flatMap(currentPreismeldung => this.savePreismeldungMessages(currentPreismeldung))
         .map(payload => ({ type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload }));
 
+    @Effect()
+    savePreismeldungAttributes$ = this.actions$
+        .ofType('SAVE_PREISMELDING_ATTRIBUTES')
+        .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
+        .flatMap(currentPreismeldung => this.savePreismeldungAttributes(currentPreismeldung))
+        .map(payload => ({ type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload }));
+
     savePreismeldung(currentPreismeldungBag: P.CurrentPreismeldungBag, copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]) {
         return getDatabase()
             .then(db => db.get(currentPreismeldungBag.preismeldung._id).then(doc => ({ db, doc })))
@@ -177,6 +185,12 @@ export class PreismeldungenEffects {
         ]);
     }
 
+    savePreismeldungAttributes(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+        return this.savePreismeldung(currentPreismeldungBag, [
+            bag => this.productMerkmaleFromCurrentPreismeldung(bag)
+        ]);
+    }
+
     savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
         return this.savePreismeldung(currentPreismeldungBag, [
             bag => this.propertiesFromCurrentPreismeldung(bag),
@@ -189,7 +203,6 @@ export class PreismeldungenEffects {
         artikelnummer: bag.preismeldung.artikelnummer,
         artikeltext: bag.preismeldung.artikeltext,
         bearbeitungscode: bag.preismeldung.bearbeitungscode,
-        bemerkungen: bag.preismeldung.bemerkungen,
         internetLink: bag.preismeldung.internetLink,
         istAbgebucht: true,
         menge: bag.preismeldung.menge,
@@ -201,7 +214,7 @@ export class PreismeldungenEffects {
         percentageVPNeuerArtikelToVPAlterArtikel: bag.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,
         preis: bag.preismeldung.preis,
         preisVPNormalNeuerArtikel: bag.preismeldung.preisVPNormalNeuerArtikel,
-        fehlendePreiseR: bag.preismeldung.fehlendePreiseR,
+        fehlendePreiseR: bag.preismeldung.fehlendePreiseR
     })
 
     messagesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
@@ -209,4 +222,6 @@ export class PreismeldungenEffects {
         kommentar: bag.messages.kommentarAutotext + (!!bag.messages.kommentarAutotext ? '\\n' : '') + bag.messages.kommentar,
         bemerkungen: bag.messages.bemerkungenHistory + '\\nPE:' + bag.messages.bemerkungen
     })
+
+    productMerkmaleFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({ productMerkmale: cloneDeep(bag.attributes) });
 }

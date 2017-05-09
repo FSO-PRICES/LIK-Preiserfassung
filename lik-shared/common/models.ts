@@ -132,6 +132,8 @@ interface _PreismeldungProperties {
     kommentar: string;
     bemerkungen: string;
 
+    productMerkmale: string[];
+
     percentageDPToVP?: number;
     percentageDPToVPVorReduktion?: number;
     percentageDPToVPNeuerArtikel?: number;

@@ -43,6 +43,7 @@
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",
     "heading_pms-details": "Daten zur Preismeldestelle",
+    "heading_preismeldung-attributes": "Produkteigenschaften",
     "server-connection-url": "URL des Datenbank-Servers",
     "installed-software-version": "Installierte Software Version",
 

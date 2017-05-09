@@ -23,7 +23,8 @@
                 <preismeldung-attributes
                     [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
                     [preismeldung]="currentPreismeldung$ | async"
-                    [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-attributes>
+                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                    (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"></preismeldung-attributes>
                 <preismeldung-messages
                     [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
                     [isActive]="(selectedTab$ | async) == 'MESSAGES'"

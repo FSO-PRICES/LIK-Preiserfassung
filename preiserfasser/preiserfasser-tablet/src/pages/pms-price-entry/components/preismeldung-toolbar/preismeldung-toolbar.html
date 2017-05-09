@@ -5,29 +5,28 @@
     <button ion-button icon-only class="pef-tab-button"
         [disabled]="(selectedTab$ | async) == 'INFO_WARENKORB'"
         [class.selected]="(selectedTab$ | async) == 'INFO_WARENKORB'"
-        (click)="selectTab$.emit('INFO_WARENKORB')"
-        >
+        (click)="selectTab$.emit('INFO_WARENKORB')">
         <pef-icon name="zusatzinfo"></pef-icon>
     </button>
     <button ion-button icon-only class="pef-tab-button"
         [disabled]="(selectedTab$ | async) == 'PREISMELDUNG_INFO' || !(preismeldung$ | async).refPreismeldung"
         [class.selected]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
-        (click)="selectTab$.emit('PREISMELDUNG_INFO')"
-        >
+        (click)="selectTab$.emit('PREISMELDUNG_INFO')">
         <pef-icon name="price_tag_info"></pef-icon>
     </button>
     <button ion-button icon-only class="pef-tab-button"
         [disabled]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES' || !(hasAttributes$ | async)"
         [class.selected]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
-        (click)="selectTab$.emit('PRODUCT_ATTRIBUTES')"
-        >
-        <pef-icon name="price_tag"></pef-icon>
+        (click)="selectTab$.emit('PRODUCT_ATTRIBUTES')">
+        <div class="tab-icon-with-warning">
+            <pef-icon name="price_tag"></pef-icon>
+            <pef-icon class="warning-icon" [name]="'warning'" *ngIf="(preismeldung$ | async).hasAttributeWarning"></pef-icon>
+        </div>
     </button>
     <button ion-button icon-only class="pef-tab-button"
         [disabled]="(selectedTab$ | async) == 'MESSAGES'"
         [class.selected]="(selectedTab$ | async) == 'MESSAGES'"
-        (click)="selectTab$.emit('MESSAGES')"
-        >
+        (click)="selectTab$.emit('MESSAGES')">
         <div class="tab-icon-with-warning">
             <pef-icon name="produkteigenschaften"></pef-icon>
             <pef-icon class="warning-icon" [name]="'warning'" *ngIf="(preismeldung$ | async).hasMessageToCheck"></pef-icon>
@@ -36,8 +35,7 @@
     <button ion-button icon-only class="pef-tab-button"
         [disabled]="(selectedTab$ | async) == 'PREISMELDUNG'"
         [class.selected]="(selectedTab$ | async) == 'PREISMELDUNG'"
-        (click)="selectTab$.emit('PREISMELDUNG')"
-        >
+        (click)="selectTab$.emit('PREISMELDUNG')">
         <div class="tab-icon-with-warning">
             <pef-icon name="notification"></pef-icon>
             <pef-icon class="warning-icon" [name]="'warning'" *ngIf="(preismeldung$ | async).hasPriceWarning"></pef-icon>

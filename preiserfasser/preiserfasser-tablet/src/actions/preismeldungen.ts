@@ -26,8 +26,10 @@ export type Actions =
     { type: 'SELECT_PREISMELDUNG', payload: string } |
     { type: 'UPDATE_PREISMELDUNG_PRICE', payload: PreismeldungPricePayload } |
     { type: 'UPDATE_PREISMELDUNG_MESSAGES', payload: PreismeldungMessagesPayload } |
+    { type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload: string[] } |
     { type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; saveAction: SavePreismeldungPriceSaveAction } } |
     { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort } } |
     { type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload: P.Models.Preismeldung } |
+    { type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload: P.Models.Preismeldung } |
     { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 } |
     { type: 'NEW_PREISMELDUNG', payload: { pmsNummer: string; bearbeitungscode: number; warenkorbPosition: P.Models.WarenkorbLeaf } };
