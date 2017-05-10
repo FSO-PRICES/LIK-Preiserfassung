@@ -25,7 +25,7 @@ export class StatisticsEffects {
         .flatMap(db => db.allDocs(assign({}, getAllDocumentsForPrefix('pm-ref'), { include_docs: true })).then(res => {
             const refPreismeldungen = res.rows.map(y => y.doc) as P.PreismeldungReference[];
             const pmsRefPreismeldungen = groupBy(refPreismeldungen, p => p.pmsNummer);
-            return { db, pmsRefPreismeldungenTotals: mapValues(pmsRefPreismeldungen, value => ({ totalCount: value.length })) as { [pmsNummer: number]: { totalCount: number } } };
+            return { db, pmsRefPreismeldungenTotals: mapValues(pmsRefPreismeldungen, value => ({ downloadedCount: value.length })) as { [pmsNummer: number]: { downloadedCount: number } } };
         }))
         .flatMap(({ db, pmsRefPreismeldungenTotals }) => db.allDocs(assign({}, getAllDocumentsForPrefix('pm'), { include_docs: true }))
             .then(res => {
@@ -42,7 +42,9 @@ export class StatisticsEffects {
                 });
 
                 return mapValues(pmsRefPreismeldungenTotals, (v: any, pmsNummer) => {
-                    return pmsPreismeldungenStatistics[pmsNummer] || { totalCount: v.totalCount, uploadedCount: 0, openSavedCount: 0, openUnsavedCount: v.totalCount };
+                    return pmsPreismeldungenStatistics[pmsNummer]
+                        ? assign({}, v, pmsPreismeldungenStatistics[pmsNummer])
+                        : { downloadedCount: v.downloadedCount, totalCount: v.downloadedCount, uploadedCount: 0, openSavedCount: 0, openUnsavedCount: v.downloadedCount };
                 });
             })
         )

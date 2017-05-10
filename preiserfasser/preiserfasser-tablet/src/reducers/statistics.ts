@@ -3,6 +3,7 @@ import { assign, values } from 'lodash';
 import * as statistics from '../actions/statistics';
 
 export interface PreismeldestelleStatistics {
+    downloadedCount: number;
     totalCount: number;
     uploadedCount: number;
     openSavedCount: number;
@@ -25,12 +26,13 @@ export function reducer(state = initialState, action: statistics.Action): State 
             const statistics = action.payload;
             const total = values(statistics).reduce(
                 (agg, pmsStatistics) => ({
+                    downloadedCount: agg.downloadedCount + pmsStatistics.downloadedCount,
                     totalCount: agg.totalCount + pmsStatistics.totalCount,
                     uploadedCount: agg.uploadedCount + pmsStatistics.uploadedCount,
                     openSavedCount: agg.openSavedCount + pmsStatistics.openSavedCount,
                     openUnsavedCount: agg.openUnsavedCount + pmsStatistics.openUnsavedCount,
                 }),
-                { totalCount: 0, uploadedCount: 0, openSavedCount: 0, openUnsavedCount: 0 }
+                { downloadedCount: 0, totalCount: 0, uploadedCount: 0, openSavedCount: 0, openUnsavedCount: 0 }
             );
             return assign({}, state, { pmsStatistics: assign({}, action.payload, { total }) });
         }

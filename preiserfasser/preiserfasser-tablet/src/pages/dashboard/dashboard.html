@@ -99,6 +99,11 @@
             <div class="statistics">
                 <ion-content>
                     <div class="row">
+                        <pef-icon name="download"></pef-icon>
+                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.downloadedCount }}</div>
+                        <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
+                    </div>
+                    <div class="row">
                         <pef-icon name="upload"></pef-icon>
                         <div class="number">{{ (preismeldungenStatistics$ | async)?.total.uploadedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
