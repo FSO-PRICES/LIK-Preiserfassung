@@ -65,14 +65,14 @@
                                 <div class="pms-cell-content"></div>
                             </div>
                             <div class="pms-cell pms-open-unsaved">
-                                <div class="pms-cell-content">{{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'openUnsavedCount') | async }}</div>
+                                <div class="pms-cell-content">{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.openUnsavedCount }}</div>
                             </div>
                             <div class="pms-cell pms-open-saved">
-                                <div class="pms-cell-content">{{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'openSavedCount') | async }}</div>
+                                <div class="pms-cell-content">{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.openSavedCount }}</div>
                             </div>
                             <div class="pms-cell pms-uploaded">
-                                <div class="pms-cell-content" [class.completed-pms]="isPreismeldestelleCompleted(preismeldestelle.pmsNummer) | async">
-                                    {{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'uploadedCount') | async }}/{{ getPreismeldestelleStatistics(preismeldestelle.pmsNummer, 'totalCount') | async }}
+                                <div class="pms-cell-content" [class.completed-pms]="isPreismeldestelleCompleted(preismeldestelle)">
+                                    {{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.uploadedCount }}/{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.totalCount }}
                                 </div>
                             </div>
                             <div class="pms-cell pms-actions">
@@ -99,11 +99,6 @@
             <div class="statistics">
                 <ion-content>
                     <div class="row">
-                        <pef-icon name="download"></pef-icon>
-                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.totalCount }}</div>
-                        <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
-                    </div>
-                    <div class="row">
                         <pef-icon name="upload"></pef-icon>
                         <div class="number">{{ (preismeldungenStatistics$ | async)?.total.uploadedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
@@ -126,7 +121,7 @@
                     <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount }}</div>
                     <div class="text">{{ 'text_preismeldung_erfasste' | translate }}</div>
                 </div>
-                <button ion-button type="button" (click)="uploadPreismeldungenClicked$.emit($event)" [disabled]="!(canConnectToDatabase$ | async) || !(hasOpenSavedPreismeldungen() | async)">{{ 'btn_upload-now' | translate }}</button>
+                <button ion-button type="button" (click)="uploadPreismeldungenClicked$.emit($event)" [disabled]="!(canConnectToDatabase$ | async) || !(hasOpenSavedPreismeldungen$ | async)">{{ 'btn_upload-now' | translate }}</button>
             </div>
         </div>
     </div>

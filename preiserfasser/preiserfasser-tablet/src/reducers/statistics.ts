@@ -1,15 +1,22 @@
-import { assign, values, merge } from 'lodash';
+import { assign, values } from 'lodash';
 
 import * as statistics from '../actions/statistics';
 
-export type PreismeldungenStatistics = { [pmsNummer: number]: { totalCount: number, uploadedCount?: number, openSavedCount?: number, openUnsavedCount?: number } } & { total?: { totalCount: number, uploadedCount?: number, openSavedCount?: number, openUnsavedCount?: number } }
+export interface PreismeldestelleStatistics {
+    totalCount: number;
+    uploadedCount: number;
+    openSavedCount: number;
+    openUnsavedCount: number;
+}
+
+export type PreismeldestelleStatisticsMap = { [pmsNummer: string]: PreismeldestelleStatistics } & { total?: PreismeldestelleStatistics };
 
 export interface State {
-    preismeldungen: PreismeldungenStatistics;
+    pmsStatistics: PreismeldestelleStatisticsMap;
 };
 
 const initialState: State = {
-    preismeldungen: undefined
+    pmsStatistics: undefined
 };
 
 export function reducer(state = initialState, action: statistics.Action): State {
@@ -17,16 +24,15 @@ export function reducer(state = initialState, action: statistics.Action): State 
         case 'PREISMELDUNG_STATISTICS_LOAD_SUCCESS': {
             const statistics = action.payload;
             const total = values(statistics).reduce(
-                (total, bag) => {
-                    total.totalCount = (total.totalCount || 0) + (bag.totalCount || 0);
-                    total.uploadedCount = (total.uploadedCount || 0) + (bag.uploadedCount || 0);
-                    total.openSavedCount = (total.openSavedCount || 0) + (bag.openSavedCount || 0);
-                    total.openUnsavedCount = (total.openUnsavedCount || 0) + (bag.openUnsavedCount || 0);
-                    return total;
-                },
-                {} as any
+                (agg, pmsStatistics) => ({
+                    totalCount: agg.totalCount + pmsStatistics.totalCount,
+                    uploadedCount: agg.uploadedCount + pmsStatistics.uploadedCount,
+                    openSavedCount: agg.openSavedCount + pmsStatistics.openSavedCount,
+                    openUnsavedCount: agg.openUnsavedCount + pmsStatistics.openUnsavedCount,
+                }),
+                { totalCount: 0, uploadedCount: 0, openSavedCount: 0, openUnsavedCount: 0 }
             );
-            return assign({}, state, { preismeldungen: assign({}, action.payload, { total }) });
+            return assign({}, state, { pmsStatistics: assign({}, action.payload, { total }) });
         }
 
         case 'PREISMELDUNG_STATISTICS_RESET': {
@@ -38,4 +44,4 @@ export function reducer(state = initialState, action: statistics.Action): State 
     }
 }
 
-export const getPreismeldungenStatistics = (state: State) => state.preismeldungen;
+export const getPreismeldungenStatistics = (state: State) => state.pmsStatistics;

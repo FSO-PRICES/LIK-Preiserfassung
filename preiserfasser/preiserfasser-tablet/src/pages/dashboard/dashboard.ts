@@ -19,7 +19,7 @@ import { SettingsPage } from '../settings/settings';
 
 import { Action as StatisticsAction } from '../../actions/statistics';
 import { Actions as DatabaseAction } from '../../actions/database';
-import { PreismeldungenStatistics } from '../../reducers/statistics';
+import { PreismeldestelleStatistics, PreismeldestelleStatisticsMap } from '../../reducers/statistics';
 
 @Component({
     selector: 'dashboard',
@@ -44,7 +44,8 @@ export class DashboardPage implements OnDestroy {
     private subscriptions: Subscription[];
 
     public erhebungsmonat$: Observable<Date>;
-    public preismeldungenStatistics$: Observable<PreismeldungenStatistics>;
+    public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
+    public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
 
     constructor(
@@ -84,7 +85,7 @@ export class DashboardPage implements OnDestroy {
             );
 
         this.erhebungsmonat$ = Observable.of(new Date()); // TODO: This should not be the current date
-        this.preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics).filter(x => !!x);
+        this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
         this.canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase)
             .filter(x => x !== null)
             .startWith(false)
@@ -137,16 +138,5 @@ export class DashboardPage implements OnDestroy {
         this.navCtrl.setRoot(SettingsPage, {}, { animate: true, direction: 'forward' }).catch(() => { });
     }
 
-    getPreismeldestelleStatistics(pmsNummer: number, field: string) {
-        return this.preismeldungenStatistics$.map(statistics => !!statistics[pmsNummer] ? statistics[pmsNummer][field] || 0 : 0);
-    }
-
-    isPreismeldestelleCompleted(pmsNummer) {
-        return this.getPreismeldestelleStatistics(pmsNummer, 'totalCount')
-            .withLatestFrom(this.getPreismeldestelleStatistics(pmsNummer, 'uploadedCount'), (totalCount, uploadedCount) => uploadedCount >= totalCount);
-    }
-
-    hasOpenSavedPreismeldungen() {
-        return this.preismeldungenStatistics$.map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
-    }
+    public isPreismeldestelleCompleted = (preismeldestelleStatistics: PreismeldestelleStatistics) => preismeldestelleStatistics.uploadedCount >= preismeldestelleStatistics.totalCount;
 }

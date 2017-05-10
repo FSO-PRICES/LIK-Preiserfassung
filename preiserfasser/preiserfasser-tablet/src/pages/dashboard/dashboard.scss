@@ -136,19 +136,19 @@ dashboard {
         position: relative;
 
         &.pms-name {
-            width: calc(100% - (3 * 3em + 6em + 4.25em));
+            width: calc(100% - (3 * 3.5em + 6em + 4.25em));
             .pms-header-cell-content {
                 @include set-padding-left(1);
             }
         }
         &.pms-flag {
-            width: 3em;
+            width: 3.5em;
         }
         &.pms-open-unsaved {
-            width: 3em;
+            width: 3.5em;
         }
         &.pms-open-saved {
-            width: 3em;
+            width: 3.5em;
         }
         &.pms-uploaded {
             width: 6em;
@@ -201,7 +201,7 @@ dashboard {
         position: relative;
 
         &.pms-name {
-            flex: 0 1 calc(100% - (3 * 3em + 6em + 4.25em));
+            flex: 0 1 calc(100% - (3 * 3.5em + 6em + 4.25em));
             .pms-cell-content {
                 @include set-padding-left(1);
                 color: $blue-chill;
@@ -209,13 +209,13 @@ dashboard {
             }
         }
         &.pms-flag {
-            flex: 0 1 3em;
+            flex: 0 1 3.5em;
         }
         &.pms-open-unsaved {
-            flex: 0 1 3em;
+            flex: 0 1 3.5em;
         }
         &.pms-open-saved {
-            flex: 0 1 3em;
+            flex: 0 1 3.5em;
         }
         &.pms-uploaded {
             flex: 0 1 6em;
@@ -266,7 +266,7 @@ dashboard {
             flex-direction: row;
 
             .number {
-                flex: 0 1 3em;
+                flex: 0 1 4.5em;
                 font-weight: 500;
                 text-align: right;
                 padding-right: 1em;
