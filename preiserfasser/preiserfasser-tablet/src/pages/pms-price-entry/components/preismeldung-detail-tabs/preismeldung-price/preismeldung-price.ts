@@ -265,7 +265,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_abnormale_preisentwicklung_bestätigt' });
                 }
                 if ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer) {
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false).map(res => ({ type: res.data === 'YES' ? 'JUST_SAVE' : 'CANCEL' }));
+                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false)
+                        .map(res => res.data === 'YES' ? { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_artikeltext_unverändert_bestätigt' } : { type: 'CANCEL' });
                 }
                 if (this.form.value.bearbeitungscode === 101 && /^R$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 2) {
                     return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_rrr-message-mit-aufforderung-zu-produktersatz'), false)
