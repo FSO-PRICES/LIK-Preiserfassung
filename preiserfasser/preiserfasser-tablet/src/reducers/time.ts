@@ -1,17 +1,26 @@
 import * as time from '../actions/time';
+import { assign } from 'lodash';
+import { startOfDay, differenceInMilliseconds, addMilliseconds } from 'date-fns';
 
 export interface State {
     currentTime: Date;
+    mockDate: Date;
+    erhebungsMonat: Date;
 }
 
 const initialState: State = {
-    currentTime: new Date()
+    currentTime: new Date(),
+    mockDate: null,
+    // mockDate: new Date(2017, 4, 17),
+    erhebungsMonat: null
 };
 
 export function reducer(state = initialState, action: time.Actions): State {
     switch (action.type) {
-        case 'TIME_SET':
-            return { currentTime: action.payload };
+        case 'TIME_SET': {
+            const diff = !state.mockDate ? 0 : differenceInMilliseconds(state.mockDate, startOfDay(action.payload));
+            return assign({}, state, { currentTime: addMilliseconds(action.payload, diff) });
+        }
 
         default:
             return state;
