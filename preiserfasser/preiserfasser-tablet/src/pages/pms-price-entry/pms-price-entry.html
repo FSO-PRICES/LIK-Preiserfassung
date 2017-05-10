@@ -15,6 +15,7 @@
                 <preismeldung-info-warenkorb
                     [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
                     [preismeldung]="currentPreismeldung$ | async"
+                    [warenkorb]="warenkorb$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
                 <preismeldung-info
                     [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"

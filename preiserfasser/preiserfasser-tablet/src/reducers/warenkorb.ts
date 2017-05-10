@@ -1,5 +1,5 @@
 import * as P from '../common-models';
-import { assign, sortBy } from 'lodash';
+import { sortBy } from 'lodash';
 
 export type WarenkorbInfo = {
     warenkorbItem: P.Models.WarenkorbTreeItem;

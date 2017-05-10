@@ -23,6 +23,17 @@
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
     "validation_produktMerkmale_erfassen": "Bitte Produktmerkmale erfassen",
 
+    "label_info-warenkorb_standardmenge": "Standardmenge",
+    "label_info-warenkorb_info": "Info",
+    "label_info-warenkorb_beispiele": "Beispiele",
+    "label_info-warenkorb_periodizitaet": "Periodizität",
+    "label_info-warenkorb_preismeldung-wird-erhoben-im": "Preismeldung wird ehoben im",
+    "label_info-warenkorb_erfassungszeitraum": "Erfassungszeitraum",
+    "label_info-warenkorb_position-im-warenkorb": "Position im Warenkorb",
+    "label_info-warenkorb_erlaubte-normalpreisentwicklung": "Erlaubte Normalpreisentwicklung",
+    "label_info-warenkorb_code": "Code",
+    "label_info-warenkorb_anzahl-preismeldungen": "Anzahl Preismeldungen (Aktuell/Vorgabe)",
+
     "kommentar-autotext_steigender_aktionspreis_bestätigt": "Steigender Aktionspreis bestätigt",
     "kommentar-autotext_normalpreis_billiger": "Akteuller Normalpreis billiger als Aktionspreis VP",
     "kommentar-autotext_keine_ersatzprodukte": "Keine Ersatzprodukte in Sortiment vorhanden",
