@@ -43,7 +43,7 @@ export class ImporterEffects {
         .flatMap(payload => dropDatabase('warenkorb').then(_ => payload))
         .flatMap(payload => getDatabase('warenkorb').then(db => db.put({ _id: 'warenkorb', products: payload })
             .then<P.WarenkorbDocument>(_ => db.get('warenkorb'))))
-        .flatMap(warenkorb => this.updateImportMetadata(importer.Type.warenkorb).mapTo(warenkorb))
+        .flatMap(warenkorb => this.updateImportMetadata(importer.Type.warenkorb).map(() => warenkorb))
         .map(warenkorb => ({ type: 'IMPORT_WARENKORB_SUCCESS', payload: warenkorb } as importer.Action));
 
     @Effect()
@@ -52,25 +52,24 @@ export class ImporterEffects {
         .map(action => preparePms(action.payload))
         .flatMap(x => dropDatabase(dbNames.preismeldestelle).then(_ => x).catch(_ => x))
         .flatMap(x => getDatabase(dbNames.preismeldestelle).then(db => ({ preismeldestellen: x, db })).catch(_ => ({ preismeldestellen: x, db: <PouchDB.Database<PouchDB.Core.Encodable>>null })))
-        .flatMap(({ preismeldestellen, db }) => Observable.fromPromise(db.bulkDocs(preismeldestellen).then(_ => preismeldestellen)))
-        .flatMap(preismeldestellen => this.updateImportMetadata(importer.Type.preismeldestellen).mapTo(preismeldestellen))
-        .map(preismeldestellen => ({ type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: preismeldestellen } as importer.Action));
+        .flatMap(({ preismeldestellen, db }) => db.bulkDocs(preismeldestellen).then(_ => preismeldestellen))
+        .flatMap(preismeldestellen => this.updateImportMetadata(importer.Type.preismeldestellen).map(() => preismeldestellen))
+        .map(preismeldestellen => ({ type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: preismeldestellen } as importer.Action))
 
     @Effect()
     importPreismeldungen$ = this.actions$.ofType('IMPORT_PREISMELDUNGEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => preparePm(action.payload))
-        .flatMap(x => dropLocalDatabase(dbNames.preismeldung).then(_ => x).catch(_ => x))
-        .flatMap(x => getLocalDatabase(dbNames.preismeldung).then(db => ({ preismeldungen: x, db })).catch(_ => ({ preismeldungen: x, db: <PouchDB.Database<PouchDB.Core.Encodable>>null })))
-        .flatMap(({ preismeldungen, db }) =>
-            Observable.from(
-                chunk(preismeldungen, 6000).map(preismeldungenBatch => db.bulkDocs(preismeldungenBatch).then(_ => preismeldungenBatch.length))
-            )
+        .flatMap(pmInfo => dropLocalDatabase(dbNames.preismeldung).then(_ => pmInfo).catch(_ => pmInfo))
+        .flatMap(pmInfo => getLocalDatabase(dbNames.preismeldung).then(db => ({ pmInfo, db })).catch(_ => ({ pmInfo, db: <PouchDB.Database<PouchDB.Core.Encodable>>null })))
+        .flatMap(({ pmInfo, db }) =>
+            Observable.from(chunk(pmInfo.preismeldungen, 6000).map(preismeldungenBatch => db.bulkDocs(preismeldungenBatch).then(_ => preismeldungenBatch.length)))
                 .combineAll()
-                .mapTo(preismeldungen)
+                .map(() => ({ pmInfo, db }))
         )
-        .flatMap(preismeldungen => this.updateImportMetadata(importer.Type.preismeldungen).mapTo(preismeldungen))
-        .flatMap(x => Observable.fromPromise(syncDb('preismeldungen').then(() => x)))
+        .flatMap(({ pmInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmInfo.erhebungsmonat }).then(() => pmInfo.preismeldungen))
+        .flatMap(preismeldungen => this.updateImportMetadata(importer.Type.preismeldungen).map(() => preismeldungen))
+        .flatMap(preismeldungen => syncDb('preismeldungen').then(() => preismeldungen))
         .map(preismeldungen => ({ type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: preismeldungen } as importer.Action));
 
     @Effect()

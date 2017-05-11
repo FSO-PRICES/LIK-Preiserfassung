@@ -45,7 +45,7 @@ const importPmsFromPrestaIndexes = {
 };
 
 const importPmFromPrestaIndexes = {
-    erhebungsMonat: 0,
+    erhebungsmonat: 0,
     preissubsystem: 1,
     schemanummer: 2,
     pmsNummer: 3,
@@ -133,10 +133,11 @@ export function preparePms(lines: string[][]) {
     });
 }
 
-export function preparePm(lines: string[][]) {
-    return lines.map(cells => {
-        return <P.PreismeldungReference>{
+export function preparePm(lines: string[][]): { erhebungsmonat: string, preismeldungen: P.PreismeldungReference[]} {
+    const preismeldungen = lines
+        .map(cells => ({
             _id: preismeldungRefUri({ pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer], epNummer: cells[importPmFromPrestaIndexes.epNummer], laufnummer: cells[importPmFromPrestaIndexes.laufnummer] }),
+            _rev: undefined,
             pmId: preismeldungUri({ pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer], epNummer: cells[importPmFromPrestaIndexes.epNummer], laufnummer: cells[importPmFromPrestaIndexes.laufnummer] }),
             pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer],
             epNummer: cells[importPmFromPrestaIndexes.epNummer],
@@ -151,7 +152,6 @@ export function preparePm(lines: string[][]) {
             preisVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.preisVorReduktion]),
             mengeVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.mengeVorReduktion]),
             fehlendePreiseR: cells[importPmFromPrestaIndexes.fehlendePreisR],
-            // istPreisreiheZuBeenden: cells[importFromPrestaIndexes.istPreisreiheZuBeenden] === '1',
             erhebungsZeitpunkt: <P.Erhebungszeitpunkt>parseInt(cells[importPmFromPrestaIndexes.erhebungsZeitpunkt], 10),
             sortierungsnummer: parseInt(cells[importPmFromPrestaIndexes.sortierungsnummer], 10),
             erhebungsAnfangsDatum: cells[importPmFromPrestaIndexes.erhebungsAnfangsDatum],
@@ -161,8 +161,10 @@ export function preparePm(lines: string[][]) {
             artikeltext: cells[importPmFromPrestaIndexes.text],
             notiz: cells[importPmFromPrestaIndexes.notiz],
             bemerkungen: cells[importPmFromPrestaIndexes.bemerkungen]
-        };
-    });
+        }));
+
+    const erhebungsmonat = lines[0] ? lines[0][importPmFromPrestaIndexes.erhebungsmonat] : '';
+    return { preismeldungen, erhebungsmonat };
 }
 
 export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P.PreismeldungReferenceProperties & P.PmsPreismeldungenSortProperties)[]) {

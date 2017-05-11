@@ -3,6 +3,7 @@ import * as PouchDB from 'pouchdb';
 import * as PouchDBAllDbs from 'pouchdb-all-dbs';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
 import { Observable } from 'rxjs';
+import { assign } from 'lodash';
 
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
@@ -31,6 +32,10 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
         startkey: `${prefix}/`,
         endkey: `${prefix}/\uffff`
     };
+}
+
+export function getAllDocumentsForPrefixFromDb(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string) {
+    return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc));
 }
 
 export const checkIfDatabaseExists = () => _checkIfDatabaseExists(DB_NAME);

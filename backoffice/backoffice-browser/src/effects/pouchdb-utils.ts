@@ -3,8 +3,7 @@ import * as PouchDBAllDbs from 'pouchdb-all-dbs';
 import * as PouchDB from 'pouchdb';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
 import { Observable } from 'rxjs';
-import { first } from 'lodash';
-import * as xhr from 'xhr';
+import { first, assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
@@ -54,9 +53,7 @@ export function putUserToDatabase(dbName, users: P.CouchSecurity) {
         getSettings().then(settings => Observable.ajax({
             url: `${settings.serverConnection.url}/${dbName}/_security`,
             body: users,
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             crossDomain: true,
             withCredentials: true,
             responseType: 'json',
@@ -78,6 +75,14 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
         startkey: `${prefix}`,
         endkey: `${prefix}\uffff`
     };
+}
+
+export function getAllDocumentsForPrefixFromDb(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string) {
+    return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc));
+}
+
+export function clearRev<T>(o: T): T {
+    return assign({}, o, { _rev: undefined });
 }
 
 export const checkIfDatabaseExists = (dbName) => _checkIfDatabaseExists(dbName);

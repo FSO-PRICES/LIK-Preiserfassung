@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { assign } from 'lodash';
+import { assign, flatten } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
-import { dropDatabase, getAllDocumentsForPrefix, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName } from './pouchdb-utils';
+import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefixFromDb, clearRev } from './pouchdb-utils';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import * as preiszuweisung from '../actions/preiszuweisung';
 import { CurrentPreiszuweisung } from '../reducers/preiszuweisung';
@@ -25,45 +25,23 @@ export class PreiserheberInitializationEffects {
     createUserDatabase$ = this.actions$.ofType('CREATE_USER_DATABASE')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action => getDatabase(dbNames.preiserheber).then(db => ({ currentPreiszuweisung: <CurrentPreiszuweisung>action.payload, db })))
-        .flatMap(({ currentPreiszuweisung, db }) => db.get(currentPreiszuweisung.preiserheberId).then(doc => ({ preiserheber: <P.Erheber>doc, currentPreiszuweisung })))
+        .flatMap(({ currentPreiszuweisung, db }) => db.get(currentPreiszuweisung.preiserheberId).then(doc => ({ preiserheber: clearRev(doc) as P.Erheber, currentPreiszuweisung })))
         .flatMap(data => dropDatabase(getUserDatabaseName(data.preiserheber)).then(db => data))
-        .flatMap(({ preiserheber, currentPreiszuweisung }) =>
-            Observable.from(
-                currentPreiszuweisung.preismeldestellen.length === 0 ?
-                    [Promise.resolve([])] :
-                    currentPreiszuweisung.preismeldestellen.map(pms =>
-                        getDatabase(dbNames.preismeldung).then(db =>
-                            db.allDocs(Object.assign({}, { include_docs: true }, getAllDocumentsForPrefix(`pm-ref/${pms.pmsNummer}`)))
-                        ).then(result => result.rows.map(row => Object.assign({}, row.doc, { _rev: undefined })) as P.Preismeldung[])
-                    )
-            )
-                .combineAll<Promise<P.Preismeldung[]>, P.Preismeldung[][]>()
-                .flatMap(allProducts =>
-                    getDatabase(dbNames.warenkorb)
-                        .then(warenkorbDb =>
-                            warenkorbDb.get('warenkorb')
-                                .then(doc => assign({}, doc, { _rev: undefined }))
-                                .then(warenkorb =>
-                                    getDatabase(getUserDatabaseName(preiserheber)).then(db => {
-                                        const erheber = Object.assign({}, preiserheber, { _id: 'erheber', _rev: undefined });
-                                        const products = allProducts.reduce((acc, x) => acc.concat(x), []);
-                                        return db.bulkDocs(<any>{
-                                            docs: [
-                                                erheber,
-                                                ...currentPreiszuweisung.preismeldestellen,
-                                                ...products,
-                                                warenkorb
-                                            ]
-                                        });
-                                    })
-                                )
-                        )
-                        .then(() => ({ preiserheber, currentPreiszuweisung }))
-                )
-        )
-        .flatMap(({ preiserheber, currentPreiszuweisung }) =>
-            putUserToDatabase(getUserDatabaseName(preiserheber), { members: { names: [preiserheber._id] } })
-                .map(() => currentPreiszuweisung)
-        )
+        .flatMap(x => getPreismeldungenAndErhebungsMonat(x.currentPreiszuweisung.preismeldestellen.map(p => p.pmsNummer)).map(pmData => assign(x, pmData)))
+        .flatMap(x => getDatabase(dbNames.warenkorb).then(warenkorbDb => warenkorbDb.get('warenkorb')).then(doc => clearRev(doc) as P.WarenkorbDocument).then(warenkorb => assign(x, { warenkorb })))
+        .flatMap(x => getDatabase(getUserDatabaseName(x.preiserheber)).then(db => db.bulkDocs({ docs: [x.erhebungsmonat, x.preiserheber, ...x.currentPreiszuweisung.preismeldestellen, ...x.preismeldungen, x.warenkorb] } as any)).then(() => x))
+        .flatMap(({ preiserheber, currentPreiszuweisung }) => putUserToDatabase(getUserDatabaseName(preiserheber), { members: { names: [preiserheber._id] } }) .map(() => currentPreiszuweisung))
         .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action));
+}
+
+function getPreismeldungenAndErhebungsMonat(pmsNummers: string[]) {
+    const preismeldungen$ = Observable.fromPromise(getDatabase(dbNames.preismeldung))
+        .flatMap(db =>
+            Observable.from(pmsNummers.map(pmsNummer => getAllDocumentsForPrefixFromDb(db, `pm-ref/${pmsNummer}`) as Promise<P.Preismeldung[]>))
+                .combineAll<Promise<P.Preismeldung[]>, P.Preismeldung[][]>()
+                .map(preismeldungenArray => flatten(preismeldungenArray).map(pm => clearRev(pm)))
+        );
+    return Observable.fromPromise(getDatabase(dbNames.preismeldung))
+        .flatMap(db => db.get('erhebungsmonat').then(doc => clearRev(doc) as P.Erhebungsmonat))
+        .flatMap(erhebungsmonat => preismeldungen$.map(preismeldungen => ({ erhebungsmonat, preismeldungen })));
 }

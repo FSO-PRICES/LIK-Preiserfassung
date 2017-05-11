@@ -77,3 +77,4 @@ export const getCurrentSettings = createSelector(getSettingsState, fromSettings.
 
 export const getStatisticsState = (state: AppState) => state.statistics;
 export const getPreismeldungenStatistics = createSelector(getStatisticsState, fromStatistics.getPreismeldungenStatistics);
+export const getErhebungsmonat = createSelector(getStatisticsState, fromStatistics.getErhebungsmonat);

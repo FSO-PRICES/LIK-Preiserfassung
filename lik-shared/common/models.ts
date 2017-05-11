@@ -60,6 +60,11 @@ export interface AdvancedPresimeldestelleProperties {
     erhebungsartComment: string;
 }
 
+export interface ErhebungsmonatProperties {
+    _id: 'erhebongsmonat';
+    monthAsString: string;
+}
+
 export const preismeldungReferenceUriRoute = 'pm-ref/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
 export const preismeldungUriRoute = 'pm/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
 export const preismeldungPmsPrefixUriRoute = 'pm/:pmsNummer';
@@ -69,6 +74,7 @@ export interface PreismeldungUri {
     laufnummer: string;
 }
 
+// tslint:disable-next-line:class-name
 interface _PreismeldungReferenceProperties {
     pmId: string;
 
@@ -115,6 +121,7 @@ export const bearbeitungscodeDescriptions = {
 
 export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
 
+// tslint:disable-next-line:class-name
 interface _PreismeldungProperties {
     preis?: string;
     menge?: string;
@@ -154,6 +161,7 @@ export interface CouchProperties {
     _rev: string;
 }
 
+export type Erhebungsmonat = ErhebungsmonatProperties & CouchProperties;
 export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
 export type PmsPreismeldungenSort = PmsPreismeldungenSortProperties & CouchProperties;
 export type AdvancedPreismeldestelle = PreismeldestelleProperties & AdvancedPresimeldestelleProperties & CouchProperties;
@@ -161,7 +169,7 @@ export type Erheber = ErheberProperties & CouchProperties;
 export type PreismeldungReference = PreismeldungReferenceProperties & CouchProperties;
 export type Preismeldung = PreismeldungProperties & CouchProperties;
 
-export type PmsToPeMap = {erheber: Erheber, preismeldestellen: Preismeldestelle[]}[]
+export type PmsToPeMap = { erheber: Erheber, preismeldestellen: Preismeldestelle[] }[];
 
 export interface PropertyTranslation {
     de: string;
@@ -171,7 +179,7 @@ export interface PropertyTranslation {
 
 export interface WarenkorbTreeItemBase {
     gliederungspositionsnummer: string;
-    parentGliederungspositionsnummer: string
+    parentGliederungspositionsnummer: string;
     produktecode: string;
     gliederungspositionstyp: number;
     tiefencode: number;

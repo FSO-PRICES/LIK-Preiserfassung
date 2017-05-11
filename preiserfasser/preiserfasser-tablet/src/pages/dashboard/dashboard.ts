@@ -5,7 +5,7 @@ import { TranslateService } from 'ng2-translate';
 import { Subscription, Observable } from 'rxjs';
 import { assign } from 'lodash';
 
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import * as deLocale from 'date-fns/locale/de';
 // import * as frLocale from 'date-fns/locale/fr';
 
@@ -19,7 +19,7 @@ import { SettingsPage } from '../settings/settings';
 
 import { Action as StatisticsAction } from '../../actions/statistics';
 import { Actions as DatabaseAction } from '../../actions/database';
-import { PreismeldestelleStatistics, PreismeldestelleStatisticsMap } from '../../reducers/statistics';
+import { PreismeldestelleStatistics } from '../../reducers/statistics';
 
 @Component({
     selector: 'dashboard',
@@ -43,8 +43,13 @@ export class DashboardPage implements OnDestroy {
 
     private subscriptions: Subscription[];
 
-    public erhebungsmonat$: Observable<Date>;
     public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
+    public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat)
+        .filter(x => !!x)
+        .map(x => {
+            const parts = x.split('.');
+            return parse(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        });
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
 
@@ -84,8 +89,7 @@ export class DashboardPage implements OnDestroy {
                 .filter(exists => exists === false)
             );
 
-        this.erhebungsmonat$ = Observable.of(new Date()); // TODO: This should not be the current date
-        this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
+        this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
         this.canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase)
             .filter(x => x !== null)
             .startWith(false)

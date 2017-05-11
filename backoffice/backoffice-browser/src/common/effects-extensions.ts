@@ -5,7 +5,7 @@ export function continueOnlyIfTrue<T>(checkingObservable$: Observable<boolean>) 
         .switchMap(action => checkingObservable$
             .filter(check => check !== null && !!check)
             .take(1)
-            .mapTo(action)
+            .map(() => action)
         );
 }
 

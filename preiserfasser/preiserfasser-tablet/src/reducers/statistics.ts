@@ -14,17 +14,19 @@ export type PreismeldestelleStatisticsMap = { [pmsNummer: string]: Preismeldeste
 
 export interface State {
     pmsStatistics: PreismeldestelleStatisticsMap;
+    erhebungsmonat: string;
 };
 
 const initialState: State = {
-    pmsStatistics: undefined
+    pmsStatistics: undefined,
+    erhebungsmonat: undefined
 };
 
 export function reducer(state = initialState, action: statistics.Action): State {
     switch (action.type) {
         case 'PREISMELDUNG_STATISTICS_LOAD_SUCCESS': {
-            const statistics = action.payload;
-            const total = values(statistics).reduce(
+            const { preismeldestelleStatistics } = action.payload;
+            const total = values(preismeldestelleStatistics).reduce(
                 (agg, pmsStatistics) => ({
                     downloadedCount: agg.downloadedCount + pmsStatistics.downloadedCount,
                     totalCount: agg.totalCount + pmsStatistics.totalCount,
@@ -34,7 +36,7 @@ export function reducer(state = initialState, action: statistics.Action): State 
                 }),
                 { downloadedCount: 0, totalCount: 0, uploadedCount: 0, openSavedCount: 0, openUnsavedCount: 0 }
             );
-            return assign({}, state, { pmsStatistics: assign({}, action.payload, { total }) });
+            return assign({}, state, { pmsStatistics: assign({}, action.payload.preismeldestelleStatistics, { total }), erhebungsmonat: action.payload.monthAsString });
         }
 
         case 'PREISMELDUNG_STATISTICS_RESET': {
@@ -47,3 +49,4 @@ export function reducer(state = initialState, action: statistics.Action): State 
 }
 
 export const getPreismeldungenStatistics = (state: State) => state.pmsStatistics;
+export const getErhebungsmonat = (state: State) => state.erhebungsmonat;
