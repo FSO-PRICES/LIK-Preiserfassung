@@ -151,10 +151,11 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'SAVE_PREISMELDUNG_PRICE_SUCCESS': {
             const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false, lastSaveAction: action.payload.saveAction });
 
+            const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung.pmId);
+            const nextId = index === state.preismeldungIds.length - 1 ? null : state.preismeldungIds[index + 1];
+
             let nextPreismeldung;
-            if (action.payload.saveAction.type === 'SAVE_AND_MOVE_TO_NEXT') {
-                const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung.pmId);
-                const nextId = state.preismeldungIds[index + 1];
+            if (action.payload.saveAction.type === 'SAVE_AND_MOVE_TO_NEXT' && nextId !== null) {
                 const preismeldungToMakeCurrent = !!nextId ? state.entities[nextId] : state.entities[0];
                 nextPreismeldung = assign({}, preismeldungToMakeCurrent, { priceCountStatus: state.priceCountStatuses[preismeldungToMakeCurrent.preismeldung.epNummer], isModified: false, isNew: false, originalBearbeitungscode: preismeldungToMakeCurrent.preismeldung.bearbeitungscode, messages: parsePreismeldungMessages(preismeldungToMakeCurrent.preismeldung) });
             } else {
@@ -209,7 +210,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 notiz: action.payload.notiz
             };
 
-            const currentPreismeldung = state.currentPreismeldung.pmId !== action.payload._id
+            const currentPreismeldung = !state.currentPreismeldung || state.currentPreismeldung.pmId !== action.payload._id
                 ? state.currentPreismeldung
                 : assign({}, state.currentPreismeldung, { messages, preismeldung: assign({}, state.currentPreismeldung.preismeldung, attrs) });
 
