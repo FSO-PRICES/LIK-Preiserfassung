@@ -236,7 +236,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 })
         );
 
-        const canSave$ = this.attemptSave$.mapTo({ type: 'JUST_SAVE' }).merge(this.requestPreismeldungSave$)
+        const canSave$ = this.attemptSave$.mapTo({ type: 'JUST_SAVE' as P.SavePreismeldungPriceSaveActionType }).merge(this.requestPreismeldungSave$)
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
@@ -256,7 +256,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .filter(x => !x.bag.hasAttributeWarning)
             .flatMap(({ saveAction, bag }) => {
                 if (bag.isNew) {
-                    return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT', data: '' });
+                    return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT' as P.SavePreismeldungPriceSaveActionWithDataType, data: '', tabNavigation: '' });
+                }
+                if (bag.messages.bemerkungenHistory !== '' && bag.messages.bemerkungen === '') {
+                    return pefDialogService.displayDialog(DialogValidationErrorsComponent, [translateService.instant('validation_frage-antworten')], true).map(() => ({ type: 'NO_SAVE_NAVIGATE', data: 'MESSAGES' }));
                 }
                 if (bag.hasPriceWarning) {
                     return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_abnormal_preisentwicklung'), false)
@@ -288,7 +291,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 }
                 return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT', data: '' });
             })
-            .filter(y => y.type !== 'CANCEL');
+            .filter(x => x.type !== ('CANCEL' as P.SavePreismeldungPriceSaveActionType));
 
         this.save$ = save$.withLatestFrom(this.preismeldungPricePayload$, this.priceCountStatus$, this.distinctPreismeldung$, (saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung) => ({ saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung }))
             .flatMap(x => {
@@ -297,7 +300,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         numActivePrices: x.priceCountStatus.numActivePrices - 1,
                         anzahlPreiseProPMS: x.priceCountStatus.anzahlPreiseProPMS
                     };
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => ({ type: res.data === 'YES' ? 'SAVE_AND_DUPLICATE_PREISMELDUNG' : x.saveAction }));
+                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => ({ type: res.data === 'YES' ? 'SAVE_AND_DUPLICATE_PREISMELDUNG' as P.SavePreismeldungPriceSaveActionType : x.saveAction }));
                 }
                 return Observable.of(x.saveAction);
             });

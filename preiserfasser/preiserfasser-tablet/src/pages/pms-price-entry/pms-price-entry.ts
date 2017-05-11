@@ -45,9 +45,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     requestPreismeldungQuickEqual$: Observable<{}>;
 
-    selectedTab$ = this.selectTab$
-        .startWith('PREISMELDUNG')
-        .publishReplay(1).refCount();
+    selectedTab$: Observable<string>;
 
     public chooseFromWarenkorbDisplayed$: Observable<boolean>;
 
@@ -62,6 +60,13 @@ export class PmsPriceEntryPage implements OnDestroy {
         translateService: TranslateService
     ) {
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
+
+        this.selectedTab$ = this.selectTab$
+            .merge(this.save$.filter(x => x.type === 'NO_SAVE_NAVIGATE').map(x => x.data))
+            .startWith('PREISMELDUNG')
+            // .merge(Observable.interval(1000).take(1).map(() => 'PREISMELDUNG'))
+            // .do(x => console.log('foobar', x))
+            .publishReplay(1).refCount();
 
         const requestNavigateHome$ = this.toolbarButtonClicked$
             .filter(x => x === 'HOME')
@@ -125,6 +130,7 @@ export class PmsPriceEntryPage implements OnDestroy {
 
         this.subscriptions.push(
             this.save$
+                .filter(x => x.type !== 'NO_SAVE_NAVIGATE')
                 // why do I need this setTimeout - is it an Ionic bug? requires two touches on tablet to register 'SAVE_AND_MOVE_TO_NEXT'
                 .subscribe(payload => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload })))
         );

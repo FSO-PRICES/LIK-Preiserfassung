@@ -12,33 +12,25 @@ import * as P from '../../../../common-models';
 })
 export class PreismeldungToolbarComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.Models.Preismeldung;
-    @Output('selectedTab') selectedTab$: Observable<string>;
+    @Input() selectedTab: string;
+    @Output('selectTab') selectTab$ = new EventEmitter<string>();;
     @Output('buttonClicked') buttonClicked$ = new EventEmitter<string>();
 
-    public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
-    public selectTab$ = new EventEmitter<string>();
+    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
+    public selectedTab$ = this.observePropertyCurrentValue<string>('selectedTab')
+        .publishReplay(1).refCount();
     public hasAttributes$: Observable<boolean>;
     public requestPreismeldungQuickEqualDisabled$: Observable<boolean>;
 
     constructor() {
         super();
 
-        this.selectedTab$ = this.selectTab$
-            .startWith('PREISMELDUNG')
-            .publishReplay(1).refCount();
+        this.selectedTab$.subscribe();
 
         this.hasAttributes$ = this.preismeldung$
             .map(p => !!p && !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length); // TODO: remove null check
 
         this.requestPreismeldungQuickEqualDisabled$ = this.preismeldung$.map(x => !!x && [2, 3, 7].some(y => y === x.preismeldung.bearbeitungscode)).startWith(false);
-    }
-
-    isSelected$(tabName: string) {
-        return this.selectedTab$.map(x => x === tabName);
-    }
-
-    isDisabled$(tabName: string) {
-        return this.selectedTab$.map(x => x === tabName);
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

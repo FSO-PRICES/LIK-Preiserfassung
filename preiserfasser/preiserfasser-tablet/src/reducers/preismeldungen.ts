@@ -425,7 +425,7 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung) {
     };
 }
 
-const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) => !!messages.notiz || !!messages.bemerkungen || !!messages.bemerkungenHistory;
+const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) => messages.notiz !== '' || (messages.bemerkungenHistory !== '' && messages.bemerkungen === '');
 
 const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenkorb) => {
     return !!productMerkmaleFromWarenkorb ? !productMerkmaleFromWarenkorb.every((x, i) => !!attributes[i]) : false;

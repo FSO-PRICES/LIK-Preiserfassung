@@ -22,6 +22,7 @@
     "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
     "validation_produktMerkmale_erfassen": "Bitte Produktmerkmale erfassen",
+    "validation_frage-antworten": "Bitte Frage BFS Antworten",
 
     "label_info-warenkorb_standardmenge": "Standardmenge",
     "label_info-warenkorb_info": "Info",

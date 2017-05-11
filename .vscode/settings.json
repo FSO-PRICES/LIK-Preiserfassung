@@ -22,5 +22,6 @@
         "lik-shared/**/*.js": true,
         "lik-shared/**/*.js.map": true
     },
+    "files.trimTrailingWhitespace": true,
     "vsicons.presets.angular": true
 }

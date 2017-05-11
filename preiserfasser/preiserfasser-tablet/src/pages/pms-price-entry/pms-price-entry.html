@@ -6,7 +6,8 @@
     </preismeldungen-sort>
     <preismeldung-toolbar
         [preismeldung]="currentPreismeldung$ | async"
-        (selectedTab)="selectTab$.emit($event)"
+        [selectedTab]="selectedTab$ | async"
+        (selectTab)="selectTab$.emit($event)"
         (buttonClicked)="toolbarButtonClicked$.emit($event)">
     </preismeldung-toolbar>
     <div class="work-area">
