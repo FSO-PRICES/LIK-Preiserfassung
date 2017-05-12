@@ -57,8 +57,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
 
-    public priceNumberFormattingOptions = { padRight: 2, truncate: 4, integerSeparator: '' };
-    public mengeNumberFormattingOptions = { padRight: 0, truncate: 3, integerSeparator: '' };
+    public priceNumberFormattingOptions = { padLeft: 1, padRight: 2, truncate: 4, integerSeparator: '' };
+    public mengeNumberFormattingOptions = { padLeft: 1, padRight: 0, truncate: 3, integerSeparator: '' };
 
     public currentPeriodHeading$: Observable<string>;
 
