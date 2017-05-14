@@ -1,6 +1,7 @@
 @import "../../../../../theme/imports.scss";
 
 preismeldung-readonly-header {
+    flex: 0 0 auto;
     color: white;
     background-color: $surfie-green;
     @include set-padding-vert-horiz(0.5, 1);

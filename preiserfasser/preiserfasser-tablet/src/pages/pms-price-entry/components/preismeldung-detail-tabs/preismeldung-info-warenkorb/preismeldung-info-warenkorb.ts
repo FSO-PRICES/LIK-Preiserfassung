@@ -15,7 +15,10 @@ export class PreismeldungInfoWarenkorbComponent extends ReactiveComponent implem
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() warenkorb: P.WarenkorbInfo[];
 
-    public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
+    todo finish scrolling, get working for all other ion-tabs
+
+
+    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
 
     public parentHierarchy$: Observable<P.WarenkorbInfo[]>;

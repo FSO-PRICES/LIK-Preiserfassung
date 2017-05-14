@@ -30,7 +30,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     @Input() currentLanguage: string;
     @Output('closeChooseFromWarenkorb') closeChooseFromWarenkorb$: Observable<{ warenkorbPosition: P.Models.WarenkorbLeaf, bearbeitungscode: P.Models.Bearbeitungscode }>;
 
-    private warenkorbUiItems$: Observable<WarenkorbUiItem[]>;
+    public warenkorbUiItems$: Observable<WarenkorbUiItem[]>;
     public numberOfEp$: Observable<number>;
 
     public warenkorbItemClicked$ = new EventEmitter<WarenkorbUiItem>();
