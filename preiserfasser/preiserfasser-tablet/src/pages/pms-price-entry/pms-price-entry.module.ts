@@ -8,6 +8,7 @@ import { PefComponentsModule, PefDialogYesNoComponent, PefDialogYesNoEditCompone
 
 import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
+import { DialogChoosePercentageReductionComponent } from './components/dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
 import { DialogValidationErrorsComponent } from './components/dialog-validation-errors/dialog-validation-errors';
 import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
@@ -27,6 +28,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     declarations: [
         BearbeitungsTypeComponent,
         DialogCancelEditComponent,
+        DialogChoosePercentageReductionComponent,
         DialogValidationErrorsComponent,
         PmsPriceEntryPage,
         PreismeldungAttributesComponent,
@@ -42,6 +44,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     ],
     entryComponents: [
         DialogCancelEditComponent,
+        DialogChoosePercentageReductionComponent,
         DialogValidationErrorsComponent,
         PefDialogYesNoComponent,
         PefDialogYesNoEditComponent,
@@ -53,6 +56,7 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
         PmsPriceEntryPage,
         DialogCancelEditComponent,
         DialogValidationErrorsComponent,
+        DialogChoosePercentageReductionComponent
     ]
 })
 export class PmsPriceEntryModule {

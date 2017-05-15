@@ -10,6 +10,7 @@ import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory
 import * as P from '../../../../../common-models';
 
 import { DialogValidationErrorsComponent } from '../../dialog-validation-errors/dialog-validation-errors';
+import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
 
 interface PercentageValues {
     lastPeriodToThisPeriod: string;
@@ -56,6 +57,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public showValidationHints$: Observable<boolean>;
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
+    public chooseReductionPercentage$ = new EventEmitter();
 
     public priceNumberFormattingOptions = { padLeft: 1, padRight: 2, truncate: 4, integerSeparator: '' };
     public mengeNumberFormattingOptions = { padLeft: 1, padRight: 0, truncate: 3, integerSeparator: '' };
@@ -169,6 +171,18 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .subscribe(() => {
                     this.form.patchValue({
                         aktion: !this.form.value.aktion
+                    });
+                })
+        );
+
+        this.subscriptions.push(
+            this.chooseReductionPercentage$
+                .flatMap(() => pefDialogService.displayDialog(DialogChoosePercentageReductionComponent, null, true).map(x => x.data))
+                .filter(x => x.type === 'OK')
+                .withLatestFrom(this.distinctPreismeldung$, (x, currentPm: P.CurrentPreismeldungBag) => ({ currentPm, percentage: x.percentage }))
+                .subscribe(({ currentPm, percentage }) => {
+                    this.form.patchValue({
+                        preis: `${this.preiseFormatFn(currentPm.refPreismeldung.preis * (percentage / 100))}`,
                     });
                 })
         );

@@ -64,8 +64,6 @@ export class PmsPriceEntryPage implements OnDestroy {
         this.selectedTab$ = this.selectTab$
             .merge(this.save$.filter(x => x.type === 'NO_SAVE_NAVIGATE').map(x => x.data))
             .startWith('PREISMELDUNG')
-            // .merge(Observable.interval(1000).take(1).map(() => 'PREISMELDUNG'))
-            // .do(x => console.log('foobar', x))
             .publishReplay(1).refCount();
 
         const requestNavigateHome$ = this.toolbarButtonClicked$

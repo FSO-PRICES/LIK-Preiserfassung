@@ -133,7 +133,10 @@
                                     <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit()" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
                                 </ion-item>
                             </ion-list>
-                            <div class="code">{{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}</div>
+                            <div class="aktion-percent-container" [class.visibility-hidden]="!form.value.aktion || !(preismeldung$ | async)?.refPreismeldung" >
+                                <button class="aktion-percent-button" ion-button color="mercury"(click)="chooseReductionPercentage$.emit()">%</button>
+                            </div>
+                            <div class="code" [class.visibility-hidden]="!formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR)">{{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}</div>
                         </div>
                         <bearbeitungs-type formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)" [codeListType]="codeListType$ | async" [nichtEmpfohleneBc]="(distinctPreismeldung$ | async)?.warenkorbPosition.nichtEmpfohleneBc"></bearbeitungs-type>
                     </div>

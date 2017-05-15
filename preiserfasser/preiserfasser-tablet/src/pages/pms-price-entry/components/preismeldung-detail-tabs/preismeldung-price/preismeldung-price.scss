@@ -259,8 +259,12 @@ preismeldung-price {
                 flex: 1;
                 display: flex;
 
+                .reduction-radio-group-list {
+                    flex: 1 1 100%;
+                }
+
                 .code {
-                    flex: 1;
+                    flex: 1 1 auto;
                     display: flex;
                     align-items: flex-end;
                     justify-content: flex-end;
@@ -268,6 +272,19 @@ preismeldung-price {
                     font-weight: 500;
                     font-size: 1.25em;
                 }
+
+                .aktion-percent-container {
+                    flex: 0 0 3.5em;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .aktion-percent-button {
+                    width: 3em;
+                    margin-left: 0.7em;
+                    margin-right: 0;
+                }
+
             }
         }
     }
