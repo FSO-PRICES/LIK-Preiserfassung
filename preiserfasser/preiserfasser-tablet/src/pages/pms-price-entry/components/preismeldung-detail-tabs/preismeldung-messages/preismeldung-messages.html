@@ -6,13 +6,13 @@
             <ion-item class="pef-textarea-item">
                 <ion-textarea formControlName="notiz" (blur)="onBlur$.emit()"></ion-textarea>
             </ion-item>
-            <button ion-button color="java" class="save-button" (click)="notizClear$.emit()">Leeren</button>
+            <button ion-button color="java" (click)="notizClear$.emit()">Leeren</button>
             <h3>Kommentar zum aktuellen Monat</h3>
             <div class="kommentar-autotext" *ngIf="(preismeldung$ | async)?.messages.kommentarAutotext">{{ (preismeldung$ | async)?.messages.kommentarAutotext | translate }}</div>
             <ion-item class="pef-textarea-item">
                 <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()"></ion-textarea>
             </ion-item>
-            <button ion-button color="java" class="save-button" (click)="kommentarClear$.emit()">Leeren</button>
+            <button ion-button color="java" (click)="kommentarClear$.emit()">Leeren</button>
             <h3>Kommunikation/Chat/Q&amp;A</h3>
             <div class="message-history" *ngIf="(bemerkungenHistory$ | async)?.length > 0">
                 <div *ngFor="let h of (bemerkungenHistory$ | async)"><span class="message-author" *ngIf="!!h.author">{{h.author}}:</span>&nbsp;{{h.text}}</div>
@@ -20,7 +20,7 @@
             <ion-item class="pef-textarea-item">
                 <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="erledigtDisabled$ | async" [readonly]="erledigtDisabled$ | async"></ion-textarea>
             </ion-item>
-            <button ion-button color="java" class="save-button" [disabled]="erledigtDisabled$ | async" (click)="erledigt$.emit()">Erledigt</button>
+            <button ion-button color="java" [disabled]="erledigtDisabled$ | async" (click)="erledigt$.emit()">Erledigt</button>
         </div>
     </form>
 </ion-content>

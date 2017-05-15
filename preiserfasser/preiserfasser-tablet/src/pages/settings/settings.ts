@@ -138,8 +138,10 @@ export class SettingsPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        if (!this.subscriptions || this.subscriptions.length === 0) return;
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+        if (!this.subscriptions) return;
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     public navigateToDashboard() {

@@ -94,7 +94,9 @@ export class PmsDetailsPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     public getFormErrors() {
