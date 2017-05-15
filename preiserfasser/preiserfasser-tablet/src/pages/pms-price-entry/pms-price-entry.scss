@@ -69,7 +69,8 @@ pms-price-entry.ion-page {
         @include set-padding(1, 1, 1, 1);
         @include set-margin-top(0.25);
         flex: 1 1 auto;
-        overflow-y: scroll;
         background-color: $mercury;
+        display: flex;
+        flex-direction: column;
     }
 }

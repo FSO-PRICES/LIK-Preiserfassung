@@ -1,7 +1,7 @@
 <preismeldung-readonly-header [preismeldung]="preismeldung$ | async"></preismeldung-readonly-header>
 
 <div class="detail-tab-bottom-part">
-    <div pef-perfect-virtualscroll-scrollbar [enabled]="true">
+    <div pef-perfect-scrollbar [enabled]="isDesktop$ | async">
         <h5 class="large">{{ 'heading_information-about-warenkorbposition' | translate }}</h5>
 
         <div class="info-warenkorb-table">

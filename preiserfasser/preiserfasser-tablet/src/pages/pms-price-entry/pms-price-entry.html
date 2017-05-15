@@ -15,6 +15,7 @@
             <div class="tabs-container" [class.display-none]="!(currentPreismeldung$ | async)">
                 <preismeldung-info-warenkorb
                     [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
+                    [isDesktop]="isDesktop$ | async"
                     [preismeldung]="currentPreismeldung$ | async"
                     [warenkorb]="warenkorb$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
