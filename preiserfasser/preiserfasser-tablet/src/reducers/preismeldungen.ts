@@ -100,7 +100,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 
-            // debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVPNormalNeuerArtikel', 'mengeVPNormalNeuerArtikel', 'aktion', 'bearbeitungscode', 'artikelnummer', 'artikeltext']);
+            // debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVPNormalNeuerArtikel', 'mengeVPNormalNeuerArtikel', 'aktion', 'bearbeitungscode', 'artikelnummer', 'artikeltext', 'internetLink']);
 
             if (state.currentPreismeldung.preismeldung.preis === payload.preis
                 && state.currentPreismeldung.preismeldung.menge === payload.menge
@@ -109,6 +109,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 && state.currentPreismeldung.preismeldung.aktion === payload.aktion
                 && state.currentPreismeldung.preismeldung.bearbeitungscode === payload.bearbeitungscode
                 && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
+                && state.currentPreismeldung.preismeldung.internetLink === payload.internetLink
                 && state.currentPreismeldung.preismeldung.artikeltext === payload.artikeltext) { return state; }
 
             let messages = state.currentPreismeldung.messages;
@@ -122,8 +123,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
             const tempCurrentPreismeldung = assign({},
                 state.currentPreismeldung,
-                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createPercentages(state.currentPreismeldung, action.payload), createFehlendePreiseR(state.currentPreismeldung, action.payload)) },
-                createNewPriceCountStatus(state.currentPreismeldung, state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer], action.payload),
+                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createPercentages(state.currentPreismeldung, payload), createFehlendePreiseR(state.currentPreismeldung, payload)) },
+                createNewPriceCountStatus(state.currentPreismeldung, state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer], payload),
                 { isModified: true, messages }
             );
 

@@ -23,6 +23,7 @@ interface PercentageValues {
 })
 export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.CurrentPreismeldungBag;
+    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() requestPreismeldungSave: P.SavePreismeldungPriceSaveAction;
     @Input() requestPreismeldungQuickEqual: string;
@@ -68,6 +69,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     private mengeFormatFn = format(this.mengeNumberFormattingOptions);
 
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
+    preismeldestelle$ = this.observePropertyCurrentValue<P.PriceCountStatus>('preismeldestelle');
 
     form: FormGroup;
 
@@ -90,6 +92,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             aktion: [false],
             bearbeitungscode: [100, Validators.required],
             artikelnummer: [''],
+            internetLink: [''],
             artikeltext: ['', Validators.required]
         }, { validator: this.formLevelValidationFactory() });
 
@@ -112,17 +115,18 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.subscriptions.push(
             this.distinctPreismeldung$
-                .subscribe(preismeldung => {
+                .subscribe(bag => {
                     this.form.reset({
-                        pmId: preismeldung.pmId,
-                        preis: preismeldung.preismeldung.preis,
-                        menge: preismeldung.preismeldung.menge,
-                        aktion: preismeldung.preismeldung.aktion,
-                        preisVPNormalNeuerArtikel: preismeldung.preismeldung.preisVPNormalNeuerArtikel,
-                        mengeVPNormalNeuerArtikel: preismeldung.preismeldung.mengeVPNormalNeuerArtikel,
-                        bearbeitungscode: preismeldung.preismeldung.bearbeitungscode,
-                        artikelnummer: preismeldung.preismeldung.artikelnummer,
-                        artikeltext: preismeldung.preismeldung.artikeltext
+                        pmId: bag.pmId,
+                        preis: bag.preismeldung.preis,
+                        menge: bag.preismeldung.menge,
+                        aktion: bag.preismeldung.aktion,
+                        preisVPNormalNeuerArtikel: bag.preismeldung.preisVPNormalNeuerArtikel,
+                        mengeVPNormalNeuerArtikel: bag.preismeldung.mengeVPNormalNeuerArtikel,
+                        bearbeitungscode: bag.preismeldung.bearbeitungscode,
+                        artikelnummer: bag.preismeldung.artikelnummer,
+                        internetLink: bag.preismeldung.internetLink,
+                        artikeltext: bag.preismeldung.artikeltext
                     });
                 })
         );
@@ -199,6 +203,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 mengeVPNormalNeuerArtikel: this.form.value.mengeVPNormalNeuerArtikel,
                 bearbeitungscode: this.form.value.bearbeitungscode,
                 artikelnummer: this.form.value.artikelnummer,
+                internetLink: this.form.value.internetLink,
                 artikeltext: this.form.value.artikeltext
             }));
 
@@ -377,5 +382,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 mengeVPNormalNeuerArtikel.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })])(mengeVPNormalNeuerArtikel));
             }
         };
+    }
+
+    navigateToInternetLink(internetLink: string) {
+        if (!internetLink) return;
+        if (!internetLink.startsWith('http://') || !internetLink.startsWith('https://')) {
+            this.window.open(`http://${internetLink}`, '_blank');
+        }
     }
 }

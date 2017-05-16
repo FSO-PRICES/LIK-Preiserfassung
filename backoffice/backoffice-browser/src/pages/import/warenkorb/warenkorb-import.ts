@@ -3,7 +3,6 @@ import { LoadingController } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { first } from 'lodash';
 
-import { Http } from '@angular/http';
 import { ReactiveComponent } from 'lik-shared';
 
 @Component({
@@ -27,7 +26,7 @@ export class WarenkorbImportComponent extends ReactiveComponent implements OnCha
     public warenkorbImportedCount$: Observable<number>;
     public isWarenkorbImported$: Observable<boolean>;
 
-    constructor(private http: Http, private loadingCtrl: LoadingController) {
+    constructor(private loadingCtrl: LoadingController) {
         super();
 
         this.fileSelected$ = Observable.merge(

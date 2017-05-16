@@ -66,6 +66,8 @@ export function getDatabase(dbName): Promise<PouchDB.Database<PouchDB.Core.Encod
     return getCouchDb(dbName);
 }
 
+export const getDatabaseAsObservable = (dbName: string) => Observable.fromPromise(getDatabase(dbName));
+
 export function getLocalDatabase(dbName) {
     return getLocalCouchDb(dbName);
 }
@@ -77,8 +79,12 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
     };
 }
 
-export function getAllDocumentsForPrefixFromDb(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string) {
-    return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc));
+export function getAllDocumentsForPrefixFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string): Promise<T[]> {
+    return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
+}
+
+export function getAllDocumentsForKeysFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, keys: string[]): Promise<T[]> {
+    return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
 export function clearRev<T>(o: T): T {
@@ -125,7 +131,6 @@ export function getSettings() {
     return getLocalDatabase(dbNames.setting).then(db => db.allDocs(Object.assign({}, { include_docs: true })).then(res => first(res.rows.map(y => y.doc)) as P.Setting));
 }
 
-
 export function isLoginExpired(expirationTime: number) {
     const lastLoginTime = localStorage.getItem('couchdb_lastLoginTime');
     return true || !lastLoginTime || (+ new Date()) > parseInt(lastLoginTime, 10) + expirationTime;
@@ -145,6 +150,19 @@ export function loginToDatabase(credentials: { username: string, password: strin
             return couch;
         }) as any;
     });
+}
+
+export function listUserDatabases() {
+    return Observable.fromPromise(getSettings())
+        .flatMap(settings => Observable.ajax({
+            url: `${settings.serverConnection.url}/_all_dbs`,
+            headers: { 'Content-Type': 'application/json' },
+            crossDomain: true,
+            withCredentials: true,
+            responseType: 'json',
+            method: 'GET'
+        }).map(x => x.response as string[]))
+        .map(dbs => dbs.filter(n => n.startsWith('user_')));
 }
 
 export function getUserDatabaseName(preiserheber: P.Erheber) {

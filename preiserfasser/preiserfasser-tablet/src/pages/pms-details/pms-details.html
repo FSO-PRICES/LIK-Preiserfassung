@@ -11,7 +11,7 @@
             <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
                 <div class="pef-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                     <div class="pms-scroll-content">
-                        <h4 class="large">{{ header$ | async }}</h4>
+                        <h4 class="large">{{ form.value.name }}</h4>
                         <div class="form-error" *ngIf="hasErrors$ | async">
                             <pef-icon name="survey"></pef-icon>
                             <div class="messages">
@@ -28,6 +28,36 @@
                         <div class="row">
                             <div class="column">
                                 <h5>Adresse</h5>
+                                <ion-list no-lines>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>Name</ion-label>
+                                        <ion-input type="text" formControlName="name"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>Strasse</ion-label>
+                                        <ion-input type="text" formControlName="street"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>PLZ</ion-label>
+                                        <ion-input type="text" formControlName="postcode"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>Ort</ion-label>
+                                        <ion-input type="text" formControlName="town"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>Telefon</ion-label>
+                                        <ion-input type="text" formControlName="telephone"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>E-Mail</ion-label>
+                                        <ion-input type="text" formControlName="email"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>Sprache</ion-label>
+                                        <ion-input type="text" formControlName="languageCode"></ion-input>
+                                    </ion-item>
+                                </ion-list>
                                 <div class="readonly-text" *ngFor="let line of address$ | async">{{ line }}</div>
                             </div>
                             <div class="column"></div>
@@ -109,24 +139,24 @@
                             </div>
                         </div>
                         <!--TODO: Check if needed-->
-                        <!--
                         <div class="row">
-                            <div class="column">
-                                <h5>Bearbeitungsinformationen</h5>
-                                Preismeldestelle wurde erstmalig erhoben im: {{firstRecordedOn | async}}
-                            </div>
-                            <div class="column">
+                            <div class="double-column">
                                 <h5>Zusatzinformationen zur Preismeldestelle</h5>
-                                <ion-input type="text" formControlName="additionalInformation"></ion-input>
+                                <ion-list class="padding-to-header">
+                                    <ion-item class="pef-item">
+                                        <ion-textarea formControlName="zusatzInformationen"></ion-textarea>
+                                    </ion-item>
+                                </ion-list>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="column">
                                 <h5>Erhebungsart</h5>
                                 <ion-list radio-group class="padding-to-header" formControlName="erhebungsart">
                                     <ion-item>
                                         <ion-label>Vor Ort mit Tablet</ion-label>
-                                        <ion-radio value="tablet"></ion-radio>
+                                        <ion-radio value="vor_ort_mit_tablet"></ion-radio>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>Telefon</ion-label>
@@ -138,11 +168,11 @@
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>Papierliste (persönlich)</ion-label>
-                                        <ion-radio value="paper-in_person"></ion-radio>
+                                        <ion-radio value="papier_persoenlich"></ion-radio>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>Papierliste (an Preismeldestelle abgegeben)</ion-label>
-                                        <ion-radio value="paper_x"></ion-radio>
+                                        <ion-radio value="papier_pms_abgegeben"></ion-radio>
                                     </ion-item>
                                 </ion-list>
                             </div>
@@ -151,19 +181,19 @@
                                 <ion-list radio-group class="padding-to-header" formControlName="erhebungshaeufigkeit">
                                     <ion-item>
                                         <ion-label>Monatlich</ion-label>
-                                        <ion-radio value="monthly"></ion-radio>
+                                        <ion-radio value="monatlich"></ion-radio>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>Quartalsweise</ion-label>
-                                        <ion-radio value="quarterly"></ion-radio>
+                                        <ion-radio value="quartalsweise"></ion-radio>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>Halbjährlich</ion-label>
-                                        <ion-radio value="half-yearly"></ion-radio>
+                                        <ion-radio value="halbjaehrlich"></ion-radio>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>Jährlich</ion-label>
-                                        <ion-radio value="yearly"></ion-radio>
+                                        <ion-radio value="jaehrlich"></ion-radio>
                                     </ion-item>
                                 </ion-list>
                             </div>
@@ -175,7 +205,7 @@
                                     <ion-textarea formControlName="erhebungsartComment"></ion-textarea>
                                 </ion-item>
                             </ion-list>
-                        </div>-->
+                        </div>
                     </div>
                 </div>
                 <div class="actions">

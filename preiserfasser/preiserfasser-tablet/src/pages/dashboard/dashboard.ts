@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { Component, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { TranslateService } from 'ng2-translate';
 import { Subscription, Observable } from 'rxjs';
@@ -23,7 +23,8 @@ import { PreismeldestelleStatistics } from '../../reducers/statistics';
 
 @Component({
     selector: 'dashboard',
-    templateUrl: 'dashboard.html'
+    templateUrl: 'dashboard.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardPage implements OnDestroy {
     public settingsClicked = new EventEmitter();
@@ -122,7 +123,7 @@ export class DashboardPage implements OnDestroy {
                 .flatMap(({ loadingText, payload }) => pefDialogService.displayLoading(loadingText, databaseHasBeenUploaded$.skip(1)).map(() => payload))
                 .subscribe(payload => this.store.dispatch({ type: 'UPLOAD_DATABASE', payload })),
 
-            Observable.interval(3000).subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction))
+            Observable.interval(10000).startWith(0).subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction))
         ];
     }
 
@@ -142,6 +143,10 @@ export class DashboardPage implements OnDestroy {
 
     navigateToSettings() {
         this.navCtrl.setRoot(SettingsPage, {}, { animate: true, direction: 'forward' }).catch(() => { });
+    }
+
+    isPdf(erhebungsart: P.erhebungsartType) {
+        return erhebungsart === 'papier_persoenlich' || erhebungsart === 'papier_pms_abgegeben';
     }
 
     public isPreismeldestelleCompleted = (preismeldestelleStatistics: PreismeldestelleStatistics) => preismeldestelleStatistics.uploadedCount >= preismeldestelleStatistics.totalCount;

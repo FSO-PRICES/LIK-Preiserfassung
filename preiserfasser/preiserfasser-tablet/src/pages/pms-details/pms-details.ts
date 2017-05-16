@@ -18,8 +18,6 @@ import { Actions as preismeldestellenAction } from '../../actions/preismeldestel
 export class PmsDetailsPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     public pms$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
-    public header$ = this.pms$.map(formatHeader);
-    public address$ = this.pms$.map(formatAddress);
 
     public formErrors$: Observable<string[]>;
     public hasErrors$: Observable<boolean>;
@@ -44,11 +42,18 @@ export class PmsDetailsPage implements OnDestroy {
             });
 
         this.form = formBuilder.group({
+            name: [''],
+            street: [''],
+            town: [''],
+            postcode: [''],
+            telephone: [''],
+            email: [''],
+            languageCode: [''],
             kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
-            erhebungsart: [{ value: null, disabled: true }],
-            erhebungshaeufigkeit: [{ value: null, disabled: true }],
-            erhebungsartComment: [{ value: null, disabled: true }],
-            additionalInformation: [{ value: null, disabled: true }],
+            erhebungsart: [''],
+            erhebungshaeufigkeit: [''],
+            erhebungsartComment: [''],
+            zusatzInformationen: [''],
         });
 
         const distinctPreismeldestelle$ = this.pms$
@@ -61,10 +66,18 @@ export class PmsDetailsPage implements OnDestroy {
                 this.form.markAsUntouched();
                 this.form.markAsPristine();
                 this.form.patchValue(<P.AdvancedPreismeldestelle>{
+                    name: preismeldestelle.name,
+                    street: preismeldestelle.street,
+                    town: preismeldestelle.town,
+                    postcode: preismeldestelle.postcode,
+                    telephone: preismeldestelle.telephone,
+                    email: preismeldestelle.email,
+                    languageCode: preismeldestelle.languageCode,
                     kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                     erhebungsart: preismeldestelle.erhebungsart,
                     erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
                     erhebungsartComment: preismeldestelle.erhebungsartComment,
+                    zusatzInformationen: preismeldestelle.zusatzInformationen
                 }, { onlySelf: true, emitEvent: false });
             });
 
@@ -142,11 +155,3 @@ export class PmsDetailsPage implements OnDestroy {
         return this.navCtrl.setRoot(DashboardPage, {}, { animate: true, direction: 'back' });
     }
 }
-
-const formatHeader = (pms: P.Preismeldestelle) => !pms ? '' : joinComma(pms.name, joinSpace(pms.postcode, pms.town));
-const formatAddress = (pms: P.Preismeldestelle) => !pms ? [] : [pms.name, pms.street, joinSpace(pms.postcode, pms.town)];
-
-const join = (strings: string[], separator: string) => strings.filter(x => !!x).join(separator);
-
-const joinComma = (...strings: string[]) => join(strings, ', ');
-const joinSpace = (...strings: string[]) => join(strings, ' ');

@@ -54,7 +54,7 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,
-                kontaktpersons: payload.kontaktpersons, // TODO: Nested values, how to handle?
+                kontaktpersons: cloneDeep(payload.kontaktpersons),
                 languageCode: payload.languageCode,
                 telephone: payload.telephone,
                 email: payload.email,

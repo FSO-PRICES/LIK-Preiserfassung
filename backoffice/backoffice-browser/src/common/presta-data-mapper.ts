@@ -116,6 +116,11 @@ export function preparePms(lines: string[][]) {
         return <P.AdvancedPreismeldestelle>{
             _id: id,
             pmsNummer: cells[importPmsFromPrestaIndexes.pmsNummer],
+            erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
+            erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
+            erhebungshaeufigkeit: cells[importPmsFromPrestaIndexes.pmsErhebungshäufigkeit],
+            regionId: '',
+            erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
             erhebungsmonat: parseDate(cells[importPmsFromPrestaIndexes.erhebungsmonat], 'erhebungsmonat'),
             preissubsystem: parseInt(cells[importPmsFromPrestaIndexes.preissubsystem], 10),
             zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],

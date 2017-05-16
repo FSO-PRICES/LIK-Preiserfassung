@@ -37,6 +37,13 @@ preismeldung-price {
         justify-content: flex-end;
     }
 
+    .server-url-button {
+        @include set-margin-left(1);
+        &:hover {
+            fill: white;
+        }
+    }
+
     .price-count-status {
         span {
             font-size: 1.25em;
@@ -143,12 +150,10 @@ preismeldung-price {
     }
 
     .middle-section {
-        // @include set-flex(0, 0, 10);
         flex: 0 0 10em;
     }
 
     .current-period {
-        // flex: 0 1 50%;
         flex: 0 0 calc(50% - 5em);
         max-width: calc(50% - 5em);
     }

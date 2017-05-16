@@ -38,6 +38,7 @@
                 <preismeldung-price
                     [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'"
                     [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"

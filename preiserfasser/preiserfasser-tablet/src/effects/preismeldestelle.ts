@@ -40,6 +40,13 @@ export class PreismeldestelleEffects {
         return {
             _id: currentPreismeldestelle._id,
             _rev: currentPreismeldestelle._rev,
+            name: currentPreismeldestelle.name,
+            street: currentPreismeldestelle.street,
+            town: currentPreismeldestelle.town,
+            postcode: currentPreismeldestelle.postcode,
+            telephone: currentPreismeldestelle.telephone,
+            email: currentPreismeldestelle.email,
+            languageCode: currentPreismeldestelle.languageCode,
             kontaktpersons: currentPreismeldestelle.kontaktpersons,
             erhebungsart: currentPreismeldestelle.erhebungsart,
             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,

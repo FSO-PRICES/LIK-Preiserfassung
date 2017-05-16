@@ -9,7 +9,7 @@ export type CurrentPreismeldestelle = P.AdvancedPreismeldestelle & {
 
 export interface State {
     pmsNummers: string[];
-    entities: { [pmsNummer: string]: P.Preismeldestelle };
+    entities: { [pmsNummer: string]: P.AdvancedPreismeldestelle };
     currentPreismeldestelle: CurrentPreismeldestelle;
 }
 
@@ -41,9 +41,17 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
             const { payload } = action;
 
             const valuesFromPayload = {
+                name: payload.name,
+                street: payload.street,
+                town: payload.town,
+                postcode: payload.postcode,
+                telephone: payload.telephone,
+                email: payload.email,
+                languageCode: payload.languageCode,
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,
+                zusatzInformationen: payload.zusatzInformationen,
                 kontaktpersons: cloneDeep(payload.kontaktpersons),
             };
 

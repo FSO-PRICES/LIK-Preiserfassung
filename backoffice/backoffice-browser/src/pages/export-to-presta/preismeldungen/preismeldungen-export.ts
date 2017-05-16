@@ -13,8 +13,7 @@ export class PreismeldungenExportComponent extends ReactiveComponent implements 
     @Input('preismeldungen') preismeldungen: PreismeldungBag[];
     @Input('exportCompleted') exportCompleted: number;
 
-    @Output('startExport')
-    public startExport$: Observable<boolean>;
+    @Output('startExport') public startExport$: Observable<boolean>;
 
     public exportCompleted$: Observable<number>;
     public createPreismeldungenClicked$ = new EventEmitter<Event>();

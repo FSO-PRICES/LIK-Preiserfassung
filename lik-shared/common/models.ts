@@ -51,13 +51,17 @@ export interface KontaktPerson {
     email: string;
 }
 
+export type erhebungsartType = 'vor_ort_mit_tablet' | 'telefon' | 'internet' | 'papier_persoenlich' | 'papier_pms_abgegeben';
+export type erhebungshaeufigkeitType = 'monatlich' | 'quartalsweise' | 'halbjaehrlich' | 'jaehrlich';
+
 export interface AdvancedPresimeldestelleProperties {
     kontaktpersons: KontaktPerson[];
     regionId: string;
     active: boolean;
-    erhebungsart: string;
-    erhebungshaeufigkeit: string;
+    erhebungsart: erhebungsartType;
+    erhebungshaeufigkeit: erhebungshaeufigkeitType;
     erhebungsartComment: string;
+    erhebungsregion: string;
 }
 
 export interface ErhebungsmonatProperties {
@@ -253,7 +257,7 @@ export interface PreiszuweisungProperties {
 export type Preiszuweisung = PreiszuweisungProperties & CouchProperties;
 
 export interface SettingProperties {
-    version: string,
+    version: string;
     serverConnection: {
         url: string;
     };

@@ -35,6 +35,8 @@
     "label_info-warenkorb_code": "Code",
     "label_info-warenkorb_anzahl-preismeldungen": "Anzahl Preismeldungen (Aktuell/Vorgabe)",
 
+    "label_preiserffassung_internetlink": "Internetlink",
+
     "kommentar-autotext_steigender_aktionspreis_bestätigt": "Steigender Aktionspreis bestätigt",
     "kommentar-autotext_normalpreis_billiger": "Akteuller Normalpreis billiger als Aktionspreis VP",
     "kommentar-autotext_keine_ersatzprodukte": "Keine Ersatzprodukte in Sortiment vorhanden",

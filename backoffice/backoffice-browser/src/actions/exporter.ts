@@ -1,10 +1,10 @@
 import { Models as P } from 'lik-shared';
 
 export type Action =
-    { type: 'EXPORT_PREISMELDUNGEN', payload: P.CompletePreismeldung[] } |
+    { type: 'EXPORT_PREISMELDUNGEN' } |
     { type: 'EXPORT_PREISMELDUNGEN_RESET', payload: null } |
     { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: number } |
-    { type: 'EXPORT_PREISMELDESTELLEN', payload: P.AdvancedPreismeldestelle[] } |
+    { type: 'EXPORT_PREISMELDESTELLEN' } |
     { type: 'EXPORT_PREISMELDESTELLEN_RESET', payload: null } |
     { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: number } |
     { type: 'EXPORT_PREISERHEBER', payload: ({ preiserheber: P.Erheber, pmsNummers: string[] })[] } |

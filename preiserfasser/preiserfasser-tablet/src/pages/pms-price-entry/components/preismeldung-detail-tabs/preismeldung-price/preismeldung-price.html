@@ -5,12 +5,21 @@
                 <div class="product-heading">
                     {{ (preismeldung$ | async)?.warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ | async)?.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
                 </div>
-                <ion-item class="pef-item on-dark">
+                <ion-item class="pef-item on-dark" *ngIf="(preismeldestelle$ | async)?.erhebungsart != 'internet'">
                     <ion-label> Artikelnummer </ion-label>
                     <ion-input
                         type="text"
                         formControlName="artikelnummer"></ion-input>
                 </ion-item>
+                <ion-item class="pef-item on-dark" *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'">
+                    <ion-label> {{ 'label_preiserffassung_internetlink' | translate }} </ion-label>
+                    <ion-input
+                        type="text"
+                        formControlName="internetLink"></ion-input>
+                </ion-item>
+                <button class="pef-icon-secondary server-url-button" ion-button icon-only (click)="navigateToInternetLink(form.value.internetLink)" [disabled]="!form.value.internetLink">
+                    <pef-icon name="server_url"></pef-icon>
+                </button>
                 <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async)?.priceCountStatus.ok, 'not-ok': !(preismeldung$ | async)?.priceCountStatus.ok }">
                     <span>{{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}/{{ (preismeldung$ | async)?.priceCountStatus.anzahlPreiseProPMS }}</span>
                 </div>

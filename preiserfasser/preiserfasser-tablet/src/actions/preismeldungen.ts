@@ -9,6 +9,7 @@ export interface PreismeldungPricePayload {
     bearbeitungscode: P.Models.Bearbeitungscode;
     artikelnummer: string;
     artikeltext: string;
+    internetLink: string;
 }
 
 export interface PreismeldungMessagesPayload {
