@@ -87,8 +87,8 @@ export function getAllDocumentsForKeysFromDb<T>(db: PouchDB.Database<PouchDB.Cor
     return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
-export function clearRev<T>(o: T): T {
-    return assign({}, o, { _rev: undefined });
+export function clearRev<T>(o: any): T {
+    return assign({}, o, { _rev: undefined }) as T;
 }
 
 export const checkIfDatabaseExists = (dbName) => _checkIfDatabaseExists(dbName);

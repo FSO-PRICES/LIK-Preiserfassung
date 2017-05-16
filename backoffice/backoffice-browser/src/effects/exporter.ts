@@ -12,7 +12,7 @@ import * as exporter from '../actions/exporter';
 import { toCsv } from '../common/file-extensions';
 import { preparePmForExport, preparePmsForExport, preparePreiserheberForExport } from '../common/presta-data-mapper';
 import { listUserDatabases, getDatabase, getAllDocumentsForPrefixFromDb, dbNames, getAllDocumentsForKeysFromDb, getDatabaseAsObservable } from './pouchdb-utils';
-// import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { cloneDeep, assign, isEqual } from 'lodash';
 
 const EnvelopeContent = `
@@ -111,6 +111,17 @@ export class ExporterEffects {
                 .flatMap(db => getAllDocumentsForPrefixFromDb<P.AdvancedPreismeldestelle>(db, 'pms/'))
         )
         .flatMap(preismeldestellen => // export to csv
+            // resetAndDo({ type: '' }, Observable.create((observer: Observer<exporter.Action>) => {
+            //         setTimeout(() => {
+            //             const content = toCsv(preparePmsForExport(preismeldestellen));
+            //             const count = preismeldestellen.length;
+
+            //             FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
+            //             FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pms-to-presta.csv');
+
+            //             observer.next({ type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count } as exporter.Action);
+            //             observer.complete();
+            //         });
             Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action)
                 .merge(Observable.create((observer: Observer<exporter.Action>) => {
                     setTimeout(() => {
