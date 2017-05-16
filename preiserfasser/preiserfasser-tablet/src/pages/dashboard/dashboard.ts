@@ -14,6 +14,7 @@ import { pefSearch, PefDialogService, Models as P } from 'lik-shared';
 import { LoginModal } from '../login/login';
 import * as fromRoot from '../../reducers';
 import { PmsDetailsPage } from '../pms-details/pms-details';
+import { PmsPrintPage } from '../pms-print/pms-print';
 import { PmsPriceEntryPage } from '../pms-price-entry';
 import { SettingsPage } from '../settings/settings';
 
@@ -137,8 +138,8 @@ export class DashboardPage implements OnDestroy {
         this.navCtrl.setRoot(PmsDetailsPage, { pmsNummer: pms.pmsNummer }, { animate: true, direction: 'forward' });
     }
 
-    navigateToPriceEntry(pms: P.Preismeldestelle) {
-        this.navCtrl.setRoot(PmsPriceEntryPage, { pmsNummer: pms.pmsNummer });
+    navigateToPriceEntryOrPrint(pms: P.AdvancedPreismeldestelle) {
+        this.navCtrl.setRoot(this.isPdf(pms.erhebungsart) ? PmsPrintPage : PmsPriceEntryPage, { pmsNummer: pms.pmsNummer });
     }
 
     navigateToSettings() {
