@@ -176,7 +176,7 @@ export function preparePm(lines: string[][]): { erhebungsmonat: string, preismel
     return { preismeldungen, erhebungsmonat };
 }
 
-export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P.PreismeldungReferenceProperties & P.PmsPreismeldungenSortProperties)[]) {
+export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P.PreismeldungReferenceProperties & P.PmsPreismeldungenSortProperties)[], erhebungsmonat: string) {
     return preismeldungen.map(pm => ({
         'Erhebungsmonat': null, // TODO 1. Tag des Erhebungsmonats
         'Preissubsystem': null, // LIK = 2
@@ -206,7 +206,7 @@ export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P
     }));
 }
 
-export function preparePmsForExport(preismeldestellen: P.AdvancedPreismeldestelle[], erhebungsmonat) {
+export function preparePmsForExport(preismeldestellen: P.AdvancedPreismeldestelle[], erhebungsmonat: string) {
     return preismeldestellen.map(pms => ({
         'Erhebungsmonat': erhebungsmonat,
         'Preissubsystem': pms.preissubsystem,

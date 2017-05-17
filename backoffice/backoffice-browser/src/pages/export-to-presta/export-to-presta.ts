@@ -84,7 +84,7 @@ export class ExportToPrestaPage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
-        // this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
+        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         // this.store.dispatch({ type: 'PREISMELDUNG_LOAD_UNEXPORTED' });
         // this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
         // this.store.dispatch({ type: 'PREISERHEBER_LOAD' });

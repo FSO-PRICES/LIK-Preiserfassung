@@ -65,7 +65,7 @@ export class ExporterEffects {
 
     @Effect()
     exportPreismeldestellen$ = this.actions$.ofType('EXPORT_PREISMELDESTELLEN')
-        // .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => listUserDatabases()) // fetch all user_ database names
         .flatMap(dbnames => // fetch all pms documents from user_ databases
             Observable.from(dbnames)
@@ -109,7 +109,7 @@ export class ExporterEffects {
         .flatMap(() => // retrieve all pms documents from 'master' preismeldestelle db with the assigned erhebungsmonat
             getDatabaseAsObservable(dbNames.preismeldestelle)
                 .flatMap(db => getAllDocumentsForPrefixFromDb<P.AdvancedPreismeldestelle>(db, 'pms/')
-                    .then(preismeldestellen => getDocumentByKeyFromDb<string>(db, 'erhebungsmonat').then(erhebungsmonat => ({ preismeldestellen, erhebungsmonat })))
+                    .then(preismeldestellen => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({ preismeldestellen, erhebungsmonat })))
                 )
         )
         .flatMap(({ preismeldestellen, erhebungsmonat }) => // export to csv
@@ -127,7 +127,7 @@ export class ExporterEffects {
             Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action)
                 .merge(Observable.create((observer: Observer<exporter.Action>) => {
                     setTimeout(() => {
-                        const content = toCsv(preparePmsForExport(preismeldestellen, erhebungsmonat));
+                        const content = toCsv(preparePmsForExport(preismeldestellen, erhebungsmonat.monthAsString));
                         const count = preismeldestellen.length;
 
                         FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
