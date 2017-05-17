@@ -25,7 +25,7 @@ export class PreiserheberInitializationEffects {
     createUserDatabase$ = this.actions$.ofType('CREATE_USER_DATABASE')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action => getDatabase(dbNames.preiserheber).then(db => ({ currentPreiszuweisung: <CurrentPreiszuweisung>action.payload, db })))
-        .flatMap(({ currentPreiszuweisung, db }) => db.get(currentPreiszuweisung.preiserheberId).then(doc => ({ preiserheber: clearRev<P.Erheber>(doc), currentPreiszuweisung, pmsNummers: currentPreiszuweisung.preismeldestellen.map(x => x.pmsNummer) })))
+        .flatMap(({ currentPreiszuweisung, db }) => db.get(currentPreiszuweisung.preiserheberId).then(doc => ({ preiserheber: clearRev<P.Erheber>(doc), currentPreiszuweisung, pmsNummers: currentPreiszuweisung.preismeldestellenNummern })))
         .flatMap(data => dropDatabase(getUserDatabaseName(data.preiserheber)).then(db => data))
         .flatMap(x => getPreismeldestellen(x.pmsNummers).map(preismeldestellen => assign(x, { preismeldestellen })))
         .flatMap(x => getPreismeldungenAndErhebungsMonat(x.pmsNummers).map(pmData => assign(x, pmData)))

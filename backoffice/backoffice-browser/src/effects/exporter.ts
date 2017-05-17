@@ -70,11 +70,11 @@ export class ExporterEffects {
         .flatMap(dbnames => // fetch all pms documents from user_ databases
             Observable.from(dbnames)
                 .flatMap(dbname => getDatabase(dbname))
-                .flatMap(db => getAllDocumentsForPrefixFromDb<P.AdvancedPreismeldestelle>(db, 'pms/'))
+                .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
         )
         .flatMap(userPreismeldestellen => // fetch pms documents from 'master' preismeldestelle db
             getDatabaseAsObservable(dbNames.preismeldestelle)
-                .flatMap(db => getAllDocumentsForKeysFromDb<P.AdvancedPreismeldestelle>(db, userPreismeldestellen.map(p => p._id)))
+                .flatMap(db => getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, userPreismeldestellen.map(p => p._id)))
                 .map(masterPreismeldestellen => ({ userPreismeldestellen, masterPreismeldestellen }))
         )
         .map(({ userPreismeldestellen, masterPreismeldestellen }) => // create a new collection of pms documents updated from user_ pms documents
@@ -108,7 +108,7 @@ export class ExporterEffects {
         )
         .flatMap(() => // retrieve all pms documents from 'master' preismeldestelle db with the assigned erhebungsmonat
             getDatabaseAsObservable(dbNames.preismeldestelle)
-                .flatMap(db => getAllDocumentsForPrefixFromDb<P.AdvancedPreismeldestelle>(db, 'pms/')
+                .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/')
                     .then(preismeldestellen => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({ preismeldestellen, erhebungsmonat })))
                 )
         )

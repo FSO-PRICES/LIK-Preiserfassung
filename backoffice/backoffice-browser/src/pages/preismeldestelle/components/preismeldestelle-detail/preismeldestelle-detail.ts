@@ -14,7 +14,7 @@ import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
-    @Input() preismeldestelle: P.AdvancedPreismeldestelle;
+    @Input() preismeldestelle: P.Preismeldestelle;
     @Input() languages: P.Language[];
     @Input() regionen: P.Region[];
     @Output('save')
@@ -22,9 +22,9 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     @Output('cancel')
     public cancelClicked$ = new EventEmitter<Event>();
     @Output('update')
-    public update$: Observable<P.AdvancedPreismeldestelle>;
+    public update$: Observable<P.Preismeldestelle>;
 
-    public preismeldestelle$: Observable<P.AdvancedPreismeldestelle>;
+    public preismeldestelle$: Observable<P.Preismeldestelle>;
     public languages$: Observable<P.Language[]>;
     public regionen$: Observable<P.Region[]>;
     public saveClicked$ = new EventEmitter<Event>();
@@ -38,7 +38,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preismeldestelle$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle>('preismeldestelle');
+        this.preismeldestelle$ = this.observePropertyCurrentValue<P.Preismeldestelle>('preismeldestelle');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
         this.regionen$ = this.observePropertyCurrentValue<P.Region[]>('regionen');
 
@@ -83,7 +83,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                 .subscribe((preismeldestelle: CurrentPreismeldestelle) => {
                     this.form.markAsUntouched();
                     this.form.markAsPristine();
-                    this.form.patchValue(<P.AdvancedPreismeldestelle>{
+                    this.form.patchValue(<P.Preismeldestelle>{
                         kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                         erhebungsregion: preismeldestelle.erhebungsregion,
                         erhebungsart: preismeldestelle.erhebungsart,

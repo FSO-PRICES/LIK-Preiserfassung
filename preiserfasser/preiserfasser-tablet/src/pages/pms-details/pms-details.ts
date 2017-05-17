@@ -62,10 +62,10 @@ export class PmsDetailsPage implements OnDestroy {
             .publishReplay(1).refCount();
 
         distinctPreismeldestelle$
-            .subscribe((preismeldestelle: P.AdvancedPreismeldestelle) => {
+            .subscribe((preismeldestelle: P.Preismeldestelle) => {
                 this.form.markAsUntouched();
                 this.form.markAsPristine();
-                this.form.patchValue(<P.AdvancedPreismeldestelle>{
+                this.form.patchValue(<P.Preismeldestelle>{
                     name: preismeldestelle.name,
                     street: preismeldestelle.street,
                     town: preismeldestelle.town,

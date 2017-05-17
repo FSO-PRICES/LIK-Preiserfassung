@@ -8,7 +8,7 @@ import { Models as P } from 'lik-shared';
 import * as fromRoot from '../reducers';
 import * as preismeldestelle from '../actions/preismeldestelle';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { getDatabase, dbNames } from './pouchdb-utils';
+import { getDatabase, dbNames, getAllDocumentsForPrefixFromDb } from './pouchdb-utils';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class PreismeldestelleEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => getDatabase(dbNames.preismeldestelle).then(db => ({ db })))
         .filter(({ db }) => db != null)
-        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preismeldestellen: res.rows.map(y => y.doc) as P.AdvancedPreismeldestelle[] })))
+        .flatMap(({ db }) => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms'))
         .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action));
 
     @Effect()
@@ -38,7 +38,7 @@ export class PreismeldestelleEffects {
                 getDatabase(dbNames.preismeldestelle)
                     .then(db => db.get(currentPreismeldestelle._id).then(doc => ({ db, doc })))
                     .then(({ db, doc }) =>
-                        db.put(Object.assign({}, doc, <P.AdvancedPreismeldestelle>{
+                        db.put(Object.assign({}, doc, <P.Preismeldestelle>{
                             _id: currentPreismeldestelle._id,
                             _rev: currentPreismeldestelle._rev,
                             pmsNummer: currentPreismeldestelle.pmsNummer,

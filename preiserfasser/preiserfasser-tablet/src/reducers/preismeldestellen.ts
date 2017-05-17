@@ -3,13 +3,13 @@ import { Models as P }  from 'lik-shared';
 import * as preismeldestellen from '../actions/preismeldestellen';
 import { assign, cloneDeep } from 'lodash';
 
-export type CurrentPreismeldestelle = P.AdvancedPreismeldestelle & {
+export type CurrentPreismeldestelle = P.Preismeldestelle & {
     isModified: boolean;
 };
 
 export interface State {
     pmsNummers: string[];
-    entities: { [pmsNummer: string]: P.AdvancedPreismeldestelle };
+    entities: { [pmsNummer: string]: P.Preismeldestelle };
     currentPreismeldestelle: CurrentPreismeldestelle;
 }
 

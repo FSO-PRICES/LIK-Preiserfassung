@@ -23,7 +23,7 @@ interface PercentageValues {
 })
 export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.CurrentPreismeldungBag;
-    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
+    @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() requestPreismeldungSave: P.SavePreismeldungPriceSaveAction;
     @Input() requestPreismeldungQuickEqual: string;

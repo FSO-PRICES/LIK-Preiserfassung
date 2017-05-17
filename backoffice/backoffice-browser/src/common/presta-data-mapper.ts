@@ -112,7 +112,7 @@ function parseKontaktPersons(cells: string[]) {
 export function preparePms(lines: string[][]) {
     const preismeldestellen = lines.map(cells => {
         const id = preismeldestelleUri({ pmsNummer: cells[importPmsFromPrestaIndexes.pmsNummer] });
-        return <P.AdvancedPreismeldestelle>{
+        return <P.Preismeldestelle>{
             _id: id,
             _rev: undefined,
             preissubsystem: parseNumber(cells[importPmsFromPrestaIndexes.preissubsystem], 'preissubsystem'),
@@ -206,7 +206,7 @@ export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P
     }));
 }
 
-export function preparePmsForExport(preismeldestellen: P.AdvancedPreismeldestelle[], erhebungsmonat: string) {
+export function preparePmsForExport(preismeldestellen: P.Preismeldestelle[], erhebungsmonat: string) {
     return preismeldestellen.map(pms => ({
         'Erhebungsmonat': erhebungsmonat,
         'Preissubsystem': pms.preissubsystem,

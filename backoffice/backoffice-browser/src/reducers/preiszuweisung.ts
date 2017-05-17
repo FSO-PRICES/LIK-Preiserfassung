@@ -43,7 +43,7 @@ export function reducer(state = initialState, action: preiszuweisung.Action): St
                 isModified: false,
                 isSaved: false,
                 preiserheberId: preiserheberId,
-                preismeldestellen: []
+                preismeldestellenNummern: []
             };
             const currentPreiszuweisung: CurrentPreiszuweisung = preiserheberId == null || !state.entities[preiserheberId] ? newPreiszuweisung : Object.assign({}, cloneDeep(state.entities[preiserheberId]), { isModified: false, isNew: false, isSaved: false });
 
@@ -58,7 +58,7 @@ export function reducer(state = initialState, action: preiszuweisung.Action): St
                 isModified: false,
                 isSaved: false,
                 preiserheberId: null,
-                preismeldestellen: []
+                preismeldestellenNummern: []
             };
             return assign({}, state, { currentPreiszuweisung: newPreiszuweisung });
         }
@@ -69,7 +69,7 @@ export function reducer(state = initialState, action: preiszuweisung.Action): St
             const valuesFromPayload = {
                 _id: payload._id,
                 preiserheberId: payload.preiserheberId,
-                preismeldestellen: payload.preismeldestellen
+                preismeldestellen: payload.preismeldestellenNummern
             };
 
             const currentPreiszuweisung = assign({},
@@ -84,14 +84,14 @@ export function reducer(state = initialState, action: preiszuweisung.Action): St
         case 'ASSIGN_TO_CURRENT_PREISZUWEISUNG': {
             const { payload } = action;
             const currentPreiszuweisung = Object.assign({}, cloneDeep(state.currentPreiszuweisung), { isModified: true });
-            currentPreiszuweisung.preismeldestellen.push(payload);
+            currentPreiszuweisung.preismeldestellenNummern.push(payload.pmsNummer);
             return assign({}, state, { currentPreiszuweisung });
         }
 
         case 'UNASSIGN_FROM_CURRENT_PREISZUWEISUNG': {
             const { payload } = action;
             const currentPreiszuweisung = Object.assign({}, cloneDeep(state.currentPreiszuweisung), { isModified: true });
-            remove(currentPreiszuweisung.preismeldestellen, x => x._id === payload._id);
+            remove(currentPreiszuweisung.preismeldestellenNummern, pmsNummer => pmsNummer === payload.pmsNummer);
             return assign({}, state, { currentPreiszuweisung });
         }
 

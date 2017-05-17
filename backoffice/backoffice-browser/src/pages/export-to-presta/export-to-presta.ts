@@ -21,7 +21,7 @@ export class ExportToPrestaPage implements OnDestroy {
     // public exportedPreiserheber$: Observable<number>;
 
     // public preismeldungen$: Observable<P.CompletePreismeldung[]>;
-    // public preismeldestellen$: Observable<P.AdvancedPreismeldestelle[]>;
+    // public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     // public preiserheber$: Observable<P.Erheber[]>;
     // public preiszuweisungen$: Observable<P.Preiszuweisung[]>;
 
