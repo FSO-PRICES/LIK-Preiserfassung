@@ -29,7 +29,7 @@ export function reducer(state = initialState, action: login.Action): State {
             return Object.assign({}, state, { isLoggedIn: true, user: action.payload, loginError: null });
         }
         case 'LOGIN_FAIL': {
-            return Object.assign({}, state, { isLoggedIn: false, user: null, loginError: 'Benutzername oder Password stimmen nicht überein.' });
+            return Object.assign({}, state, { isLoggedIn: false, user: null, loginError: action.payload });
         }
         default:
             return state;
