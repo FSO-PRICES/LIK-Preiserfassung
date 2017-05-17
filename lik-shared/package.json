@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "postpublish": "npm run build"
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "@angular/common": "2.4.8",
