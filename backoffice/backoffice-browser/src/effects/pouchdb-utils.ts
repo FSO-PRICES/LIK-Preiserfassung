@@ -87,6 +87,10 @@ export function getAllDocumentsForKeysFromDb<T>(db: PouchDB.Database<PouchDB.Cor
     return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
+export function getDocumentByKeyFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, key: string): Promise<T> {
+    return db.get(key).then((doc: any) => doc as T);
+}
+
 export function clearRev<T>(o: any): T {
     return assign({}, o, { _rev: undefined }) as T;
 }

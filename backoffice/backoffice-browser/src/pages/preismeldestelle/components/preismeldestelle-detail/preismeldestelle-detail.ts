@@ -85,7 +85,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                     this.form.markAsPristine();
                     this.form.patchValue(<P.AdvancedPreismeldestelle>{
                         kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
-                        regionId: preismeldestelle.regionId,
+                        erhebungsregion: preismeldestelle.erhebungsregion,
                         erhebungsart: preismeldestelle.erhebungsart,
                         erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,

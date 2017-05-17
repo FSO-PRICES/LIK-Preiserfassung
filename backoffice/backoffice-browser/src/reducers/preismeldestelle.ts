@@ -50,7 +50,7 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
                 street: payload.street,
                 postcode: payload.postcode,
                 town: payload.town,
-                regionId: payload.regionId,
+                erhebungsregion: payload.erhebungsregion,
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,

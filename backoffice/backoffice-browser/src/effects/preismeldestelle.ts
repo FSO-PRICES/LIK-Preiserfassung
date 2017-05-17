@@ -42,19 +42,22 @@ export class PreismeldestelleEffects {
                             _id: currentPreismeldestelle._id,
                             _rev: currentPreismeldestelle._rev,
                             pmsNummer: currentPreismeldestelle.pmsNummer,
+                            preissubsystem: currentPreismeldestelle.preissubsystem,
                             name: currentPreismeldestelle.name,
                             supplement: currentPreismeldestelle.supplement,
                             kontaktpersons: currentPreismeldestelle.kontaktpersons,
                             street: currentPreismeldestelle.street,
                             postcode: currentPreismeldestelle.postcode,
                             town: currentPreismeldestelle.town,
-                            regionId: currentPreismeldestelle.regionId,
+                            erhebungsregion: currentPreismeldestelle.erhebungsregion,
                             languageCode: currentPreismeldestelle.languageCode,
                             telephone: currentPreismeldestelle.telephone,
                             email: currentPreismeldestelle.email,
+                            zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
                             erhebungsart: currentPreismeldestelle.erhebungsart,
                             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
-                            erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit
+                            erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit,
+                            active: currentPreismeldestelle.active
                         }))
                             .then((response) => ({ db, id: response.id }))
                     )

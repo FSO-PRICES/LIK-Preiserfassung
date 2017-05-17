@@ -11,7 +11,7 @@ import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
 import { toCsv } from '../common/file-extensions';
 import { preparePmForExport, preparePmsForExport, preparePreiserheberForExport } from '../common/presta-data-mapper';
-import { listUserDatabases, getDatabase, getAllDocumentsForPrefixFromDb, dbNames, getAllDocumentsForKeysFromDb, getDatabaseAsObservable } from './pouchdb-utils';
+import { listUserDatabases, getDatabase, getAllDocumentsForPrefixFromDb, dbNames, getAllDocumentsForKeysFromDb, getDatabaseAsObservable, getDocumentByKeyFromDb } from './pouchdb-utils';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { cloneDeep, assign, isEqual } from 'lodash';
 
@@ -89,7 +89,7 @@ export class ExporterEffects {
                         street: userPms.street,
                         postcode: userPms.postcode,
                         town: userPms.town,
-                        regionId: userPms.regionId,
+                        erhebungsregion: userPms.erhebungsregion,
                         erhebungsart: userPms.erhebungsart,
                         erhebungshaeufigkeit: userPms.erhebungshaeufigkeit,
                         erhebungsartComment: userPms.erhebungsartComment,
@@ -106,11 +106,13 @@ export class ExporterEffects {
             getDatabaseAsObservable(dbNames.preismeldestelle)
                 .flatMap(db => db.bulkDocs(updatedPreismeldestellen))
         )
-        .flatMap(() => // retrieve all pms documents from 'master' preismeldestelle db
+        .flatMap(() => // retrieve all pms documents from 'master' preismeldestelle db with the assigned erhebungsmonat
             getDatabaseAsObservable(dbNames.preismeldestelle)
-                .flatMap(db => getAllDocumentsForPrefixFromDb<P.AdvancedPreismeldestelle>(db, 'pms/'))
+                .flatMap(db => getAllDocumentsForPrefixFromDb<P.AdvancedPreismeldestelle>(db, 'pms/')
+                    .then(preismeldestellen => getDocumentByKeyFromDb<string>(db, 'erhebungsmonat').then(erhebungsmonat => ({ preismeldestellen, erhebungsmonat })))
+                )
         )
-        .flatMap(preismeldestellen => // export to csv
+        .flatMap(({ preismeldestellen, erhebungsmonat }) => // export to csv
             // resetAndDo({ type: '' }, Observable.create((observer: Observer<exporter.Action>) => {
             //         setTimeout(() => {
             //             const content = toCsv(preparePmsForExport(preismeldestellen));
@@ -125,7 +127,7 @@ export class ExporterEffects {
             Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action)
                 .merge(Observable.create((observer: Observer<exporter.Action>) => {
                     setTimeout(() => {
-                        const content = toCsv(preparePmsForExport(preismeldestellen));
+                        const content = toCsv(preparePmsForExport(preismeldestellen, erhebungsmonat));
                         const count = preismeldestellen.length;
 
                         FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content

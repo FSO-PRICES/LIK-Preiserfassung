@@ -22,7 +22,6 @@ export interface PmsUri {
 
 export interface PreismeldestelleProperties {
     pmsNummer: string;
-    erhebungsmonat: Date;
     preissubsystem: number; // LIK = 2
     name: string;
     supplement: string;
@@ -56,7 +55,6 @@ export type erhebungshaeufigkeitType = 'monatlich' | 'quartalsweise' | 'halbjaeh
 
 export interface AdvancedPresimeldestelleProperties {
     kontaktpersons: KontaktPerson[];
-    regionId: string;
     active: boolean;
     erhebungsart: erhebungsartType;
     erhebungshaeufigkeit: erhebungshaeufigkeitType;
@@ -82,6 +80,9 @@ export interface PreismeldungUri {
 interface _PreismeldungReferenceProperties {
     pmId: string;
 
+    preissubsystem: number;
+    schemanummer: number;
+
     preisGueltigSeitDatum: string;
     fehlendePreiseR: string;
     istPreisreiheZuBeenden?: boolean;
@@ -100,6 +101,7 @@ interface _PreismeldungReferenceProperties {
     basisMenge: number;
     preisVorReduktion: number;
     mengeVorReduktion: number;
+    datumVorReduktion: string;
 
     aktion: boolean;
     artikelnummer: string;
@@ -219,7 +221,7 @@ export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
     standardeinheit: PropertyTranslation;
     erhebungstyp: string;
     anzahlPreiseProPMS: number;
-    erhebungsschemaperiode: number;
+    erhebungsschemaperiode: string;
     periodizitaetMonat: PeriodizitaetMonat;
     abweichungPmUG2: number;
     abweichungPmOG2: number;

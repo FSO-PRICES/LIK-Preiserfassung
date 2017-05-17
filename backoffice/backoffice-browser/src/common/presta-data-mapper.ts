@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 import * as docuri from 'docuri';
 import { Models as P } from 'lik-shared';
-import * as moment from 'moment';
 
 const preismeldungRefUri = docuri.route(P.preismeldungReferenceUriRoute);
 const preismeldungUri = docuri.route(P.preismeldungUriRoute);
@@ -89,41 +88,35 @@ function parseKontaktPersons(cells: string[]) {
             firstName: cells[importPmsFromPrestaIndexes.kp1Vorname],
             surname: cells[importPmsFromPrestaIndexes.kp1Name],
             personFunction: cells[importPmsFromPrestaIndexes.kp1Funktion],
-            languageCode: cells[importPmsFromPrestaIndexes.kp1Sprache],
             telephone: cells[importPmsFromPrestaIndexes.kp1Telefon],
             mobile: cells[importPmsFromPrestaIndexes.kp1Mobile],
             fax: cells[importPmsFromPrestaIndexes.kp1Fax],
-            email: cells[importPmsFromPrestaIndexes.kp1EMail]
+            email: cells[importPmsFromPrestaIndexes.kp1EMail],
+            languageCode: cells[importPmsFromPrestaIndexes.kp1Sprache]
         },
         {
             oid: cells[importPmsFromPrestaIndexes.kp2Oid],
             firstName: cells[importPmsFromPrestaIndexes.kp2Vorname],
             surname: cells[importPmsFromPrestaIndexes.kp2Name],
             personFunction: cells[importPmsFromPrestaIndexes.kp2Funktion],
-            languageCode: cells[importPmsFromPrestaIndexes.kp2Sprache],
             telephone: cells[importPmsFromPrestaIndexes.kp2Telefon],
             mobile: cells[importPmsFromPrestaIndexes.kp2Mobile],
             fax: cells[importPmsFromPrestaIndexes.kp2Fax],
-            email: cells[importPmsFromPrestaIndexes.kp2EMail]
+            email: cells[importPmsFromPrestaIndexes.kp2EMail],
+            languageCode: cells[importPmsFromPrestaIndexes.kp2Sprache]
         },
     ]
 }
 
 
 export function preparePms(lines: string[][]) {
-    return lines.map(cells => {
+    const preismeldestellen = lines.map(cells => {
         const id = preismeldestelleUri({ pmsNummer: cells[importPmsFromPrestaIndexes.pmsNummer] });
         return <P.AdvancedPreismeldestelle>{
             _id: id,
+            _rev: undefined,
+            preissubsystem: parseNumber(cells[importPmsFromPrestaIndexes.preissubsystem], 'preissubsystem'),
             pmsNummer: cells[importPmsFromPrestaIndexes.pmsNummer],
-            erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
-            erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
-            erhebungshaeufigkeit: cells[importPmsFromPrestaIndexes.pmsErhebungshäufigkeit],
-            regionId: '',
-            erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
-            erhebungsmonat: parseDate(cells[importPmsFromPrestaIndexes.erhebungsmonat], 'erhebungsmonat'),
-            preissubsystem: parseInt(cells[importPmsFromPrestaIndexes.preissubsystem], 10),
-            zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
             name: cells[importPmsFromPrestaIndexes.pmsName],
             supplement: cells[importPmsFromPrestaIndexes.pmsZusatzname],
             street: cells[importPmsFromPrestaIndexes.pmsStrasse],
@@ -132,10 +125,18 @@ export function preparePms(lines: string[][]) {
             telephone: cells[importPmsFromPrestaIndexes.pmsTelefon],
             email: cells[importPmsFromPrestaIndexes.pmsEMail],
             languageCode: cells[importPmsFromPrestaIndexes.pmsSprache],
+            erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
+            erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
+            erhebungshaeufigkeit: cells[importPmsFromPrestaIndexes.pmsErhebungshäufigkeit],
+            erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
+            zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
             kontaktpersons: parseKontaktPersons(cells),
             active: true
         };
     });
+
+    const erhebungsmonat = lines[0] ? lines[0][importPmFromPrestaIndexes.erhebungsmonat] : '';
+    return { preismeldestellen, erhebungsmonat };
 }
 
 export function preparePm(lines: string[][]): { erhebungsmonat: string, preismeldungen: P.PreismeldungReference[]} {
@@ -144,29 +145,32 @@ export function preparePm(lines: string[][]): { erhebungsmonat: string, preismel
             _id: preismeldungRefUri({ pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer], epNummer: cells[importPmFromPrestaIndexes.epNummer], laufnummer: cells[importPmFromPrestaIndexes.laufnummer] }),
             _rev: undefined,
             pmId: preismeldungUri({ pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer], epNummer: cells[importPmFromPrestaIndexes.epNummer], laufnummer: cells[importPmFromPrestaIndexes.laufnummer] }),
+            preissubsystem: parseNumber(cells[importPmFromPrestaIndexes.preissubsystem], 'preissubsystem'),
+            schemanummer: parseNumber(cells[importPmFromPrestaIndexes.schemanummer], 'schemanummer'),
             pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer],
             epNummer: cells[importPmFromPrestaIndexes.epNummer],
             laufnummer: cells[importPmFromPrestaIndexes.laufnummer],
-            basisPreis: parseFloat(cells[importPmFromPrestaIndexes.basispreis]),
-            basisMenge: parseFloat(cells[importPmFromPrestaIndexes.basismenge]),
-            internetLink: cells[importPmFromPrestaIndexes.internetLink],
             preis: parseFloat(cells[importPmFromPrestaIndexes.preisT]),
             menge: parseFloat(cells[importPmFromPrestaIndexes.mengeT]),
             aktion: cells[importPmFromPrestaIndexes.aktionsCode] === '1',
+            artikeltext: cells[importPmFromPrestaIndexes.text],
+            artikelnummer: cells[importPmFromPrestaIndexes.artikelNummer],
             preisGueltigSeitDatum: cells[importPmFromPrestaIndexes.preisGueltigSeitDatum],
-            preisVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.preisVorReduktion]),
-            mengeVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.mengeVorReduktion]),
+            basisPreis: parseFloat(cells[importPmFromPrestaIndexes.basispreis]),
+            basisMenge: parseFloat(cells[importPmFromPrestaIndexes.basismenge]),
             fehlendePreiseR: cells[importPmFromPrestaIndexes.fehlendePreisR],
+            notiz: cells[importPmFromPrestaIndexes.notiz],
+            bemerkungen: cells[importPmFromPrestaIndexes.bemerkungen],
+            internetLink: cells[importPmFromPrestaIndexes.internetLink],
             erhebungsZeitpunkt: <P.Erhebungszeitpunkt>parseInt(cells[importPmFromPrestaIndexes.erhebungsZeitpunkt], 10),
-            sortierungsnummer: parseInt(cells[importPmFromPrestaIndexes.sortierungsnummer], 10),
             erhebungsAnfangsDatum: cells[importPmFromPrestaIndexes.erhebungsAnfangsDatum],
             erhebungsEndDatum: cells[importPmFromPrestaIndexes.erhebungsEndDatum],
-            productMerkmale: parseProduktMerkmale(cells[importPmFromPrestaIndexes.produktMerkmale]),
-            artikelnummer: cells[importPmFromPrestaIndexes.artikelNummer],
-            artikeltext: cells[importPmFromPrestaIndexes.text],
-            notiz: cells[importPmFromPrestaIndexes.notiz],
-            bemerkungen: cells[importPmFromPrestaIndexes.bemerkungen]
-        }));
+            sortierungsnummer: parseInt(cells[importPmFromPrestaIndexes.sortierungsnummer], 10),
+            preisVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.preisVorReduktion]),
+            mengeVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.mengeVorReduktion]),
+            datumVorReduktion: cells[importPmFromPrestaIndexes.datumVorReduktion],
+            productMerkmale: parseProduktMerkmale(cells[importPmFromPrestaIndexes.produktMerkmale])
+        } as P.PreismeldungReference));
 
     const erhebungsmonat = lines[0] ? lines[0][importPmFromPrestaIndexes.erhebungsmonat] : '';
     return { preismeldungen, erhebungsmonat };
@@ -202,9 +206,9 @@ export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P
     }));
 }
 
-export function preparePmsForExport(preismeldestellen: P.AdvancedPreismeldestelle[]) {
+export function preparePmsForExport(preismeldestellen: P.AdvancedPreismeldestelle[], erhebungsmonat) {
     return preismeldestellen.map(pms => ({
-        'Erhebungsmonat': pms.erhebungsmonat,
+        'Erhebungsmonat': erhebungsmonat,
         'Preissubsystem': pms.preissubsystem,
         'PMS_Nummer': pms.pmsNummer,
         'PMS_Name': pms.name,
@@ -215,7 +219,7 @@ export function preparePmsForExport(preismeldestellen: P.AdvancedPreismeldestell
         'PMS_Telefon': pms.telephone,
         'PMS_eMail': pms.email,
         'PMS_Sprache': pms.languageCode,
-        'PMS_Erhebungsregion': pms.regionId,
+        'PMS_Erhebungsregion': pms.erhebungsregion,
         'PMS_Erhebungsart': pms.erhebungsart,
         'PMS_Erhebungshäufigkeit': pms.erhebungshaeufigkeit,
         'Bemerkung_zur_Erhebungsart': pms.erhebungsartComment,
@@ -263,10 +267,8 @@ export function preparePreiserheberForExport(preiserhebers: { preiserheber: P.Er
     }));
 }
 
-function parseDate(text: string, field: string) {
-    const date = moment.utc(text, 'DD.MM.YYYY');
-    if (!date.isValid()) {
-        throw new Error(`Invalid date format for field: ${field} ['${text}']`);
-    }
-    return date.toDate();
+function parseNumber(s: string, propertyName: string) {
+    const number = parseInt(s, 10);
+    if (isNaN(number)) throw new Error(`Invalid ${propertyName}: '${s}'`);
+    return number;
 }
