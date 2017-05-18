@@ -44,20 +44,21 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
 
             const valuesFromPayload = {
                 _id: payload._id,
-                pmsNummer: payload.pmsNummer,
+                // pmsNummer: payload.pmsNummer,
                 name: payload.name,
                 supplement: payload.supplement,
                 street: payload.street,
                 postcode: payload.postcode,
                 town: payload.town,
+                telephone: payload.telephone,
+                email: payload.email,
+                languageCode: payload.languageCode,
                 erhebungsregion: payload.erhebungsregion,
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,
+                zusatzInformationen: payload.zusatzInformationen,
                 kontaktpersons: cloneDeep(payload.kontaktpersons),
-                languageCode: payload.languageCode,
-                telephone: payload.telephone,
-                email: payload.email,
                 active: payload.active
             };
 

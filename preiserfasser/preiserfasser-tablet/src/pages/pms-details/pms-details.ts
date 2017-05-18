@@ -10,6 +10,7 @@ import { Models as P } from 'lik-shared';
 import * as fromRoot from '../../reducers';
 import { DashboardPage } from '../dashboard/dashboard';
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
+import { Action as RegionAction } from '../../actions/region';
 
 @Component({
     selector: 'pms-details',
@@ -18,6 +19,8 @@ import { Actions as preismeldestellenAction } from '../../actions/preismeldestel
 export class PmsDetailsPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     public pms$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
+    public regionen$ = this.store.select(fromRoot.getRegionen);
+    public languages$ = this.store.select(fromRoot.getLanguagesList);
 
     public formErrors$: Observable<string[]>;
     public hasErrors$: Observable<boolean>;
@@ -36,24 +39,28 @@ export class PmsDetailsPage implements OnDestroy {
         private store: Store<fromRoot.AppState>,
         private formBuilder: FormBuilder
     ) {
+        console.log('initiating pms-detail');
         this.store.select(fromRoot.getPreismeldestellen)
             .filter(x => !!x && x.length > 0).subscribe(() => {
                 this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
             });
 
         this.form = formBuilder.group({
-            name: [''],
-            street: [''],
-            town: [''],
-            postcode: [''],
-            telephone: [''],
-            email: [''],
-            languageCode: [''],
             kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
-            erhebungsart: [''],
-            erhebungshaeufigkeit: [''],
-            erhebungsartComment: [''],
-            zusatzInformationen: [''],
+            // pmsNummer: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
+            name: [null, Validators.required],
+            supplement: [null],
+            street: [null, Validators.required],
+            postcode: [null, Validators.required],
+            town: [null, Validators.required],
+            telephone: [null],
+            email: [null],
+            languageCode: [null, Validators.required],
+            erhebungsregion: [null, Validators.required],
+            erhebungsart: [{ value: null }, Validators.required],
+            erhebungshaeufigkeit: [{ value: null }],
+            erhebungsartComment: [{ value: null }],
+            zusatzInformationen: [null],
         });
 
         const distinctPreismeldestelle$ = this.pms$
@@ -66,18 +73,20 @@ export class PmsDetailsPage implements OnDestroy {
                 this.form.markAsUntouched();
                 this.form.markAsPristine();
                 this.form.patchValue(<P.Preismeldestelle>{
+                    kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                     name: preismeldestelle.name,
+                    supplement: preismeldestelle.supplement,
                     street: preismeldestelle.street,
-                    town: preismeldestelle.town,
                     postcode: preismeldestelle.postcode,
+                    town: preismeldestelle.town,
                     telephone: preismeldestelle.telephone,
                     email: preismeldestelle.email,
-                    languageCode: preismeldestelle.languageCode,
-                    kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
+                    languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
+                    erhebungsregion: !!preismeldestelle.erhebungsregion ? preismeldestelle.erhebungsregion : '',
                     erhebungsart: preismeldestelle.erhebungsart,
                     erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
                     erhebungsartComment: preismeldestelle.erhebungsartComment,
-                    zusatzInformationen: preismeldestelle.zusatzInformationen
+                    zusatzInformationen: preismeldestelle.zusatzInformationen,
                 }, { onlySelf: true, emitEvent: false });
             });
 
@@ -104,6 +113,8 @@ export class PmsDetailsPage implements OnDestroy {
 
             save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction))
         ];
+
+        this.store.dispatch({ type: 'REGION_LOAD' } as RegionAction);
     }
 
     public ngOnDestroy() {
@@ -129,11 +140,11 @@ export class PmsDetailsPage implements OnDestroy {
             firstName: [null, r(Validators.compose([Validators.required, Validators.minLength(1)]))],
             surname: [null, r(Validators.compose([Validators.required, Validators.minLength(1)]))],
             personFunction: [null, r(Validators.required)],
-            languageCode: [null],
             telephone: [null],
             mobile: [null],
             fax: [null],
-            email: [null]
+            email: [null],
+            languageCode: [null]
         });
     }
 
@@ -143,11 +154,11 @@ export class PmsDetailsPage implements OnDestroy {
             firstName: x.firstName,
             surname: x.surname,
             personFunction: x.personFunction,
-            languageCode: x.languageCode !== null ? x.languageCode : '',
             telephone: x.telephone,
             mobile: x.mobile,
             fax: x.fax,
-            email: x.email
+            email: x.email,
+            languageCode: x.languageCode !== null ? x.languageCode : ''
         }));
     }
 

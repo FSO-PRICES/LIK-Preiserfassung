@@ -42,12 +42,14 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
 
             const valuesFromPayload = {
                 name: payload.name,
+                supplement: payload.supplement,
                 street: payload.street,
-                town: payload.town,
                 postcode: payload.postcode,
+                town: payload.town,
                 telephone: payload.telephone,
                 email: payload.email,
                 languageCode: payload.languageCode,
+                erhebungsregion: payload.erhebungsregion,
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,

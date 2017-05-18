@@ -104,6 +104,22 @@ form.form-show-validation-hints {
     }
 }
 
+form.stacked-form {
+    .pef-select {
+        display: flex;
+        flex: 1;
+        align-self: stretch;
+    }
+
+    select {
+        flex: 1;
+        background-color: $white;
+        border: none;
+        padding: 6px 8px;
+        margin: 0 0 2px 0 !important;
+    }
+}
+
 .item-md.pef-item {
     padding-left: 0;
     background-color: transparent;

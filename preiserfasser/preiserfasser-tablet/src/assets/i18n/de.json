@@ -75,6 +75,13 @@
 
     "a_navigate-to-settings": "Einstellungen bearbeiten",
 
+    "validation_name_required": "Bitte erfassen Sie den Namen der Preismeldestelle",
+    "validation_street_required": "Bitte erfassen Sie die Strasse der Preismeldestelle",
+    "validation_postcode_required": "Bitte erfassen Sie den Postcode der Preismeldestelle",
+    "validation_town_required": "Bitte erfassen Sie den Ort der Preismeldestelle",
+    "validation_languageCode_required": "Bitte erfassen Sie die Sprache der Preismeldestelle",
+    "validation_erhebungsregion_required": "Bitte erfassen Sie die Region der Preismeldestelle",
+    "validation_erhebungsart_required": "Bitte erfassen Sie die Erhebungsart der Preismeldestelle",
     "validation_firstName_required": "Bitte erfassen Sie den Vorname der 1. Kontaktperson.",
     "validation_surname_required": "Bitte erfassen Sie den Name der 1. Kontaktperson.",
     "validation_personFunction_required": "Bitte erfassen Sie die Funktion der 1. Kontaktperson."

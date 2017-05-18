@@ -45,18 +45,18 @@ export class PreismeldestelleEffects {
                             preissubsystem: currentPreismeldestelle.preissubsystem,
                             name: currentPreismeldestelle.name,
                             supplement: currentPreismeldestelle.supplement,
-                            kontaktpersons: currentPreismeldestelle.kontaktpersons,
                             street: currentPreismeldestelle.street,
                             postcode: currentPreismeldestelle.postcode,
                             town: currentPreismeldestelle.town,
-                            erhebungsregion: currentPreismeldestelle.erhebungsregion,
-                            languageCode: currentPreismeldestelle.languageCode,
                             telephone: currentPreismeldestelle.telephone,
                             email: currentPreismeldestelle.email,
-                            zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
+                            languageCode: currentPreismeldestelle.languageCode,
+                            erhebungsregion: currentPreismeldestelle.erhebungsregion,
                             erhebungsart: currentPreismeldestelle.erhebungsart,
-                            erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
                             erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit,
+                            erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
+                            zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
+                            kontaktpersons: currentPreismeldestelle.kontaktpersons,
                             active: currentPreismeldestelle.active
                         }))
                             .then((response) => ({ db, id: response.id }))

@@ -14,6 +14,7 @@ import * as fromLanguages from './languages';
 import * as fromWarenkorb from './warenkorb';
 import * as fromSettings from './setting';
 import * as fromStatistics from './statistics';
+import * as fromRegion from './region';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
@@ -25,6 +26,7 @@ export interface AppState {
     warenkorb: fromWarenkorb.State;
     settings: fromSettings.State;
     statistics: fromStatistics.State;
+    regionen: fromRegion.State;
 }
 
 const reducers = {
@@ -37,6 +39,7 @@ const reducers = {
     warenkorb: fromWarenkorb.reducer,
     settings: fromSettings.reducer,
     statistics: fromStatistics.reducer,
+    regionen: fromRegion.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -66,7 +69,9 @@ export const getTimeState = (state: AppState) => state.time;
 export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTime);
 
 export const getLanguagesState = (state: AppState) => state.languages;
-export const getLanguages = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
+export const getLanguages = createSelector(getLanguagesState, fromLanguages.getLanguages);
+export const getLanguagesList = createSelector(getLanguagesState, fromLanguages.getLanguagesList);
+export const getLanguageCodes = createSelector(getLanguagesState, fromLanguages.getLanguageCodes);
 export const getCurrentLanguage = createSelector(getLanguagesState, fromLanguages.getCurrentLangugage);
 
 export const getWarenkorb = (state: AppState) => state.warenkorb;
@@ -78,3 +83,6 @@ export const getCurrentSettings = createSelector(getSettingsState, fromSettings.
 export const getStatisticsState = (state: AppState) => state.statistics;
 export const getPreismeldungenStatistics = createSelector(getStatisticsState, fromStatistics.getPreismeldungenStatistics);
 export const getErhebungsmonat = createSelector(getStatisticsState, fromStatistics.getErhebungsmonat);
+
+export const getRegionState = (state: AppState) => state.regionen;
+export const getRegionen = createSelector(getRegionState, fromRegion.getAll);

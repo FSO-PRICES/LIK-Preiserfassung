@@ -32,35 +32,34 @@ form.stacked-form {
         p { margin: 0; }
     }
 
-    select {
-        flex: 1;
-        background-color: $white;
-        border: none;
-        padding: 6px 8px;
-        margin: 0 0 2px 0 !important;
-    }
-
     ion-input, ion-textarea {
         background-color: $white;
         border-bottom: 2px solid $hit-gray;
         padding-left: 8px;
         padding-right: 8px;
     }
-
-    .pef-select {
-        display: flex;
-        flex: 1;
-        align-self: stretch;
-    }
 }
 
 form {
-    &.show-validation-hint ion-item.ng-invalid .input-wrapper {
+    &.form-show-validation-hints ion-item.ng-invalid .input-wrapper {
         ion-label {
             color: $flamingo !important;
         }
-        ion-input {
-            border-bottom: 2px solid $flamingo;
+    }
+    &.form-show-validation-hints ion-list[radio-group].ng-invalid {
+        .input-wrapper ion-label {
+            color: $flamingo !important;
+        }
+        ion-radio .radio-icon {
+            border-color: $flamingo;
+        }
+    }
+    &.form-show-validation-hints .pef-item {
+        ion-label.target-ng-invalid {
+            color: $flamingo !important;
+        }
+        select.ng-invalid {
+            border-left: 2px solid $flamingo;
         }
     }
 

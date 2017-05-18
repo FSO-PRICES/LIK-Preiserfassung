@@ -25,8 +25,7 @@ export function reducer(state = initialState, action: region.Action): State {
     switch (action.type) {
         case 'REGION_LOAD_SUCCESS': {
             const { payload } = action;
-            const regionn = payload.regionen
-                .map<P.Region>(region => Object.assign({}, region));
+            const regionn = payload.map<P.Region>(region => Object.assign({}, region));
             const regionIds = regionn.map(p => p._id);
             const entities = regionn.reduce((entities: { [_id: string]: P.Region }, region: P.Region) => {
                 return Object.assign(entities, { [region._id]: region });

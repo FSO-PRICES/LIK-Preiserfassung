@@ -1,19 +1,64 @@
-<form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+<form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
     <h1 class="large">Editieren</h1>
     <ion-row>
-        <ion-col width-50>
-            <h5>Hauptinformationen zur Preismeldestelle</h5>
+        <ion-col>
+            <h5>Preismeldestellenummer</h5>
+            <div class="readonly-text">{{(preismeldestelle$ | async).pmsNummer}}</div>
+        </ion-col>
+        <ion-col></ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <h5>Adresse</h5>
             <ion-list no-lines>
-                <ion-item class="pef-item" validated>
-                    <ion-label stacked>Preismeldestellen-ID *</ion-label>
-                    <ion-input type="text" formControlName="pmsNummer"></ion-input>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Name</ion-label>
+                    <ion-input type="text" formControlName="name"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Zusatzname</ion-label>
+                    <ion-input type="text" formControlName="supplement"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Strasse</ion-label>
+                    <ion-input type="text" formControlName="street"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>PLZ</ion-label>
+                    <ion-input type="text" formControlName="postcode"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Ort</ion-label>
+                    <ion-input type="text" formControlName="town"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Telefon</ion-label>
+                    <ion-input type="text" formControlName="telephone"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>E-Mail</ion-label>
+                    <ion-input type="text" formControlName="email"></ion-input>
                 </ion-item>
                 <div class="pef-item item item-block item-md item-label-stacked item-input">
                     <div class="item-inner">
                         <div class="input-wrapper">
-                            <ion-label stacked>Region</ion-label>
+                            <ion-label stacked [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
                             <div class="input input-md pef-select">
-                                <select formControlName="regionId">
+                                <select formControlName="languageCode">
+                                    <option value="">Nicht angegeben</option>
+                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label stacked [class.target-ng-invalid]="form.controls.erhebungsregion.invalid">Region</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="erhebungsregion">
+                                    <option value="">Nicht angegeben</option>
                                     <option *ngFor="let region of regionen$ | async" [value]="region._id">{{region.name}}</option>
                                 </select>
                             </div>
@@ -21,13 +66,33 @@
                     </div>
                 </div>
                 <ion-item class="pef-item">
-                    <ion-label stacked>Name</ion-label>
-                    <!--- TODO: Select of regions -->
-                    <ion-input type="text" formControlName="name"></ion-input>
+                    <ion-label>Aktiv</ion-label>
+                    <ion-checkbox type="text" formControlName="active"></ion-checkbox>
+                </ion-item>
+                <div class="help-text">
+                    <p>
+                        ACHTUNG: Sobald eine Preismeldestelle deaktiviert wird, werden dessen Preismeldungen beim monatlichen CSV-Import ignoriert und werden entsprechend nicht mehr erhoben. Wird eine Preismeldestelle deaktiviert nachdem die Preismeldungen bereits importiert wurden, hat dies erst Auswirkungen auf den CSV-Import des nächsten Monats.
+                    </p>
+                </div>
+            </ion-list>
+        </ion-col>
+        <ion-col></ion-col>
+    </ion-row>
+    <ion-row formArrayName="kontaktpersons">
+        <ion-col [formGroupName]="0">
+            <h5>1. Kontaktperson</h5>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Vorname</ion-label>
+                    <ion-input type="text" formControlName="firstName"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label stacked>Bezeichnung</ion-label>
-                    <ion-input type="text" formControlName="supplement"></ion-input>
+                    <ion-label stacked>Name</ion-label>
+                    <ion-input type="text" formControlName="surname"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Funktion</ion-label>
+                    <ion-input type="text" formControlName="personFunction"></ion-input>
                 </ion-item>
                 <div class="pef-item item item-block item-md item-label-stacked item-input">
                     <div class="item-inner">
@@ -43,160 +108,88 @@
                     </div>
                 </div>
                 <ion-item class="pef-item">
-                    <ion-label stacked>Adresse</ion-label>
-                    <ion-input type="text" formControlName="street"></ion-input>
+                    <ion-label stacked>Telefon</ion-label>
+                    <ion-input type="text" formControlName="telephone"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label stacked>PLZ</ion-label>
-                    <ion-input type="text" formControlName="postcode"></ion-input>
+                    <ion-label stacked>Mobile</ion-label>
+                    <ion-input type="text" formControlName="mobile"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label stacked>Ort</ion-label>
-                    <ion-input type="text" formControlName="town"></ion-input>
+                    <ion-label stacked>Fax</ion-label>
+                    <ion-input type="text" formControlName="fax"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label>Aktiv</ion-label><!--Add Info <span class='bold'>ACHTUNG:</span> Sobald eine Preismeldestelle deaktiviert wird, werden dessen Preismeldungen beim monatlichen CSV-Import ignoriert und werden entsprechend nicht mehr erhoben. Wird eine Preismeldestelle deaktiviert nachdem die Preismeldungen bereits importiert wurden, hat dies erst Auswirkungen auf den CSV-Import des nächsten Monats.-->
-                    <ion-checkbox type="text" formControlName="active"></ion-checkbox>
+                    <ion-label stacked>E-Mail</ion-label>
+                    <ion-input type="text" formControlName="email"></ion-input>
                 </ion-item>
             </ion-list>
         </ion-col>
-        <ion-col width-25 formArrayName="kontaktpersons">
-            <div [formGroupName]="0">
-                <h5>1. Kontaktperson</h5>
-                <ion-list no-lines>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Vorname</ion-label>
-                        <ion-input type="text" formControlName="firstName"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Name</ion-label>
-                        <ion-input type="text" formControlName="surname"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Funktion</ion-label>
-                        <ion-input type="text" formControlName="personFunction"></ion-input>
-                    </ion-item>
-                    <div class="pef-item item item-block item-md item-label-stacked item-input">
-                        <div class="item-inner">
-                            <div class="input-wrapper">
-                                <ion-label stacked>Sprache</ion-label>
-                                <div class="input input-md pef-select">
-                                    <select formControlName="languageCode" class="text-input text-input-md">
-                                        <option [selected]="true" value="">Nicht angegeben</option>
-                                        <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
-                                    </select>
-                                </div>
+        <ion-col [formGroupName]="1">
+            <h5>2. Kontaktperson</h5>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Vorname</ion-label>
+                    <ion-input type="text" formControlName="firstName"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Name</ion-label>
+                    <ion-input type="text" formControlName="surname"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Funktion</ion-label>
+                    <ion-input type="text" formControlName="personFunction"></ion-input>
+                </ion-item>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label stacked>Sprache</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="languageCode" class="text-input text-input-md">
+                                    <option [selected]="true" value="">Nicht angegeben</option>
+                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Telefon</ion-label>
-                        <ion-input type="text" formControlName="telephone"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Mobile</ion-label>
-                        <ion-input type="text" formControlName="mobile"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Fax</ion-label>
-                        <ion-input type="text" formControlName="fax"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>E-Mail</ion-label>
-                        <ion-input type="text" formControlName="email"></ion-input>
-                    </ion-item>
-                </ion-list>
-            </div>
-        </ion-col>
-        <ion-col width-25 formArrayName="kontaktpersons">
-            <div [formGroupName]="1">
-                <h5>2. Kontaktperson</h5>
-                <ion-list no-lines>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Vorname</ion-label>
-                        <ion-input type="text" formControlName="firstName"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Name</ion-label>
-                        <ion-input type="text" formControlName="surname"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Funktion</ion-label>
-                        <ion-input type="text" formControlName="personFunction"></ion-input>
-                    </ion-item>
-                    <div class="pef-item item item-block item-md item-label-stacked item-input">
-                        <div class="item-inner">
-                            <div class="input-wrapper">
-                                <ion-label stacked>Sprache</ion-label>
-                                <div class="input input-md pef-select">
-                                    <select formControlName="languageCode" class="text-input text-input-md">
-                                        <option [selected]="true" value="">Nicht angegeben</option>
-                                        <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Telefon</ion-label>
-                        <ion-input type="text" formControlName="telephone"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Mobile</ion-label>
-                        <ion-input type="text" formControlName="mobile"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>Fax</ion-label>
-                        <ion-input type="text" formControlName="fax"></ion-input>
-                    </ion-item>
-                    <ion-item class="pef-item">
-                        <ion-label stacked>E-Mail</ion-label>
-                        <ion-input type="text" formControlName="email"></ion-input>
-                    </ion-item>
-                </ion-list>
-            </div>
-        </ion-col>
-        <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
-        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
-    </ion-row>
-    <!--<ion-row>
-        <ion-col>
-            <h5>Bearbeitungsinformationen</h5>
-            Preismeldestelle wurde erstmalig erhoben im: {{firstRecordedOn | async}}
-        </ion-col>
-        <ion-col>
-            <h5>Zusatzinformationen zur Preismeldestelle</h5>
-            <ion-input type="text" formControlName="additionalInformation"></ion-input>
+                </div>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Telefon</ion-label>
+                    <ion-input type="text" formControlName="telephone"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Mobile</ion-label>
+                    <ion-input type="text" formControlName="mobile"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Fax</ion-label>
+                    <ion-input type="text" formControlName="fax"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>E-Mail</ion-label>
+                    <ion-input type="text" formControlName="email"></ion-input>
+                </ion-item>
+            </ion-list>
         </ion-col>
     </ion-row>
     <ion-row>
         <ion-col>
-            <h5>Erhebungshäufigkeit</h5>
-            <ion-list radio-group class="padding-to-header" formControlName="erhebungshaeufigkeit">
-                <ion-item>
-                    <ion-label>Monatlich</ion-label>
-                    <ion-radio value="monthly"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Quartalsweise</ion-label>
-                    <ion-radio value="quarterly"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Halbjährlich</ion-label>
-                    <ion-radio value="half-yearly"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Jährlich</ion-label>
-                    <ion-radio value="yearly"></ion-radio>
+            <h5>Zusatzinformationen zur Preismeldestelle</h5>
+            <ion-list class="padding-to-header">
+                <ion-item class="pef-item">
+                    <ion-textarea formControlName="zusatzInformationen"></ion-textarea>
                 </ion-item>
             </ion-list>
         </ion-col>
+    </ion-row>
+
+    <ion-row>
         <ion-col>
             <h5>Erhebungsart</h5>
             <ion-list radio-group class="padding-to-header" formControlName="erhebungsart">
                 <ion-item>
                     <ion-label>Vor Ort mit Tablet</ion-label>
-                    <ion-radio value="tablet"></ion-radio>
+                    <ion-radio value="vor_ort_mit_tablet"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>Telefon</ion-label>
@@ -208,21 +201,48 @@
                 </ion-item>
                 <ion-item>
                     <ion-label>Papierliste (persönlich)</ion-label>
-                    <ion-radio value="paper-in_person"></ion-radio>
+                    <ion-radio value="papier_persoenlich"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>Papierliste (an Preismeldestelle abgegeben)</ion-label>
-                    <ion-radio value="paper_x"></ion-radio>
+                    <ion-radio value="papier_pms_abgegeben"></ion-radio>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+        <ion-col>
+            <h5>Erhebungshäufigkeit</h5>
+            <ion-list radio-group class="padding-to-header" formControlName="erhebungshaeufigkeit">
+                <ion-item>
+                    <ion-label>Monatlich</ion-label>
+                    <ion-radio value="monatlich"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Quartalsweise</ion-label>
+                    <ion-radio value="quartalsweise"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Halbjährlich</ion-label>
+                    <ion-radio value="halbjaehrlich"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Jährlich</ion-label>
+                    <ion-radio value="jaehrlich"></ion-radio>
                 </ion-item>
             </ion-list>
         </ion-col>
     </ion-row>
-    <div class="double-column">
-        <h5>Bemerkungen zur Erhebungsart</h5>
-        <ion-list class="padding-to-header">
-            <ion-item class="pef-item">
-                <ion-textarea formControlName="erhebungsartComment"></ion-textarea>
-            </ion-item>
-        </ion-list>
-    </div>-->
+    <ion-row>
+        <ion-col>
+            <h5>Bemerkungen zur Erhebungsart</h5>
+            <ion-list class="padding-to-header">
+                <ion-item class="pef-item">
+                    <ion-textarea formControlName="erhebungsartComment"></ion-textarea>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+    </ion-row>
+    <div class="actions">
+        <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
+    </div>
 </form>
