@@ -54,6 +54,8 @@ export class DashboardPage implements OnDestroy {
         });
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
+    public navigateToPriceEntryOrPrint$ = new EventEmitter<P.AdvancedPreismeldestelle>();
+    public isPrintingPmsNummer$: Observable<string>;
 
     constructor(
         private navCtrl: NavController,
@@ -97,6 +99,11 @@ export class DashboardPage implements OnDestroy {
             .startWith(false)
             .publishReplay(1).refCount();
 
+        this.isPrintingPmsNummer$ = this.navigateToPriceEntryOrPrint$
+            .filter(pms => this.isPdf(pms.erhebungsart))
+            .map(pms => pms.pmsNummer)
+            .publishReplay(1).refCount();
+
         this.subscriptions = [
             databaseExists$
                 .filter(exists => exists)
@@ -123,6 +130,10 @@ export class DashboardPage implements OnDestroy {
                 )
                 .flatMap(({ loadingText, payload }) => pefDialogService.displayLoading(loadingText, databaseHasBeenUploaded$.skip(1)).map(() => payload))
                 .subscribe(payload => this.store.dispatch({ type: 'UPLOAD_DATABASE', payload })),
+
+            this.navigateToPriceEntryOrPrint$
+                .filter(pms => !this.isPdf(pms.erhebungsart))
+                .subscribe(pms => this.navCtrl.setRoot(PmsPriceEntryPage, { pmsNummer: pms.pmsNummer })),
 
             Observable.interval(10000).startWith(0).subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction))
         ];

@@ -327,3 +327,9 @@ dashboard {
         }
     }
 }
+
+@media print {
+    dashboard .dashboard-content {
+        display: none;
+    }
+}

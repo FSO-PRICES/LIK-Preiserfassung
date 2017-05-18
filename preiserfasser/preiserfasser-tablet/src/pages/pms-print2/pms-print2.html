@@ -1,35 +1,4 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-  <meta charset="UTF-8">
-  <title>BFS LIK Preiserfasser</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="msapplication-tap-highlight" content="no">
-
-  <link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4e8ef7">
-
-  <!-- cordova.js required for cordova apps -->
-  <script src="cordova.js"></script>
-
-  <!-- un-comment this code to enable service worker
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('service worker installed'))
-        .catch(err => console.log('Error', err));
-    }
-  </script>-->
-
-  <link href="build/main.css" rel="stylesheet">
-
-</head>
-<body>
-
-  <!-- Ionic's root component and where the app will load -->
-  <ion-app></ion-app>
+<!--<h1>pms-print2</h1>-->
 
         <!--<table style="width: 100%; -webkit-print-color-adjust: exact !important; ">
             <tr>
@@ -49,12 +18,22 @@
                 </td>
             </tr>
         </table>-->
-
-  <!-- The polyfills js is generated during the build process -->
-  <script src="build/polyfills.js"></script>
-
-  <!-- The bundle js is generated during the build process -->
-  <script src="build/main.js"></script>
-
-</body>
-</html>
+<table style="-webkit-print-color-adjust: exact !important; width: 100%;">
+    <thead>
+        <tr>
+            <th>header</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let bag of (preismeldungen$ | async); let i = index" style="height: 180px; width: 100%; page-break-inside: avoid; page-break-after:auto;" >
+            <td [style.background-color]="(i % 2) ? 'red' : 'blue'">
+                <div style="height: 100%; width: 100%;">
+                    {{ i }} <br>
+                    {{ bag.pmId }}
+                    <br> x <br> x <br> x
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!--<div *ngFor="let bag of (preismeldungen$ | async)"> {{ bag.pmId }} </div>-->

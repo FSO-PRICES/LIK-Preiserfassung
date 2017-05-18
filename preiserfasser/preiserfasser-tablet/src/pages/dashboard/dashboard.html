@@ -1,3 +1,5 @@
+<pms-print2 *ngIf="isPrintingPmsNummer$ | async" [pmsNummer]="isPrintingPmsNummer$ | async"></pms-print2>
+<!--<div style="position: absolute; top: 0; left: 0; background-color: brown; height: 10000px; width: 100px; z-index: 1000; -webkit-print-color-adjust: exact !important;"></div>-->
 <div class="dashboard-content">
     <div class="pef-toolbar">
         <div class="app-info-container">
@@ -44,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop">
+            <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
                 <div class="pms-table" [virtualScroll]="filteredPreismeldestellen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)">
                     <div class="pms-row" *virtualItem="let preismeldestelle">
                         <div class="pms-cell pms-name">
@@ -77,7 +79,7 @@
                                 <a ion-button icon-only
                                     class="price-entry-button"
                                     href="javascript:"
-                                    (click)="navigateToPriceEntryOrPrint(preismeldestelle)">
+                                    (click)="navigateToPriceEntryOrPrint$.emit(preismeldestelle)">
                                     <pef-icon [name]="isPdf(preismeldestelle.erhebungsart) ? 'pdf' : 'todo'"></pef-icon>
                                 </a>
                             </div>
