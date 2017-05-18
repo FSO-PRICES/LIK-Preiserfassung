@@ -53,17 +53,17 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                 username: [null, Validators.compose([Validators.required, Validators.pattern(/^[a-z][a-z0-9_,\$\+\-]{2,}/), Validators.minLength(3)])],
                 firstName: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
                 surname: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
-                personFunction: [null, Validators.required],
-                languageCode: [null],
+                preissubsystem: [null, Validators.required],
+                personFunction: [null],
                 telephone: [null],
                 mobilephone: [null],
                 email: [null],
                 fax: [null],
                 webseite: [null],
+                languageCode: [null, Validators.required],
                 street: [null],
                 postcode: [null],
-                town: [null],
-                preissubsystem: [null]
+                town: [null]
             }),
             password: [null, Validators.compose([Validators.required, Validators.maxLength(35)])]
         });
@@ -78,6 +78,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     _id: erheber.username,
                     firstName: erheber.firstName,
                     surname: erheber.surname,
+                    preissubsystem: erheber.preissubsystem,
                     personFunction: erheber.personFunction,
                     languageCode: erheber.languageCode === '' ? null : erheber.languageCode,
                     telephone: erheber.telephone,
@@ -87,8 +88,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     webseite: erheber.webseite,
                     street: erheber.street,
                     postcode: erheber.postcode,
-                    town: erheber.town,
-                    preissubsystem: erheber.preissubsystem
+                    town: erheber.town
                 };
             })
             .publishReplay(1).refCount();
@@ -124,17 +124,17 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                         username: erheber._id,
                         firstName: erheber.firstName,
                         surname: erheber.surname,
+                        preissubsystem: erheber.preissubsystem,
                         personFunction: erheber.personFunction,
-                        languageCode: erheber.languageCode !== null ? erheber.languageCode : '',
                         telephone: erheber.telephone,
                         mobilephone: erheber.mobilephone,
                         email: erheber.email,
                         fax: erheber.fax,
                         webseite: erheber.webseite,
+                        languageCode: erheber.languageCode !== null ? erheber.languageCode : '',
                         street: erheber.street,
                         postcode: erheber.postcode,
-                        town: erheber.town,
-                        preissubsystem: erheber.preissubsystem
+                        town: erheber.town
                     }, { emitEvent: false });
                 })
         ];
