@@ -16,7 +16,6 @@ import { DashboardPage } from '../pages/dashboard/dashboard';
 import { LoginModal } from '../pages/login/login';
 import { NewPriceSeriesModule, NewPriceSeriesPage } from '../pages/new-price-series';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
-import { PmsPrintPage } from '../pages/pms-print/pms-print';
 import { PmsPrintComponent } from '../pages/pms-print2/pms-print2';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 import { SettingsPage } from '../pages/settings/settings';
@@ -36,7 +35,6 @@ export function createTranslateLoader(http: Http) {
         PefApp,
         PmsDetailsPage,
         PmsPrintComponent,
-        PmsPrintPage,
         SettingsPage,
         TestPage
     ],
@@ -51,7 +49,6 @@ export function createTranslateLoader(http: Http) {
             links: [
                 { component: DashboardPage, name: 'Dashboard', segment: 'home' },
                 { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsNummer', defaultHistory: [DashboardPage] },
-                { component: PmsPrintPage, name: 'PmsPrint', segment: 'pms-print/:pmsNummer', defaultHistory: [DashboardPage] },
                 { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsNummer', defaultHistory: [DashboardPage] },
                 { component: NewPriceSeriesPage, name: 'NewPriceSeries', segment: 'new-price-series/:pmsNummer' },
                 { component: SettingsPage, name: 'Settings', segment: 'settings' },
@@ -79,7 +76,6 @@ export function createTranslateLoader(http: Http) {
         PefApp,
         PmsDetailsPage,
         PmsPriceEntryPage,
-        PmsPrintPage,
         SettingsPage,
         TestPage
     ],

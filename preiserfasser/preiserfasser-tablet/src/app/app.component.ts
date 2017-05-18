@@ -73,6 +73,7 @@ export class PefApp implements OnInit {
             .filter(setting => !!setting)
             .map(setting => !setting.isDefault)
             .take(1)
-            .subscribe(areSettingsDefined => this.navCtrl.setRoot(areSettingsDefined ? DashboardPage : SettingsPage));
+            .filter(areSettingsDefined => !areSettingsDefined)
+            .subscribe(() => this.navCtrl.setRoot(SettingsPage));
     }
 }

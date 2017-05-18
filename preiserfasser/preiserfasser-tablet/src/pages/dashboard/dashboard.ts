@@ -14,7 +14,6 @@ import { pefSearch, PefDialogService, Models as P } from 'lik-shared';
 import { LoginModal } from '../login/login';
 import * as fromRoot from '../../reducers';
 import { PmsDetailsPage } from '../pms-details/pms-details';
-import { PmsPrintPage } from '../pms-print/pms-print';
 import { PmsPriceEntryPage } from '../pms-price-entry';
 import { SettingsPage } from '../settings/settings';
 
@@ -56,6 +55,7 @@ export class DashboardPage implements OnDestroy {
     public canConnectToDatabase$: Observable<boolean>;
     public navigateToPriceEntryOrPrint$ = new EventEmitter<P.AdvancedPreismeldestelle>();
     public isPrintingPmsNummer$: Observable<string>;
+    public finishedPrinting$ = new EventEmitter();
 
     constructor(
         private navCtrl: NavController,
@@ -102,7 +102,10 @@ export class DashboardPage implements OnDestroy {
         this.isPrintingPmsNummer$ = this.navigateToPriceEntryOrPrint$
             .filter(pms => this.isPdf(pms.erhebungsart))
             .map(pms => pms.pmsNummer)
+            .merge(this.finishedPrinting$.map(() => null))
             .publishReplay(1).refCount();
+
+        console.log('dashbaord', new Date().getMilliseconds())
 
         this.subscriptions = [
             databaseExists$
@@ -147,10 +150,6 @@ export class DashboardPage implements OnDestroy {
 
     navigateToDetails(pms: P.Preismeldestelle) {
         this.navCtrl.setRoot(PmsDetailsPage, { pmsNummer: pms.pmsNummer }, { animate: true, direction: 'forward' });
-    }
-
-    navigateToPriceEntryOrPrint(pms: P.AdvancedPreismeldestelle) {
-        this.navCtrl.setRoot(this.isPdf(pms.erhebungsart) ? PmsPrintPage : PmsPriceEntryPage, { pmsNummer: pms.pmsNummer });
     }
 
     navigateToSettings() {

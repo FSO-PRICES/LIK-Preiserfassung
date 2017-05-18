@@ -1,5 +1,5 @@
-import { Component, Input, Inject, AfterViewInit, SimpleChange, ElementRef } from '@angular/core';
-import { Store } from "@ngrx/store";
+import { Component, Input, Inject, SimpleChange, ElementRef, OnChanges, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { Store } from '@ngrx/store';
 
 import { ReactiveComponent } from 'lik-shared';
 
@@ -9,11 +9,14 @@ import * as fromRoot from '../../reducers';
     selector: 'pms-print2',
     templateUrl: 'pms-print2.html'
 })
-export class PmsPrintComponent extends ReactiveComponent implements AfterViewInit {
+export class PmsPrintComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() pmsNummer: string;
+    @Output('finishedPrinting') finishedPrinting$ = new EventEmitter();
 
-    public preismeldungen$ = this.store.select(fromRoot.getPreismeldungen)
-        .publishReplay(1).refCount();
+    public preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
+
+    private mediaQueryList: MediaQueryList;
+    private subscriptions = [];
 
     constructor(
         @Inject('windowObject') window: Window,
@@ -22,33 +25,43 @@ export class PmsPrintComponent extends ReactiveComponent implements AfterViewIni
     ) {
         super();
 
-        this.observePropertyCurrentValue<string>('pmsNummer')
-            .do(x => console.log('pmsNummer is', x))
-            .filter(pmsNummer => !!pmsNummer)
-            .subscribe(payload => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload }));
+        const pmsNummer$ = this.observePropertyCurrentValue<string>('pmsNummer').do(x => console.log('pmsNummer is', x)).publishReplay(1).refCount();
 
-        this.preismeldungen$
-            .filter(x => !!x && x.length > 0)
-            .do(x => console.log(x.map(y => y.pmId)))
-            .subscribe(() => setTimeout(() => {
-                const table = elementRef.nativeElement.getElementsByTagName('table')[0] as HTMLElement;
-                const html = window.document.getElementsByTagName('html')[0] as HTMLElement;
-                html.style.height = `${table.getBoundingClientRect().height}px`;
-                const body = window.document.getElementsByTagName('body')[0] as HTMLElement;
-                body.style.position = 'static';
-                const ionApp = window.document.getElementsByTagName('ion-app')[0] as HTMLElement;
-                ionApp.style.position = 'static';
-                window.print();
-            }));
+        this.subscriptions.push(
+            pmsNummer$
+                .filter(pmsNummer => !!pmsNummer)
+                .subscribe(payload => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload }))
+        );
 
-            // this.ionViewDidLoad$
-            //     .withLatestFrom(isCurrentNotANewPreismeldung$)
-            //     .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') }))
+        this.subscriptions.push(
+            pmsNummer$
+                .filter(pmsNummer => !pmsNummer)
+                .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' }))
+        );
+
+        this.subscriptions.push(
+            store.select(fromRoot.getPreismeldungen)
+                .filter(x => !!x && x.length > 0)
+                .subscribe(() => setTimeout(() => {
+                    window.print();
+                }))
+        );
+
+        this.mediaQueryList = window.matchMedia('print');
+        this.mediaQueryList.addListener(this.mediaQueryListListener);
     }
 
-    ngAfterViewInit() {
-        // setTimeout(() => this.window.print(), 1000);
-        // this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.pmsNummer });
+    mediaQueryListListener(mql) {
+        if (!mql.matches) {
+            this.finishedPrinting$.emit();
+        }
+    }
+
+    ngOnDestroy() {
+        this.mediaQueryList.removeListener(this.mediaQueryListListener);
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

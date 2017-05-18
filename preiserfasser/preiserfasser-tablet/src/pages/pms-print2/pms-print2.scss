@@ -1,35 +1,14 @@
 pms-print2 {
-    visibility: hidden;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    display: none;
 }
 
 @media print {
-    body {
-        font-size: 16px;
-        line-height: 1.3;
-        // margin: -17px auto;
-        // margin-top: -16px;
-        // margin-top: -1.5em;
-    }
-    @page {
-        // margin: -16px auto 0 auto;
-        margin: 0px auto;
-        // size: auto;
-        // margin-top: 0;
-        // margin-bottom: 0
-    }
-    // #header, #footer, .header, .footer,
-    // #non-printable {
-    //     display: none !important;
-    // }
-    // #printable {
-    //     display: block;
-    // }
     pms-print2 {
-        visibility: visible;
+        display: block;
+        position: static;
+        top: 0;
+        left: 0;
+        width: 100%;
         -webkit-print-color-adjust: exact !important;
     }
 }

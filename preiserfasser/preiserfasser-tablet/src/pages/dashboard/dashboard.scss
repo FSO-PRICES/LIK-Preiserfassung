@@ -332,4 +332,8 @@ dashboard {
     dashboard .dashboard-content {
         display: none;
     }
+    dashboard.ion-page {
+        position: static;
+        height: initial;
+    }
 }

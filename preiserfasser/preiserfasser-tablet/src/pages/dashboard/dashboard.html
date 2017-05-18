@@ -1,5 +1,4 @@
-<pms-print2 *ngIf="isPrintingPmsNummer$ | async" [pmsNummer]="isPrintingPmsNummer$ | async"></pms-print2>
-<!--<div style="position: absolute; top: 0; left: 0; background-color: brown; height: 10000px; width: 100px; z-index: 1000; -webkit-print-color-adjust: exact !important;"></div>-->
+<pms-print2 [pmsNummer]="isPrintingPmsNummer$ | async" (finishedPrinting)="finishedPrinting$.emit()"></pms-print2>
 <div class="dashboard-content">
     <div class="pef-toolbar">
         <div class="app-info-container">
