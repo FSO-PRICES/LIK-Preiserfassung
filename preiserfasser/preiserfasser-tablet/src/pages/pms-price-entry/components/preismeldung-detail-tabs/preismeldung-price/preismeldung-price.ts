@@ -3,11 +3,12 @@ import { Observable, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from 'ng2-translate';
 import { keys, assign } from 'lodash';
-import * as format from 'format-number';
 
 import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
+
+import { preisNumberFormattingOptions, preisFormatFn, mengeNumberFormattingOptions, mengeFormatFn } from 'lik-shared';
 
 import { DialogValidationErrorsComponent } from '../../dialog-validation-errors/dialog-validation-errors';
 import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
@@ -60,13 +61,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqualVP$ = new EventEmitter();
     public chooseReductionPercentage$ = new EventEmitter();
 
-    public priceNumberFormattingOptions = { padLeft: 1, padRight: 2, truncate: 4, integerSeparator: '' };
-    public mengeNumberFormattingOptions = { padLeft: 1, padRight: 0, truncate: 3, integerSeparator: '' };
+
+    public preisNumberFormattingOptions = preisNumberFormattingOptions;
+    public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
     public currentPeriodHeading$: Observable<string>;
 
-    private preiseFormatFn = format(this.priceNumberFormattingOptions);
-    private mengeFormatFn = format(this.mengeNumberFormattingOptions);
 
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     preismeldestelle$ = this.observePropertyCurrentValue<P.PriceCountStatus>('preismeldestelle');
@@ -78,10 +78,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService, @Inject('windowObject') public window: Window) {
         super();
 
-        this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${this.preiseFormatFn(x)}` }));
-        this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${this.mengeFormatFn(x)}` }));
-        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${this.preiseFormatFn(x)}` }));
-        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${this.mengeFormatFn(x)}` }));
+        this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${preisFormatFn(x)}` }));
+        this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${mengeFormatFn(x)}` }));
+        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${preisFormatFn(x)}` }));
+        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${mengeFormatFn(x)}` }));
 
         this.form = formBuilder.group({
             pmId: [''],
@@ -107,11 +107,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preis))
-            .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
+            .map(x => ({ value: `${preisFormatFn(x)}` }));
 
         this.preisVPNormalNeuerArtikelCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPNormalNeuerArtikel)
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
-            .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
+            .map(x => ({ value: `${preisFormatFn(x)}` }));
 
         this.subscriptions.push(
             this.distinctPreismeldung$
@@ -145,7 +145,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.requestPreismeldungQuickEqual$.withLatestFrom(this.distinctPreismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
                     this.form.patchValue({
-                        preis: `${currentPm.refPreismeldung ? this.preiseFormatFn(currentPm.refPreismeldung.preis) : ''}`,
+                        preis: `${currentPm.refPreismeldung ? preisFormatFn(currentPm.refPreismeldung.preis) : ''}`,
                         menge: `${currentPm.refPreismeldung ? currentPm.refPreismeldung.menge : currentPm.refPreismeldung.menge}`,
                         aktion: currentPm.refPreismeldung.aktion
                     });
@@ -186,7 +186,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .withLatestFrom(this.distinctPreismeldung$, (x, currentPm: P.CurrentPreismeldungBag) => ({ currentPm, percentage: x.percentage }))
                 .subscribe(({ currentPm, percentage }) => {
                     this.form.patchValue({
-                        preis: `${this.preiseFormatFn(currentPm.refPreismeldung.preis * (percentage / 100))}`,
+                        preis: `${preisFormatFn(currentPm.refPreismeldung.preis * (percentage / 100))}`,
                     });
                 })
         );
@@ -235,7 +235,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .withLatestFrom(this.distinctPreismeldung$.map(x => x.refPreismeldung), (_, refPreismeldung) => refPreismeldung)
                 .subscribe(refPreismeldung => {
                     this.form.patchValue({
-                        preis: `${this.preiseFormatFn(refPreismeldung.preis)}`,
+                        preis: `${preisFormatFn(refPreismeldung.preis)}`,
                         menge: `${refPreismeldung.menge}`,
                         aktion: refPreismeldung.aktion
                     });

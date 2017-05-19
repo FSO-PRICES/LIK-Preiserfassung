@@ -1,0 +1,111 @@
+<table class="print-table">
+    <thead>
+        <tr>
+            <th>
+                <table style="width: 100%;">
+                    <tr>
+                        <td>Shop</td>
+                        <td id="page-number-id" class="page-number"></td>
+                    </tr>
+                </table>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let bag of (preismeldungen$ | async)" class="print-table-tr">
+            <td style="width: 100%;">
+                <table class="pm-content-table">
+                    <tr>
+                        <td>
+                            <table class="pm-erhebungs-table">
+                                <thead>
+                                    <tr>
+                                        <th class="column1"></th>
+                                        <th class="column2"></th>
+                                        <th class="column3"></th>
+                                        <th class="column4"></th>
+                                        <th class="column5"></th>
+                                        <th class="column6"></th>
+                                        <th class="column7"></th>
+                                        <th class="column8"></th>
+                                        <th class="column9"></th>
+                                        <th class="column10"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="column1"> <span class="horiz-heading">Pos.:</span> <span class="bold-value"> {{ bag.warenkorbPosition.gliederungspositionsnummer }} </span> </td>
+                                        <td colspan="7"> <span class="bold-value"> {{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }} </span> </td>
+                                        <td class="column9"> <span class="bold-value centered"> {{ (priceCountStatuses$ | async)[bag.warenkorbPosition.gliederungspositionsnummer].numActivePrices }}/{{ (priceCountStatuses$ | async)[bag.warenkorbPosition.gliederungspositionsnummer].anzahlPreiseProPMS }} </span> </td>
+                                        <td class="column10"> <span class="bold-value centered">&ndash;</span> </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="column1"> <span class="horiz-heading">PM-ID:</span> <span class="bold-value"> </span> </td>
+                                        <td colspan="7"> <span> {{ bag.refPreismeldung.artikeltext }} </span> </td>
+                                        <td colspan="2"> <span class="bold-value centered">&ndash;</span> </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="column1">
+                                            <div class="stacked-label">Preis</div>
+                                            <div class="stacked-value">{{ bag.refPreismeldung.preis | pefFormatNumber: preisNumberFormattingOptions }} CHF</div>
+                                        </td>
+                                        <td class="column2">
+                                            <div class="stacked-label">Menge</div>
+                                            <div class="stacked-value"> {{ bag.refPreismeldung.menge | pefFormatNumber: mengeNumberFormattingOptions }} {{ bag.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</div>
+                                        </td>
+                                        <td class="column3">
+                                            <div class="stacked-label">Aktion</div>
+                                            <div class="stacked-value"> {{ (bag.refPreismeldung.aktion ? 'text_yes' : 'text_no') | translate }}</div>
+                                        </td>
+                                        <td class="column4">
+                                            <div class="stacked-label">Ausverkauf</div>
+                                            <div class="stacked-value">&ndash;</div>
+                                        </td>
+                                        <td class="column5"></td>
+                                        <td class="column6">
+                                            <div class="stacked-label">Preis</div>
+                                            <div class="stacked-value">&nbsp;</div>
+                                        </td>
+                                        <td class="column7">
+                                            <div class="stacked-label">Menge</div>
+                                            <div class="stacked-value">&nbsp;</div>
+                                        </td>
+                                        <td class="column8">
+                                            <div class="stacked-label">Aktion</div>
+                                            <div class="stacked-value">&nbsp;</div>
+                                        </td>
+                                        <td class="column9">
+                                            <div class="stacked-label">Ausverkauf</div>
+                                            <div class="stacked-value">&nbsp;</div>
+                                        </td>
+                                        <td class="column10">
+                                            <div class="stacked-label">Code</div>
+                                            <div class="stacked-value">&nbsp;</div>
+                                        </td>
+                                    </tr>
+                                    <tr *ngFor="let productMerkmal of bag.warenkorbPosition.productMerkmale; let i = index">
+                                        <td colspan="4">
+                                            <span class="horiz-heading"> {{ productMerkmal | pefPropertyTranslate }}:</span>&nbsp;<span class="horiz-value" [innerHTML]="bag.refPreismeldung.productMerkmale[i] || '&ndash;'"></span>
+                                        </td>
+                                        <td class="column5"></td>
+                                        <td colspan="5">
+                                            &nbsp;
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="10" class="centered small">
+                                            <span class="horiz-heading">Preis vor Reduktion: {{ bag.refPreismeldung.basisPreis | pefFormatNumber: preisNumberFormattingOptions }}</span> /
+                                            <span class="horiz-heading">Menge vor Reduktion: {{ bag.refPreismeldung.basisMenge | pefFormatNumber: mengeNumberFormattingOptions }}</span> /
+                                            <span>Ankzahl Code R: {{ bag.refPreismeldung.fehlendePreiseR.length }}</span> /
+                                            <span>Standardmenge: {{ bag.warenkorbPosition.standardmenge | pefFormatNumber: mengeNumberFormattingOptions }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>

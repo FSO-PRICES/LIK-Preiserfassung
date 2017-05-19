@@ -67,7 +67,7 @@
                     <div class="data-input-area">
                         <h6>{{ 'heading_artikel' | translate }}</h6>
                         <div class="last-period-price">
-                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.preis | pefFormatNumber: priceNumberFormattingOptions }}</div>
+                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.preis | pefFormatNumber: preisNumberFormattingOptions }}</div>
                             <div class="unit">CHF</div>
                         </div>
                         <div class="last-period-quantity">

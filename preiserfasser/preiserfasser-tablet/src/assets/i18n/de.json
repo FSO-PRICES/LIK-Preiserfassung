@@ -53,8 +53,10 @@
     "text_preismeldung_hochgeladene": "Hochgeladene",
     "text_preismeldung_offen-erfasst": "Offen: Erfasst",
     "text_preismeldung_offen-nicht-erfasst": "Offen: Nicht erfasst",
-
     "text_preismeldung_erfasste": "erfasste Preismeldungen",
+
+    "text_yes": "Ja",
+    "text_no": "Nein",
 
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",

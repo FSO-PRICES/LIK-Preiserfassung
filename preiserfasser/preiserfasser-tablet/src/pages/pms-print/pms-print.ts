@@ -1,22 +1,26 @@
 import { Component, Input, Inject, SimpleChange, ElementRef, OnChanges, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 
-import { ReactiveComponent } from 'lik-shared';
+import { ReactiveComponent, preisNumberFormattingOptions, mengeNumberFormattingOptions } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 
 @Component({
-    selector: 'pms-print2',
-    templateUrl: 'pms-print2.html'
+    selector: 'pms-print',
+    templateUrl: 'pms-print.html',
 })
 export class PmsPrintComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() pmsNummer: string;
     @Output('finishedPrinting') finishedPrinting$ = new EventEmitter();
 
     public preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
+    public priceCountStatuses$ = this.store.select(fromRoot.getPriceCountStatuses);
 
     private mediaQueryList: MediaQueryList;
     private subscriptions = [];
+
+    public preisNumberFormattingOptions = preisNumberFormattingOptions;
+    public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
     constructor(
         @Inject('windowObject') window: Window,
@@ -24,6 +28,8 @@ export class PmsPrintComponent extends ReactiveComponent implements OnChanges, O
         private store: Store<fromRoot.AppState>,
     ) {
         super();
+
+        this.mediaQueryListListener = this.mediaQueryListListener.bind(this);
 
         const pmsNummer$ = this.observePropertyCurrentValue<string>('pmsNummer').do(x => console.log('pmsNummer is', x)).publishReplay(1).refCount();
 
@@ -41,7 +47,8 @@ export class PmsPrintComponent extends ReactiveComponent implements OnChanges, O
 
         this.subscriptions.push(
             store.select(fromRoot.getPreismeldungen)
-                .filter(x => !!x && x.length > 0)
+                .withLatestFrom(pmsNummer$, (preismeldungen, pmsNummer) => ({ preismeldungen, pmsNummer }))
+                .filter(x => !!x.pmsNummer && !!x.preismeldungen && x.preismeldungen.length > 0)
                 .subscribe(() => setTimeout(() => {
                     window.print();
                 }))
@@ -66,5 +73,11 @@ export class PmsPrintComponent extends ReactiveComponent implements OnChanges, O
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    _pageNumber = 0;
+    pageNumber() {
+        this._pageNumber = this._pageNumber + 1;
+        return this._pageNumber;
     }
 }
