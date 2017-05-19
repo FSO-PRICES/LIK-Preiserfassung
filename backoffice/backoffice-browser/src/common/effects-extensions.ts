@@ -1,4 +1,23 @@
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+
+/** Emits "resetAction" first and after that, emits the results of "continuedObservable" */
+export function resetAndContinueWith<T>(resetAction: SimpleAction, continuedObservable: Observable<Action<T>>) {
+    return Observable.of(resetAction)
+        .concat(continuedObservable);
+}
+
+/** Wrap given "func" into a setTimeout and return the result as an observable */
+export function doAsyncAsObservable<T>(func: () => T) {
+    return Observable.create((observer: Observer<T>) => {
+        setTimeout(() => {
+            const result = func();
+
+            observer.next(result);
+            observer.complete();
+        });
+    }) as Observable<T>;
+}
 
 export function continueOnlyIfTrue<T>(checkingObservable$: Observable<boolean>) {
     return (observable: Observable<T>) => observable
@@ -20,5 +39,5 @@ export interface Action<T> {
 
 export interface SimpleAction {
     type: string;
-    payload: any;
+    payload?: any;
 }

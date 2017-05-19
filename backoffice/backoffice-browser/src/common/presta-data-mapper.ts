@@ -1,6 +1,10 @@
 import * as _ from 'lodash';
 import * as docuri from 'docuri';
+import { keyBy } from 'lodash';
+
 import { Models as P } from 'lik-shared';
+
+import { toCsv } from '../common/file-extensions';
 
 const preismeldungRefUri = docuri.route(P.preismeldungReferenceUriRoute);
 const preismeldungUri = docuri.route(P.preismeldungUriRoute);
@@ -176,33 +180,35 @@ export function preparePm(lines: string[][]): { erhebungsmonat: string, preismel
     return { preismeldungen, erhebungsmonat };
 }
 
-export function preparePmForExport(preismeldungen: (P.PreismeldungProperties & P.PreismeldungReferenceProperties & P.PmsPreismeldungenSortProperties)[], erhebungsmonat: string) {
+export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.PreismeldungReference })[], erhebungsmonat: string) {
+    let sortNumber = 1;
     return preismeldungen.map(pm => ({
-        'Erhebungsmonat': null, // TODO 1. Tag des Erhebungsmonats
-        'Preissubsystem': null, // LIK = 2
+        'Erhebungsmonat': erhebungsmonat,
+        'Preissubsystem': pm.pmRef.preissubsystem, // LIK = 2
         'Schemanummer': 0, // TODO: Always 0?
         'Preiserhebungsort': pm.pmsNummer,
         'Erhebungspositionnummer': pm.epNummer,
         'Laufnummer': pm.laufnummer,
         'Preis_T': pm.preis,
         'Menge_T': pm.menge,
-        'Preis_VPK': null, // TODO: ref_pm preis
-        'Menge_VPK': null, // TODO: ref_pm menge
-        'Bearbeitungscode': pm.bearbeitungscode,
-        'Aktionscode': pm.aktion,
-        'Preisbezeichnung': null, // TODO: Find out how to get this
+        'Aktionscode': pm.aktion ? 1 : 0,
+        'Preisbezeichnung': pm.pmRef.artikeltext,
         'Artikelnummer': pm.artikelnummer,
+        'Gueltigkeitsdatum': pm.pmRef.preisGueltigSeitDatum,
+        'Basispreis': pm.pmRef.basisPreis,
+        'Basismenge': pm.pmRef.basisMenge,
         'Fehlende_Preise': pm.fehlendePreiseR,
         'PE_Notiz': pm.notiz,
-        'PE_Kommentar': pm.kommentar,
         'Bemerkungen': pm.bemerkungen,
         'Internet_Link': pm.internetLink,
-        'Erhebungszeitpunkt': pm.erhebungsZeitpunkt,
-        'Sortiernummer': pm.sortOrder,
-        'Preis_vor_Reduktion': pm.preisVorReduktion,
-        'Menge_vor_Reduktion': pm.mengeVorReduktion,
-        'Datum_vor_Reduktion': null, // TODO: Find out how to get this
-        'Produktmerkmale': null // TODO how to get? By ref_pm?
+        'Erhebungszeitpunkt': pm.pmRef.erhebungsZeitpunkt,
+        'Erhebungsanfangsdatum': pm.pmRef.erhebungsAnfangsDatum,
+        'Erhebungsenddatum': pm.pmRef.erhebungsEndDatum,
+        'Sortiernummer': sortNumber++,
+        'Preis_vor_Reduktion': pm.pmRef.preisVorReduktion,
+        'Menge_vor_Reduktion': pm.pmRef.mengeVorReduktion,
+        'Datum_vor_Reduktion': pm.pmRef.datumVorReduktion,
+        'Produktmerkmale': escapeProductMerkmale(pm.productMerkmale)
     }));
 }
 
@@ -271,4 +277,10 @@ function parseNumber(s: string, propertyName: string) {
     const number = parseInt(s, 10);
     if (isNaN(number)) throw new Error(`Invalid ${propertyName}: '${s}'`);
     return number;
+}
+
+function escapeProductMerkmale(merkmale: string[]) {
+    if (!merkmale || merkmale.length === 0) return null;
+    const combined = toCsv([keyBy(merkmale)], false);
+    return toCsv([{ merkmale: combined }], false);
 }

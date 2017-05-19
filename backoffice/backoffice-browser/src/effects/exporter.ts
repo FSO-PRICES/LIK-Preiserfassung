@@ -9,11 +9,11 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
+import { getAllDocumentsForPrefixFromDb, dbNames, getDatabaseAsObservable, getDocumentByKeyFromDb } from './pouchdb-utils';
 import { toCsv } from '../common/file-extensions';
-import { preparePmForExport, preparePmsForExport, preparePreiserheberForExport } from '../common/presta-data-mapper';
-import { listUserDatabases, getDatabase, getAllDocumentsForPrefixFromDb, dbNames, getAllDocumentsForKeysFromDb, getDatabaseAsObservable, getDocumentByKeyFromDb } from './pouchdb-utils';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { cloneDeep, assign, isEqual } from 'lodash';
+import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
+import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
+import { loadAllPreismeldestellen, loadAllPreismeldungen } from '../common/user-db-values';
 
 const EnvelopeContent = `
 <?xml version="1.0"?>
@@ -44,67 +44,33 @@ export class ExporterEffects {
 
     @Effect()
     exportPreismeldungen$ = this.actions$.ofType('EXPORT_PREISMELDUNGEN')
-        .flatMap(() => listUserDatabases())
-        .do(x => console.log('result of list', x))
-        .map(() => ({ type: 'ACTION_IGNORE' }));
-        // .flatMap(({ payload }) =>
-        //     Observable.of({ type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action)
-        //         .merge(Observable.create((observer: Observer<exporter.Action>) => {
-        //             setTimeout(() => {
-        //                 const content = toCsv(preparePmForExport(payload));
-        //                 const count = payload.length;
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(() => loadAllPreismeldungen())
+        .flatMap(preismeldungen => // retrieve the assigned erhebungsmonat
+            getDatabaseAsObservable(dbNames.preismeldung)
+                .flatMap(db => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({ preismeldungen, erhebungsmonat })))
+        )
+        .flatMap(({ preismeldungen, erhebungsmonat }) => // export to csv
+            resetAndContinueWith({ type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
+                doAsyncAsObservable(() => {
+                    const content = toCsv(preparePmForExport(preismeldungen, erhebungsmonat.monthAsString));
+                    const count = preismeldungen.length;
 
-        //                 FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-        //                 FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-preismeldungen-to-presta.csv');
+                    FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
+                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pm-to-presta.csv');
 
-        //                 observer.next({ type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count } as exporter.Action);
-        //                 observer.complete();
-        //             });
-        //         }))
-        // );
+                    return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
+                })
+            )
+        );
 
     @Effect()
     exportPreismeldestellen$ = this.actions$.ofType('EXPORT_PREISMELDESTELLEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => listUserDatabases()) // fetch all user_ database names
-        .flatMap(dbnames => // fetch all pms documents from user_ databases
-            Observable.from(dbnames)
-                .flatMap(dbname => getDatabase(dbname))
-                .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
-        )
-        .flatMap(userPreismeldestellen => // fetch pms documents from 'master' preismeldestelle db
+        .flatMap(() => loadAllPreismeldestellen())
+        .flatMap(preismeldestellen => // write updated pms documents back to 'master' preismeldestelle db
             getDatabaseAsObservable(dbNames.preismeldestelle)
-                .flatMap(db => getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, userPreismeldestellen.map(p => p._id)))
-                .map(masterPreismeldestellen => ({ userPreismeldestellen, masterPreismeldestellen }))
-        )
-        .map(({ userPreismeldestellen, masterPreismeldestellen }) => // create a new collection of pms documents updated from user_ pms documents
-            masterPreismeldestellen
-                .map(masterPms => {
-                    const userPms = userPreismeldestellen.find(p => p._id === masterPms._id);
-                    if (!userPms) return masterPms;
-                    const propertiesToUpdated = {
-                        pmsNummer: userPms.pmsNummer,
-                        name: userPms.name,
-                        supplement: userPms.supplement,
-                        street: userPms.street,
-                        postcode: userPms.postcode,
-                        town: userPms.town,
-                        erhebungsregion: userPms.erhebungsregion,
-                        erhebungsart: userPms.erhebungsart,
-                        erhebungshaeufigkeit: userPms.erhebungshaeufigkeit,
-                        erhebungsartComment: userPms.erhebungsartComment,
-                        kontaktpersons: cloneDeep(userPms.kontaktpersons),
-                        languageCode: userPms.languageCode,
-                        telephone: userPms.telephone,
-                        email: userPms.email,
-                    };
-                    return assign({}, masterPms, propertiesToUpdated);
-                })
-                .filter(newMasterPms => !isEqual(newMasterPms, masterPreismeldestellen.find(p => p._id === newMasterPms._id)))
-        )
-        .flatMap(updatedPreismeldestellen => // write updated pms documents back to 'master' preismeldestelle db
-            getDatabaseAsObservable(dbNames.preismeldestelle)
-                .flatMap(db => db.bulkDocs(updatedPreismeldestellen))
+                .flatMap(db => db.bulkDocs(preismeldestellen, { new_edits: false })) // new_edits: false -> enables the insertion of foreign docs
         )
         .flatMap(() => // retrieve all pms documents from 'master' preismeldestelle db with the assigned erhebungsmonat
             getDatabaseAsObservable(dbNames.preismeldestelle)
@@ -113,30 +79,17 @@ export class ExporterEffects {
                 )
         )
         .flatMap(({ preismeldestellen, erhebungsmonat }) => // export to csv
-            // resetAndDo({ type: '' }, Observable.create((observer: Observer<exporter.Action>) => {
-            //         setTimeout(() => {
-            //             const content = toCsv(preparePmsForExport(preismeldestellen));
-            //             const count = preismeldestellen.length;
+            resetAndContinueWith({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
+                doAsyncAsObservable(() => {
+                    const content = toCsv(preparePmsForExport(preismeldestellen, erhebungsmonat.monthAsString));
+                    const count = preismeldestellen.length;
 
-            //             FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-            //             FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pms-to-presta.csv');
+                    FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
+                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pms-to-presta.csv');
 
-            //             observer.next({ type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count } as exporter.Action);
-            //             observer.complete();
-            //         });
-            Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action)
-                .merge(Observable.create((observer: Observer<exporter.Action>) => {
-                    setTimeout(() => {
-                        const content = toCsv(preparePmsForExport(preismeldestellen, erhebungsmonat.monthAsString));
-                        const count = preismeldestellen.length;
-
-                        FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-                        FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pms-to-presta.csv');
-
-                        observer.next({ type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count } as exporter.Action);
-                        observer.complete();
-                    });
-                }))
+                    return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
+                })
+            )
         );
 
     @Effect()

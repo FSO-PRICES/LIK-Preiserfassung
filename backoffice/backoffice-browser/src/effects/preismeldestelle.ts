@@ -9,8 +9,9 @@ import { Models as P } from 'lik-shared';
 import * as fromRoot from '../reducers';
 import * as preismeldestelle from '../actions/preismeldestelle';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { dbNames, getAllDocumentsForPrefixFromDb, getAllDocumentsFromDb, getDatabase, getDatabaseAsObservable, getUserDatabaseName, listUserDatabases } from './pouchdb-utils';
+import { dbNames, getAllDocumentsFromDb, getDatabase, getDatabaseAsObservable, getUserDatabaseName, listUserDatabases } from './pouchdb-utils';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
+import { loadAllPreismeldestellen } from '../common/user-db-values';
 
 @Injectable()
 export class PreismeldestelleEffects {
@@ -25,17 +26,7 @@ export class PreismeldestelleEffects {
     @Effect()
     loadPreismeldestelle$ = this.actions$.ofType('PREISMELDESTELLE_LOAD')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => listUserDatabases()
-            .flatMap(dbnames => Observable.from(dbnames)
-                .flatMap(dbname => getDatabaseAsObservable(dbname))
-                .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
-                .reduce((acc, preismeldestellen) => [...acc, ...preismeldestellen], [])
-            )
-        )
-        .flatMap(preismeldestellen => getDatabaseAsObservable(dbNames.preismeldestelle)
-            .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
-            .map(unassignedPms => sortBy([...preismeldestellen, ...unassignedPms.filter(pms => !preismeldestellen.some(x => x.pmsNummer === pms.pmsNummer))], pms => pms.pmsNummer))
-        )
+        .flatMap(() => loadAllPreismeldestellen())
         .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action));
 
     @Effect()
