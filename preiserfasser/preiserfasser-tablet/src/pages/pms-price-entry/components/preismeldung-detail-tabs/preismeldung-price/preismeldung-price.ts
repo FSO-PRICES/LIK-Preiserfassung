@@ -146,7 +146,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .subscribe(currentPm => {
                     this.form.patchValue({
                         preis: `${currentPm.refPreismeldung ? preisFormatFn(currentPm.refPreismeldung.preis) : ''}`,
-                        menge: `${currentPm.refPreismeldung ? currentPm.refPreismeldung.menge : currentPm.refPreismeldung.menge}`,
+                        menge: `${currentPm.refPreismeldung ? mengeFormatFn(currentPm.refPreismeldung.menge) : ''}`,
                         aktion: currentPm.refPreismeldung.aktion
                     });
                 })
@@ -156,7 +156,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqual$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        menge: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
+                        menge: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
                     });
                 })
         );
@@ -165,7 +165,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqualVP$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
+                        mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
                     });
                 })
         );

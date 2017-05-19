@@ -14,8 +14,11 @@ export function roundToDecimalPlaces(n: number, numDecimalPlaces: number) {
 }
 
 
-export const preisNumberFormattingOptions = { padLeft: 1, padRight: 2, truncate: 4, integerSeparator: '' };
-export const mengeNumberFormattingOptions = { padLeft: 1, padRight: 0, truncate: 3, integerSeparator: '' };
+const _preisNumberFormattingOptions = { padLeft: 1, padRight: 2, truncate: 4, integerSeparator: '' };
+const _mengeNumberFormattingOptions = { padLeft: 1, padRight: 3, truncate: 3, integerSeparator: '' };
 
-export const preisFormatFn = format(this.priceNumberFormattingOptions);
-export const mengeFormatFn = format(this.mengeNumberFormattingOptions);
+export const preisNumberFormattingOptions = _preisNumberFormattingOptions;
+export const mengeNumberFormattingOptions = _mengeNumberFormattingOptions;
+
+export const preisFormatFn = format(_preisNumberFormattingOptions);
+export const mengeFormatFn = format(_mengeNumberFormattingOptions);
