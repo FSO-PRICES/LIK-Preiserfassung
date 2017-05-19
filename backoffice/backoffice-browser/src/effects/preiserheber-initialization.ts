@@ -26,13 +26,13 @@ export class PreiserheberInitializationEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action => getDatabase(dbNames.preiserheber).then(db => ({ currentPreiszuweisung: <CurrentPreiszuweisung>action.payload, db })))
         .flatMap(({ currentPreiszuweisung, db }) => db.get(currentPreiszuweisung.preiserheberId).then(doc => ({ preiserheber: clearRev<P.Erheber>(doc), currentPreiszuweisung, pmsNummers: currentPreiszuweisung.preismeldestellenNummern })))
-        .flatMap(data => dropDatabase(getUserDatabaseName(data.preiserheber)).then(db => data))
+        .flatMap(data => dropDatabase(getUserDatabaseName(data.preiserheber._id)).then(db => data))
         .flatMap(x => getPreismeldestellen(x.pmsNummers).map(preismeldestellen => assign(x, { preismeldestellen })))
         .flatMap(x => getPreismeldungenAndErhebungsMonat(x.pmsNummers).map(pmData => assign(x, pmData)))
         .flatMap(x => getRegions().map(regionen => assign(x, { regionen: { _id: 'regionen', regionen } })))
         .flatMap(x => getDatabase(dbNames.warenkorb).then(warenkorbDb => warenkorbDb.get('warenkorb')).then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => assign(x, { warenkorb })))
-        .flatMap(x => getDatabase(getUserDatabaseName(x.preiserheber)).then(db => db.bulkDocs({ docs: [x.erhebungsmonat, x.preiserheber, x.regionen, ...x.preismeldestellen, ...x.preismeldungen, x.warenkorb] } as any)).then(() => x))
-        .flatMap(({ preiserheber, currentPreiszuweisung }) => putUserToDatabase(getUserDatabaseName(preiserheber), { members: { names: [preiserheber._id] } }).map(() => currentPreiszuweisung))
+        .flatMap(x => getDatabase(getUserDatabaseName(x.preiserheber._id)).then(db => db.bulkDocs({ docs: [x.erhebungsmonat, x.preiserheber, x.regionen, ...x.preismeldestellen, ...x.preismeldungen, x.warenkorb] } as any)).then(() => x))
+        .flatMap(({ preiserheber, currentPreiszuweisung }) => putUserToDatabase(getUserDatabaseName(preiserheber._id), { members: { names: [preiserheber._id] } }).map(() => currentPreiszuweisung))
         .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action));
 }
 

@@ -126,7 +126,7 @@ function deletePreiserheber(preiserheber: P.Erheber): Promise<boolean> {
                 })
         ))
         // Delete preiserheber db 'user_{id}' or rename to 'deleted_user_{id}'
-        .then(success => dropDatabase(getUserDatabaseName(preiserheber)).then(() => success))
+        .then(success => dropDatabase(getUserDatabaseName(preiserheber._id)).then(() => success))
         .catch(error => {
             console.log('[Error] Error occurred while deleting preiserheber. [preiserheber, error]', preiserheber, error);
             return false;

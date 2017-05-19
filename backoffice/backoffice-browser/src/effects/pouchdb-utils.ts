@@ -79,6 +79,10 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
     };
 }
 
+export function getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.Database<PouchDB.Core.Encodable>): Promise<T[]> {
+    return db.allDocs({ include_docs: true }).then(x => x.rows.map(row => row.doc as T));
+}
+
 export function getAllDocumentsForPrefixFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string): Promise<T[]> {
     return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
@@ -169,6 +173,6 @@ export function listUserDatabases() {
         .map(dbs => dbs.filter(n => n.startsWith('user_')));
 }
 
-export function getUserDatabaseName(preiserheber: P.Erheber) {
-    return `user_${preiserheber._id}`;
+export function getUserDatabaseName(preiserheberId: string) {
+    return `user_${preiserheberId}`;
 }

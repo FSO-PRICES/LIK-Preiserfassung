@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { find, sortBy } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as preismeldestelle from '../actions/preismeldestelle';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { getDatabase, dbNames, getAllDocumentsForPrefixFromDb } from './pouchdb-utils';
+import { dbNames, getAllDocumentsForPrefixFromDb, getAllDocumentsFromDb, getDatabase, getDatabaseAsObservable, getUserDatabaseName, listUserDatabases } from './pouchdb-utils';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
 
 @Injectable()
@@ -24,18 +25,27 @@ export class PreismeldestelleEffects {
     @Effect()
     loadPreismeldestelle$ = this.actions$.ofType('PREISMELDESTELLE_LOAD')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => getDatabase(dbNames.preismeldestelle).then(db => ({ db })))
-        .filter(({ db }) => db != null)
-        .flatMap(({ db }) => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms'))
+        .flatMap(() => listUserDatabases()
+            .flatMap(dbnames => Observable.from(dbnames)
+                .flatMap(dbname => getDatabaseAsObservable(dbname))
+                .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
+                .reduce((acc, preismeldestellen) => [...acc, ...preismeldestellen], [])
+            )
+        )
+        .flatMap(preismeldestellen => getDatabaseAsObservable(dbNames.preismeldestelle)
+            .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
+            .map(unassignedPms => sortBy([...preismeldestellen, ...unassignedPms.filter(pms => !preismeldestellen.some(x => x.pmsNummer === pms.pmsNummer))], pms => pms.pmsNummer))
+        )
         .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action));
 
     @Effect()
     savePreismeldestelle$ = this.actions$.ofType('SAVE_PREISMELDESTELLE')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .withLatestFrom(this.currentPreismeldestelle$, (action, currentPreismeldestelle: CurrentPreismeldestelle) => ({ currentPreismeldestelle }))
-        .flatMap(({ currentPreismeldestelle }) =>
+        .flatMap(({ currentPreismeldestelle }) => findUserDbNameContainingPms(currentPreismeldestelle.pmsNummer).map(userDbName => ({ currentPreismeldestelle, userDbName })))
+        .flatMap(({ currentPreismeldestelle, userDbName }) =>
             Observable.fromPromise(
-                getDatabase(dbNames.preismeldestelle)
+                getDatabase(userDbName || dbNames.preismeldestelle)
                     .then(db => db.get(currentPreismeldestelle._id).then(doc => ({ db, doc })))
                     .then(({ db, doc }) =>
                         db.put(Object.assign({}, doc, <P.Preismeldestelle>{
@@ -65,4 +75,13 @@ export class PreismeldestelleEffects {
             )
         )
         .map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload } as preismeldestelle.Action));
+}
+
+function findUserDbNameContainingPms(pmsNummerToFind: string) {
+    return getDatabaseAsObservable(dbNames.preiszuweisung)
+        .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))
+        .map(preiszuweisungen => {
+            const preiszuweisung = find(preiszuweisungen, p => p.preismeldestellenNummern.some(pmsNummer => pmsNummer === pmsNummerToFind));
+            return preiszuweisung ? getUserDatabaseName(preiszuweisung.preiserheberId) : null;
+        });
 }

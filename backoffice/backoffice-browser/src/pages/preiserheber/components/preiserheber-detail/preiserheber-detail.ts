@@ -120,6 +120,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                 .subscribe((erheber: CurrentPreiserheber) => {
                     this.form.markAsUntouched();
                     this.form.markAsPristine();
+                    this.form.get('password').patchValue(null);
                     this.getPreiserheberForm().patchValue({
                         username: erheber._id,
                         firstName: erheber.firstName,
