@@ -13,14 +13,14 @@
             <div class="info-popover-row">
                 <div class="info-popover-cell value">
                     <span class="number">
-                        {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
+                        {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: preisNumberFormattingOptions }}
                     </span>
                     <span class="label">CHF</span>
                 </div>
             </div>
             <div class="info-popover-row">
                 <div class="info-popover-cell value">
-                    <span class="number">{{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }}</span>
+                    <span class="number">{{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion | pefFormatNumber: mengeNumberFormattingOptions }}</span>
                     <span class="label">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</span>
                 </div>
             </div>
