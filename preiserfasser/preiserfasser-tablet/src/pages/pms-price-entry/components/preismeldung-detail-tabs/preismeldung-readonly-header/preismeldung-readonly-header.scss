@@ -50,4 +50,10 @@ preismeldung-readonly-header {
         font-weight: 500;
     }
 
+    .server-url-button {
+        @include set-margin-left(1);
+        &:hover {
+            fill: white;
+        }
+    }
 }

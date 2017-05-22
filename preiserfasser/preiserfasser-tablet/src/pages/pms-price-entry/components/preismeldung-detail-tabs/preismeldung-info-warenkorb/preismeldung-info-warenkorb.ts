@@ -14,12 +14,13 @@ export class PreismeldungInfoWarenkorbComponent extends ReactiveComponent implem
     @Input() preismeldung: P.PreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() warenkorb: P.WarenkorbInfo[];
+    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
     @Input() isDesktop: boolean;
-
 
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.AdvancedPreismeldestelle>('preismeldestelle').publishReplay(1).refCount();
 
     public parentHierarchy$: Observable<P.WarenkorbInfo[]>;
 

@@ -17,7 +17,7 @@
                         type="text"
                         formControlName="internetLink"></ion-input>
                 </ion-item>
-                <button class="pef-icon-secondary server-url-button" ion-button icon-only (click)="navigateToInternetLink(form.value.internetLink)" [disabled]="!form.value.internetLink">
+                <button class="pef-icon-secondary server-url-button" ion-button icon-only (click)="navigateToInternetLink(form.value.internetLink)" [disabled]="!form.value.internetLink" *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'">
                     <pef-icon name="server_url"></pef-icon>
                 </button>
                 <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async)?.priceCountStatus.ok, 'not-ok': !(preismeldung$ | async)?.priceCountStatus.ok }">

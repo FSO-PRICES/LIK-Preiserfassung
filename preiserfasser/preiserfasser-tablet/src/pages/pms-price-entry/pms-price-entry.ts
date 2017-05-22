@@ -21,7 +21,7 @@ import { NewPriceSeriesPage } from '../new-price-series';
 })
 export class PmsPriceEntryPage implements OnDestroy {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop).publishReplay(1).refCount();
-    preismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
+    preismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle).publishReplay(1).refCount();
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen).publishReplay(1).refCount();
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
