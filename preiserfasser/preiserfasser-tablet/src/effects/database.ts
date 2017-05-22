@@ -77,7 +77,7 @@ export class DatabaseEffects {
         .flatMap(() => checkIfDatabaseExists())
         .flatMap(exists => [
             { type: 'SET_DATABASE_EXISTS', payload: exists },
-            exists ? [] : this.resetActions // If the database does not exist, reset all data in store
+            ...(exists ? [] : this.resetActions) // If the database does not exist, reset all data in store
         ]);
 
     @Effect()
