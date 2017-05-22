@@ -105,8 +105,6 @@ export class DashboardPage implements OnDestroy {
             .merge(this.finishedPrinting$.map(() => null))
             .publishReplay(1).refCount();
 
-        console.log('dashbaord', new Date().getMilliseconds())
-
         this.subscriptions = [
             databaseExists$
                 .filter(exists => exists)
