@@ -70,7 +70,7 @@ export class PmsPriceEntryPage implements OnDestroy {
             .filter(x => x === 'HOME')
             .withLatestFrom(this.currentPreismeldung$.startWith(null), (_, currentPreismeldung) => currentPreismeldung)
             .flatMap(currentPreismeldung => {
-                if (!currentPreismeldung || (!!currentPreismeldung && !currentPreismeldung.isModified)) {
+                if (!currentPreismeldung || (!!currentPreismeldung && !currentPreismeldung.isModified && !currentPreismeldung.isNew)) {
                     return Observable.of('THROW_CHANGES');
                 }
                 return cancelEditDialog$;
@@ -146,7 +146,7 @@ export class PmsPriceEntryPage implements OnDestroy {
             .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({
                 selectedPreismeldung,
                 currentPreismeldung,
-                isCurrentModified: !!currentPreismeldung && currentPreismeldung.isModified
+                isCurrentModified: !!currentPreismeldung && (currentPreismeldung.isModified || currentPreismeldung.isNew)
             }));
 
         this.subscriptions.push(
