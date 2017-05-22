@@ -18,7 +18,7 @@
     "dialogText_aktion-message-preis_hoeher": "Aktueller Preis ist höher als in VP. Ist der Artikel wirklich erneut in Aktion?",
     "dialogText_not-aktion-message-billiger": "Aktionspreis der VP war gleich oder höher als aktueller Normalpreis. Ist der akteulle Preis ein Aktionspreis?",
     "dialogText_aufforderung_ersatzsuche": "In der EP sind nur {{numActivePrices}}/{{anzahlPreiseProPMS}} Produkte erfasst. Wollen Sie ein neues Produkt erfassen?",
-    "dialogText_abnormal_preisentwicklung": "Die Normalpreisentwicklung unterschreitet/überschreitet den im Warenkorb für diese Position definierten Wert. Ist der aktuelle Preis richtig?",
+    "dialogText_abnormal_preisentwicklung": "Grosse Veränderung! Bitte Preismeldung prüfen und allenfalls kommentieren.",
     "validation_formatted_required": "Feld \"{{controlName}}\" ist erforderlich.",
     "validation_formatted_number-out-of-range": "Ungültige Eingabe im Feld \"{{controlName}}\". Es muss ein Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben werden.",
     "validation_produktMerkmale_erfassen": "Bitte Produktmerkmale erfassen",
@@ -68,6 +68,7 @@
     "installed-software-version": "Installierte Software Version",
 
     "btn_delete-local-entries": "Lokale Daten löschen",
+    "btn_edit": "Editieren",
     "btn_save": "Speichern",
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
@@ -75,6 +76,8 @@
     "btn_continue-editing": "Weiterbearbeiten",
     "btn_pm-reset": "Preismeldung zurücksetzen",
     "btn_pm-delete": "Preismeldung löschen",
+    "btn_yes": "Ja",
+    "btn_no": "Nein",
 
     "a_navigate-to-settings": "Einstellungen bearbeiten",
 

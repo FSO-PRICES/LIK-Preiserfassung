@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from 'ng2-translate';
 import { keys, assign } from 'lodash';
 
-import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogOneButtonComponent, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
 
@@ -275,16 +275,14 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .filter(x => !x.bag.hasAttributeWarning)
             .flatMap(({ saveAction, bag }) => {
                 if (bag.isNew) {
-                    return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT' as P.SavePreismeldungPriceSaveActionWithDataType, data: '', tabNavigation: '' });
+                    return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT' as P.SavePreismeldungPriceSaveActionWithDataType, data: '' });
                 }
                 if (bag.messages.bemerkungenHistory !== '' && bag.messages.bemerkungen === '') {
                     return pefDialogService.displayDialog(DialogValidationErrorsComponent, [translateService.instant('validation_frage-antworten')], true).map(() => ({ type: 'NO_SAVE_NAVIGATE', data: 'MESSAGES' }));
                 }
-                if (bag.hasPriceWarning) {
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_abnormal_preisentwicklung'), false)
-                        .map(res => res.data !== 'YES'
-                            ? { type: 'CANCEL' }
-                            : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_abnormale_preisentwicklung_bestätigt' });
+                if (bag.hasPriceWarning && !bag.messages.kommentar) {
+                    return pefDialogService.displayDialog(PefDialogOneButtonComponent, { message: translateService.instant('dialogText_abnormal_preisentwicklung'), buttonText: 'btn_edit' }, false)
+                        .map(res => ({ type: 'CANCEL' }));
                 }
                 if ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer) {
                     return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false)
