@@ -25,6 +25,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen).publishReplay(1).refCount();
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
+    currentTime$ = this.store.select(fromRoot.getCurrentTime).publishReplay(1).refCount();
     priceCountStatuses$ = this.store.select(fromRoot.getPriceCountStatuses);
     warenkorb$ = this.store.select(fromRoot.getWarenkorb);
     currentPriceCountStatus$ = this.currentPreismeldung$.combineLatest(this.priceCountStatuses$, (currentPreismeldung, priceCountStatuses) => !currentPreismeldung ? null : priceCountStatuses[currentPreismeldung.preismeldung.epNummer]);
@@ -86,6 +87,8 @@ export class PmsPriceEntryPage implements OnDestroy {
                 .filter(x => x.from === tabName)
                 .merge(this.toolbarButtonClicked$.filter(x => x === 'HOME').withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName))
                 .merge(this.selectPreismeldung$.withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName));
+
+        this.currentTime$.subscribe();
 
         this.subscriptions.push(
             createTabLeaveObservable('MESSAGES')

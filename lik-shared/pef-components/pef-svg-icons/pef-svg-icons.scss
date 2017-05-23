@@ -11,4 +11,14 @@
             fill: $oslo-gray;
         }
     }
+    &.orange {
+        use {
+            fill: orange;
+        }
+    }
+    &.red {
+        use {
+            fill: $flamingo;
+        }
+    }
 }

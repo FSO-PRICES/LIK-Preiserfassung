@@ -31,7 +31,7 @@ export class PmsPrintComponent extends ReactiveComponent implements OnChanges, O
 
         this.mediaQueryListListener = this.mediaQueryListListener.bind(this);
 
-        const pmsNummer$ = this.observePropertyCurrentValue<string>('pmsNummer').do(x => console.log('pmsNummer is', x)).publishReplay(1).refCount();
+        const pmsNummer$ = this.observePropertyCurrentValue<string>('pmsNummer').publishReplay(1).refCount();
 
         this.subscriptions.push(
             pmsNummer$

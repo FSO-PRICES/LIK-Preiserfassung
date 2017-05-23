@@ -31,7 +31,7 @@
                     <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
                 </div>
                 <div class="preismeldung-status-todo" *ngIf="bag.preismeldung.percentageDPToVP == null">
-                    <pef-icon name="alarmclock_normal" svgCssClasses="green"></pef-icon>
+                    <pef-icon name="alarmclock_normal" [svgCssClasses]="calcStichtagStatus(bag, (currentTime$ | async))"></pef-icon>
                     <div class="status-bar"></div>
                 </div>
                 <div class="preismeldung-status-done" *ngIf="bag.preismeldung.percentageDPToVP != null">

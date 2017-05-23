@@ -11,7 +11,7 @@ export interface State {
 const initialState: State = {
     currentTime: new Date(),
     mockDate: null,
-    // mockDate: new Date(2017, 4, 17),
+    // mockDate: new Date(2017, 1, 10),
     erhebungsMonat: null
 };
 

@@ -196,14 +196,14 @@
                     </div>
                 </div>
                 <div class="current-period">
-                    <button ion-button color="java" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)">Erfassung speichern</button>
+                    <button ion-button color="java" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
                 </div>
             </div>
             <div class="columns product-detail-row row-4">
                 <div class="last-period"></div>
                 <div class="middle-section"></div>
                 <div class="current-period">
-                    <button ion-button color="primary" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)">Erfassung speichern</button>
+                    <button ion-button color="primary" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
                 </div>
             </div>
         </div>

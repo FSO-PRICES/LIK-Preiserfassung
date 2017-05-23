@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
+import { isBefore, isAfter, addDays, subMilliseconds } from 'date-fns';
 
 import { ReactiveComponent, formatPercentageChange, pefSearch } from 'lik-shared';
 
@@ -8,14 +9,16 @@ import * as P from '../../../../common-models';
 
 @Component({
     selector: 'preismeldung-list',
-    templateUrl: 'preismeldung-list.html'
+    templateUrl: 'preismeldung-list.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
     @ViewChild(Content) content: Content;
     @Input() isDesktop: boolean;
+    @Input() currentTime: Date;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() currentLanguage: string;
-    @Input() preismeldungen: P.Models.Preismeldung[];
+    @Input() preismeldungen: P.PreismeldungBag[];
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
     @Output() selectPreismeldung: Observable<P.PreismeldungBag>;
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
@@ -39,6 +42,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung');
+    public currentTime$ = this.observePropertyCurrentValue<Date>('currentTime').publishReplay(1).refCount();
     private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
 
     public ionItemHeight$ = new EventEmitter<number>();
@@ -46,6 +50,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     constructor() {
         super();
+
+        this.currentTime$.subscribe();
 
         const filterStatus$ =
             this.selectFilterTodo$.mapTo('TODO').merge(this.selectFilterCompleted$.mapTo('COMPLETED'))
@@ -126,6 +132,24 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     getBearbeitungscodeDescription(bearbeitungscode: P.Models.Bearbeitungscode) {
         return P.Models.bearbeitungscodeDescriptions[bearbeitungscode];
+    }
+
+    dateRegex = /(\d+)\.(\d+)\.(\d+)/;
+    parseDate(s: string) {
+        const parsed = this.dateRegex.exec(s);
+        if (!parsed) return null;
+        return new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
+    }
+
+    calcStichtagStatus(bag: P.PreismeldungBag, currentTime: Date) {
+        if (!bag.refPreismeldung) return null;
+        const erhebungsAnfangsDatum = this.parseDate(bag.refPreismeldung.erhebungsAnfangsDatum);
+        const erhebungsEndDatum = this.parseDate(bag.refPreismeldung.erhebungsEndDatum);
+        if (isBefore(currentTime, erhebungsAnfangsDatum)) return 'gray';
+        if (isAfter(currentTime, erhebungsAnfangsDatum) && isBefore(currentTime, subMilliseconds(erhebungsEndDatum, 1))) return 'green';
+        if (isAfter(currentTime, erhebungsEndDatum) && isBefore(currentTime, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))) return 'orange';
+        if (isAfter(currentTime, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))) return 'red';
+        return 'green';
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

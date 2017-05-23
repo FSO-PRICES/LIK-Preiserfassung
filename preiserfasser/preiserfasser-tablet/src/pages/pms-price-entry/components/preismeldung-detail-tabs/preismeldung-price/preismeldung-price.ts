@@ -3,6 +3,7 @@ import { Observable, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from 'ng2-translate';
 import { keys, assign } from 'lodash';
+import { isBefore } from 'date-fns';
 
 import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogOneButtonComponent, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
 
@@ -23,6 +24,7 @@ interface PercentageValues {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
+    @Input() currentTime: Date;
     @Input() preismeldung: P.CurrentPreismeldungBag;
     @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
     @Input() priceCountStatus: P.PriceCountStatus;
@@ -66,10 +68,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
     public currentPeriodHeading$: Observable<string>;
-
+    public isSaveDisabled$: Observable<boolean>;
 
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     preismeldestelle$ = this.observePropertyCurrentValue<P.PriceCountStatus>('preismeldestelle');
+    currentTime$ = this.observePropertyCurrentValue<Date>('currentTime').publishReplay(1).refCount();
 
     form: FormGroup;
 
@@ -340,6 +343,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .flatMap(errorMessages => pefDialogService.displayDialog(DialogValidationErrorsComponent, errorMessages, true))
                 .subscribe()
         );
+
+        this.isSaveDisabled$ = this.distinctPreismeldung$.combineLatest(this.currentTime$, (bag, currentTime) => {
+            if (!bag || !bag.refPreismeldung) return true;
+            const dateRegex = /(\d+)\.(\d+)\.(\d+)/;
+            const parsed = dateRegex.exec(bag.refPreismeldung.erhebungsAnfangsDatum);
+            if (!parsed) return false;
+            const erhebungsAnfangsDatum = new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
+            return isBefore(currentTime, erhebungsAnfangsDatum) ? true : false;
+        }).publishReplay(1).refCount();
 
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .map(x => x === 7 || x === 2 || x === 3 ? 'heading_artikel-neu' : 'heading_artikel');
