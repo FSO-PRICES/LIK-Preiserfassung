@@ -75,6 +75,7 @@ export class DatabaseEffects {
     checkDatabaseExists$ = this.actions$
         .ofType('CHECK_DATABASE_EXISTS')
         .flatMap(() => checkIfDatabaseExists())
+        .flatMap(exists => !exists ? dropDatabase().then(() => exists) : [exists]) // drop database in case it's the wrong version
         .flatMap(exists => [
             { type: 'SET_DATABASE_EXISTS', payload: exists },
             ...(exists ? [] : this.resetActions) // If the database does not exist, reset all data in store
