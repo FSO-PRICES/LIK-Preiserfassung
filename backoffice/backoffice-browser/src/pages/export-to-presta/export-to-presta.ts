@@ -21,7 +21,7 @@ export class ExportToPrestaPage implements OnDestroy {
     // public exportedPreiserheber$: Observable<number>;
 
     // public preismeldungen$: Observable<P.CompletePreismeldung[]>;
-    // public preismeldestellen$: Observable<P.AdvancedPreismeldestelle[]>;
+    // public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     // public preiserheber$: Observable<P.Erheber[]>;
     // public preiszuweisungen$: Observable<P.Preiszuweisung[]>;
 
@@ -84,7 +84,7 @@ export class ExportToPrestaPage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
-        // this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
+        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         // this.store.dispatch({ type: 'PREISMELDUNG_LOAD_UNEXPORTED' });
         // this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
         // this.store.dispatch({ type: 'PREISERHEBER_LOAD' });

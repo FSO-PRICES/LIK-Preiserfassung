@@ -2,14 +2,16 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { find, sortBy } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as preismeldestelle from '../actions/preismeldestelle';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { getDatabase, dbNames } from './pouchdb-utils';
+import { dbNames, getAllDocumentsFromDb, getDatabase, getDatabaseAsObservable, getUserDatabaseName, listUserDatabases } from './pouchdb-utils';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
+import { loadAllPreismeldestellen } from '../common/user-db-values';
 
 @Injectable()
 export class PreismeldestelleEffects {
@@ -24,37 +26,39 @@ export class PreismeldestelleEffects {
     @Effect()
     loadPreismeldestelle$ = this.actions$.ofType('PREISMELDESTELLE_LOAD')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => getDatabase(dbNames.preismeldestelle).then(db => ({ db })))
-        .filter(({ db }) => db != null)
-        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preismeldestellen: res.rows.map(y => y.doc) as P.AdvancedPreismeldestelle[] })))
+        .flatMap(() => loadAllPreismeldestellen())
         .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action));
 
     @Effect()
     savePreismeldestelle$ = this.actions$.ofType('SAVE_PREISMELDESTELLE')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .withLatestFrom(this.currentPreismeldestelle$, (action, currentPreismeldestelle: CurrentPreismeldestelle) => ({ currentPreismeldestelle }))
-        .flatMap(({ currentPreismeldestelle }) =>
+        .flatMap(({ currentPreismeldestelle }) => findUserDbNameContainingPms(currentPreismeldestelle.pmsNummer).map(userDbName => ({ currentPreismeldestelle, userDbName })))
+        .flatMap(({ currentPreismeldestelle, userDbName }) =>
             Observable.fromPromise(
-                getDatabase(dbNames.preismeldestelle)
+                getDatabase(userDbName || dbNames.preismeldestelle)
                     .then(db => db.get(currentPreismeldestelle._id).then(doc => ({ db, doc })))
                     .then(({ db, doc }) =>
-                        db.put(Object.assign({}, doc, <P.AdvancedPreismeldestelle>{
+                        db.put(Object.assign({}, doc, <P.Preismeldestelle>{
                             _id: currentPreismeldestelle._id,
                             _rev: currentPreismeldestelle._rev,
                             pmsNummer: currentPreismeldestelle.pmsNummer,
+                            preissubsystem: currentPreismeldestelle.preissubsystem,
                             name: currentPreismeldestelle.name,
                             supplement: currentPreismeldestelle.supplement,
-                            kontaktpersons: currentPreismeldestelle.kontaktpersons,
                             street: currentPreismeldestelle.street,
                             postcode: currentPreismeldestelle.postcode,
                             town: currentPreismeldestelle.town,
-                            regionId: currentPreismeldestelle.regionId,
-                            languageCode: currentPreismeldestelle.languageCode,
                             telephone: currentPreismeldestelle.telephone,
                             email: currentPreismeldestelle.email,
+                            languageCode: currentPreismeldestelle.languageCode,
+                            erhebungsregion: currentPreismeldestelle.erhebungsregion,
                             erhebungsart: currentPreismeldestelle.erhebungsart,
+                            erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit,
                             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
-                            erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit
+                            zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
+                            kontaktpersons: currentPreismeldestelle.kontaktpersons,
+                            active: currentPreismeldestelle.active
                         }))
                             .then((response) => ({ db, id: response.id }))
                     )
@@ -62,4 +66,13 @@ export class PreismeldestelleEffects {
             )
         )
         .map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload } as preismeldestelle.Action));
+}
+
+function findUserDbNameContainingPms(pmsNummerToFind: string) {
+    return getDatabaseAsObservable(dbNames.preiszuweisung)
+        .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))
+        .map(preiszuweisungen => {
+            const preiszuweisung = find(preiszuweisungen, p => p.preismeldestellenNummern.some(pmsNummer => pmsNummer === pmsNummerToFind));
+            return preiszuweisung ? getUserDatabaseName(preiszuweisung.preiserheberId) : null;
+        });
 }

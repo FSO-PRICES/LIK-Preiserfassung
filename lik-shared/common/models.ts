@@ -22,7 +22,6 @@ export interface PmsUri {
 
 export interface PreismeldestelleProperties {
     pmsNummer: string;
-    erhebungsmonat: Date;
     preissubsystem: number; // LIK = 2
     name: string;
     supplement: string;
@@ -33,6 +32,12 @@ export interface PreismeldestelleProperties {
     telephone: string;
     email: string;
     languageCode: string;
+    kontaktpersons: KontaktPerson[];
+    erhebungsregion: string;
+    erhebungsart: erhebungsartType;
+    erhebungshaeufigkeit: erhebungshaeufigkeitType;
+    erhebungsartComment: string;
+    active: boolean;
 }
 
 export interface PmsPreismeldungenSortProperties {
@@ -54,16 +59,6 @@ export interface KontaktPerson {
 export type erhebungsartType = 'vor_ort_mit_tablet' | 'telefon' | 'internet' | 'papier_persoenlich' | 'papier_pms_abgegeben';
 export type erhebungshaeufigkeitType = 'monatlich' | 'quartalsweise' | 'halbjaehrlich' | 'jaehrlich';
 
-export interface AdvancedPresimeldestelleProperties {
-    kontaktpersons: KontaktPerson[];
-    regionId: string;
-    active: boolean;
-    erhebungsart: erhebungsartType;
-    erhebungshaeufigkeit: erhebungshaeufigkeitType;
-    erhebungsartComment: string;
-    erhebungsregion: string;
-}
-
 export interface ErhebungsmonatProperties {
     _id: 'erhebongsmonat';
     monthAsString: string;
@@ -81,6 +76,9 @@ export interface PreismeldungUri {
 // tslint:disable-next-line:class-name
 interface _PreismeldungReferenceProperties {
     pmId: string;
+
+    preissubsystem: number;
+    schemanummer: number;
 
     preisGueltigSeitDatum: string;
     fehlendePreiseR: string;
@@ -100,6 +98,7 @@ interface _PreismeldungReferenceProperties {
     basisMenge: number;
     preisVorReduktion: number;
     mengeVorReduktion: number;
+    datumVorReduktion: string;
 
     aktion: boolean;
     artikelnummer: string;
@@ -171,7 +170,6 @@ export type DbSchemaVersion = { version: number } & CouchProperties;
 export type Erhebungsmonat = ErhebungsmonatProperties & CouchProperties;
 export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
 export type PmsPreismeldungenSort = PmsPreismeldungenSortProperties & CouchProperties;
-export type AdvancedPreismeldestelle = PreismeldestelleProperties & AdvancedPresimeldestelleProperties & CouchProperties;
 export type Erheber = ErheberProperties & CouchProperties;
 export type PreismeldungReference = PreismeldungReferenceProperties & CouchProperties;
 export type Preismeldung = PreismeldungProperties & CouchProperties;
@@ -222,7 +220,7 @@ export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
     standardeinheit: PropertyTranslation;
     erhebungstyp: string;
     anzahlPreiseProPMS: number;
-    erhebungsschemaperiode: number;
+    erhebungsschemaperiode: string;
     periodizitaetMonat: PeriodizitaetMonat;
     abweichungPmUG2: number;
     abweichungPmOG2: number;
@@ -254,7 +252,7 @@ export interface CouchSecurity {
 
 export interface PreiszuweisungProperties {
     preiserheberId: string;
-    preismeldestellen: Preismeldestelle[];
+    preismeldestellenNummern: string[];
 }
 
 export type Preiszuweisung = PreiszuweisungProperties & CouchProperties;

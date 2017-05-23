@@ -50,11 +50,12 @@ export class ImporterEffects {
     importPreismeldestellen$ = this.actions$.ofType('IMPORT_PREISMELDESTELLEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => preparePms(action.payload))
-        .flatMap(x => dropDatabase(dbNames.preismeldestelle).then(_ => x).catch(_ => x))
-        .flatMap(x => getDatabase(dbNames.preismeldestelle).then(db => ({ preismeldestellen: x, db })).catch(_ => ({ preismeldestellen: x, db: <PouchDB.Database<PouchDB.Core.Encodable>>null })))
-        .flatMap(({ preismeldestellen, db }) => db.bulkDocs(preismeldestellen).then(_ => preismeldestellen))
+        .flatMap(pmsInfo => dropDatabase(dbNames.preismeldestelle).then(_ => pmsInfo).catch(_ => pmsInfo))
+        .flatMap(pmsInfo => getDatabase(dbNames.preismeldestelle).then(db => ({ pmsInfo, db })))
+        .flatMap(({ pmsInfo, db }) => db.bulkDocs(pmsInfo.preismeldestellen).then(_ => ({ pmsInfo, db })))
+        .flatMap(({ pmsInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmsInfo.erhebungsmonat }).then(() => pmsInfo.preismeldestellen))
         .flatMap(preismeldestellen => this.updateImportMetadata(importer.Type.preismeldestellen).map(() => preismeldestellen))
-        .map(preismeldestellen => ({ type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: preismeldestellen } as importer.Action))
+        .map(preismeldestellen => ({ type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: preismeldestellen } as importer.Action));
 
     @Effect()
     importPreismeldungen$ = this.actions$.ofType('IMPORT_PREISMELDUNGEN')

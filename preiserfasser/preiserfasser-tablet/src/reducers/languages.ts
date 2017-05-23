@@ -1,9 +1,20 @@
+import { Models as P } from 'lik-shared';
+
 export interface State {
+    languages: P.LanguageDictionary;
+    languagesList: P.Language[];
     languageCodes: string[];
     currentLanguage?: string;
 }
 
 const initialState: State = {
+    languages: {
+        'Deutsch': { languageCode: 1, name: 'Deutsch' },
+        'Französisch': { languageCode: 2, name: 'Französisch' },
+        'Italienisch': { languageCode: 3, name: 'Italienisch' },
+        'Englisch': { languageCode: 4, name: 'Englisch' }
+    },
+    languagesList: [{ languageCode: 1, name: 'Deutsch' }, { languageCode: 2, name: 'Französisch' }, { languageCode: 3, name: 'Italienisch' }, { languageCode: 4, name: 'Englisch' }],
     languageCodes: [],
     currentLanguage: undefined,
 };
@@ -30,5 +41,7 @@ export function reducer(state = initialState, action: Actions): State {
     }
 }
 
-export const getLanguages = (state: State) => state.languageCodes;
+export const getLanguages = (state: State) => state.languages;
+export const getLanguagesList = (state: State) => state.languagesList;
+export const getLanguageCodes = (state: State) => state.languageCodes;
 export const getCurrentLangugage = (state: State) => state.currentLanguage;

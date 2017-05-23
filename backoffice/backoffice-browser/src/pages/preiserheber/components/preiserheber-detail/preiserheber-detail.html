@@ -1,4 +1,4 @@
-<form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+<form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
     <h1 class="large" [ngSwitch]="isEditing$ | async">
         <span *ngSwitchCase="true">Editieren</span>
         <span *ngSwitchDefault>Erfassen</span>
@@ -40,10 +40,9 @@
         <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
             <div class="item-inner">
                 <div class="input-wrapper">
-                    <ion-label stacked>Sprache</ion-label>
+                    <ion-label stacked [class.target-ng-invalid]="form.controls.preiserheber.controls.languageCode.invalid">Sprache</ion-label>
                     <div class="input input-md pef-select">
                         <select formControlName="languageCode">
-                            <option [selected]="preiserheber.languageCode === null" value="">Nicht angegeben</option>
                             <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
                         </select>
                     </div>
@@ -85,7 +84,7 @@
         <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
             <div class="item-inner">
                 <div class="input-wrapper">
-                    <ion-label stacked>Mitarbeiter von</ion-label>
+                    <ion-label stacked [class.target-ng-invalid]="form.controls.preiserheber.controls.preissubsystem.invalid">Mitarbeiter von</ion-label>
                     <div class="input input-md pef-select">
                         <select formControlName="preissubsystem">
                             <option *ngFor="let preissubsystem of preissubsysteme$ | async" [value]="preissubsystem.id">{{preissubsystem.name}}</option>

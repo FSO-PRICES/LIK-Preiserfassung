@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 
-import { Models as P } from 'lik-shared';
-
 import * as fromRoot from '../reducers';
 import * as login from '../actions/login';
 import { dbNames, getDatabase, loginToDatabase } from './pouchdb-utils';
@@ -43,12 +41,20 @@ export class LoginEffects {
 
     @Effect()
     login$ = this.actions$.ofType('LOGIN')
-        .flatMap<Action<P.Credentials>, P.User>(({ payload }) => loginToDatabase(payload)
+        .flatMap(({ payload }) => loginToDatabase(payload)
             .then(() => {
                 setCurrentLoggedInUser(payload.username);
                 return { username: payload.username };
             })
-            .catch(() => null)
+            .then(user => getDatabase(dbNames.users)
+                .then(db => db.allDocs())
+                .then(() => ({ user, error: null }))
+                .catch(reason => {
+                    resetCurrentLoggedInUser();
+                    return { user: null, error: 'Unzureichende Berechtigung.' };
+                })
+            )
+            .catch(() => ({ user: null, error: 'Benutzername oder Password stimmen nicht überein.' }))
         )
-        .map(user => (user != null ? { type: 'LOGIN_SUCCESS', payload: user } as login.Action : { type: 'LOGIN_FAIL' } as login.Action));
+        .map(({ user, error }) => (!error ? { type: 'LOGIN_SUCCESS', payload: user } as login.Action : { type: 'LOGIN_FAIL', payload: error } as login.Action));
 }

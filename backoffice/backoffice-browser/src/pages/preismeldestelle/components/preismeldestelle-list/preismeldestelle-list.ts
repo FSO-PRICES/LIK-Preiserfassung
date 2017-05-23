@@ -24,7 +24,7 @@ export class PreismeldestelleListComponent extends ReactiveComponent implements 
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preismeldestellen$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle[]>('list').publishReplay(1).refCount();
+        this.preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('list').publishReplay(1).refCount();
         this.filteredPreismeldestellen$ = this.preismeldestellen$
             .combineLatest(this.filterTextValueChanges.startWith(null), (preismeldestellen, filterText) =>
                 !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode])

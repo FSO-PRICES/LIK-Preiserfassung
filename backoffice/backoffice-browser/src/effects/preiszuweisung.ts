@@ -49,7 +49,7 @@ export class PreiszuweisungEffects {
                                 _id: create ? currentPreiserheberId : currentPreiszuweisung._id,
                                 _rev: currentPreiszuweisung._rev,
                                 preiserheberId: currentPreiserheberId,
-                                preismeldestellen: currentPreiszuweisung.preismeldestellen
+                                preismeldestellenNummern: currentPreiszuweisung.preismeldestellenNummern
                             }
                         );
                         return db.put(data).then((response) => ({ db, id: response.id }));

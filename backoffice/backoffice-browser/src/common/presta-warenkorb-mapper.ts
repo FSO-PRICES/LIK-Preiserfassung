@@ -1,8 +1,7 @@
-import { Models as P } from 'lik-shared';
-import * as _ from 'lodash';
-import { mapValues, values, keys } from 'lodash';
+import { assign, mapValues, values, keys } from 'lodash';
 import * as csvParser from 'js-csvparser';
 
+import { Models as P } from 'lik-shared';
 
 const indexes = {
     erhebungsschemaperiode: 0,
@@ -54,13 +53,13 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
         const treeItem: P.WarenkorbTreeItem & { _id: string } = {
             _id: thisLine[indexes.gliederungspositionsnummer],
             type: 'LEAF',
+            erhebungsschemaperiode: thisLine[indexes.erhebungsschemaperiode],
             gliederungspositionsnummer: thisLine[indexes.gliederungspositionsnummer],
             parentGliederungspositionsnummer: null,
             produktecode: parseProduktecode(thisLine[indexes.produktecode]),
             gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
             tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
             positionsbezeichnung: translationsToStringOrNull(thisLine[indexes.positionsbezeichnung], data.fr[i][indexes.positionsbezeichnung], data.it[i][indexes.positionsbezeichnung]),
-            erhebungsschemaperiode: parseNumber(thisLine[indexes.erhebungsschemaperiode], 'erhebungsschemaperiode'),
             periodizitaetscode: translationsToStringOrNull(thisLine[indexes.periodizitaetscode], data.fr[i][indexes.periodizitaetscode], data.it[i][indexes.periodizitaetscode]),
             standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
             standardeinheit: translationsToStringOrNull(thisLine[indexes.standardeinheit], data.fr[i][indexes.standardeinheit], data.it[i][indexes.standardeinheit]),
@@ -153,7 +152,7 @@ function createHierarchyRecursive(parent: P.WarenkorbTreeItem, currentItemIndex:
         }
         currentItem = treeItems[i + 1];
     }
-    return _.assign({}, parent, { children });
+    return assign({}, parent, { children });
 }
 
 function countHierarchicalItems(item: P.WarenkorbHierarchicalTreeItem): number {

@@ -24,9 +24,9 @@ export class RegionEffects {
     @Effect()
     loadRegion$ = this.actions$.ofType('REGION_LOAD')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => getDatabase(dbNames.region).then(db => ({ db })))
-        .filter(({ db }) => db != null)
-        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ regionen: res.rows.map(y => y.doc) as P.Region[] })))
+        .flatMap(() => getDatabase(dbNames.region))
+        .filter(db => db != null)
+        .flatMap(db => db.allDocs({ include_docs: true }).then(res => res.rows.map(y => y.doc) as P.Region[]))
         .map(docs => ({ type: 'REGION_LOAD_SUCCESS', payload: docs } as region.Action));
 
     @Effect()

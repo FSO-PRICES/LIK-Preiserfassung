@@ -4,14 +4,14 @@ import * as preismeldestelle from '../actions/preismeldestelle';
 import { assign, cloneDeep } from 'lodash';
 import { createSelector } from 'reselect';
 
-export type CurrentPreismeldestelle = P.AdvancedPreismeldestelle & {
+export type CurrentPreismeldestelle = P.Preismeldestelle & {
     isModified: boolean;
     isSaved: boolean;
 };
 
 export interface State {
     preismeldestelleIds: string[];
-    entities: { [id: string]: P.AdvancedPreismeldestelle };
+    entities: { [id: string]: P.Preismeldestelle };
     currentPreismeldestelle: CurrentPreismeldestelle;
 };
 
@@ -25,10 +25,10 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
     switch (action.type) {
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;
-            const preismeldestellen = payload.preismeldestellen
-                .map<P.AdvancedPreismeldestelle>(preismeldestelle => Object.assign({}, preismeldestelle));
+            const preismeldestellen = payload
+                .map<P.Preismeldestelle>(preismeldestelle => Object.assign({}, preismeldestelle));
             const preismeldestelleIds = preismeldestellen.map(p => p._id);
-            const entities = preismeldestellen.reduce((entities: { [_id: string]: P.AdvancedPreismeldestelle }, preismeldestelle: P.AdvancedPreismeldestelle) => {
+            const entities = preismeldestellen.reduce((entities: { [_id: string]: P.Preismeldestelle }, preismeldestelle: P.Preismeldestelle) => {
                 return Object.assign(entities, { [preismeldestelle._id]: preismeldestelle });
             }, {});
             return assign({}, state, { preismeldestelleIds, entities, currentPreismeldestelle: undefined });
@@ -44,20 +44,21 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
 
             const valuesFromPayload = {
                 _id: payload._id,
-                pmsNummer: payload.pmsNummer,
+                // pmsNummer: payload.pmsNummer,
                 name: payload.name,
                 supplement: payload.supplement,
                 street: payload.street,
                 postcode: payload.postcode,
                 town: payload.town,
-                regionId: payload.regionId,
+                telephone: payload.telephone,
+                email: payload.email,
+                languageCode: payload.languageCode,
+                erhebungsregion: payload.erhebungsregion,
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,
+                zusatzInformationen: payload.zusatzInformationen,
                 kontaktpersons: cloneDeep(payload.kontaktpersons),
-                languageCode: payload.languageCode,
-                telephone: payload.telephone,
-                email: payload.email,
                 active: payload.active
             };
 

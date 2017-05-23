@@ -25,7 +25,6 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
     public assignPreismeldestelleClick$ = new EventEmitter();
     public unassignPreismeldestelleClick$ = new EventEmitter();
 
-    public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     public assignedPreismeldestellen$: Observable<P.Preismeldestelle[]>;
     public filteredPreismeldestellen$: Observable<P.Preismeldestelle[]>;
     public allViewPortItems: P.Preismeldestelle[];
@@ -43,25 +42,26 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
 
         const preiszuweisungen$ = this.observePropertyCurrentValue<P.Preiszuweisung[]>('preiszuweisungen').publishReplay(1).refCount();
 
-        const preismeldestellen$ = this.observePropertyCurrentValue<P.AdvancedPreismeldestelle[]>('preismeldestellen').publishReplay(1).refCount();
+        const preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('preismeldestellen').publishReplay(1).refCount();
 
         const unassignedPreismeldestellen$ = preiszuweisungen$
-            .combineLatest(preismeldestellen$, (preiszuweisungen: P.Preiszuweisung[], preismeldestellen: P.AdvancedPreismeldestelle[]) => ({ preiszuweisungen, preismeldestellen }))
+            .combineLatest(preismeldestellen$, (preiszuweisungen: P.Preiszuweisung[], preismeldestellen: P.Preismeldestelle[]) => ({ preiszuweisungen, preismeldestellen }))
             .combineLatest(this.current$, ({ preiszuweisungen, preismeldestellen }, preiserheber) => ({ preiszuweisungen, preismeldestellen, preiserheberId: <string>preiserheber._id }))
             .filter(({ preismeldestellen }) => !!preismeldestellen)
             .map(({ preiszuweisungen, preismeldestellen, preiserheberId }) => {
                 if (!!preiserheberId && !!preiszuweisungen) {
                     const alreadyAssigned = reduce(preiszuweisungen, (prev, curr) => {
-                        return curr._id !== preiserheberId ? prev.concat(curr.preismeldestellen) : prev;
-                    }, []);
-                    return preismeldestellen.filter(x => !alreadyAssigned.some(y => y.pmsNummer === x.pmsNummer));
+                        return curr._id !== preiserheberId ? prev.concat(curr.preismeldestellenNummern) : prev;
+                    }, <string[]>[]);
+                    return preismeldestellen.filter(x => !alreadyAssigned.some(pmsNummer => pmsNummer === x.pmsNummer));
                 }
                 return preismeldestellen;
             });
 
         this.assignedPreismeldestellen$ = this.current$
             .filter(x => !!x)
-            .map(preiszuweisung => preiszuweisung.preismeldestellen)
+            .withLatestFrom(preismeldestellen$, (preiszuweisung, preismeldestellen) => ({ preiszuweisung, preismeldestellen }))
+            .map(({ preiszuweisung, preismeldestellen }) => preismeldestellen.filter(p => preiszuweisung.preismeldestellenNummern.some(x => x === p.pmsNummer)))
             .publishReplay(1).refCount();
 
         this.filteredPreismeldestellen$ = this.assignedPreismeldestellen$.startWith(null)

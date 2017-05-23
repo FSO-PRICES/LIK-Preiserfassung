@@ -12,12 +12,12 @@ import * as P from '../../../../../common-models';
 export class PreismeldungInfoComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
-    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
+    @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Output('resetClicked') resetClicked$ = new EventEmitter();
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
-    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.AdvancedPreismeldestelle>('preismeldestelle');
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
 

@@ -14,7 +14,7 @@ import { Observable } from 'rxjs';
 export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.Models.Preismeldung;
     @Input() priceCountStatus: P.PriceCountStatus;
-    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
+    @Input() preismeldestelle: P.Models.Preismeldestelle;
 
     @Output('preismeldungAttributesPayload') preismeldungAttributesPayload$: Observable<string[]>;
 
@@ -22,7 +22,7 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
 
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
-    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.AdvancedPreismeldestelle>('preismeldestelle');
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
 
     form: FormGroup;
 

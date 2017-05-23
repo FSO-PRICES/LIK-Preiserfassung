@@ -40,17 +40,21 @@ export class PreismeldestelleEffects {
         return {
             _id: currentPreismeldestelle._id,
             _rev: currentPreismeldestelle._rev,
+            preissubsystem: currentPreismeldestelle.preissubsystem,
             name: currentPreismeldestelle.name,
+            supplement: currentPreismeldestelle.supplement,
             street: currentPreismeldestelle.street,
-            town: currentPreismeldestelle.town,
             postcode: currentPreismeldestelle.postcode,
+            town: currentPreismeldestelle.town,
             telephone: currentPreismeldestelle.telephone,
             email: currentPreismeldestelle.email,
             languageCode: currentPreismeldestelle.languageCode,
-            kontaktpersons: currentPreismeldestelle.kontaktpersons,
+            erhebungsregion: currentPreismeldestelle.erhebungsregion,
             erhebungsart: currentPreismeldestelle.erhebungsart,
+            erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit,
             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
-            erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit
+            zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
+            kontaktpersons: currentPreismeldestelle.kontaktpersons
         };
     }
 }

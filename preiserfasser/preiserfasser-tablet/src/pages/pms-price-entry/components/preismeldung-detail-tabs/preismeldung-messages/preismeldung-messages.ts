@@ -16,7 +16,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     @Input() isActive: boolean;
     @Input() preismeldung: P.CurrentPreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
-    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
+    @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Output('preismeldungMessagesPayload') preismeldungMessagesPayload$: Observable<P.PreismeldungMessagesPayload>;
 
     public isActive$ = this.observePropertyCurrentValue<boolean>('isActive');
