@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, HostBinding } from '@angular/core';
 import { Platform, NavController } from 'ionic-angular';
 import { StatusBar, Splashscreen, ScreenOrientation } from 'ionic-native';
 import { TranslateService } from 'ng2-translate';
@@ -14,13 +14,12 @@ import { initialisePouchForDev } from '../effects/pouchdb-utils';
 @Component({
     template: `
         <pef-svg-icons></pef-svg-icons>
-        <ion-nav [root]="rootPage" #nav></ion-nav>`,
-    host: { '[class.pef-desktop]': 'isDesktop', '[class.pef-toolbar-right]': 'false' }
+        <ion-nav [root]="rootPage" #nav></ion-nav>`
 })
 export class PefApp implements OnInit {
     @ViewChild('nav') navCtrl: NavController;
-
-    isDesktop = false;
+    @HostBinding('class.pef-desktop') isDesktop = false;
+    @HostBinding('class.pef-toolbar-right') toolbarRight = false;
 
     constructor(platform: Platform, private store: Store<fromRoot.AppState>, private translate: TranslateService) {
 
@@ -73,6 +72,13 @@ export class PefApp implements OnInit {
             .filter(setting => !!setting)
             .map(setting => !setting.isDefault)
             .take(1)
-            .subscribe(areSettingsDefined => this.navCtrl.setRoot(areSettingsDefined ? DashboardPage : SettingsPage));
+            .subscribe(areSettingsDefined => {
+                if (!areSettingsDefined) {
+                    this.navCtrl.setRoot(SettingsPage);
+                }
+                if (window.location.hash !== '#/home') {
+                    this.navCtrl.setRoot(DashboardPage);
+                }
+            });
     }
 }

@@ -1,10 +1,13 @@
+<pms-print [pmsNummer]="isPrintingPmsNummer$ | async" (finishedPrinting)="finishedPrinting$.emit()"></pms-print>
 <div class="dashboard-content">
     <div class="pef-toolbar">
         <div class="app-info-container">
             <div class="app-name">LIK</div>
-            <div class="person">
-                <div class="person-icon"></div>
-            </div>
+            <button ion-button class="pef-toolbar-button person-button">
+                <div class="person-icon">
+                    <pef-icon name="person"></pef-icon>
+                </div>
+            </button>
         </div>
         <div class="settings-buttons-container">
             <button ion-button class="pef-toolbar-button" [disabled]="true">
@@ -44,7 +47,7 @@
                     </div>
                 </div>
             </div>
-            <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop">
+            <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
                 <div class="pms-table" [virtualScroll]="filteredPreismeldestellen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)">
                     <div class="pms-row" *virtualItem="let preismeldestelle">
                         <div class="pms-cell pms-name">
@@ -77,7 +80,7 @@
                                 <a ion-button icon-only
                                     class="price-entry-button"
                                     href="javascript:"
-                                    (click)="navigateToPriceEntry(preismeldestelle)">
+                                    (click)="navigateToPriceEntryOrPrint$.emit(preismeldestelle)">
                                     <pef-icon [name]="isPdf(preismeldestelle.erhebungsart) ? 'pdf' : 'todo'"></pef-icon>
                                 </a>
                             </div>

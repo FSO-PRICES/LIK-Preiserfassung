@@ -2,20 +2,19 @@ import { Component, HostBinding } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
 
 @Component({
-    selector: 'pef-dialog-yes-no',
+    selector: 'pef-dialog-one-button',
     template: `
         <div class="pef-dialog-message">
             <h3>
-                {{ navParams.data.params }}
+                {{ navParams.data.params.message }}
             </h3>
         </div>
         <div class="pef-dialog-button-row">
-            <button ion-button (click)="viewCtrl.dismiss('YES')" color="primary">{{ 'btn_yes' | translate }}</button>
-            <button ion-button (click)="viewCtrl.dismiss('NO')" color="secondary">{{ 'btn_no' | translate }}</button>
+            <button ion-button (click)="viewCtrl.dismiss()" color="primary">{{ navParams.data.params.buttonText | translate }}</button>
         </div>
     `
 })
-export class PefDialogYesNoComponent {
+export class PefDialogOneButtonComponent {
     @HostBinding('class') classes = 'pef-dialog';
 
     constructor(public viewCtrl: ViewController, public navParams: NavParams) {

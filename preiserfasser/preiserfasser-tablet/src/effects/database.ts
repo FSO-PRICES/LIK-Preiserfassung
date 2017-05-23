@@ -7,7 +7,7 @@ import { chain } from 'lodash';
 import { Models as P } from 'lik-shared';
 
 import { getDatabaseLastUploadedAt, setDatabaseLastUploadedAt } from './local-storage-utils';
-import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, downloadDatabase, uploadDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
+import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase } from './pouchdb-utils';
 
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
 import { Actions as PreismeldungAction } from '../actions/preismeldungen';
@@ -40,8 +40,8 @@ export class DatabaseEffects {
     loadPreismeldestellen$ = this.actions$
         .ofType('DOWNLOAD_DATABASE')
         .flatMap(x => downloadDatabase(x.payload)
-            .then(() => ({ type: 'SET_DATABASE_EXISTS', payload: true }))
-            .catch(() => ({ type: 'SET_DATABASE_EXISTS', payload: false }))
+            .map(() => ({ type: 'SET_DATABASE_EXISTS', payload: true }))
+            .catch(err => Observable.of({ type: 'SET_DATABASE_EXISTS', payload: false }))
         );
 
     @Effect()
@@ -61,10 +61,9 @@ export class DatabaseEffects {
                 )
                 .then(() => ({ credentials: action.payload }));
         })
-        .flatMap(({ credentials }) => uploadDatabase(credentials)
-            .then(() => setDatabaseLastUploadedAt(new Date()))
-            .then(() => ({ type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: new Date() }))
-        );
+        .flatMap(({ credentials }) => uploadDatabase(credentials))
+        .do(() => setDatabaseLastUploadedAt(new Date()))
+        .map(() => ({ type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: new Date() }));
 
     @Effect()
     checkLastUploadedAt$ = this.actions$
@@ -75,9 +74,10 @@ export class DatabaseEffects {
     checkDatabaseExists$ = this.actions$
         .ofType('CHECK_DATABASE_EXISTS')
         .flatMap(() => checkIfDatabaseExists())
+        .flatMap(exists => !exists ? dropDatabase().then(() => exists) : [exists]) // drop database in case it's the wrong version
         .flatMap(exists => [
             { type: 'SET_DATABASE_EXISTS', payload: exists },
-            ...exists ? [] : this.resetActions // If the database does not exists, reset all data in store
+            ...(exists ? [] : this.resetActions) // If the database does not exist, reset all data in store
         ]);
 
     @Effect()

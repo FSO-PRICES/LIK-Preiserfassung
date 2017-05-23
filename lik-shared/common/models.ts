@@ -164,6 +164,9 @@ export interface CouchProperties {
     _rev: string;
 }
 
+export const ExpectedDbSchemaVersion = 1;
+
+export type DbSchemaVersion = { version: number } & CouchProperties;
 export type Erhebungsmonat = ErhebungsmonatProperties & CouchProperties;
 export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
 export type PmsPreismeldungenSort = PmsPreismeldungenSortProperties & CouchProperties;

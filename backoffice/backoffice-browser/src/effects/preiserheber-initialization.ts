@@ -31,7 +31,8 @@ export class PreiserheberInitializationEffects {
         .flatMap(x => getPreismeldungenAndErhebungsMonat(x.pmsNummers).map(pmData => assign(x, pmData)))
         .flatMap(x => getRegions().map(regionen => assign(x, { regionen: { _id: 'regionen', regionen } })))
         .flatMap(x => getDatabase(dbNames.warenkorb).then(warenkorbDb => warenkorbDb.get('warenkorb')).then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => assign(x, { warenkorb })))
-        .flatMap(x => getDatabase(getUserDatabaseName(x.preiserheber._id)).then(db => db.bulkDocs({ docs: [x.erhebungsmonat, x.preiserheber, x.regionen, ...x.preismeldestellen, ...x.preismeldungen, x.warenkorb] } as any)).then(() => x))
+        .map(x => assign(x, { dbSchemaVersion: { _id: 'db-schema-version', version: P.ExpectedDbSchemaVersion } }))
+        .flatMap(x => getDatabase(getUserDatabaseName(x.preiserheber._id)).then(db => db.bulkDocs({ docs: [x.erhebungsmonat, x.preiserheber, x.regionen, ...x.preismeldestellen, ...x.preismeldungen, x.warenkorb, x.dbSchemaVersion] } as any)).then(() => x))
         .flatMap(({ preiserheber, currentPreiszuweisung }) => putUserToDatabase(getUserDatabaseName(preiserheber._id), { members: { names: [preiserheber._id] } }).map(() => currentPreiszuweisung))
         .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action));
 }

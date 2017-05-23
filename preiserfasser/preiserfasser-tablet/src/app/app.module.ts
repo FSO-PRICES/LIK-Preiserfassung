@@ -16,6 +16,7 @@ import { DashboardPage } from '../pages/dashboard/dashboard';
 import { LoginModal } from '../pages/login/login';
 import { NewPriceSeriesModule, NewPriceSeriesPage } from '../pages/new-price-series';
 import { PmsDetailsPage } from '../pages/pms-details/pms-details';
+import { PmsPrintComponent } from '../pages/pms-print/pms-print';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 import { SettingsPage } from '../pages/settings/settings';
 import { TestPage } from '../pages/test-page/test-page';
@@ -33,6 +34,7 @@ export function createTranslateLoader(http: Http) {
         LoginModal,
         PefApp,
         PmsDetailsPage,
+        PmsPrintComponent,
         SettingsPage,
         TestPage
     ],

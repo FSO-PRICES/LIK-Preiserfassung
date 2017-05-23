@@ -305,3 +305,26 @@ ion-popover.popover-md {
         height: auto;
     }
 }
+
+@media print {
+    body {
+        position: static;
+        max-height: none;
+        overflow: visible;
+    }
+    ion-nav {
+        position: static;
+        overflow: visible;
+    }
+    ion-app, ion-nav, .ion-page {
+        contain: none;
+        height: initial;
+    }
+    .app-root, .app-root.pef-desktop {
+        position: static;
+        contain: none;
+    }
+    // @page {
+    //     margin: 0px auto;
+    // }
+}

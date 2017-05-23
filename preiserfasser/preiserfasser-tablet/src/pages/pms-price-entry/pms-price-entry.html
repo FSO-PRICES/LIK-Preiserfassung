@@ -17,22 +17,26 @@
                     [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
                     [isDesktop]="isDesktop$ | async"
                     [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
                     [warenkorb]="warenkorb$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
                 <preismeldung-info
                     [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
                     [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     (resetClicked)="resetPreismeldung$.emit()"></preismeldung-info>
                 <preismeldung-attributes
                     [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
                     [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"></preismeldung-attributes>
                 <preismeldung-messages
                     [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
                     [isActive]="(selectedTab$ | async) == 'MESSAGES'"
                     [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"></preismeldung-messages>
                 <preismeldung-price

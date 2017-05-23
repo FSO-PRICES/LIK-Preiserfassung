@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, SimpleChange, ElementRef, In
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent, formatPercentageChange } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, preisNumberFormattingOptions, mengeNumberFormattingOptions } from 'lik-shared';
 
 import * as P from '../../../../common-models';
 
@@ -23,7 +23,8 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
     public popoverMaxHeight$: Observable<string>;
     public comparisonContainerWidth$: Observable<number>;
 
-    public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
+    public preisNumberFormattingOptions = preisNumberFormattingOptions;
+    public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
     constructor(elementRef: ElementRef, private sanitizer: DomSanitizer, @Inject('windowObject') window: Window) {
         super();

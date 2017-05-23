@@ -10,9 +10,9 @@ import { ViewController, NavParams } from 'ionic-angular';
             </h3>
         </div>
         <div class="pef-dialog-button-row">
-            <button ion-button (click)="viewCtrl.dismiss('YES')" color="primary">Ja</button>
-            <button ion-button (click)="viewCtrl.dismiss('NO')" color="secondary">Nein</button>
-            <button ion-button (click)="viewCtrl.dismiss('EDIT')" color="secondary">Editieren</button>
+            <button ion-button (click)="viewCtrl.dismiss('YES')" color="primary">{{ 'btn_yes' | translate }}</button>
+            <button ion-button (click)="viewCtrl.dismiss('NO')" color="secondary">{{ 'btn_no' | translate }}</button>
+            <button ion-button (click)="viewCtrl.dismiss('EDIT')" color="secondary">{{ 'btn_edit' | translate}}</button>
         </div>
     `
 })

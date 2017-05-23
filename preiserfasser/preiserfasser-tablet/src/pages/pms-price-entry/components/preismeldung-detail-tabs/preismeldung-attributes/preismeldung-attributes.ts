@@ -14,12 +14,15 @@ import { Observable } from 'rxjs';
 export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.Models.Preismeldung;
     @Input() priceCountStatus: P.PriceCountStatus;
+    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
+
     @Output('preismeldungAttributesPayload') preismeldungAttributesPayload$: Observable<string[]>;
 
     public fieldEdited$ = new EventEmitter();
 
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.AdvancedPreismeldestelle>('preismeldestelle');
 
     form: FormGroup;
 

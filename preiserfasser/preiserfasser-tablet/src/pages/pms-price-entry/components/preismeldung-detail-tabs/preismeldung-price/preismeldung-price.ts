@@ -3,11 +3,12 @@ import { Observable, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from 'ng2-translate';
 import { keys, assign } from 'lodash';
-import * as format from 'format-number';
 
-import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogOneButtonComponent, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
+
+import { preisNumberFormattingOptions, preisFormatFn, mengeNumberFormattingOptions, mengeFormatFn } from 'lik-shared';
 
 import { DialogValidationErrorsComponent } from '../../dialog-validation-errors/dialog-validation-errors';
 import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
@@ -60,13 +61,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqualVP$ = new EventEmitter();
     public chooseReductionPercentage$ = new EventEmitter();
 
-    public priceNumberFormattingOptions = { padLeft: 1, padRight: 2, truncate: 4, integerSeparator: '' };
-    public mengeNumberFormattingOptions = { padLeft: 1, padRight: 0, truncate: 3, integerSeparator: '' };
+
+    public preisNumberFormattingOptions = preisNumberFormattingOptions;
+    public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
     public currentPeriodHeading$: Observable<string>;
 
-    private preiseFormatFn = format(this.priceNumberFormattingOptions);
-    private mengeFormatFn = format(this.mengeNumberFormattingOptions);
 
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     preismeldestelle$ = this.observePropertyCurrentValue<P.PriceCountStatus>('preismeldestelle');
@@ -78,10 +78,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService, @Inject('windowObject') public window: Window) {
         super();
 
-        this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${this.preiseFormatFn(x)}` }));
-        this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${this.mengeFormatFn(x)}` }));
-        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${this.preiseFormatFn(x)}` }));
-        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${this.mengeFormatFn(x)}` }));
+        this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${preisFormatFn(x)}` }));
+        this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${mengeFormatFn(x)}` }));
+        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${preisFormatFn(x)}` }));
+        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${mengeFormatFn(x)}` }));
 
         this.form = formBuilder.group({
             pmId: [''],
@@ -107,11 +107,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preis))
-            .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
+            .map(x => ({ value: `${preisFormatFn(x)}` }));
 
         this.preisVPNormalNeuerArtikelCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPNormalNeuerArtikel)
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
-            .map(x => ({ value: `${this.preiseFormatFn(x)}` }));
+            .map(x => ({ value: `${preisFormatFn(x)}` }));
 
         this.subscriptions.push(
             this.distinctPreismeldung$
@@ -145,8 +145,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.requestPreismeldungQuickEqual$.withLatestFrom(this.distinctPreismeldung$, (_, currentPm: P.CurrentPreismeldungBag) => currentPm)
                 .subscribe(currentPm => {
                     this.form.patchValue({
-                        preis: `${currentPm.refPreismeldung ? this.preiseFormatFn(currentPm.refPreismeldung.preis) : ''}`,
-                        menge: `${currentPm.refPreismeldung ? currentPm.refPreismeldung.menge : currentPm.refPreismeldung.menge}`,
+                        preis: `${currentPm.refPreismeldung ? preisFormatFn(currentPm.refPreismeldung.preis) : ''}`,
+                        menge: `${currentPm.refPreismeldung ? mengeFormatFn(currentPm.refPreismeldung.menge) : ''}`,
                         aktion: currentPm.refPreismeldung.aktion
                     });
                 })
@@ -156,7 +156,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqual$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        menge: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
+                        menge: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
                     });
                 })
         );
@@ -165,7 +165,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqualVP$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? preismeldung.refPreismeldung.menge : preismeldung.warenkorbPosition.standardmenge}`,
+                        mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
                     });
                 })
         );
@@ -186,7 +186,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .withLatestFrom(this.distinctPreismeldung$, (x, currentPm: P.CurrentPreismeldungBag) => ({ currentPm, percentage: x.percentage }))
                 .subscribe(({ currentPm, percentage }) => {
                     this.form.patchValue({
-                        preis: `${this.preiseFormatFn(currentPm.refPreismeldung.preis * (percentage / 100))}`,
+                        preis: `${preisFormatFn(currentPm.refPreismeldung.preis * (percentage / 100))}`,
                     });
                 })
         );
@@ -235,7 +235,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .withLatestFrom(this.distinctPreismeldung$.map(x => x.refPreismeldung), (_, refPreismeldung) => refPreismeldung)
                 .subscribe(refPreismeldung => {
                     this.form.patchValue({
-                        preis: `${this.preiseFormatFn(refPreismeldung.preis)}`,
+                        preis: `${preisFormatFn(refPreismeldung.preis)}`,
                         menge: `${refPreismeldung.menge}`,
                         aktion: refPreismeldung.aktion
                     });
@@ -255,7 +255,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 })
         );
 
-        const canSave$ = this.attemptSave$.mapTo({ type: 'JUST_SAVE' as P.SavePreismeldungPriceSaveActionType }).merge(this.requestPreismeldungSave$)
+        const canSave$ = this.attemptSave$.mapTo({ type: 'JUST_SAVE' } as P.SavePreismeldungPriceSaveAction).merge(this.requestPreismeldungSave$)
             .map(x => ({ saveAction: x, isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
@@ -271,20 +271,18 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .subscribe()
         );
 
-        const save$ = saveWithBag$
+        this.save$ = saveWithBag$
             .filter(x => !x.bag.hasAttributeWarning)
             .flatMap(({ saveAction, bag }) => {
                 if (bag.isNew) {
-                    return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT' as P.SavePreismeldungPriceSaveActionWithDataType, data: '', tabNavigation: '' });
+                    return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT' as P.SavePreismeldungPriceSaveActionWithDataType, data: '' });
                 }
                 if (bag.messages.bemerkungenHistory !== '' && bag.messages.bemerkungen === '') {
                     return pefDialogService.displayDialog(DialogValidationErrorsComponent, [translateService.instant('validation_frage-antworten')], true).map(() => ({ type: 'NO_SAVE_NAVIGATE', data: 'MESSAGES' }));
                 }
-                if (bag.hasPriceWarning) {
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_abnormal_preisentwicklung'), false)
-                        .map(res => res.data !== 'YES'
-                            ? { type: 'CANCEL' }
-                            : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_abnormale_preisentwicklung_bestätigt' });
+                if (bag.hasPriceWarning && !bag.messages.kommentar) {
+                    return pefDialogService.displayDialog(PefDialogOneButtonComponent, { message: translateService.instant('dialogText_abnormal_preisentwicklung'), buttonText: 'btn_edit' }, false)
+                        .map(res => ({ type: 'CANCEL' }));
                 }
                 if ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer) {
                     return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false)
@@ -308,21 +306,20 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                 ? { type: saveAction.type, saveWithData: 'AKTION', data: true }
                                 : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_normalpreis_billiger' });
                 }
+                if (this.form.value.bearbeitungscode === 0) {
+                    const params = {
+                        numActivePrices: bag.priceCountStatus.numActivePrices - 1,
+                        anzahlPreiseProPMS: bag.priceCountStatus.anzahlPreiseProPMS
+                    };
+                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false)
+                        .map(res => res.data === 'YES'
+                            ? { type: 'SAVE_AND_DUPLICATE_PREISMELDUNG', saveWithData: 'COMMENT', data: '' }
+                            : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_keine_produkte' }
+                        );
+                }
                 return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT', data: '' });
             })
             .filter(x => x.type !== ('CANCEL' as P.SavePreismeldungPriceSaveActionType));
-
-        this.save$ = save$.withLatestFrom(this.preismeldungPricePayload$, this.priceCountStatus$, this.distinctPreismeldung$, (saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung) => ({ saveAction, preismeldungPricePayload, priceCountStatus, distinctPreismeldung }))
-            .flatMap(x => {
-                if (x.preismeldungPricePayload.bearbeitungscode === 0 && x.distinctPreismeldung.preismeldung.bearbeitungscode !== 0) {
-                    const params = {
-                        numActivePrices: x.priceCountStatus.numActivePrices - 1,
-                        anzahlPreiseProPMS: x.priceCountStatus.anzahlPreiseProPMS
-                    };
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false).map(res => ({ type: res.data === 'YES' ? 'SAVE_AND_DUPLICATE_PREISMELDUNG' as P.SavePreismeldungPriceSaveActionType : x.saveAction }));
-                }
-                return Observable.of(x.saveAction);
-            });
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(this.distinctPreismeldung$.mapTo(false));

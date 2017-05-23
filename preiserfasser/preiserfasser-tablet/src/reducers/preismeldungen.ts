@@ -433,16 +433,26 @@ const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenk
 };
 
 function calcHasPriceWarning(bag: PreismeldungBag): boolean {
-    switch (bag.preismeldung.bearbeitungscode) {
-        case 1:
-            return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite_1 || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite_1;
-        case 7:
-            return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite_7 || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite_7;
-        case 99:
-            return bag.preismeldung.percentageDPToVP < -bag.warenkorbPosition.negativeLimite || bag.preismeldung.percentageDPToVP > bag.warenkorbPosition.positiveLimite;
-        default:
-            return false;
+    let negativeLimite, positiveLimite;
+    if (!bag.refPreismeldung || ![1, 7, 99].some(x => x === bag.preismeldung.bearbeitungscode)) {
+        return false;
     }
+    switch (bag.preismeldung.bearbeitungscode) {
+        case 1: {
+            negativeLimite = bag.warenkorbPosition.negativeLimite_1;
+            positiveLimite = bag.warenkorbPosition.positiveLimite_1;
+        }
+        case 7: {
+            negativeLimite = bag.warenkorbPosition.negativeLimite_7;
+            positiveLimite = bag.warenkorbPosition.positiveLimite_7;
+        }
+        case 99: {
+            negativeLimite = bag.warenkorbPosition.negativeLimite;
+            positiveLimite = bag.warenkorbPosition.positiveLimite;
+        }
+    }
+    return ((!bag.preismeldung.aktion || (bag.refPreismeldung.aktion && bag.preismeldung.aktion)) && bag.preismeldung.percentageDPToVP < -negativeLimite)
+        || ((!bag.refPreismeldung.aktion || (bag.preismeldung.aktion && bag.refPreismeldung.aktion)) && bag.preismeldung.percentageDPToVP > positiveLimite);
 }
 
 export const getEntities = (state: State) => state.entities;

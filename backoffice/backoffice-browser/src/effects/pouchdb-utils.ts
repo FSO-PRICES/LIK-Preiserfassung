@@ -125,7 +125,6 @@ export function syncDb(dbName: string) {
         return getSettings().then(settings => {
             const pouch = new PouchDB(`${dbName}`);
             const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
-
             return pouch.sync(couch, { push: true, pull: false, batch_size: 1000 }).then(() => true).catch(() => true);
         });
     }).catch(err => new PouchDB(dbNames.emptyDb));

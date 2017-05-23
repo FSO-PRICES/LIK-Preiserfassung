@@ -42,9 +42,8 @@ dashboard {
         justify-content: center;
     }
 
-    .person {
-        display: flex;
-        justify-content: center;
+    .person-button {
+        width: 100%;
     }
 
     .person-icon {
@@ -52,6 +51,11 @@ dashboard {
         width: 3em;
         border-radius: 1.5em;
         background-color: $scooter;
+        fill: white;
+        pef-icon {
+            margin-top: 7px;
+            margin-left: 8px;
+        }
     }
 
     .settings-buttons-container {
@@ -325,5 +329,15 @@ dashboard {
         .pef-toolbar {
             order: 1;
         }
+    }
+}
+
+@media print {
+    dashboard .dashboard-content {
+        display: none;
+    }
+    dashboard.ion-page {
+        position: static;
+        height: initial;
     }
 }
