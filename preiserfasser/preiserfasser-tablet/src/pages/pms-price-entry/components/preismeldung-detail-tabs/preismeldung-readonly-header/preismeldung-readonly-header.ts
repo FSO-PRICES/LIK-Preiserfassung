@@ -10,11 +10,11 @@ import * as P from '../../../../../common-models';
 })
 export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
-    @Input() preismeldestelle: P.Models.AdvancedPreismeldestelle;
+    @Input() preismeldestelle: P.Models.Preismeldestelle;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
-    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.AdvancedPreismeldestelle>('preismeldestelle').publishReplay(1).refCount();
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle').publishReplay(1).refCount();
 
     public navigateToInternetLink$ = new EventEmitter();
 

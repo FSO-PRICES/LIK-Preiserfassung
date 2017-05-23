@@ -53,7 +53,7 @@ export class DashboardPage implements OnDestroy {
         });
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
-    public navigateToPriceEntryOrPrint$ = new EventEmitter<P.AdvancedPreismeldestelle>();
+    public navigateToPriceEntryOrPrint$ = new EventEmitter<P.Preismeldestelle>();
     public isPrintingPmsNummer$: Observable<string>;
     public finishedPrinting$ = new EventEmitter();
 

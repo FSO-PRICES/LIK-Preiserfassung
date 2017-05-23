@@ -45,7 +45,6 @@
                             <ion-label stacked [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
                             <div class="input input-md pef-select">
                                 <select formControlName="languageCode">
-                                    <option value="">Nicht angegeben</option>
                                     <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
                                 </select>
                             </div>
@@ -58,7 +57,6 @@
                             <ion-label stacked [class.target-ng-invalid]="form.controls.erhebungsregion.invalid">Region</ion-label>
                             <div class="input input-md pef-select">
                                 <select formControlName="erhebungsregion">
-                                    <option value="">Nicht angegeben</option>
                                     <option *ngFor="let region of regionen$ | async" [value]="region._id">{{region.name}}</option>
                                 </select>
                             </div>
