@@ -1,4 +1,3 @@
-import * as bluebird from 'bluebird';
 import * as PouchDB from 'pouchdb';
 import * as PouchDBAllDbs from 'pouchdb-all-dbs';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
@@ -20,6 +19,8 @@ function _checkIfDatabaseExists(dbName): Promise<boolean> {
 export function getOrCreateDatabase() {
     return Promise.resolve(new PouchDB(DB_NAME));
 }
+
+export const getOrCreateDatabaseAsObservable = () => Observable.fromPromise(getOrCreateDatabase());
 
 export function getDatabase(): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
     return _checkIfDatabaseExists(DB_NAME)
@@ -68,34 +69,19 @@ export function dropDatabase() {
 }
 
 export function downloadDatabase(data: { url: string, username: string, password: string }) {
-    return getOrCreateDatabase()
-        .then(pouch => {
+    return getOrCreateDatabaseAsObservable()
+        .flatMap(pouch => {
             const couch = new PouchDB(`${data.url}/user_${data.username}`) as any;
-            const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
-
-            return login(data.username, data.password)
-                .then(() => {
-                    const sync = bluebird.promisify<any, any, any>(pouch.sync, { context: pouch });
-                    return sync(couch, { push: false, pull: true, batch_size: 1000 });
-                });
+            const login = Observable.bindNodeCallback<string, string, string>(couch.login.bind(couch));
+            return login(data.username, data.password).map(() => ({ pouch, couch }));
+        })
+        .flatMap(({ pouch, couch }) => {
+            const sync = Observable.bindNodeCallback<any, any, any>(pouch.sync.bind(pouch));
+            return sync(couch, { push: false, pull: true, batch_size: 1000 });
         });
 }
 
 export function uploadDatabase(data: { url: string, username: string, password: string }) {
-    return getDatabase()
-        .then(pouch => {
-            const couch = new PouchDB(`${data.url}/user_${data.username}`) as any;
-            const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
-
-            return login(data.username, data.password)
-                .then(() => {
-                    const sync = bluebird.promisify<any, any, any>(pouch.sync, { context: pouch });
-                    return pouch.compact().then(() => sync(couch, { push: true, pull: false, batch_size: 1000 }));
-                });
-        });
-}
-
-export function uploadDatabase2(data: { url: string, username: string, password: string }) {
     return getDatabaseAsObservable()
         .flatMap(pouch => {
             const couch = new PouchDB(`${data.url}/user_${data.username}`) as any;
