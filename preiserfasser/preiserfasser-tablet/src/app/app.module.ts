@@ -39,21 +39,23 @@ export function createTranslateLoader(http: Http) {
         TestPage
     ],
     imports: [
-        IonicModule.forRoot(PefApp, {
-            platforms: {
-                android: {
-                    activator: 'none',
+        IonicModule.forRoot(PefApp,
+            {
+                platforms: {
+                    android: {
+                        activator: 'none',
+                    }
                 }
-            }
-        }, {
-            links: [
-                { component: DashboardPage, name: 'Dashboard', segment: 'home' },
-                { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsNummer', defaultHistory: [DashboardPage] },
-                { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsNummer', defaultHistory: [DashboardPage] },
-                { component: NewPriceSeriesPage, name: 'NewPriceSeries', segment: 'new-price-series/:pmsNummer' },
-                { component: SettingsPage, name: 'Settings', segment: 'settings' },
-                { component: TestPage, name: 'Test', segment: 'test-page', defaultHistory: [DashboardPage] },
-            ]
+            },
+            {
+                links: [
+                    { component: DashboardPage, name: 'Dashboard', segment: 'home' },
+                    { component: PmsDetailsPage, name: 'PmsDetails', segment: 'pms-details/:pmsNummer' },
+                    { component: PmsPriceEntryPage, name: 'PriceEntry', segment: 'pms-price-entry/:pmsNummer' },
+                    { component: NewPriceSeriesPage, name: 'NewPriceSeries', segment: 'new-price-series/:pmsNummer' },
+                    { component: SettingsPage, name: 'Settings', segment: 'settings' },
+                    { component: TestPage, name: 'Test', segment: 'test-page' },
+                ]
             }),
         NewPriceSeriesModule,
         PefComponentsModule,

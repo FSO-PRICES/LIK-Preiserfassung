@@ -72,14 +72,15 @@ export class PefApp implements OnInit {
             .filter(setting => !!setting)
             .map(setting => !setting.isDefault)
             .take(1)
-            .subscribe(areSettingsDefined => {
-                this.navCtrl.setRoot(areSettingsDefined ? DashboardPage : SettingsPage);
-                // if (!areSettingsDefined) {
-                //     this.navCtrl.setRoot(SettingsPage);
-                // }
-                // if (window.location.hash !== '#/home') {
-                //     this.navCtrl.setRoot(DashboardPage);
-                // }
-            });
+            .flatMap(areSettingsDefined => {
+                if (!areSettingsDefined) {
+                    return this.navCtrl.setRoot(SettingsPage);
+                }
+                if (window.location.hash !== '#/home') {
+                    return this.navCtrl.setRoot(DashboardPage);
+                }
+                return Promise.resolve();
+            })
+            .subscribe();
     }
 }
