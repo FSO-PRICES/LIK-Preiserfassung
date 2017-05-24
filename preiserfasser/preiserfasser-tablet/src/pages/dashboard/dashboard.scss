@@ -140,7 +140,7 @@ dashboard {
         position: relative;
 
         &.pms-name {
-            width: calc(100% - (3 * 3.5em + 6em + 4.25em));
+            width: calc(100% - (3 * 3.5em + 6em + 6.25em));
             .pms-header-cell-content {
                 @include set-padding-left(1);
             }
@@ -158,7 +158,7 @@ dashboard {
             width: 6em;
         }
         &.pms-actions {
-            width: 4.25em;
+            width: 6.25em;
         }
     }
 
@@ -177,7 +177,6 @@ dashboard {
     .pms-detail-link {
         margin: 0;
         padding: 0;
-        width: 100%;
         font-size: 1em;
         .button-inner {
             justify-content: flex-start;
@@ -205,10 +204,9 @@ dashboard {
         position: relative;
 
         &.pms-name {
-            flex: 0 1 calc(100% - (3 * 3.5em + 6em + 4.25em));
+            flex: 1;
             .pms-cell-content {
                 @include set-padding-left(1);
-                color: $blue-chill;
                 font-weight: 500;
             }
         }
@@ -225,7 +223,7 @@ dashboard {
             flex: 0 1 6em;
         }
         &.pms-actions {
-            flex: 0 1 4.25em;
+            flex: 0 0 6.25em;
             .pms-cell-content {
                 @include set-padding-right(1);
                 justify-content: flex-end;
@@ -243,9 +241,17 @@ dashboard {
         display: flex;
         align-items: center;
 
+        a:first-of-type {
+            margin-right: 0.5em;
+        }
+
         &.completed-pms {
             color: $sea-green;
         }
+    }
+
+    .pms-name-text {
+        @include crop-text();
     }
 
     .button-md.price-entry-button {

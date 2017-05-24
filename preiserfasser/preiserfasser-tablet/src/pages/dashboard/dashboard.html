@@ -52,13 +52,12 @@
                     <div class="pms-row" *virtualItem="let preismeldestelle">
                         <div class="pms-cell pms-name">
                             <div class="pms-cell-content">
-                                <a ion-button clear icon-left
+                                <a ion-button clear
                                     class="pms-detail-link"
-                                    href="javascript:"
                                     (click)="navigateToDetails(preismeldestelle)">
                                     <pef-icon name="shop"></pef-icon>
-                                    {{ preismeldestelle.name }}
                                 </a>
+                                <div class="pms-name-text"> {{ preismeldestelle.name }} </div>
                             </div>
                         </div>
                         <div class="pms-cell pms-flag">
@@ -79,9 +78,16 @@
                             <div class="pms-cell-content">
                                 <a ion-button icon-only
                                     class="price-entry-button"
+                                    [class.visibility-hidden]="!isPdf(preismeldestelle.erhebungsart)"
                                     href="javascript:"
-                                    (click)="navigateToPriceEntryOrPrint$.emit(preismeldestelle)">
-                                    <pef-icon [name]="isPdf(preismeldestelle.erhebungsart) ? 'pdf' : 'todo'"></pef-icon>
+                                    (click)="openPrint$.emit(preismeldestelle)">
+                                    <pef-icon name="pdf"></pef-icon>
+                                </a>
+                                <a ion-button icon-only
+                                    class="price-entry-button"
+                                    href="javascript:"
+                                    (click)="navigateToPriceEntry$.emit(preismeldestelle)">
+                                    <pef-icon name="todo"></pef-icon>
                                 </a>
                             </div>
                         </div>
