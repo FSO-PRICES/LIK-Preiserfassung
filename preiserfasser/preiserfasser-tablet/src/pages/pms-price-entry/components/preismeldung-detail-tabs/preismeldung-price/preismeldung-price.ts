@@ -345,7 +345,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.isSaveDisabled$ = this.distinctPreismeldung$.combineLatest(this.currentTime$, (bag, currentTime) => {
-            if (!bag || !bag.refPreismeldung) return true;
+            if (!bag || !bag.refPreismeldung) return false;
             const dateRegex = /(\d+)\.(\d+)\.(\d+)/;
             const parsed = dateRegex.exec(bag.refPreismeldung.erhebungsAnfangsDatum);
             if (!parsed) return false;
