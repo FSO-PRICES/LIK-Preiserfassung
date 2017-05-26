@@ -12,6 +12,7 @@ import { PefFormatNumber } from './pef-format-number/pef-format-number';
 import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-pipe';
 import { PefHighlightOnFocus } from './pef-highlight-on-focus/pef-highlight-on-focus';
 import { PefIcon } from './pef-icon/pef-icon';
+import { PefNoBreakString } from './pef-no-break-string-pipe/pef-no-break-string-pipe';
 import { PefPerfectScrollbar } from './pef-perfect-scrollbar/pef-perfect-scrollbar';
 import { PefPerfectVirtualscrollScrollbarDirective } from './pef-perfect-virtualscroll-scrollbar/pef-perfect-virtualscroll-scrollbar';
 import { PefSearchInput } from './pef-search-input/pef-search-input';
@@ -31,6 +32,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefFormatNumberPipe,
         PefHighlightOnFocus,
         PefIcon,
+        PefNoBreakString,
         PefPerfectScrollbar,
         PefPerfectVirtualscrollScrollbarDirective,
         PefSearchInput,
@@ -48,6 +50,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefFormatNumberPipe,
         PefHighlightOnFocus,
         PefIcon,
+        PefNoBreakString,
         PefPerfectScrollbar,
         PefPerfectVirtualscrollScrollbarDirective,
         PefSearchInput,

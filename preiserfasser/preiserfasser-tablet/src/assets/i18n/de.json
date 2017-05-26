@@ -88,6 +88,8 @@
     "text_preismeldung_offen-nicht-erfasst": "Offen: Nicht erfasst",
     "text_preismeldung_erfasste": "erfasste Preismeldungen",
 
+    "text_warenkorb_anzahlergebnisse": "Anzahl Ergebnisse",
+
     "text_not-specified": "Nicht angegeben",
 
     "text_yes": "Ja",
@@ -98,6 +100,7 @@
     "heading_pms-details": "Daten zur Preismeldestelle",
     "heading_preismeldung-attributes": "Produkteigenschaften",
     "heading_validation-error": "Validierungsfehler",
+    "heading_warenkorb_neu_preisreihe_hinzufügen": "Neue Preisreihe hinzufügen",
     "server-connection-url": "URL des Datenbank-Servers",
     "installed-software-version": "Installierte Software Version",
 
@@ -112,6 +115,7 @@
     "btn_pm-delete": "Preismeldung löschen",
     "btn_yes": "Ja",
     "btn_no": "Nein",
+    "btn_warenkorb_collapse_all": "Alles zuklappen",
 
     "a_navigate-to-settings": "Einstellungen bearbeiten",
 

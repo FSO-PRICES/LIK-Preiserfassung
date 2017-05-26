@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange, ChangeDetectionStrategy, ViewChild, OnDestroy } from '@angular/core';
+import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { TranslateService } from 'ng2-translate';
 import { assign } from 'lodash';
@@ -23,7 +24,8 @@ type WarenkorbUiItem = {
     templateUrl: 'choose-from-warenkorb.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChooseFromWarenkorbComponent extends ReactiveComponent implements OnChanges {
+export class ChooseFromWarenkorbComponent extends ReactiveComponent implements OnChanges, OnDestroy {
+    @ViewChild(Content) content: Content;
     @Input() isDesktop: boolean;
     @Input() warenkorb: P.Models.WarenkorbTreeItem[];
     @Input() preismeldungen: P.PreismeldungBag[];
@@ -37,8 +39,11 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     public warenkorbItemEpExpand$ = new EventEmitter<WarenkorbUiItem>();
     public selectWarenkorbItem$ = new EventEmitter<WarenkorbUiItem>();
     public closeClicked$ = new EventEmitter();
+    public collapseAllClicked$ = new EventEmitter();
     public searchString$ = new EventEmitter<string>();
     public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
+
+    private subscriptions = [];
 
     constructor(private pefDialogService: PefDialogService, translateService: TranslateService) {
         super();
@@ -64,45 +69,67 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
             })
             .publishReplay(1).refCount();
 
-        type ClickType = { action: 'EXPAND' | 'EXPAND_ALL', warenkorbItemClicked: WarenkorbUiItem };
+        type ClickType = { action: 'EXPAND' | 'EXPAND_ALL' | 'COLLAPSE_ALL', warenkorbItemClicked: WarenkorbUiItem };
 
-        this.warenkorbUiItems$ = this.warenkorbItemClicked$.filter(x => x.warenkorbInfo.warenkorbItem.type === 'BRANCH').map(x => ({ action: 'EXPAND', warenkorbItemClicked: x }))
+        type ClickAction = { warenkorbUiItems: WarenkorbUiItem[], scrollToY?: number };
+
+        const clickAction$ = this.warenkorbItemClicked$.filter(x => x.warenkorbInfo.warenkorbItem.type === 'BRANCH').map(x => ({ action: 'EXPAND', warenkorbItemClicked: x }))
             .merge(this.warenkorbItemEpExpand$.map(x => ({ action: 'EXPAND_ALL', warenkorbItemClicked: x })))
+            .merge(this.collapseAllClicked$.map(() => ({ action: 'COLLAPSE_ALL' })))
             .startWith(null)
             .combineLatest(warenkobUiItemsFiltered$, (clickType: ClickType, warenkorb: WarenkorbUiItem[]) => ({ clickType, warenkorb }))
             .scan((agg, v) => {
-                if (v.clickType == null) return v.warenkorb.filter(x => x.warenkorbInfo.warenkorbItem.tiefencode === 2);
+                if (v.clickType == null || v.clickType.action === 'COLLAPSE_ALL') {
+                    return { warenkorbUiItems: v.warenkorb.filter(x => x.warenkorbInfo.warenkorbItem.tiefencode === 2), scrollToY: 0 };
+                };
                 const clickedGliederungspositionsnummer = v.clickType.warenkorbItemClicked.warenkorbInfo.warenkorbItem.gliederungspositionsnummer;
                 if (v.clickType.warenkorbItemClicked.isExpanded) {
                     const descendants = this.findDescendantsOfWarenkorbItem(v.warenkorb, clickedGliederungspositionsnummer).map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
-                    return v.warenkorb.filter(x => agg.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) && !descendants.some(y => y === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer))
-                         .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: false }) : x);
+                    return {
+                        warenkorbUiItems: v.warenkorb.filter(x => agg.warenkorbUiItems.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) && !descendants.some(y => y === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer))
+                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: false }) : x)
+                    };
                 }
                 if (v.clickType.action === 'EXPAND') {
-                    return v.warenkorb
-                        .filter(x => agg.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || x.warenkorbInfo.warenkorbItem.parentGliederungspositionsnummer === clickedGliederungspositionsnummer)
-                        .map(x => {
-                            const itemInAgg = agg.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
-                            return assign({}, x, {
-                                isExpanded: itemInAgg ? itemInAgg.isExpanded : x.isExpanded,
-                            });
-                        })
-                        .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x);
+                    return {
+                        warenkorbUiItems: v.warenkorb
+                            .filter(x => agg.warenkorbUiItems.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || x.warenkorbInfo.warenkorbItem.parentGliederungspositionsnummer === clickedGliederungspositionsnummer)
+                            .map(x => {
+                                const itemInAgg = agg.warenkorbUiItems.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
+                                return assign({}, x, {
+                                    isExpanded: itemInAgg ? itemInAgg.isExpanded : x.isExpanded,
+                                });
+                            })
+                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x)
+                    };
                 }
                 else {
                     const descendants = this.findDescendantsOfWarenkorbItem(v.warenkorb, clickedGliederungspositionsnummer).filter(x => x.warenkorbInfo.warenkorbItem.type === 'LEAF').map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
-                    return v.warenkorb
-                        .filter(x => agg.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || descendants.some(y => y === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer))
-                        .map(x => {
-                            const itemInAgg = agg.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
-                            return assign({}, x, {
-                                isExpanded: itemInAgg ? itemInAgg.isExpanded : x.isExpanded,
-                                depth: itemInAgg ? itemInAgg.depth : v.clickType.warenkorbItemClicked.depth + 1
-                            });
-                        })
-                        .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x);
+                    return {
+                        warenkorbUiItems: v.warenkorb
+                            .filter(x => agg.warenkorbUiItems.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || descendants.some(y => y === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer))
+                            .map(x => {
+                                const itemInAgg = agg.warenkorbUiItems.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
+                                return assign({}, x, {
+                                    isExpanded: itemInAgg ? itemInAgg.isExpanded : x.isExpanded,
+                                    depth: itemInAgg ? itemInAgg.depth : v.clickType.warenkorbItemClicked.depth + 1
+                                });
+                            })
+                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x)
+                    };
                 }
-            }, <WarenkorbUiItem[]>[]);
+            }, <ClickAction>{ warenkorbUiItems: [] })
+            .publishReplay(1).refCount();
+
+        this.warenkorbUiItems$ = clickAction$.map(x => x.warenkorbUiItems);
+
+        this.subscriptions.push(
+            clickAction$
+                .map(x => x.scrollToY)
+                .filter(x => x !== undefined)
+                .delay(300)
+                .subscribe(scrollToY => this.content.scrollTo(0, scrollToY))
+        );
 
         this.numberOfEp$ = warenkobUiItemsFiltered$.map(x => x.filter(y => y.warenkorbInfo.warenkorbItem.type === 'LEAF').length).startWith(0);
 
@@ -118,6 +145,12 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     iconMap = {

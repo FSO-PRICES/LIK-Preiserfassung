@@ -1,15 +1,16 @@
 <div class="wrapper">
     <div class="header">
-        <h3> Neue Preisreihe hinzufügen </h3>
+        <h3> {{ 'heading_warenkorb_neu_preisreihe_hinzufügen' | translate }} </h3>
         <button ion-button clear class="close-button" (click)="closeClicked$.emit()">
-            Schliessen
+            {{ 'btn_close' | translate }}
             <pef-icon name="close_screen"></pef-icon>
         </button>
     </div>
     <div class="content">
         <div class="search-row">
             <pef-search-input (valueChanges)="searchString$.emit($event)"></pef-search-input>
-            <div class="search-summary"><span class="label">Anzahl Ergebisse:</span>&nbsp;<span class="number">{{ numberOfEp$ | async }}</span></div>
+            <div class="search-summary"><span class="label">{{ 'text_warenkorb_anzahlergebnisse' | translate | pef_no_break_string }}:</span>&nbsp;<span class="number">{{ numberOfEp$ | async }}</span></div>
+            <button ion-button class="collapse-all" (click)="collapseAllClicked$.emit()">{{ 'btn_warenkorb_collapse_all' | translate }}</button>
         </div>
         <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
             <ion-list [virtualScroll]="warenkorbUiItems$ | async" [approxItemHeight]="'50px'">

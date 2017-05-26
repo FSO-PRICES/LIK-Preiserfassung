@@ -61,19 +61,25 @@ choose-from-warenkorb {
     }
 
     .search-summary {
-        flex: 0;
-        min-width: 180px;
-        @include set-padding-left(2);
+        @include set-margin-left(2);
         color: $trout;
         display: flex;
         align-items: center;
         justify-content: flex-end;
         .label {
+            flex: 1 1 auto;
             font-size: 0.75em;
+            display: inline-block;
         }
         .number {
+            flex: 0 0 3.5em;
+            min-width: 3.5em;
             font-weight: 500;
         }
+    }
+
+    .collapse-all {
+        @include set-margin-left(1);
     }
 
     .warenkorb-item-row {
