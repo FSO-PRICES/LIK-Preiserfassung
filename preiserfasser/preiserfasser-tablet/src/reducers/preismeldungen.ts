@@ -459,5 +459,6 @@ export const getEntities = (state: State) => state.entities;
 export const getPreismeldungIds = (state: State) => state.preismeldungIds;
 export const getCurrentPreismeldung = (state: State) => state.currentPreismeldung;
 export const getPriceCountStatuses = (state: State) => state.priceCountStatuses;
+export const getPreismeldungenCurrentPmsNummer = (state: State) => state.pmsNummer;
 
 export const getAll = createSelector(getEntities, getPreismeldungIds, (entities, preismeldungIds) => preismeldungIds.map(x => entities[x]));

@@ -64,6 +64,7 @@ export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);
 export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
 export const getPriceCountStatuses = createSelector(getPreismeldungenState, fromPreismeldungen.getPriceCountStatuses);
+export const getPreismeldungenCurrentPmsNummer = createSelector(getPreismeldungenState, fromPreismeldungen.getPreismeldungenCurrentPmsNummer);
 
 export const getTimeState = (state: AppState) => state.time;
 export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTime);

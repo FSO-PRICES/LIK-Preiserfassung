@@ -20,6 +20,7 @@ export class NewPriceSeriesPage implements OnDestroy {
 
     warenkorb$ = this.ionViewDidLoad$.combineLatest(this.store.select(fromRoot.getWarenkorb), (_, warenkorb) => warenkorb);
     preismeldungen$ = this.ionViewDidLoad$.combineLatest(this.store.select(fromRoot.getPreismeldungen), (_, preismeldungen) => preismeldungen);
+    currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung);
 
     closeChooseFromWarenkorb$ = new EventEmitter<{ warenkorbPosition: P.Models.WarenkorbLeaf, bearbeitungscode: P.Models.Bearbeitungscode }>();
 

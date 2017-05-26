@@ -182,7 +182,31 @@ choose-from-warenkorb {
         border-color: $mercury;
     }
 
-    .tiefencode-3, .tiefencode-4, .tiefencode-5, .tiefencode-6, .tiefencode-7, .tiefencode-8 {
+    .tiefencode-9 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: white;
+        padding-left: 27em;
+        border-color: $mercury;
+    }
+
+    .tiefencode-10 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: white;
+        padding-left: 31em;
+        border-color: $mercury;
+    }
+
+    .tiefencode-11 {
+        color: $outer-space;
+        fill: $outer-space;
+        background-color: white;
+        padding-left: 35em;
+        border-color: $mercury;
+    }
+
+    .tiefencode-3, .tiefencode-4, .tiefencode-5, .tiefencode-6, .tiefencode-7, .tiefencode-8, .tiefencode-9, .tiefencode-10, .tiefencode-11 {
         &.leaf {
             color: $outer-space;
             background-color: $foam;

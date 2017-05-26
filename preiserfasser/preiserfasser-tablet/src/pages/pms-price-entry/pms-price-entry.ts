@@ -22,6 +22,7 @@ import { NewPriceSeriesPage } from '../new-price-series';
 export class PmsPriceEntryPage implements OnDestroy {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop).publishReplay(1).refCount();
     preismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle).publishReplay(1).refCount();
+    preismeldungenCurrentPmsNummer$ = this.store.select(fromRoot.getPreismeldungenCurrentPmsNummer).publishReplay(1).refCount();
     preismeldungen$ = this.store.select(fromRoot.getPreismeldungen).publishReplay(1).refCount();
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung).publishReplay(1).refCount();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage).publishReplay(1).refCount();
@@ -191,25 +192,14 @@ export class PmsPriceEntryPage implements OnDestroy {
                 .subscribe(() => this.navigateToNewPriceSeries())
         );
 
-        const isCurrentNotANewPreismeldung$ = this.currentPreismeldung$
-            .take(1)
-            .filter(x => !x || (!!x && !x.isNew))
-            .publishReplay(1).refCount();
-
         this.subscriptions.push(
             this.ionViewDidLoad$
-                .withLatestFrom(isCurrentNotANewPreismeldung$)
-                .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') }))
-        );
-
-        this.subscriptions.push(
-            this.resetPreismeldung$
-                .subscribe(() => this.store.dispatch({ type: 'RESET_PREISMELDUNG' }))
-        );
-
-        this.subscriptions.push(
-            isCurrentNotANewPreismeldung$
-                .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' }))
+                .withLatestFrom(this.preismeldungenCurrentPmsNummer$, (_, preismeldungenCurrentPmsNummer) => preismeldungenCurrentPmsNummer)
+                .filter(x => x !== this.navParams.get('pmsNummer'))
+                .subscribe(() => {
+                    this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
+                    this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') });
+                })
         );
     }
 
@@ -231,4 +221,3 @@ export class PmsPriceEntryPage implements OnDestroy {
             .forEach(s => s.unsubscribe());
     }
 }
-
