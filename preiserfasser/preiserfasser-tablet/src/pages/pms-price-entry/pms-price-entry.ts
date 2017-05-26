@@ -212,7 +212,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     }
 
     navigateToNewPriceSeries() {
-        return this.navController.setRoot(NewPriceSeriesPage, { pmsNummer: this.navParams.get('pmsNummer') }, { animate: true, direction: 'forward' });
+        return this.navController.setRoot(NewPriceSeriesPage, { pmsNummer: this.navParams.get('pmsNummer') });
     }
 
     ngOnDestroy() {

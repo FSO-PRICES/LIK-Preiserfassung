@@ -163,6 +163,6 @@ export class PmsDetailsPage implements OnDestroy {
     }
 
     navigateToDashboard() {
-        return this.navCtrl.setRoot(DashboardPage, {}, { animate: true, direction: 'back' });
+        return this.navCtrl.setRoot(DashboardPage);
     }
 }

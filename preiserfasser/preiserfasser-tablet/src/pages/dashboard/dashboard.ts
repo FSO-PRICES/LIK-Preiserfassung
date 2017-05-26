@@ -122,7 +122,7 @@ export class DashboardPage implements OnDestroy {
 
             loginDialogDismiss$ // In case of navigate to was set
                 .filter(x => !!x.data.navigateTo)
-                .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo, {}, { animate: true, direction: 'forward' })),
+                .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo, {})),
 
             this.uploadPreismeldungenClicked$
                 .flatMap(() => pefDialogService.displayModal(LoginModal))
@@ -146,11 +146,11 @@ export class DashboardPage implements OnDestroy {
     }
 
     navigateToDetails(pms: P.Preismeldestelle) {
-        this.navCtrl.setRoot(PmsDetailsPage, { pmsNummer: pms.pmsNummer }, { animate: true, direction: 'forward' });
+        this.navCtrl.setRoot(PmsDetailsPage, { pmsNummer: pms.pmsNummer });
     }
 
     navigateToSettings() {
-        this.navCtrl.setRoot(SettingsPage, {}, { animate: true, direction: 'forward' }).catch(() => { });
+        this.navCtrl.setRoot(SettingsPage).catch(() => { });
     }
 
     isPdf(erhebungsart: P.erhebungsartType) {

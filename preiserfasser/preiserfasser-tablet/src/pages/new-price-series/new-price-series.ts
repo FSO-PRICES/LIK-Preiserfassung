@@ -57,6 +57,6 @@ export class NewPriceSeriesPage implements OnDestroy {
     }
 
     navigateToPmsPriceEntry() {
-        return this.navController.setRoot(PmsPriceEntryPage, { pmsNummer: this.navParams.get('pmsNummer') }, { animate: true, direction: 'back' });
+        return this.navController.setRoot(PmsPriceEntryPage, { pmsNummer: this.navParams.get('pmsNummer') });
     }
 }

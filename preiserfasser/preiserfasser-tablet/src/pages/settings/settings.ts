@@ -145,6 +145,6 @@ export class SettingsPage implements OnDestroy {
     }
 
     public navigateToDashboard() {
-        return this.navCtrl.setRoot(DashboardPage, {}, { animate: true, direction: 'back' });
+        return this.navCtrl.setRoot(DashboardPage);
     }
 }
