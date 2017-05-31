@@ -2,7 +2,7 @@
   "name": "bfs-backoffice",
   "author": "Lambda IT GmbH",
   "homepage": "http://lambda-it.ch/",
-  "version": "v1.0.0-alpha.2",
+  "version": "v2.0.0-alpha.14",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",

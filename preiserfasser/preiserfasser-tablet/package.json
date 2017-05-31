@@ -1,8 +1,8 @@
 {
-  "name": "preiserfasser-tablet-ionic-3",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
+  "name": "preiserfasser-tablet",
+  "version": "v2.0.0-alpha.14",
+  "author": "Lambda IT GmbH",
+  "homepage": "http://lambda-it.ch/",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",
@@ -57,5 +57,5 @@
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "2.3.3"
   },
-  "description": "An Ionic project"
+  "description": "preiserfasser-tablet: An Ionic project"
 }
