@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ElementRef, NgZone, forwardRef, HostListener, Input, Output, ChangeDetectionStrategy, SimpleChange, OnChanges } from '@angular/core';
+import { Component, EventEmitter, ElementRef, NgZone, forwardRef, HostListener, Input, Output, ChangeDetectionStrategy, SimpleChange, OnChanges, OnDestroy } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { assign } from 'lodash';
@@ -29,7 +29,7 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
         provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => BearbeitungsTypeComponent), multi: true
     }]
 })
-export class BearbeitungsTypeComponent extends ReactiveComponent implements ControlValueAccessor, OnChanges {
+export class BearbeitungsTypeComponent extends ReactiveComponent implements ControlValueAccessor, OnChanges, OnDestroy {
     @Input() codeListType: CodeListType = 'STANDARD';
     @Input() nichtEmpfohleneBc: P.Models.Bearbeitungscode[];
     @Output('change') change$: Observable<P.Models.Bearbeitungscode>;
@@ -45,6 +45,8 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
     public bearbeitungsTypes$: Observable<BearbeitungsType[]>;
 
     public selectedBearbeitungsType$: Observable<BearbeitungsType>;
+
+    private subscriptions = [];
 
     constructor(private elementRef: ElementRef, private zone: NgZone) {
         super();
@@ -72,8 +74,7 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
             .map(x => x.bearbeitungsType.code)
             .publishReplay(1).refCount();
 
-        this.change$
-            .subscribe(x => { this._onChange(x); });
+        this.subscriptions.push(this.change$.subscribe(x => { this._onChange(x); }));
 
         this.buttonOn$ = this.buttonClicked$.do(x => { x.cancelBubble = true; }).map(() => ({ type: 'TOGGLE' }))
             .merge(this.selectBearbeitungsType$.do(x => { x.event.cancelBubble = true; }).mapTo({ type: 'CLOSE' }))
@@ -118,6 +119,12 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     public standardBearbeitungsTypes: BearbeitungsType[] = [

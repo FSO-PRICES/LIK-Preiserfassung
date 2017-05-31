@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { isBefore, isAfter, addDays, subMilliseconds } from 'date-fns';
@@ -12,7 +12,7 @@ import * as P from '../../../../common-models';
     templateUrl: 'preismeldung-list.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
+export class PreismeldungListComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @ViewChild(Content) content: Content;
     @Input() isDesktop: boolean;
     @Input() currentTime: Date;
@@ -48,10 +48,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public ionItemHeight$ = new EventEmitter<number>();
     public itemHeight$ = this.ionItemHeight$.startWith(50);
 
+    private subscriptions = [];
+
     constructor() {
         super();
 
-        this.currentTime$.subscribe();
+        this.subscriptions.push(this.currentTime$.subscribe());
 
         const filterStatus$ =
             this.selectFilterTodo$.mapTo('TODO').merge(this.selectFilterCompleted$.mapTo('COMPLETED'))
@@ -109,16 +111,18 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.selectPreismeldung = this.selectClickedPreismeldung$.merge(selectNext$).merge(selectPrev$)
             .publishReplay(1).refCount();
 
-        this.selectPreismeldung
-            .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[], ionItemHeight: number) => ({ newPreismeldungIndex: filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId), ionItemHeight }))
-            .subscribe(({ newPreismeldungIndex, ionItemHeight }) => {
-                if ((newPreismeldungIndex + 1) * ionItemHeight > this.content.scrollTop + this.content.contentHeight) {
-                    this.content.scrollTo(0, ((newPreismeldungIndex + 1) * ionItemHeight) - this.content.contentHeight, 0);
-                }
-                if (newPreismeldungIndex * ionItemHeight < this.content.scrollTop) {
-                    this.content.scrollTo(0, (newPreismeldungIndex * ionItemHeight), 0);
-                }
-            });
+        this.subscriptions.push(
+            this.selectPreismeldung
+                .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[], ionItemHeight: number) => ({ newPreismeldungIndex: filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId), ionItemHeight }))
+                .subscribe(({ newPreismeldungIndex, ionItemHeight }) => {
+                    if ((newPreismeldungIndex + 1) * ionItemHeight > this.content.scrollTop + this.content.contentHeight) {
+                        this.content.scrollTo(0, ((newPreismeldungIndex + 1) * ionItemHeight) - this.content.contentHeight, 0);
+                    }
+                    if (newPreismeldungIndex * ionItemHeight < this.content.scrollTop) {
+                        this.content.scrollTo(0, (newPreismeldungIndex * ionItemHeight), 0);
+                    }
+                })
+        );
 
         this.completedCount$ = this.preismeldungen$
             .map(x => `${x.filter(y => y.preismeldung.istAbgebucht).length}/${x.length}`);
@@ -158,5 +162,11 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

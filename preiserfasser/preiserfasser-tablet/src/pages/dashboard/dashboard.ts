@@ -62,6 +62,7 @@ export class DashboardPage implements OnDestroy {
         private translateService: TranslateService,
         private store: Store<fromRoot.AppState>
     ) {
+        console.log('dashboard ctor')
         const settings$ = this.store.select(fromRoot.getSettings);
 
         const databaseHasBeenUploaded$ = this.store.select(x => x.database)
@@ -139,6 +140,7 @@ export class DashboardPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
+        console.log('dashboard destroy')
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());

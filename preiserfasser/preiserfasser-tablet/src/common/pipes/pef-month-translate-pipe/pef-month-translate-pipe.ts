@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { format } from 'date-fns';
 import * as fromRoot from '../../../reducers';
@@ -8,12 +8,16 @@ import * as frLocale from 'date-fns/locale/fr';
 import * as itLocale from 'date-fns/locale/it';
 
 @Pipe({ name: 'pefMonthTranslate' })
-export class PefMonthTranslatePipe implements PipeTransform {
+export class PefMonthTranslatePipe implements PipeTransform, OnDestroy {
     private currentLanguage: string;
 
+    private subscriptions = [];
+
     constructor(store: Store<fromRoot.AppState>) {
-        store.select(fromRoot.getCurrentLanguage)
-            .subscribe(lang => this.currentLanguage = lang);
+        this.subscriptions.push(
+            store.select(fromRoot.getCurrentLanguage)
+                .subscribe(lang => this.currentLanguage = lang)
+        );
     }
 
     transform(value: string, formatOptions: any) {
@@ -36,5 +40,11 @@ export class PefMonthTranslatePipe implements PipeTransform {
             default:
                 return deLocale;
         }
+    }
+
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

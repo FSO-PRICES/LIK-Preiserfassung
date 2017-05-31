@@ -76,6 +76,7 @@ export class PefApp implements OnInit {
                 if (!areSettingsDefined) {
                     return this.navCtrl.setRoot('SettingsPage');
                 } else if (window.location.hash !== '#/dashboard') {
+                    console.log('navigating to DashboardPage')
                     return this.navCtrl.setRoot('DashboardPage');
                 }
                 return Promise.resolve();

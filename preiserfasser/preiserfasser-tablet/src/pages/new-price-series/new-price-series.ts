@@ -4,7 +4,6 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import * as P from '../../common-models';
-import { PmsPriceEntryPage } from '../pms-price-entry';
 
 import * as fromRoot from '../../reducers';
 
@@ -40,12 +39,13 @@ export class NewPriceSeriesPage implements OnDestroy {
 
         this.subscriptions.push(
             this.closeChooseFromWarenkorb$
-                .subscribe(x => {
+                .flatMap(x => {
                     if (!!x) {
                         this.store.dispatch({ type: 'NEW_PREISMELDUNG', payload: { warenkorbPosition: x.warenkorbPosition, bearbeitungscode: x.bearbeitungscode, pmsNummer: this.navParams.get('pmsNummer') } });
                     }
-                    this.navigateToPmsPriceEntry();
+                    return this.navigateToPmsPriceEntry();
                 })
+                .subscribe()
         );
     }
 
@@ -60,6 +60,6 @@ export class NewPriceSeriesPage implements OnDestroy {
     }
 
     navigateToPmsPriceEntry() {
-        return this.navController.setRoot(PmsPriceEntryPage, { pmsNummer: this.navParams.get('pmsNummer') });
+        return this.navController.setRoot('PmsPriceEntryPage', { pmsNummer: this.navParams.get('pmsNummer') });
     }
 }

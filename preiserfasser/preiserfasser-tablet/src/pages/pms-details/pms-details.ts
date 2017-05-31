@@ -8,7 +8,6 @@ import { range, mapValues, values } from 'lodash';
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
-import { DashboardPage } from '../dashboard/dashboard';
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
 import { Action as RegionAction } from '../../actions/region';
 
@@ -40,11 +39,6 @@ export class PmsDetailsPage implements OnDestroy {
         private store: Store<fromRoot.AppState>,
         private formBuilder: FormBuilder
     ) {
-        this.store.select(fromRoot.getPreismeldestellen)
-            .filter(x => !!x && x.length > 0).subscribe(() => {
-                this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
-            });
-
         this.form = formBuilder.group({
             kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
             name: [null, Validators.required],
@@ -104,6 +98,12 @@ export class PmsDetailsPage implements OnDestroy {
         this.hasErrors$ = this.formErrors$.map(x => !!x && x.length > 0);
 
         this.subscriptions = [
+            this.store.select(fromRoot.getPreismeldestellen)
+                .filter(x => !!x && x.length > 0)
+                .subscribe(() => {
+                    this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
+                }),
+
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
             this.form.valueChanges
@@ -162,6 +162,6 @@ export class PmsDetailsPage implements OnDestroy {
     }
 
     navigateToDashboard() {
-        return this.navCtrl.setRoot(DashboardPage);
+        return this.navCtrl.setRoot('DashboardPage');
     }
 }

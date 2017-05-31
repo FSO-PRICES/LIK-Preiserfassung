@@ -60,6 +60,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         private zone: NgZone,
         translateService: TranslateService
     ) {
+        console.log('pms price entry ctor')
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
 
         this.selectedTab$ = this.selectTab$
@@ -88,7 +89,7 @@ export class PmsPriceEntryPage implements OnDestroy {
                 .merge(this.toolbarButtonClicked$.filter(x => x === 'HOME').withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName))
                 .merge(this.selectPreismeldung$.withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName));
 
-        this.currentTime$.subscribe();
+        this.subscriptions.push(this.currentTime$.subscribe());
 
         this.subscriptions.push(
             createTabLeaveObservable('MESSAGES')
@@ -215,6 +216,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     }
 
     ngOnDestroy() {
+        console.log('ngOnDestroy pms price entry')
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());

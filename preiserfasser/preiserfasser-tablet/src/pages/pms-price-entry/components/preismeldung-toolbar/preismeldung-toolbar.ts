@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnChanges, SimpleChange } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnChanges, SimpleChange, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ReactiveComponent } from 'lik-shared';
@@ -10,7 +10,7 @@ import * as P from '../../../../common-models';
     templateUrl: 'preismeldung-toolbar.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreismeldungToolbarComponent extends ReactiveComponent implements OnChanges {
+export class PreismeldungToolbarComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.Models.Preismeldung;
     @Input() selectedTab: string;
     @Output('selectTab') selectTab$ = new EventEmitter<string>();;
@@ -22,10 +22,12 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     public hasAttributes$: Observable<boolean>;
     public requestPreismeldungQuickEqualDisabled$: Observable<boolean>;
 
+    private subscriptions = [];
+
     constructor() {
         super();
 
-        this.selectedTab$.subscribe();
+        this.subscriptions.push(this.selectedTab$.subscribe());
 
         this.hasAttributes$ = this.preismeldung$
             .map(p => !!p && !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length); // TODO: remove null check
@@ -35,5 +37,11 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

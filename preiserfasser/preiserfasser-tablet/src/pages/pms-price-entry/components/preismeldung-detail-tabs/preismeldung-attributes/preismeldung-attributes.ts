@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChange, EventEmitter, Output } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChange, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { ReactiveComponent } from 'lik-shared';
@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
     selector: 'preismeldung-attributes',
     templateUrl: 'preismeldung-attributes.html'
 })
-export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges {
+export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.Models.Preismeldung;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
@@ -26,6 +26,7 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
 
     form: FormGroup;
 
+    private subscriptions = [];
     constructor(formBuilder: FormBuilder) {
         super();
 
@@ -42,13 +43,15 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
             attribute_9: ['']
         });
 
-        this.preismeldung$
-            .filter(bag => !!bag)
-            .subscribe(bag => {
-                const formDef = keys(bag.warenkorbPosition.productMerkmale)
-                    .reduce((agg, v) => assign(agg, { [`attribute_${v}`]: bag.attributes[v] }), {});
-                this.form.reset(formDef);
-            });
+        this.subscriptions.push(
+            this.preismeldung$
+                .filter(bag => !!bag)
+                .subscribe(bag => {
+                    const formDef = keys(bag.warenkorbPosition.productMerkmale)
+                        .reduce((agg, v) => assign(agg, { [`attribute_${v}`]: bag.attributes[v] }), {});
+                    this.form.reset(formDef);
+                })
+        );
 
         this.preismeldungAttributesPayload$ = this.fieldEdited$
             .withLatestFrom(this.preismeldung$, (_, bag) => {
@@ -61,5 +64,11 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

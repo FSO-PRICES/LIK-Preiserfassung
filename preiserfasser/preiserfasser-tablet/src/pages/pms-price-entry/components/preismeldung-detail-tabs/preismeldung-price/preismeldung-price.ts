@@ -79,10 +79,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService, @Inject('windowObject') public window: any) {
         super();
 
-        this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${preisFormatFn(x)}` }));
-        this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${mengeFormatFn(x)}` }));
-        this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${preisFormatFn(x)}` }));
-        this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${mengeFormatFn(x)}` }));
+        this.subscriptions.push(this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${preisFormatFn(x)}` })));
+        this.subscriptions.push(this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${mengeFormatFn(x)}` })));
+        this.subscriptions.push(this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${preisFormatFn(x)}` })));
+        this.subscriptions.push(this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${mengeFormatFn(x)}` })));
 
         this.form = formBuilder.group({
             pmId: [''],

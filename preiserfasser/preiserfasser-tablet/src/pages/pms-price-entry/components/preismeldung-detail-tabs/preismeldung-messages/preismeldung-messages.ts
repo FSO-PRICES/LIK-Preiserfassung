@@ -34,6 +34,8 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
 
     form: FormGroup;
 
+    private subscriptions = [];
+
     constructor(formBuilder: FormBuilder) {
         super();
 
@@ -60,24 +62,34 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             })
             .publishReplay(1).refCount();
 
-        distinctPreismeldung$
-            .subscribe(bag => {
-                this.form.reset({
-                    notiz: bag.messages.notiz,
-                    kommentar: bag.messages.kommentar,
-                    bemerkungen: bag.messages.bemerkungen.replace('¶', '\n'),
-                });
-            });
+        this.subscriptions.push(
+            distinctPreismeldung$
+                .subscribe(bag => {
+                    this.form.reset({
+                        notiz: bag.messages.notiz,
+                        kommentar: bag.messages.kommentar,
+                        bemerkungen: bag.messages.bemerkungen.replace('¶', '\n'),
+                    });
+                })
+        );
 
-        this.notizClear$.subscribe(() => { this.form.patchValue({ notiz: '' }); this.onBlur$.emit(); });
-        this.kommentarClear$.subscribe(() => { this.form.patchValue({ kommentar: '' }); this.onBlur$.emit(); });
-        this.erledigt$.subscribe(() => {
-            let bemerkungen = this.form.value['bemerkungen'];
-            bemerkungen = !!bemerkungen ? bemerkungen + '\n' : bemerkungen;
-            bemerkungen += '@OK';
-            this.form.patchValue({ bemerkungen });
-            this.onBlur$.emit();
-        });
+        this.subscriptions.push(
+            this.notizClear$.subscribe(() => { this.form.patchValue({ notiz: '' }); this.onBlur$.emit(); })
+        );
+
+        this.subscriptions.push(
+            this.kommentarClear$.subscribe(() => { this.form.patchValue({ kommentar: '' }); this.onBlur$.emit(); })
+        );
+
+        this.subscriptions.push(
+            this.erledigt$.subscribe(() => {
+                let bemerkungen = this.form.value['bemerkungen'];
+                bemerkungen = !!bemerkungen ? bemerkungen + '\n' : bemerkungen;
+                bemerkungen += '@OK';
+                this.form.patchValue({ bemerkungen });
+                this.onBlur$.emit();
+            })
+        );
 
         this.erledigtDisabled$ = this.form.valueChanges.map(x => x.bemerkungen.endsWith('@OK')).startWith(false);
 
@@ -90,5 +102,11 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }
