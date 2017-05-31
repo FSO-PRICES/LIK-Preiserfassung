@@ -41,7 +41,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
-    public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung');
+    public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung').publishReplay(1).refCount();
     public currentTime$ = this.observePropertyCurrentValue<Date>('currentTime').publishReplay(1).refCount();
     private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
 
@@ -73,6 +73,25 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.filterTodoSelected$ = filterStatus$.map(x => x.todo);
         this.filterCompletedSelected$ = filterStatus$.map(x => x.completed);
 
+        // this.filteredPreismeldungen$ = this.preismeldungen$
+        //     .combineLatest(this.filterText$.startWith(''), filterStatus$, this.currentLanguage$, (preismeldungen: P.PreismeldungBag[], filterText: string, filterStatus: { todo: boolean, completed: boolean }, currentLanguage: string) => {
+        //         let filteredPreismeldungen: P.PreismeldungBag[];
+
+        //         if (!filterText || filterText.length === 0) {
+        //             filteredPreismeldungen = preismeldungen;
+        //         } else {
+        //             filteredPreismeldungen = pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung[currentLanguage], pm => pm.preismeldung.artikeltext]);
+        //         }
+
+        //         if (filterStatus.todo && filterStatus.completed) return filteredPreismeldungen;
+
+        //         if (filterStatus.todo) return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
+        //         if (filterStatus.completed) return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
+
+        //         return [];
+        //     })
+        //     .publishReplay(1).refCount();
+
         this.filteredPreismeldungen$ = this.preismeldungen$
             .combineLatest(this.filterText$.startWith(''), filterStatus$, this.currentLanguage$, (preismeldungen: P.PreismeldungBag[], filterText: string, filterStatus: { todo: boolean, completed: boolean }, currentLanguage: string) => {
                 let filteredPreismeldungen: P.PreismeldungBag[];
@@ -90,6 +109,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
                 return [];
             })
+            // hack fix for filter bug with [virtualScroll]
+            // .map(filteredPreismeldungen => {
+            //     this.filteredPreismeldungenArrayRef.length = 0;
+            //     filteredPreismeldungen.forEach(item => this.filteredPreismeldungenArrayRef.push(item));
+            //     return this.filteredPreismeldungenArrayRef || [];
+            // })
             .publishReplay(1).refCount();
 
         const selectNext$ = this.selectNextPreismeldung$
@@ -157,7 +182,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     }
 
     trackByFn(index: number, item: P.PreismeldungBag) {
-        return item.pmId;
+        return `${item.pmId}_${item.preismeldung.modifiedAt}`
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

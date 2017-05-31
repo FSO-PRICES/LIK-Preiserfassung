@@ -60,7 +60,6 @@ export class PmsPriceEntryPage implements OnDestroy {
         private zone: NgZone,
         translateService: TranslateService
     ) {
-        console.log('pms price entry ctor')
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
 
         this.selectedTab$ = this.selectTab$
@@ -140,7 +139,8 @@ export class PmsPriceEntryPage implements OnDestroy {
         this.subscriptions.push(
             this.currentPreismeldung$
                 .filter(x => !!x && !!x.lastSave && x.lastSave.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
-                .subscribe(() => this.navController.setRoot('DashboardPage').then(() => setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100)))
+                .flatMap(() => this.navController.setRoot('DashboardPage').then(() => setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100)))
+                .subscribe()
         );
 
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
@@ -216,7 +216,6 @@ export class PmsPriceEntryPage implements OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log('ngOnDestroy pms price entry')
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());

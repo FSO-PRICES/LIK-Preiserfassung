@@ -16,9 +16,9 @@
         </div>
     </div>
     <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
-        <ion-list [pefVirtualScroll]="filteredPreismeldungen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)">
+        <ion-list [virtualScroll]="filteredPreismeldungen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)">
             <ion-item
-                *pefVirtualItem="let bag"
+                *virtualItem="let bag"
                 class="preismeldung-item"
                 (click)="selectClickedPreismeldung$.emit(bag)"
                 [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"

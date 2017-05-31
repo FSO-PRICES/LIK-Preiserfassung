@@ -13,9 +13,9 @@
             <button ion-button class="collapse-all" (click)="collapseAllClicked$.emit()">{{ 'btn_warenkorb_collapse_all' | translate }}</button>
         </div>
         <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
-            <ion-list [pefVirtualScroll]="warenkorbUiItems$ | async" [approxItemHeight]="'50px'">
+            <ion-list [virtualScroll]="warenkorbUiItems$ | async" [approxItemHeight]="'50px'">
                 <ion-item
-                    *pefVirtualItem="let warenkorbUiItem"
+                    *virtualItem="let warenkorbUiItem"
                     class="{{ 'warenkorb-item-row tiefencode-' + warenkorbUiItem.depth + ' ' + (warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch') }}"
                     (click)="warenkorbItemClicked$.emit(warenkorbUiItem)"
                     [attr.tappable]="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? null : true">
