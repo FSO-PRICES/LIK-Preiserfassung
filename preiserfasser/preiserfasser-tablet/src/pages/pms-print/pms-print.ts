@@ -23,7 +23,7 @@ export class PmsPrintComponent extends ReactiveComponent implements OnChanges, O
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
     constructor(
-        @Inject('windowObject') window: Window,
+        @Inject('windowObject') window: any,
         elementRef: ElementRef,
         private store: Store<fromRoot.AppState>,
     ) {

@@ -5,7 +5,7 @@ import { ReactiveComponent } from '../../common/ReactiveComponent';
 @Directive({
     selector: '[pef-perfect-scrollbar]',
 })
-export class PefPerfectScrollbar extends ReactiveComponent implements OnChanges, AfterViewInit {
+export class PefPerfectScrollbarDirective extends ReactiveComponent implements OnChanges, AfterViewInit {
     @Input() enabled: boolean;
 
     private container: any;

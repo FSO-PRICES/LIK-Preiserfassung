@@ -110,7 +110,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .publishReplay(1).refCount();
 
         this.selectPreismeldung
-            .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[], ionItemHeight) => ({ newPreismeldungIndex: filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId), ionItemHeight }))
+            .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[], ionItemHeight: number) => ({ newPreismeldungIndex: filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId), ionItemHeight }))
             .subscribe(({ newPreismeldungIndex, ionItemHeight }) => {
                 if ((newPreismeldungIndex + 1) * ionItemHeight > this.content.scrollTop + this.content.contentHeight) {
                     this.content.scrollTo(0, ((newPreismeldungIndex + 1) * ionItemHeight) - this.content.contentHeight, 0);
@@ -150,6 +150,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         if (isAfter(currentTime, erhebungsEndDatum) && isBefore(currentTime, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))) return 'orange';
         if (isAfter(currentTime, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))) return 'red';
         return 'green';
+    }
+
+    trackByFn(index: number, item: P.PreismeldungBag) {
+        return item.pmId;
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

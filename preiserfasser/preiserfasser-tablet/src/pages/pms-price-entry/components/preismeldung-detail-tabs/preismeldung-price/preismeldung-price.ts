@@ -1,18 +1,16 @@
 import { Component, EventEmitter, Input, Output, SimpleChange, OnChanges, ChangeDetectionStrategy, OnDestroy, Inject } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TranslateService } from 'ng2-translate';
+import { TranslateService } from '@ngx-translate/core';
 import { keys, assign } from 'lodash';
 import { isBefore } from 'date-fns';
 
 import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogOneButtonComponent, PefDialogService, PefDialogYesNoComponent, PefDialogYesNoEditComponent } from 'lik-shared';
+import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
 
 import * as P from '../../../../../common-models';
 
 import { preisNumberFormattingOptions, preisFormatFn, mengeNumberFormattingOptions, mengeFormatFn } from 'lik-shared';
-
-import { DialogValidationErrorsComponent } from '../../dialog-validation-errors/dialog-validation-errors';
-import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
 
 interface PercentageValues {
     lastPeriodToThisPeriod: string;
@@ -78,7 +76,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     private subscriptions: Subscription[] = [];
 
-    constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService, @Inject('windowObject') public window: Window) {
+    constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService, @Inject('windowObject') public window: any) {
         super();
 
         this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${preisFormatFn(x)}` }));
@@ -270,7 +268,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.subscriptions.push(
             saveWithBag$.filter(x => x.bag.hasAttributeWarning)
-                .flatMap(() => pefDialogService.displayDialog(DialogValidationErrorsComponent, [translateService.instant('validation_produktMerkmale_erfassen')], true))
+                .flatMap(() => pefDialogService.displayDialog('DialogValidationErrorsComponent', [translateService.instant('validation_produktMerkmale_erfassen')], true))
                 .subscribe()
         );
 
@@ -281,7 +279,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT' as P.SavePreismeldungPriceSaveActionWithDataType, data: '' });
                 }
                 if (bag.messages.bemerkungenHistory !== '' && bag.messages.bemerkungen === '') {
-                    return pefDialogService.displayDialog(DialogValidationErrorsComponent, [translateService.instant('validation_frage-antworten')], true).map(() => ({ type: 'NO_SAVE_NAVIGATE', data: 'MESSAGES' }));
+                    return pefDialogService.displayDialog('DialogValidationErrorsComponent', [translateService.instant('validation_frage-antworten')], true).map(() => ({ type: 'NO_SAVE_NAVIGATE', data: 'MESSAGES' }));
                 }
                 if (bag.hasPriceWarning && !bag.messages.kommentar) {
                     return pefDialogService.displayDialog(PefDialogOneButtonComponent, { message: translateService.instant('dialogText_abnormal_preisentwicklung'), buttonText: 'btn_edit' }, false)
@@ -340,7 +338,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             return translateService.instant(`validation_formatted_${errorKey}`, errorParams);
                         })
                 )
-                .flatMap(errorMessages => pefDialogService.displayDialog(DialogValidationErrorsComponent, errorMessages, true))
+                .flatMap(errorMessages => pefDialogService.displayDialog('DialogValidationErrorsComponent', errorMessages, true))
                 .subscribe()
         );
 

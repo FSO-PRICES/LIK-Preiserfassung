@@ -5,6 +5,10 @@ preismeldung-attributes {
     flex-direction: column;
     background-color: $alto;
 
+    ion-content.content-md {
+        flex: 1;
+    }
+
     .item-md.pef-item {
         margin-bottom: 0.75em;
         ion-label {

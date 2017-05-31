@@ -1,19 +1,19 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { TranslateService } from 'ng2-translate';
+import { NavController, IonicPage } from 'ionic-angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
-import { NavController } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
 
 import { PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
-import { DashboardPage } from '../dashboard/dashboard';
 
 import { Actions as DatabaseAction } from '../../actions/database';
 import { Action as SettingsAction } from '../../actions/setting';
 
+@IonicPage()
 @Component({
     selector: 'settings-page',
     templateUrl: 'settings.html'
@@ -145,6 +145,6 @@ export class SettingsPage implements OnDestroy {
     }
 
     public navigateToDashboard() {
-        return this.navCtrl.setRoot(DashboardPage);
+        return this.navCtrl.setRoot('DashboardPage');
     }
 }

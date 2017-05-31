@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { IonicModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from 'ng2-translate';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { PefDetectIonListItemHeightDirective } from './pef-detect-ion-list-item-height/pef-detect-ion-list-item-height';
 import { PefDialogOneButtonComponent } from './pef-dialog-one-button/pef-dialog-one-button';
@@ -13,12 +13,13 @@ import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-
 import { PefHighlightOnFocus } from './pef-highlight-on-focus/pef-highlight-on-focus';
 import { PefIcon } from './pef-icon/pef-icon';
 import { PefNoBreakString } from './pef-no-break-string-pipe/pef-no-break-string-pipe';
-import { PefPerfectScrollbar } from './pef-perfect-scrollbar/pef-perfect-scrollbar';
+import { PefPerfectScrollbarDirective } from './pef-perfect-scrollbar/pef-perfect-scrollbar';
 import { PefPerfectVirtualscrollScrollbarDirective } from './pef-perfect-virtualscroll-scrollbar/pef-perfect-virtualscroll-scrollbar';
 import { PefSearchInput } from './pef-search-input/pef-search-input';
 import { PefSvgIcons } from './pef-svg-icons/pef-svg-icons';
-import { PefToggleButton } from './pef-toggle-button/pef-toggle-button';
-import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scroll';
+import { PefToggleButtonDirective } from './pef-toggle-button/pef-toggle-button';
+import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
+import { PefVirtualFooter, PefVirtualItem, PefVirtualHeader } from './pef-virtual-scroll/virtual-item';
 
 @NgModule({
     imports: [CommonModule, IonicModule, TranslateModule],
@@ -33,12 +34,20 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefHighlightOnFocus,
         PefIcon,
         PefNoBreakString,
-        PefPerfectScrollbar,
+        PefPerfectScrollbarDirective,
         PefPerfectVirtualscrollScrollbarDirective,
         PefSearchInput,
         PefSvgIcons,
-        PefToggleButton,
-        PefVirtualScrollComponent
+        PefToggleButtonDirective,
+        PefVirtualFooter,
+        PefVirtualHeader,
+        PefVirtualItem,
+        PefVirtualScroll,
+    ],
+    entryComponents: [
+        PefDialogOneButtonComponent,
+        PefDialogYesNoComponent,
+        PefDialogYesNoEditComponent,
     ],
     exports: [
         PefDetectIonListItemHeightDirective,
@@ -51,12 +60,16 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefHighlightOnFocus,
         PefIcon,
         PefNoBreakString,
-        PefPerfectScrollbar,
+        PefPerfectScrollbarDirective,
         PefPerfectVirtualscrollScrollbarDirective,
         PefSearchInput,
         PefSvgIcons,
-        PefToggleButton,
-        PefVirtualScrollComponent
+        PefToggleButtonDirective,
+        PefVirtualFooter,
+        PefVirtualHeader,
+        PefVirtualItem,
+        PefVirtualScroll,
+        TranslateModule
     ]
 })
 export class PefComponentsModule {

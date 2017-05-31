@@ -12,7 +12,8 @@ preismeldung-list {
         display: flex;
         flex-direction: column;
 
-        ion-content {
+        ion-content.content-md {
+            flex: 1;
             background-color: transparent;
         }
     }

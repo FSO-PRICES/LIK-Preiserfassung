@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 export class PefDetectIonListItemHeightDirective implements OnInit {
     @Output('pef-detect-ion-list-item-height') ionItemHeight = new EventEmitter<number>();
 
-    constructor(private elementRef: ElementRef, @Inject('windowObject') private window: Window) {
+    constructor(private elementRef: ElementRef, @Inject('windowObject') private window: any) {
     }
 
     ngOnInit() {

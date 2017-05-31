@@ -18,7 +18,7 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
 
     public navigateToInternetLink$ = new EventEmitter();
 
-    constructor(@Inject('windowObject') public window: Window) {
+    constructor(@Inject('windowObject') public window: any) {
         super();
 
         this.navigateToInternetLink$.withLatestFrom(this.preismeldestelle$, this.preismeldung$, (_, __, bag) => bag)

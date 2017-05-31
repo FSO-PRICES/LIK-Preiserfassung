@@ -7,6 +7,7 @@
         <ion-input
             type="text"
             [readonly]="true"
+            [class.readonly]="true"
             [value]="(preismeldung$ | async)?.preismeldung.artikelnummer"></ion-input>
     </ion-item>
     <ion-item class="pef-item on-dark" *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'">
@@ -14,6 +15,7 @@
         <ion-input
             type="text"
             [readonly]="true"
+            [class.readonly]="true"
             [value]="(preismeldung$ | async)?.preismeldung.internetLink"></ion-input>
     </ion-item>
     <button class="pef-icon-secondary server-url-button" ion-button icon-only (click)="navigateToInternetLink$.emit()" [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink" *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'">
@@ -29,6 +31,7 @@
         <ion-input
             type="text"
             [readonly]="true"
+            [class.readonly]="true"
             [value]="(preismeldung$ | async)?.preismeldung.artikeltext"></ion-input>
     </ion-item>
     <div class="right-column"></div>

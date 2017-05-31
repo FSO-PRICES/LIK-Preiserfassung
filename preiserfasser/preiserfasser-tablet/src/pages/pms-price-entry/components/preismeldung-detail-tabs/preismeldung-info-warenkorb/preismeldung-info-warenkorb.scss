@@ -5,6 +5,10 @@ preismeldung-info-warenkorb {
     flex-direction: column;
     background-color: $alto;
 
+    ion-content.content-md {
+        flex: 1;
+    }
+
     .info-warenkorb-table {
         display: table;
         width: 100%;

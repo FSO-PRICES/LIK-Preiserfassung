@@ -1,11 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange, ChangeDetectionStrategy, ViewChild, OnDestroy } from '@angular/core';
 import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
-import { TranslateService } from 'ng2-translate';
+import { TranslateService } from '@ngx-translate/core';
 import { assign } from 'lodash';
 
 import { ReactiveComponent, PefDialogService, pefContains } from 'lik-shared';
-import { DialogNewPmBearbeitungsCodeComponent } from '../../../common/components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
 
 import * as P from '../../../common-models';
 
@@ -167,7 +166,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         this.numberOfEp$ = warenkobUiItemsFiltered$.map(x => x.filter(y => y.warenkorbInfo.warenkorbItem.type === 'LEAF').length).startWith(0);
 
         const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_sufficientPreismeldungen')).map(x => x.data));
-        const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).map(x => x.data));
+        const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.flatMap(warenkorbUiItem => (warenkorbUiItem.preismeldungCount >= (warenkorbUiItem.warenkorbInfo.warenkorbItem as P.Models.WarenkorbLeaf).anzahlPreiseProPMS ? dialogSufficientPreismeldungen$ : Observable.of('YES')).map(x => ({ answer: x, warenkorbUiItem })))
             .filter(x => x.answer === 'YES')

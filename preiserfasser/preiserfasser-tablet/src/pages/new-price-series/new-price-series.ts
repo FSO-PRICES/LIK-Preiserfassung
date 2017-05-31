@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { NavParams, NavController } from 'ionic-angular';
+import { NavParams, NavController, IonicPage } from 'ionic-angular';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
@@ -8,6 +8,9 @@ import { PmsPriceEntryPage } from '../pms-price-entry';
 
 import * as fromRoot from '../../reducers';
 
+@IonicPage({
+    segment: 'new-price-series/:pmsNummer'
+})
 @Component({
     selector: 'new-price-series-page',
     templateUrl: 'new-price-series.html',

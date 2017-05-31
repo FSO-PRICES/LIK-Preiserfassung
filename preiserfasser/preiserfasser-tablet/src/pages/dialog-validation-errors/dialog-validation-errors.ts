@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { ViewController, NavParams } from 'ionic-angular';
+import { ViewController, NavParams, IonicPage } from 'ionic-angular';
 
+@IonicPage()
 @Component({
     selector: 'dialog-validation-errors',
     templateUrl: 'dialog-validation-errors.html',

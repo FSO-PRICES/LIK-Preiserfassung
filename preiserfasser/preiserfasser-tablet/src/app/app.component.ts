@@ -1,13 +1,15 @@
 import { Store } from '@ngrx/store';
 import { Component, ViewChild, OnInit, HostBinding } from '@angular/core';
 import { Platform, NavController } from 'ionic-angular';
-import { StatusBar, Splashscreen, ScreenOrientation } from 'ionic-native';
-import { TranslateService } from 'ng2-translate';
+import { StatusBar } from '@ionic-native/status-bar';
+import { SplashScreen } from '@ionic-native/splash-screen';
+import { ScreenOrientation } from '@ionic-native/screen-orientation';
+import { TranslateService } from '@ngx-translate/core';
 
 import * as fromRoot from '../reducers';
 
-import { DashboardPage } from '../pages/dashboard/dashboard';
-import { SettingsPage } from '../pages/settings/settings';
+// import { DashboardPage } from '../pages/dashboard/dashboard';
+// import { SettingsPage } from '../pages/settings/settings';
 
 import { initialisePouchForDev } from '../effects/pouchdb-utils';
 
@@ -21,24 +23,22 @@ export class PefApp implements OnInit {
     @HostBinding('class.pef-desktop') isDesktop = false;
     @HostBinding('class.pef-toolbar-right') toolbarRight = false;
 
-    constructor(platform: Platform, private store: Store<fromRoot.AppState>, private translate: TranslateService) {
+    rootPage = 'DashboardPage';
 
-        this.initialiseLanguages();
+    constructor(platform: Platform, private store: Store<fromRoot.AppState>, private translate: TranslateService, private statusBar: StatusBar, private splashScreen: SplashScreen, private screenOrientation: ScreenOrientation) {
 
         platform.ready().then(() => {
-            // StatusBar.styleDefault();
-            // StatusBar.backgroundColorByHexString('#ffffff');
-            // StatusBar.backgroundColorByName('black');
-            StatusBar.hide();
-            Splashscreen.hide();
             if (platform.is('mobile')) {
                 // remember when testing, this will fail on the desktop with "cannot read property 'apply' of undefined"
-                ScreenOrientation.lockOrientation('landscape');
+                screenOrientation.lock('landscape');
             }
             this.isDesktop = !platform.is('mobile');
             this.store.dispatch({ type: 'APP_CONFIG_SET_IS_DESKTOP', payload: this.isDesktop });
             this.store.dispatch({ type: 'CHECK_DATABASE_EXISTS' });
+            this.initialiseLanguages();
             initialisePouchForDev();
+            statusBar.hide();
+            splashScreen.hide();
         });
 
         const databaseExists$ = this.store.map(x => x.database)
@@ -74,10 +74,9 @@ export class PefApp implements OnInit {
             .take(1)
             .flatMap(areSettingsDefined => {
                 if (!areSettingsDefined) {
-                    return this.navCtrl.setRoot(SettingsPage);
-                }
-                if (window.location.hash !== '#/home') {
-                    return this.navCtrl.setRoot(DashboardPage);
+                    return this.navCtrl.setRoot('SettingsPage');
+                } else if (window.location.hash !== '#/dashboard') {
+                    return this.navCtrl.setRoot('DashboardPage');
                 }
                 return Promise.resolve();
             })

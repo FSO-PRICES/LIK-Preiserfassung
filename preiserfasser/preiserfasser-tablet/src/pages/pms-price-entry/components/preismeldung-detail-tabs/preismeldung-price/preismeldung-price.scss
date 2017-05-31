@@ -5,6 +5,10 @@ preismeldung-price {
     flex-direction: column;
     background-color: $alto;
 
+    ion-content.content-md {
+        flex: 1;
+    }
+
     .header {
         @include set-padding-vert-horiz(0.5, 1);
         flex: 0 0 auto;

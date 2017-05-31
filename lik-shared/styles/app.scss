@@ -148,7 +148,7 @@ form.stacked-form {
             background-color: $scooter;
             color: $outer-space;
         }
-        &[ng-reflect-readonly] {
+        &.readonly {
             background-color: $alto;
         }
     }
@@ -282,11 +282,11 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .visibility-hidden {
-    visibility: hidden;
+    visibility: hidden !important;
 }
 
 .display-none {
-    display: none;
+    display: none !important;
 }
 
 ion-popover.popover-md {

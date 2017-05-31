@@ -1,19 +1,18 @@
 import { Component, EventEmitter, ChangeDetectionStrategy, NgZone, OnDestroy } from '@angular/core';
-import { TranslateService } from 'ng2-translate';
-import { NavParams, NavController } from 'ionic-angular';
+import { NavParams, NavController, IonicPage } from 'ionic-angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
 import { PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
-import { DashboardPage } from '../dashboard/dashboard';
+import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 
 import * as fromRoot from '../../reducers';
 
-import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
-import { DialogNewPmBearbeitungsCodeComponent } from '../../common/components/dialog-new-pm-bearbeitungs-code/dialog-new-pm-bearbeitungs-code';
-import { NewPriceSeriesPage } from '../new-price-series';
-
+@IonicPage({
+    segment: 'pms-price-entry/:pmsNummer'
+})
 @Component({
     selector: 'pms-price-entry',
     templateUrl: 'pms-price-entry.html',
@@ -140,10 +139,10 @@ export class PmsPriceEntryPage implements OnDestroy {
         this.subscriptions.push(
             this.currentPreismeldung$
                 .filter(x => !!x && !!x.lastSave && x.lastSave.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
-                .subscribe(() => this.navController.setRoot(DashboardPage).then(() => setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100)))
+                .subscribe(() => this.navController.setRoot('DashboardPage').then(() => setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100)))
         );
 
-        const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).map(x => x.data));
+        const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
         const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_sufficientPreismeldungen')).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
@@ -208,11 +207,11 @@ export class PmsPriceEntryPage implements OnDestroy {
     }
 
     navigateToDashboard() {
-        return this.navController.setRoot(DashboardPage);
+        return this.navController.setRoot('DashboardPage');
     }
 
     navigateToNewPriceSeries() {
-        return this.navController.setRoot(NewPriceSeriesPage, { pmsNummer: this.navParams.get('pmsNummer') });
+        return this.navController.setRoot('NewPriceSeriesPage', { pmsNummer: this.navParams.get('pmsNummer') });
     }
 
     ngOnDestroy() {

@@ -13,7 +13,7 @@
             <button ion-button class="pef-toolbar-button" [disabled]="true">
                 <pef-icon name="info"></pef-icon>
             </button>
-            <button ion-button class="pef-toolbar-button" (click)="settingsClicked.emit()">
+            <button ion-button class="pef-toolbar-button" (click)="navigateToSettings$.emit()">
                 <pef-icon name="settings"></pef-icon>
             </button>
         </div>
@@ -48,13 +48,13 @@
                 </div>
             </div>
             <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
-                <div class="pms-table" [virtualScroll]="filteredPreismeldestellen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)">
+                <div class="pms-table" [virtualScroll]="filteredPreismeldestellen$ | async" approxItemHeight="56px">
                     <div class="pms-row" *virtualItem="let preismeldestelle">
                         <div class="pms-cell pms-name">
                             <div class="pms-cell-content">
                                 <a ion-button clear
                                     class="pms-detail-link"
-                                    (click)="navigateToDetails(preismeldestelle)">
+                                    (click)="navigateToDetails$.emit(preismeldestelle)">
                                     <pef-icon name="shop"></pef-icon>
                                 </a>
                                 <div class="pms-name-text"> {{ preismeldestelle.name }} </div>

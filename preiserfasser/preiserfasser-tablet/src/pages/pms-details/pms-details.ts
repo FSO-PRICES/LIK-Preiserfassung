@@ -1,7 +1,7 @@
 import { Store } from '@ngrx/store';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { NavParams, NavController } from 'ionic-angular';
+import { NavParams, NavController, IonicPage } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
 import { range, mapValues, values } from 'lodash';
 
@@ -12,6 +12,7 @@ import { DashboardPage } from '../dashboard/dashboard';
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
 import { Action as RegionAction } from '../../actions/region';
 
+@IonicPage()
 @Component({
     selector: 'pms-details',
     templateUrl: 'pms-details.html'
@@ -39,7 +40,6 @@ export class PmsDetailsPage implements OnDestroy {
         private store: Store<fromRoot.AppState>,
         private formBuilder: FormBuilder
     ) {
-        console.log('initiating pms-detail');
         this.store.select(fromRoot.getPreismeldestellen)
             .filter(x => !!x && x.length > 0).subscribe(() => {
                 this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
@@ -47,7 +47,6 @@ export class PmsDetailsPage implements OnDestroy {
 
         this.form = formBuilder.group({
             kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
-            // pmsNummer: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
             name: [null, Validators.required],
             supplement: [null],
             street: [null, Validators.required],

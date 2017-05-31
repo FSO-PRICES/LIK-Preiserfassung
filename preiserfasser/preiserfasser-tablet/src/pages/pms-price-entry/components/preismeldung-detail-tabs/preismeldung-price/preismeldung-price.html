@@ -114,6 +114,7 @@
                                     pef-disable-input-negative-number
                                     [class.ng-invalid]="createInvalidObservableFor('preis') | async"
                                     [readonly]="preisAndMengeDisabled$ | async"
+                                    [class.readonly]="preisAndMengeDisabled$ | async"
                                     (blur)="preisChanged$.emit(preis.value)"
                                     [value]="(preisCurrentValue$ | async)?.value"></ion-input>
                             </ion-item>
@@ -127,6 +128,7 @@
                                         pef-disable-input-negative-number
                                         [class.ng-invalid]="createInvalidObservableFor('menge') | async"
                                         [readonly]="preisAndMengeDisabled$ | async"
+                                        [class.readonly]="preisAndMengeDisabled$ | async"
                                         (blur)="mengeChanged$.emit(menge.value)"
                                         [value]="form.value.menge"></ion-input>
                                 </ion-item>

@@ -1,6 +1,7 @@
 import { Component, EventEmitter } from '@angular/core';
-import { ViewController } from 'ionic-angular';
+import { ViewController, IonicPage } from 'ionic-angular';
 
+@IonicPage()
 @Component({
     selector: 'dialog-new-pm-bearbeitungs-code',
     templateUrl: 'dialog-new-pm-bearbeitungs-code.html',

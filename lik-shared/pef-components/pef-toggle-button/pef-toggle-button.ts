@@ -1,11 +1,8 @@
-import { Directive, Input } from '@angular/core';
+import { Directive, Input, HostBinding } from '@angular/core';
 
 @Directive({
     selector: '[pef-toggle-button]',
-    host: {
-        '[class.toggled-on]': 'toggleOn'
-    }
 })
-export class PefToggleButton {
-    @Input() toggleOn: boolean = false;
+export class PefToggleButtonDirective {
+    @Input() @HostBinding('class.toggled-on') toggleOn = false;
 }

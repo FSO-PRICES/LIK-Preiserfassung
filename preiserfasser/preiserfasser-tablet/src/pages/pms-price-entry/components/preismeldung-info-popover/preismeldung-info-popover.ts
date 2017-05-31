@@ -26,14 +26,14 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
     public preisNumberFormattingOptions = preisNumberFormattingOptions;
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
-    constructor(elementRef: ElementRef, private sanitizer: DomSanitizer, @Inject('windowObject') window: Window) {
+    constructor(elementRef: ElementRef, private sanitizer: DomSanitizer, @Inject('windowObject') window: any) {
         super();
 
         this.comparisonContainerWidth$ = Observable.of(300);
 
         this.popoverActive$ = this.buttonClicked$.map(x => ({ type: 'TOGGLE' }))
             .merge(this.observePropertyCurrentValue<{}>('forceClose').map(_ => ({ type: 'SET', value: false })))
-            .scan<{}, boolean>((active: boolean, v) => {
+            .scan<{ type: 'TOGGLE' | 'SET', value?: boolean; }, boolean>((active: boolean, v) => {
                 if (v.type === 'TOGGLE') return !active;
                 return v.value;
             }, false)

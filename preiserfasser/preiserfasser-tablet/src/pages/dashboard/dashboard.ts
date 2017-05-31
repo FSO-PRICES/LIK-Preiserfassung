@@ -1,9 +1,9 @@
 import { Store } from '@ngrx/store';
 import { Component, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { NavController } from 'ionic-angular';
-import { TranslateService } from 'ng2-translate';
+import { NavController, IonicPage } from 'ionic-angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription, Observable } from 'rxjs';
-import { assign } from 'lodash';
+import assign from 'lodash/assign';
 
 import { format, parse } from 'date-fns';
 import * as deLocale from 'date-fns/locale/de';
@@ -11,23 +11,19 @@ import * as deLocale from 'date-fns/locale/de';
 
 import { pefSearch, PefDialogService, Models as P } from 'lik-shared';
 
-import { LoginModal } from '../login/login';
 import * as fromRoot from '../../reducers';
-import { PmsDetailsPage } from '../pms-details/pms-details';
-import { PmsPriceEntryPage } from '../pms-price-entry';
-import { SettingsPage } from '../settings/settings';
 
 import { Action as StatisticsAction } from '../../actions/statistics';
 import { Actions as DatabaseAction } from '../../actions/database';
 import { PreismeldestelleStatistics } from '../../reducers/statistics';
 
+@IonicPage()
 @Component({
     selector: 'dashboard',
     templateUrl: 'dashboard.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardPage implements OnDestroy {
-    public settingsClicked = new EventEmitter();
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     private preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
     public currentTime$ = this.store.select(fromRoot.getCurrentTime)
@@ -54,6 +50,8 @@ export class DashboardPage implements OnDestroy {
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
     public navigateToPriceEntry$ = new EventEmitter<P.Preismeldestelle>();
+    public navigateToSettings$ = new EventEmitter();
+    public navigateToDetails$ = new EventEmitter<P.Preismeldestelle>();
     public openPrint$ = new EventEmitter<P.Preismeldestelle>();
     public isPrintingPmsNummer$: Observable<string>;
     public finishedPrinting$ = new EventEmitter();
@@ -64,11 +62,7 @@ export class DashboardPage implements OnDestroy {
         private translateService: TranslateService,
         private store: Store<fromRoot.AppState>
     ) {
-        this.settingsClicked.subscribe(() => this.navigateToSettings());
-
         const settings$ = this.store.select(fromRoot.getSettings);
-
-        const loadingText$ = translateService.get('text_synchronizing-data');
 
         const databaseHasBeenUploaded$ = this.store.select(x => x.database)
             .map(database => database.lastUploadedAt)
@@ -83,7 +77,7 @@ export class DashboardPage implements OnDestroy {
         const loginDialogDismiss$ = databaseExists$
             .withLatestFrom(settings$, (databaseExists, settings) => databaseExists || settings.isDefault) // Do not try to login if settings are not set yet
             .filter(x => !x)
-            .flatMap(() => pefDialogService.displayModal(LoginModal))
+            .flatMap(() => pefDialogService.displayModal('LoginModal'))
             .filter(x => x.data !== null)
             .publishReplay(1).refCount();
 
@@ -114,10 +108,8 @@ export class DashboardPage implements OnDestroy {
 
             loginDialogDismiss$ // In case of login data entered
                 .filter(x => x.data.username !== null)
-                .withLatestFrom(settings$, loadingText$, (x, settings, loadingText) =>
-                    ({ loadingText, payload: assign({}, x.data, { url: settings.serverConnection.url }) })
-                )
-                .flatMap(({ loadingText, payload }) => pefDialogService.displayLoading(loadingText, dismissLoading$).map(() => payload))
+                .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
+                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissLoading$).map(() => payload))
                 .subscribe(payload => this.store.dispatch({ type: 'DOWNLOAD_DATABASE', payload })),
 
             loginDialogDismiss$ // In case of navigate to was set
@@ -125,15 +117,22 @@ export class DashboardPage implements OnDestroy {
                 .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo, {})),
 
             this.uploadPreismeldungenClicked$
-                .flatMap(() => pefDialogService.displayModal(LoginModal))
-                .withLatestFrom(settings$, loadingText$, (x, settings, loadingText) =>
-                    ({ loadingText, payload: assign({}, x.data, { url: settings.serverConnection.url }) })
-                )
-                .flatMap(({ loadingText, payload }) => pefDialogService.displayLoading(loadingText, databaseHasBeenUploaded$.skip(1)).map(() => payload))
+                .flatMap(() => pefDialogService.displayModal('LoginModal'))
+                .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
+                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), databaseHasBeenUploaded$.skip(1)).map(() => payload))
                 .subscribe(payload => this.store.dispatch({ type: 'UPLOAD_DATABASE', payload })),
 
             this.navigateToPriceEntry$
-                .subscribe(pms => this.navCtrl.setRoot(PmsPriceEntryPage, { pmsNummer: pms.pmsNummer })),
+                .delay(100)
+                .subscribe(pms => this.navCtrl.setRoot('PmsPriceEntryPage', { pmsNummer: pms.pmsNummer })),
+
+            this.navigateToSettings$
+                .delay(100)
+                .subscribe(() => this.navCtrl.setRoot('SettingsPage')),
+
+            this.navigateToDetails$
+                .delay(100)
+                .subscribe(pms => this.navCtrl.setRoot('PmsDetailsPage', { pmsNummer: pms.pmsNummer })),
 
             Observable.interval(10000).startWith(0).subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction))
         ];
@@ -143,14 +142,6 @@ export class DashboardPage implements OnDestroy {
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());
-    }
-
-    navigateToDetails(pms: P.Preismeldestelle) {
-        this.navCtrl.setRoot(PmsDetailsPage, { pmsNummer: pms.pmsNummer });
-    }
-
-    navigateToSettings() {
-        this.navCtrl.setRoot(SettingsPage).catch(() => { });
     }
 
     isPdf(erhebungsart: P.erhebungsartType) {

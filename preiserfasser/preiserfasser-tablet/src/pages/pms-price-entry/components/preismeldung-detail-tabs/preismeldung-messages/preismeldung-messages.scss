@@ -5,6 +5,10 @@ preismeldung-messages {
     flex-direction: column;
     background-color: $alto;
 
+    ion-content.content-md {
+        flex: 1;
+    }
+
     h3:not(:first-child) {
         margin-top: 2em;
     }
