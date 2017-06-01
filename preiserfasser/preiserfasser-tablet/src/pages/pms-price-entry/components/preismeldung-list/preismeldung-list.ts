@@ -20,7 +20,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() currentLanguage: string;
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
-    @Output() selectPreismeldung: Observable<P.PreismeldungBag>;
+    @Output('selectPreismeldung') selectPreismeldung$: Observable<P.PreismeldungBag>;
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
 
     public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
@@ -133,18 +133,21 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 return filteredPreismeldungen[currentPreismeldungIndex - 1];
             });
 
-        this.selectPreismeldung = this.selectClickedPreismeldung$.merge(selectNext$).merge(selectPrev$)
+        this.selectPreismeldung$ = this.selectClickedPreismeldung$.merge(selectNext$).merge(selectPrev$)
             .publishReplay(1).refCount();
 
         this.subscriptions.push(
-            this.selectPreismeldung
-                .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (newPriesmeldung, filteredPreismeldungen: P.PreismeldungBag[], ionItemHeight: number) => ({ newPreismeldungIndex: filteredPreismeldungen.findIndex(x => x.pmId === newPriesmeldung.pmId), ionItemHeight }))
-                .subscribe(({ newPreismeldungIndex, ionItemHeight }) => {
-                    if ((newPreismeldungIndex + 1) * ionItemHeight > this.content.scrollTop + this.content.contentHeight) {
-                        this.content.scrollTo(0, ((newPreismeldungIndex + 1) * ionItemHeight) - this.content.contentHeight, 0);
+            this.currentPreismeldung$
+                .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (currentPreismeldung, filteredPreismeldungen, ionItemHeight: number) => ({ currentPreismeldung, filteredPreismeldungen, ionItemHeight }))
+                .subscribe(({ currentPreismeldung, filteredPreismeldungen, ionItemHeight }) => {
+                    if (!currentPreismeldung) return;
+                    const currentPreismeldungIndex = filteredPreismeldungen.findIndex(x => x.pmId === currentPreismeldung.pmId);
+                    if (currentPreismeldungIndex === -1) return;
+                    if ((currentPreismeldungIndex + 1) * ionItemHeight > this.content.scrollTop + this.content.contentHeight) {
+                        setTimeout(() => this.content.scrollTo(0, ((currentPreismeldungIndex + 1) * ionItemHeight) - this.content.contentHeight, 10));
                     }
-                    if (newPreismeldungIndex * ionItemHeight < this.content.scrollTop) {
-                        this.content.scrollTo(0, (newPreismeldungIndex * ionItemHeight), 0);
+                    if (currentPreismeldungIndex * ionItemHeight < this.content.scrollTop) {
+                        setTimeout(() => this.content.scrollTo(0, (currentPreismeldungIndex * ionItemHeight), 10));
                     }
                 })
         );
