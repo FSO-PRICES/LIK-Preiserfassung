@@ -27,7 +27,7 @@ export type CurrentPreismeldungBag = PreismeldungBag & {
     isNew: boolean;
     priceCountStatus: PriceCountStatus;
     originalBearbeitungscode: P.Models.Bearbeitungscode;
-    lastSave: P.SavePreismeldungPriceSaveAction;
+    lastSaveAction: P.SavePreismeldungPriceSaveAction;
     hasMessageToCheck: boolean;
     hasPriceWarning: boolean;
     hasAttributeWarning: boolean;
@@ -188,7 +188,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const currentPreismeldung = assign({},
                 createCurrentPreismeldungBag(resettedEntity, priceCountStatuses), {
                     isModified: false,
-                    lastSaveAction: 'RESET',
+                    lastSaveAction: { type: 'RESET', data: null, saveWithData: null },
                     resetEvent: new Date().getTime()
                 });
             return assign({}, state, { currentPreismeldung, entities, priceCountStatuses });

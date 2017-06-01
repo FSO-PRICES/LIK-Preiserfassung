@@ -15,8 +15,12 @@
             </span>
         </div>
     </div>
+    <!--<ion-content>
+        <ion-list>
+            <ion-item
+                *ngFor="let bag of (filteredPreismeldungen$ | async)"-->
     <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
-        <ion-list [virtualScroll]="filteredPreismeldungen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)">
+        <ion-list [virtualScroll]="filteredPreismeldungen$ | async" [approxItemHeight]="(itemHeight$ | async) + 'px'" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)" [virtualTrackBy]="trackByFn">
             <ion-item
                 *virtualItem="let bag"
                 class="preismeldung-item"

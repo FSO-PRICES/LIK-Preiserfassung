@@ -262,7 +262,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         const saveWithBag$ = canSave$.filter(x => x.isValid)
             .map(x => x.saveAction)
-            .delay(100)
+            // .delay(100)
             .withLatestFrom(this.preismeldung$, (saveAction, bag) => ({ saveAction, bag }))
             .publishReplay(1).refCount();
 

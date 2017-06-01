@@ -185,7 +185,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     }
 
     trackByFn(index: number, item: P.PreismeldungBag) {
-        return `${item.pmId}_${item.preismeldung.modifiedAt}`
+        if (item) return index;
+        return `${item.pmId}_${item.preismeldung.modifiedAt || ''}`;
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

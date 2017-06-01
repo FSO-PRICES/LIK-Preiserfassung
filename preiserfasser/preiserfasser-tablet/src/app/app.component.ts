@@ -72,15 +72,7 @@ export class PefApp implements OnInit {
             .filter(setting => !!setting)
             .map(setting => !setting.isDefault)
             .take(1)
-            .flatMap(areSettingsDefined => {
-                if (!areSettingsDefined) {
-                    return this.navCtrl.setRoot('SettingsPage');
-                } else if (window.location.hash !== '#/dashboard') {
-                    console.log('navigating to DashboardPage')
-                    return this.navCtrl.setRoot('DashboardPage');
-                }
-                return Promise.resolve();
-            })
+            .flatMap(areSettingsDefined => !areSettingsDefined ? this.navCtrl.setRoot('SettingsPage') : Promise.resolve())
             .subscribe();
     }
 }
