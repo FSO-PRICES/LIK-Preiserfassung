@@ -60,11 +60,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
     public chooseReductionPercentage$ = new EventEmitter();
-    public infoPopoverActive$ = new EventEmitter();
+    public infoPopoverActive$ = new EventEmitter<boolean>();
     public popoverHeight$: Observable<string>;
 
     public preisNumberFormattingOptions = preisNumberFormattingOptions;
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
+
+    public arrowDownPercentage$: Observable<string>;
 
     public currentPeriodHeading$: Observable<string>;
     public isSaveDisabled$: Observable<boolean>;
@@ -360,8 +362,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.popoverHeight$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .delay(0)
-            .map(x => x === 7 ? (window.document.getElementById('row-2-last-period').offsetHeight - 8) + 'px' : window.document.getElementById('last-period-data-input-area').offsetHeight + 'px')
-            .do(x => console.log('aaaa', x))
+            .map(x => x === 7 ? (window.document.getElementById('row-2-last-period').offsetHeight - 8) + 'px' : window.document.getElementById('last-period-data-input-area').offsetHeight + 'px');
+
+        this.arrowDownPercentage$ = this.infoPopoverActive$
+            .combineLatest(this.preismeldung$, (infoPopoverActive, bag) => {
+                const n = !bag ? null : infoPopoverActive ? bag.preismeldung.percentageVPNeuerArtikelToVPVorReduktion : bag.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel;
+                return this.formatPercentageChange(n);
+            });
     }
 
     calcPreisAndMengeDisabled(bearbeitungscode: P.Models.Bearbeitungscode) {

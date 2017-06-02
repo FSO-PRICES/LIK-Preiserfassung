@@ -86,8 +86,8 @@
                             <div class="code">{{ formatFehlendePreiseR((preismeldung$ | async)?.refPreismeldung.fehlendePreiseR) }}</div>
                         </div>
                     </div>
-                    <div class="box-container" *ngIf="showVPArtikelNeu$ | async">
-                        <div class="box" [innerHTML]="(infoPopoverActive$ | async) ? formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageVPNeuerArtikelToVPVorReduktion) : formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel)"></div>
+                    <div class="box-container" [class.visibility-hidden]="!(showVPArtikelNeu$ | async)">
+                        <div class="box" [innerHTML]="arrowDownPercentage$ | async"></div>
                         <div class="arrow down"></div>
                     </div>
                 </div>
@@ -185,7 +185,7 @@
                                         [value]="form.value.mengeVPNormalNeuerArtikel"></ion-input>
                                 </ion-item>
                                 <div class="unit-button-wrapper">
-                                    <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqualVP$.emit()" [disabled]="preisAndMengeDisabled$ | async">{{ (preismeldung$ | async).warenkorbPosition.standardeinheit | pefPropertyTranslate }}</button>
+                                    <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqualVP$.emit()" [disabled]="preisAndMengeDisabled$ | async">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</button>
                                 </div>
                             </div>
                         </ion-list>
