@@ -1,16 +1,18 @@
 <div class="pef-advanced-item-flex-container">
     <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
-    <pef-virtual-scroll [items]="filteredPreiserhebers$ | async" (update)="viewPortItems = $event" pef-perfect-scrollbar [enabled]="true">
-        <ion-item
-            class="pef-advanced-item"
-            *ngFor="let preiserheber of viewPortItems"
-            (click)="selectPreiserheber$.emit(preiserheber._id)"
-            [class.selected]="preiserheber._rev == (current$ | async)?._rev"
-            tappable>
-            <div class="pef-item-description">
-                <span class="text">{{ preiserheber.firstName }} {{preiserheber.surname}}</span>
-                <span class="artikel-text">{{ preiserheber.personFunction }}</span>
-            </div>
-        </ion-item>
-    </pef-virtual-scroll>
+    <ion-content pef-perfect-virtualscroll-scrollbar  enabled="true">
+        <ion-list [virtualScroll]="filteredPreiserhebers$ | async" approxItemHeight="50px" [class.hidden]="(filteredPreiserhebers$ | async).length === 0">
+            <ion-item
+                class="pef-advanced-item"
+                *virtualItem="let preiserheber"
+                (click)="selectPreiserheber$.emit(preiserheber._id)"
+                [class.selected]="preiserheber._rev == (current$ | async)?._rev"
+                tappable>
+                <div class="pef-item-description">
+                    <span class="text">{{ preiserheber.firstName }} {{preiserheber.surname}}</span>
+                    <span class="artikel-text">{{ preiserheber.personFunction }}</span>
+                </div>
+            </ion-item>
+        </ion-list>
+    </ion-content>
 </div>

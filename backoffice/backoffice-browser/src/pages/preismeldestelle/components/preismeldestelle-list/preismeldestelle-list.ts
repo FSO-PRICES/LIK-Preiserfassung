@@ -28,7 +28,7 @@ export class PreismeldestelleListComponent extends ReactiveComponent implements 
         this.filteredPreismeldestellen$ = this.preismeldestellen$
             .combineLatest(this.filterTextValueChanges.startWith(null), (preismeldestellen, filterText) =>
                 !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode])
-            );
+            ).publishReplay(1).refCount();
 
         this.current$ = this.observePropertyCurrentValue<P.Preismeldestelle>('current');
     }

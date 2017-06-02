@@ -7,7 +7,6 @@ import * as fromRoot from '../../reducers';
 import { PreiserheberPage } from '../../pages/preiserheber/preiserheber';
 import { PreismeldestellePage } from '../../pages/preismeldestelle/preismeldestelle';
 import { PreismeldungPage } from '../../pages/preismeldung/preismeldung';
-import { RegionPage } from '../../pages/region/region';
 import { ImportPage } from '../../pages/import/import';
 import { ExportToPrestaPage } from '../../pages/export-to-presta/export-to-presta';
 import { SettingsPage } from '../../pages/settings/settings';
@@ -21,7 +20,6 @@ export class PefMenuComponent {
         { page: PreiserheberPage, name: 'Preiserheber' },
         { page: PreismeldestellePage, name: 'Preismeldestellen' },
         { page: PreismeldungPage, name: 'Preismeldungen' },
-        { page: RegionPage, name: 'Regionen' },
         { page: ImportPage, name: 'Import' },
         { page: ExportToPrestaPage, name: 'Export' }
     ];

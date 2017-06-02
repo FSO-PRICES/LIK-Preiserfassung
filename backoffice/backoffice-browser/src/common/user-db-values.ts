@@ -21,7 +21,7 @@ export function loadAllPreismeldungen() {
         );
 }
 
-function getAllDocumentsForPrefixFromUserDbs<T>(prefix: string) {
+function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>(prefix: string) {
     return listUserDatabases()
         .flatMap(dbnames => Observable.from(dbnames)
             .flatMap(dbname => getDatabaseAsObservable(dbname))

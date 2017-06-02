@@ -83,11 +83,11 @@ export function getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.D
     return db.allDocs({ include_docs: true }).then(x => x.rows.map(row => row.doc as T));
 }
 
-export function getAllDocumentsForPrefixFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string): Promise<T[]> {
+export function getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string): Promise<T[]> {
     return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
-export function getAllDocumentsForKeysFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, keys: string[]): Promise<T[]> {
+export function getAllDocumentsForKeysFromDb<T extends P.CouchProperties>(db: PouchDB.Database<PouchDB.Core.Encodable>, keys: string[]): Promise<T[]> {
     return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 

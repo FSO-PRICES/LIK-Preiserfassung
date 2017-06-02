@@ -27,6 +27,7 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
 
     public assignedPreismeldestellen$: Observable<P.Preismeldestelle[]>;
     public filteredPreismeldestellen$: Observable<P.Preismeldestelle[]>;
+    public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     public allViewPortItems: P.Preismeldestelle[];
     public assignedViewPortItems: P.Preismeldestelle[];
 
@@ -43,30 +44,33 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
         const preiszuweisungen$ = this.observePropertyCurrentValue<P.Preiszuweisung[]>('preiszuweisungen').publishReplay(1).refCount();
 
         const preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('preismeldestellen').publishReplay(1).refCount();
+        this.preismeldestellen$ = preismeldestellen$;
 
         const unassignedPreismeldestellen$ = preiszuweisungen$
             .combineLatest(preismeldestellen$, (preiszuweisungen: P.Preiszuweisung[], preismeldestellen: P.Preismeldestelle[]) => ({ preiszuweisungen, preismeldestellen }))
-            .combineLatest(this.current$, ({ preiszuweisungen, preismeldestellen }, preiserheber) => ({ preiszuweisungen, preismeldestellen, preiserheberId: <string>preiserheber._id }))
-            .filter(({ preismeldestellen }) => !!preismeldestellen)
-            .map(({ preiszuweisungen, preismeldestellen, preiserheberId }) => {
-                if (!!preiserheberId && !!preiszuweisungen) {
+            .combineLatest(this.current$, ({ preiszuweisungen, preismeldestellen }, currentPreiserheber) => ({ preiszuweisungen, preismeldestellen, currentPreiserheber: currentPreiserheber }))
+            .filter(({ preismeldestellen, currentPreiserheber }) => !!preismeldestellen && !!currentPreiserheber)
+            .map(({ preiszuweisungen, preismeldestellen, currentPreiserheber }) => {
+                if (!!currentPreiserheber && !!preiszuweisungen) {
                     const alreadyAssigned = reduce(preiszuweisungen, (prev, curr) => {
-                        return curr._id !== preiserheberId ? prev.concat(curr.preismeldestellenNummern) : prev;
+                        return curr._id !== currentPreiserheber._id ? prev.concat(curr.preismeldestellenNummern) : prev;
                     }, <string[]>[]);
                     return preismeldestellen.filter(x => !alreadyAssigned.some(pmsNummer => pmsNummer === x.pmsNummer));
                 }
                 return preismeldestellen;
-            });
+            })
+            .startWith([]);
 
         this.assignedPreismeldestellen$ = this.current$
             .filter(x => !!x)
             .withLatestFrom(preismeldestellen$, (preiszuweisung, preismeldestellen) => ({ preiszuweisung, preismeldestellen }))
             .map(({ preiszuweisung, preismeldestellen }) => preismeldestellen.filter(p => preiszuweisung.preismeldestellenNummern.some(x => x === p.pmsNummer)))
+            .startWith([])
             .publishReplay(1).refCount();
 
-        this.filteredPreismeldestellen$ = this.assignedPreismeldestellen$.startWith(null)
-            .withLatestFrom(<Subscribable<P.Preismeldestelle[]>>unassignedPreismeldestellen$, (assigned, preismeldestellen) => ({ preismeldestellen, assigned }))
-            .map(({ preismeldestellen, assigned }) => preismeldestellen.filter(preismeldestelle => !assigned || !assigned.some(x => x._id === preismeldestelle._id)))
+        this.filteredPreismeldestellen$ = this.assignedPreismeldestellen$
+            .withLatestFrom(unassignedPreismeldestellen$, (assigned, unassignedPreismeldestellen) => ({ unassignedPreismeldestellen, assigned }))
+            .map(({ unassignedPreismeldestellen, assigned }) => unassignedPreismeldestellen.filter(preismeldestelle => assigned.length === 0 || !assigned.some(x => x._id === preismeldestelle._id)))
             .filter(x => !!x)
             .combineLatest(this.filterTextValueChanges$.startWith(null), (preismeldestellen, filterText) =>
                 !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode])

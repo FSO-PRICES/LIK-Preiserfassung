@@ -1,5 +1,6 @@
 import { ErrorHandler, NgModule, LOCALE_ID } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
+import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { PefDialogService } from 'lik-shared';
@@ -12,7 +13,6 @@ import { PefDialogLoginModule, PefDialogLoginComponent } from '../components/pef
 import { PreiserheberModule, PreiserheberPage } from '../pages/preiserheber';
 import { PreismeldestelleModule, PreismeldestellePage } from '../pages/preismeldestelle';
 import { PreismeldungModule, PreismeldungPage } from '../pages/preismeldung';
-import { RegionModule, RegionPage } from '../pages/region';
 import { ImportModule, ImportPage } from '../pages/import';
 import { ExportToPrestaModule, ExportToPrestaPage } from '../pages/export-to-presta';
 import { SettingsPage, SettingsModule } from '../pages/settings';
@@ -25,6 +25,7 @@ import { reducer } from '../reducers';
         Backoffice
     ],
     imports: [
+        BrowserModule,
         IonicModule.forRoot(Backoffice, {}, {
             links: [
                 { component: ImportPage, name: 'Import', segment: 'import' },
@@ -32,7 +33,6 @@ import { reducer } from '../reducers';
                 { component: PreiserheberPage, name: 'Preiserfasser', segment: 'pe' },
                 { component: PreismeldestellePage, name: 'Preismeldestelle', segment: 'pms' },
                 { component: PreismeldungPage, name: 'Preismeldung', segment: 'pm' },
-                { component: RegionPage, name: 'Region', segment: 'reg' },
                 { component: SettingsPage, name: 'Settings', segment: 'settings' },
             ]
         }),
@@ -45,7 +45,6 @@ import { reducer } from '../reducers';
         PreiserheberModule,
         PreismeldestelleModule,
         PreismeldungModule,
-        RegionModule,
         StoreModule.provideStore(reducer),
         ...BO_EFFECTS
     ],
@@ -59,13 +58,13 @@ import { reducer } from '../reducers';
         SettingsPage,
         PreiserheberPage,
         PreismeldestellePage,
-        PreismeldungPage,
-        RegionPage
+        PreismeldungPage
     ],
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         { provide: LOCALE_ID, useValue: 'de-CH' },
-        PefDialogService
+        PefDialogService,
+        { provide: 'windowObject', useValue: window }
     ]
 })
 export class AppModule { }

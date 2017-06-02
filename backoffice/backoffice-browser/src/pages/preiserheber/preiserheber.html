@@ -25,7 +25,7 @@
                 (resetPassword)="resetPassword$.emit($event)"></preiserheber-detail>
         </div>
         <div class="preiserheber-preiszuweisung-container container">
-            <preiserheber-preiszuweisung  *ngIf="(isEditing$ | async) && !(isCreating$ | async) && (preiszuweisungIsInitialized$ | async)"
+            <preiserheber-preiszuweisung [class.hidden]="!((isEditing$ | async) && !(isCreating$ | async) && (preiszuweisungIsInitialized$ | async))"
                 [preiszuweisungen]="preiszuweisungen$ | async"
                 [preismeldestellen]="preismeldestellen$ | async"
                 [current]="currentPreiszuweisung$ | async"

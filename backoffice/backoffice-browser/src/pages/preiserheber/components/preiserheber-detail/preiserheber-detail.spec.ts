@@ -62,7 +62,7 @@ describe('Component: [Preiserheber] PreiserheberDetailComponent', () => {
 
         const updatePreiserheber = (value) => {
             const changesObj: SimpleChanges = {
-                preiserheber: new SimpleChange(null, value)
+                preiserheber: new SimpleChange(null, value, true)
             };
             component.preiserheber = value;
             component.ngOnChanges(changesObj);
