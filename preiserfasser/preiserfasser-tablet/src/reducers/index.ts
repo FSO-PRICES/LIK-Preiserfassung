@@ -14,7 +14,6 @@ import * as fromLanguages from './languages';
 import * as fromWarenkorb from './warenkorb';
 import * as fromSettings from './setting';
 import * as fromStatistics from './statistics';
-import * as fromRegion from './region';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
@@ -26,7 +25,6 @@ export interface AppState {
     warenkorb: fromWarenkorb.State;
     settings: fromSettings.State;
     statistics: fromStatistics.State;
-    regionen: fromRegion.State;
 }
 
 const reducers = {
@@ -39,7 +37,6 @@ const reducers = {
     warenkorb: fromWarenkorb.reducer,
     settings: fromSettings.reducer,
     statistics: fromStatistics.reducer,
-    regionen: fromRegion.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -84,6 +81,3 @@ export const getCurrentSettings = createSelector(getSettingsState, fromSettings.
 export const getStatisticsState = (state: AppState) => state.statistics;
 export const getPreismeldungenStatistics = createSelector(getStatisticsState, fromStatistics.getPreismeldungenStatistics);
 export const getErhebungsmonat = createSelector(getStatisticsState, fromStatistics.getErhebungsmonat);
-
-export const getRegionState = (state: AppState) => state.regionen;
-export const getRegionen = createSelector(getRegionState, fromRegion.getAll);

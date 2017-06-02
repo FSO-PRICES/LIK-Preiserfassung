@@ -9,7 +9,6 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
-import { Action as RegionAction } from '../../actions/region';
 
 @IonicPage()
 @Component({
@@ -19,7 +18,6 @@ import { Action as RegionAction } from '../../actions/region';
 export class PmsDetailsPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     public pms$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
-    public regionen$ = this.store.select(fromRoot.getRegionen);
     public languages$ = this.store.select(fromRoot.getLanguagesList);
 
     public formErrors$: Observable<string[]>;
@@ -49,7 +47,6 @@ export class PmsDetailsPage implements OnDestroy {
             telephone: [null],
             email: [null],
             languageCode: [null, Validators.required],
-            erhebungsregion: [null, Validators.required],
             erhebungsart: [{ value: null }, Validators.required],
             erhebungshaeufigkeit: [{ value: null }],
             erhebungsartComment: [{ value: null }],
@@ -75,7 +72,6 @@ export class PmsDetailsPage implements OnDestroy {
                     telephone: preismeldestelle.telephone,
                     email: preismeldestelle.email,
                     languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
-                    erhebungsregion: !!preismeldestelle.erhebungsregion ? preismeldestelle.erhebungsregion : '',
                     erhebungsart: preismeldestelle.erhebungsart,
                     erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
                     erhebungsartComment: preismeldestelle.erhebungsartComment,
@@ -112,8 +108,6 @@ export class PmsDetailsPage implements OnDestroy {
 
             save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction))
         ];
-
-        this.store.dispatch({ type: 'REGION_LOAD' } as RegionAction);
     }
 
     public ngOnDestroy() {

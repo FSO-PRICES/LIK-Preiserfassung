@@ -27,7 +27,7 @@ export type CurrentPreismeldungBag = PreismeldungBag & {
     isNew: boolean;
     priceCountStatus: PriceCountStatus;
     originalBearbeitungscode: P.Models.Bearbeitungscode;
-    lastSave: P.SavePreismeldungPriceSaveAction;
+    lastSaveAction: P.SavePreismeldungPriceSaveAction;
     hasMessageToCheck: boolean;
     hasPriceWarning: boolean;
     hasAttributeWarning: boolean;
@@ -188,7 +188,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const currentPreismeldung = assign({},
                 createCurrentPreismeldungBag(resettedEntity, priceCountStatuses), {
                     isModified: false,
-                    lastSaveAction: 'RESET',
+                    lastSaveAction: { type: 'RESET', data: null, saveWithData: null },
                     resetEvent: new Date().getTime()
                 });
             return assign({}, state, { currentPreismeldung, entities, priceCountStatuses });
@@ -360,7 +360,8 @@ function createPercentages(preismeldung: P.PreismeldungBag, payload: P.Preismeld
         percentageDPToVP: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
         percentageDPToVPVorReduktion: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preisVorReduktion, preismeldung.refPreismeldung.mengeVorReduktion, parseFloat(payload.preis), parseFloat(payload.menge)),
         percentageDPToVPNeuerArtikel: calculatePercentageChange(parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel), parseFloat(payload.preis), parseFloat(payload.menge)),
-        percentageVPNeuerArtikelToVPAlterArtikel: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel))
+        percentageVPNeuerArtikelToVPAlterArtikel: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel)),
+        percentageVPNeuerArtikelToVPVorReduktion: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preisVorReduktion, preismeldung.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel))
     };
 }
 

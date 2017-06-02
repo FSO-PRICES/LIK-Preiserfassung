@@ -138,7 +138,7 @@ export class PmsPriceEntryPage implements OnDestroy {
 
         this.subscriptions.push(
             this.currentPreismeldung$
-                .filter(x => !!x && !!x.lastSave && x.lastSave.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
+                .filter(x => !!x && !!x.lastSaveAction && x.lastSaveAction.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD')
                 .flatMap(() => this.navController.setRoot('DashboardPage').then(() => setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100)))
                 .subscribe()
         );
