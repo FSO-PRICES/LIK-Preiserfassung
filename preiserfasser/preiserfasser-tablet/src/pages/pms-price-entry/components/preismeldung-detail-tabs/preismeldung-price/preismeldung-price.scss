@@ -126,11 +126,13 @@ preismeldung-price {
         width: 0;
         height: 0;
         &.right {
+            z-index: 1;
             border-top: 10px solid transparent;
             border-left: 10px solid $wild-sand;
             border-bottom: 10px solid transparent;
         }
         &.down {
+            z-index: 1;
             border-left: 10px solid transparent;
             border-right: 10px solid transparent;
             border-top: 10px solid $wild-sand;
@@ -194,47 +196,6 @@ preismeldung-price {
         }
     }
     .product-detail-row.row-2 {
-        .last-period {
-            .last-period-price, .last-period-quantity {
-                display: flex;
-                justify-content: flex-end;
-                font-weight: 500;
-                align-items: center;
-                height: 2.75em;
-                padding-bottom: 0.25em;
-            }
-
-            .number {
-                padding-right: 8px;
-                font-size: 1.25em;
-            }
-
-            .unit {
-                opacity: 0.95;
-                width: 3.5em;
-                padding-left: 0.8em;
-            }
-
-            .last-period-bottom-row {
-                display: flex;
-            }
-
-            .code {
-                flex: 1;
-                display: flex;
-                font-size: 1.25em;
-                font-weight: 500;
-                display: flex;
-                justify-content: flex-end;
-                align-items: flex-end;
-                margin-bottom: 5px;
-            }
-
-            .box-container {
-                flex-direction: column;
-            }
-        }
-
         .middle-section {
             .box-container {
                 padding-top: 4.75em;
@@ -292,6 +253,57 @@ preismeldung-price {
 
             }
         }
+
+        &.info-popover-active {
+            .last-period {
+                .data-input-area {
+                    background-color: white;
+                }
+            }
+        }
+    }
+
+    .last-period {
+        z-index: 1;
+        .last-period-price, .last-period-quantity {
+            display: flex;
+            justify-content: flex-end;
+            font-weight: 500;
+            align-items: center;
+            height: 2.75em;
+            padding-bottom: 0.25em;
+        }
+
+        .number {
+            padding-right: 8px;
+            font-size: 1.25em;
+        }
+
+        .unit {
+            opacity: 0.95;
+            width: 3.5em;
+            padding-left: 0.8em;
+        }
+
+        .last-period-bottom-row {
+            display: flex;
+        }
+
+        .code {
+            flex: 1;
+            display: flex;
+            font-size: 1.25em;
+            font-weight: 500;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            margin-bottom: 5px;
+        }
+
+        .box-container {
+            flex-direction: column;
+        }
+
     }
 
     .product-detail-row.row-3 {

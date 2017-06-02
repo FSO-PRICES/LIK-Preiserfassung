@@ -1,0 +1,20 @@
+@import "../../../../../../theme/imports.scss";
+
+preismeldung-info-popover {
+    &.hidden {
+        visibility: hidden;
+    }
+
+    .info-popover {
+        display: none;
+        flex-direction: column;
+        box-shadow: $whiteframe-shadow-2dp;
+        position: absolute;
+        background-color: white;
+        z-index: 100;
+        width: 100%;
+        @include set-margin-top(0.25);
+        z-index: 0;
+        @include set-padding(1, 1, 1, 1);
+    }
+}

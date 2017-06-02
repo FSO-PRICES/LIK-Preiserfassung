@@ -60,7 +60,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
     public chooseReductionPercentage$ = new EventEmitter();
-
+    public infoPopoverActive$ = new EventEmitter();
+    public popoverHeight$: Observable<string>;
 
     public preisNumberFormattingOptions = preisNumberFormattingOptions;
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
@@ -356,6 +357,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         const showInvalid$ = this.form.valueChanges.merge(this.attemptSave$).publishReplay(1).refCount();
         this.createInvalidObservableFor = (controlName: string) => showInvalid$.map(() => !!this.form.controls[controlName].errors);
+
+        this.popoverHeight$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
+            .delay(0)
+            .map(x => x === 7 ? (window.document.getElementById('row-2-last-period').offsetHeight - 8) + 'px' : window.document.getElementById('last-period-data-input-area').offsetHeight + 'px')
+            .do(x => console.log('aaaa', x))
     }
 
     calcPreisAndMengeDisabled(bearbeitungscode: P.Models.Bearbeitungscode) {

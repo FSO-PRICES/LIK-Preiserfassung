@@ -52,40 +52,42 @@
                         [class.hidden]="!(preismeldung$ | async)?.refPreismeldung || !(preismeldung$ | async)?.refPreismeldung.aktion"
                         [preismeldung]="preismeldung$ | async"
                         [forceClose]="distinctPreismeldung$ | async"
-                        [extraWidth]="window.document.getElementById('last-period-middle-section').offsetWidth + 'px'"></preismeldung-info-popover>
+                        [extraWidth]="window.document.getElementById('last-period-middle-section').offsetWidth + 'px'"
+                        [height]="popoverHeight$ | async"
+                        (popoverActive)="infoPopoverActive$.emit($event)"></preismeldung-info-popover>
                 </div>
                 <div class="middle-section" id="last-period-middle-section"></div>
                 <div class="current-period">
                     <h5 class="large">Aktuelle Periode</h5>
                 </div>
             </div>
-            <div class="columns product-detail-row row-2">
+            <div class="columns product-detail-row row-2" [class.info-popover-active]="infoPopoverActive$ | async">
                 <div class="last-period" *ngIf="!(preismeldung$ | async)?.refPreismeldung">
                     Nicht zutreffend.
                 </div>
-                <div class="last-period" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-                    <div class="data-input-area">
-                        <h6>{{ 'heading_artikel' | translate }}</h6>
+                <div class="last-period" [class.visibility-hidden]="!(preismeldung$ | async)?.refPreismeldung" id="row-2-last-period">
+                    <div class="data-input-area" id="last-period-data-input-area">
+                        <h6>{{ ((infoPopoverActive$ | async) ? 'heading_artikel-vor-reduktion' : 'heading_artikel') | translate }}</h6>
                         <div class="last-period-price">
-                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.preis | pefFormatNumber: preisNumberFormattingOptions }}</div>
+                            <div class="number">{{ ((infoPopoverActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.preisVorReduktion : (preismeldung$ | async)?.refPreismeldung.preis) | pefFormatNumber: preisNumberFormattingOptions }}</div>
                             <div class="unit">CHF</div>
                         </div>
                         <div class="last-period-quantity">
-                            <div class="number">{{ (preismeldung$ | async)?.refPreismeldung.menge | pefFormatNumber: mengeNumberFormattingOptions  }}</div>
+                            <div class="number">{{ ((infoPopoverActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion : (preismeldung$ | async)?.refPreismeldung.menge) | pefFormatNumber: mengeNumberFormattingOptions  }}</div>
                             <div class="unit">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</div>
                         </div>
-                        <div class="last-period-bottom-row">
+                        <div class="last-period-bottom-row" [class.visibility-hidden]="infoPopoverActive$ | async">
                             <ion-list radio-group>
                                 <ion-item>
                                     <ion-label>Aktion</ion-label>
-                                    <ion-radio value="aktion" [disabled]="true" [checked]="(preismeldung$ | async).refPreismeldung.aktion"></ion-radio>
+                                    <ion-radio value="aktion" [disabled]="true" [checked]="(preismeldung$ | async)?.refPreismeldung.aktion"></ion-radio>
                                 </ion-item>
                             </ion-list>
                             <div class="code">{{ formatFehlendePreiseR((preismeldung$ | async)?.refPreismeldung.fehlendePreiseR) }}</div>
                         </div>
                     </div>
                     <div class="box-container" *ngIf="showVPArtikelNeu$ | async">
-                        <div class="box" [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel)"></div>
+                        <div class="box" [innerHTML]="(infoPopoverActive$ | async) ? formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageVPNeuerArtikelToVPVorReduktion) : formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel)"></div>
                         <div class="arrow down"></div>
                     </div>
                 </div>
@@ -93,7 +95,7 @@
                     <div class="box-container" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                         <div class="box" >
                             <div class="percentage-wrapper">
-                                <div [innerHTML]="formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
+                                <div [innerHTML]="(infoPopoverActive$ | async) ? formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVPVorReduktion) : formatPercentageChange((preismeldung$ | async)?.preismeldung.percentageDPToVP)"></div>
                                 <pef-floating-icon [icon-name]="(preismeldung$ | async)?.hasPriceWarning ? 'warning' : ''"></pef-floating-icon>
                             </div>
                         </div>

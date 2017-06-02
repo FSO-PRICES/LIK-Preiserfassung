@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, SimpleChange, ElementRef, Inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ElementRef, Inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 
 import { ReactiveComponent, formatPercentageChange, preisNumberFormattingOptions, mengeNumberFormattingOptions } from 'lik-shared';
 
-import * as P from '../../../../common-models';
+import * as P from '../../../../../../common-models';
 
 @Component({
     selector: 'preismeldung-info-popover',
@@ -13,13 +13,15 @@ import * as P from '../../../../common-models';
 export class PreismeldungInfoPopover extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
     @Input() forceClose: {};
+    @Input() height: string;
     @Input() extraWidth: string;
+    @Output('popoverActive') popoverActive$: Observable<boolean>;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
     public buttonClicked$ = new EventEmitter();
-    public popoverActive$: Observable<boolean>;
     public popoverLeft$: Observable<string>;
     public popoverWidth$: Observable<string>;
+    public popoverHeight$: Observable<string>;
     public popoverMaxHeight$: Observable<string>;
     public comparisonContainerWidth$: Observable<number>;
 
@@ -45,6 +47,9 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
 
         this.popoverWidth$ = recalcPopover$
             .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px + ${this.extraWidth || '0px'} - 16px - ${this.pefRelativeSize(window.innerWidth, 1)})`);
+
+        this.popoverHeight$ = this.observePropertyCurrentValue<string>('height')
+            .map(height => `calc(${height || '0px'} + 1px)`);
 
         this.popoverLeft$ = recalcPopover$
             .map(() => `calc(${this.pefRelativeSize(window.innerWidth, 1)})`);
