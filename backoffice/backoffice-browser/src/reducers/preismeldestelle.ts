@@ -28,8 +28,8 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
             const preismeldestellen = payload
                 .map<P.Preismeldestelle>(preismeldestelle => Object.assign({}, preismeldestelle));
             const preismeldestelleIds = preismeldestellen.map(p => p._id);
-            const entities = preismeldestellen.reduce((entities: { [_id: string]: P.Preismeldestelle }, preismeldestelle: P.Preismeldestelle) => {
-                return Object.assign(entities, { [preismeldestelle._id]: preismeldestelle });
+            const entities = preismeldestellen.reduce((agg: { [_id: string]: P.Preismeldestelle }, preismeldestelle: P.Preismeldestelle) => {
+                return assign(agg, { [preismeldestelle._id]: preismeldestelle });
             }, {});
             return assign({}, state, { preismeldestelleIds, entities, currentPreismeldestelle: undefined });
         }
@@ -44,7 +44,6 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
 
             const valuesFromPayload = {
                 _id: payload._id,
-                // pmsNummer: payload.pmsNummer,
                 name: payload.name,
                 supplement: payload.supplement,
                 street: payload.street,
@@ -53,7 +52,6 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
                 telephone: payload.telephone,
                 email: payload.email,
                 languageCode: payload.languageCode,
-                erhebungsregion: payload.erhebungsregion,
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,

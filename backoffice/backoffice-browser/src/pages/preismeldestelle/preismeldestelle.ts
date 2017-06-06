@@ -6,7 +6,6 @@ import { Models as P, PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 import { Action as PreismeldestelleAction } from '../../actions/preismeldestelle';
-import { Action as RegionAction } from '../../actions/region';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
 
 @Component({
@@ -17,7 +16,6 @@ export class PreismeldestellePage implements OnDestroy {
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
     public currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle).publishReplay(1).refCount();
     public languages$ = this.store.select(fromRoot.getLanguagesList);
-    public regionen$ = this.store.select(fromRoot.getRegionen);
     public selectPreismeldestelle$ = new EventEmitter<string>();
     public cancelPreismeldestelle$ = new EventEmitter();
     public savePreismeldestelle$ = new EventEmitter();
@@ -89,7 +87,6 @@ export class PreismeldestellePage implements OnDestroy {
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as PreismeldestelleAction);
-        this.store.dispatch({ type: 'REGION_LOAD' } as RegionAction);
     }
 
     public ngOnDestroy() {

@@ -9,6 +9,13 @@
     </ion-row>
     <ion-row>
         <ion-col>
+            <h5>Region</h5>
+            <div class="readonly-text" [innerHTML]="(preismeldestelle$ | async).erhebungsregion || '&ndash;'"></div>
+        </ion-col>
+        <ion-col></ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
             <h5>Adresse</h5>
             <ion-list no-lines>
                 <ion-item class="pef-item">
@@ -46,18 +53,6 @@
                             <div class="input input-md pef-select">
                                 <select formControlName="languageCode">
                                     <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pef-item item item-block item-md item-label-stacked item-input">
-                    <div class="item-inner">
-                        <div class="input-wrapper">
-                            <ion-label stacked [class.target-ng-invalid]="form.controls.erhebungsregion.invalid">Region</ion-label>
-                            <div class="input input-md pef-select">
-                                <select formControlName="erhebungsregion">
-                                    <option *ngFor="let region of regionen$ | async" [value]="region._id">{{region.name}}</option>
                                 </select>
                             </div>
                         </div>
@@ -183,27 +178,31 @@
 
     <ion-row>
         <ion-col>
-            <h5>Erhebungsart</h5>
-            <ion-list radio-group class="padding-to-header" formControlName="erhebungsart">
+            <h5 [class.label-validation-error]="this.form.errors && this.form.errors['erhebungsart_required']">Erhebungsart</h5>
+            <ion-list class="padding-to-header">
                 <ion-item>
-                    <ion-label>Vor Ort mit Tablet</ion-label>
-                    <ion-radio value="vor_ort_mit_tablet"></ion-radio>
+                    <ion-label>Tablet vor Ort</ion-label>
+                    <ion-checkbox formControlName="erhebungsart_tablet"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label>Telefon</ion-label>
-                    <ion-radio value="telefon"></ion-radio>
+                    <ion-checkbox formControlName="erhebungsart_telefon"></ion-checkbox>
+                </ion-item>
+                <ion-item>
+                    <ion-label>eMail</ion-label>
+                    <ion-checkbox formControlName="erhebungsart_email"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label>Internet</ion-label>
-                    <ion-radio value="internet"></ion-radio>
+                    <ion-checkbox formControlName="erhebungsart_internet"></ion-checkbox>
                 </ion-item>
                 <ion-item>
-                    <ion-label>Papierliste (persönlich)</ion-label>
-                    <ion-radio value="papier_persoenlich"></ion-radio>
+                    <ion-label>Papierliste vor Ort</ion-label>
+                    <ion-checkbox formControlName="erhebungsart_papierlisteVorOrt"></ion-checkbox>
                 </ion-item>
                 <ion-item>
-                    <ion-label>Papierliste (an Preismeldestelle abgegeben)</ion-label>
-                    <ion-radio value="papier_pms_abgegeben"></ion-radio>
+                    <ion-label>Papierliste durch PMS ausgefüllt</ion-label>
+                    <ion-checkbox formControlName="erhebungsart_papierlisteAbgegeben"></ion-checkbox>
                 </ion-item>
             </ion-list>
         </ion-col>
@@ -241,6 +240,6 @@
     </ion-row>
     <div class="actions">
         <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
-        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
+        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="this.form.invalid">Speichern</button>
     </div>
 </form>

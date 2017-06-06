@@ -49,7 +49,6 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
                 telephone: payload.telephone,
                 email: payload.email,
                 languageCode: payload.languageCode,
-                erhebungsregion: payload.erhebungsregion,
                 erhebungsart: payload.erhebungsart,
                 erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
                 erhebungsartComment: payload.erhebungsartComment,

@@ -7,7 +7,6 @@ import { storeLogger } from 'ngrx-store-logger';
 import { environment } from '../environments/environment';
 import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestelle from './preismeldestelle';
-import * as fromRegion from './region';
 import * as fromPreismeldung from './preismeldung';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
@@ -21,7 +20,6 @@ export interface AppState {
     settings: fromSetting.State;
     preiserhebers: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestelle.State;
-    regionen: fromRegion.State;
     preismeldungen: fromPreismeldung.State;
     preiszuweisungen: fromPreiszuweisung.State;
     login: fromLogin.State;
@@ -35,7 +33,6 @@ const reducers = {
     settings: fromSetting.reducer,
     preiserhebers: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestelle.reducer,
-    regionen: fromRegion.reducer,
     preismeldungen: fromPreismeldung.reducer,
     preiszuweisungen: fromPreiszuweisung.reducer,
     login: fromLogin.reducer,
@@ -64,11 +61,6 @@ export const getCurrentPreiserheber = createSelector(getPreiserheberState, fromP
 export const getPreismeldestelleState = (state: AppState) => state.preismeldestellen;
 export const getPreismeldestellen = createSelector(getPreismeldestelleState, fromPreismeldestelle.getAll);
 export const getCurrentPreismeldestelle = createSelector(getPreismeldestelleState, fromPreismeldestelle.getCurrentPreismeldestelle);
-
-
-export const getRegionState = (state: AppState) => state.regionen;
-export const getRegionen = createSelector(getRegionState, fromRegion.getAll);
-export const getCurrentRegion = createSelector(getRegionState, fromRegion.getCurrentRegion);
 
 
 export const getPreiszuweisungState = (state: AppState) => state.preiszuweisungen;

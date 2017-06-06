@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { range, assign } from 'lodash';
 
-import { ReactiveComponent, Models as P } from 'lik-shared';
+import { ReactiveComponent, Models as P, encodeErhebungsartFromForm, parseErhebungsartForForm } from 'lik-shared';
 
 import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 
@@ -16,7 +16,6 @@ import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldestelle: P.Preismeldestelle;
     @Input() languages: P.Language[];
-    @Input() regionen: P.Region[];
     @Output('save')
     public save$: Observable<{ isValid: boolean }>;
     @Output('cancel')
@@ -26,7 +25,6 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
     public preismeldestelle$: Observable<P.Preismeldestelle>;
     public languages$: Observable<P.Language[]>;
-    public regionen$: Observable<P.Region[]>;
     public saveClicked$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
@@ -40,11 +38,9 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
         this.preismeldestelle$ = this.observePropertyCurrentValue<P.Preismeldestelle>('preismeldestelle');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
-        this.regionen$ = this.observePropertyCurrentValue<P.Region[]>('regionen');
 
         this.form = formBuilder.group({
             kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
-            // pmsNummer: [null, Validators.compose([Validators.required, Validators.pattern('[0-9]+')])],
             name: [null, Validators.required],
             supplement: [null],
             street: [null, Validators.required],
@@ -53,18 +49,22 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             telephone: [null],
             email: [null],
             languageCode: [null, Validators.required],
-            erhebungsregion: [null, Validators.required],
-            erhebungsart: [{ value: null }, Validators.required],
+            erhebungsart_tablet: [false],
+            erhebungsart_telefon: [false],
+            erhebungsart_email: [false],
+            erhebungsart_internet: [false],
+            erhebungsart_papierlisteVorOrt: [false],
+            erhebungsart_papierlisteAbgegeben: [false],
             erhebungshaeufigkeit: [{ value: null }],
-            erhebungsartComment: [{ value: null }],
+            erhebungsartComment: [null],
             zusatzInformationen: [null],
             active: [true],
-        });
+        }, { validator: this.formLevelValidationFactory() });
 
         this.update$ = this.form.valueChanges
             .withLatestFrom(this.preismeldestelle$, (formValue, preismeldestelle) => ({ formValue, preismeldestelle }))
             .map(({ formValue, preismeldestelle }) => {
-                return assign({}, formValue, { _id: `pms/${preismeldestelle.pmsNummer}` });
+                return assign({}, formValue, { _id: `pms/${preismeldestelle.pmsNummer}` }, { erhebungsart: encodeErhebungsartFromForm(this.form.value) });
             });
 
         const distinctPreismeldestelle$ = this.preismeldestelle$
@@ -74,7 +74,9 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             .map(() => ({ isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
-        this.save$ = canSave$.filter(x => x.isValid)
+        this.save$ = canSave$
+            .do(() => console.log(this.form))
+            .filter(x => x.isValid)
             .publishReplay(1).refCount();
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
@@ -85,9 +87,8 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                 .subscribe((preismeldestelle: CurrentPreismeldestelle) => {
                     this.form.markAsUntouched();
                     this.form.markAsPristine();
-                    this.form.patchValue(<P.Preismeldestelle>{
+                    this.form.patchValue({
                         kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
-                        // pmsNummer: preismeldestelle.pmsNummer,
                         name: preismeldestelle.name,
                         supplement: preismeldestelle.supplement,
                         street: preismeldestelle.street,
@@ -96,8 +97,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         telephone: preismeldestelle.telephone,
                         email: preismeldestelle.email,
                         languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
-                        erhebungsregion: !!preismeldestelle.erhebungsregion ? preismeldestelle.erhebungsregion : '',
-                        erhebungsart: preismeldestelle.erhebungsart,
+                        ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
                         erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
                         zusatzInformationen: preismeldestelle.zusatzInformationen,
@@ -112,8 +112,9 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     }
 
     public ngOnDestroy() {
-        if (!this.subscriptions || this.subscriptions.length === 0) return;
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     private initKontaktpersonGroup({ required }) {
@@ -143,4 +144,18 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             languageCode: x.languageCode !== null ? x.languageCode : ''
         }));
     }
+
+    private formLevelValidationFactory() {
+        return (group: FormGroup) => {
+            if (!group.get('erhebungsart_tablet').value
+                && !group.get('erhebungsart_telefon').value
+                && !group.get('erhebungsart_email').value
+                && !group.get('erhebungsart_internet').value
+                && !group.get('erhebungsart_papierlisteVorOrt').value
+                && !group.get('erhebungsart_papierlisteAbgegeben').value) {
+                return { 'erhebungsart_required': true };
+            }
+        };
+    }
+
 }

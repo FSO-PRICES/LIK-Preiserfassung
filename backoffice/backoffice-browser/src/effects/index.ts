@@ -4,8 +4,6 @@ import { PreiserheberEffects } from './preiserheber';
 
 import { PreismeldestelleEffects } from './preismeldestelle';
 
-import { RegionEffects } from './region';
-
 import { PreismeldungEffects } from './preismeldung';
 
 import { PreiszuweisungEffects } from './preiszuweisung';
@@ -24,7 +22,6 @@ export const BO_EFFECTS = [
     EffectsModule.run(PreiserheberEffects),
     EffectsModule.run(PreismeldestelleEffects),
     EffectsModule.run(PreismeldungEffects),
-    EffectsModule.run(RegionEffects),
     EffectsModule.run(PreiszuweisungEffects),
     EffectsModule.run(PreiserheberInitializationEffects),
     EffectsModule.run(SettingEffects),

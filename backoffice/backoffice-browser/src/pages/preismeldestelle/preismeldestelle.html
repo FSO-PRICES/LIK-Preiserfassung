@@ -14,7 +14,6 @@
             <preismeldestelle-detail *ngIf="isEditing$ | async"
                 [preismeldestelle]="currentPreismeldestelle$ | async"
                 [languages]="languages$ | async"
-                [regionen]="regionen$ | async"
                 (save)="savePreismeldestelle$.emit($event)"
                 (cancel)="cancelPreismeldestelle$.emit($event)"
                 (update)="updatePreismeldestelle$.emit($event)"></preismeldestelle-detail>
