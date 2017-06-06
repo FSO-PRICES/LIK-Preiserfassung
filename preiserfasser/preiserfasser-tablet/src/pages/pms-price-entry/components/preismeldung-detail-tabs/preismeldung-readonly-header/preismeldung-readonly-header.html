@@ -2,7 +2,7 @@
     <div class="product-heading">
         {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ | async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
     </div>
-    <ion-item class="pef-item on-dark" *ngIf="(preismeldestelle$ | async)?.erhebungsart != 'internet'">
+    <ion-item class="pef-item on-dark" *ngIf="!(isInternet$ | async)">
         <ion-label> Artikelnummer </ion-label>
         <ion-input
             type="text"
@@ -10,7 +10,7 @@
             [class.readonly]="true"
             [value]="(preismeldung$ | async)?.preismeldung.artikelnummer"></ion-input>
     </ion-item>
-    <ion-item class="pef-item on-dark" *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'">
+    <ion-item class="pef-item on-dark" *ngIf="isInternet$ | async">
         <ion-label> {{ 'label_preiserffassung_internetlink' | translate }} </ion-label>
         <ion-input
             type="text"

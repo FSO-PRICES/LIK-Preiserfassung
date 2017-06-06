@@ -10,7 +10,7 @@ import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-pe
 
 import * as P from '../../../../../common-models';
 
-import { preisNumberFormattingOptions, preisFormatFn, mengeNumberFormattingOptions, mengeFormatFn } from 'lik-shared';
+import { preisNumberFormattingOptions, preisFormatFn, mengeNumberFormattingOptions, mengeFormatFn, parseErhebungsartForForm } from 'lik-shared';
 
 interface PercentageValues {
     lastPeriodToThisPeriod: string;
@@ -71,8 +71,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public currentPeriodHeading$: Observable<string>;
     public isSaveDisabled$: Observable<boolean>;
 
+    public isInternet$: Observable<boolean>;
+
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
-    preismeldestelle$ = this.observePropertyCurrentValue<P.PriceCountStatus>('preismeldestelle');
+    preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     currentTime$ = this.observePropertyCurrentValue<Date>('currentTime').publishReplay(1).refCount();
 
     form: FormGroup;
@@ -86,6 +88,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.subscriptions.push(this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${mengeFormatFn(x)}` })));
         this.subscriptions.push(this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${preisFormatFn(x)}` })));
         this.subscriptions.push(this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${mengeFormatFn(x)}` })));
+
+        this.isInternet$ = this.preismeldestelle$
+            .map(p => !!p && this.isInternet(p.erhebungsart));
 
         this.form = formBuilder.group({
             pmId: [''],
@@ -381,6 +386,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         if (!/.^R*$/.exec(fehlendePreiseR)) return fehlendePreiseR;
         return fehlendePreiseR.length >= 4 ? `R${fehlendePreiseR.length}` : fehlendePreiseR;
     }
+
+    isInternet(erhebungsart: string) {
+        const _erhebungsart = parseErhebungsartForForm(erhebungsart);
+        return _erhebungsart.erhebungsart_internet;
+    }
+
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);

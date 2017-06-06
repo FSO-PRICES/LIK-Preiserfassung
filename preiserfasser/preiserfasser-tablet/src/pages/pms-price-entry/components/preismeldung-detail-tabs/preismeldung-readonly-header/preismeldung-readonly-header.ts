@@ -1,8 +1,9 @@
 import { Component, Input, OnChanges, SimpleChange, Inject, EventEmitter, OnDestroy } from '@angular/core';
 
-import { ReactiveComponent } from 'lik-shared';
+import { ReactiveComponent, parseErhebungsartForForm } from 'lik-shared';
 
 import * as P from '../../../../../common-models';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'preismeldung-readonly-header',
@@ -16,6 +17,7 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle').publishReplay(1).refCount();
 
+    public isInternet$: Observable<boolean>;
     public navigateToInternetLink$ = new EventEmitter();
 
     private subscriptions = [];
@@ -33,6 +35,14 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
                     }
                 })
         );
+
+        this.isInternet$ = this.preismeldestelle$
+            .map(p => !!p && this.isInternet(p.erhebungsart));
+    }
+
+    isInternet(erhebungsart: string) {
+        const _erhebungsart = parseErhebungsartForForm(erhebungsart);
+        return _erhebungsart.erhebungsart_internet;
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
