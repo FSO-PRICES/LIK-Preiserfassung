@@ -9,7 +9,7 @@ import { format, parse } from 'date-fns';
 import * as deLocale from 'date-fns/locale/de';
 // import * as frLocale from 'date-fns/locale/fr';
 
-import { pefSearch, PefDialogService, Models as P } from 'lik-shared';
+import { pefSearch, PefDialogService, Models as P, parseErhebungsartForForm } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 
@@ -62,7 +62,6 @@ export class DashboardPage implements OnDestroy {
         private translateService: TranslateService,
         private store: Store<fromRoot.AppState>
     ) {
-        console.log('dashboard ctor')
         const settings$ = this.store.select(fromRoot.getSettings);
 
         const databaseHasBeenUploaded$ = this.store.select(x => x.database)
@@ -140,14 +139,14 @@ export class DashboardPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        console.log('dashboard destroy')
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());
     }
 
-    isPdf(erhebungsart: P.erhebungsartType) {
-        return erhebungsart === 'papier_persoenlich' || erhebungsart === 'papier_pms_abgegeben';
+    isPdf(erhebungsart: string) {
+        const _erhebungsart = parseErhebungsartForForm(erhebungsart);
+        return _erhebungsart.erhebungsart_papierlisteVorOrt || _erhebungsart.erhebungsart_papierlisteAbgegeben;
     }
 
     public isPreismeldestelleCompleted = (preismeldestelleStatistics: PreismeldestelleStatistics) => preismeldestelleStatistics.uploadedCount >= preismeldestelleStatistics.totalCount;

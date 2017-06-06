@@ -3,9 +3,9 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { NavParams, NavController, IonicPage } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
-import { range, mapValues, values } from 'lodash';
+import { range, mapValues, values, assign } from 'lodash';
 
-import { Models as P } from 'lik-shared';
+import { Models as P, parseErhebungsartForForm, encodeErhebungsartFromForm } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
@@ -47,11 +47,16 @@ export class PmsDetailsPage implements OnDestroy {
             telephone: [null],
             email: [null],
             languageCode: [null, Validators.required],
-            erhebungsart: [{ value: null }, Validators.required],
+            erhebungsart_tablet: [false],
+            erhebungsart_telefon: [false],
+            erhebungsart_email: [false],
+            erhebungsart_internet: [false],
+            erhebungsart_papierlisteVorOrt: [false],
+            erhebungsart_papierlisteAbgegeben: [false],
             erhebungshaeufigkeit: [{ value: null }],
-            erhebungsartComment: [{ value: null }],
+            erhebungsartComment: [null],
             zusatzInformationen: [null],
-        });
+        }, { validator: this.formLevelValidationFactory() });
 
         const distinctPreismeldestelle$ = this.pms$
             .filter(x => !!x)
@@ -62,7 +67,7 @@ export class PmsDetailsPage implements OnDestroy {
             .subscribe((preismeldestelle: P.Preismeldestelle) => {
                 this.form.markAsUntouched();
                 this.form.markAsPristine();
-                this.form.patchValue(<P.Preismeldestelle>{
+                this.form.patchValue({
                     kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                     name: preismeldestelle.name,
                     supplement: preismeldestelle.supplement,
@@ -72,7 +77,7 @@ export class PmsDetailsPage implements OnDestroy {
                     telephone: preismeldestelle.telephone,
                     email: preismeldestelle.email,
                     languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
-                    erhebungsart: preismeldestelle.erhebungsart,
+                    ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
                     erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
                     erhebungsartComment: preismeldestelle.erhebungsartComment,
                     zusatzInformationen: preismeldestelle.zusatzInformationen,
@@ -103,7 +108,7 @@ export class PmsDetailsPage implements OnDestroy {
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
             this.form.valueChanges
-                .map(() => this.form.value)
+                .map(() => assign({}, this.form.value, { erhebungsart: encodeErhebungsartFromForm(this.form.value) }))
                 .subscribe(payload => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction)),
 
             save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction))
@@ -124,7 +129,7 @@ export class PmsDetailsPage implements OnDestroy {
             }
             return controls.reduce((prev, curr) => [...prev, ...getErrors(curr.control, curr.name)], []);
         };
-        return getErrors(this.form, 'form');
+        return [...getErrors(this.form, 'form'), ...Object.keys(this.form.errors || {}).map(errorType => `validation_${errorType}`)];
     }
 
     private initKontaktpersonGroup({ required }) {
@@ -151,11 +156,25 @@ export class PmsDetailsPage implements OnDestroy {
             mobile: x.mobile,
             fax: x.fax,
             email: x.email,
-            languageCode: x.languageCode !== null ? x.languageCode : ''
+            languageCode: x.languageCode || ''
         }));
     }
 
     navigateToDashboard() {
         return this.navCtrl.setRoot('DashboardPage');
     }
+
+    formLevelValidationFactory() {
+        return (group: FormGroup) => {
+            if (!group.get('erhebungsart_tablet').value
+                && !group.get('erhebungsart_telefon').value
+                && !group.get('erhebungsart_email').value
+                && !group.get('erhebungsart_internet').value
+                && !group.get('erhebungsart_papierlisteVorOrt').value
+                && !group.get('erhebungsart_papierlisteAbgegeben').value) {
+                return { 'erhebungsart_required': true };
+            }
+        };
+    }
+
 }

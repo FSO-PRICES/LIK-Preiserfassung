@@ -210,7 +210,7 @@ ion-list[radio-group] {
     }
 }
 
-.item-md .radio-md {
+.item-md .radio-md, .item.item-md .checkbox-md {
     @include set-margin(0.5625, 0.625, 0.5625, 0);
 }
 
@@ -233,6 +233,50 @@ ion-list[radio-group] {
         color: $oslo-gray;
     }
 }
+
+ion-list {
+    ion-item.item-md.item-checkbox {
+        background-color: transparent;
+        min-height: initial;
+        padding-left: 0;
+        .item-inner {
+            border-bottom-width: 0;
+        }
+    }
+    ion-checkbox.checkbox-md {
+        .checkbox-icon {
+            height: 20px;
+            width: 20px;
+        }
+        .checkbox-checked .checkbox-inner {
+            width: 7px;
+            height: 14px;
+            left: 5px;
+        }
+    }
+    .item-checkbox {
+        ion-label.label-md {
+            font-size: 1em;
+            font-weight: 500;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .checkbox-md {
+            .checkbox-icon {
+                background-color: transparent;
+            }
+        }
+        &.item-checkbox-checked {
+            ion-label.label-md {
+                color: $java;
+            }
+            .checkbox-icon {
+                background-color: $java;
+            }
+        }
+    }
+};
 
 ion-list.checkboxes-as-radios {
     .item-checkbox {

@@ -1,3 +1,4 @@
+export * from './common/erhebungsart-functions';
 export * from './common/formatting-functions';
 export * from './common/pef-dialog-service';
 export * from './common/preismeldung-functions';

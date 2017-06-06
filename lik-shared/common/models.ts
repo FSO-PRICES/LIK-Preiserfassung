@@ -34,7 +34,7 @@ export interface PreismeldestelleProperties {
     languageCode: string;
     kontaktpersons: KontaktPerson[];
     erhebungsregion: string;
-    erhebungsart: erhebungsartType;
+    erhebungsart: string;
     erhebungshaeufigkeit: erhebungshaeufigkeitType;
     erhebungsartComment: string;
     active: boolean;
@@ -56,7 +56,6 @@ export interface KontaktPerson {
     email: string;
 }
 
-export type erhebungsartType = 'vor_ort_mit_tablet' | 'telefon' | 'internet' | 'papier_persoenlich' | 'papier_pms_abgegeben';
 export type erhebungshaeufigkeitType = 'monatlich' | 'quartalsweise' | 'halbjaehrlich' | 'jaehrlich';
 
 export interface ErhebungsmonatProperties {
@@ -303,3 +302,12 @@ export const Preissubsysteme: Preissubsystem[] = [
     { id: 1, name: 'GFK' },
     { id: 2, name: 'BFS' },
 ];
+
+export interface Erhebungsart {
+    erhebungsart_tablet: boolean,
+    erhebungsart_telefon: boolean,
+    erhebungsart_email: boolean,
+    erhebungsart_internet: boolean,
+    erhebungsart_papierlisteVorOrt: boolean,
+    erhebungsart_papierlisteAbgegeben: boolean
+}

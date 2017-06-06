@@ -12,12 +12,6 @@
                 <div class="pef-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                     <div class="pms-scroll-content">
                         <h4 class="large">{{ form.value.name }}</h4>
-                        <div class="form-error" *ngIf="hasErrors$ | async">
-                            <pef-icon name="survey"></pef-icon>
-                            <div class="messages">
-                                <span *ngFor="let error of formErrors$ | async">{{error | translate}}</span>
-                            </div>
-                        </div>
                         <div class="row">
                             <div class="column">
                                 <h5>{{ 'label_pms_preismeldestellenummer' | translate }}</h5>
@@ -181,26 +175,30 @@
                         <div class="row">
                             <div class="column">
                                 <h5>{{ 'label_pms_erhebungsart' | translate}}</h5>
-                                <ion-list radio-group class="padding-to-header" formControlName="erhebungsart">
+                                <ion-list>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_vor-ort-app' | translate}}</ion-label>
-                                        <ion-radio value="vor_ort_mit_tablet"></ion-radio>
+                                        <ion-checkbox formControlName="erhebungsart_tablet"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_telephone' | translate}}</ion-label>
-                                        <ion-radio value="telefon"></ion-radio>
+                                        <ion-checkbox formControlName="erhebungsart_telefon"></ion-checkbox>
+                                    </ion-item>
+                                    <ion-item>
+                                        <ion-label>{{ 'label_pms_erhebungsart_email' | translate}}</ion-label>
+                                        <ion-checkbox formControlName="erhebungsart_email"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_internet' | translate}}</ion-label>
-                                        <ion-radio value="internet"></ion-radio>
+                                        <ion-checkbox formControlName="erhebungsart_internet"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_persoenlich' | translate}}</ion-label>
-                                        <ion-radio value="papier_persoenlich"></ion-radio>
+                                        <ion-checkbox formControlName="erhebungsart_papierlisteVorOrt"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_abgegeben' | translate}}</ion-label>
-                                        <ion-radio value="papier_pms_abgegeben"></ion-radio>
+                                        <ion-checkbox formControlName="erhebungsart_papierlisteAbgegeben"></ion-checkbox>
                                     </ion-item>
                                 </ion-list>
                             </div>
@@ -233,6 +231,14 @@
                                     <ion-textarea formControlName="erhebungsartComment"></ion-textarea>
                                 </ion-item>
                             </ion-list>
+                        </div>
+                        <div class="double-column">
+                            <div class="form-error" *ngIf="hasErrors$ | async">
+                                <pef-icon name="survey"></pef-icon>
+                                <div class="messages">
+                                    <span *ngFor="let error of formErrors$ | async">{{error | translate}}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
