@@ -34,6 +34,13 @@
                     <div class="text-info">Zuletzt importiert am: {{latestPreismeldungenImportAt$ | async | date:"medium"}}</div>
                 </ion-col>
             </ion-row>
+            <ion-row>
+                <ion-col>
+                    <button ion-button type="button" (click)="recreateUserDbsClicked$.emit($event)">Preiserheber Daten bereitstellen</button>
+                    <span *ngIf="(importedAll$ | async)?.error" ion-text color="danger">{{(importedAll$ | async)?.error}}</span>
+                    <span *ngIf="(importedAll$ | async)?.success" ion-text color="primary">Preiserheber Datenbanken wurden erfolgreich initialisiert</span>
+                </ion-col>
+            </ion-row>
         </form>
     </ion-content>
 </div>

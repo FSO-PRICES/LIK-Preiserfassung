@@ -17,6 +17,8 @@ export interface State {
     parsedPreismeldungen: string[][];
     importedPreismeldungen: P.Preismeldung[];
     importedPreismeldungenAt: Date;
+
+    importedAll: { success: boolean, error: string }
 };
 
 const initialState: State = {
@@ -30,7 +32,9 @@ const initialState: State = {
 
     parsedPreismeldungen: null,
     importedPreismeldungen: null,
-    importedPreismeldungenAt: null
+    importedPreismeldungenAt: null,
+
+    importedAll: null
 };
 
 export function reducer(state = initialState, action: importer.Action): State {
@@ -84,6 +88,18 @@ export function reducer(state = initialState, action: importer.Action): State {
             return Object.assign({}, state, latestImportedAt);
         }
 
+        case 'IMPORTED_ALL_RESET': {
+            return Object.assign({}, state, { importedAll: initialState.importedAll })
+        }
+
+        case 'IMPORTED_ALL_SUCCESS': {
+            return Object.assign({}, state, { importedAll: { success: true, error: null } })
+        }
+
+        case 'IMPORTED_ALL_FAILURE': {
+            return Object.assign({}, state, { importedAll: { success: false, error: action.payload } })
+        }
+
         default:
             return state;
     }
@@ -100,6 +116,8 @@ export const getImportedPreismeldestellenAt = (state: State) => state.importedPr
 export const getParsedPreismeldungen = (state: State) => state.parsedPreismeldungen;
 export const getImportedPreismeldungen = (state: State) => state.importedPreismeldungen;
 export const getImportedPreismeldungenAt = (state: State) => state.importedPreismeldungenAt;
+
+export const getImportedAll = (state: State) => state.importedAll;
 
 function parseDate(date: number) {
     return !!date ? new Date(date) : null;

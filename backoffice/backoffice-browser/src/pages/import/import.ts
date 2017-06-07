@@ -30,9 +30,8 @@ export class ImportPage {
     public latestPreismeldestellenImportAt$ = this.store.select(fromRoot.getImportedPreismeldestellenAt);
     public latestPreismeldungenImportAt$ = this.store.select(fromRoot.getImportedPreismeldungenAt);
 
-    // public warenkorbImportCompleted$ = new EventEmitter<number>();
-    // public preismeldestellenImportCompleted$ = new EventEmitter<number>();
-    // public preismeldungenImportCompleted$ = new EventEmitter<number>();
+    public importedAll$ = this.store.select(fromRoot.getImportedAll);
+    public recreateUserDbsClicked$ = new EventEmitter();
 
     private subscriptions: Subscription[];
 
@@ -94,12 +93,19 @@ export class ImportPage {
 
 
             Observable.merge(warenkorbImported$, preismeldungenImported$, preismeldestellenImported$)
-                .subscribe(() => this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action))
+                .subscribe(() => this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action)),
+
+            warenkorbImported$
+                .combineLatest(preismeldestellenImported$, preismeldungenImported$, (warenkorb, preismeldestellen, preismeldungen) => !!warenkorb && !!preismeldestellen && !!preismeldungen)
+                .filter(importedAll => importedAll)
+                .merge(this.recreateUserDbsClicked$)
+                .subscribe(() => store.dispatch({ type: 'IMPORTED_ALL' } as importer.Action))
         ];
     }
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
+        this.store.dispatch({ type: 'IMPORTED_ALL_RESET' } as importer.Action);
     }
 }

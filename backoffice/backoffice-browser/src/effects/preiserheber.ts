@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable';
 
-import { has } from 'lodash';
+import { has, assign } from 'lodash';
 
 import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
@@ -10,6 +11,7 @@ import * as preiszuweisung from '../actions/preiszuweisung';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { getDatabase, dropDatabase, createUser, dbNames, getUserDatabaseName, deleteUser, updateUser } from './pouchdb-utils';
 import { Models as P, CurrentPreiserheber } from '../common-models';
+import { createUserDb } from '../common/preiserheber-initialization';
 
 @Injectable()
 export class PreiserheberEffects {
@@ -91,9 +93,11 @@ export class PreiserheberEffects {
                 // Reload the created erheber
                 .then(({ db, id, created }) => db.get(id).then((preiserheber: P.Erheber) => ({ preiserheber, created })))
                 // Initialize a database for created erheber
-                .then(({ preiserheber, created }) => (created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null })))
-                .catch(error => ({ preiserheber: null as P.Erheber, error: this.getErrorText(error) }))
+                .then(({ preiserheber, created }) => (created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null, created })))
+                .catch(error => ({ preiserheber: null as P.Erheber, error: this.getErrorText(error), created: false }))
         )
+        // Only create the user db if there was no error and a preiserheber was created
+        .flatMap(result => !result.error && result.created ? createUserDb(result.preiserheber).map(error => assign(result, { error })) : Observable.of(result))
         .map(result => !result.error ?
             { type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber } as preiserheber.Action :
             { type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error } as preiserheber.Action

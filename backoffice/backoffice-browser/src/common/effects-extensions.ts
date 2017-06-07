@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 
 /** Emits "resetAction" first and after that, emits the results of "continuedObservable" */
-export function resetAndContinueWith<T>(resetAction: SimpleAction, continuedObservable: Observable<Action<T>>) {
+export function resetAndContinueWith<T>(resetAction: SimpleAction, continuedObservable: Observable<T>) {
     return Observable.of(resetAction)
         .concat(continuedObservable);
 }

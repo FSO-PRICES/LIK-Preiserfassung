@@ -107,6 +107,8 @@ export const getImporterParsedPreismeldungen = createSelector(getImporterState, 
 export const getImportedPreismeldungen = createSelector(getImporterState, fromImporter.getImportedPreismeldungen);
 export const getImportedPreismeldungenAt = createSelector(getImporterState, fromImporter.getImportedPreismeldungenAt);
 
+export const getImportedAll = createSelector(getImporterState, fromImporter.getImportedAll);
+
 
 export const getExporterState = (state: AppState) => state.exporter;
 export const getExportedPreismeldungen = createSelector(getExporterState, fromExporter.getExportedPreismeldungen);

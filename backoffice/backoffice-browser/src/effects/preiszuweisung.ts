@@ -57,5 +57,5 @@ export class PreiszuweisungEffects {
                     .then<CurrentPreiszuweisung>(({ db, id }) => db.get(id))
             )
         )
-        .map(payload => ({ type: 'CREATE_USER_DATABASE', payload } as preiszuweisung.Action));
+        .map(payload => ({ type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload } as preiszuweisung.Action));
 }
