@@ -98,7 +98,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         email: preismeldestelle.email,
                         languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                         ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
-                        erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
+                        pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
                         zusatzInformationen: preismeldestelle.zusatzInformationen,
                         active: preismeldestelle.active

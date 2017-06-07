@@ -53,7 +53,7 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
                 email: payload.email,
                 languageCode: payload.languageCode,
                 erhebungsart: payload.erhebungsart,
-                erhebungshaeufigkeit: payload.erhebungshaeufigkeit,
+                pmsGeschlossen: payload.pmsGeschlossen,
                 erhebungsartComment: payload.erhebungsartComment,
                 zusatzInformationen: payload.zusatzInformationen,
                 kontaktpersons: cloneDeep(payload.kontaktpersons),

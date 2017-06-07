@@ -54,7 +54,7 @@ export class PreismeldestelleEffects {
                             languageCode: currentPreismeldestelle.languageCode,
                             erhebungsregion: currentPreismeldestelle.erhebungsregion,
                             erhebungsart: currentPreismeldestelle.erhebungsart,
-                            erhebungshaeufigkeit: currentPreismeldestelle.erhebungshaeufigkeit,
+                            pmsGeschlossen: currentPreismeldestelle.pmsGeschlossen,
                             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
                             zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
                             kontaktpersons: currentPreismeldestelle.kontaktpersons,

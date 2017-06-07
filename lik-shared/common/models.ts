@@ -35,7 +35,7 @@ export interface PreismeldestelleProperties {
     kontaktpersons: KontaktPerson[];
     erhebungsregion: string;
     erhebungsart: string;
-    erhebungshaeufigkeit: erhebungshaeufigkeitType;
+    pmsGeschlossen: pmsGeschlossenType;
     erhebungsartComment: string;
     active: boolean;
 }
@@ -56,7 +56,7 @@ export interface KontaktPerson {
     email: string;
 }
 
-export type erhebungshaeufigkeitType = 'monatlich' | 'quartalsweise' | 'halbjaehrlich' | 'jaehrlich';
+export type pmsGeschlossenType = 0 | 1 | 2 | 3 | 4;
 
 export interface ErhebungsmonatProperties {
     _id: 'erhebongsmonat';

@@ -53,7 +53,7 @@ export class PmsDetailsPage implements OnDestroy {
             erhebungsart_internet: [false],
             erhebungsart_papierlisteVorOrt: [false],
             erhebungsart_papierlisteAbgegeben: [false],
-            erhebungshaeufigkeit: [{ value: null }],
+            pmsGeschlossen: [0],
             erhebungsartComment: [null],
             zusatzInformationen: [null],
         }, { validator: this.formLevelValidationFactory() });
@@ -78,7 +78,7 @@ export class PmsDetailsPage implements OnDestroy {
                     email: preismeldestelle.email,
                     languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                     ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
-                    erhebungshaeufigkeit: preismeldestelle.erhebungshaeufigkeit,
+                    pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                     erhebungsartComment: preismeldestelle.erhebungsartComment,
                     zusatzInformationen: preismeldestelle.zusatzInformationen,
                 }, { onlySelf: true, emitEvent: false });

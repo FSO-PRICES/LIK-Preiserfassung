@@ -50,6 +50,10 @@ export class ImporterEffects {
     importPreismeldestellen$ = this.actions$.ofType('IMPORT_PREISMELDESTELLEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => preparePms(action.payload))
+        .catch(ex => {
+            console.log(ex);
+            return Observable.of({ preismeldestellen: [], erhebungsmonat: '' });
+         })
         .flatMap(pmsInfo => dropDatabase(dbNames.preismeldestelle).then(_ => pmsInfo).catch(_ => pmsInfo))
         .flatMap(pmsInfo => getDatabase(dbNames.preismeldestelle).then(db => ({ pmsInfo, db })))
         .flatMap(({ pmsInfo, db }) => db.bulkDocs(pmsInfo.preismeldestellen).then(_ => ({ pmsInfo, db })))

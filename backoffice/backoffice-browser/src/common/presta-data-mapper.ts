@@ -24,7 +24,7 @@ const importPmsFromPrestaIndexes = {
     pmsSprache: 10,
     pmsErhebungsregion: 11,
     pmsErhebungsart: 12,
-    pmsErhebungshäufigkeit: 13,
+    pmsGeschlossen: 13,
     bemerkungZurErhebungsart: 14,
     pmsZusatzinformationen: 15,
     kp1Oid: 16,
@@ -131,7 +131,7 @@ export function preparePms(lines: string[][]) {
             languageCode: cells[importPmsFromPrestaIndexes.pmsSprache],
             erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
             erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
-            erhebungshaeufigkeit: cells[importPmsFromPrestaIndexes.pmsErhebungshäufigkeit],
+            pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
             erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
             zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
             kontaktpersons: parseKontaktPersons(cells),
@@ -227,7 +227,7 @@ export function preparePmsForExport(preismeldestellen: P.Preismeldestelle[], erh
         'PMS_Sprache': pms.languageCode,
         'PMS_Erhebungsregion': pms.erhebungsregion,
         'PMS_Erhebungsart': pms.erhebungsart,
-        'PMS_Erhebungshäufigkeit': pms.erhebungshaeufigkeit,
+        'PMS_Geschlossen': pms.pmsGeschlossen,
         'Bemerkung_zur_Erhebungsart': pms.erhebungsartComment,
         'PMS_Zusatzinformationen': pms.zusatzInformationen,
         'KP1_OID': pms.kontaktpersons[0].oid,
@@ -283,4 +283,10 @@ function escapeProductMerkmale(merkmale: string[]) {
     if (!merkmale || merkmale.length === 0) return null;
     const combined = toCsv([keyBy(merkmale)], false);
     return toCsv([{ merkmale: combined }], false);
+}
+
+function parsePmsGeschlossen(s: string) {
+    const _s = s.trim();
+    if (!_s) return 0;
+    return parseNumber(_s, 'PMS_Geschlossen');
 }
