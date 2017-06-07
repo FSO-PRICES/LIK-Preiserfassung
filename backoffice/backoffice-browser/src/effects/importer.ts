@@ -8,8 +8,9 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as importer from '../actions/importer';
-import { dbNames, dropDatabase, getDatabase, putAdminUserToDatabase, dropLocalDatabase, getLocalDatabase, syncDb } from './pouchdb-utils';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import { dbNames, dropDatabase, getDatabase, putAdminUserToDatabase, dropLocalDatabase, getLocalDatabase, syncDb, getDatabaseAsObservable, getAllDocumentsFromDb } from './pouchdb-utils';
+import { createUserDbs } from '../common/preiserheber-initialization';
+import { continueEffectOnlyIfTrue, resetAndContinueWith } from '../common/effects-extensions';
 import { readFileContents, parseCsv } from '../common/file-extensions';
 import { preparePms, preparePm } from '../common/presta-data-mapper';
 import { buildTree } from '../common/presta-warenkorb-mapper';
@@ -82,6 +83,21 @@ export class ImporterEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => getDatabase(dbNames.import).then(db => db.allDocs({ include_docs: true }).then(result => result.rows.map(row => row.doc))))
         .map(latestImportedAtList => ({ type: 'LOAD_LATEST_IMPORTED_AT_SUCCESS', payload: latestImportedAtList } as importer.Action));
+
+    @Effect()
+    importedAll = this.actions$.ofType('IMPORTED_ALL')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(() => resetAndContinueWith(
+            { type: 'IMPORTED_ALL_RESET' },
+            getDatabaseAsObservable(dbNames.preiserheber)
+                .flatMap(preiserheberDb => getAllDocumentsFromDb<P.Erheber>(preiserheberDb))
+                .flatMap(preiserhebers => preiserhebers.length > 0 ? createUserDbs(preiserhebers.map(p => p._id)) : Observable.of('Es sind keine Preiserheber erfasst'))
+                .map(error => !error ?
+                    { type: 'IMPORTED_ALL_SUCCESS' } as importer.Action :
+                    { type: 'IMPORTED_ALL_FAILURE', payload: error } as importer.Action
+                )
+            )
+        )
 
     private updateImportMetadata(importerType: string) {
         return this.loggedInUser$

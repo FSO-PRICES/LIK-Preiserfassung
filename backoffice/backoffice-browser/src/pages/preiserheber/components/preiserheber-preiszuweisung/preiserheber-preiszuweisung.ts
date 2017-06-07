@@ -27,7 +27,6 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
 
     public assignedPreismeldestellen$: Observable<P.Preismeldestelle[]>;
     public filteredPreismeldestellen$: Observable<P.Preismeldestelle[]>;
-    public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     public allViewPortItems: P.Preismeldestelle[];
     public assignedViewPortItems: P.Preismeldestelle[];
 
@@ -44,7 +43,6 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
         const preiszuweisungen$ = this.observePropertyCurrentValue<P.Preiszuweisung[]>('preiszuweisungen').publishReplay(1).refCount();
 
         const preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('preismeldestellen').publishReplay(1).refCount();
-        this.preismeldestellen$ = preismeldestellen$;
 
         const unassignedPreismeldestellen$ = preiszuweisungen$
             .combineLatest(preismeldestellen$, (preiszuweisungen: P.Preiszuweisung[], preismeldestellen: P.Preismeldestelle[]) => ({ preiszuweisungen, preismeldestellen }))

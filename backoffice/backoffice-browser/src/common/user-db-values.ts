@@ -9,7 +9,10 @@ export function loadAllPreismeldestellen() {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldestelle>('pms/')
         .flatMap(preismeldestellen => getDatabaseAsObservable(dbNames.preismeldestelle)
             .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
-            .map(unassignedPms => sortBy([...preismeldestellen, ...unassignedPms.filter(pms => !preismeldestellen.some(x => x.pmsNummer === pms.pmsNummer))], pms => pms.pmsNummer))
+            .map(unassignedPms => {
+                const remainingPms = unassignedPms.filter(pms => !preismeldestellen.some(x => x.pmsNummer === pms.pmsNummer));
+                return sortBy([...preismeldestellen, ...remainingPms], pms => pms.pmsNummer)
+            })
         );
 }
 
