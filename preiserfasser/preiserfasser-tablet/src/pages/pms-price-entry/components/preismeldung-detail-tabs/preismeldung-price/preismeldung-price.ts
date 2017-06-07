@@ -192,10 +192,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.chooseReductionPercentage$
                 .flatMap(() => pefDialogService.displayDialog(DialogChoosePercentageReductionComponent, null, true).map(x => x.data))
                 .filter(x => x.type === 'OK')
-                .withLatestFrom(this.distinctPreismeldung$, (x, currentPm: P.CurrentPreismeldungBag) => ({ currentPm, percentage: x.percentage }))
-                .subscribe(({ currentPm, percentage }) => {
+                .subscribe(({ percentage  })=> {
+                    const currentPreis = parseFloat(this.form.value.preis);
+                    if (isNaN(currentPreis)) return;
                     this.form.patchValue({
-                        preis: `${preisFormatFn(currentPm.refPreismeldung.preis * (percentage / 100))}`,
+                        preis: `${preisFormatFn(currentPreis - (currentPreis * (percentage / 100)))}`,
                     });
                 })
         );
