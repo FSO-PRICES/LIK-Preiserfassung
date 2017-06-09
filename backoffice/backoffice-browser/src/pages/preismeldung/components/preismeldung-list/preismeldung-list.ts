@@ -32,9 +32,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preismeldungen$ = this.observePropertyCurrentValue<PreismeldungBag[]>('preismeldungen')
-            .map(x => x.slice(0, 100)); // TODO: REMOVE!!!
-
+        this.preismeldungen$ = this.observePropertyCurrentValue<PreismeldungBag[]>('preismeldungen');
         this.preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('preismeldestellen');
         this.current$ = this.observePropertyCurrentValue<P.Preismeldung>('current');
 
@@ -42,12 +40,35 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .filter(x => !!x);
 
         this.filteredPreismeldungen$ = this.preismeldungen$
-            .combineLatest(this.filterTextValueChanges.startWith(null), (preismeldungen, filterText) =>
-                !filterText ? preismeldungen : pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung.de, pm => pm.preismeldung.artikeltext])
-            );
+            .combineLatest(this.filterTextValueChanges.startWith(null), (preismeldungen, filterText) => {
+                if (!filterText) {
+                    return preismeldungen;
+                }
+                const idSearch = matchesIdSearch(filterText);
+                return idSearch !== null ?
+                    filterById(preismeldungen, idSearch) :
+                    pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung.de, pm => pm.preismeldung.artikeltext])
+            });
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
+}
+
+function matchesIdSearch(filterText: string) {
+    const idsRegex = /^([0-9]+)(\/([0-9]*)(\/([0-9]*))?)?$/;
+    if (!idsRegex.test(filterText)) {
+        return null;
+    }
+    const [, pmsNummer, , epNummer, , laufNummer] = filterText.match(idsRegex);
+    return { pmsNummer, epNummer, laufNummer };
+}
+
+function filterById(preismeldungen: PreismeldungBag[], { pmsNummer, epNummer, laufNummer }: { pmsNummer: string, epNummer: string, laufNummer?: string }) {
+    return preismeldungen.filter(p =>
+        p.preismeldung.pmsNummer.indexOf(pmsNummer) !== -1 &&
+        (!epNummer || p.preismeldung.epNummer.indexOf(epNummer) !== -1) &&
+        (!laufNummer || p.preismeldung.laufnummer.indexOf(laufNummer) !== -1)
+    );
 }

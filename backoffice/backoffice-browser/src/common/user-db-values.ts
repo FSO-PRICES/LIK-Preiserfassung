@@ -16,10 +16,10 @@ export function loadAllPreismeldestellen() {
         );
 }
 
-export function loadAllPreismeldungen() {
-    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>('pm/')
+export function loadAllPreismeldungen(pmsNummer: string = '') {
+    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(`pm/${pmsNummer}`)
         .flatMap(preismeldungen => getDatabaseAsObservable(dbNames.preismeldung)
-            .flatMap(db => getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, 'pm-ref/').then(pmRefs => keyBy(pmRefs, pmRef => getPreismeldungId(pmRef))))
+            .flatMap(db => getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, `pm-ref/${pmsNummer}`).then(pmRefs => keyBy(pmRefs, pmRef => getPreismeldungId(pmRef))))
             .map(pmRefs => preismeldungen.map(pm => assign({}, pm, { pmRef: pmRefs[getPreismeldungId(pm)] }) as P.Preismeldung & { pmRef: P.PreismeldungReference }))
         );
 }
