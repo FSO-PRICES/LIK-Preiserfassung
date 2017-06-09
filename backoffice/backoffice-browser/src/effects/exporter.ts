@@ -14,24 +14,8 @@ import { toCsv } from '../common/file-extensions';
 import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
 import { loadAllPreismeldestellen, loadAllPreismeldungen } from '../common/user-db-values';
+import { createEnvelope, MessageTypes } from '../common/envelope-extensions';
 
-const EnvelopeContent = `
-<?xml version="1.0"?>
-<eCH-0090:envelope version="1.0" xmlns:eCH-0090="http://www.ech.ch/xmlns/eCH-0090/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0090/1 http://www.ech.ch/xmlns/eCH-0090/1/eCH-0090-1-0.xsd">
- <eCH-0090:messageId></eCH-0090:messageId>
- <eCH-0090:messageType>1025</eCH-0090:messageType>
- <eCH-0090:messageClass>0</eCH-0090:messageClass>
- <eCH-0090:senderId>4-802346-0</eCH-0090:senderId>
- <eCH-0090:recipientId>4-802346-0</eCH-0090:recipientId>
- <eCH-0090:eventDate>2017-02-27T15:30:00</eCH-0090:eventDate>
- <eCH-0090:messageDate>2017-02-27T15:30:00</eCH-0090:messageDate>
- <eCH-0090:loopback authorise="true"/>
- <eCH-0090:testData>
-   <eCH-0090:name>test</eCH-0090:name>
-   <eCH-0090:value>test</eCH-0090:value>
- </eCH-0090:testData>
-</eCH-0090:envelope>
-`;
 
 @Injectable()
 export class ExporterEffects {
@@ -55,9 +39,10 @@ export class ExporterEffects {
                 doAsyncAsObservable(() => {
                     const content = toCsv(preparePmForExport(preismeldungen, erhebungsmonat.monthAsString));
                     const count = preismeldungen.length;
+                    const envelope = createEnvelope(MessageTypes.Preismeldungen);
 
-                    FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pm-to-presta.csv');
+                    FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);  // TODO: Add envelope content
+                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pm_${envelope.fileSuffix}.csv`);
 
                     return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
                 })
@@ -83,9 +68,10 @@ export class ExporterEffects {
                 doAsyncAsObservable(() => {
                     const content = toCsv(preparePmsForExport(preismeldestellen, erhebungsmonat.monthAsString));
                     const count = preismeldestellen.length;
+                    const envelope = createEnvelope(MessageTypes.Preismeldestellen);
 
-                    FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pms-to-presta.csv');
+                    FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);  // TODO: Add envelope content
+                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pm_${envelope.fileSuffix}.csv`);
 
                     return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
                 })
@@ -100,9 +86,10 @@ export class ExporterEffects {
                     setTimeout(() => {
                         const content = toCsv(preparePreiserheberForExport(payload));
                         const count = payload.length;
+                        const envelope = createEnvelope(MessageTypes.Preismeldestellen);
 
-                        FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-                        FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-preiserheber-to-presta.csv');
+                        FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);  // TODO: Add envelope content
+                        FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pm_${envelope.fileSuffix}.csv`);
 
                         observer.next({ type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count } as exporter.Action);
                         observer.complete();
