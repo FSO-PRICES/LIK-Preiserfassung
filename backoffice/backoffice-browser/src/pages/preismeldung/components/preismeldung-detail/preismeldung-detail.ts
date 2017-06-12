@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import * as _ from 'lodash';
 
 import { ReactiveComponent, Models as P } from 'lik-shared';
 

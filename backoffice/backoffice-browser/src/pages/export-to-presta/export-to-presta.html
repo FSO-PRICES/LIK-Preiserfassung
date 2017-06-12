@@ -10,15 +10,11 @@
                     <ion-row wrap>
                         <ion-col>
                             Preismeldungen Export
-                            <!--<div class="export-completed">
-                                <span [hidden]="!(arePreismeldestellenExported$ | async)" ion-text color="primary">{{exportCompleted$ | async}} Einträge wurden erfolgreich exportiert</span>&nbsp;
-                            </div>-->
                         </ion-col>
                         <ion-col>
                             <button ion-button class="register-btn" type="button" (click)="exportPreismeldungenClicked$.emit($event)">Export starten</button>
                         </ion-col>
                     </ion-row>
-                    <!--<preismeldungen-export [preismeldungen]="preismeldungen$ | async" [exportCompleted]="exportedPreismeldungen$ | async" (startExport)="startPreismeldungenExport$.emit($event)"></preismeldungen-export>-->
                 </ion-col>
             </ion-row>
             <ion-row class="container">
@@ -29,20 +25,29 @@
                     <ion-row wrap>
                         <ion-col>
                             Preismeldestellen Export
-                            <!--<div class="export-completed">
-                                <span [hidden]="!(arePreismeldestellenExported$ | async)" ion-text color="primary">{{exportCompleted$ | async}} Einträge wurden erfolgreich exportiert</span>&nbsp;
-                            </div>-->
                         </ion-col>
                         <ion-col>
                             <button ion-button class="register-btn" type="button" (click)="exportPreismeldestellenClicked$.emit($event)">Export starten</button>
                         </ion-col>
                     </ion-row>
-                    <!--<preismeldestellen-export [preismeldestellen]="preismeldestellen$ | async" [exportCompleted]="exportedPreismeldestellen$ | async" (startExport)="startPreismeldestellenExport$.emit($event)"></preismeldestellen-export>-->
                 </ion-col>
             </ion-row>
             <ion-row class="container">
                 <ion-col width-50>
-                    <!--<preiserheber-export [preiserheber]="preiserheber$ | async" [preiszuweisungen]="preiszuweisungen$ | async" [exportCompleted]="exportedPreiserheber$ | async" (startExport)="startPreiserheberExport$.emit($event)"></preiserheber-export>-->
+                    <div class="header">
+                        <h1 class="large">Preiserheber</h1>
+                    </div>
+                    <ion-row wrap>
+                        <ion-col>
+                            Preiserheber Export
+                            <div [hidden]="isErhebungsorgannummerSet$ | async" ion-text color="danger">
+                                Es ist noch keine Erhebungsorgannummer bei den Einstellungen gesetzt worden.
+                            </div>
+                        </ion-col>
+                        <ion-col>
+                            <button ion-button class="register-btn" type="button" (click)="exportPreiserheberClicked$.emit($event)" [disabled]="!(isErhebungsorgannummerSet$ | async)">Export starten</button>
+                        </ion-col>
+                    </ion-row>
                 </ion-col>
             </ion-row>
         </form>

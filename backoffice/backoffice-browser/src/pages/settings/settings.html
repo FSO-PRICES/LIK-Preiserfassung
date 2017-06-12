@@ -18,6 +18,15 @@
                             <ion-input type="text" formControlName="url"></ion-input>
                         </ion-item>
                     </ion-list>
+                    <h1 class="large">
+                        <div>Allgeine Einstellungen</div>
+                    </h1>
+                    <ion-list formGroupName="general" no-lines>
+                        <ion-item class="pef-item">
+                            <ion-label stacked>Erhebungsorgannummer</ion-label>
+                            <ion-input type="text" formControlName="erhebungsorgannummer"></ion-input>
+                        </ion-item>
+                    </ion-list>
                     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
                     <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
                 </form>

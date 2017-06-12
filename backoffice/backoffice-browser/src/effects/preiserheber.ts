@@ -11,7 +11,8 @@ import * as preiszuweisung from '../actions/preiszuweisung';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { getDatabase, dropDatabase, createUser, dbNames, getUserDatabaseName, deleteUser, updateUser } from './pouchdb-utils';
 import { Models as P, CurrentPreiserheber } from '../common-models';
-import { createUserDb } from '../common/preiserheber-initialization';
+import { createUserDb, updateUserDb } from '../common/preiserheber-initialization';
+import { loadAllPreiserheber, loadPreiserheber, updatePreiserheber } from '../common/user-db-values';
 
 @Injectable()
 export class PreiserheberEffects {
@@ -30,9 +31,7 @@ export class PreiserheberEffects {
     @Effect()
     loadPreiserheber$ = this.actions$.ofType('PREISERHEBER_LOAD')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => getDatabase(dbNames.preiserheber).then(db => ({ db })))
-        .filter(({ db }) => db != null)
-        .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => ({ preiserhebers: res.rows.map(y => y.doc) as P.Erheber[] })))
+        .flatMap(() => loadAllPreiserheber())
         .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as preiserheber.Action));
 
     @Effect()
@@ -73,6 +72,7 @@ export class PreiserheberEffects {
                     const preiserheber = Object.assign({}, doc, {
                         _id: currentPreiserheber._id,
                         _rev: currentPreiserheber._rev,
+                        peNummer: currentPreiserheber.peNummer || generatePeNummer(),
                         firstName: currentPreiserheber.firstName,
                         surname: currentPreiserheber.surname,
                         personFunction: currentPreiserheber.personFunction,
@@ -85,19 +85,25 @@ export class PreiserheberEffects {
                         street: currentPreiserheber.street,
                         postcode: currentPreiserheber.postcode,
                         town: currentPreiserheber.town,
-                        preissubsystem: currentPreiserheber.preissubsystem
+                        username: currentPreiserheber.username
                     });
-                    return (create ? db.post(preiserheber) : db.put(preiserheber))
-                        .then((response) => ({ db, id: response.id, created: create }));
+                    return ({ db, create, preiserheber, password });
+                    // return (create ? db.post(preiserheber) : updatePreiserheber(preiserheber))
+                    //     .then((response) => ({ id: response.id, created: create, password }));
                 })
-                // Reload the created erheber
-                .then(({ db, id, created }) => db.get(id).then((preiserheber: P.Erheber) => ({ preiserheber, created })))
-                // Initialize a database for created erheber
-                .then(({ preiserheber, created }) => (created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null, created })))
-                .catch(error => ({ preiserheber: null as P.Erheber, error: this.getErrorText(error), created: false }))
         )
-        // Only create the user db if there was no error and a preiserheber was created
-        .flatMap(result => !result.error && result.created ? createUserDb(result.preiserheber).map(error => assign(result, { error })) : Observable.of(result))
+        .flatMap(({ db, create, password, preiserheber }) => create ?
+            db.post(preiserheber).then(() => ({ created: create, password, id: preiserheber._id })) :
+            updatePreiserheber(preiserheber).map(() => ({ created: false, password, id: preiserheber._id }))
+        )
+        .flatMap(({ id, created, password }) => loadPreiserheber(id)
+            // Initialize a database for created erheber
+            .flatMap(preiserheber => (created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null, created }))
+                .catch(error => ({ preiserheber: null as P.Erheber, error: this.getErrorText(error), created: false }))
+            )
+        )
+        // Only create or update the user db if there was no error
+        .flatMap(result => !result.error ? (result.created ? createUserDb(result.preiserheber) : updateUserDb(result.preiserheber)).map(error => assign(result, { error })) : Observable.of(result))
         .map(result => !result.error ?
             { type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber } as preiserheber.Action :
             { type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error } as preiserheber.Action
@@ -135,4 +141,8 @@ function deletePreiserheber(preiserheber: P.Erheber): Promise<boolean> {
             console.log('[Error] Error occurred while deleting preiserheber. [preiserheber, error]', preiserheber, error);
             return false;
         });
+}
+
+function generatePeNummer() {
+    return Math.floor(new Date().getTime() / 1000);
 }

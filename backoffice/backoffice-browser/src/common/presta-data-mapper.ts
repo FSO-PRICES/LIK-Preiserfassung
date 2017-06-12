@@ -251,12 +251,12 @@ export function preparePmsForExport(preismeldestellen: P.Preismeldestelle[], erh
     }));
 }
 
-export function preparePreiserheberForExport(preiserhebers: { preiserheber: P.Erheber, pmsNummers: string[] }[], data: { erhebungsmonat: Date, erhebungsorgannummer: number } = null) {
-    return preiserhebers.map(({ preiserheber, pmsNummers }) => ({
-        'Erhebungsmonat': data != null ? data.erhebungsmonat.toString() : null,
-        'Preissubsystem': preiserheber.preissubsystem,
-        'Erhebungsorgannummer': data != null ? data.erhebungsorgannummer : null,
-        'PE_Nummer': null, // TODO: Check if needed, because we don't parse an import file
+export function preparePreiserheberForExport(preiserhebers: (P.Erheber & { pmsNummers: string[] })[], erhebungsmonat: string, erhebungsorgannummer: number) {
+    return preiserhebers.map(preiserheber => ({
+        'Erhebungsmonat': erhebungsmonat,
+        'Preissubsystem': 2, // Fix 2 defined by Serge "Das Preissubsystem ist effektiv Konstant auf 2"
+        'Erhebungsorgannummer': erhebungsorgannummer,
+        'PE_Nummer': preiserheber.peNummer,
         'PE_Vorname': preiserheber.firstName,
         'PE_Name': preiserheber.surname,
         'PE_Funktion': preiserheber.personFunction,
@@ -269,7 +269,7 @@ export function preparePreiserheberForExport(preiserhebers: { preiserheber: P.Er
         'PE_Strasse': preiserheber.street,
         'PE_PLZ': preiserheber.postcode,
         'PE_Ort': preiserheber.town,
-        'PE_Zuweisung_PMS': pmsNummers.join(','),
+        'PE_Zuweisung_PMS': preiserheber.pmsNummers.join(','),
     }));
 }
 

@@ -49,6 +49,7 @@ export class Backoffice implements OnInit {
     }
 
     public ngOnInit() {
+        this.store.dispatch({ type: 'SETTING_LOAD' });
     }
 
     public navigateToSettings() {

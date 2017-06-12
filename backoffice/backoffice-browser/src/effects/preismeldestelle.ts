@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { find, sortBy } from 'lodash';
+import { find } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as preismeldestelle from '../actions/preismeldestelle';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { dbNames, getAllDocumentsFromDb, getDatabase, getDatabaseAsObservable, getUserDatabaseName, listUserDatabases } from './pouchdb-utils';
+import { dbNames, getAllDocumentsFromDb, getDatabase, getDatabaseAsObservable, getUserDatabaseName } from './pouchdb-utils';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
 import { loadAllPreismeldestellen } from '../common/user-db-values';
 

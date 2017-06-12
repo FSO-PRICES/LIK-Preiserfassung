@@ -2,7 +2,7 @@ import * as moment from 'moment';
 
 export const MessageTypes = {
     Preismeldungen: '1025',
-    Preismeldestellen: '1025',
+    Preismeldestellen: '1025', // TODO: Set right message type numbers once defined in https://github.com/Lambda-IT/lik-studio/issues/109
     Preiserheber: '1025',
 }
 

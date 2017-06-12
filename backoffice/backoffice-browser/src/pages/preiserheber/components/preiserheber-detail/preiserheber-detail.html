@@ -81,18 +81,6 @@
             <ion-label stacked>PLZ</ion-label>
             <ion-input type="text" formControlName="postcode"></ion-input>
         </ion-item>
-        <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
-            <div class="item-inner">
-                <div class="input-wrapper">
-                    <ion-label stacked [class.target-ng-invalid]="form.controls.preiserheber.controls.preissubsystem.invalid">Mitarbeiter von</ion-label>
-                    <div class="input input-md pef-select">
-                        <select formControlName="preissubsystem">
-                            <option *ngFor="let preissubsystem of preissubsysteme$ | async" [value]="preissubsystem.id">{{preissubsystem.name}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
     </ion-list>
     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
     <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>

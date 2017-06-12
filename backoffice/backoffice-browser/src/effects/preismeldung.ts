@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
