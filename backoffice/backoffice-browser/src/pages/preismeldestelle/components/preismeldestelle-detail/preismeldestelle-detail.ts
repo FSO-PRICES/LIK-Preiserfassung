@@ -40,7 +40,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
 
         this.form = formBuilder.group({
-            kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup({ required: i === 0 }))),
+            kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),
             name: [null, Validators.required],
             supplement: [null],
             street: [null, Validators.required],
@@ -117,12 +117,11 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             .forEach(s => s.unsubscribe());
     }
 
-    private initKontaktpersonGroup({ required }) {
-        const r = (validator) => required ? validator : null;
+    private initKontaktpersonGroup() {
         return this.formBuilder.group({
-            firstName: [null, r(Validators.compose([Validators.required, Validators.minLength(1)]))],
-            surname: [null, r(Validators.compose([Validators.required, Validators.minLength(1)]))],
-            personFunction: [null, r(Validators.required)],
+            firstName: [null],
+            surname: [null],
+            personFunction: [null],
             telephone: [null],
             mobile: [null],
             fax: [null],
