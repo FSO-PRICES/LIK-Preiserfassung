@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
@@ -8,8 +8,8 @@ import * as exporter from '../../actions/exporter';
 import * as fromRoot from '../../reducers';
 
 @Component({
-    templateUrl: 'export-to-presta.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'export-to-presta',
+    templateUrl: 'export-to-presta.html'
 })
 export class ExportToPrestaPage implements OnDestroy {
     public settings$ = this.store.select(fromRoot.getSettings).publishReplay(1).refCount();
