@@ -1,5 +1,6 @@
 export interface ErheberProperties {
-    preissubsystem: number; // LIK = 2
+    peNummer: number;
+    username: string;
     firstName: string;
     surname: string;
     personFunction: string;
@@ -261,6 +262,9 @@ export interface SettingProperties {
     version: string;
     serverConnection: {
         url: string;
+    };
+    general: {
+        erhebungsorgannummer: string;
     };
 }
 
