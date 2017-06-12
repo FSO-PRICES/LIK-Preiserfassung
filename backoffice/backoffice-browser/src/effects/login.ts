@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../reducers';
 import * as login from '../actions/login';
-import { dbNames, getDatabase, loginToDatabase } from './pouchdb-utils';
+import { dbNames, getDatabase, loginToDatabase, checkServerConnection } from './pouchdb-utils';
 import { Action } from '../common/effects-extensions';
 import { getCurrentLoggedInUser, setCurrentLoggedInUser, resetCurrentLoggedInUser } from '../common/login-extensions';
 import { Observable } from 'rxjs/Observable';
@@ -24,12 +24,15 @@ export class LoginEffects {
         .flatMap(() => Observable
             .of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action)
             .merge(this.settings$.filter(settings => !!settings && !settings.isDefault).take(1)
-                .flatMap(() => getDatabase(dbNames.users)
-                    .then(db => db.allDocs())
-                    .then(resp => true)
-                    .catch(reason => {
+                .flatMap(settings =>
+                    checkServerConnection().flatMap(() =>
+                        getDatabase(dbNames.users)
+                            .then(db => db.allDocs())
+                            .then(resp => true)
+                    )
+                    .catch(() => {
                         resetCurrentLoggedInUser();
-                        return false;
+                        return Observable.of(false);
                     })
                 )
                 .map(isLoggedIn => (!isLoggedIn ?
