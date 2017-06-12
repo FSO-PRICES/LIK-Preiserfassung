@@ -95,7 +95,7 @@ export class ExporterEffects {
                     FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
                     FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pe_${envelope.fileSuffix}.csv`);
 
-                    return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
+                    return { type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count };
                 })
             )
         );

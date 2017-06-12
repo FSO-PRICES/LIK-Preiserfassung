@@ -40,7 +40,7 @@ export class ExportToPrestaPage implements OnDestroy {
                 .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', this.exportedPreismeldungen$.filter(x => x > 0)))
                 .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDUNGEN' } as exporter.Action)),
 
-            this.exportPreismeldestellenClicked$
+            this.exportPreiserheberClicked$
                 .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', this.exportedPreiserheber$.filter(x => x > 0)))
                 .withLatestFrom(this.settings$, (_, settings) => settings.general.erhebungsorgannummer)
                 .subscribe(erhebungsorgannummer => this.store.dispatch({ type: 'EXPORT_PREISERHEBER', payload: erhebungsorgannummer } as exporter.Action))
