@@ -52,7 +52,7 @@ export function createUserDbs(preiserheberIds: string[]) {
  */
 export function createUserDb(preiserheber: P.Erheber) {
     return getDatabaseAsObservable(dbNames.warenkorb)
-        .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => ({ warenkorb })))
+        .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => ({ warenkorb })).catch(() => ({})))
         .flatMap(data => getDatabase(dbNames.preismeldung).then(preismeldungDb => preismeldungDb.get('erhebungsmonat').then(doc => clearRev<P.Erhebungsmonat>(doc)).catch(() => null).then(erhebungsmonat => assign(data, { erhebungsmonat }))))
         .map(data => assign(data, { preiserheber, dbSchemaVersion: { _id: 'db-schema-version', version: P.ExpectedDbSchemaVersion } }))
         .flatMap(data => getDatabase(getUserDatabaseName(preiserheber._id)).then(db => db.bulkDocs({ docs: prepareDocs(data) } as any)))
