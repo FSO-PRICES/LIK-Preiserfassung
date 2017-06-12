@@ -57,8 +57,7 @@ export class PreismeldestelleEffects {
                             pmsGeschlossen: currentPreismeldestelle.pmsGeschlossen,
                             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
                             zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
-                            kontaktpersons: currentPreismeldestelle.kontaktpersons,
-                            active: currentPreismeldestelle.active
+                            kontaktpersons: currentPreismeldestelle.kontaktpersons
                         }))
                             .then((response) => ({ db, id: response.id }))
                     )

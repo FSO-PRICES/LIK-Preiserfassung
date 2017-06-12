@@ -134,8 +134,7 @@ export function preparePms(lines: string[][]) {
             pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
             erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
             zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
-            kontaktpersons: parseKontaktPersons(cells),
-            active: true
+            kontaktpersons: parseKontaktPersons(cells)
         };
     });
 

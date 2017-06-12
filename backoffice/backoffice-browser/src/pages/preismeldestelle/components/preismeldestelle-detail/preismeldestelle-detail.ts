@@ -100,8 +100,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
-                        zusatzInformationen: preismeldestelle.zusatzInformationen,
-                        active: preismeldestelle.active
+                        zusatzInformationen: preismeldestelle.zusatzInformationen
                     }, { onlySelf: true, emitEvent: false });
                 })
         ];

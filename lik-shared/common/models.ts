@@ -38,7 +38,6 @@ export interface PreismeldestelleProperties {
     erhebungsart: string;
     pmsGeschlossen: pmsGeschlossenType;
     erhebungsartComment: string;
-    active: boolean;
 }
 
 export interface PmsPreismeldungenSortProperties {
