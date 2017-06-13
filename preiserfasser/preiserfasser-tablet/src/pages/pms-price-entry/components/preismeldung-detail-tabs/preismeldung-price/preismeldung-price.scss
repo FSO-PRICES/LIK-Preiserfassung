@@ -194,6 +194,14 @@ preismeldung-price {
             justify-content: space-between;
             flex-direction: row;
         }
+        .current-period {
+            display: flex;
+            flex-direction: row;
+
+            preismeldung-info-popover-right {
+                margin-left: auto;
+            }
+        }
     }
     .product-detail-row.row-2 {
         .middle-section {
@@ -257,7 +265,8 @@ preismeldung-price {
         &.info-popover-active {
             .last-period {
                 .data-input-area {
-                    background-color: white;
+                    // background-color: white;
+                    // don't delete until feedback from BFS
                 }
             }
         }
@@ -327,9 +336,14 @@ preismeldung-price {
 
     .product-detail-row.row-4 {
         display: none;
-        .current-period {
-            display: flex;
-            justify-content: flex-end;
+        justify-content: flex-end;
+        @include set-padding-top(2);
+        .textzeil {
+            line-height: 3.6rem;
+            padding-right: 2em;
+        }
+        .save-button {
+            margin-top: 0;
         }
     }
 
@@ -367,9 +381,8 @@ preismeldung-price {
     }
 }
 
-
 @media screen and (min-height: 800px) {
-    product-detail-preismeldung {
+    preismeldung-price {
         .product-detail-row.row-3 {
             .current-period > button {
                 display: none;

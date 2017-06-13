@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, OnChanges, SimpleChange } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, OnChanges, SimpleChange, HostBinding } from '@angular/core';
 
 @Component({
     selector: 'pef-floating-icon',
@@ -7,4 +7,5 @@ import { Component, Input, ChangeDetectionStrategy, OnChanges, SimpleChange } fr
 })
 export class PefFloatingIconDirective {
     @Input('icon-name') iconName: string = null;
+    @Input('bottom-right') @HostBinding('class.bottom-right') bottomRight = false;
 }

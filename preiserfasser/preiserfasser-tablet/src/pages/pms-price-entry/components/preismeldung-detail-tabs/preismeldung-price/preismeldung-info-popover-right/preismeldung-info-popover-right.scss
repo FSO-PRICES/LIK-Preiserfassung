@@ -1,8 +1,13 @@
 @import "../../../../../../theme/imports.scss";
 
-preismeldung-info-popover {
+preismeldung-info-popover-right {
     &.hidden {
         visibility: hidden;
+    }
+
+    .info-toggle.active {
+        background-color: $surfie-green;
+        fill: white;
     }
 
     .info-popover {
@@ -12,8 +17,8 @@ preismeldung-info-popover {
         position: absolute;
         background-color: white;
         z-index: 100;
-        width: 100%;
         @include set-margin-top(0.25);
+        @include set-margin-right(1);
         z-index: 0;
         @include set-padding(1, 1, 1, 1);
     }

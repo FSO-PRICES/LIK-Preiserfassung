@@ -13,7 +13,8 @@ import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
 import { PreismeldungenSortComponent } from './components/preismeldungen-sort/preismeldungen-sort';
 import { PreismeldungInfoComponent } from './components/preismeldung-detail-tabs/preismeldung-info';
-import { PreismeldungInfoPopover } from './components/preismeldung-detail-tabs/preismeldung-price/preismeldung-info-popover/preismeldung-info-popover';
+import { PreismeldungInfoPopoverLeft } from './components/preismeldung-detail-tabs/preismeldung-price/preismeldung-info-popover-left/preismeldung-info-popover-left';
+import { PreismeldungInfoPopoverRight } from './components/preismeldung-detail-tabs/preismeldung-price/preismeldung-info-popover-right/preismeldung-info-popover-right';
 import { PreismeldungInfoWarenkorbComponent } from './components/preismeldung-detail-tabs/preismeldung-info-warenkorb';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
 import { PreismeldungMessagesComponent } from './components/preismeldung-detail-tabs/preismeldung-messages';
@@ -35,7 +36,8 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
         PreismeldungAttributesComponent,
         PreismeldungenSortComponent,
         PreismeldungInfoComponent,
-        PreismeldungInfoPopover,
+        PreismeldungInfoPopoverLeft,
+        PreismeldungInfoPopoverRight,
         PreismeldungInfoWarenkorbComponent,
         PreismeldungListComponent,
         PreismeldungMessagesComponent,

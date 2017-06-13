@@ -3,7 +3,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';
 import { format } from 'date-fns';
-import { assign, cloneDeep, remove } from 'lodash';
+import { assign, cloneDeep } from 'lodash';
 
 import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
@@ -41,9 +41,12 @@ export class PreismeldungenEffects {
                     laufnummer: rpm.laufnummer,
                     preis: '',
                     menge: '',
-                    preisVPNormalNeuerArtikel: '',
-                    mengeVPNormalNeuerArtikel: '',
+                    preisVPK: '',
+                    mengeVPK: '',
                     fehlendePreiseR: '',
+                    preisVorReduktion: '',
+                    mengeVorReduktion: '',
+                    datumVorReduktion: '',
                     aktion: false,
                     artikelnummer: rpm.artikelnummer,
                     artikeltext: rpm.artikeltext,
@@ -55,9 +58,13 @@ export class PreismeldungenEffects {
                     bearbeitungscode: 99,
                     uploadRequestedAt: null,
                     istAbgebucht: false,
-                    percentageDPToVP: null,
-                    percentageDPToVPNeuerArtikel: null,
-                    percentageVPNeuerArtikelToVPAlterArtikel: null,
+                    d_DPToVP: this.createInitialPercentageWithWarning(),
+                    d_DPToVPVorReduktion: this.createInitialPercentageWithWarning(),
+                    d_DPToVPK: this.createInitialPercentageWithWarning(),
+                    d_VPKToVPAlterArtikel: this.createInitialPercentageWithWarning(),
+                    d_VPKToVPVorReduktion: this.createInitialPercentageWithWarning(),
+                    d_DPVorReduktionToVPVorReduktion: this.createInitialPercentageWithWarning(),
+                    d_DPVorReduktionToVP: this.createInitialPercentageWithWarning(),
                     internetLink: rpm.internetLink
                 }));
 
@@ -254,14 +261,17 @@ export class PreismeldungenEffects {
         internetLink: bag.preismeldung.internetLink,
         istAbgebucht: true,
         menge: bag.preismeldung.menge,
-        mengeVPNormalNeuerArtikel: bag.preismeldung.mengeVPNormalNeuerArtikel,
+        mengeVPK: bag.preismeldung.mengeVPK,
         modifiedAt: format(new Date()),
-        percentageDPToVP: bag.preismeldung.percentageDPToVP,
-        percentageDPToVPVorReduktion: bag.preismeldung.percentageDPToVPVorReduktion,
-        percentageDPToVPNeuerArtikel: bag.preismeldung.percentageDPToVPNeuerArtikel,
-        percentageVPNeuerArtikelToVPAlterArtikel: bag.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel,
+        d_DPToVP: bag.preismeldung.d_DPToVP,
+        d_DPToVPVorReduktion: bag.preismeldung.d_DPToVPVorReduktion,
+        d_DPToVPK: bag.preismeldung.d_DPToVPK,
+        d_VPKToVPAlterArtikel: bag.preismeldung.d_VPKToVPAlterArtikel,
+        d_VPKToVPVorReduktion: bag.preismeldung.d_VPKToVPVorReduktion,
+        d_DPVorReduktionToVPVorReduktion: bag.preismeldung.d_DPVorReduktionToVPVorReduktion,
+        d_DPVorReduktionToVP: bag.preismeldung.d_DPVorReduktionToVP,
         preis: bag.preismeldung.preis,
-        preisVPNormalNeuerArtikel: bag.preismeldung.preisVPNormalNeuerArtikel,
+        preisVPK: bag.preismeldung.preisVPK,
         fehlendePreiseR: bag.preismeldung.fehlendePreiseR
     })
 
@@ -276,4 +286,8 @@ export class PreismeldungenEffects {
         productMerkmale: cloneDeep(bag.attributes),
         modifiedAt: format(new Date())
     })
+
+    createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
+        return { percentage: null, warning: false, textzeil: null };
+    }
 }

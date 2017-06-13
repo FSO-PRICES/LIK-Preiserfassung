@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { assign, cloneDeep, sortBy, keys, initial, last, omit } from 'lodash';
+import { assign, cloneDeep, sortBy, keys, initial, last, omit, uniq } from 'lodash';
 
 import * as P from '../common-models';
 import * as preismeldungen from '../actions/preismeldungen';
@@ -30,6 +30,7 @@ export type CurrentPreismeldungBag = PreismeldungBag & {
     lastSaveAction: P.SavePreismeldungPriceSaveAction;
     hasMessageToCheck: boolean;
     hasPriceWarning: boolean;
+    textzeile: string[];
     hasAttributeWarning: boolean;
     messages: CurrentPreismeldungBagMessages;
     attributes: string[];
@@ -104,8 +105,10 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
             if (state.currentPreismeldung.preismeldung.preis === payload.preis
                 && state.currentPreismeldung.preismeldung.menge === payload.menge
-                && state.currentPreismeldung.preismeldung.preisVPNormalNeuerArtikel === payload.preisVPNormalNeuerArtikel
-                && state.currentPreismeldung.preismeldung.mengeVPNormalNeuerArtikel === payload.mengeVPNormalNeuerArtikel
+                && state.currentPreismeldung.preismeldung.preisVorReduktion === payload.preisVorReduktion
+                && state.currentPreismeldung.preismeldung.mengeVorReduktion === payload.mengeVorReduktion
+                && state.currentPreismeldung.preismeldung.preisVPK === payload.preisVPK
+                && state.currentPreismeldung.preismeldung.mengeVPK === payload.mengeVPK
                 && state.currentPreismeldung.preismeldung.aktion === payload.aktion
                 && state.currentPreismeldung.preismeldung.bearbeitungscode === payload.bearbeitungscode
                 && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
@@ -123,12 +126,13 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
             const tempCurrentPreismeldung = assign({},
                 state.currentPreismeldung,
-                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createPercentages(state.currentPreismeldung, payload), createFehlendePreiseR(state.currentPreismeldung, payload)) },
+                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createFehlendePreiseR(state.currentPreismeldung, payload)) },
                 createNewPriceCountStatus(state.currentPreismeldung, state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer], payload),
                 { isModified: true, messages }
             );
 
-            const currentPreismeldung = assign({}, tempCurrentPreismeldung, { hasPriceWarning: calcHasPriceWarning(tempCurrentPreismeldung) });
+            const { percentages, hasPriceWarning, textzeile } = createPercentages(tempCurrentPreismeldung, payload);
+            const currentPreismeldung = assign({}, tempCurrentPreismeldung, { hasPriceWarning, textzeile }, { preismeldung: assign({}, tempCurrentPreismeldung.preismeldung, percentages) });
 
             return assign({}, state, { currentPreismeldung });
         }
@@ -255,8 +259,6 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'DUPLICATE_PREISMELDUNG': {
             const preismeldungen = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer);
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[preismeldungen.length - 1] + 1}`;
-            // keep testing nextLaufnummer bug, productAttributes, etc
-            // console.log('nextLaufnummer', preismeldungen.map(x => +x.preismeldung.laufnummer), nextLaufnummer)
             const currentPreismeldung = state.currentPreismeldung;
             const newPmId = `pm/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`;
             const newPreismeldung = createFreshPreismeldung(newPmId, currentPreismeldung.preismeldung.pmsNummer, currentPreismeldung.preismeldung.epNummer, nextLaufnummer, action.payload);
@@ -308,6 +310,10 @@ function debugDifference(obj1: any, obj2: any, props: string[]) {
     });
 }
 
+function createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
+    return { percentage: null, warning: false, textzeil: null };
+}
+
 const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: string, laufnummer: string, bearbeitungscode: P.Models.Bearbeitungscode): P.Models.Preismeldung => ({
     _id: pmId,
     _rev: null,
@@ -316,8 +322,8 @@ const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: stri
     laufnummer: laufnummer,
     preis: '',
     menge: '',
-    preisVPNormalNeuerArtikel: '',
-    mengeVPNormalNeuerArtikel: '',
+    preisVPK: '',
+    mengeVPK: '',
     aktion: false,
     artikelnummer: '',
     artikeltext: '',
@@ -326,9 +332,13 @@ const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: stri
     notiz: '',
     kommentar: '',
     bemerkungen: '',
-    percentageDPToVP: null,
-    percentageDPToVPNeuerArtikel: null,
-    percentageVPNeuerArtikelToVPAlterArtikel: null,
+    d_DPToVP: createInitialPercentageWithWarning(),
+    d_DPToVPVorReduktion: createInitialPercentageWithWarning(),
+    d_DPToVPK: createInitialPercentageWithWarning(),
+    d_VPKToVPAlterArtikel: createInitialPercentageWithWarning(),
+    d_VPKToVPVorReduktion: createInitialPercentageWithWarning(),
+    d_DPVorReduktionToVPVorReduktion: createInitialPercentageWithWarning(),
+    d_DPVorReduktionToVP: createInitialPercentageWithWarning(),
     productMerkmale: [],
     modifiedAt: null,
     bearbeitungscode: bearbeitungscode,
@@ -351,18 +361,123 @@ function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatu
         hasMessageToCheck: calcHasMessageToCheck(messages),
         hasPriceWarning: calcHasPriceWarning(entity),
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
-        resetEvent: null
+        resetEvent: null,
+        textzeile: []
     });
 }
 
-function createPercentages(preismeldung: P.PreismeldungBag, payload: P.PreismeldungPricePayload) {
+function createStartingPercentageWithWarning(percentage: number): P.Models.PercentageWithWarning {
     return {
-        percentageDPToVP: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)),
-        percentageDPToVPVorReduktion: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preisVorReduktion, preismeldung.refPreismeldung.mengeVorReduktion, parseFloat(payload.preis), parseFloat(payload.menge)),
-        percentageDPToVPNeuerArtikel: calculatePercentageChange(parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel), parseFloat(payload.preis), parseFloat(payload.menge)),
-        percentageVPNeuerArtikelToVPAlterArtikel: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preis, preismeldung.refPreismeldung.menge, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel)),
-        percentageVPNeuerArtikelToVPVorReduktion: !preismeldung.refPreismeldung ? NaN : calculatePercentageChange(preismeldung.refPreismeldung.preisVorReduktion, preismeldung.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVPNormalNeuerArtikel), parseFloat(payload.mengeVPNormalNeuerArtikel))
+        percentage,
+        warning: false,
+        textzeil: null
     };
+}
+
+function exceedsLimit(percentage: number, negativeLimit: number, positiveLimit: number): boolean {
+    return percentage < negativeLimit || percentage > positiveLimit;
+}
+
+function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPricePayload): { percentages: P.Models.PreismeldungPercentages, hasPriceWarning: boolean, textzeile: string[] } {
+    const d_DPToVP = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)));
+    const d_DPToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preis), parseFloat(payload.menge)));
+    const d_DPToVPK = createStartingPercentageWithWarning(calculatePercentageChange(parseFloat(bag.preismeldung.preisVPK), parseFloat(bag.preismeldung.mengeVPK), parseFloat(payload.preis), parseFloat(payload.menge)));
+    const d_VPKToVPAlterArtikel = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preisVPK), parseFloat(payload.mengeVPK)));
+    const d_VPKToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVPK), parseFloat(payload.mengeVPK)));
+    const d_DPVorReduktionToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
+    const d_DPVorReduktionToVP = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
+
+    if (!!bag.refPreismeldung) {
+        switch (bag.preismeldung.bearbeitungscode) {
+            case 99: {
+                if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
+                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.negativeLimite, bag.warenkorbPosition.positiveLimite);
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                } else {
+                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                }
+                break;
+            }
+            case 1: {
+                if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) { // VP -, T -
+                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                } else if (bag.refPreismeldung.aktion && !bag.preismeldung.aktion) { // VP A, T -
+                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                    d_DPToVPVorReduktion.warning = exceedsLimit(d_DPToVPVorReduktion.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPToVPVorReduktion.textzeil = d_DPToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                } else if (bag.refPreismeldung.aktion && bag.preismeldung.aktion) { // VP A, T A
+                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                    d_DPVorReduktionToVPVorReduktion.warning = exceedsLimit(d_DPVorReduktionToVPVorReduktion.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVPVorReduktion.textzeil = d_DPVorReduktionToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                }
+                else { // VP -, T A
+                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                    d_DPVorReduktionToVP.warning = exceedsLimit(d_DPVorReduktionToVP.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVP.textzeil = d_DPVorReduktionToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                }
+                break;
+            }
+            case 7: {
+                if (!bag.preismeldung.aktion) { // T -
+                    d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.negativeLimite, bag.warenkorbPosition.positiveLimite);
+                    d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
+                    if (bag.refPreismeldung.aktion) { // VP A
+                        d_VPKToVPAlterArtikel.warning = exceedsLimit(d_VPKToVPAlterArtikel.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7)
+                        d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                    } else { // VP -
+                        d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                    }
+                }
+                else { // T A
+                    d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
+                    if (bag.refPreismeldung.aktion) { // VP A
+                        d_VPKToVPAlterArtikel.warning = exceedsLimit(d_VPKToVPAlterArtikel.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7)
+                        d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                    } else { // VP -
+                        d_VPKToVPVorReduktion.warning = exceedsLimit(d_VPKToVPVorReduktion.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7)
+                        d_VPKToVPVorReduktion.textzeil = d_VPKToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                    }
+                }
+                break;
+            }
+        }
+    } else {
+        if (bag.preismeldung.bearbeitungscode === 2) {
+            if (!bag.preismeldung.aktion) {
+                d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.negativeLimite, bag.warenkorbPosition.positiveLimite);
+                d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
+            } else {
+                d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
+            }
+        }
+    }
+
+
+    const percentages: P.Models.PreismeldungPercentages = {
+        d_DPToVP,
+        d_DPToVPVorReduktion,
+        d_DPToVPK,
+        d_VPKToVPAlterArtikel,
+        d_VPKToVPVorReduktion,
+        d_DPVorReduktionToVPVorReduktion,
+        d_DPVorReduktionToVP
+    };
+
+    const warningPercentages = [d_DPToVP, d_DPToVPVorReduktion, d_DPToVPK, d_VPKToVPAlterArtikel, d_VPKToVPVorReduktion, d_DPVorReduktionToVPVorReduktion, d_DPVorReduktionToVP];
+
+    const hasPriceWarning = warningPercentages.some(x => x.warning);
+
+    const textzeile = uniq(warningPercentages.filter(x => !!x.textzeil).map(x => x.textzeil));
+
+    return { percentages, hasPriceWarning, textzeile };
 }
 
 function createPriceCountStatuses(entities: { [pmsNummer: string]: PreismeldungBag }) {
@@ -452,8 +567,8 @@ function calcHasPriceWarning(bag: PreismeldungBag): boolean {
             positiveLimite = bag.warenkorbPosition.positiveLimite;
         }
     }
-    return ((!bag.preismeldung.aktion || (bag.refPreismeldung.aktion && bag.preismeldung.aktion)) && bag.preismeldung.percentageDPToVP < -negativeLimite)
-        || ((!bag.refPreismeldung.aktion || (bag.preismeldung.aktion && bag.refPreismeldung.aktion)) && bag.preismeldung.percentageDPToVP > positiveLimite);
+    return ((!bag.preismeldung.aktion || (bag.refPreismeldung.aktion && bag.preismeldung.aktion)) && bag.preismeldung.d_DPToVP.percentage < -negativeLimite)
+        || ((!bag.refPreismeldung.aktion || (bag.preismeldung.aktion && bag.refPreismeldung.aktion)) && bag.preismeldung.d_DPToVP.percentage > positiveLimite);
 }
 
 export const getEntities = (state: State) => state.entities;
