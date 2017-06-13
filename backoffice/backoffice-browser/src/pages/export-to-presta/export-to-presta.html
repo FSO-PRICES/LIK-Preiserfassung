@@ -10,6 +10,9 @@
                     <ion-row wrap>
                         <ion-col>
                             Preismeldungen Export
+                            <div [hidden]="!(exportedPreismeldungen$ | async)" ion-text color="primary">
+                                {{exportedPreismeldungen$ | async}} Preismeldungen wurden exportiert
+                            </div>
                         </ion-col>
                         <ion-col>
                             <button ion-button class="register-btn" type="button" (click)="exportPreismeldungenClicked$.emit($event)">Export starten</button>
@@ -25,6 +28,9 @@
                     <ion-row wrap>
                         <ion-col>
                             Preismeldestellen Export
+                            <div [hidden]="!(exportedPreismeldestellen$ | async)" ion-text color="primary">
+                                {{exportedPreismeldestellen$ | async}} Preismeldestellen wurden exportiert
+                            </div>
                         </ion-col>
                         <ion-col>
                             <button ion-button class="register-btn" type="button" (click)="exportPreismeldestellenClicked$.emit($event)">Export starten</button>
@@ -40,6 +46,9 @@
                     <ion-row wrap>
                         <ion-col>
                             Preiserheber Export
+                            <div [hidden]="!(exportedPreiserheber$ | async)" ion-text color="primary">
+                                {{exportedPreiserheber$ | async}} Preiserheber wurden exportiert
+                            </div>
                             <div [hidden]="isErhebungsorgannummerSet$ | async" ion-text color="danger">
                                 Es ist noch keine Erhebungsorgannummer bei den Einstellungen gesetzt worden.
                             </div>
