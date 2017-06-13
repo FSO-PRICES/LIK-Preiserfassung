@@ -31,6 +31,7 @@ export function reducer(state = initialState, action: setting.Action): State {
                 _id: undefined,
                 _rev: undefined,
                 serverConnection: { url: null },
+                general: { erhebungsorgannummer: null },
                 version: null,
                 isModified: false,
                 isSaved: false,
@@ -43,7 +44,8 @@ export function reducer(state = initialState, action: setting.Action): State {
             const { payload } = action;
 
             const valuesFromPayload = {
-                serverConnection: payload.serverConnection
+                serverConnection: payload.serverConnection,
+                general: payload.general
             };
 
             const currentSettings = assign({},

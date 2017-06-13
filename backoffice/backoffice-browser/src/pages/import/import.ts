@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
@@ -10,7 +10,7 @@ import * as fromRoot from '../../reducers';
 @Component({
     templateUrl: 'import.html'
 })
-export class ImportPage {
+export class ImportPage implements OnDestroy {
     public warenkorbFileSelected$ = new EventEmitter<{ file: File, language: string }>();
     public warenkorbStartImport$ = new EventEmitter();
     public warenkorbFileParsed$: Observable<boolean>;
@@ -107,5 +107,9 @@ export class ImportPage {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
         this.store.dispatch({ type: 'IMPORTED_ALL_RESET' } as importer.Action);
+    }
+
+    public ngOnDestroy() {
+        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
     }
 }

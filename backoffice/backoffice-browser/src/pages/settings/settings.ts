@@ -27,6 +27,9 @@ export class SettingsPage implements OnDestroy {
             _id: [null],
             serverConnection: formBuilder.group({
                 url: [null, Validators.required],
+            }),
+            general: formBuilder.group({
+                erhebungsorgannummer: null,
             })
         });
 
@@ -69,7 +72,8 @@ export class SettingsPage implements OnDestroy {
                     this.form.markAsPristine();
                     this.form.patchValue({
                         _id: settings._id,
-                        serverConnection: settings.serverConnection
+                        serverConnection: settings.serverConnection,
+                        general: settings.general || {}
                     }, { emitEvent: false });
                 })
         ];

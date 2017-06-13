@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
@@ -11,6 +10,7 @@ import * as fromRoot from '../reducers';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { CurrentPreismeldung } from '../reducers/preismeldung';
 import { Observable } from 'rxjs';
+import { loadAllPreismeldungen } from '../common/user-db-values';
 
 @Injectable()
 export class PreismeldungEffects {
@@ -25,19 +25,14 @@ export class PreismeldungEffects {
     @Effect()
     loadPreismeldungenForPms$ = this.actions$.ofType('PREISMELDUNG_LOAD_FOR_PMS')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(({ payload }) => getDatabase(dbNames.preismeldung).then(db => ({ db, pmsNummer: payload })))
-        .flatMap(x => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-ref/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, pmRefs: res.rows.map(y => y.doc) as P.PreismeldungReference[] })))
-        .flatMap(x => x.db.allDocs(assign({}, getAllDocumentsForPrefix(`pm-ref/${x.pmsNummer}`), { include_docs: true })).then(res => ({ db: x.db, pmsNummer: x.pmsNummer, refPreismeldungen: x.pmRefs, preismeldungen: res.rows.map(y => y.doc) as P.Preismeldung[] }))) // TODO: for testing purposes pm/${x.pmsNummer} has been changed to pm-ref/${x.pmsNummer} // TODO REMOVE!!
+        .flatMap(({ payload }) => loadAllPreismeldungen(payload).map(preismeldungen => ({ pmsNummer: payload, preismeldungen })))
         .flatMap(x => getDatabase(dbNames.preismeldestelle).then(db => db.get(`pms/${x.pmsNummer}`).then(res => res as P.Preismeldestelle).then((pms: P.Preismeldestelle) => ({
-            db: x.db,
             pms,
-            refPreismeldungen: x.refPreismeldungen,
-            preismeldungen: x.preismeldungen,
+            preismeldungen: x.preismeldungen
         }))))
         .flatMap(x => getDatabase(dbNames.warenkorb).then(db => db.get('warenkorb')).then((warenkorbDoc: P.WarenkorbDocument) => ({
             pms: x.pms,
             warenkorbDoc,
-            refPreismeldungen: x.refPreismeldungen,
             preismeldungen: x.preismeldungen,
         })))
         .map(docs => ({ type: 'PREISMELDUNG_LOAD_FOR_PMS_SUCCESS', payload: docs } as preismeldung.Action));

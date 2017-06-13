@@ -1,37 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observer } from 'rxjs/Observer';
-import { Observable } from 'rxjs/Observable';
 import * as FileSaver from 'file-saver';
+import { assign, keyBy } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
-import { getAllDocumentsForPrefixFromDb, dbNames, getDatabaseAsObservable, getDocumentByKeyFromDb } from './pouchdb-utils';
+import { dbNames, getAllDocumentsForPrefixFromDb, getDatabaseAsObservable, getDocumentByKeyFromDb, getAllDocumentsFromDb } from './pouchdb-utils';
 import { toCsv } from '../common/file-extensions';
 import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
-import { loadAllPreismeldestellen, loadAllPreismeldungen } from '../common/user-db-values';
-
-const EnvelopeContent = `
-<?xml version="1.0"?>
-<eCH-0090:envelope version="1.0" xmlns:eCH-0090="http://www.ech.ch/xmlns/eCH-0090/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0090/1 http://www.ech.ch/xmlns/eCH-0090/1/eCH-0090-1-0.xsd">
- <eCH-0090:messageId></eCH-0090:messageId>
- <eCH-0090:messageType>1025</eCH-0090:messageType>
- <eCH-0090:messageClass>0</eCH-0090:messageClass>
- <eCH-0090:senderId>4-802346-0</eCH-0090:senderId>
- <eCH-0090:recipientId>4-802346-0</eCH-0090:recipientId>
- <eCH-0090:eventDate>2017-02-27T15:30:00</eCH-0090:eventDate>
- <eCH-0090:messageDate>2017-02-27T15:30:00</eCH-0090:messageDate>
- <eCH-0090:loopback authorise="true"/>
- <eCH-0090:testData>
-   <eCH-0090:name>test</eCH-0090:name>
-   <eCH-0090:value>test</eCH-0090:value>
- </eCH-0090:testData>
-</eCH-0090:envelope>
-`;
+import { loadAllPreismeldestellen, loadAllPreismeldungen, loadAllPreiserheber } from '../common/user-db-values';
+import { createEnvelope, MessageTypes } from '../common/envelope-extensions';
 
 @Injectable()
 export class ExporterEffects {
@@ -55,9 +37,10 @@ export class ExporterEffects {
                 doAsyncAsObservable(() => {
                     const content = toCsv(preparePmForExport(preismeldungen, erhebungsmonat.monthAsString));
                     const count = preismeldungen.length;
+                    const envelope = createEnvelope(MessageTypes.Preismeldungen);
 
-                    FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pm-to-presta.csv');
+                    FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
+                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pm_${envelope.fileSuffix}.csv`);
 
                     return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
                 })
@@ -83,9 +66,10 @@ export class ExporterEffects {
                 doAsyncAsObservable(() => {
                     const content = toCsv(preparePmsForExport(preismeldestellen, erhebungsmonat.monthAsString));
                     const count = preismeldestellen.length;
+                    const envelope = createEnvelope(MessageTypes.Preismeldestellen);
 
-                    FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-pms-to-presta.csv');
+                    FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
+                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pms_${envelope.fileSuffix}.csv`);
 
                     return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
                 })
@@ -94,19 +78,35 @@ export class ExporterEffects {
 
     @Effect()
     exportPreiserheber$ = this.actions$.ofType('EXPORT_PREISERHEBER')
-        .flatMap(({ payload }) =>
-            Observable.of({ type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action)
-                .merge(Observable.create((observer: Observer<exporter.Action>) => {
-                    setTimeout(() => {
-                        const content = toCsv(preparePreiserheberForExport(payload));
-                        const count = payload.length;
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(({ payload }) => loadAllPreiserheber().map(preiserheber => ({ preiserheber, erhebungsorgannummer: payload })))
+        .flatMap(x => // retrieve the assigned erhebungsmonat
+            getDatabaseAsObservable(dbNames.preismeldung)
+                .flatMap(db => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => assign(x, { erhebungsmonat })))
+        )
+        .flatMap(x => getPmsNummers(x.preiserheber).map(preiserheber => assign(x, { preiserheber })))
+        .flatMap(({ preiserheber, erhebungsmonat, erhebungsorgannummer }) =>
+            resetAndContinueWith({ type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action,
+                doAsyncAsObservable(() => {
+                    const content = toCsv(preparePreiserheberForExport(preiserheber, erhebungsmonat.monthAsString, erhebungsorgannummer));
+                    const count = preiserheber.length;
+                    const envelope = createEnvelope(MessageTypes.Preiserheber);
 
-                        FileSaver.saveAs(new Blob([EnvelopeContent], { type: 'application/xml;charset=utf-8' }), 'envelope.xml');  // TODO: Add envelope content
-                        FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), 'export-preiserheber-to-presta.csv');
+                    FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
+                    FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pe_${envelope.fileSuffix}.csv`);
 
-                        observer.next({ type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count } as exporter.Action);
-                        observer.complete();
-                    });
-                }))
+                    return { type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count };
+                })
+            )
+        );
+}
+
+function getPmsNummers(preiserheber: P.Erheber[]) {
+    return getDatabaseAsObservable(dbNames.preiszuweisung)
+        .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db)
+            .then(preiszuweisungen => {
+                const zuweisungsMap = keyBy(preiszuweisungen, pz => pz.preiserheberId);
+                return preiserheber.map(pe => assign({}, pe, { pmsNummers: zuweisungsMap[pe.username].preismeldestellenNummern }));
+            })
         );
 }

@@ -1,5 +1,6 @@
 export interface ErheberProperties {
-    preissubsystem: number; // LIK = 2
+    peNummer: number;
+    username: string;
     firstName: string;
     surname: string;
     personFunction: string;
@@ -37,7 +38,6 @@ export interface PreismeldestelleProperties {
     erhebungsart: string;
     pmsGeschlossen: pmsGeschlossenType;
     erhebungsartComment: string;
-    active: boolean;
 }
 
 export interface PmsPreismeldungenSortProperties {
@@ -276,6 +276,9 @@ export interface SettingProperties {
     version: string;
     serverConnection: {
         url: string;
+    };
+    general: {
+        erhebungsorgannummer: string;
     };
 }
 

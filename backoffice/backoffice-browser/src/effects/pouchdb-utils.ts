@@ -159,16 +159,29 @@ export function loginToDatabase(credentials: { username: string, password: strin
     });
 }
 
-export function listUserDatabases() {
+export function checkServerConnection() {
     return Observable.fromPromise(getSettings())
         .flatMap(settings => Observable.ajax({
-            url: `${settings.serverConnection.url}/_all_dbs`,
-            headers: { 'Content-Type': 'application/json' },
-            crossDomain: true,
-            withCredentials: true,
-            responseType: 'json',
-            method: 'GET'
-        }).map(x => x.response as string[]))
+            url: settings.serverConnection.url,
+            method: 'GET',
+            crossDomain: true
+        }));
+}
+
+export function listUserDatabases() {
+    return Observable.fromPromise(getSettings())
+        .flatMap(settings =>
+            Observable.ajax({
+                url: `${settings.serverConnection.url}/_all_dbs`,
+                headers: { 'Content-Type': 'application/json' },
+                crossDomain: true,
+                withCredentials: true,
+                responseType: 'json',
+                method: 'GET'
+            })
+            .map(x => x.response as string[])
+            .catch((error) => Observable.of([]))
+        )
         .map(dbs => dbs.filter(n => n.startsWith('user_')));
 }
 

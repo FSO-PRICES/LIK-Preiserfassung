@@ -56,8 +56,7 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
                 pmsGeschlossen: payload.pmsGeschlossen,
                 erhebungsartComment: payload.erhebungsartComment,
                 zusatzInformationen: payload.zusatzInformationen,
-                kontaktpersons: cloneDeep(payload.kontaktpersons),
-                active: payload.active
+                kontaktpersons: cloneDeep(payload.kontaktpersons)
             };
 
             const currentPreismeldestelle = assign({},

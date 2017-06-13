@@ -56,7 +56,7 @@ export function reducer(state = initialState, action: preismeldung.Action): Stat
                     return assign({}, {
                         pmId: preismeldung._id,
                         preismeldung,
-                        refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
+                        refPreismeldung: preismeldung.pmRef,
                         warenkorbPosition,
                         priceCountStatus: {
                             text: `${preismeldungenGrouped[warenkorbPosition.gliederungspositionsnummer].length}/${warenkorbPosition.anzahlPreiseProPMS}`,

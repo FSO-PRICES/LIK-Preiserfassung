@@ -42,7 +42,8 @@ export class SettingEffects {
                     const setting = Object.assign({}, doc, <P.Setting>{
                         _id: currentSetting._id,
                         _rev: currentSetting._rev,
-                        serverConnection: currentSetting.serverConnection
+                        serverConnection: currentSetting.serverConnection,
+                        general: currentSetting.general
                     });
                     return (create ? db.post(setting) : db.put(setting))
                         .then((response) => ({ db, id: response.id }));

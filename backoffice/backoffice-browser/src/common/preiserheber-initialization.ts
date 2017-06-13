@@ -1,19 +1,21 @@
-import { Injectable, ErrorHandler } from '@angular/core';
-import { Effect, Actions } from '@ngrx/effects';
-import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 import { assign, flatten, some } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
-import * as fromRoot from '../reducers';
 import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb } from '../effects/pouchdb-utils';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import * as userDb from '../actions/user-db';
-import { CurrentPreiszuweisung } from '../reducers/preiszuweisung';
+
+export interface UserDbStructure {
+    preiserheber: P.Erheber;
+    preismeldestellen: P.Preismeldestelle[];
+    preismeldungen: P.Preismeldung[];
+    warenkorb: P.WarenkorbDocument;
+    dbSchemaVersion: P.DbSchemaVersion;
+    erhebungsmonat: P.Erhebungsmonat;
+}
 
 /**
- * Create userDbs for given preiserheber IDs.
+ * Create userDbs for given preiserheber IDs. Adding the warenkorb, current erhebungsmonat (if any), db-schema-version, preismeldestellen, preismeldungen and userDbId
  * Returns null if no error has occured, otherwise returns a string describing the error.
  */
 export function createUserDbs(preiserheberIds: string[]) {
@@ -45,15 +47,26 @@ export function createUserDbs(preiserheberIds: string[]) {
 }
 
 /**
- * Create userDbs for given preiserheber ID.
+ * Create userDb for given preiserheber. Adding the warenkorb, current erhebungsmonat (if any), db-schema-version and userDbId
  * Returns null if no error has occured, otherwise returns a string describing the error.
  */
 export function createUserDb(preiserheber: P.Erheber) {
     return getDatabaseAsObservable(dbNames.warenkorb)
-        .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => ({ warenkorb })))
+        .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => ({ warenkorb })).catch(() => ({})))
         .flatMap(data => getDatabase(dbNames.preismeldung).then(preismeldungDb => preismeldungDb.get('erhebungsmonat').then(doc => clearRev<P.Erhebungsmonat>(doc)).catch(() => null).then(erhebungsmonat => assign(data, { erhebungsmonat }))))
         .map(data => assign(data, { preiserheber, dbSchemaVersion: { _id: 'db-schema-version', version: P.ExpectedDbSchemaVersion } }))
         .flatMap(data => getDatabase(getUserDatabaseName(preiserheber._id)).then(db => db.bulkDocs({ docs: prepareDocs(data) } as any)))
+        .mapTo(null)
+        .catch(error => Observable.of(getErrorMessage(error)));
+}
+
+/**
+ * Update userDb with given preiserheber.
+ * Returns null if no error has occured, otherwise returns a string describing the error.
+ */
+export function updateUserDb(preiserheber: P.Erheber) {
+    return getDatabaseAsObservable(getUserDatabaseName(preiserheber._id))
+        .flatMap(db => db.bulkDocs({ docs: prepareDocs({ preiserheber }) } as any))
         .mapTo(null)
         .catch(error => Observable.of(getErrorMessage(error)));
 }
@@ -62,12 +75,18 @@ function getErrorMessage(error: { name: string, message: string, stack: string }
     return error.message;
 }
 
-function prepareDocs(docs: any) {
-    const docsList = [assign({}, docs.preiserheber, { _id: 'preiserheber' }), ...(docs.preismeldestellen || []), ...(docs.preismeldungen || []), docs.warenkorb, docs.dbSchemaVersion, createUserDbIdDoc()]
-    if (!!docs.erhebungsmonat) {
-        docsList.push(docs.erhebungsmonat as any);
+function prepareDocs(docs: Partial<UserDbStructure>) {
+    const payload: any[] = [assign({}, docs.preiserheber, { _id: 'preiserheber' }), ...(docs.preismeldestellen || []), ...(docs.preismeldungen || []), createUserDbIdDoc()]
+    if (!!docs.warenkorb) {
+        payload.push(docs.warenkorb);
     }
-    return docsList;
+    if (!!docs.dbSchemaVersion) {
+        payload.push(docs.dbSchemaVersion)
+    }
+    if (!!docs.erhebungsmonat) {
+        payload.push(docs.erhebungsmonat);
+    }
+    return payload;
 }
 
 function getPreismeldestellen(pmsNummers: string[]) {

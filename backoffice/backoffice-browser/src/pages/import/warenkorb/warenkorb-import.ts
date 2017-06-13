@@ -1,5 +1,4 @@
 import { EventEmitter, Output, Component, OnChanges, Input, SimpleChange } from '@angular/core';
-import { LoadingController } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { first } from 'lodash';
 
@@ -26,7 +25,7 @@ export class WarenkorbImportComponent extends ReactiveComponent implements OnCha
     public warenkorbImportedCount$: Observable<number>;
     public isWarenkorbImported$: Observable<boolean>;
 
-    constructor(private loadingCtrl: LoadingController) {
+    constructor() {
         super();
 
         this.fileSelected$ = Observable.merge(

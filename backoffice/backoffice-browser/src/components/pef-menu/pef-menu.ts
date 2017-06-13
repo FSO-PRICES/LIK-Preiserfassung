@@ -29,8 +29,6 @@ export class PefMenuComponent {
     public dangerZone$: Observable<boolean>;
 
     constructor(private store: Store<fromRoot.AppState>, private navCtrl: NavController) {
-        this.store.dispatch({ type: 'SETTING_LOAD' });
-
         this.dangerZone$ = store.select(fromRoot.getSettings)
             .filter(setting => !!setting && !!setting.serverConnection && !!setting.serverConnection.url)
             .map(setting => setting.serverConnection.url.indexOf('bfs-lik.lambda-it.ch') !== -1)

@@ -27,7 +27,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
     switch (action.type) {
         case 'PREISERHEBER_LOAD_SUCCESS': {
             const { payload } = action;
-            const preiserhebers = payload.preiserhebers
+            const preiserhebers = payload
                 .map<P.Erheber>(erheber => Object.assign({}, erheber));
             const preiserheberIds = preiserhebers.map(p => p._id);
             const entities = preiserhebers.reduce((entities: { [_id: string]: P.Erheber }, preiserheber: P.Erheber) => {
@@ -65,6 +65,8 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
             const newPreiserheber: CurrentPreiserheber = {
                 _id: null,
                 _rev: undefined,
+                peNummer: null,
+                username: null,
                 firstName: null,
                 surname: null,
                 personFunction: null,
@@ -77,7 +79,6 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 street: null,
                 postcode: null,
                 town: null,
-                preissubsystem: null,
                 isModified: false,
                 isSaved: false,
                 isNew: true
@@ -90,6 +91,8 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
 
             const valuesFromPayload = {
                 _id: payload._id,
+                peNummer: payload.peNummer,
+                username: payload.username,
                 firstName: payload.firstName,
                 surname: payload.surname,
                 personFunction: payload.personFunction,
@@ -101,8 +104,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 webseite: payload.webseite,
                 street: payload.street,
                 postcode: payload.postcode,
-                town: payload.town,
-                preissubsystem: payload.preissubsystem
+                town: payload.town
             };
 
             const currentPreiserheber = assign({},

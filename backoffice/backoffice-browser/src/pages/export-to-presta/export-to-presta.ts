@@ -1,97 +1,58 @@
-import { Component, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
-import { Models as P, PefDialogService } from 'lik-shared';
+import { PefDialogService } from 'lik-shared';
 
 import * as exporter from '../../actions/exporter';
 import * as fromRoot from '../../reducers';
 
 @Component({
-    templateUrl: 'export-to-presta.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'export-to-presta',
+    templateUrl: 'export-to-presta.html'
 })
 export class ExportToPrestaPage implements OnDestroy {
-    // public startPreismeldungenExport$ = new EventEmitter();
-    // public startPreismeldestellenExport$ = new EventEmitter();
-    // public startPreiserheberExport$ = new EventEmitter();
+    public settings$ = this.store.select(fromRoot.getSettings).publishReplay(1).refCount();
 
-    // public exportedPreismeldungen$: Observable<number>;
-    // public exportedPreismeldestellen$: Observable<number>;
-    // public exportedPreiserheber$: Observable<number>;
-
-    // public preismeldungen$: Observable<P.CompletePreismeldung[]>;
-    // public preismeldestellen$: Observable<P.Preismeldestelle[]>;
-    // public preiserheber$: Observable<P.Erheber[]>;
-    // public preiszuweisungen$: Observable<P.Preiszuweisung[]>;
+    public exportedPreismeldestellen$ = this.store.select(fromRoot.getExportedPreismeldestellen);
+    public exportedPreismeldungen$ = this.store.select(fromRoot.getExportedPreismeldungen);
+    public exportedPreiserheber$ = this.store.select(fromRoot.getExportedPreiserheber);
 
     public exportPreismeldungenClicked$ = new EventEmitter();
     public exportPreismeldestellenClicked$ = new EventEmitter();
+    public exportPreiserheberClicked$ = new EventEmitter();
+
+    public isErhebungsorgannummerSet$: Observable<boolean>;
 
     private subscriptions: Subscription[];
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
-        this.exportPreismeldungenClicked$
-            .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDUNGEN' } as exporter.Action));
+        this.isErhebungsorgannummerSet$ = this.settings$
+            .map(settings => !!settings && !!settings.general && !!settings.general.erhebungsorgannummer)
+            .distinctUntilChanged();
 
-        this.exportPreismeldestellenClicked$
-            .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDESTELLEN' } as exporter.Action));
+        this.subscriptions = [
+            // Skip is being used to skip initial/previous store value and to wait for a new one
+            this.exportPreismeldestellenClicked$
+                .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', this.exportedPreismeldestellen$.skip(1).take(1)))
+                .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDESTELLEN' } as exporter.Action)),
 
-        // this.preismeldungen$ = store.select(fromRoot.getUnexportedPreismeldungen).do(x => console.log('count is', x.length)).publishReplay(1).refCount();
-        // this.preismeldestellen$ = store.select(fromRoot.getPreismeldestellen).publishReplay(1).refCount();
-        // this.preiserheber$ = store.select(fromRoot.getPreiserhebers).publishReplay(1).refCount();
-        // this.preiszuweisungen$ = store.select(fromRoot.getPreiszuweisungen).publishReplay(1).refCount();
+            this.exportPreismeldungenClicked$
+                .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', this.exportedPreismeldungen$.skip(1).take(1)))
+                .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDUNGEN' } as exporter.Action)),
 
-        // this.exportedPreismeldungen$ = store.select(fromRoot.getExportedPreismeldungen).publishReplay(1).refCount();
-        // this.exportedPreismeldestellen$ = store.select(fromRoot.getExportedPreismeldestellen).publishReplay(1).refCount();
-        // this.exportedPreiserheber$ = store.select(fromRoot.getExportedPreiserheber).publishReplay(1).refCount();
-
-        // const preismeldungenAreExported$ = this.exportedPreismeldungen$
-        //     .skip(1) // Skip the first value because this is the previous value from store, wait for a new value
-        //     .filter(count => count != null);
-        // const preismeldestellenAreExported$ = this.exportedPreismeldestellen$
-        //     .skip(1)
-        //     .filter(count => count != null);
-        // const preiserheberAreExported$ = this.exportedPreiserheber$
-        //     .skip(1)
-        //     .filter(count => count != null);
-
-        // this.subscriptions = [
-        //     this.startPreismeldungenExport$
-        //         .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', preismeldungenAreExported$))
-        //         .withLatestFrom(this.preismeldungen$, (_, preismeldungen) => preismeldungen)
-        //         .subscribe(preismeldungen => {
-        //             this.store.dispatch({ type: 'EXPORT_PREISMELDUNGEN', payload: preismeldungen } as exporter.Action);
-        //         }),
-
-        //     this.startPreismeldestellenExport$
-        //         .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', preismeldestellenAreExported$))
-        //         .withLatestFrom(this.preismeldestellen$, (_, preismeldestellen) => preismeldestellen)
-        //         .subscribe(preismeldestellen => {
-        //             this.store.dispatch({ type: 'EXPORT_PREISMELDESTELLEN', payload: preismeldestellen } as exporter.Action);
-        //         }),
-
-        //     this.startPreiserheberExport$
-        //         .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', preiserheberAreExported$))
-        //         .withLatestFrom(this.preiserheber$, this.preiszuweisungen$, (_, preiserheber, preiszuweisungen) => {
-        //             const preiserheberMap = groupBy(preiserheber, pe => pe._id);
-        //             return preiszuweisungen.map(pz => ({ preiserheber: preiserheberMap[pz.preiserheberId][0], pmsNummers: pz.preismeldestellen.map(pms => pms.pmsNummer) }));
-        //         })
-        //         .subscribe(preiserheber => {
-        //             this.store.dispatch({ type: 'EXPORT_PREISERHEBER', payload: preiserheber } as exporter.Action);
-        //         })
-        // ];
+            this.exportPreiserheberClicked$
+                .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', this.exportedPreiserheber$.skip(1).take(1)))
+                .withLatestFrom(this.settings$, (_, settings) => settings.general.erhebungsorgannummer)
+                .subscribe(erhebungsorgannummer => this.store.dispatch({ type: 'EXPORT_PREISERHEBER', payload: erhebungsorgannummer } as exporter.Action))
+        ];
     }
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
-        // this.store.dispatch({ type: 'PREISMELDUNG_LOAD_UNEXPORTED' });
-        // this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
-        // this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
-        // this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' });
     }
 
     public ngOnDestroy() {
-        // this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
     }
 }

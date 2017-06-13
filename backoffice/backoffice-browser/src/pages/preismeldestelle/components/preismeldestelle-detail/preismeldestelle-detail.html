@@ -58,10 +58,6 @@
                         </div>
                     </div>
                 </div>
-                <ion-item class="pef-item">
-                    <ion-label>Aktiv</ion-label>
-                    <ion-checkbox type="text" formControlName="active"></ion-checkbox>
-                </ion-item>
                 <div class="help-text">
                     <p>
                         ACHTUNG: Sobald eine Preismeldestelle deaktiviert wird, werden dessen Preismeldungen beim monatlichen CSV-Import ignoriert und werden entsprechend nicht mehr erhoben. Wird eine Preismeldestelle deaktiviert nachdem die Preismeldungen bereits importiert wurden, hat dies erst Auswirkungen auf den CSV-Import des nächsten Monats.
@@ -240,6 +236,6 @@
     </ion-row>
     <div class="actions">
         <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
-        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="this.form.invalid">Speichern</button>
+        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
     </div>
 </form>
