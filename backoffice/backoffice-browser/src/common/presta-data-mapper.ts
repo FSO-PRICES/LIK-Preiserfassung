@@ -130,10 +130,10 @@ export function preparePms(lines: string[][]) {
             email: cells[importPmsFromPrestaIndexes.pmsEMail],
             languageCode: cells[importPmsFromPrestaIndexes.pmsSprache],
             erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
-            erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
+            erhebungsartComment: parseNewlinesInText(cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart]),
             pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
             erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
-            zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
+            zusatzInformationen: parseNewlinesInText(cells[importPmsFromPrestaIndexes.pmsZusatzinformationen]),
             kontaktpersons: parseKontaktPersons(cells)
         };
     });
@@ -227,8 +227,8 @@ export function preparePmsForExport(preismeldestellen: P.Preismeldestelle[], erh
         'PMS_Erhebungsregion': pms.erhebungsregion,
         'PMS_Erhebungsart': pms.erhebungsart,
         'PMS_Geschlossen': pms.pmsGeschlossen,
-        'Bemerkung_zur_Erhebungsart': pms.erhebungsartComment,
-        'PMS_Zusatzinformationen': pms.zusatzInformationen,
+        'Bemerkung_zur_Erhebungsart': escapeNewlinesInText(pms.erhebungsartComment),
+        'PMS_Zusatzinformationen': escapeNewlinesInText(pms.zusatzInformationen),
         'KP1_OID': pms.kontaktpersons[0].oid,
         'KP1_Vorname': pms.kontaktpersons[0].firstName,
         'KP1_Name': pms.kontaktpersons[0].surname,
@@ -276,6 +276,19 @@ function parseNumber(s: string, propertyName: string) {
     const number = parseInt(s, 10);
     if (isNaN(number)) throw new Error(`Invalid ${propertyName}: '${s}'`);
     return number;
+}
+
+function parseNewlinesInText(s: string) {
+    if (s == null) return s;
+    console.log('orig:', s);
+    const x = s.replace(/ \\n /g, '\n');
+    console.log('new:', x);
+    return x;
+}
+
+function escapeNewlinesInText(s: string) {
+    if (s == null) return s;
+    return s.replace(/\n/g, ' \\n ');
 }
 
 function escapeProductMerkmale(merkmale: string[]) {
