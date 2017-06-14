@@ -30,6 +30,7 @@ export class ImportPage implements OnDestroy {
     public latestPreismeldestellenImportAt$ = this.store.select(fromRoot.getImportedPreismeldestellenAt);
     public latestPreismeldungenImportAt$ = this.store.select(fromRoot.getImportedPreismeldungenAt);
 
+    public importError$ = this.store.select(fromRoot.getImporterState).map(s => s.importError);
     public importedAll$ = this.store.select(fromRoot.getImportedAll);
     public recreateUserDbsClicked$ = new EventEmitter();
 
@@ -67,20 +68,24 @@ export class ImportPage implements OnDestroy {
         this.preismeldungenImportedCount$ = preismeldungenImported$
             .map(x => x.length);
 
+        const dismissWarenkorbLoading$ = warenkorbImported$.skip(1).merge(this.importError$.skip(1));
+        const dismissPreismeldestellenLoading$ = preismeldestellenImported$.skip(1).merge(this.importError$.skip(1));
+        const dismissPreismeldungenLoading$ = preismeldungenImported$.skip(1).merge(this.importError$.skip(1));
+
         this.subscriptions = [
             this.warenkorbFileSelected$
                 .asObservable()
                 .subscribe(data => store.dispatch({ type: 'PARSE_WARENKORB_FILE', payload: { file: data.file, language: data.language } } as importer.Action)),
             this.warenkorbStartImport$
                 .withLatestFrom(parsedWarenkorb$, (_, parsedWarenkorb) => parsedWarenkorb)
-                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', warenkorbImported$).map(() => data))
+                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', dismissWarenkorbLoading$).map(() => data))
                 .subscribe(data => store.dispatch({ type: 'IMPORT_WARENKORB', payload: data } as importer.Action)),
 
             this.preismeldestelleFileSelected$
                 .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldestellen } } as importer.Action)),
             this.preismeldestellenStartImport$
                 .withLatestFrom(parsedPreismeldestellen$, (_, parsedPreismeldestellen) => parsedPreismeldestellen)
-                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', preismeldestellenImported$).map(() => data))
+                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', dismissPreismeldestellenLoading$).map(() => data))
                 .subscribe(data => store.dispatch({ type: 'IMPORT_PREISMELDESTELLEN', payload: data } as importer.Action)),
 
 
@@ -88,7 +93,7 @@ export class ImportPage implements OnDestroy {
                 .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldungen } } as importer.Action)),
             this.preismeldungenStartImport$
                 .withLatestFrom(parsedPreismeldungen$, (_, parsedPreismeldungen) => parsedPreismeldungen)
-                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', preismeldungenImported$).map(() => data))
+                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', dismissPreismeldungenLoading$).map(() => data))
                 .subscribe(data => store.dispatch({ type: 'IMPORT_PREISMELDUNGEN', payload: data } as importer.Action)),
 
 

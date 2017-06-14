@@ -18,6 +18,7 @@ export interface State {
     importedPreismeldungen: P.Preismeldung[];
     importedPreismeldungenAt: Date;
 
+    importError: string;
     importedAll: { success: boolean, error: string }
 };
 
@@ -34,6 +35,7 @@ const initialState: State = {
     importedPreismeldungen: null,
     importedPreismeldungenAt: null,
 
+    importError: null,
     importedAll: null
 };
 
@@ -42,7 +44,7 @@ export function reducer(state = initialState, action: importer.Action): State {
         case 'PARSE_WARENKORB_FILE_SUCCESS': {
             let parsedWarenkorb = Object.assign({}, state.parsedWarenkorb);
             parsedWarenkorb[action.payload.language] = action.payload.data;
-            return Object.assign({}, state, { parsedWarenkorb });
+            return Object.assign({}, state, { parsedWarenkorb, importError: null });
         }
 
         case 'PARSE_FILE_SUCCESS': {
@@ -56,22 +58,27 @@ export function reducer(state = initialState, action: importer.Action): State {
 
             let parsedData = {};
             parsedData[parseMap[action.payload.parsedType]] = action.payload.data;
-            return Object.assign({}, state, parsedData);
+            return Object.assign({}, state, parsedData, { importError: null });
         }
 
         case 'IMPORT_WARENKORB_SUCCESS': {
             const { payload } = action;
-            return Object.assign({}, state, { importedWarenkorb: payload });
+            return Object.assign({}, state, { importedWarenkorb: payload, importError: null });
         }
 
         case 'IMPORT_PREISMELDESTELLEN_SUCCESS': {
             const { payload } = action;
-            return Object.assign({}, state, { importedPreismeldestellen: payload });
+            return Object.assign({}, state, { importedPreismeldestellen: payload, importError: null });
+        }
+
+        case 'IMPORT_PREISMELDESTELLEN_FAILURE': {
+            const { payload } = action;
+            return Object.assign({}, state, { importedPreismeldestellen: null, importError: payload });
         }
 
         case 'IMPORT_PREISMELDUNGEN_SUCCESS': {
             const { payload } = action;
-            return Object.assign({}, state, { importedPreismeldungen: payload });
+            return Object.assign({}, state, { importedPreismeldungen: payload, importError: null });
         }
 
         case 'LOAD_LATEST_IMPORTED_AT_SUCCESS': {
@@ -85,19 +92,19 @@ export function reducer(state = initialState, action: importer.Action): State {
                 importedPreismeldestellenAt: !!preismeldestellen ? parseDate(preismeldestellen.latestImportAt) : null,
                 importedPreismeldungenAt: !!preismeldungen ? parseDate(preismeldungen.latestImportAt) : null
             }
-            return Object.assign({}, state, latestImportedAt);
+            return Object.assign({}, state, latestImportedAt, { importError: null });
         }
 
         case 'IMPORTED_ALL_RESET': {
-            return Object.assign({}, state, { importedAll: initialState.importedAll })
+            return Object.assign({}, state, { importedAll: initialState.importedAll, importError: null })
         }
 
         case 'IMPORTED_ALL_SUCCESS': {
-            return Object.assign({}, state, { importedAll: { success: true, error: null } })
+            return Object.assign({}, state, { importedAll: { success: true, error: null }, importError: null })
         }
 
         case 'IMPORTED_ALL_FAILURE': {
-            return Object.assign({}, state, { importedAll: { success: false, error: action.payload } })
+            return Object.assign({}, state, { importedAll: { success: false, error: action.payload }, importError: null })
         }
 
         default:

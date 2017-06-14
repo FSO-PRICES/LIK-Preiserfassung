@@ -11,10 +11,15 @@ export function resetAndContinueWith<T>(resetAction: SimpleAction, continuedObse
 export function doAsyncAsObservable<T>(func: () => T) {
     return Observable.create((observer: Observer<T>) => {
         setTimeout(() => {
-            const result = func();
+            try {
+                const result = func();
 
-            observer.next(result);
-            observer.complete();
+                observer.next(result);
+                observer.complete();
+            }
+            catch (error) {
+                observer.error(error);
+            }
         });
     }) as Observable<T>;
 }

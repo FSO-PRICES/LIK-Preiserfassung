@@ -134,6 +134,7 @@ export class PmsDetailsPage implements OnDestroy {
 
     private initKontaktpersonGroup() {
         return this.formBuilder.group({
+            oid: [null],
             firstName: [null],
             surname: [null],
             personFunction: [null],
@@ -148,6 +149,7 @@ export class PmsDetailsPage implements OnDestroy {
     private getKontaktPersonMapping(kontaktpersons: P.KontaktPerson[]) {
         if (!kontaktpersons || kontaktpersons.length === 0) kontaktpersons = [<any>{ languageCode: '' }, { languageCode: '' }];
         return kontaktpersons.map(x => ({
+            oid: x.oid,
             firstName: x.firstName,
             surname: x.surname,
             personFunction: x.personFunction,

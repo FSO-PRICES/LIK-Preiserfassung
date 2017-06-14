@@ -28,8 +28,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     public update$: Observable<P.Erheber>;
 
     public preiserheber$: Observable<P.Erheber>;
-    public languages$: Observable<P.Language[]>;
-    public preissubsysteme$: Observable<P.Preissubsystem[]>;
+    public languages$: Observable<P.Language[]>;;
 
     public resetForm$: Observable<boolean>;
     public saveClicked$ = new EventEmitter<Event>();
@@ -46,7 +45,6 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.preiserheber$ = this.observePropertyCurrentValue<P.Erheber>('preiserheber');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
-        this.preissubsysteme$ = this.observePropertyCurrentValue<P.Preissubsystem[]>('preissubsysteme');
 
         this.form = formBuilder.group({
             preiserheber: formBuilder.group({
