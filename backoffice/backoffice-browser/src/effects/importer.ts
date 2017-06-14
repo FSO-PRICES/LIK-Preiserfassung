@@ -72,8 +72,8 @@ export class ImporterEffects {
                 .map(() => ({ pmInfo, db }))
         )
         .flatMap(({ pmInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmInfo.erhebungsmonat }).then(() => pmInfo.preismeldungen))
-        .flatMap(preismeldungen => this.updateImportMetadata(dbNames.preismeldung, importer.Type.preismeldungen).map(() => preismeldungen))
         .flatMap(preismeldungen => syncDb('preismeldungen').then(() => preismeldungen))
+        .flatMap(preismeldungen => this.updateImportMetadata(dbNames.preismeldung, importer.Type.preismeldungen).map(() => preismeldungen))
         .map(preismeldungen => ({ type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: preismeldungen } as importer.Action));
 
     @Effect()
