@@ -96,6 +96,9 @@
     "text_yes": "Ja",
     "text_no": "Nein",
 
+    "text_textzeil_limitverletzung": "Limitverletzung: Preisentwicklung.",
+    "text_textzeil_nicht_vergleichbar": "Neuer und alter Artikel nicht vergelichbar!",
+
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",
     "heading_pms-details": "Daten zur Preismeldestelle",

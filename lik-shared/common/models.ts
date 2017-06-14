@@ -123,13 +123,26 @@ export const bearbeitungscodeDescriptions = {
 
 export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
 
+export interface PreismeldungPercentages {
+    d_DPToVP: PercentageWithWarning;
+    d_DPToVPVorReduktion: PercentageWithWarning;
+    d_DPToVPK: PercentageWithWarning;
+    d_VPKToVPAlterArtikel: PercentageWithWarning;
+    d_VPKToVPVorReduktion: PercentageWithWarning;
+    d_DPVorReduktionToVPVorReduktion: PercentageWithWarning;
+    d_DPVorReduktionToVP: PercentageWithWarning;
+}
+
 // tslint:disable-next-line:class-name
-interface _PreismeldungProperties {
+interface __PreismeldungProperties {
     preis?: string;
     menge?: string;
-    preisVPNormalNeuerArtikel?: string;
-    mengeVPNormalNeuerArtikel?: string;
+    preisVPK?: string;
+    mengeVPK?: string;
     fehlendePreiseR: string;
+    preisVorReduktion?: string;
+    mengeVorReduktion?: string;
+    datumVorReduktion?: string;
 
     aktion: boolean;
 
@@ -143,18 +156,20 @@ interface _PreismeldungProperties {
 
     productMerkmale: string[];
 
-    percentageDPToVP?: number;
-    percentageDPToVPVorReduktion?: number;
-    percentageDPToVPNeuerArtikel?: number;
-    percentageVPNeuerArtikelToVPAlterArtikel?: number;
-    percentageVPNeuerArtikelToVPVorReduktion?: number;
-
     modifiedAt: string;
     bearbeitungscode: Bearbeitungscode;
 
     istAbgebucht: boolean;
 
     uploadRequestedAt: string;
+}
+
+type _PreismeldungProperties = __PreismeldungProperties & PreismeldungPercentages;
+
+export interface PercentageWithWarning {
+    percentage: number;
+    warning: boolean;
+    textzeil: string;
 }
 
 export type PreismeldungProperties = PreismeldungUri & _PreismeldungProperties;

@@ -46,13 +46,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public preisChanged$ = new EventEmitter<string>();
     public preisCurrentValue$: Observable<{ value: string }>;
     public mengeChanged$ = new EventEmitter<string>();
+    public preisVorReduktionChanged$ = new EventEmitter<string>();
+    public mengeVorReduktionChanged$ = new EventEmitter<string>();
     public createInvalidObservableFor: (controlName: string) => Observable<boolean>;
 
-    public preisVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
-    public preisVPNormalNeuerArtikelCurrentValue$: Observable<{ value: string }>;
-    public mengeVPNormalNeuerArtikelChanged$ = new EventEmitter<string>();
+    public preisVPKChanged$ = new EventEmitter<string>();
+    public preisVPKCurrentValue$: Observable<{ value: string }>;
+    public mengeVPKChanged$ = new EventEmitter<string>();
 
-    public toggleAktion$ = new EventEmitter();
+    public toggleAktion$ = new EventEmitter<boolean>();
     public showSaveWarning$: Observable<boolean>;
     public percentageValues$: Observable<PercentageValues>;
     public attemptSave$ = new EventEmitter();
@@ -60,13 +62,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public applyUnitQuickEqual$ = new EventEmitter();
     public applyUnitQuickEqualVP$ = new EventEmitter();
     public chooseReductionPercentage$ = new EventEmitter();
-    public infoPopoverActive$ = new EventEmitter<boolean>();
+    public infoPopoverLeftActive$ = new EventEmitter<boolean>();
+    public infoPopoverRightActive$ = new EventEmitter<boolean>();
     public popoverHeight$: Observable<string>;
 
     public preisNumberFormattingOptions = preisNumberFormattingOptions;
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
-    public arrowDownPercentage$: Observable<string>;
+    public arrowDown$: Observable<P.Models.PercentageWithWarning>;
+    public arrowRight$: Observable<P.Models.PercentageWithWarning>;
 
     public currentPeriodHeading$: Observable<string>;
     public isSaveDisabled$: Observable<boolean>;
@@ -84,10 +88,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService, @Inject('windowObject') public window: any) {
         super();
 
+        const infoPopoverLeftActive$ = this.infoPopoverLeftActive$.startWith(false).publishReplay(1).refCount();
+        const infoPopoverRightActive$ = this.infoPopoverRightActive$.startWith(false).publishReplay(1).refCount();
+
         this.subscriptions.push(this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${preisFormatFn(x)}` })));
         this.subscriptions.push(this.mengeChanged$.subscribe(x => this.form.patchValue({ menge: `${mengeFormatFn(x)}` })));
-        this.subscriptions.push(this.preisVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ preisVPNormalNeuerArtikel: `${preisFormatFn(x)}` })));
-        this.subscriptions.push(this.mengeVPNormalNeuerArtikelChanged$.subscribe(x => this.form.patchValue({ mengeVPNormalNeuerArtikel: `${mengeFormatFn(x)}` })));
+        this.subscriptions.push(this.preisVorReduktionChanged$.subscribe(x => this.form.patchValue({ preisVorReduktion: `${preisFormatFn(x)}` })));
+        this.subscriptions.push(this.mengeVorReduktionChanged$.subscribe(x => this.form.patchValue({ mengeVorReduktion: `${mengeFormatFn(x)}` })));
+        this.subscriptions.push(this.preisVPKChanged$.subscribe(x => this.form.patchValue({ preisVPK: `${preisFormatFn(x)}` })));
+        this.subscriptions.push(this.mengeVPKChanged$.subscribe(x => this.form.patchValue({ mengeVPK: `${mengeFormatFn(x)}` })));
 
         this.isInternet$ = this.preismeldestelle$
             .map(p => !!p && this.isInternet(p.erhebungsart));
@@ -96,8 +105,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             pmId: [''],
             preis: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])],
             menge: ['', Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999.99, { padRight: 2, truncate: 3 })])],
-            preisVPNormalNeuerArtikel: [''],
-            mengeVPNormalNeuerArtikel: [''],
+            preisVorReduktion: [''],
+            mengeVorReduktion: [''],
+            preisVPK: [''],
+            mengeVPK: [''],
             aktion: [false],
             bearbeitungscode: [100, Validators.required],
             artikelnummer: [''],
@@ -116,10 +127,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.preisCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preis)
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preis))
-            .map(x => ({ value: `${preisFormatFn(x)}` }));
+            .map(x => ({ value: `${preisFormatFn(x)}` }))
+            .publishReplay(1).refCount();
 
-        this.preisVPNormalNeuerArtikelCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPNormalNeuerArtikel)
-            .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPNormalNeuerArtikel))
+        this.preisVPKCurrentValue$ = this.form.valueChanges.map(() => this.form.value.preisVPK)
+            .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPK))
             .map(x => ({ value: `${preisFormatFn(x)}` }));
 
         this.subscriptions.push(
@@ -129,9 +141,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         pmId: bag.pmId,
                         preis: bag.preismeldung.preis,
                         menge: bag.preismeldung.menge,
+                        preisVorReduktion: bag.preismeldung.preisVorReduktion,
+                        mengeVorReduktion: bag.preismeldung.mengeVorReduktion,
                         aktion: bag.preismeldung.aktion,
-                        preisVPNormalNeuerArtikel: bag.preismeldung.preisVPNormalNeuerArtikel,
-                        mengeVPNormalNeuerArtikel: bag.preismeldung.mengeVPNormalNeuerArtikel,
+                        preisVPK: bag.preismeldung.preisVPK,
+                        mengeVPK: bag.preismeldung.mengeVPK,
                         bearbeitungscode: bag.preismeldung.bearbeitungscode,
                         artikelnummer: bag.preismeldung.artikelnummer,
                         internetLink: bag.preismeldung.internetLink,
@@ -162,11 +176,17 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.subscriptions.push(
-            this.applyUnitQuickEqual$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
-                .subscribe(preismeldung => {
-                    this.form.patchValue({
-                        menge: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
-                    });
+            this.applyUnitQuickEqual$.withLatestFrom(this.distinctPreismeldung$, infoPopoverRightActive$, (_, preismeldung: P.CurrentPreismeldungBag, infoPopoverRightActive: boolean) => ({ preismeldung, infoPopoverRightActive }))
+                .subscribe(({ preismeldung, infoPopoverRightActive }) => {
+                    if (!infoPopoverRightActive) {
+                        this.form.patchValue({
+                            menge: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
+                        });
+                    } else {
+                        this.form.patchValue({
+                            mengeVorReduktion: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
+                        });
+                    }
                 })
         );
 
@@ -174,17 +194,34 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.applyUnitQuickEqualVP$.withLatestFrom(this.distinctPreismeldung$, (_, preismeldung: P.CurrentPreismeldungBag) => preismeldung)
                 .subscribe(preismeldung => {
                     this.form.patchValue({
-                        mengeVPNormalNeuerArtikel: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
+                        mengeVPK: `${preismeldung.refPreismeldung ? mengeFormatFn(preismeldung.refPreismeldung.menge) : mengeFormatFn(preismeldung.warenkorbPosition.standardmenge)}`,
                     });
                 })
         );
 
         this.subscriptions.push(
             this.toggleAktion$
-                .subscribe(() => {
+                .subscribe(newAktionValue => {
                     this.form.patchValue({
-                        aktion: !this.form.value.aktion
+                        aktion: newAktionValue
                     });
+                })
+        );
+
+        const bearbeitungscodeChanged$ = this.changeBearbeitungscode$
+            .merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
+            .publishReplay(1).refCount();
+
+        this.subscriptions.push(
+            this.toggleAktion$
+                .combineLatest(bearbeitungscodeChanged$, (newAktionValue, bearbeitungscode) => ({ newAktionValue, bearbeitungscode }))
+                .subscribe(x => {
+                    if (!x.newAktionValue || x.bearbeitungscode !== 1) {
+                        this.form.patchValue({
+                            preisVorReduktion: '',
+                            mengeVorReduktion: ''
+                        });
+                    }
                 })
         );
 
@@ -209,17 +246,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 preis: this.form.value.preis,
                 menge: this.form.value.menge,
                 aktion: this.form.value.aktion,
-                preisVPNormalNeuerArtikel: this.form.value.preisVPNormalNeuerArtikel,
-                mengeVPNormalNeuerArtikel: this.form.value.mengeVPNormalNeuerArtikel,
+                preisVorReduktion: this.form.value.preisVorReduktion,
+                mengeVorReduktion: this.form.value.mengeVorReduktion,
+                preisVPK: this.form.value.preisVPK,
+                mengeVPK: this.form.value.mengeVPK,
                 bearbeitungscode: this.form.value.bearbeitungscode,
                 artikelnummer: this.form.value.artikelnummer,
                 internetLink: this.form.value.internetLink,
                 artikeltext: this.form.value.artikeltext
             }));
-
-        const bearbeitungscodeChanged$ = this.changeBearbeitungscode$
-            .merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
-            .publishReplay(1).refCount();
 
         this.preisAndMengeDisabled$ = bearbeitungscodeChanged$
             .map(x => this.calcPreisAndMengeDisabled(x));
@@ -233,8 +268,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .filter(x => !x && this.form.dirty)
                 .subscribe(() => {
                     this.form.patchValue({
-                        preisVPNormalNeuerArtikel: '',
-                        mengeVPNormalNeuerArtikel: ''
+                        preisVPK: '',
+                        mengeVPK: ''
                     });
                 })
         );
@@ -271,7 +306,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         const saveWithBag$ = canSave$.filter(x => x.isValid)
             .map(x => x.saveAction)
-            // .delay(100)
             .withLatestFrom(this.preismeldung$, (saveAction, bag) => ({ saveAction, bag }))
             .publishReplay(1).refCount();
 
@@ -361,20 +395,37 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         }).publishReplay(1).refCount();
 
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
-            .map(x => x === 7 || x === 2 || x === 3 ? 'heading_artikel-neu' : 'heading_artikel');
+            .combineLatest(infoPopoverRightActive$, (bearbeitungscode, infoPopoverRightActive) => {
+                if (infoPopoverRightActive) {
+                    return 'heading_artikel-vor-reduktion';
+                }
+                return [7, 2, 3].some(x => x === bearbeitungscode) ? 'heading_artikel-neu' : 'heading_artikel';
+            });
 
         const showInvalid$ = this.form.valueChanges.merge(this.attemptSave$).publishReplay(1).refCount();
         this.createInvalidObservableFor = (controlName: string) => showInvalid$.map(() => !!this.form.controls[controlName].errors);
 
-        this.popoverHeight$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
-            .delay(0)
-            .map(x => x === 7 ? (window.document.getElementById('row-2-last-period').offsetHeight - 8) + 'px' : window.document.getElementById('last-period-data-input-area').offsetHeight + 'px');
+        // this.popoverHeight$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
+        //     .delay(0)
+        //     .map(x => x === 7 ? (window.document.getElementById('row-2-last-period').offsetHeight - 8) + 'px' : window.document.getElementById('last-period-data-input-area').offsetHeight + 'px');
+        this.popoverHeight$ = Observable.of('0px');
 
-        this.arrowDownPercentage$ = this.infoPopoverActive$
-            .combineLatest(this.preismeldung$, (infoPopoverActive, bag) => {
-                const n = !bag ? null : infoPopoverActive ? bag.preismeldung.percentageVPNeuerArtikelToVPVorReduktion : bag.preismeldung.percentageVPNeuerArtikelToVPAlterArtikel;
-                return this.formatPercentageChange(n);
-            });
+        this.arrowDown$ = infoPopoverLeftActive$
+            .combineLatest(this.preismeldung$, (infoPopoverLeftActive, bag) => ({ infoPopoverLeftActive, bag }))
+            .filter(x => !!x.bag)
+            .map(x => x.infoPopoverLeftActive ? x.bag.preismeldung.d_VPKToVPVorReduktion : x.bag.preismeldung.d_VPKToVPAlterArtikel)
+            .publishReplay(1).refCount();
+
+        this.arrowRight$ = this.preismeldung$
+            .combineLatest(infoPopoverLeftActive$, infoPopoverRightActive$, (bag, infoPopoverLeftActive, infoPopoverRightActive) => ({ bag, infoPopoverLeftActive, infoPopoverRightActive }))
+            .filter(x => !!x.bag)
+            .map(x => {
+                if (x.infoPopoverLeftActive && x.infoPopoverRightActive) return x.bag.preismeldung.d_DPVorReduktionToVPVorReduktion;
+                if (!x.infoPopoverLeftActive && x.infoPopoverRightActive) return x.bag.preismeldung.d_DPVorReduktionToVP;
+                if (x.infoPopoverLeftActive && !x.infoPopoverRightActive) return x.bag.preismeldung.d_DPToVPVorReduktion;
+                return x.bag.preismeldung.d_DPToVP;
+            })
+            .publishReplay(1).refCount();
     }
 
     calcPreisAndMengeDisabled(bearbeitungscode: P.Models.Bearbeitungscode) {
@@ -408,10 +459,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         return (group: FormGroup) => {
             const bearbeitungscode = group.get('bearbeitungscode');
             if (!![2, 7].some(x => x === bearbeitungscode.value)) {
-                const preisVPNormalNeuerArtikel = group.get('preisVPNormalNeuerArtikel');
-                preisVPNormalNeuerArtikel.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])(preisVPNormalNeuerArtikel));
-                const mengeVPNormalNeuerArtikel = group.get('mengeVPNormalNeuerArtikel');
-                mengeVPNormalNeuerArtikel.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })])(mengeVPNormalNeuerArtikel));
+                const preisVPK = group.get('preisVPK');
+                preisVPK.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])(preisVPK));
+                const mengeVPK = group.get('mengeVPK');
+                mengeVPK.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })])(mengeVPK));
             }
         };
     }

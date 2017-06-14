@@ -7,10 +7,10 @@ import { ReactiveComponent, formatPercentageChange, preisNumberFormattingOptions
 import * as P from '../../../../../../common-models';
 
 @Component({
-    selector: 'preismeldung-info-popover',
-    templateUrl: 'preismeldung-info-popover.html'
+    selector: 'preismeldung-info-popover-left',
+    templateUrl: 'preismeldung-info-popover-left.html'
 })
-export class PreismeldungInfoPopover extends ReactiveComponent implements OnChanges {
+export class PreismeldungInfoPopoverLeft extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
     @Input() forceClose: {};
     @Input() height: string;
@@ -46,7 +46,8 @@ export class PreismeldungInfoPopover extends ReactiveComponent implements OnChan
             .publishReplay(1).refCount();
 
         this.popoverWidth$ = recalcPopover$
-            .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px + ${this.extraWidth || '0px'} - 16px - ${this.pefRelativeSize(window.innerWidth, 1)})`);
+            // .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px + ${this.extraWidth || '0px'} - 16px - ${this.pefRelativeSize(window.innerWidth, 1)})`);
+            .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px + ${this.extraWidth || '0px'} - ${this.pefRelativeSize(window.innerWidth, 1)})`);
 
         this.popoverHeight$ = this.observePropertyCurrentValue<string>('height')
             .map(height => `calc(${height || '0px'} + 1px)`);

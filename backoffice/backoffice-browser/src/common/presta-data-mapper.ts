@@ -200,8 +200,8 @@ export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.
                 'Laufnummer': toNumber(pm.laufnummer, 10, 'Laufnummer'),
                 'Preis_T': toDecimal(pm.preis, 12, 4, 'Preis_T'),
                 'Menge_T': toDecimal(pm.menge, 10, 3, 'Menge_T'),
-                'Preis_VPK': toDecimal(pm.pmRef.preis, 12, 4, 'Preis_VPK'), // TODO: depending on actioncode #97
-                'Menge_VPK': toDecimal(pm.pmRef.menge, 10, 3, 'Menge_VPK'),
+                'Preis_VPK': toDecimal(pm.preisVPK, 12, 4, 'Preis_VPK'), // TODO: depending on actioncode #97
+                'Menge_VPK': toDecimal(pm.mengeVPK, 10, 3, 'Menge_VPK'),
                 'Bearbeitungscode': toNumber(pm.bearbeitungscode, 2, 'Bearbeitungscode'),
                 'Aktionscode': !pm.aktion ? 0 : 1,
                 'Preisbezeichnung': toText(pm.artikeltext, 200, 'Preisbezeichnung'),
