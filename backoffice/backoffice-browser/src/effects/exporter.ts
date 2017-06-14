@@ -14,6 +14,7 @@ import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport }
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
 import { loadAllPreismeldestellen, loadAllPreismeldungen, loadAllPreiserheber } from '../common/user-db-values';
 import { createEnvelope, MessageTypes } from '../common/envelope-extensions';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class ExporterEffects {
@@ -44,6 +45,7 @@ export class ExporterEffects {
 
                     return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
                 })
+                .catch(error => Observable.of({ type: 'EXPORT_PREISMELDUNGEN_FAILURE', payload: error.message } as exporter.Action))
             )
         );
 
@@ -73,6 +75,7 @@ export class ExporterEffects {
 
                     return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
                 })
+                .catch(error => Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_FAILURE', payload: error.message } as exporter.Action))
             )
         );
 
@@ -97,6 +100,7 @@ export class ExporterEffects {
 
                     return { type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count };
                 })
+                .catch(error => Observable.of({ type: 'EXPORT_PREISERHEBER_FAILURE', payload: error.message } as exporter.Action))
             )
         );
 }

@@ -9,6 +9,7 @@ export type Action =
     { type: 'IMPORT_WARENKORB_SUCCESS', payload: P.WarenkorbDocument } |
     { type: 'IMPORT_PREISMELDESTELLEN', payload: string[][] } |
     { type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: P.Preismeldestelle[] } |
+    { type: 'IMPORT_PREISMELDESTELLEN_FAILURE', payload: string } |
     { type: 'IMPORT_PREISMELDUNGEN', payload: string[][] } |
     { type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: P.PreismeldungReference[] } |
     { type: 'LOAD_LATEST_IMPORTED_AT' } |

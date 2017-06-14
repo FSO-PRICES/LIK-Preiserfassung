@@ -10,6 +10,13 @@ const preismeldungRefUri = docuri.route(P.preismeldungReferenceUriRoute);
 const preismeldungUri = docuri.route(P.preismeldungUriRoute);
 const preismeldestelleUri = docuri.route(P.pmsUriRoute);
 
+enum LanguageMap {
+    de = 1,
+    fr = 2,
+    it = 3,
+    en = 4
+}
+
 const importPmsFromPrestaIndexes = {
     erhebungsmonat: 0,
     preissubsystem: 1,
@@ -96,7 +103,7 @@ function parseKontaktPersons(cells: string[]) {
             mobile: cells[importPmsFromPrestaIndexes.kp1Mobile],
             fax: cells[importPmsFromPrestaIndexes.kp1Fax],
             email: cells[importPmsFromPrestaIndexes.kp1EMail],
-            languageCode: cells[importPmsFromPrestaIndexes.kp1Sprache]
+            languageCode: parseLanguageCode(cells[importPmsFromPrestaIndexes.kp1Sprache])
         },
         {
             oid: cells[importPmsFromPrestaIndexes.kp2Oid],
@@ -107,7 +114,7 @@ function parseKontaktPersons(cells: string[]) {
             mobile: cells[importPmsFromPrestaIndexes.kp2Mobile],
             fax: cells[importPmsFromPrestaIndexes.kp2Fax],
             email: cells[importPmsFromPrestaIndexes.kp2EMail],
-            languageCode: cells[importPmsFromPrestaIndexes.kp2Sprache]
+            languageCode: parseLanguageCode(cells[importPmsFromPrestaIndexes.kp2Sprache])
         },
     ]
 }
@@ -128,7 +135,7 @@ export function preparePms(lines: string[][]) {
             town: cells[importPmsFromPrestaIndexes.pmsOrt],
             telephone: cells[importPmsFromPrestaIndexes.pmsTelefon],
             email: cells[importPmsFromPrestaIndexes.pmsEMail],
-            languageCode: cells[importPmsFromPrestaIndexes.pmsSprache],
+            languageCode: parseLanguageCode(cells[importPmsFromPrestaIndexes.pmsSprache]),
             erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
             erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
             pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
@@ -142,7 +149,7 @@ export function preparePms(lines: string[][]) {
     return { preismeldestellen, erhebungsmonat };
 }
 
-export function preparePm(lines: string[][]): { erhebungsmonat: string, preismeldungen: P.PreismeldungReference[]} {
+export function preparePm(lines: string[][]): { erhebungsmonat: string, preismeldungen: P.PreismeldungReference[] } {
     const preismeldungen = lines
         .map(cells => ({
             _id: preismeldungRefUri({ pmsNummer: cells[importPmFromPrestaIndexes.pmsNummer], epNummer: cells[importPmFromPrestaIndexes.epNummer], laufnummer: cells[importPmFromPrestaIndexes.laufnummer] }),
@@ -181,95 +188,138 @@ export function preparePm(lines: string[][]): { erhebungsmonat: string, preismel
 
 export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.PreismeldungReference })[], erhebungsmonat: string) {
     let sortNumber = 1;
-    return preismeldungen.map(pm => ({
-        'Erhebungsmonat': erhebungsmonat,
-        'Preissubsystem': pm.pmRef.preissubsystem, // LIK = 2
-        'Schemanummer': 0, // TODO: Always 0?
-        'Preiserhebungsort': pm.pmsNummer,
-        'Erhebungspositionnummer': pm.epNummer,
-        'Laufnummer': pm.laufnummer,
-        'Preis_T': pm.preis,
-        'Menge_T': pm.menge,
-        'Aktionscode': pm.aktion ? 1 : 0,
-        'Preisbezeichnung': pm.pmRef.artikeltext,
-        'Artikelnummer': pm.artikelnummer,
-        'Gueltigkeitsdatum': pm.pmRef.preisGueltigSeitDatum,
-        'Basispreis': pm.pmRef.basisPreis,
-        'Basismenge': pm.pmRef.basisMenge,
-        'Fehlende_Preise': pm.fehlendePreiseR,
-        'PE_Notiz': pm.notiz,
-        'Bemerkungen': pm.bemerkungen,
-        'Internet_Link': pm.internetLink,
-        'Erhebungszeitpunkt': pm.pmRef.erhebungsZeitpunkt,
-        'Erhebungsanfangsdatum': pm.pmRef.erhebungsAnfangsDatum,
-        'Erhebungsenddatum': pm.pmRef.erhebungsEndDatum,
-        'Sortiernummer': sortNumber++,
-        'Preis_vor_Reduktion': pm.pmRef.preisVorReduktion,
-        'Menge_vor_Reduktion': pm.pmRef.mengeVorReduktion,
-        'Datum_vor_Reduktion': pm.pmRef.datumVorReduktion,
-        'Produktmerkmale': escapeProductMerkmale(pm.productMerkmale)
-    }));
+    return preismeldungen.map(pm =>
+        validatePreismeldung(
+            `${pm.pmsNummer}/${pm.epNummer}/${pm.laufnummer}`,
+            () => ({
+                'Erhebungsmonat': erhebungsmonat,
+                'Preissubsystem': toNumber(pm.pmRef.preissubsystem, 1, 'Preissubsystem'), // LIK = 2 0
+                'Schemanummer': 0,
+                'Preiserhebungsort': toNumber(pm.pmsNummer, 8, 'Preiserhebungsort'),
+                'Erhebungspositionnummer': toNumber(pm.epNummer, 8, 'Erhebungspositionnummer'),
+                'Laufnummer': toNumber(pm.laufnummer, 10, 'Laufnummer'),
+                'Preis_T': toDecimal(pm.preis, 12, 4, 'Preis_T'),
+                'Menge_T': toDecimal(pm.menge, 10, 3, 'Menge_T'),
+                'Preis_VPK': toDecimal(pm.pmRef.preis, 12, 4, 'Preis_VPK'), // TODO: depending on actioncode #97
+                'Menge_VPK': toDecimal(pm.pmRef.menge, 10, 3, 'Menge_VPK'),
+                'Bearbeitungscode': toNumber(pm.bearbeitungscode, 2, 'Bearbeitungscode'),
+                'Aktionscode': !pm.aktion ? 0 : 1,
+                'Preisbezeichnung': toText(pm.artikeltext, 200, 'Preisbezeichnung'),
+                'Artikelnummer': toText(pm.artikelnummer, 30, 'Artikelnummer'),
+                'Fehlende_Preise': toText(pm.fehlendePreiseR, 24, 'Fehlende_Preise'),
+                'PE_Notiz': toText(pm.notiz, 4000, 'PE_Notiz'),
+                'PE_Kommentar': toText(pm.kommentar, 4000, 'PE_Kommentar'),
+                'Bemerkungen': toText(pm.bemerkungen, 4000, 'Bemerkungen'),
+                'Internet_Link': toText(pm.internetLink, 255, 'Internet_Link'),
+                'Erhebungszeitpunkt': toNumber(pm.pmRef.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
+                'Sortiernummer': toNumber(sortNumber++, 5, 'Sortiernummer'),
+                'Preis_vor_Reduktion': toDecimal(pm.pmRef.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
+                'Menge_vor_Reduktion': toDecimal(pm.pmRef.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
+                'Datum_vor_Reduktion': pm.pmRef.datumVorReduktion,
+                'Produktmerkmale': escapeProductMerkmale(pm.productMerkmale)
+            })
+        )
+    );
 }
 
 export function preparePmsForExport(preismeldestellen: P.Preismeldestelle[], erhebungsmonat: string) {
-    return preismeldestellen.map(pms => ({
-        'Erhebungsmonat': erhebungsmonat,
-        'Preissubsystem': pms.preissubsystem,
-        'PMS_Nummer': pms.pmsNummer,
-        'PMS_Name': pms.name,
-        'PMS_Zusatzname': pms.supplement,
-        'PMS_Strasse': pms.street,
-        'PMS_PLZ': pms.postcode,
-        'PMS_Ort': pms.town,
-        'PMS_Telefon': pms.telephone,
-        'PMS_eMail': pms.email,
-        'PMS_Sprache': pms.languageCode,
-        'PMS_Erhebungsregion': pms.erhebungsregion,
-        'PMS_Erhebungsart': pms.erhebungsart,
-        'PMS_Geschlossen': pms.pmsGeschlossen,
-        'Bemerkung_zur_Erhebungsart': pms.erhebungsartComment,
-        'PMS_Zusatzinformationen': pms.zusatzInformationen,
-        'KP1_OID': pms.kontaktpersons[0].oid,
-        'KP1_Vorname': pms.kontaktpersons[0].firstName,
-        'KP1_Name': pms.kontaktpersons[0].surname,
-        'KP1_Funktion': pms.kontaktpersons[0].personFunction,
-        'KP1_Telefon': pms.kontaktpersons[0].telephone,
-        'KP1_Mobile': pms.kontaktpersons[0].mobile,
-        'KP1_Fax': pms.kontaktpersons[0].fax,
-        'KP1_eMail': pms.kontaktpersons[0].email,
-        'KP1_Sprache': pms.kontaktpersons[0].languageCode,
-        'KP2_OID': pms.kontaktpersons[1].oid,
-        'KP2_Vorname': pms.kontaktpersons[1].firstName,
-        'KP2_Name': pms.kontaktpersons[1].surname,
-        'KP2_Funktion': pms.kontaktpersons[1].personFunction,
-        'KP2_Telefon': pms.kontaktpersons[1].telephone,
-        'KP2_Mobile': pms.kontaktpersons[1].mobile,
-        'KP2_Fax': pms.kontaktpersons[1].fax,
-        'KP2_eMail': pms.kontaktpersons[1].email,
-        'KP2_Sprache': pms.kontaktpersons[1].languageCode,
-    }));
+    return preismeldestellen.map(pms =>
+        validatePreismeldestelle(
+            pms.pmsNummer,
+            () => ({
+                'Erhebungsmonat': erhebungsmonat,
+                'Preissubsystem': toNumber(pms.preissubsystem, 1, 'Preissubsystem'),
+                'PMS_Nummer': toNumber(pms.pmsNummer, 8, 'PMS_Nummer'),
+                'PMS_Name': toText(pms.name, 200, 'PMS_Name'),
+                'PMS_Zusatzname': toText(pms.supplement, 200, 'PMS_Zusatzname'),
+                'PMS_Strasse': toText(pms.street, 60, 'PMS_Strasse'),
+                'PMS_PLZ': toNumber(pms.postcode, 5, 'PMS_PLZ'),
+                'PMS_Ort': toText(pms.town, 40, 'PMS_Ort'),
+                'PMS_Telefon': toText(pms.telephone, 20, 'PMS_Telefon'),
+                'PMS_eMail': toText(pms.email, 50, 'PMS_eMail'),
+                'PMS_Sprache': !pms.languageCode ? null : LanguageMap[pms.languageCode],
+                'PMS_Erhebungsregion': toText(pms.erhebungsregion, 20, 'PMS_Erhebungsregion'),
+                'PMS_Erhebungsart': toText(pms.erhebungsart, 60, 'PMS_Erhebungsart'),
+                'PMS_Geschlossen': toNumber(pms.pmsGeschlossen, 1, 'PMS_Geschlossen'),
+                'Bemerkung_zur_Erhebungsart': toText(pms.erhebungsartComment, 1000, 'Bemerkung_zur_Erhebungsart'),
+                'PMS_Zusatzinformationen': toText(pms.zusatzInformationen, 1000, 'PMS_Zusatzinformationen'),
+                'KP1_OID': toNumber(pms.kontaktpersons[0].oid, 10, 'KP1_OID'),
+                'KP1_Vorname': toText(pms.kontaktpersons[0].firstName, 40, 'KP1_Vorname'),
+                'KP1_Name': toText(pms.kontaktpersons[0].surname, 40, 'KP1_Name'),
+                'KP1_Funktion': toText(pms.kontaktpersons[0].personFunction, 100, 'KP1_Funktion'),
+                'KP1_Telefon': toText(pms.kontaktpersons[0].telephone, 20, 'KP1_Telefon'),
+                'KP1_Mobile': toText(pms.kontaktpersons[0].mobile, 20, 'KP1_Mobile'),
+                'KP1_Fax': toText(pms.kontaktpersons[0].fax, 20, 'KP1_Fax'),
+                'KP1_eMail': toText(pms.kontaktpersons[0].email, 50, 'KP1_eMail'),
+                'KP1_Sprache': !pms.kontaktpersons[0].languageCode ? null : LanguageMap[pms.kontaktpersons[0].languageCode],
+                'KP2_OID': toNumber(pms.kontaktpersons[1].oid, 10, 'KP2_OID'),
+                'KP2_Vorname': toText(pms.kontaktpersons[1].firstName, 40, 'KP2_Vorname'),
+                'KP2_Name': toText(pms.kontaktpersons[1].surname, 40, 'KP2_Name'),
+                'KP2_Funktion': toText(pms.kontaktpersons[1].personFunction, 100, 'KP2_Funktion'),
+                'KP2_Telefon': toText(pms.kontaktpersons[1].telephone, 20, 'KP2_Telefon'),
+                'KP2_Mobile': toText(pms.kontaktpersons[1].mobile, 20, 'KP2_Mobile'),
+                'KP2_Fax': toText(pms.kontaktpersons[1].fax, 20, 'KP2_Fax'),
+                'KP2_eMail': toText(pms.kontaktpersons[1].email, 50, 'KP2_eMail'),
+                'KP2_Sprache': !pms.kontaktpersons[1].languageCode ? null : LanguageMap[pms.kontaktpersons[1].languageCode],
+            })
+        )
+    );
 }
 
 export function preparePreiserheberForExport(preiserhebers: (P.Erheber & { pmsNummers: string[] })[], erhebungsmonat: string, erhebungsorgannummer: number) {
-    return preiserhebers.map(preiserheber => ({
-        'Erhebungsmonat': erhebungsmonat,
-        'Preissubsystem': 2, // Fix 2 defined by Serge "Das Preissubsystem ist effektiv Konstant auf 2"
-        'Erhebungsorgannummer': erhebungsorgannummer,
-        'PE_Nummer': preiserheber.peNummer,
-        'PE_Vorname': preiserheber.firstName,
-        'PE_Name': preiserheber.surname,
-        'PE_Funktion': preiserheber.personFunction,
-        'PE_Telefon': preiserheber.telephone,
-        'PE_Mobile': preiserheber.mobilephone,
-        'PE_Fax': preiserheber.fax,
-        'PE_eMail': preiserheber.email,
-        'PE_Webseite': preiserheber.webseite,
-        'PE_Sprache': preiserheber.languageCode,
-        'PE_Strasse': preiserheber.street,
-        'PE_PLZ': preiserheber.postcode,
-        'PE_Ort': preiserheber.town,
-        'PE_Zuweisung_PMS': preiserheber.pmsNummers.join(','),
-    }));
+    return preiserhebers.map(preiserheber =>
+        validatePreiserheber(
+            preiserheber.username,
+            () => ({
+                'Erhebungsmonat': erhebungsmonat,
+                'Preissubsystem': 2, // Fix 2 defined by Serge "Das Preissubsystem ist effektiv Konstant auf 2"
+                'Erhebungsorgannummer': toNumber(erhebungsorgannummer, 1, 'Erhebungsorgannummer'),
+                'PE_Nummer': toNumber(preiserheber.peNummer, 10, 'PE_Nummer'),
+                'PE_Vorname': toText(preiserheber.firstName, 40, 'PE_Vorname'),
+                'PE_Name': toText(preiserheber.surname, 40, 'PE_Name'),
+                'PE_Funktion': toText(preiserheber.personFunction, 100, 'PE_Funktion'),
+                'PE_Telefon': toText(preiserheber.telephone, 20, 'PE_Telefon'),
+                'PE_Mobile': toText(preiserheber.mobilephone, 20, 'PE_Mobile'),
+                'PE_Fax': toText(preiserheber.fax, 20, 'PE_Fax'),
+                'PE_eMail': toText(preiserheber.email, 50, 'PE_eMail'),
+                'PE_Webseite': toText(preiserheber.webseite, 400, 'PE_Webseite'),
+                'PE_Sprache': !preiserheber.languageCode ? null : LanguageMap[preiserheber.languageCode],
+                'PE_Strasse': toText(preiserheber.street, 60, 'PE_Strasse'),
+                'PE_PLZ': toNumber(preiserheber.postcode, 5, 'PE_PLZ'),
+                'PE_Ort': toText(preiserheber.town, 40, 'PE_Ort'),
+                'PE_Zuweisung_PMS': toText(preiserheber.pmsNummers.join(','), 400, 'PE_Zuweisung_PMS'),
+            })
+        )
+    );
+}
+
+function toNumber(value: any, maxLength: number, propertyName: string) {
+    // The simple comparison is being used to compare against undefined too.
+    if (value == null) return null
+    const result = parseInt(value, 10);
+    if (isNaN(result)) return null;
+
+    const resultLength = !!result ? result.toString().length : 0;
+    if (resultLength > maxLength) throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`)
+    return result;
+}
+
+function toDecimal(value: any, maxLength: number, maxDigits: number, propertyName: string) {
+    // The simple comparison is being used to compare against undefined too.
+    if (value == null) return null
+    const result = parseInt(value, 10);
+    if (isNaN(result)) return null;
+
+    const resultLength = !!result ? result.toString().length : 0;
+    if (resultLength > maxLength) throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`)
+    const decimals = (value - result).toString().substring(1);
+    return result + decimals.substring(0, maxDigits);
+}
+
+function toText(value: string, maxLength: number, propertyName: string) {
+    const resultLength = !!value ? value.toString().length : 0;
+    if (resultLength > maxLength) throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`)
+    return value;
 }
 
 function parseNumber(s: string, propertyName: string) {
@@ -279,7 +329,7 @@ function parseNumber(s: string, propertyName: string) {
 }
 
 function escapeProductMerkmale(merkmale: string[]) {
-    if (!merkmale || merkmale.length === 0) return null;
+    if (!merkmale || merkmale.length === 0) return ';;;;';
     const combined = toCsv([keyBy(merkmale)], false);
     return toCsv([{ merkmale: combined }], false);
 }
@@ -288,4 +338,69 @@ function parsePmsGeschlossen(s: string) {
     const _s = s.trim();
     if (!_s) return 0;
     return parseNumber(_s, 'PMS_Geschlossen');
+}
+
+function parseLanguageCode(s: string) {
+    if (!s) return null;
+    if (!LanguageMap[s]) throw new Error(`Unbekannte Sprache konnte nicht interpretiert werden: "${s}"`)
+    return LanguageMap[s];
+}
+
+function validatePreiserheber(id: string, mapper: Function) {
+    const requiredFields = [
+        'Erhebungsmonat',
+        'Preissubsystem',
+        'Erhebungsorgannummer',
+        'PE_Nummer',
+        'PE_Vorname',
+        'PE_Name',
+        'PE_Sprache',
+    ];
+
+    return _validate(id, mapper, requiredFields, `Fehler beim export von dem Preiserheber "${id}"`);
+}
+
+function validatePreismeldestelle(id: string, mapper: Function) {
+    const requiredFields = [
+        'Erhebungsmonat',
+        'Preissubsystem',
+        'PMS_Nummer',
+        'PMS_Name',
+        'PMS_Sprache',
+        'PMS_Erhebungsregion',
+        'PMS_Erhebungsart',
+    ];
+
+    return _validate(id, mapper, requiredFields, `Fehler beim export von der PMS "${id}"`);
+}
+
+function validatePreismeldung(id: string, mapper: Function) {
+    const requiredFields = [
+        'Erhebungsmonat',
+        'Preissubsystem',
+        'Schemanummer',
+        'Preiserhebungsort',
+        'Erhebungspositionnummer',
+        'Laufnummer',
+        'Preis_T',
+        'Menge_T',
+        'Sortiernummer',
+        'Produktmerkmale',
+    ];
+
+    return _validate(id, mapper, requiredFields, `Fehler beim export von der PM "${id}"`);
+}
+
+function _validate(id: string, mapper: Function, requiredFields: string[], errorMessage: string) {
+    try {
+        const entity = mapper();
+
+        // Simple comparison is being used to be able to compare towards undefined too
+        const missingFields = requiredFields.filter(f => entity[f] == null || entity[f] === '')
+        if (missingFields.length > 0) throw new Error(`Folgende Werte sind nicht gesetzt:\n${missingFields.join(', ')}`);
+        return entity;
+    }
+    catch (error) {
+        throw new Error(`${errorMessage}: ${error.message}`)
+    }
 }

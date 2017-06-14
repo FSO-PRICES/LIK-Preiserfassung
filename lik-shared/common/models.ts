@@ -270,7 +270,7 @@ export interface SettingProperties {
 export type Setting = SettingProperties & CouchProperties;
 
 export interface LanguageProperties {
-    languageCode: number;
+    languageCode: string;
     name: string;
 }
 
@@ -278,6 +278,13 @@ export type Language = LanguageProperties;
 export interface LanguageDictionary {
     [name: string]: Language;
 }
+
+export const Languages: LanguageDictionary = {
+    'Deutsch': { languageCode: 'de', name: 'Deutsch' },
+    'Französisch': { languageCode: 'fr', name: 'Französisch' },
+    'Italienisch': { languageCode: 'it', name: 'Italienisch' },
+    'Englisch': { languageCode: 'en', name: 'Englisch' }
+};
 
 export interface RegionProperties {
     name: string;
@@ -300,11 +307,6 @@ export interface Preissubsystem {
     id: number;
     name: string;
 }
-
-export const Preissubsysteme: Preissubsystem[] = [
-    { id: 1, name: 'GFK' },
-    { id: 2, name: 'BFS' },
-];
 
 export interface Erhebungsart {
     erhebungsart_tablet: boolean,

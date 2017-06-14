@@ -36,6 +36,7 @@
             </ion-row>
             <ion-row>
                 <ion-col>
+                    <div *ngIf="importError$ | async" ion-text color="danger">{{importError$ | async}}</div>
                     <button ion-button type="button" (click)="recreateUserDbsClicked$.emit($event)">Preiserheber Daten bereitstellen</button>
                     <span *ngIf="(importedAll$ | async)?.error" ion-text color="danger">{{(importedAll$ | async)?.error}}</span>
                     <span *ngIf="(importedAll$ | async)?.success" ion-text color="primary">Preiserheber Datenbanken wurden erfolgreich initialisiert</span>

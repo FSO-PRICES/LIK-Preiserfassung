@@ -10,7 +10,7 @@ import * as fromRoot from '../reducers';
 import * as importer from '../actions/importer';
 import { dbNames, dropDatabase, getDatabase, putAdminUserToDatabase, dropLocalDatabase, getLocalDatabase, syncDb, getDatabaseAsObservable, getAllDocumentsFromDb } from './pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
-import { continueEffectOnlyIfTrue, resetAndContinueWith } from '../common/effects-extensions';
+import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
 import { readFileContents, parseCsv } from '../common/file-extensions';
 import { preparePms, preparePm } from '../common/presta-data-mapper';
 import { buildTree } from '../common/presta-warenkorb-mapper';
@@ -50,17 +50,15 @@ export class ImporterEffects {
     @Effect()
     importPreismeldestellen$ = this.actions$.ofType('IMPORT_PREISMELDESTELLEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .map(action => preparePms(action.payload))
-        .catch(ex => {
-            console.log(ex);
-            return Observable.of({ preismeldestellen: [], erhebungsmonat: '' });
-         })
-        .flatMap(pmsInfo => dropDatabase(dbNames.preismeldestelle).then(_ => pmsInfo).catch(_ => pmsInfo))
-        .flatMap(pmsInfo => getDatabase(dbNames.preismeldestelle).then(db => ({ pmsInfo, db })))
-        .flatMap(({ pmsInfo, db }) => db.bulkDocs(pmsInfo.preismeldestellen).then(_ => ({ pmsInfo, db })))
-        .flatMap(({ pmsInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmsInfo.erhebungsmonat }).then(() => pmsInfo.preismeldestellen))
-        .flatMap(preismeldestellen => this.updateImportMetadata(importer.Type.preismeldestellen).map(() => preismeldestellen))
-        .map(preismeldestellen => ({ type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: preismeldestellen } as importer.Action));
+        .flatMap(action => doAsyncAsObservable(() => preparePms(action.payload))
+            .flatMap(pmsInfo => dropDatabase(dbNames.preismeldestelle).then(_ => pmsInfo).catch(_ => pmsInfo))
+            .flatMap(pmsInfo => getDatabase(dbNames.preismeldestelle).then(db => ({ pmsInfo, db })))
+            .flatMap(({ pmsInfo, db }) => db.bulkDocs(pmsInfo.preismeldestellen).then(_ => ({ pmsInfo, db })))
+            .flatMap(({ pmsInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmsInfo.erhebungsmonat }).then(() => pmsInfo.preismeldestellen))
+            .flatMap(preismeldestellen => this.updateImportMetadata(importer.Type.preismeldestellen).map(() => preismeldestellen))
+            .map(preismeldestellen => ({ type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: preismeldestellen } as importer.Action))
+            .catch(error => Observable.of({ type: 'IMPORT_PREISMELDESTELLEN_FAILURE', payload: error.message }))
+        );
 
     @Effect()
     importPreismeldungen$ = this.actions$.ofType('IMPORT_PREISMELDUNGEN')
