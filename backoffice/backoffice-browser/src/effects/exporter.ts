@@ -29,6 +29,7 @@ export class ExporterEffects {
     exportPreismeldungen$ = this.actions$.ofType('EXPORT_PREISMELDUNGEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => loadAllPreismeldungen())
+        .map(preismeldungen => preismeldungen.filter(pm => pm.istAbgebucht))
         .flatMap(preismeldungen => // retrieve the assigned erhebungsmonat
             getDatabaseAsObservable(dbNames.preismeldung)
                 .flatMap(db => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({ preismeldungen, erhebungsmonat })))
