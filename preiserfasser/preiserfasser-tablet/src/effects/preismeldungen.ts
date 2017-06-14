@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';
-import { format } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 import { assign, cloneDeep } from 'lodash';
 
 import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
@@ -110,7 +110,8 @@ export class PreismeldungenEffects {
 
     savePreismeldungPrice$ = this.actions$
         .ofType('SAVE_PREISMELDUNG_PRICE')
-        .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => ({ currentPreismeldung, payload: action.payload }));
+        .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => ({ currentPreismeldung, payload: action.payload }))
+        .map(({ currentPreismeldung, payload }) => ({ currentPreismeldung: assign({}, currentPreismeldung, { preismeldung: assign({}, currentPreismeldung.preismeldung, this.createVorReduktionProperties(currentPreismeldung)) }), payload }));
 
     @Effect()
     savePreismeldung$ = this.savePreismeldungPrice$
@@ -262,6 +263,7 @@ export class PreismeldungenEffects {
         istAbgebucht: true,
         menge: bag.preismeldung.menge,
         mengeVPK: bag.preismeldung.mengeVPK,
+        mengeVorReduktion: bag.preismeldung.mengeVorReduktion,
         modifiedAt: format(new Date()),
         d_DPToVP: bag.preismeldung.d_DPToVP,
         d_DPToVPVorReduktion: bag.preismeldung.d_DPToVPVorReduktion,
@@ -272,7 +274,9 @@ export class PreismeldungenEffects {
         d_DPVorReduktionToVP: bag.preismeldung.d_DPVorReduktionToVP,
         preis: bag.preismeldung.preis,
         preisVPK: bag.preismeldung.preisVPK,
-        fehlendePreiseR: bag.preismeldung.fehlendePreiseR
+        preisVorReduktion: bag.preismeldung.preisVorReduktion,
+        fehlendePreiseR: bag.preismeldung.fehlendePreiseR,
+        datumVorReduktion: bag.preismeldung.datumVorReduktion
     })
 
     messagesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
@@ -289,5 +293,45 @@ export class PreismeldungenEffects {
 
     createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
         return { percentage: null, warning: false, textzeil: null };
+    }
+
+    createVorReduktionProperties(bag: P.PreismeldungBag): { preisVorReduktion: string; mengeVorReduktion: string; datumVorReduktion: string } {
+        let preisVorReduktion, mengeVorReduktion, datumVorReduktion;
+        const today = format(new Date(), 'DD.MM.YYYY');
+        const firstDayOfMonth = format(startOfMonth(new Date()), 'DD.MM.YYYY');
+
+        if (!bag.preismeldung.aktion) {
+            preisVorReduktion = bag.preismeldung.preis;
+            mengeVorReduktion = bag.preismeldung.menge;
+            datumVorReduktion = today;
+        } else {
+            switch (bag.preismeldung.bearbeitungscode) {
+                case 99: {
+                    preisVorReduktion = `${bag.refPreismeldung.preisVorReduktion}`
+                    mengeVorReduktion = `${bag.refPreismeldung.mengeVorReduktion}`;
+                    datumVorReduktion = `${bag.refPreismeldung.datumVorReduktion}`;
+                    break;
+                }
+                case 2:
+                case 7: {
+                    preisVorReduktion = bag.preismeldung.preisVPK;
+                    mengeVorReduktion = bag.preismeldung.mengeVPK;
+                    datumVorReduktion = firstDayOfMonth;
+                    break;
+                }
+                case 1: {
+                    preisVorReduktion = bag.preismeldung.preisVorReduktion;
+                    mengeVorReduktion = bag.preismeldung.mengeVorReduktion;
+                    datumVorReduktion = today;
+                    break;
+                }
+            }
+        }
+
+        return {
+            preisVorReduktion,
+            mengeVorReduktion,
+            datumVorReduktion
+        };
     }
 }
