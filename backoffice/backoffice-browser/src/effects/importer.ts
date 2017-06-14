@@ -44,7 +44,7 @@ export class ImporterEffects {
         .flatMap(payload => dropDatabase('warenkorb').then(_ => payload))
         .flatMap(payload => getDatabase('warenkorb').then(db => db.put({ _id: 'warenkorb', products: payload })
             .then<P.WarenkorbDocument>(_ => db.get('warenkorb'))))
-        .flatMap(warenkorb => this.updateImportMetadata(importer.Type.warenkorb).map(() => warenkorb))
+        .flatMap(warenkorb => this.updateImportMetadata(dbNames.warenkorb, importer.Type.warenkorb).map(() => warenkorb))
         .map(warenkorb => ({ type: 'IMPORT_WARENKORB_SUCCESS', payload: warenkorb } as importer.Action));
 
     @Effect()
@@ -55,7 +55,7 @@ export class ImporterEffects {
             .flatMap(pmsInfo => getDatabase(dbNames.preismeldestelle).then(db => ({ pmsInfo, db })))
             .flatMap(({ pmsInfo, db }) => db.bulkDocs(pmsInfo.preismeldestellen).then(_ => ({ pmsInfo, db })))
             .flatMap(({ pmsInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmsInfo.erhebungsmonat }).then(() => pmsInfo.preismeldestellen))
-            .flatMap(preismeldestellen => this.updateImportMetadata(importer.Type.preismeldestellen).map(() => preismeldestellen))
+            .flatMap(preismeldestellen => this.updateImportMetadata(dbNames.preismeldestelle, importer.Type.preismeldestellen).map(() => preismeldestellen))
             .map(preismeldestellen => ({ type: 'IMPORT_PREISMELDESTELLEN_SUCCESS', payload: preismeldestellen } as importer.Action))
             .catch(error => Observable.of({ type: 'IMPORT_PREISMELDESTELLEN_FAILURE', payload: error.message }))
         );
@@ -72,7 +72,7 @@ export class ImporterEffects {
                 .map(() => ({ pmInfo, db }))
         )
         .flatMap(({ pmInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmInfo.erhebungsmonat }).then(() => pmInfo.preismeldungen))
-        .flatMap(preismeldungen => this.updateImportMetadata(importer.Type.preismeldungen).map(() => preismeldungen))
+        .flatMap(preismeldungen => this.updateImportMetadata(dbNames.preismeldung, importer.Type.preismeldungen).map(() => preismeldungen))
         .flatMap(preismeldungen => syncDb('preismeldungen').then(() => preismeldungen))
         .map(preismeldungen => ({ type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: preismeldungen } as importer.Action));
 
@@ -97,10 +97,10 @@ export class ImporterEffects {
             )
         )
 
-    private updateImportMetadata(importerType: string) {
+    private updateImportMetadata(dbName: string, importerType: string) {
         return this.loggedInUser$
             .take(1)
-            .flatMap(user => putAdminUserToDatabase(dbNames.preismeldestelle, user.username))
+            .flatMap(user => putAdminUserToDatabase(dbName, user.username))
             .flatMap(() => getDatabase(dbNames.import).then(db => db.get(importerType)
                 .then(doc => doc._rev).catch(() => undefined)
                 .then(_rev => db.put({ latestImportAt: new Date().valueOf(), _id: importerType, _rev })))
