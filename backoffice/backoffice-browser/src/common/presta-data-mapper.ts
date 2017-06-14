@@ -312,8 +312,7 @@ function toDecimal(value: any, maxLength: number, maxDigits: number, propertyNam
 
     const resultLength = !!result ? result.toString().length : 0;
     if (resultLength > maxLength) throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`)
-    const decimals = (value - result).toString().substring(1);
-    return result + decimals.substring(0, maxDigits);
+    return parseFloat(value).toFixed(maxDigits);
 }
 
 function toText(value: string, maxLength: number, propertyName: string) {
