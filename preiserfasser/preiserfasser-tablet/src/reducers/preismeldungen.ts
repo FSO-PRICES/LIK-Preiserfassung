@@ -349,6 +349,7 @@ const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: stri
 function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatuses: PriceCountStatusMap) {
     const messages = parsePreismeldungMessages(entity.preismeldung);
     const attributes = cloneDeep(entity.preismeldung.productMerkmale);
+    const warningAndTextzeile = calcWarningAndTextzeile(entity);
     return assign({}, cloneDeep(entity), {
         priceCountStatus: priceCountStatuses[entity.preismeldung.epNummer],
         isModified: false,
@@ -359,10 +360,10 @@ function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatu
         messages,
         attributes,
         hasMessageToCheck: calcHasMessageToCheck(messages),
-        hasPriceWarning: calcHasPriceWarning(entity),
+        hasPriceWarning: warningAndTextzeile.hasPriceWarning,
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
         resetEvent: null,
-        textzeile: []
+        textzeile: warningAndTextzeile.textzeile
     });
 }
 
@@ -548,27 +549,12 @@ const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenk
     return !!productMerkmaleFromWarenkorb ? !productMerkmaleFromWarenkorb.every((x, i) => !!attributes[i]) : false;
 };
 
-function calcHasPriceWarning(bag: PreismeldungBag): boolean {
-    let negativeLimite, positiveLimite;
-    if (!bag.refPreismeldung || ![1, 7, 99].some(x => x === bag.preismeldung.bearbeitungscode)) {
-        return false;
-    }
-    switch (bag.preismeldung.bearbeitungscode) {
-        case 1: {
-            negativeLimite = bag.warenkorbPosition.negativeLimite_1;
-            positiveLimite = bag.warenkorbPosition.positiveLimite_1;
-        }
-        case 7: {
-            negativeLimite = bag.warenkorbPosition.negativeLimite_7;
-            positiveLimite = bag.warenkorbPosition.positiveLimite_7;
-        }
-        case 99: {
-            negativeLimite = bag.warenkorbPosition.negativeLimite;
-            positiveLimite = bag.warenkorbPosition.positiveLimite;
-        }
-    }
-    return ((!bag.preismeldung.aktion || (bag.refPreismeldung.aktion && bag.preismeldung.aktion)) && bag.preismeldung.d_DPToVP.percentage < -negativeLimite)
-        || ((!bag.refPreismeldung.aktion || (bag.preismeldung.aktion && bag.refPreismeldung.aktion)) && bag.preismeldung.d_DPToVP.percentage > positiveLimite);
+function calcWarningAndTextzeile(bag: PreismeldungBag) {
+    const { d_DPToVP, d_DPToVPVorReduktion, d_DPToVPK, d_VPKToVPAlterArtikel, d_VPKToVPVorReduktion, d_DPVorReduktionToVPVorReduktion, d_DPVorReduktionToVP } = bag.preismeldung;
+    const warningPercentages = [d_DPToVP, d_DPToVPVorReduktion, d_DPToVPK, d_VPKToVPAlterArtikel, d_VPKToVPVorReduktion, d_DPVorReduktionToVPVorReduktion, d_DPVorReduktionToVP];
+    const hasPriceWarning = warningPercentages.some(x => x.warning);
+    const textzeile = uniq(warningPercentages.filter(x => !!x.textzeil).map(x => x.textzeil));
+    return { hasPriceWarning, textzeile };
 }
 
 export const getEntities = (state: State) => state.entities;

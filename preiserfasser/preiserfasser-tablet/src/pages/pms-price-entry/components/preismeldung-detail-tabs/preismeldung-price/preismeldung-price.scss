@@ -339,6 +339,7 @@ preismeldung-price {
         justify-content: flex-end;
         @include set-padding-top(2);
         .textzeil {
+            color: orange;
             line-height: 3.6rem;
             padding-right: 2em;
         }
