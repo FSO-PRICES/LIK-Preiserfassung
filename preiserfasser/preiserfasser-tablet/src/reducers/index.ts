@@ -6,6 +6,7 @@ import { storeLogger } from 'ngrx-store-logger';
 
 import { environment } from '../environments/environment';
 import * as fromPreismeldestellen from './preismeldestellen';
+import * as fromPreiserheber from './preiserheber';
 import * as fromAppConfig from './app-config';
 import * as fromPreismeldungen from './preismeldungen';
 import * as fromTime from './time';
@@ -19,6 +20,7 @@ export interface AppState {
     appConfig: fromAppConfig.State;
     database: fromDatabase.State;
     languages: fromLanguages.State;
+    preiserheber: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestellen.State;
     preismeldungen: fromPreismeldungen.State;
     time: fromTime.State;
@@ -31,6 +33,7 @@ const reducers = {
     appConfig: fromAppConfig.reducer,
     database: fromDatabase.reducer,
     languages: fromLanguages.reducer,
+    preiserheber: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestellen.reducer,
     preismeldungen: fromPreismeldungen.reducer,
     time: fromTime.reducer,
@@ -77,6 +80,10 @@ export const getWarenkorb = (state: AppState) => state.warenkorb;
 export const getSettingsState = (state: AppState) => state.settings;
 export const getSettings = createSelector(getSettingsState, fromSettings.getSettings);
 export const getCurrentSettings = createSelector(getSettingsState, fromSettings.getCurrentSettings);
+
+export const getPreiserheberState = (state: AppState) => state.preiserheber;
+export const getPreiserheber = createSelector(getPreiserheberState, fromPreiserheber.getPreiserheber);
+export const getCurrentPreiserheber = createSelector(getPreiserheberState , fromPreiserheber.getCurrentPreiserheber);
 
 export const getStatisticsState = (state: AppState) => state.statistics;
 export const getPreismeldungenStatistics = createSelector(getStatisticsState, fromStatistics.getPreismeldungenStatistics);
