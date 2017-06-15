@@ -185,6 +185,9 @@ dashboard {
             width: 30px;
             @include set-margin-right(1);
         }
+        pef-floating-icon {
+            right: -0.75em;
+        }
     }
 
     .pms-table {

@@ -160,6 +160,10 @@ export class PmsPriceEntryPage implements OnDestroy {
                 .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }))
         );
 
+        this.subscriptions.push(
+            this.resetPreismeldung$.subscribe(() => this.store.dispatch({ type: 'RESET_PREISMELDUNG' }))
+        );
+
         const cancelEditReponse$ = requestSelectPreismeldung$
             .filter(x => x.isCurrentModified)
             .flatMap(x => cancelEditDialog$.map(y => ({ selectedPreismeldung: x.selectedPreismeldung, dialogCode: y })))

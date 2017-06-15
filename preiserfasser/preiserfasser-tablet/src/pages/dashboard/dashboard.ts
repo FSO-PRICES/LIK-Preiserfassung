@@ -17,6 +17,11 @@ import { Action as StatisticsAction } from '../../actions/statistics';
 import { Actions as DatabaseAction } from '../../actions/database';
 import { PreismeldestelleStatistics } from '../../reducers/statistics';
 
+type DashboardPms = P.Preismeldestelle & {
+    keinErhebungsart: boolean;
+    isPdf: boolean;
+};
+
 @IonicPage()
 @Component({
     selector: 'dashboard',
@@ -25,14 +30,14 @@ import { PreismeldestelleStatistics } from '../../reducers/statistics';
 })
 export class DashboardPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
-    private preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
+    private preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen).map(preismeldestellen => preismeldestellen.map(this.toDashboardPms));
     public currentTime$ = this.store.select(fromRoot.getCurrentTime)
         .map(x => (format as any)(x, 'dddd, DD.MM.YYYY HH:mm', { locale: deLocale }));
 
     public filterTextValueChanges = new EventEmitter<string>();
     public uploadPreismeldungenClicked$ = new EventEmitter();
 
-    public filteredPreismeldestellen$ = this.preismeldestellen$
+    public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$
         .combineLatest(this.filterTextValueChanges.startWith(''), (preismeldestellen, filterText) =>
             pefSearch(filterText, preismeldestellen, [pms => pms.name])
         );
@@ -149,9 +154,12 @@ export class DashboardPage implements OnDestroy {
             .forEach(s => s.unsubscribe());
     }
 
-    isPdf(erhebungsart: string) {
-        const _erhebungsart = parseErhebungsartForForm(erhebungsart);
-        return _erhebungsart.erhebungsart_papierlisteVorOrt || _erhebungsart.erhebungsart_papierlisteAbgegeben;
+    toDashboardPms(pms: P.Preismeldestelle) {
+        const _erhebungsart = parseErhebungsartForForm(pms.erhebungsart);
+        return assign({}, pms, {
+            keinErhebungsart: !pms.erhebungsart || (!!pms.erhebungsart && pms.erhebungsart === '000000'),
+            isPdf: _erhebungsart.erhebungsart_papierlisteVorOrt || _erhebungsart.erhebungsart_papierlisteAbgegeben
+        });
     }
 
     public isPreismeldestelleCompleted = (preismeldestelleStatistics: PreismeldestelleStatistics) => preismeldestelleStatistics.uploadedCount >= preismeldestelleStatistics.totalCount;

@@ -33,40 +33,11 @@ export class PreismeldungenEffects {
             // new Preismeldungen start arriving!
             const missingPreismeldungs = x.refPreismeldungen
                 .filter(rpm => !x.preismeldungen.find(pm => pm._id === rpm.pmId))
-                .map<P.Models.Preismeldung>(rpm => ({
-                    _id: preismeldungUri({ pmsNummer: rpm.pmsNummer, epNummer: rpm.epNummer, laufnummer: rpm.laufnummer }),
-                    _rev: undefined,
-                    pmsNummer: rpm.pmsNummer,
-                    epNummer: rpm.epNummer,
-                    laufnummer: rpm.laufnummer,
-                    preis: '',
-                    menge: '',
-                    preisVPK: '',
-                    mengeVPK: '',
-                    fehlendePreiseR: '',
-                    preisVorReduktion: '',
-                    mengeVorReduktion: '',
-                    datumVorReduktion: '',
-                    aktion: false,
-                    artikelnummer: rpm.artikelnummer,
-                    artikeltext: rpm.artikeltext,
-                    bemerkungen: rpm.bemerkungen,
-                    notiz: rpm.notiz,
-                    kommentar: '\\n',
-                    productMerkmale: rpm.productMerkmale,
-                    modifiedAt: format(new Date()),
-                    bearbeitungscode: 99,
-                    uploadRequestedAt: null,
-                    istAbgebucht: false,
-                    d_DPToVP: this.createInitialPercentageWithWarning(),
-                    d_DPToVPVorReduktion: this.createInitialPercentageWithWarning(),
-                    d_DPToVPK: this.createInitialPercentageWithWarning(),
-                    d_VPKToVPAlterArtikel: this.createInitialPercentageWithWarning(),
-                    d_VPKToVPVorReduktion: this.createInitialPercentageWithWarning(),
-                    d_DPVorReduktionToVPVorReduktion: this.createInitialPercentageWithWarning(),
-                    d_DPVorReduktionToVP: this.createInitialPercentageWithWarning(),
-                    internetLink: rpm.internetLink
-                }));
+                .map(rpm =>
+                    assign({}, {
+                        _id: preismeldungUri({ pmsNummer: rpm.pmsNummer, epNummer: rpm.epNummer, laufnummer: rpm.laufnummer }),
+                        _rev: undefined,
+                    }, this.copyPreismeldungPropertiesFromRefPreismeldung(rpm)));
 
             const pmsPreismeldungenSort = x.pmsPreismeldungenSort || { _id: `pms-sort/${x.pmsNummer}`, _rev: null };
 
@@ -182,28 +153,7 @@ export class PreismeldungenEffects {
         .ofType('RESET_PREISMELDUNG')
         .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
         .filter(x => !!x.refPreismeldung)
-        .flatMap(currentPreismeldung =>
-            this.savePreismeldung(currentPreismeldung, [
-                bag => ({
-                    preis: '',
-                    menge: '',
-                    preisVPNormalNeuerArtikel: '',
-                    mengeVPNormalNeuerArtikel: '',
-                    bearbeitungscode: 99,
-                    aktion: false,
-                    artikelnummer: bag.refPreismeldung.artikelnummer,
-                    artikeltext: bag.refPreismeldung.artikeltext,
-                    bemerkungen: bag.refPreismeldung.bemerkungen,
-                    notiz: bag.refPreismeldung.notiz,
-                    kommentar: '\\n',
-                    productMerkmale: bag.refPreismeldung.productMerkmale,
-                    internetLink: bag.refPreismeldung.internetLink,
-                    percentageDPToVP: null,
-                    percentageDPToVPNeuerArtikel: null,
-                    percentageVPNeuerArtikelToVPAlterArtikel: null,
-                })
-            ])
-        )
+        .flatMap(currentPreismeldung => this.savePreismeldung(currentPreismeldung, [bag => this.copyPreismeldungPropertiesFromRefPreismeldung(bag.refPreismeldung)]))
         .map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload }));
 
     @Effect()
@@ -332,6 +282,41 @@ export class PreismeldungenEffects {
             preisVorReduktion,
             mengeVorReduktion,
             datumVorReduktion
+        };
+    }
+
+    copyPreismeldungPropertiesFromRefPreismeldung(rpm: P.Models.PreismeldungReference) {
+        return {
+            pmsNummer: rpm.pmsNummer,
+            epNummer: rpm.epNummer,
+            laufnummer: rpm.laufnummer,
+            preis: '',
+            menge: '',
+            preisVPK: '',
+            mengeVPK: '',
+            fehlendePreiseR: '',
+            preisVorReduktion: '',
+            mengeVorReduktion: '',
+            datumVorReduktion: '',
+            aktion: false,
+            artikelnummer: rpm.artikelnummer,
+            artikeltext: rpm.artikeltext,
+            bemerkungen: rpm.bemerkungen,
+            notiz: rpm.notiz,
+            kommentar: '\\n',
+            productMerkmale: rpm.productMerkmale,
+            modifiedAt: format(new Date()),
+            bearbeitungscode: 99,
+            uploadRequestedAt: null,
+            istAbgebucht: false,
+            d_DPToVP: this.createInitialPercentageWithWarning(),
+            d_DPToVPVorReduktion: this.createInitialPercentageWithWarning(),
+            d_DPToVPK: this.createInitialPercentageWithWarning(),
+            d_VPKToVPAlterArtikel: this.createInitialPercentageWithWarning(),
+            d_VPKToVPVorReduktion: this.createInitialPercentageWithWarning(),
+            d_DPVorReduktionToVPVorReduktion: this.createInitialPercentageWithWarning(),
+            d_DPVorReduktionToVP: this.createInitialPercentageWithWarning(),
+            internetLink: rpm.internetLink
         };
     }
 }
