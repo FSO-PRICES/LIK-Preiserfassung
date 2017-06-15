@@ -88,8 +88,10 @@ export class SettingsPage implements OnDestroy {
             .filter(exists => exists !== null)
             .publishReplay(1).refCount();
 
-        this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
-            .merge(distinctSetting$.mapTo(false));
+        this.showValidationHints$ = canSave$
+            .distinctUntilChanged()
+            .mapTo(true)
+            .startWith(false);
 
         this.databaseIsDeleted$ = this.deleteAllClicked$
             .combineLatest(databaseExists$.filter(exists => !exists).take(1), (_, databaseExists) => databaseExists)
