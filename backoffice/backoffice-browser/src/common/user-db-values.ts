@@ -53,7 +53,7 @@ export function updatePreiserheber(preiserheber: P.Erheber) {
         .flatMap(userDbNames => {
             const userDbName = userDbNames.find(dbName => dbName === getUserDatabaseName(preiserheber.username));
             if (userDbName) {
-                return getDatabaseAsObservable(userDbName).map(db => ({ db, updatedPreiserheber: assign({}, preiserheber, { _id: 'preiserheber' }) }))
+                return getDatabaseAsObservable(userDbName).map(db => ({ db, updatedPreiserheber: assign({}, preiserheber, { _id: 'preiserheber', _rev: undefined }) }))
             }
             return getDatabaseAsObservable(dbNames.preiserheber).map(db => ({ db, updatedPreiserheber: preiserheber }))
         })
