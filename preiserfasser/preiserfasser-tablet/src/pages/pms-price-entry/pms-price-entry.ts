@@ -30,7 +30,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     warenkorb$ = this.store.select(fromRoot.getWarenkorb);
     currentPriceCountStatus$ = this.currentPreismeldung$.combineLatest(this.priceCountStatuses$, (currentPreismeldung, priceCountStatuses) => !currentPreismeldung ? null : priceCountStatuses[currentPreismeldung.preismeldung.epNummer]);
 
-    selectPreismeldung$ = new EventEmitter<P.Models.Preismeldung>();
+    selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     save$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
