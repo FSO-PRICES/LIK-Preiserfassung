@@ -21,8 +21,11 @@ export class Backoffice implements OnInit {
     public rootPage = PreiserheberPage;
 
     constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>) {
-        const loginDialog$ = store.select(fromRoot.getIsLoggedIn)
-            .filter(isLoggedIn => isLoggedIn != null && !isLoggedIn) // Only check if logged in if a result is given
+        // Skip 1 is used to skip the first initial value and to wait for the new value after the dispatch
+        const settings$ = store.select(fromRoot.getSettings).skip(1).publishReplay(1).refCount();
+        const loginDialog$ = store.select(fromRoot.getIsLoggedIn).skip(1)
+            .withLatestFrom(settings$, (isLoggedIn, settings) => ({ isLoggedIn, settings }))
+            .filter(({ isLoggedIn, settings }) => !!settings && !settings.isDefault && isLoggedIn != null && !isLoggedIn)
             .flatMap(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data))
             .publishReplay(1).refCount();
 
@@ -33,7 +36,7 @@ export class Backoffice implements OnInit {
             Splashscreen.hide();
         });
 
-        this.store.select(fromRoot.getSettings)
+        settings$
             .filter(setting => !!setting && setting.isDefault)
             .distinctUntilChanged()
             .take(1)

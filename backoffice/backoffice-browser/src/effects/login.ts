@@ -23,18 +23,22 @@ export class LoginEffects {
     checkIsLoggedIn$ = this.actions$.ofType('CHECK_IS_LOGGED_IN')
         .flatMap(() => Observable
             .of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action)
-            .merge(this.settings$.filter(settings => !!settings && !settings.isDefault).take(1)
-                .flatMap(settings =>
-                    checkServerConnection().flatMap(() =>
-                        getDatabase(dbNames.users)
-                            .then(db => db.allDocs())
-                            .then(resp => true)
-                    )
-                    .catch(() => {
-                        resetCurrentLoggedInUser();
-                        return Observable.of(false);
-                    })
-                )
+            .merge(this.settings$.filter(settings => !!settings).take(1)
+                .flatMap(settings => {
+                    if (!!settings && !settings.isDefault) {
+                        return checkServerConnection()
+                            .flatMap(() =>
+                                getDatabase(dbNames.users)
+                                    .then(db => db.allDocs())
+                                    .then(resp => true)
+                            )
+                            .catch(() => {
+                                resetCurrentLoggedInUser();
+                                return Observable.of(false);
+                            })
+                    }
+                    return Observable.of(false);
+                })
                 .map(isLoggedIn => (!isLoggedIn ?
                     { type: 'SET_IS_LOGGED_OUT' } as login.Action :
                     { type: 'SET_IS_LOGGED_IN', payload: getCurrentLoggedInUser() } as login.Action)

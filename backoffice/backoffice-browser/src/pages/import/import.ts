@@ -45,12 +45,15 @@ export class ImportPage implements OnDestroy {
             .publishReplay(1).refCount();
 
         const warenkorbImported$ = store.select(fromRoot.getImportedWarenkorb)
+            .skip(1)
             .filter(x => !!x)
             .publishReplay(1).refCount();
         const preismeldestellenImported$ = store.select(fromRoot.getImportedPreismeldestellen)
+            .skip(1)
             .filter(x => !!x)
             .publishReplay(1).refCount();
         const preismeldungenImported$ = store.select(fromRoot.getImportedPreismeldungen)
+            .skip(1)
             .filter(x => !!x)
             .publishReplay(1).refCount();
 

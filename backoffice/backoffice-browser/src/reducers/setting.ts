@@ -58,7 +58,7 @@ export function reducer(state = initialState, action: setting.Action): State {
         }
 
         case 'SAVE_SETTING_SUCCESS': {
-            const settings = Object.assign({}, state.settings, action.payload);
+            const settings = Object.assign({}, state.settings, action.payload, { isDefault: false });
             return assign({}, state, { settings, currentSettings: settings });
         }
 

@@ -11,6 +11,8 @@ import { CurrentSetting } from '../../reducers/setting';
     templateUrl: 'settings.html'
 })
 export class SettingsPage implements OnDestroy {
+    public currentSettings$ = this.store.select(fromRoot.getCurrentSettings);
+
     public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
 
@@ -21,8 +23,6 @@ export class SettingsPage implements OnDestroy {
     private loader: Loading;
 
     constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private formBuilder: FormBuilder) {
-        const currentSettings$ = store.select(fromRoot.getCurrentSettings);
-
         this.form = formBuilder.group({
             _id: [null],
             serverConnection: formBuilder.group({
@@ -36,7 +36,7 @@ export class SettingsPage implements OnDestroy {
         const update$ = this.form.valueChanges
             .map(() => this.form.value);
 
-        const distinctSetting$ = currentSettings$
+        const distinctSetting$ = this.currentSettings$
             .filter(x => !!x)
             .distinctUntilKeyChanged('isModified')
             .publishReplay(1).refCount();
@@ -62,7 +62,7 @@ export class SettingsPage implements OnDestroy {
                 store.dispatch({ type: 'SAVE_SETTING' });
             }),
 
-            currentSettings$
+            this.currentSettings$
                 .filter(pe => pe != null && pe.isSaved)
                 .subscribe(() => this.dismissLoadingScreen()),
 
@@ -81,6 +81,13 @@ export class SettingsPage implements OnDestroy {
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'SETTING_LOAD' });
+    }
+
+    public ionViewCanLeave(): Promise<boolean> {
+        return this.currentSettings$
+            .map(settings => !!settings && !settings.isDefault)
+            .take(1)
+            .toPromise();
     }
 
     public ngOnDestroy() {
