@@ -1,1 +1,5 @@
 @import "../../../../lik-shared/styles/app.scss";
+
+form.form-show-validation-hints ion-item.pef-item.ng-invalid .input-wrapper ion-label {
+    color: $outer-space !important;
+}
