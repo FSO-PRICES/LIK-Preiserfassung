@@ -1,0 +1,81 @@
+<div class="wrapper">
+    <div class="header">
+        <h3>{{'heading_preiserheber' | translate}}</h3>
+    </div>
+    <ion-content no-scroll>
+        <div class="preiserheber-content">
+            <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+                <div class="row">
+                    <div class="column">
+                        <ion-list>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Vorname</ion-label>
+                                <ion-input type="text" formControlName="firstName"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Nachname</ion-label>
+                                <ion-input type="text" formControlName="surname"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Funktion</ion-label>
+                                <ion-input type="text" formControlName="personFunction"></ion-input>
+                            </ion-item>
+                            <div class="pef-item item item-block item-md item-label-stacked item-input on-dark">
+                                <div class="item-inner">
+                                    <div class="input-wrapper">
+                                        <ion-label stacked [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
+                                        <div class="input input-md pef-select">
+                                            <select formControlName="languageCode">
+                                                <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Festnetznummer</ion-label>
+                                <ion-input type="text" formControlName="telephone"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Mobilnummer</ion-label>
+                                <ion-input type="text" formControlName="mobilephone"></ion-input>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                    <div class="column">
+                        <ion-list>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Email</ion-label>
+                                <ion-input type="text" formControlName="email"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Fax</ion-label>
+                                <ion-input type="text" formControlName="fax"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Webseite</ion-label>
+                                <ion-input type="text" formControlName="webseite"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Strasse</ion-label>
+                                <ion-input type="text" formControlName="street"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>Ort</ion-label>
+                                <ion-input type="text" formControlName="town"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>PLZ</ion-label>
+                                <ion-input type="text" formControlName="postcode"></ion-input>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(allowToSave$ | async)">{{'btn_save' | translate}}</button>
+                    <button type="button" ion-button (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">{{'btn_cancel' | translate}}</button>
+                </div>
+            </form>
+        </div>
+    </ion-content>
+</div>

@@ -50,6 +50,7 @@ export class DashboardPage implements OnDestroy {
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
     public navigateToPriceEntry$ = new EventEmitter<P.Preismeldestelle>();
+    public navigateToPreiserheber$ = new EventEmitter();
     public navigateToSettings$ = new EventEmitter();
     public navigateToDetails$ = new EventEmitter<P.Preismeldestelle>();
     public openPrint$ = new EventEmitter<P.Preismeldestelle>();
@@ -125,6 +126,10 @@ export class DashboardPage implements OnDestroy {
             this.navigateToPriceEntry$
                 .delay(100)
                 .subscribe(pms => this.navCtrl.setRoot('PmsPriceEntryPage', { pmsNummer: pms.pmsNummer })),
+
+            this.navigateToPreiserheber$
+                .delay(100)
+                .subscribe(() => this.navCtrl.setRoot('PreiserheberPage')),
 
             this.navigateToSettings$
                 .delay(100)

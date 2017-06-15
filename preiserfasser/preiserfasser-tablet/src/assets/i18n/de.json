@@ -80,6 +80,7 @@
 
     "text_synchronizing-data": "Datensynchronisierung. Bitte warten...",
     "text_saving-settings": "Einstellungen werden gespeichert. Bitte warten...",
+    "text_saving-preiserheber": "Preiserheber wird gespeichert. Bitte warte...",
     "text_database-successfully-deleted": "Lokale Daten wurden erfolgreich gelöscht.",
     "text_erhebungsmonat": "Erhebungsmonat",
 
@@ -98,6 +99,8 @@
 
     "text_textzeil_limitverletzung": "Limitverletzung: Preisentwicklung.",
     "text_textzeil_nicht_vergleichbar": "Neuer und alter Artikel nicht vergelichbar!",
+
+    "heading_preiserheber": "Preiserheber",
 
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",

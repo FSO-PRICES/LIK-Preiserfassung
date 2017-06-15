@@ -1,6 +1,7 @@
 import { EffectsModule } from '@ngrx/effects';
 
 import { DatabaseEffects } from './database';
+import { PreiserheberEffects } from './preiserheber';
 import { PreismeldestelleEffects } from './preismeldestelle';
 import { PreismeldungenEffects } from './preismeldungen';
 import { TimeEffects } from './time';
@@ -10,6 +11,7 @@ import { StatisticsEffects } from './statistics';
 
 export const PEF_EFFECTS = [
     EffectsModule.run(DatabaseEffects),
+    EffectsModule.run(PreiserheberEffects),
     EffectsModule.run(PreismeldestelleEffects),
     EffectsModule.run(PreismeldungenEffects),
     EffectsModule.run(TimeEffects),
