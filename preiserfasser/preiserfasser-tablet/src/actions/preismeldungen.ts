@@ -20,9 +20,31 @@ export interface PreismeldungMessagesPayload {
     bemerkungen: string;
 }
 
-export type SavePreismeldungPriceSaveActionType = 'CANCEL' | 'JUST_SAVE' | 'SAVE_AND_MOVE_TO_NEXT' | 'SAVE_AND_DUPLICATE_PREISMELDUNG' | 'SAVE_AND_NAVIGATE_TO_DASHBOARD' | 'RESET' | 'NO_SAVE_NAVIGATE';
-export type SavePreismeldungPriceSaveActionWithDataType = 'COMMENT' | 'AKTION' | null;
-export type SavePreismeldungPriceSaveAction = { type: SavePreismeldungPriceSaveActionType; data: string; saveWithData: SavePreismeldungPriceSaveActionWithDataType };
+export type SavePreismeldungPriceSaveActionCommentsType = { type: 'COMMENT', comments: string[] };
+export type SavePreismeldungPriceSaveActionAktionType = { type: 'AKTION', value: boolean };
+export type SavePreismeldungPriceSaveActionWithDataType = SavePreismeldungPriceSaveActionCommentsType | SavePreismeldungPriceSaveActionAktionType;
+export type SavePreismeldungPriceSaveActionCancel = { type: 'CANCEL' };
+export type SavePreismeldungPriceSaveActionJustSave = { type: 'JUST_SAVE', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
+export type SavePreismeldungPriceSaveActionSaveMoveNext = { type: 'SAVE_AND_MOVE_TO_NEXT', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
+export type SavePreismeldungPriceSaveActionSaveDuplicate = { type: 'SAVE_AND_DUPLICATE_PREISMELDUNG', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
+export type SavePreismeldungPriceSaveActionSaveNavigateDashboard = { type: 'SAVE_AND_NAVIGATE_TO_DASHBOARD', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
+export type SavePreismeldungPriceSaveActionReset = { type: 'RESET' };
+export type SavePreismeldungPriceSaveActionNoSaveNavigate = { type: 'NO_SAVE_NAVIGATE', tabName: string };
+
+export type SavePreismeldungPriceSaveActionSave =
+    SavePreismeldungPriceSaveActionJustSave |
+    SavePreismeldungPriceSaveActionSaveMoveNext |
+    SavePreismeldungPriceSaveActionSaveDuplicate |
+    SavePreismeldungPriceSaveActionSaveNavigateDashboard;
+
+export type SavePreismeldungPriceSaveAction =
+    SavePreismeldungPriceSaveActionSave |
+    SavePreismeldungPriceSaveActionCancel |
+    SavePreismeldungPriceSaveActionReset |
+    SavePreismeldungPriceSaveActionNoSaveNavigate;
+
+export const isSavePreismeldungPriceSaveActionSave = (x: SavePreismeldungPriceSaveAction) =>
+    x.type === 'JUST_SAVE' || x.type === 'SAVE_AND_MOVE_TO_NEXT' || x.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD' || x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG';
 
 export type Actions =
     { type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: number } |

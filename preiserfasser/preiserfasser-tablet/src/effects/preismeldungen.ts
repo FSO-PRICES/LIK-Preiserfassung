@@ -3,12 +3,13 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';
 import { format, startOfMonth } from 'date-fns';
-import { assign, cloneDeep } from 'lodash';
+import { assign, cloneDeep, flatMap } from 'lodash';
 
 import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import * as P from '../common-models';
 import { preismeldungCompareFn } from 'lik-shared';
+import { SavePreismeldungPriceSaveActionCommentsType, SavePreismeldungPriceSaveActionAktionType } from '../actions/preismeldungen';
 
 const preismeldungUri = docuri.route(P.Models.preismeldungUriRoute);
 
@@ -88,14 +89,15 @@ export class PreismeldungenEffects {
     savePreismeldung$ = this.savePreismeldungPrice$
         .filter(x => !x.currentPreismeldung.isNew)
         .flatMap(x => {
-            const saveAction = x.payload as P.SavePreismeldungPriceSaveAction;
+            const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
             let currentPreismeldung = x.currentPreismeldung;
-            if (saveAction.saveWithData === 'COMMENT') {
-                currentPreismeldung = assign({}, x.currentPreismeldung, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext: saveAction.data }) });
+            const kommentarAutotext = flatMap<string[][], string>(saveAction.saveWithData.filter(x => x.type === 'COMMENT').map((x: SavePreismeldungPriceSaveActionCommentsType) => x.comments));
+            const aktionAtions = saveAction.saveWithData.filter(x => x.type === 'AKTION') as SavePreismeldungPriceSaveActionAktionType[];
+            if (aktionAtions.length > 1) {
+                throw new Error(`More than one AKTION: ${JSON.stringify(saveAction)}`);
             }
-            if (saveAction.saveWithData === 'AKTION') {
-                currentPreismeldung = assign({}, x.currentPreismeldung, { preismeldung: assign({}, x.currentPreismeldung.preismeldung, { aktion: saveAction.data }) }, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext: '' }) });
-            }
+            const setAktion = aktionAtions.length === 1 ? { preismeldung: assign({}, x.currentPreismeldung.preismeldung, { aktion: aktionAtions[0].value }) } : null;
+            currentPreismeldung = assign({}, x.currentPreismeldung, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext }) }, setAktion);
             return this.savePreismeldungPrice(currentPreismeldung)
                 .then(preismeldung => ({ preismeldung, saveAction }));
         })
@@ -231,8 +233,8 @@ export class PreismeldungenEffects {
 
     messagesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
         notiz: bag.messages.notiz,
-        kommentar: bag.messages.kommentarAutotext + (!!bag.messages.kommentarAutotext ? '\\n' : '') + bag.messages.kommentar,
-        bemerkungen: bag.messages.bemerkungenHistory + '\\nPE:' + bag.messages.bemerkungen,
+        kommentar: bag.messages.kommentarAutotext.join(',') + (bag.messages.kommentarAutotext.length > 0 ? '\\n' : '') + bag.messages.kommentar,
+        bemerkungen: bag.messages.bemerkungenHistory + (!!bag.messages.bemerkungenHistory ? '\\n' : '') + (!!bag.messages.bemerkungen ? 'PE:' + bag.messages.bemerkungen : ''),
         modifiedAt: format(new Date()),
     })
 

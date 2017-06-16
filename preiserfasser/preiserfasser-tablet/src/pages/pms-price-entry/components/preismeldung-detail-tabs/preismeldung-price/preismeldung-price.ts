@@ -318,52 +318,74 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.save$ = saveWithBag$
             .filter(x => !x.bag.hasAttributeWarning)
             .flatMap(({ saveAction, bag }) => {
-                if (bag.isNew) {
-                    return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT' as P.SavePreismeldungPriceSaveActionWithDataType, data: '' });
-                }
-                if (bag.messages.bemerkungenHistory !== '' && bag.messages.bemerkungen === '') {
-                    return pefDialogService.displayDialog('DialogValidationErrorsComponent', [translateService.instant('validation_frage-antworten')], true).map(() => ({ type: 'NO_SAVE_NAVIGATE', data: 'MESSAGES' }));
-                }
-                if (bag.hasPriceWarning && !bag.messages.kommentar) {
-                    return pefDialogService.displayDialog(PefDialogOneButtonComponent, { message: translateService.instant('dialogText_abnormal_preisentwicklung'), buttonText: 'btn_edit' }, false)
-                        .map(res => ({ type: 'CANCEL' }));
-                }
-                if ([1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer) {
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false)
-                        .map(res => res.data === 'YES' ? { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_artikeltext_unverändert_bestätigt' } : { type: 'CANCEL' });
-                }
-                if (this.form.value.bearbeitungscode === 101 && /^R+$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 2) {
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_rrr-message-mit-aufforderung-zu-produktersatz'), false)
-                        .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_keine_ersatzprodukte' });
-                }
-                if (this.form.value.aktion && bag.refPreismeldung.aktion && this.form.value.preis > bag.refPreismeldung.preis) {
-                    return pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_aktion-message-preis_hoeher'), false)
-                        .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
-                            res.data === 'YES'
-                                ? { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_steigender_aktionspreis_bestätigt' }
-                                : { type: saveAction.type, saveWithData: 'AKTION', data: false });
-                }
-                if (!this.form.value.aktion && !!bag.refPreismeldung && bag.refPreismeldung.aktion && this.form.value.preis <= bag.refPreismeldung.preis) {
-                    return pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_not-aktion-message-billiger'), false)
-                        .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
-                            res.data === 'YES'
-                                ? { type: saveAction.type, saveWithData: 'AKTION', data: true }
-                                : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_normalpreis_billiger' });
-                }
-                if (this.form.value.bearbeitungscode === 0) {
-                    const params = {
-                        numActivePrices: bag.priceCountStatus.numActivePrices - 1,
-                        anzahlPreiseProPMS: bag.priceCountStatus.anzahlPreiseProPMS
-                    };
-                    return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false)
-                        .map(res => res.data === 'YES'
-                            ? { type: 'SAVE_AND_DUPLICATE_PREISMELDUNG', saveWithData: 'COMMENT', data: '' }
-                            : { type: saveAction.type, saveWithData: 'COMMENT', data: 'kommentar-autotext_keine_produkte' }
-                        );
-                }
-                return Observable.of({ type: saveAction.type, saveWithData: 'COMMENT', data: '' });
+                const alerts: { condition: () => boolean; observable: () => Observable<P.SavePreismeldungPriceSaveAction> }[] = [
+                    {
+                        condition: () => !!bag.messages.bemerkungenHistory && bag.messages.bemerkungen === '',
+                        observable: () => pefDialogService.displayDialog('DialogValidationErrorsComponent', [translateService.instant('validation_frage-antworten')], true).map(() => ({ type: 'NO_SAVE_NAVIGATE', tabName: 'MESSAGES' } as P.SavePreismeldungPriceSaveAction))
+                    },
+                    {
+                        condition: () => bag.hasPriceWarning && !bag.messages.kommentar,
+                        observable: () => pefDialogService.displayDialog(PefDialogOneButtonComponent, { message: translateService.instant('dialogText_abnormal_preisentwicklung'), buttonText: 'btn_edit' }, false)
+                            .map(res => ({ type: 'CANCEL' } as P.SavePreismeldungPriceSaveAction))
+                    },
+                    {
+                        condition: () => [1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer,
+                        observable: () => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_unchangedPmText'), false)
+                            .map(res => res.data === 'YES' ? { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_artikeltext_unverändert_bestätigt'] }] } : { type: 'CANCEL' })
+                    },
+                    {
+                        condition: () => [99, 1].some(x => x === this.form.value.bearbeitungscode) && this.form.value.aktion && bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage > 0,
+                        observable: () => pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_aktion-message-preis_hoeher'), false)
+                            .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
+                                res.data === 'YES'
+                                    ? { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_steigender_aktionspreis_bestätigt'] }] }
+                                    : { type: saveAction.type, saveWithData: [{ type: 'AKTION', value: false }] })
+                    },
+                    {
+                        condition: () => !this.form.value.aktion && !!bag.refPreismeldung && bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage < 0,
+                        observable: () => pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_not-aktion-message-billiger'), false)
+                            .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
+                                res.data === 'YES'
+                                    ? { type: saveAction.type, saveWithData: [{ type: 'AKTION', value: true }] }
+                                    : { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_normalpreis_billiger'] }] })
+                    },
+                    {
+                        condition: () => this.form.value.bearbeitungscode === 0,
+                        observable: () => {
+                            const params = {
+                                numActivePrices: bag.priceCountStatus.numActivePrices - 1,
+                                anzahlPreiseProPMS: bag.priceCountStatus.anzahlPreiseProPMS
+                            };
+                            return pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_aufforderung_ersatzsuche', params), false)
+                                .map(res => res.data === 'YES'
+                                    ? { type: 'SAVE_AND_DUPLICATE_PREISMELDUNG', saveWithData: [{ type: 'COMMENT', comments: [] }] }
+                                    : { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_keine_produkte'] }] }
+                                )
+                        }
+                    }
+                ];
+
+                const alertsToExecute = alerts.filter(x => x.condition()).map(x => x.observable);
+
+                return alertsToExecute.length > 0
+                    ? alertsToExecute
+                        .reduce((agg, v) => {
+                            if (!agg) return v();
+                            return (agg as any)
+                                .flatMap(x => {
+                                    if (x.type === 'CANCEL') return Observable.of(x);
+                                    return v().map(y => {
+                                        if (P.isSavePreismeldungPriceSaveActionSave(x) && P.isSavePreismeldungPriceSaveActionSave(y)) {
+                                            return assign({}, y, { saveWithData: (y as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(x.saveWithData)})
+                                        } else {
+                                            return y;
+                                        }
+                                    });
+                                })
+                        }, null) as Observable<P.SavePreismeldungPriceSaveAction>
+                    : Observable.of({ type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: [] }] } as P.SavePreismeldungPriceSaveAction);
             })
-            .filter(x => x.type !== ('CANCEL' as P.SavePreismeldungPriceSaveActionType));
+            .filter(x => x.type !== 'CANCEL');
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(this.distinctPreismeldung$.mapTo(false));

@@ -63,7 +63,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
 
         this.selectedTab$ = this.selectTab$
-            .merge(this.save$.filter(x => x.type === 'NO_SAVE_NAVIGATE').map(x => x.data))
+            .merge(this.save$.filter(x => x.type === 'NO_SAVE_NAVIGATE').map((x: P.SavePreismeldungPriceSaveActionNoSaveNavigate) => x.tabName))
             .startWith('PREISMELDUNG')
             .publishReplay(1).refCount();
 
