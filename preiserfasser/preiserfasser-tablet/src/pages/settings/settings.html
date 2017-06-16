@@ -16,7 +16,7 @@
                     <div>{{(currentSettings$ | async)?.version}}</div>
                 </ion-col>
             </ion-row>
-            <form [formGroup]="form" class="stacked-form" [class.show-validation-hint]="showValidationHints$ | async">
+            <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
                 <h3><pef-icon name="server_url"></pef-icon> {{'server-connection-url' | translate}}</h3>
                 <ion-list formGroupName="serverConnection">
                     <ion-item class="pef-item on-dark">

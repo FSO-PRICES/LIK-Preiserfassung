@@ -164,6 +164,9 @@ form.stacked-form {
         }
     }
     &.input-has-focus.on-dark {
+        ion-label {
+            color: $bright-sun;
+        }
         ion-input, ion-textarea {
             border-bottom-color: $bright-sun;
         }

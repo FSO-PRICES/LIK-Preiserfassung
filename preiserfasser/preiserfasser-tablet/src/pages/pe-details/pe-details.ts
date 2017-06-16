@@ -1,11 +1,8 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NavController, IonicPage } from 'ionic-angular';
-import { TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-
-import { PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 import { CurrentPreiserheber } from '../../reducers/preiserheber';
@@ -34,17 +31,8 @@ export class PreiserheberPage implements OnDestroy {
     constructor(
         private navCtrl: NavController,
         private store: Store<fromRoot.AppState>,
-        private pefDialogService: PefDialogService,
-        private translateService: TranslateService,
         private formBuilder: FormBuilder
     ) {
-        const loadingText$ = translateService.get('text_saving-preiserheber');
-
-        this.canLeave$ = this.currentPreiserheber$
-            .map(x => !!x)
-            .startWith(false)
-            .publishReplay(1).refCount();
-
         this.allowToSave$ = this.currentPreiserheber$
             .map(x => !!x && x.isModified && !x.isSaved);
 
@@ -66,7 +54,7 @@ export class PreiserheberPage implements OnDestroy {
         const update$ = this.form.valueChanges
             .map(() => this.form.value);
 
-        const distinctSetting$ = this.currentPreiserheber$
+        const distinctPreiserheber$ = this.currentPreiserheber$
             .filter(x => !!x)
             .distinctUntilKeyChanged('isModified')
             .publishReplay(1).refCount();
@@ -77,34 +65,21 @@ export class PreiserheberPage implements OnDestroy {
 
         const save$ = canSave$
             .filter(x => x.isValid)
-            .publishReplay(1).refCount()
-            .withLatestFrom(this.saveClicked$);
-
-        const preiserheberSaved$ = this.currentPreiserheber$
-            .filter(x => x != null && x.isSaved);
-
-        const databaseExists$ = this.store.map(x => x.database)
-            .map(x => x.databaseExists)
-            .distinctUntilChanged()
-            .filter(exists => exists !== null)
             .publishReplay(1).refCount();
 
-        this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
-            .merge(distinctSetting$.mapTo(false));
+        this.showValidationHints$ = canSave$
+            .distinctUntilChanged()
+            .mapTo(true)
+            .startWith(false);
 
         this.subscriptions = [
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
             update$.subscribe(x => store.dispatch({ type: 'UPDATE_PREISERHEBER', payload: x } as PreiserheberAction)),
 
-            save$
-                .withLatestFrom(loadingText$, (_, loadingText) => loadingText)
-                .flatMap(loadingText => this.pefDialogService.displayLoading(loadingText, preiserheberSaved$))
-                .subscribe(() => {
-                    store.dispatch({ type: 'SAVE_PREISERHEBER' } as PreiserheberAction);
-                }),
+            save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISERHEBER' } as PreiserheberAction)),
 
-            distinctSetting$
+            distinctPreiserheber$
                 .filter(preiserheber => !!preiserheber)
                 .subscribe((erheber: CurrentPreiserheber) => {
                     this.form.markAsUntouched();
@@ -129,10 +104,6 @@ export class PreiserheberPage implements OnDestroy {
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'LOAD_PREISERHEBER' } as PreiserheberAction);
-    }
-
-    public ionViewCanLeave() {
-        return this.canLeave$.take(1).toPromise();
     }
 
     public ngOnDestroy() {

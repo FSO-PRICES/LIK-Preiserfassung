@@ -2,11 +2,6 @@ preiserheber-page.ion-page {
     background-color: $trout;
     display: flex;
 
-    h3 > pef-icon {
-        display: inline-block;
-        vertical-align: middle;
-    }
-
     .row {
         padding: 0 4px 20px 4px;
         display: flex;
@@ -40,11 +35,6 @@ preiserheber-page.ion-page {
             flex: 1;
             margin: 0;
         }
-
-        .button.button-md, a[ion-button].button.button-md:hover {
-            color: $white;
-            fill: $white;
-        }
     }
 
     .preiserheber-content {
@@ -63,6 +53,22 @@ preiserheber-page.ion-page {
 
         .pef-item .input-wrapper {
             height: inherit;
+        }
+    }
+
+    form.form-show-validation-hints {
+        ion-item.ng-invalid .input-wrapper {
+            ion-label {
+                color: $flamingo !important;
+            }
+        }
+        .pef-item {
+            ion-label.target-ng-invalid {
+                color: $flamingo !important;
+            }
+            select.ng-invalid {
+                border-left: 2px solid $flamingo;
+            }
         }
     }
 }
