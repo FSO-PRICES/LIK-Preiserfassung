@@ -7,7 +7,7 @@ export function parseCsv(data: string): string[][] {
 }
 
 export function toCsv(data: any[], addHeaders: boolean = true): string {
-    return csvWriter({ data, del: ';', quotes: '', doubleQuotes: '\'', hasCSVColumnTitle: addHeaders });
+    return csvWriter({ data, del: ';', hasCSVColumnTitle: addHeaders });
 }
 
 export function readFileContents(file: File) {
