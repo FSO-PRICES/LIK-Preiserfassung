@@ -14,7 +14,7 @@ export interface PreismeldungBag {
 
 export interface CurrentPreismeldungBagMessages {
     notiz: string;
-    kommentarAutotext: string;
+    kommentarAutotext: string[];
     kommentar: string;
     bemerkungenHistory: string;
     bemerkungen: string;
@@ -117,11 +117,9 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
             let messages = state.currentPreismeldung.messages;
             if (payload.bearbeitungscode === 0 && state.currentPreismeldung.refPreismeldung.aktion) {
-                messages = assign({}, messages, { kommentarAutotext: 'kommentar-autotext_presta-setzt-normalpreis' });
+                messages = assign({}, messages, { kommentarAutotext: ['kommentar-autotext_presta-setzt-normalpreis'] });
             } else {
-                if (messages.kommentarAutotext === 'kommentar-autotext_presta-setzt-normalpreis') {
-                    messages = assign({}, messages, { kommentarAutotext: null });
-                }
+                messages = assign({}, messages, { kommentarAutotext: messages.kommentarAutotext.filter(x => x !== 'kommentar-autotext_presta-setzt-normalpreis') });
             }
 
             const tempCurrentPreismeldung = assign({},
@@ -536,7 +534,7 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung) {
     const bemerkungenResult = (bemerkungen || '').split('\\n');
     return {
         notiz,
-        kommentarAutotext: kommentarResult.length === 2 ? kommentarResult[0] : '',
+        kommentarAutotext: kommentarResult.length === 2 ? kommentarResult[0].split(',') : [],
         kommentar: kommentarResult.length === 2 ? kommentarResult[1] : kommentar,
         bemerkungenHistory: !bemerkungen || !last(bemerkungenResult).startsWith('PE:') ? bemerkungen || '' : initial(bemerkungenResult).join('\\n'),
         bemerkungen: !bemerkungen || !last(bemerkungenResult).startsWith('PE:') ? '' : last(bemerkungenResult).substring(3),

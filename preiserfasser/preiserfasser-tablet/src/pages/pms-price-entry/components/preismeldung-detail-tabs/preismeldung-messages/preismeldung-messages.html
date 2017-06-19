@@ -8,7 +8,9 @@
             </ion-item>
             <button ion-button color="java" (click)="notizClear$.emit()">Leeren</button>
             <h3>Kommentar zum aktuellen Monat</h3>
-            <div class="kommentar-autotext" *ngIf="(preismeldung$ | async)?.messages.kommentarAutotext">{{ (preismeldung$ | async)?.messages.kommentarAutotext | translate }}</div>
+            <div class="kommentar-autotext">
+                <span *ngFor="let text of (preismeldung$ | async)?.messages.kommentarAutotext">{{ (text | translate) + '\u0020' }}</span>
+            </div>
             <ion-item class="pef-textarea-item">
                 <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()"></ion-textarea>
             </ion-item>
