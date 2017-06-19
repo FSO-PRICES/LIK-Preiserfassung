@@ -102,6 +102,18 @@
 
     "heading_preiserheber": "Preiserheber",
 
+    "label_preiserheber_firstName": "Vorname",
+    "label_preiserheber_surname": "Nachname",
+    "label_preiserheber_languageCode": "Sprache",
+    "label_preiserheber_telephone": "Festnetznummer",
+    "label_preiserheber_mobilephone": "Mobilnummer",
+    "label_preiserheber_email": "Email",
+    "label_preiserheber_fax": "Fax",
+    "label_preiserheber_webseite": "Webseite",
+    "label_preiserheber_street": "Strasse",
+    "label_preiserheber_postcode": "PLZ",
+    "label_preiserheber_town": "Ort",
+
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",
     "heading_pms-details": "Daten zur Preismeldestelle",
