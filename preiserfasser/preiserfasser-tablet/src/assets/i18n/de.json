@@ -106,6 +106,18 @@
 
     "heading_preiserheber": "Preiserheber",
 
+    "label_preiserheber_firstName": "Vorname",
+    "label_preiserheber_surname": "Nachname",
+    "label_preiserheber_languageCode": "Sprache",
+    "label_preiserheber_telephone": "Festnetznummer",
+    "label_preiserheber_mobilephone": "Mobilnummer",
+    "label_preiserheber_email": "Email",
+    "label_preiserheber_fax": "Fax",
+    "label_preiserheber_webseite": "Webseite",
+    "label_preiserheber_street": "Strasse",
+    "label_preiserheber_postcode": "PLZ",
+    "label_preiserheber_town": "Ort",
+
     "heading_settings": "Einstellungen",
     "heading_danger-zone": "Gefährlicher Abschnitt",
     "heading_pms-details": "Daten zur Preismeldestelle",
@@ -115,11 +127,16 @@
     "server-connection-url": "URL des Datenbank-Servers",
     "installed-software-version": "Installierte Software Version",
 
+    "heading_login": "Konto",
+    "label_login_username": "Benutzername",
+    "label_login_password": "Passwort",
+
     "btn_delete-local-entries": "Lokale Daten löschen",
     "btn_edit": "Editieren",
     "btn_save": "Speichern",
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
+    "btn_login": "Login",
     "btn_upload-now": "jetzt hochladen",
     "btn_continue-editing": "Weiterbearbeiten",
     "btn_pm-reset": "Preismeldung zurücksetzen",
