@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { CommonModule } from '@angular/common';
+import { VirtualScrollModule } from 'angular2-virtual-scroll';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { PreiserfasserCommonModule } from '../../common';
@@ -26,7 +27,8 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
     imports: [
         IonicPageModule.forChild(PmsPriceEntryPage),
         PefComponentsModule,
-        PreiserfasserCommonModule
+        PreiserfasserCommonModule,
+        VirtualScrollModule
     ],
     declarations: [
         BearbeitungsTypeComponent,

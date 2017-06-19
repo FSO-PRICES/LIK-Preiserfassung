@@ -12,9 +12,13 @@ preismeldung-list {
         display: flex;
         flex-direction: column;
 
-        ion-content.content-md {
+        // ion-content.content-md {
+        //     flex: 1;
+        //     background-color: transparent;
+        // }
+
+        pef-virtual-scroll {
             flex: 1;
-            background-color: transparent;
         }
     }
 

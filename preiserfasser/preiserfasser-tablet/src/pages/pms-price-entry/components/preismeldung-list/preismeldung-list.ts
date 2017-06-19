@@ -6,6 +6,7 @@ import { isBefore, isAfter, addDays, subMilliseconds } from 'date-fns';
 import { ReactiveComponent, formatPercentageChange, pefSearch } from 'lik-shared';
 
 import * as P from '../../../../common-models';
+import { PefVirtualScrollComponent } from '../../../../common/pef-virtual-scroll';
 
 @Component({
     selector: 'preismeldung-list',
@@ -23,12 +24,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('selectPreismeldung') selectPreismeldung$: Observable<P.PreismeldungBag>;
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
 
+    @ViewChild(PefVirtualScrollComponent)
+    private virtualScroll: any;
+
     public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     public selectNextPreismeldung$ = new EventEmitter();
     public selectPrevPreismeldung$ = new EventEmitter();
 
     public viewPortItems: P.Models.Preismeldung[];
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
+    public scrollList: P.PreismeldungBag[];
     public completedCount$: Observable<string>;
 
     public filterText$ = new EventEmitter<string>();
@@ -46,12 +51,14 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
 
     public ionItemHeight$ = new EventEmitter<number>();
-    public itemHeight$ = this.ionItemHeight$.startWith(50);
+    public itemHeight = 50;
 
     private subscriptions = [];
 
     constructor() {
         super();
+
+        this.ionItemHeight$.subscribe(itemHeight => this.itemHeight = itemHeight);
 
         this.subscriptions.push(this.currentTime$.subscribe());
 
@@ -73,25 +80,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.filterTodoSelected$ = filterStatus$.map(x => x.todo);
         this.filterCompletedSelected$ = filterStatus$.map(x => x.completed);
 
-        // this.filteredPreismeldungen$ = this.preismeldungen$
-        //     .combineLatest(this.filterText$.startWith(''), filterStatus$, this.currentLanguage$, (preismeldungen: P.PreismeldungBag[], filterText: string, filterStatus: { todo: boolean, completed: boolean }, currentLanguage: string) => {
-        //         let filteredPreismeldungen: P.PreismeldungBag[];
-
-        //         if (!filterText || filterText.length === 0) {
-        //             filteredPreismeldungen = preismeldungen;
-        //         } else {
-        //             filteredPreismeldungen = pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung[currentLanguage], pm => pm.preismeldung.artikeltext]);
-        //         }
-
-        //         if (filterStatus.todo && filterStatus.completed) return filteredPreismeldungen;
-
-        //         if (filterStatus.todo) return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
-        //         if (filterStatus.completed) return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
-
-        //         return [];
-        //     })
-        //     .publishReplay(1).refCount();
-
         this.filteredPreismeldungen$ = this.preismeldungen$
             .combineLatest(this.filterText$.startWith(''), filterStatus$, this.currentLanguage$, (preismeldungen: P.PreismeldungBag[], filterText: string, filterStatus: { todo: boolean, completed: boolean }, currentLanguage: string) => {
                 let filteredPreismeldungen: P.PreismeldungBag[];
@@ -109,12 +97,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
                 return [];
             })
-            // hack fix for filter bug with [virtualScroll]
-            // .map(filteredPreismeldungen => {
-            //     this.filteredPreismeldungenArrayRef.length = 0;
-            //     filteredPreismeldungen.forEach(item => this.filteredPreismeldungenArrayRef.push(item));
-            //     return this.filteredPreismeldungenArrayRef || [];
-            // })
             .publishReplay(1).refCount();
 
         const selectNext$ = this.selectNextPreismeldung$
@@ -138,16 +120,20 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.subscriptions.push(
             this.currentPreismeldung$
-                .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (currentPreismeldung, filteredPreismeldungen, ionItemHeight: number) => ({ currentPreismeldung, filteredPreismeldungen, ionItemHeight }))
-                .subscribe(({ currentPreismeldung, filteredPreismeldungen, ionItemHeight }) => {
-                    if (!currentPreismeldung) return;
-                    const currentPreismeldungIndex = filteredPreismeldungen.findIndex(x => x.pmId === currentPreismeldung.pmId);
-                    if (currentPreismeldungIndex === -1) return;
-                    if ((currentPreismeldungIndex + 1) * ionItemHeight > this.content.scrollTop + this.content.contentHeight) {
-                        setTimeout(() => this.content.scrollTo(0, ((currentPreismeldungIndex + 1) * ionItemHeight) - this.content.contentHeight, 10));
+                .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (bag, filteredPreismeldungen, ionItemHeight: number) => ({ bag, filteredPreismeldungen, ionItemHeight }))
+                .subscribe(x => {
+                    const index = x.filteredPreismeldungen.findIndex(y => y.pmId === x.bag.pmId);
+                    if (index < 0)
+                        return;
+                    var d = this.virtualScroll.calculateDimensions();
+                    const scrollTop = Math.floor(index / d.itemsPerRow + 1) * d.childHeight - Math.max(0, (d.itemsPerCol - 1)) * d.childHeight;
+                    if ((index + 1) * x.ionItemHeight > this.virtualScroll.element.nativeElement.scrollTop + d.viewHeight) {
+                        this.virtualScroll.element.nativeElement.scrollTop = ((index + 1) * x.ionItemHeight) - d.viewHeight;
+                        this.virtualScroll.refresh();
                     }
-                    if (currentPreismeldungIndex * ionItemHeight < this.content.scrollTop) {
-                        setTimeout(() => this.content.scrollTo(0, (currentPreismeldungIndex * ionItemHeight), 10));
+                    if (index * x.ionItemHeight < this.virtualScroll.element.nativeElement.scrollTop) {
+                        this.virtualScroll.element.nativeElement.scrollTop = index * x.ionItemHeight;
+                        this.virtualScroll.refresh();
                     }
                 })
         );

@@ -29,6 +29,7 @@
     "@ngrx/effects": "^2.0.3",
     "@ngrx/store": "^2.2.2",
     "@ngx-translate/http-loader": "0.0.3",
+    "angular2-virtual-scroll": "^0.1.7",
     "date-fns": "^1.28.5",
     "docuri": "^4.2.2",
     "ionic-angular": "3.3.0",
