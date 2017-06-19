@@ -15,6 +15,7 @@ import * as fromRoot from '../../reducers';
 
 import { Action as StatisticsAction } from '../../actions/statistics';
 import { Actions as DatabaseAction } from '../../actions/database';
+import { Action as LoginAction } from '../../actions/login';
 import { PreismeldestelleStatistics } from '../../reducers/statistics';
 
 type DashboardPms = P.Preismeldestelle & {
@@ -36,7 +37,9 @@ export class DashboardPage implements OnDestroy {
 
     public filterTextValueChanges = new EventEmitter<string>();
     public uploadPreismeldungenClicked$ = new EventEmitter();
+    public loginClicked$ = new EventEmitter();
 
+    public showLogin$: Observable<boolean>;
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$
         .combineLatest(this.filterTextValueChanges.startWith(''), (preismeldestellen, filterText) =>
             pefSearch(filterText, preismeldestellen, [pms => pms.name])
@@ -45,6 +48,8 @@ export class DashboardPage implements OnDestroy {
 
     private subscriptions: Subscription[];
 
+    public isSyncing$ = this.store.map(x => x.database.isDatabaseSyncing);
+    public syncError$ = this.store.map(x => x.database.syncError);
     public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
     public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat)
         .filter(x => !!x)
@@ -80,19 +85,19 @@ export class DashboardPage implements OnDestroy {
             .filter(exists => exists !== null)
             .publishReplay(1).refCount();
 
-        const loginDialogDismiss$ = databaseExists$
-            .withLatestFrom(settings$, (databaseExists, settings) => databaseExists || settings.isDefault) // Do not try to login if settings are not set yet
-            .filter(x => !x)
+        const loggedInUser$ = this.store.select(fromRoot.getLoggedInUser);
+        const canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase);
+        const isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn).skip(1)
+            .combineLatest(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect }));
+
+        const loginDialogDismissed$ = this.loginClicked$
             .flatMap(() => pefDialogService.displayModal('LoginModal'))
-            .filter(x => x.data !== null)
             .publishReplay(1).refCount();
 
-        const dismissLoading$ = store.select(fromRoot.getPreismeldestellen)
-            .filter(x => x != null && x.length !== 0)
-            .merge(databaseExists$
-                .skip(1) // Skip the first value because it is republished, we wait for a new one
-                .filter(exists => exists === false)
-            );
+        this.showLogin$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
+        const canSync$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).take(1);
+
+        const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => !x);
 
         this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
         this.canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase)
@@ -112,21 +117,23 @@ export class DashboardPage implements OnDestroy {
                 // Re-/Load Statistics only when database exists and every time the database has been uploaded
                 .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction)),
 
-            loginDialogDismiss$ // In case of login data entered
-                .filter(x => x.data.username !== null)
-                .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
-                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissLoading$).map(() => payload))
-                .subscribe(payload => this.store.dispatch({ type: 'DOWNLOAD_DATABASE', payload })),
-
-            loginDialogDismiss$ // In case of navigate to was set
-                .filter(x => !!x.data.navigateTo)
-                .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo, {})),
+            canSync$
+                .withLatestFrom(settings$, loggedInUser$, (x, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
+                .subscribe(payload => this.store.dispatch({ type: 'SYNC_DATABASE', payload } as DatabaseAction)),
 
             this.uploadPreismeldungenClicked$
-                .flatMap(() => pefDialogService.displayModal('LoginModal'))
+                .withLatestFrom(settings$, loggedInUser$, (x, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
+                .subscribe(payload => this.store.dispatch({ type: 'UPLOAD_DATABASE', payload } as DatabaseAction)),
+
+            loginDialogDismissed$ // In case of login data entered
+                .filter(x => x.data.username !== null)
                 .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
-                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), databaseHasBeenUploaded$.skip(1)).map(() => payload))
-                .subscribe(payload => this.store.dispatch({ type: 'UPLOAD_DATABASE', payload })),
+                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissSyncLoading$).map(() => payload))
+                .subscribe(payload => this.store.dispatch({ type: 'LOGIN', payload } as LoginAction)),
+
+            loginDialogDismissed$ // In case of navigate to was set
+                .filter(x => !!x.data.navigateTo)
+                .subscribe(x => this.navCtrl.setRoot(x.data.navigateTo, {})),
 
             this.navigateToPriceEntry$
                 .delay(100)
@@ -144,8 +151,11 @@ export class DashboardPage implements OnDestroy {
                 .delay(100)
                 .subscribe(pms => this.navCtrl.setRoot('PmsDetailsPage', { pmsNummer: pms.pmsNummer })),
 
-            Observable.interval(10000).startWith(0).subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction))
+            Observable.interval(10000).startWith(0)
+                .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction))
         ];
+
+        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction);
     }
 
     public ngOnDestroy() {

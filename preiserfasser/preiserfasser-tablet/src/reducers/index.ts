@@ -15,6 +15,7 @@ import * as fromLanguages from './languages';
 import * as fromWarenkorb from './warenkorb';
 import * as fromSettings from './setting';
 import * as fromStatistics from './statistics';
+import * as fromLogin from './login';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
@@ -27,6 +28,7 @@ export interface AppState {
     warenkorb: fromWarenkorb.State;
     settings: fromSettings.State;
     statistics: fromStatistics.State;
+    login: fromLogin.State;
 }
 
 const reducers = {
@@ -40,6 +42,7 @@ const reducers = {
     warenkorb: fromWarenkorb.reducer,
     settings: fromSettings.reducer,
     statistics: fromStatistics.reducer,
+    login: fromLogin.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -88,3 +91,7 @@ export const getCurrentPreiserheber = createSelector(getPreiserheberState , from
 export const getStatisticsState = (state: AppState) => state.statistics;
 export const getPreismeldungenStatistics = createSelector(getStatisticsState, fromStatistics.getPreismeldungenStatistics);
 export const getErhebungsmonat = createSelector(getStatisticsState, fromStatistics.getErhebungsmonat);
+
+export const getLoginState = (state: AppState) => state.login;
+export const getIsLoggedIn = createSelector(getLoginState, fromLogin.getIsLoggedIn);
+export const getLoggedInUser = createSelector(getLoginState, fromLogin.getLoggedInUser);

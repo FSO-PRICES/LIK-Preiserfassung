@@ -313,15 +313,32 @@ dashboard {
                 margin: 1em 0;
             }
 
-            pef-icon.connectivity {
+            .status {
+                display: flex;
                 align-self: flex-end;
-                fill: $emerald;
-                &.error {
+
+                span.error {
+                    align-self: center;
+                    padding: 0 0.5em;
+                    color: $alizarin-crimson;
                     fill: $alizarin-crimson;
+                }
+
+                pef-icon {
+                    flex: 1;
+                    &.syncing {
+                        fill: $oslo-gray;
+                    }
+                    &.connectivity {
+                        fill: $emerald;
+                        &.error {
+                            fill: $alizarin-crimson;
+                        }
+                    }
                 }
             }
 
-            button {
+            .buttons {
                 align-self: flex-end;
             }
         }

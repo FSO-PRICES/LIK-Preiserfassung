@@ -7,8 +7,9 @@ import { chain } from 'lodash';
 import { Models as P } from 'lik-shared';
 
 import { getDatabaseLastUploadedAt, setDatabaseLastUploadedAt } from './local-storage-utils';
-import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase } from './pouchdb-utils';
+import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase, syncDatabase } from './pouchdb-utils';
 
+import { Actions as DatabaseAction } from '../actions/database';
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
 import { Actions as PreismeldungAction } from '../actions/preismeldungen';
 import { Action as StatisticsAction } from '../actions/statistics';
@@ -28,42 +29,55 @@ export class DatabaseEffects {
     @Effect()
     checkConnectivity$ = this.actions$
         .ofType('CHECK_CONNECTIVITY_TO_DATABASE')
-        .withLatestFrom(this.store.select(fromRoot.getSettings), (_, settings) => settings)
-        .flatMap(settings => !!settings && !settings.isDefault ?
-            checkConnectivity(settings.serverConnection.url)
-                .catch(() => Observable.of(false)) :
-            Observable.of(false)
-        )
-        .map(isAlive => ({ type: 'SET_CONNECTIVITY_STATUS', payload: isAlive }));
-
-    @Effect()
-    loadPreismeldestellen$ = this.actions$
-        .ofType('DOWNLOAD_DATABASE')
-        .flatMap(x => downloadDatabase(x.payload)
-            .map(() => ({ type: 'SET_DATABASE_EXISTS', payload: true }))
-            .catch(err => Observable.of({ type: 'SET_DATABASE_EXISTS', payload: false }))
+        .flatMap(() =>
+            Observable.of({ type: 'RESET_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)
+                .concat(this.store.select(fromRoot.getSettings).take(1)
+                    .flatMap(settings => !!settings && !settings.isDefault ?
+                        checkConnectivity(settings.serverConnection.url).catch(() => Observable.of(false)) :
+                        Observable.of(false)
+                    )
+                    .map(isAlive => ({ type: 'SET_CONNECTIVITY_STATUS', payload: isAlive } as DatabaseAction))
+                )
         );
 
     @Effect()
-    uploadPreismeldestellen$ = this.actions$
+    syncDatabase$ = this.actions$
+        .ofType('SYNC_DATABASE')
+        .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
+            .concat(syncDatabase(action.payload)
+                .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
+            )
+            .catch(error => Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: this.tryParseError(error) } as DatabaseAction))
+    );
+
+    @Effect()
+    download$ = this.actions$
+        .ofType('DOWNLOAD_DATABASE')
+        .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
+            .concat(downloadDatabase(action.payload)
+                .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
+            )
+            .catch(error => Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: this.tryParseError(error) } as DatabaseAction))
+        );
+
+    @Effect()
+    uploadDatabase$ = this.actions$
         .ofType('UPLOAD_DATABASE')
-        .switchMap(action => {
-            const uploadRequestedAt = new Date();
-            return getDatabase()
-                .then(db => db.allDocs(Object.assign({}, getAllDocumentsForPrefix('pm'), { include_docs: true }))
-                    .then(result => chain(result.rows)
-                        .map(row => row.doc as P.Preismeldung)
-                        .filter(p => p.istAbgebucht)
-                        .map(p => Object.assign({}, p, { uploadRequestedAt }))
-                        .value()
-                    )
-                    .then(preismeldungen => db.bulkDocs(preismeldungen))
+        .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
+            .concat(this.updatePreismeldungen().delay(4000)
+                .flatMap(() =>
+                    uploadDatabase(action.payload)
+                        .flatMap(() => {
+                            setDatabaseLastUploadedAt(new Date());
+                            return [
+                                { type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: new Date() } as DatabaseAction,
+                                { type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction
+                            ];
+                        })
                 )
-                .then(() => ({ credentials: action.payload }));
-        })
-        .flatMap(({ credentials }) => uploadDatabase(credentials))
-        .do(() => setDatabaseLastUploadedAt(new Date()))
-        .map(() => ({ type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: new Date() }));
+                .catch(error => Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: this.tryParseError(error) } as DatabaseAction))
+            )
+    );
 
     @Effect()
     checkLastUploadedAt$ = this.actions$
@@ -88,4 +102,33 @@ export class DatabaseEffects {
             { type: 'SET_DATABASE_EXISTS', payload: false },
             ... this.resetActions
         ]);
+
+    private tryParseError(error: { name: string, message: string, stack: string }) {
+        if (!!error && !!error.name) {
+            switch (error.name) {
+                case 'unknown':
+                default:
+                    return 'Unkown error occured, please try again later or contact an administrator';
+            }
+        }
+        if (!!error && !!error.message) {
+            return error.message;
+        }
+        return error;
+    }
+
+    private updatePreismeldungen() {
+        return Observable.fromPromise(
+            getDatabase()
+                .then(db => db.allDocs(Object.assign({}, getAllDocumentsForPrefix('pm'), { include_docs: true }))
+                    .then(result => chain(result.rows)
+                        .map(row => row.doc as P.Preismeldung)
+                        .filter(p => p.istAbgebucht)
+                        .map(p => Object.assign({}, p, { uploadRequestedAt: new Date() }))
+                        .value()
+                    )
+                    .then(preismeldungen => db.bulkDocs(preismeldungen))
+                )
+        );
+    }
 }
