@@ -48,8 +48,8 @@ export class DashboardPage implements OnDestroy {
 
     private subscriptions: Subscription[];
 
-    public isSyncing$ = this.store.map(x => x.database.isDatabaseSyncing);
-    public syncError$ = this.store.map(x => x.database.syncError);
+    public isSyncing$ = this.store.select(x => x.database.isDatabaseSyncing);
+    public syncError$ = this.store.select(x => x.database.syncError);
     public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
     public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat)
         .filter(x => !!x)
@@ -79,14 +79,13 @@ export class DashboardPage implements OnDestroy {
             .map(database => database.lastUploadedAt)
             .distinct();
 
-        const databaseExists$ = this.store.map(x => x.database)
-            .map(x => x.databaseExists)
+        const databaseExists$ = this.store.select(x => x.database.databaseExists)
             .distinctUntilChanged()
             .filter(exists => exists !== null)
             .publishReplay(1).refCount();
 
         const loggedInUser$ = this.store.select(fromRoot.getLoggedInUser);
-        const canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase);
+        const canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase);
         const isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn).skip(1)
             .combineLatest(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect }));
 
@@ -97,10 +96,11 @@ export class DashboardPage implements OnDestroy {
         this.showLogin$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
         const canSync$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).take(1);
 
+        const syncCompleted$ = this.isSyncing$.skip(1).filter(x => !!x);
         const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => !x);
 
         this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
-        this.canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase)
+        this.canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase)
             .filter(x => x !== null)
             .startWith(false)
             .publishReplay(1).refCount();
@@ -152,7 +152,14 @@ export class DashboardPage implements OnDestroy {
                 .subscribe(pms => this.navCtrl.setRoot('PmsDetailsPage', { pmsNummer: pms.pmsNummer })),
 
             Observable.interval(10000).startWith(0)
-                .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction))
+                .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)),
+
+            this.store.select(x => x.database.isDatabaseSyncing).skip(1)
+                .filter(synced => !synced)
+                .subscribe(() => {
+                    this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
+                    this.store.dispatch({ type: 'LOAD_WARENKORB' });
+                })
         ];
 
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction);

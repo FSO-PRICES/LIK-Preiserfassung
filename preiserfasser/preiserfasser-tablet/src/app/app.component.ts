@@ -41,9 +41,8 @@ export class PefApp implements OnInit {
             splashScreen.hide();
         });
 
-        const databaseExists$ = this.store.map(x => x.database)
-            .filter(x => x.databaseExists !== null)
-            .map(x => x.databaseExists)
+        const databaseExists$ = this.store.select(x => x.database.databaseExists)
+            .filter(databaseExists => databaseExists !== null)
             .distinctUntilChanged()
             .publishReplay(1).refCount();
 
