@@ -111,11 +111,16 @@
     "server-connection-url": "URL des Datenbank-Servers",
     "installed-software-version": "Installierte Software Version",
 
+    "heading_login": "Konto",
+    "label_login_username": "Benutzername",
+    "label_login_password": "Passwort",
+
     "btn_delete-local-entries": "Lokale Daten löschen",
     "btn_edit": "Editieren",
     "btn_save": "Speichern",
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
+    "btn_login": "Login",
     "btn_upload-now": "jetzt hochladen",
     "btn_continue-editing": "Weiterbearbeiten",
     "btn_pm-reset": "Preismeldung zurücksetzen",

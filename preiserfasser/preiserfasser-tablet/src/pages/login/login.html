@@ -1,19 +1,19 @@
 <form>
     <div class="header">
-        <h3>Konto</h3>
+        <h3>{{'heading_login' | tranlsate</h3>
     </div>
     <ion-item>
-        <ion-label stacked>Benutzername</ion-label>
+        <ion-label stacked>{{'label_login_username' | translate}}</ion-label>
         <ion-input type="text" [(ngModel)]="username" [ngModelOptions]="{standalone: true}" autocapitalize="none"></ion-input>
     </ion-item>
     <ion-item>
-        <ion-label stacked>Passwort</ion-label>
+        <ion-label stacked>{{'label_login_passwort' | translate}}</ion-label>
         <ion-input type="password" [(ngModel)]="password" [ngModelOptions]="{standalone: true}"></ion-input>
     </ion-item>
     <div class="actions">
         <a (click)="navigateToSettings()" href="javascript:">
             {{'a_navigate-to-settings' | translate}}
         </a>
-        <button ion-button type="submit" (click)="login()">Login</button>
+        <button ion-button type="submit" (click)="login()">{{'btn_login' | translate}}</button>
     </div>
 </form>
