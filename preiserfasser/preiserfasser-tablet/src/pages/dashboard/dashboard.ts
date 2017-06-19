@@ -75,9 +75,8 @@ export class DashboardPage implements OnDestroy {
     ) {
         const settings$ = this.store.select(fromRoot.getSettings);
 
-        const databaseHasBeenUploaded$ = this.store.select(x => x.database)
-            .map(database => database.lastUploadedAt)
-            .distinct();
+        const databaseHasBeenUploaded$ = this.store.select(x => x.database.lastUploadedAt)
+            .distinctUntilChanged();
 
         const databaseExists$ = this.store.select(x => x.database.databaseExists)
             .distinctUntilChanged()

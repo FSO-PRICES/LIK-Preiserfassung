@@ -34,7 +34,7 @@ export function reducer(state = initialState, action: database.Actions): State {
             return Object.assign({}, state, { isDatabaseSyncing: false, syncError: action.payload });
 
         case 'SYNC_DATABASE_SUCCESS':
-            return Object.assign({}, state, { isDatabaseSyncing: false });
+            return Object.assign({}, state, { databaseExists: true, isDatabaseSyncing: false });
 
         case 'CHECK_DATABASE_EXISTS':
             return Object.assign({}, state, { databaseExists: null });

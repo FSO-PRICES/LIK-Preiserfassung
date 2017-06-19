@@ -15,7 +15,7 @@ import { Action as PreiserheberAction } from '../../actions/preiserheber';
     templateUrl: 'pe-details.html'
 })
 export class PreiserheberPage implements OnDestroy {
-    public currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber);
+    public currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber).skip(1);
     public languages$ = this.store.select(fromRoot.getLanguagesList).publishReplay(1).refCount();
 
     public cancelClicked$ = new EventEmitter<Event>();
