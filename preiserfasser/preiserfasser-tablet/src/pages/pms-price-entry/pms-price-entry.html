@@ -49,6 +49,7 @@
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
                     (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
+                    (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
                     (save)="save$.emit($event)"></preismeldung-price>
             </div>
             <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
@@ -64,6 +65,7 @@
                 (selectPreismeldung)="selectPreismeldung$.emit($event)"
                 (addNewPreisreihe)="addNewPreisreihe$.emit()"
                 [currentLanguage]="currentLanguage$ | async"
+                [requestSelectNextPreismeldung]="requestSelectNextPreismeldung$ | async"
                 [isDesktop]="isDesktop$ | async"></preismeldung-list>
         </div>
     </div>

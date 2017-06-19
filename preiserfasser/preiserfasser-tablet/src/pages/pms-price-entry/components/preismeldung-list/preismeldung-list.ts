@@ -21,6 +21,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() currentLanguage: string;
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
+    @Input() requestSelectNextPreismeldung: {};
     @Output('selectPreismeldung') selectPreismeldung$: Observable<P.PreismeldungBag>;
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
 
@@ -99,7 +100,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             })
             .publishReplay(1).refCount();
 
-        const selectNext$ = this.selectNextPreismeldung$
+        const requestSelectNextPreismeldung$ = this.observePropertyCurrentValue<{}>('requestSelectNextPreismeldung').filter(x => !!x);
+        const selectNext$ = this.selectNextPreismeldung$.merge(requestSelectNextPreismeldung$)
             .withLatestFrom(this.currentPreismeldung$, this.filteredPreismeldungen$, (_, currentPreismeldung: P.PreismeldungBag, filteredPreismeldungen: P.PreismeldungBag[]) => {
                 if (!currentPreismeldung) return filteredPreismeldungen[0];
                 const currentPreismeldungIndex = filteredPreismeldungen.findIndex(x => x.pmId === currentPreismeldung.pmId);

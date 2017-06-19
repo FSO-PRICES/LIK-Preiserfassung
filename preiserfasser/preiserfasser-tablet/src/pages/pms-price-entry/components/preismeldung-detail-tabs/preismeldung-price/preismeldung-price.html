@@ -245,6 +245,9 @@
                     <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>&nbsp;
                 </div>
                 <button ion-button color="primary" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
+                <button ion-button icon-only color="primary" class="next-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="requestSelectNextPreismeldung$.emit({})">
+                    <pef-icon name="arrow_right"></pef-icon>
+                </button>
             </div>
         </div>
     </form>

@@ -31,6 +31,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
     @Output('save') save$: Observable<P.SavePreismeldungPriceSaveAction>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
+    @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
 
     public preismeldung$: Observable<P.CurrentPreismeldungBag>;
     public distinctPreismeldung$: Observable<P.CurrentPreismeldungBag>;
