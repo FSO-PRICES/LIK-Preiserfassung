@@ -66,7 +66,7 @@ export class DatabaseEffects {
     uploadDatabase$ = this.actions$
         .ofType('UPLOAD_DATABASE')
         .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
-            .concat(this.updatePreismeldungen().delay(4000)
+            .concat(this.updatePreismeldungen()
                 .flatMap(() =>
                     uploadDatabase(action.payload)
                         .flatMap(() => {
