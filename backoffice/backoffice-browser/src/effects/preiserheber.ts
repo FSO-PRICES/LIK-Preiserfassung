@@ -75,7 +75,7 @@ export class PreiserheberEffects {
                         peNummer: currentPreiserheber.peNummer || generatePeNummer(),
                         firstName: currentPreiserheber.firstName,
                         surname: currentPreiserheber.surname,
-                        personFunction: currentPreiserheber.personFunction,
+                        erhebungsregion: currentPreiserheber.erhebungsregion,
                         languageCode: currentPreiserheber.languageCode,
                         telephone: currentPreiserheber.telephone,
                         mobilephone: currentPreiserheber.mobilephone,

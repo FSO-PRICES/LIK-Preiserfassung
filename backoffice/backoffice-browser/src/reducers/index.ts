@@ -61,6 +61,7 @@ export const getCurrentPreiserheber = createSelector(getPreiserheberState, fromP
 export const getPreismeldestelleState = (state: AppState) => state.preismeldestellen;
 export const getPreismeldestellen = createSelector(getPreismeldestelleState, fromPreismeldestelle.getAll);
 export const getCurrentPreismeldestelle = createSelector(getPreismeldestelleState, fromPreismeldestelle.getCurrentPreismeldestelle);
+export const getErhebungsregionen = createSelector(getPreismeldestelleState, fromPreismeldestelle.getErhebungsregionen);
 
 
 export const getPreiszuweisungState = (state: AppState) => state.preiszuweisungen;

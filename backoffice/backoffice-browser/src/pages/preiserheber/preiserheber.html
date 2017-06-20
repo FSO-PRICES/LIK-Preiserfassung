@@ -17,6 +17,7 @@
             <preiserheber-detail *ngIf="isEditing$ | async"
                 [preiserheber]="currentPreiserheber$ | async"
                 [languages]="languages$ | async"
+                [erhebungsregionen]="erhebungsregionen$ | async"
                 (save)="savePreiserheber$.emit($event)"
                 (delete)="deletePreiserheber$.emit($event)"
                 (cancel)="cancelPreiserheber$.emit($event)"

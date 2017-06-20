@@ -3,7 +3,7 @@ export interface ErheberProperties {
     username: string;
     firstName: string;
     surname: string;
-    personFunction: string;
+    erhebungsregion: string;
     languageCode: string;
     telephone: string;
     mobilephone: string;

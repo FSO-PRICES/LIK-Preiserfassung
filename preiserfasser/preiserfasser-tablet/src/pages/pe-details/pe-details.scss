@@ -56,6 +56,12 @@ preiserheber-page.ion-page {
         }
     }
 
+    ion-input[readonly] {
+        background-color: transparent !important;
+        border-bottom-color: transparent !important;
+        color: $white;
+    }
+
     form.form-show-validation-hints {
         ion-item.ng-invalid .input-wrapper {
             ion-label {

@@ -277,7 +277,7 @@ export function preparePreiserheberForExport(preiserhebers: (P.Erheber & { pmsNu
                 'PE_Nummer': toNumber(preiserheber.peNummer, 10, 'PE_Nummer'),
                 'PE_Vorname': toText(preiserheber.firstName, 40, 'PE_Vorname'),
                 'PE_Name': toText(preiserheber.surname, 40, 'PE_Name'),
-                'PE_Funktion': toText(preiserheber.personFunction, 100, 'PE_Funktion'),
+                'PE_Erhebungsregion': toText(preiserheber.erhebungsregion, 100, 'PE_Erhebungsregion'),
                 'PE_Telefon': toText(preiserheber.telephone, 20, 'PE_Telefon'),
                 'PE_Mobile': toText(preiserheber.mobilephone, 20, 'PE_Mobile'),
                 'PE_Fax': toText(preiserheber.fax, 20, 'PE_Fax'),

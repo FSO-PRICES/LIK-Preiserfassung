@@ -43,6 +43,7 @@
     "label_preiserffassung_internetlink": "Internetlink",
 
     "label_pms_preismeldestellenummer": "Preismeldestellenummer",
+    "label_pms_erhebungsregion": "Erhebungsregion",
     "label_pms_adresse": "Adresse",
     "label_pms_name": "Name",
     "label_pms_zusatzname": "Zusatzname",
@@ -111,6 +112,7 @@
     "label_preiserheber_firstName": "Vorname",
     "label_preiserheber_surname": "Nachname",
     "label_preiserheber_languageCode": "Sprache",
+    "label_preiserheber_erhebungsregion": "Erhebungsregion",
     "label_preiserheber_telephone": "Festnetznummer",
     "label_preiserheber_mobilephone": "Mobilnummer",
     "label_preiserheber_email": "Email",

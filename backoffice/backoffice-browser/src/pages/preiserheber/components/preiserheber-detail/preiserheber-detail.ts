@@ -14,6 +14,7 @@ import { CurrentPreiserheber } from '../../../../reducers/preiserheber';
 export class PreiserheberDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preiserheber: P.Erheber;
     @Input() languages: P.Language[];
+    @Input() erhebungsregionen: string[];
     @Input() preissubsysteme: P.Preissubsystem[];
 
     @Output('save')
@@ -29,6 +30,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
     public preiserheber$: Observable<P.Erheber>;
     public languages$: Observable<P.Language[]>;;
+    public erhebungsregionen$: Observable<string[]>;
 
     public resetForm$: Observable<boolean>;
     public saveClicked$ = new EventEmitter<Event>();
@@ -45,13 +47,14 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.preiserheber$ = this.observePropertyCurrentValue<P.Erheber>('preiserheber');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
+        this.erhebungsregionen$ = this.observePropertyCurrentValue<string[]>('erhebungsregionen');
 
         this.form = formBuilder.group({
             preiserheber: formBuilder.group({
                 username: [null, Validators.compose([Validators.required, Validators.pattern(/^[a-z][a-z0-9_,\$\+\-]{2,}/), Validators.minLength(3)])],
                 firstName: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
                 surname: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
-                personFunction: [null],
+                erhebungsregion: [null, Validators.required],
                 telephone: [null],
                 mobilephone: [null],
                 email: [null],
@@ -76,7 +79,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     firstName: erheber.firstName,
                     surname: erheber.surname,
                     username: erheber.username,
-                    personFunction: erheber.personFunction,
+                    erhebungsregion: erheber.erhebungsregion,
                     languageCode: erheber.languageCode === '' ? null : erheber.languageCode,
                     telephone: erheber.telephone,
                     mobilephone: erheber.mobilephone,
@@ -122,7 +125,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                         username: erheber._id,
                         firstName: erheber.firstName,
                         surname: erheber.surname,
-                        personFunction: erheber.personFunction,
+                        erhebungsregion: erheber.erhebungsregion,
                         telephone: erheber.telephone,
                         mobilephone: erheber.mobilephone,
                         email: erheber.email,

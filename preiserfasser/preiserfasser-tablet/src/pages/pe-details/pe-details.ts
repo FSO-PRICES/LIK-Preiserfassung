@@ -39,7 +39,6 @@ export class PreiserheberPage implements OnDestroy {
         this.form = formBuilder.group({
             firstName: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
             surname: [null, Validators.compose([Validators.required, Validators.minLength(1)])],
-            personFunction: [null],
             telephone: [null],
             mobilephone: [null],
             email: [null],
@@ -48,7 +47,8 @@ export class PreiserheberPage implements OnDestroy {
             languageCode: [null, Validators.required],
             street: [null],
             postcode: [null],
-            town: [null]
+            town: [null],
+            erhebungsregion: [null]
         });
 
         const update$ = this.form.valueChanges
@@ -87,7 +87,6 @@ export class PreiserheberPage implements OnDestroy {
                     this.form.patchValue({
                         firstName: erheber.firstName,
                         surname: erheber.surname,
-                        personFunction: erheber.personFunction,
                         telephone: erheber.telephone,
                         mobilephone: erheber.mobilephone,
                         email: erheber.email,
@@ -96,7 +95,8 @@ export class PreiserheberPage implements OnDestroy {
                         languageCode: erheber.languageCode !== null ? erheber.languageCode : '',
                         street: erheber.street,
                         postcode: erheber.postcode,
-                        town: erheber.town
+                        town: erheber.town,
+                        erhebungsregion: erheber.erhebungsregion
                     }, { emitEvent: false });
                 })
         ];
