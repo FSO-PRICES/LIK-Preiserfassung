@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
@@ -12,12 +13,13 @@ import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, do
 import { Actions as DatabaseAction } from '../actions/database';
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
 import { Actions as PreismeldungAction } from '../actions/preismeldungen';
+import { Action as LoginAction } from '../actions/login';
 import { Action as StatisticsAction } from '../actions/statistics';
 import * as fromRoot from '../reducers';
 
 @Injectable()
 export class DatabaseEffects {
-    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) { }
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>, private translate: TranslateService) { }
 
     private resetActions = [
         { type: 'PREISMELDESTELLEN_RESET' } as PreismeldestelleAction,
@@ -47,7 +49,7 @@ export class DatabaseEffects {
             .concat(syncDatabase(action.payload)
                 .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
             )
-            .catch(error => Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: this.tryParseError(error) } as DatabaseAction))
+            .catch(error => Observable.from(this.convertErrorToActions(error)))
     );
 
     @Effect()
@@ -57,7 +59,7 @@ export class DatabaseEffects {
             .concat(downloadDatabase(action.payload)
                 .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
             )
-            .catch(error => Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: this.tryParseError(error) } as DatabaseAction))
+            .catch(error => Observable.from(this.convertErrorToActions(error)))
         );
 
     @Effect()
@@ -75,7 +77,7 @@ export class DatabaseEffects {
                             ];
                         })
                 )
-                .catch(error => Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: this.tryParseError(error) } as DatabaseAction))
+                .catch(error => Observable.from(this.convertErrorToActions(error)))
             )
     );
 
@@ -106,15 +108,26 @@ export class DatabaseEffects {
     private tryParseError(error: { name: string, message: string, stack: string }) {
         if (!!error && !!error.name) {
             switch (error.name) {
+                case 'unauthorized':
+                    return this.translate.instant('error_request_unauthorized');
                 case 'unknown':
                 default:
-                    return 'Unkown error occured, please try again later or contact an administrator';
+                    return this.translate.instant('error_synchronize_unknown-error');
             }
         }
         if (!!error && !!error.message) {
             return error.message;
         }
         return error;
+    }
+
+    private convertErrorToActions(error, ) {
+        const errorText = this.tryParseError(error);
+        const actions: any[] = [{ type: 'SYNC_DATABASE_FAILURE', payload: errorText } as DatabaseAction]
+        if (!!error && error.status === 401) { // Append logged out action if an unauthorized response was returned
+            actions.push({ type: 'SET_IS_LOGGED_OUT', payload: errorText } as LoginAction)
+        }
+        return actions;
     }
 
     private updatePreismeldungen() {

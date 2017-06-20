@@ -318,6 +318,7 @@ dashboard {
                 align-self: flex-end;
 
                 span.error {
+                    flex: 1;
                     align-self: center;
                     padding: 0 0.5em;
                     color: $alizarin-crimson;
@@ -325,7 +326,8 @@ dashboard {
                 }
 
                 pef-icon {
-                    flex: 1;
+                    flex: 0;
+                    flex-basis: 2em;
                     &.syncing {
                         fill: $oslo-gray;
                     }

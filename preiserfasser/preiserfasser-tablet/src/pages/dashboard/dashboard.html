@@ -137,7 +137,8 @@
                 </div>
                 <div class="buttons">
                     <button ion-button type="button" (click)="loginClicked$.emit($event)" [hidden]="!(showLogin$ | async)">{{ 'btn_login' | translate }}</button>
-                    <button ion-button type="button" (click)="uploadPreismeldungenClicked$.emit($event)" [disabled]="(showLogin$ | async) || (isSyncing$ | async) || !(hasOpenSavedPreismeldungen$ | async)">{{ 'btn_upload-now' | translate }}</button>
+                    <button ion-button type="button" (click)="synchronizeClicked$.emit($event)" [disabled]="!(canSync$ | async)">{{ 'btn_synchronize' | translate }}</button>
+                    <button ion-button type="button" (click)="uploadPreismeldungenClicked$.emit($event)" [disabled]="!(canSync$ | async) || (showLogin$ | async) || (isSyncing$ | async) || !(hasOpenSavedPreismeldungen$ | async)">{{ 'btn_upload-now' | translate }}</button>
                 </div>
             </div>
         </div>

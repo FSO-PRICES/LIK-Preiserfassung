@@ -37,9 +37,11 @@ export class DashboardPage implements OnDestroy {
 
     public filterTextValueChanges = new EventEmitter<string>();
     public uploadPreismeldungenClicked$ = new EventEmitter();
+    public synchronizeClicked$ = new EventEmitter();
     public loginClicked$ = new EventEmitter();
 
     public showLogin$: Observable<boolean>;
+    public canSync$: Observable<boolean>;
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$
         .combineLatest(this.filterTextValueChanges.startWith(''), (preismeldestellen, filterText) =>
             pefSearch(filterText, preismeldestellen, [pms => pms.name])
@@ -86,14 +88,14 @@ export class DashboardPage implements OnDestroy {
         const loggedInUser$ = this.store.select(fromRoot.getLoggedInUser);
         const canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase);
         const isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn).skip(1)
-            .combineLatest(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect }));
+            .withLatestFrom(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect }));
 
         const loginDialogDismissed$ = this.loginClicked$
             .flatMap(() => pefDialogService.displayModal('LoginModal'))
             .publishReplay(1).refCount();
 
         this.showLogin$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
-        const canSync$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).take(1);
+        this.canSync$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).startWith(false);
 
         const syncCompleted$ = this.isSyncing$.skip(1).filter(x => !!x);
         const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => !x);
@@ -116,8 +118,10 @@ export class DashboardPage implements OnDestroy {
                 // Re-/Load Statistics only when database exists and every time the database has been uploaded
                 .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction)),
 
-            canSync$
-                .withLatestFrom(settings$, loggedInUser$, (x, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
+            this.canSync$
+                .filter(canSync => canSync)
+                .merge(this.synchronizeClicked$.asObservable())
+                .withLatestFrom(settings$, loggedInUser$, (_, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
                 .subscribe(payload => this.store.dispatch({ type: 'SYNC_DATABASE', payload } as DatabaseAction)),
 
             this.uploadPreismeldungenClicked$

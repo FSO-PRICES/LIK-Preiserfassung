@@ -1,4 +1,6 @@
 {
+    "error_request_unauthorized": "Kein gültiges Login vorhanden. Login ist eventuell abgelaufen.",
+    "error_synchronize_unknown-error": "Ein unbekannter Fehler ist während der Synchronisierung aufgetreten, bitte versuchen sie es später erneut oder kontaktieren sie einen Administrator",
     "choose-preismeldestelle": "Preismeldestelle auswählen",
     "preismeldestelle": "Preismeldestelle",
     "control_artikeltext": "Artikeltext",
@@ -132,6 +134,7 @@
     "btn_save": "Speichern",
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
+    "btn_synchronize": "Synchronisieren",
     "btn_login": "Login",
     "btn_upload-now": "jetzt hochladen",
     "btn_continue-editing": "Weiterbearbeiten",
