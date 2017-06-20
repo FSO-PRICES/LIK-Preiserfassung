@@ -31,6 +31,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
     @Output('save') save$: Observable<P.SavePreismeldungPriceSaveAction>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
+    @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
 
     public preismeldung$: Observable<P.CurrentPreismeldungBag>;
     public distinctPreismeldung$: Observable<P.CurrentPreismeldungBag>;
@@ -342,7 +343,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                     : { type: saveAction.type, saveWithData: [{ type: 'AKTION', value: false }] })
                     },
                     {
-                        condition: () => !this.form.value.aktion && !!bag.refPreismeldung && bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage < 0,
+                        condition: () => [99, 1].some(x => x === this.form.value.bearbeitungscode) && !this.form.value.aktion && !!bag.refPreismeldung && bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage < 0,
+                        observable: () => pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_ist-artikel-aktuell-in-aktion'), false)
+                            .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
+                                res.data === 'YES'
+                                    ? { type: saveAction.type, saveWithData: [{ type: 'AKTION', value: true }] }
+                                    : { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_nicht-mehr-aktion'] }] })
+                    },
+                    {
+                        condition: () => [99, 1].some(x => x === this.form.value.bearbeitungscode) && this.form.value.aktion && !!bag.refPreismeldung && !bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage <= 0,
                         observable: () => pefDialogService.displayDialog(PefDialogYesNoEditComponent, translateService.instant('dialogText_not-aktion-message-billiger'), false)
                             .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
                                 res.data === 'YES'
@@ -372,13 +381,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         .reduce((agg, v) => {
                             if (!agg) return v();
                             return (agg as any)
-                                .flatMap(x => {
-                                    if (x.type === 'CANCEL') return Observable.of(x);
-                                    return v().map(y => {
-                                        if (P.isSavePreismeldungPriceSaveActionSave(x) && P.isSavePreismeldungPriceSaveActionSave(y)) {
-                                            return assign({}, y, { saveWithData: (y as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(x.saveWithData)})
+                                .flatMap(lastAlertResult => {
+                                    if (lastAlertResult.type === 'CANCEL') return Observable.of(lastAlertResult);
+                                    return v().map(thisAlertResult => {
+                                        if (P.isSavePreismeldungPriceSaveActionSave(lastAlertResult) && P.isSavePreismeldungPriceSaveActionSave(thisAlertResult)) {
+                                            return assign({}, thisAlertResult, { saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(lastAlertResult.saveWithData)})
                                         } else {
-                                            return y;
+                                            return thisAlertResult;
                                         }
                                     });
                                 })

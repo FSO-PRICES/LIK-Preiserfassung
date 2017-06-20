@@ -39,6 +39,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     addNewPreisreihe$ = new EventEmitter();
     ionViewDidLoad$ = new EventEmitter();
     resetPreismeldung$ = new EventEmitter();
+    requestSelectNextPreismeldung$ = new EventEmitter<{}>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
