@@ -88,7 +88,7 @@ export class DashboardPage implements OnDestroy {
         const loggedInUser$ = this.store.select(fromRoot.getLoggedInUser);
         const canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase);
         const isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn).skip(1)
-            .withLatestFrom(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect }));
+            .combineLatest(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect }));
 
         const loginDialogDismissed$ = this.loginClicked$
             .flatMap(() => pefDialogService.displayModal('LoginModal'))
@@ -97,7 +97,8 @@ export class DashboardPage implements OnDestroy {
         this.showLogin$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
         this.canSync$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).startWith(false);
 
-        const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => !x);
+        const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => !x)
+            .merge(this.store.select(fromRoot.getIsLoggedIn).skip(1).filter(x => x === false));
 
         this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
         this.canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase)
@@ -119,12 +120,16 @@ export class DashboardPage implements OnDestroy {
 
             this.canSync$
                 .filter(canSync => canSync)
-                .merge(this.synchronizeClicked$.asObservable())
+                .take(1) // Only sync the database once each time the dashboard is being visited
+                .merge(this.synchronizeClicked$.asObservable()
+                    .flatMap(() => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissSyncLoading$))
+                )
                 .withLatestFrom(settings$, loggedInUser$, (_, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
                 .subscribe(payload => this.store.dispatch({ type: 'SYNC_DATABASE', payload } as DatabaseAction)),
 
             this.uploadPreismeldungenClicked$
                 .withLatestFrom(settings$, loggedInUser$, (x, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
+                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissSyncLoading$).map(() => payload))
                 .subscribe(payload => this.store.dispatch({ type: 'UPLOAD_DATABASE', payload } as DatabaseAction)),
 
             loginDialogDismissed$ // In case of login data entered
@@ -161,10 +166,12 @@ export class DashboardPage implements OnDestroy {
                 .subscribe(() => {
                     this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
                     this.store.dispatch({ type: 'LOAD_WARENKORB' });
-                })
-        ];
+                }),
 
-        this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction);
+            canConnectToDatabase$.skip(1)
+                .filter(canConnect => canConnect)
+                .subscribe(() => this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction))
+        ];
     }
 
     public ngOnDestroy() {

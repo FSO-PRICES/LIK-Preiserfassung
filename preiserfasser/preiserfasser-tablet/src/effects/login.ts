@@ -28,20 +28,22 @@ export class LoginEffects {
                                 { type: 'SET_IS_LOGGED_IN', payload: loggedInUser } as login.Action
                             )
                     )
-                    .catch(error => Observable.of({ type: 'SET_IS_LOGGED_OUT', payload: error.message} as login.Action))
+                    .catch(error => Observable.of({ type: 'SET_IS_LOGGED_OUT', payload: error.message } as login.Action))
                 )
         );
 
     @Effect()
     login$ = this.actions$.ofType('LOGIN')
         .flatMap(({ payload }) =>
-            loginIntoDatabase(payload)
-                .map(() => ({ user: { username: payload.username }, error: null }))
-                .catch(() => Observable.of(({ user: null, error: 'Benutzername oder Password stimmen nicht überein.' })))
-        )
-        .map(({ user, error }) => (!error ?
-            { type: 'LOGIN_SUCCESS', payload: user } as login.Action :
-            { type: 'LOGIN_FAIL', payload: error } as login.Action)
+            Observable.of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action)
+                .concat(loginIntoDatabase(payload)
+                    .map(() => ({ user: { username: payload.username }, error: null }))
+                    .catch(() => Observable.of(({ user: null, error: 'Benutzername oder Password stimmen nicht überein.' })))
+                    .map(({ user, error }) => (!error ?
+                        { type: 'LOGIN_SUCCESS', payload: user } as login.Action :
+                        { type: 'LOGIN_FAIL', payload: error } as login.Action)
+                    )
+                )
         );
 
     private getSettingsAndUsername() {
