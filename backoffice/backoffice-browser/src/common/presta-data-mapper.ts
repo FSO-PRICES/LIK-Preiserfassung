@@ -137,10 +137,10 @@ export function preparePms(lines: string[][]) {
             email: cells[importPmsFromPrestaIndexes.pmsEMail],
             languageCode: parseLanguageCode(cells[importPmsFromPrestaIndexes.pmsSprache]),
             erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
-            erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
+            erhebungsartComment: parseNewlinesInText(cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart]),
             pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
             erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
-            zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
+            zusatzInformationen: parseNewlinesInText(cells[importPmsFromPrestaIndexes.pmsZusatzinformationen]),
             kontaktpersons: parseKontaktPersons(cells)
         };
     });
@@ -241,8 +241,8 @@ export function preparePmsForExport(preismeldestellen: P.Preismeldestelle[], erh
                 'PMS_Erhebungsregion': toText(pms.erhebungsregion, 20, 'PMS_Erhebungsregion'),
                 'PMS_Erhebungsart': toText(pms.erhebungsart, 60, 'PMS_Erhebungsart'),
                 'PMS_Geschlossen': toNumber(pms.pmsGeschlossen, 1, 'PMS_Geschlossen'),
-                'Bemerkung_zur_Erhebungsart': toText(pms.erhebungsartComment, 1000, 'Bemerkung_zur_Erhebungsart'),
-                'PMS_Zusatzinformationen': toText(pms.zusatzInformationen, 1000, 'PMS_Zusatzinformationen'),
+                'Bemerkung_zur_Erhebungsart': toText(escapeNewlinesInText(pms.erhebungsartComment), 1000, 'Bemerkung_zur_Erhebungsart'),
+                'PMS_Zusatzinformationen': toText(escapeNewlinesInText(pms.zusatzInformationen), 1000, 'PMS_Zusatzinformationen'),
                 'KP1_OID': toNumber(pms.kontaktpersons[0].oid, 10, 'KP1_OID'),
                 'KP1_Vorname': toText(pms.kontaktpersons[0].firstName, 40, 'KP1_Vorname'),
                 'KP1_Name': toText(pms.kontaktpersons[0].surname, 40, 'KP1_Name'),
@@ -325,6 +325,17 @@ function parseNumber(s: string, propertyName: string) {
     const number = parseInt(s, 10);
     if (isNaN(number)) throw new Error(`Invalid ${propertyName}: '${s}'`);
     return number;
+}
+
+function parseNewlinesInText(s: string) {
+    if (s == null) return s;
+    const x = s.replace(/ \\n /g, '\n');
+    return x;
+}
+
+function escapeNewlinesInText(s: string) {
+    if (s == null) return s;
+    return s.replace(/\n/g, ' \\n ');
 }
 
 function escapeProductMerkmale(merkmale: string[]) {
