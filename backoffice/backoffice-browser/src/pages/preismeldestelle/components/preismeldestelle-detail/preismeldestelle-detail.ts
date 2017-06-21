@@ -56,7 +56,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             erhebungsart_internet: [false],
             erhebungsart_papierlisteVorOrt: [false],
             erhebungsart_papierlisteAbgegeben: [false],
-            erhebungshaeufigkeit: [{ value: null }],
+            pmsGeschlossen: [null],
             erhebungsartComment: [null],
             zusatzInformationen: [null],
             active: [true],
