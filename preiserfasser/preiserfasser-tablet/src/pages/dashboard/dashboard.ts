@@ -97,7 +97,6 @@ export class DashboardPage implements OnDestroy {
         this.showLogin$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
         this.canSync$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).startWith(false);
 
-        const syncCompleted$ = this.isSyncing$.skip(1).filter(x => !!x);
         const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => !x);
 
         this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
