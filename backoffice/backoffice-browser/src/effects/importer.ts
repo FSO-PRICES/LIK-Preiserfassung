@@ -11,7 +11,7 @@ import * as importer from '../actions/importer';
 import { dbNames, dropDatabase, getDatabase, putAdminUserToDatabase, dropLocalDatabase, getLocalDatabase, syncDb, getDatabaseAsObservable, getAllDocumentsFromDb } from './pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
-import { readFileContents, parseCsv } from '../common/file-extensions';
+import { parseCsvAsObservable } from '../common/file-extensions';
 import { preparePms, preparePm } from '../common/presta-data-mapper';
 import { buildTree } from '../common/presta-warenkorb-mapper';
 
@@ -27,14 +27,12 @@ export class ImporterEffects {
 
     @Effect()
     parseWarenkorbFile$ = this.actions$.ofType('PARSE_WARENKORB_FILE')
-        .flatMap(action => readFileContents(action.payload.file).map(content => ({ action, content })))
-        .map(({ action, content }) => ({ language: action.payload.language, data: parseCsv(content) }))
+        .flatMap(action => parseCsvAsObservable(action.payload.file).map(data => ({ language: action.payload.language, data })))
         .map(({ language, data }) => ({ type: 'PARSE_WARENKORB_FILE_SUCCESS', payload: { data, language } } as importer.Action));
 
     @Effect()
     parseFile$ = this.actions$.ofType('PARSE_FILE')
-        .flatMap(action => readFileContents(action.payload.file).map(content => ({ action, content })))
-        .map(({ action, content }) => ({ parsedType: action.payload.parseType, data: parseCsv(content) }))
+        .flatMap(action => parseCsvAsObservable(action.payload.file).map(data => ({ parsedType: action.payload.parseType, data })))
         .map(({ parsedType, data }) => ({ type: 'PARSE_FILE_SUCCESS', payload: { data, parsedType } } as importer.Action));
 
     @Effect()

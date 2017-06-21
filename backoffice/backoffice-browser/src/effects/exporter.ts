@@ -117,7 +117,7 @@ function getPePreiszuweisungen(preiserheber: P.Erheber[]) {
         .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db)
             .then(preiszuweisungen => {
                 const zuweisungsMap = keyBy(preiszuweisungen, pz => pz.preiserheberId);
-                return preiserheber.map(pe => assign({}, pe, { pmsNummers: zuweisungsMap[pe.username].preismeldestellenNummern }));
+                return preiserheber.map(pe => assign({}, pe, { pmsNummers: zuweisungsMap[pe.username] && zuweisungsMap[pe.username].preismeldestellenNummern || [] }));
             })
         );
 }

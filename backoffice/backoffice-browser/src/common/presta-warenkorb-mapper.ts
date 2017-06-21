@@ -1,7 +1,7 @@
 import { assign, mapValues, values, keys } from 'lodash';
-import * as csvParser from 'js-csvparser';
 
 import { Models as P } from 'lik-shared';
+import { parseCsvText } from '../common/file-extensions';
 
 const indexes = {
     erhebungsschemaperiode: 0,
@@ -212,5 +212,5 @@ function parseBearbeitungscode(bearbeitungcodes) {
 }
 
 function parseSingleCsvText(text: string): string[] {
-    return csvParser(text, { delimiter: ';' }).data[0] || [];
+    return parseCsvText(text)[0] || [];
 }
