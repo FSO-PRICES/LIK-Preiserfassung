@@ -42,7 +42,7 @@ export class SettingsPage implements OnDestroy {
     ) {
         this.currentSettings$ = store.select(fromRoot.getCurrentSettings);
 
-        this.canConnectToDatabase$ = this.store.map(x => x.database.canConnectToDatabase)
+        this.canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase)
             .publishReplay(1).refCount();
 
         const loadingText$ = translateService.get('text_saving-settings');
@@ -82,8 +82,7 @@ export class SettingsPage implements OnDestroy {
         const settingsSaved$ = this.currentSettings$
             .filter(x => x != null && x.isSaved);
 
-        const databaseExists$ = this.store.map(x => x.database)
-            .map(x => x.databaseExists)
+        const databaseExists$ = this.store.select(x => x.database.databaseExists)
             .distinctUntilChanged()
             .filter(exists => exists !== null)
             .publishReplay(1).refCount();

@@ -137,10 +137,10 @@ export function preparePms(lines: string[][]) {
             email: cells[importPmsFromPrestaIndexes.pmsEMail],
             languageCode: parseLanguageCode(cells[importPmsFromPrestaIndexes.pmsSprache]),
             erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
-            erhebungsartComment: cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart],
+            erhebungsartComment: parseNewlinesInText(cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart]),
             pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
             erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
-            zusatzInformationen: cells[importPmsFromPrestaIndexes.pmsZusatzinformationen],
+            zusatzInformationen: parseNewlinesInText(cells[importPmsFromPrestaIndexes.pmsZusatzinformationen]),
             kontaktpersons: parseKontaktPersons(cells)
         };
     });
@@ -216,7 +216,7 @@ export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.
                 'Preis_vor_Reduktion': toDecimal(pm.pmRef.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
                 'Menge_vor_Reduktion': toDecimal(pm.pmRef.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
                 'Datum_vor_Reduktion': pm.pmRef.datumVorReduktion,
-                'Produktmerkmale': escapeProductMerkmale(pm.productMerkmale)
+                'Produktmerkmale': toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale')
             })
         )
     );
@@ -241,8 +241,8 @@ export function preparePmsForExport(preismeldestellen: P.Preismeldestelle[], erh
                 'PMS_Erhebungsregion': toText(pms.erhebungsregion, 20, 'PMS_Erhebungsregion'),
                 'PMS_Erhebungsart': toText(pms.erhebungsart, 60, 'PMS_Erhebungsart'),
                 'PMS_Geschlossen': toNumber(pms.pmsGeschlossen, 1, 'PMS_Geschlossen'),
-                'Bemerkung_zur_Erhebungsart': toText(pms.erhebungsartComment, 1000, 'Bemerkung_zur_Erhebungsart'),
-                'PMS_Zusatzinformationen': toText(pms.zusatzInformationen, 1000, 'PMS_Zusatzinformationen'),
+                'Bemerkung_zur_Erhebungsart': toText(escapeNewlinesInText(pms.erhebungsartComment), 1000, 'Bemerkung_zur_Erhebungsart'),
+                'PMS_Zusatzinformationen': toText(escapeNewlinesInText(pms.zusatzInformationen), 1000, 'PMS_Zusatzinformationen'),
                 'KP1_OID': toNumber(pms.kontaktpersons[0].oid, 10, 'KP1_OID'),
                 'KP1_Vorname': toText(pms.kontaktpersons[0].firstName, 40, 'KP1_Vorname'),
                 'KP1_Name': toText(pms.kontaktpersons[0].surname, 40, 'KP1_Name'),
@@ -277,7 +277,7 @@ export function preparePreiserheberForExport(preiserhebers: (P.Erheber & { pmsNu
                 'PE_Nummer': toNumber(preiserheber.peNummer, 10, 'PE_Nummer'),
                 'PE_Vorname': toText(preiserheber.firstName, 40, 'PE_Vorname'),
                 'PE_Name': toText(preiserheber.surname, 40, 'PE_Name'),
-                'PE_Funktion': toText(preiserheber.personFunction, 100, 'PE_Funktion'),
+                'PE_Erhebungsregion': toText(preiserheber.erhebungsregion, 100, 'PE_Erhebungsregion'),
                 'PE_Telefon': toText(preiserheber.telephone, 20, 'PE_Telefon'),
                 'PE_Mobile': toText(preiserheber.mobilephone, 20, 'PE_Mobile'),
                 'PE_Fax': toText(preiserheber.fax, 20, 'PE_Fax'),
@@ -327,10 +327,21 @@ function parseNumber(s: string, propertyName: string) {
     return number;
 }
 
+function parseNewlinesInText(s: string) {
+    if (s == null) return s;
+    const x = s.replace(/ \\n /g, '\n');
+    return x;
+}
+
+function escapeNewlinesInText(s: string) {
+    if (s == null) return s;
+    return s.replace(/\n/g, ' \\n ');
+}
+
 function escapeProductMerkmale(merkmale: string[]) {
     if (!merkmale || merkmale.length === 0) return ';'; // At least 1 semicolon is required for the PRESTA system
-    const combined = toCsv([keyBy(merkmale)], false, '');
-    return toCsv([{ merkmale: combined }], false, '');
+    const combined = toCsv([keyBy(merkmale)], false);
+    return toCsv([{ merkmale: combined }], false);
 }
 
 function parsePmsGeschlossen(s: string) {

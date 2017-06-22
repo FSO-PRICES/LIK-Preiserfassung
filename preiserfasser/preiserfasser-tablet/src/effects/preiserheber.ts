@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 
+import { Models as P } from 'lik-shared';
 import { assign } from 'lodash';
 
 import { getServerUrl, setServerUrl } from './local-storage-utils';
@@ -42,7 +43,6 @@ export class PreiserheberEffects {
         return {
             firstName: currentPreiserheber.firstName,
             surname: currentPreiserheber.surname,
-            personFunction: currentPreiserheber.personFunction,
             languageCode: currentPreiserheber.languageCode,
             telephone: currentPreiserheber.telephone,
             mobilephone: currentPreiserheber.mobilephone,
@@ -52,6 +52,6 @@ export class PreiserheberEffects {
             street: currentPreiserheber.street,
             postcode: currentPreiserheber.postcode,
             town: currentPreiserheber.town
-        };
+        } as P.Erheber;
     }
 }

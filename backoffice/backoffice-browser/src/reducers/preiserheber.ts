@@ -69,7 +69,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 username: null,
                 firstName: null,
                 surname: null,
-                personFunction: null,
+                erhebungsregion: null,
                 languageCode: null,
                 telephone: null,
                 mobilephone: null,
@@ -95,7 +95,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 username: payload.username,
                 firstName: payload.firstName,
                 surname: payload.surname,
-                personFunction: payload.personFunction,
+                erhebungsregion: payload.erhebungsregion,
                 languageCode: payload.languageCode,
                 telephone: payload.telephone,
                 mobilephone: payload.mobilephone,
@@ -105,7 +105,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 street: payload.street,
                 postcode: payload.postcode,
                 town: payload.town
-            };
+            } as P.Erheber;
 
             const currentPreiserheber = assign({},
                 state.currentPreiserheber,

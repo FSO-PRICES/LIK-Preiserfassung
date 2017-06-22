@@ -33,10 +33,18 @@
             <ion-label stacked>Nachname</ion-label>
             <ion-input type="text" formControlName="surname"></ion-input>
         </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label stacked>Funktion</ion-label>
-            <ion-input type="text" formControlName="personFunction"></ion-input>
-        </ion-item>
+        <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
+            <div class="item-inner">
+                <div class="input-wrapper">
+                    <ion-label stacked [class.target-ng-invalid]="form.controls.preiserheber.controls.erhebungsregion.invalid">Region</ion-label>
+                    <div class="input input-md pef-select">
+                        <select formControlName="erhebungsregion">
+                            <option *ngFor="let erhebungsregion of erhebungsregionen$ | async" [value]="erhebungsregion">{{erhebungsregion}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
             <div class="item-inner">
                 <div class="input-wrapper">

@@ -1,19 +1,32 @@
-import { Observable } from 'rxjs';
-import * as csvParser from 'js-csvparser';
-import * as csvWriter from 'json2csv';
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+import * as Papa from 'papaparse';
 
-export function parseCsv(data: string): string[][] {
-    return csvParser(data, { delimiter: ';', skipEmptyLines: true, header: 1 }).data;
+const defaultParseSettings = { delimiter: ';', quoteChar: '"', skipEmptyLines: true, encoding: 'ISO-8859-1' };
+
+export function parseCsvText(text: string) {
+    return Papa.parse(text, defaultParseSettings).data || [];
 }
 
-export function toCsv(data: any[], addHeaders: boolean = true, quotes: string = '"'): string {
-    return csvWriter({ data, del: ';', hasCSVColumnTitle: addHeaders, quotes });
+export function parseCsvAsObservable(file: any): Observable<any> {
+    return Observable.create((observer: Observer<any>) => {
+        const _new = Papa.parse(
+            file,
+            Object.assign(
+                {},
+                defaultParseSettings,
+                {
+                    complete: (results) => {
+                        results.data.shift();
+                        observer.next(results.data);
+                        observer.complete();
+                    }
+                })
+        );
+    });
 }
 
-export function readFileContents(file: File) {
-    const reader = new FileReader();
-    const text$ = Observable.fromEvent<ProgressEvent>(reader, 'load')
-        .map(x => (x.target as FileReader).result as string);
-    reader.readAsText(file, 'ISO-8859-1');
-    return text$;
+export function toCsv(data: any[], header: boolean = true, quote: boolean = false): string {
+    // @types/papaparse is not available for v4.3.3
+    return Papa.unparse(data, { delimiter: ';', header, quoteChar: '"', quote })
 }

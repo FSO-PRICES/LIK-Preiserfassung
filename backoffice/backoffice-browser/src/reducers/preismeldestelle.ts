@@ -13,25 +13,33 @@ export interface State {
     preismeldestelleIds: string[];
     entities: { [id: string]: P.Preismeldestelle };
     currentPreismeldestelle: CurrentPreismeldestelle;
+    erhebungsregionen: string[];
 };
 
 const initialState: State = {
     preismeldestelleIds: [],
     entities: {},
     currentPreismeldestelle: undefined,
+    erhebungsregionen: [],
 };
 
 export function reducer(state = initialState, action: preismeldestelle.Action): State {
     switch (action.type) {
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;
+            const erhebungsregionen = [];
             const preismeldestellen = payload
-                .map<P.Preismeldestelle>(preismeldestelle => Object.assign({}, preismeldestelle));
+                .map<P.Preismeldestelle>(preismeldestelle => {
+                    if (erhebungsregionen.indexOf(preismeldestelle.erhebungsregion) === -1) {
+                        erhebungsregionen.push(preismeldestelle.erhebungsregion);
+                    }
+                    return Object.assign({}, preismeldestelle);
+                });
             const preismeldestelleIds = preismeldestellen.map(p => p._id);
             const entities = preismeldestellen.reduce((agg: { [_id: string]: P.Preismeldestelle }, preismeldestelle: P.Preismeldestelle) => {
                 return assign(agg, { [preismeldestelle._id]: preismeldestelle });
             }, {});
-            return assign({}, state, { preismeldestelleIds, entities, currentPreismeldestelle: undefined });
+            return assign({}, state, { preismeldestelleIds, entities, currentPreismeldestelle: undefined, erhebungsregionen });
         }
 
         case 'SELECT_PREISMELDESTELLE': {
@@ -82,5 +90,6 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
 export const getEntities = (state: State) => state.entities;
 export const getPreismeldestelleIds = (state: State) => state.preismeldestelleIds;
 export const getCurrentPreismeldestelle = (state: State) => state.currentPreismeldestelle;
+export const getErhebungsregionen = (state: State) => state.erhebungsregionen;
 
 export const getAll = createSelector(getEntities, getPreismeldestelleIds, (entities, preismeldestelleIds) => preismeldestelleIds.map(x => entities[x]));

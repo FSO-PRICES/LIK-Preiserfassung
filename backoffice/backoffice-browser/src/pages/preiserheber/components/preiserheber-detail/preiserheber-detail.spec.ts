@@ -73,7 +73,7 @@ describe('Component: [Preiserheber] PreiserheberDetailComponent', () => {
             _rev: '1',
             firstName: 'Philipp',
             surname: 'Schärer',
-            personFunction: 'developer',
+            erhebungsregion: 'Bern',
             languageCode: '1',
             telephone: null,
             email: null
@@ -90,19 +90,19 @@ describe('Component: [Preiserheber] PreiserheberDetailComponent', () => {
             .withLatestFrom(component.preiserheber$, (_, current) => current)
             .subscribe(current => {
                 expect(current).toBeTruthy();
-                expect(current.personFunction).toBe('MasterChief');
+                expect(current.erhebungsregion).toBe('Bern');
                 done();
             });
 
         const surname = de.query(By.css('input[formControlName=surname]')).nativeElement;
-        const personFunction = de.query(By.css('input[formControlName=personFunction]')).nativeElement;
+        const erhebungsregion = de.query(By.css('input[formControlName=erhebungsregion]')).nativeElement;
 
         expect(component.getPreiserheberForm().valid).toBeTruthy();
 
         surname.value = '';
         surname.dispatchEvent(new Event('input'));
-        personFunction.value = 'MasterChief';
-        personFunction.dispatchEvent(new Event('input'));
+        erhebungsregion.value = 'Zürich';
+        erhebungsregion.dispatchEvent(new Event('input'));
 
         expect(component.form.valid).toBeFalsy();
 

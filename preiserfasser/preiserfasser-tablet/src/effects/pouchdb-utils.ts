@@ -1,7 +1,8 @@
 import * as PouchDB from 'pouchdb';
 import * as PouchDBAllDbs from 'pouchdb-all-dbs';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
 import { assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
@@ -68,30 +69,48 @@ export function dropDatabase() {
     return db.destroy().then(() => { }).catch(() => { }); // Always try to delete, because the checkIfDatabaseExists could return a false negative
 }
 
-export function downloadDatabase(data: { url: string, username: string, password: string }) {
-    return getOrCreateDatabaseAsObservable()
+export function downloadDatabase(data: { url: string, username: string }) {
+    return _syncDatabase(data.url, data.username, { push: false, pull: true });
+}
+
+export function uploadDatabase(data: { url: string, username: string }) {
+    return _syncDatabase(data.url, data.username, { push: true, pull: false });
+}
+
+export function syncDatabase(data: { url: string, username: string }) {
+    return _syncDatabase(data.url, data.username, { push: true, pull: true });
+}
+
+function _syncDatabase(url: string, username: string, params: { push: boolean, pull: boolean }): Observable<PouchDB.Replication.SyncResultComplete<PouchDB.Core.Encodable>> {
+    return getDatabaseAsObservable()
         .flatMap(pouch => {
-            const couch = new PouchDB(`${data.url}/user_${data.username}`) as any;
-            const login = Observable.bindNodeCallback<string, string, string>(couch.login.bind(couch));
-            return login(data.username, data.password).map(() => ({ pouch, couch }));
-        })
-        .flatMap(({ pouch, couch }) => {
-            const sync = Observable.bindNodeCallback<any, any, any>(pouch.sync.bind(pouch));
-            return sync(couch, { push: false, pull: true, batch_size: 1000 });
+            const couch = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<PouchDB.Core.Encodable>;
+            const sync = pouch.sync(couch, { push: params.push, pull: params.pull, batch_size: 1000 });
+
+            return Observable.create((observer: Observer<PouchDB.Replication.SyncResultComplete<PouchDB.Core.Encodable>>) => {
+                sync.on('complete', (info) => {
+                    observer.next(info);
+                    observer.complete();
+                });
+                sync.on('error', (error) => observer.error(error));
+            });
         });
 }
 
-export function uploadDatabase(data: { url: string, username: string, password: string }) {
+export function getLoggedInUser(url: string, username: string) {
     return getDatabaseAsObservable()
         .flatMap(pouch => {
-            const couch = new PouchDB(`${data.url}/user_${data.username}`) as any;
+            const db = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<PouchDB.Core.Encodable>
+            return Observable.fromPromise(db.get('preiserheber').then(doc => doc.username).catch(() => null))
+        });
+}
+
+export function loginIntoDatabase(data: { url: string, username: string, password: string }) {
+    return getOrCreateDatabaseAsObservable()
+        .flatMap(pouch => {
+            const couch = new PouchDB(`${data.url}/user_${data.username}`, { skip_setup: true }) as any;
             const login = Observable.bindNodeCallback<string, string, string>(couch.login.bind(couch));
-            return login(data.username, data.password).map(() => ({ pouch, couch }));
-        })
-        .flatMap(x => x.pouch.compact().then(() => x))
-        .flatMap(({ pouch, couch }) => {
-            const sync = Observable.bindNodeCallback<any, any, any>(pouch.sync.bind(pouch));
-            return sync(couch, { push: true, pull: false, batch_size: 1000 });
+            return login(data.username, data.password);
         });
 }
 

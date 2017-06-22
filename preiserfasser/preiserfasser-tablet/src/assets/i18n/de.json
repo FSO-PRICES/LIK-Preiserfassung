@@ -1,4 +1,6 @@
 {
+    "error_request_unauthorized": "Kein gültiges Login vorhanden. Login ist eventuell abgelaufen.",
+    "error_synchronize_unknown-error": "Ein unbekannter Fehler ist während der Synchronisierung aufgetreten, bitte versuchen sie es später erneut oder kontaktieren sie einen Administrator",
     "choose-preismeldestelle": "Preismeldestelle auswählen",
     "preismeldestelle": "Preismeldestelle",
     "control_artikeltext": "Artikeltext",
@@ -41,6 +43,7 @@
     "label_preiserffassung_internetlink": "Internetlink",
 
     "label_pms_preismeldestellenummer": "Preismeldestellenummer",
+    "label_pms_erhebungsregion": "Erhebungsregion",
     "label_pms_adresse": "Adresse",
     "label_pms_name": "Name",
     "label_pms_zusatzname": "Zusatzname",
@@ -108,6 +111,7 @@
     "label_preiserheber_firstName": "Vorname",
     "label_preiserheber_surname": "Nachname",
     "label_preiserheber_languageCode": "Sprache",
+    "label_preiserheber_erhebungsregion": "Erhebungsregion",
     "label_preiserheber_telephone": "Festnetznummer",
     "label_preiserheber_mobilephone": "Mobilnummer",
     "label_preiserheber_email": "Email",
@@ -135,6 +139,7 @@
     "btn_save": "Speichern",
     "btn_cancel": "Abbrechen",
     "btn_close": "Schliessen",
+    "btn_synchronize": "Synchronisieren",
     "btn_login": "Login",
     "btn_upload-now": "jetzt hochladen",
     "btn_continue-editing": "Weiterbearbeiten",

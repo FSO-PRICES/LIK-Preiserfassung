@@ -71,7 +71,7 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
             .map(({ unassignedPreismeldestellen, assigned }) => unassignedPreismeldestellen.filter(preismeldestelle => assigned.length === 0 || !assigned.some(x => x._id === preismeldestelle._id)))
             .filter(x => !!x)
             .combineLatest(this.filterTextValueChanges$.startWith(null), (preismeldestellen, filterText) =>
-                !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode])
+                !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode, x => x.erhebungsregion])
             )
             .publishReplay(1).refCount();
 

@@ -38,6 +38,10 @@ form.stacked-form {
         padding-left: 8px;
         padding-right: 8px;
     }
+
+    ion-textarea > textarea {
+        height: 4.8em;
+    }
 }
 
 form {

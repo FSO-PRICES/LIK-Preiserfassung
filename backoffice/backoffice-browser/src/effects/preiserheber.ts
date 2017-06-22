@@ -75,7 +75,7 @@ export class PreiserheberEffects {
                         peNummer: currentPreiserheber.peNummer || generatePeNummer(),
                         firstName: currentPreiserheber.firstName,
                         surname: currentPreiserheber.surname,
-                        personFunction: currentPreiserheber.personFunction,
+                        erhebungsregion: currentPreiserheber.erhebungsregion,
                         languageCode: currentPreiserheber.languageCode,
                         telephone: currentPreiserheber.telephone,
                         mobilephone: currentPreiserheber.mobilephone,
@@ -104,6 +104,8 @@ export class PreiserheberEffects {
         )
         // Only create or update the user db if there was no error
         .flatMap(result => !result.error ? (result.created ? createUserDb(result.preiserheber) : updateUserDb(result.preiserheber)).map(error => assign(result, { error })) : Observable.of(result))
+        // Reload saved preiserheber
+        .flatMap(result => loadPreiserheber(result.preiserheber._id).map(preiserheber => assign(result, { preiserheber })))
         .map(result => !result.error ?
             { type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber } as preiserheber.Action :
             { type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error } as preiserheber.Action

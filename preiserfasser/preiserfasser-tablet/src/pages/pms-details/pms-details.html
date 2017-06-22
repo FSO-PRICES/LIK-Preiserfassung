@@ -21,6 +21,13 @@
                         </div>
                         <div class="row">
                             <div class="column">
+                                <h5>{{ 'label_pms_erhebungsregion' | translate }}</h5>
+                                <div class="readonly-text" [innerHTML]="(pms$ | async)?.erhebungsregion || '&ndash;'"></div>
+                            </div>
+                            <div class="column"></div>
+                        </div>
+                        <div class="row">
+                            <div class="column">
                                 <h5>{{ 'label_pms_adresse' | translate }}</h5>
                                 <ion-list no-lines>
                                     <ion-item class="pef-item">
