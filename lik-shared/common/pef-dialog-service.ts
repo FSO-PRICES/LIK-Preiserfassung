@@ -1,6 +1,8 @@
 import { Component, Injectable } from '@angular/core';
 import { PopoverController, ModalController, LoadingController } from 'ionic-angular';
 import { Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { PefMessageDialogComponent, PefMessageDialogButton } from '../pef-components/pef-message-dialog/pef-message-dialog';
 
 export interface DialogOptions {
     params?: any;
@@ -16,7 +18,7 @@ const defaultOptions: DialogOptions = {
 
 @Injectable()
 export class PefDialogService {
-    constructor(private popoverController: PopoverController, private modalController: ModalController, private loadingController: LoadingController) { }
+    constructor(private popoverController: PopoverController, private modalController: ModalController, private loadingController: LoadingController, private translateService: TranslateService) { }
 
     displayDialog(dialogComponent: Component, params: any, enableBackdropDismiss = false, requestDismiss$: Observable<{}> = null) {
         const dialog = this.popoverController.create(dialogComponent, { params }, { enableBackdropDismiss });
@@ -47,9 +49,27 @@ export class PefDialogService {
         }
         return Observable.fromPromise(loader.present());
     }
+
+    displayDialogYesNo(messageTranslationKey: string, params: {} = null) {
+        return this.displayDialog(PefMessageDialogComponent, { message: this.translateService.instant(messageTranslationKey, params), buttons: YesNoButtons }, false);
+    }
+
+    displayDialogYesNoEdit(messageTranslationKey: string, params: {} = null) {
+        return this.displayDialog(PefMessageDialogComponent, { message: this.translateService.instant(messageTranslationKey, params), buttons: YesNoEditButtons }, false);
+    }
+
+    displayDialogOneButton(buttonTranslationKey: string, messageTranslationKey: string, params: {} = null) {
+        return this.displayDialog(PefMessageDialogComponent, { message: this.translateService.instant(messageTranslationKey, params), buttons: [{ textKey: buttonTranslationKey, dismissValue: 'CLOSE' }] }, false);
+    }
+
+    displayMessageDialog(buttons: PefMessageDialogButton[], messageTranslationKey: string, params: {} = null) {
+        return this.displayDialog(PefMessageDialogComponent, { message: this.translateService.instant(messageTranslationKey, params), buttons }, false);
+    }
+
+
 }
 
-export const YesNoButtons = [
+const YesNoButtons: PefMessageDialogButton[] = [
     {
         textKey: 'btn_yes',
         dismissValue: 'YES'
@@ -59,3 +79,5 @@ export const YesNoButtons = [
         dismissValue: 'NO'
     },
 ];
+
+const YesNoEditButtons = YesNoButtons.concat({ textKey: 'btn_edit', dismissValue: 'EDIT' });

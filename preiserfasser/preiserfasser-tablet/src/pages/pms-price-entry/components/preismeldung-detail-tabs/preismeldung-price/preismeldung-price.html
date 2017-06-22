@@ -54,7 +54,6 @@
                         [preismeldung]="preismeldung$ | async" [forceClose]="distinctPreismeldung$ | async" [popoverLeft]="window.document.getElementById('row-1-middle-section').offsetWidth + 'px + ' + window.document.getElementById('row-1-current-period').offsetWidth + 'px'"
                         [width]="window.document.getElementById('row-1-current-period').offsetWidth + 'px'" [height]="'0px'"
                         (popoverActive)="infoPopoverRightActive$.emit($event)"></preismeldung-info-popover-right>
-                    <!--[height]="window.document.getElementById('row-2-current-period').offsetHeight + 'px'"-->
                 </div>
             </div>
             <div class="columns product-detail-row row-2" [class.info-popover-active]="infoPopoverLeftActive$ | async">
@@ -63,21 +62,13 @@
                 </div>
                 <div class="last-period" *ngIf="(preismeldung$ | async)?.refPreismeldung" id="row-2-last-period">
                     <div class="data-input-area" id="last-period-data-input-area">
-                        <h6>{{ ((infoPopoverLeftActive$ | async) ? 'heading_artikel-vor-reduktion' : 'heading_artikel') | translate
-                            }}
-                        </h6>
+                        <h6>{{ ((infoPopoverLeftActive$ | async) ? 'heading_artikel-vor-reduktion' : 'heading_artikel') | translate }} </h6>
                         <div class="last-period-price">
-                            <div class="number">{{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.preisVorReduktion
-                                : (preismeldung$ | async)?.refPreismeldung.preis) | pefFormatNumber: preisNumberFormattingOptions
-                                }}
-                            </div>
+                            <div class="number">{{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.preisVorReduktion : (preismeldung$ | async)?.refPreismeldung.preis) | pefFormatNumber: preisNumberFormattingOptions }} </div>
                             <div class="unit">CHF</div>
                         </div>
                         <div class="last-period-quantity">
-                            <div class="number">{{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion
-                                : (preismeldung$ | async)?.refPreismeldung.menge) | pefFormatNumber: mengeNumberFormattingOptions
-                                }}
-                            </div>
+                            <div class="number">{{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion : (preismeldung$ | async)?.refPreismeldung.menge) | pefFormatNumber: mengeNumberFormattingOptions }} </div>
                             <div class="unit">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</div>
                         </div>
                         <div class="last-period-bottom-row" [class.visibility-hidden]="infoPopoverLeftActive$ | async">
@@ -128,7 +119,7 @@
                             </ion-item>
                             <div class="unit-item-wrapper">
                                 <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('menge') | async">
-                                    <ion-input #menge [class.display-none]="infoPopoverRightActive$ | async" type="number" step="any" pef-highlight-on-focus
+                                    <ion-input #menge [class.display-none]="infoPopoverRightActive$ | async" type="number" step="any"
                                         pef-disable-input-number-behaviour pef-disable-input-negative-number [class.ng-invalid]="createInvalidObservableFor('menge') | async"
                                         [readonly]="preisAndMengeDisabled$ | async" [class.readonly]="preisAndMengeDisabled$ | async"
                                         (blur)="mengeChanged$.emit(menge.value)" [value]="form.value.menge"></ion-input>

@@ -101,12 +101,11 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 
-            // debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVPNormalNeuerArtikel', 'mengeVPNormalNeuerArtikel', 'aktion', 'bearbeitungscode', 'artikelnummer', 'artikeltext', 'internetLink']);
+            // debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVorReduktion', 'mengeVorReduktion', 'preisVPK', 'mengeVPK', 'aktion', 'bearbeitungscode', 'artikelnummer', 'internetLink', 'artikeltext']);
 
             if (state.currentPreismeldung.preismeldung.preis === payload.preis
                 && state.currentPreismeldung.preismeldung.menge === payload.menge
-                && state.currentPreismeldung.preismeldung.preisVorReduktion === payload.preisVorReduktion
-                && state.currentPreismeldung.preismeldung.mengeVorReduktion === payload.mengeVorReduktion
+                && (payload.bearbeitungscode !== 1 || !payload.aktion || (state.currentPreismeldung.preismeldung.preisVorReduktion === payload.preisVorReduktion && state.currentPreismeldung.preismeldung.mengeVorReduktion === payload.mengeVorReduktion))
                 && state.currentPreismeldung.preismeldung.preisVPK === payload.preisVPK
                 && state.currentPreismeldung.preismeldung.mengeVPK === payload.mengeVPK
                 && state.currentPreismeldung.preismeldung.aktion === payload.aktion
@@ -114,6 +113,20 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
                 && state.currentPreismeldung.preismeldung.internetLink === payload.internetLink
                 && state.currentPreismeldung.preismeldung.artikeltext === payload.artikeltext) { return state; }
+
+            let dataToUpdate = {
+                preis: payload.preis,
+                menge: payload.menge,
+                aktion: payload.aktion,
+                bearbeitungscode: payload.bearbeitungscode,
+                artikelnummer: payload.artikelnummer,
+                internetLink: payload.internetLink,
+                artikeltext: payload.artikeltext,
+                preisVPK: [1, 7].some(x => x === payload.bearbeitungscode) ? payload.preisVPK : null,
+                mengeVPK: [1, 7].some(x => x === payload.bearbeitungscode) ? payload.mengeVPK : null,
+                preisVorReduktion: payload.bearbeitungscode === 1 && payload.aktion ? payload.preisVorReduktion : null,
+                mengeVorReduktion: payload.bearbeitungscode === 1 && payload.aktion ? payload.mengeVorReduktion : null,
+            };
 
             let messages = state.currentPreismeldung.messages;
             if (payload.bearbeitungscode === 0 && state.currentPreismeldung.refPreismeldung.aktion) {
@@ -124,7 +137,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
             const tempCurrentPreismeldung = assign({},
                 state.currentPreismeldung,
-                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, payload, createFehlendePreiseR(state.currentPreismeldung, payload)) },
+                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, dataToUpdate, createFehlendePreiseR(state.currentPreismeldung, payload)) },
                 createNewPriceCountStatus(state.currentPreismeldung, state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer], payload),
                 { isModified: true, messages }
             );
@@ -304,7 +317,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 // tslint:disable-next-line:no-unused-variable
 function debugDifference(obj1: any, obj2: any, props: string[]) {
     props.forEach(p => {
-        console.log(p, obj1[p], obj2[p], obj1[p] === obj2[p]);
+        console.log(p, 'l:' , obj1[p], 'r:', obj2[p], obj1[p] === obj2[p]);
     });
 }
 

@@ -1,6 +1,11 @@
 import { Component, HostBinding } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
 
+export interface PefMessageDialogButton {
+    textKey: string;
+    dismissValue: string;
+}
+
 @Component({
     selector: 'pef-message-dialog',
     template: `
@@ -18,6 +23,5 @@ export class PefMessageDialogComponent {
     @HostBinding('class') classes = 'pef-dialog';
 
     constructor(public viewCtrl: ViewController, public navParams: NavParams) {
-        console.log('navParams', navParams);
     }
 }
