@@ -165,7 +165,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
         this.numberOfEp$ = warenkobUiItemsFiltered$.map(x => x.filter(y => y.warenkorbInfo.warenkorbItem.type === 'LEAF').length).startWith(0);
 
-        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_sufficientPreismeldungen')).map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_ausreichend-artikel')).map(x => x.data));
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.flatMap(warenkorbUiItem => (warenkorbUiItem.preismeldungCount >= (warenkorbUiItem.warenkorbInfo.warenkorbItem as P.Models.WarenkorbLeaf).anzahlPreiseProPMS ? dialogSufficientPreismeldungen$ : Observable.of('YES')).map(x => ({ answer: x, warenkorbUiItem })))

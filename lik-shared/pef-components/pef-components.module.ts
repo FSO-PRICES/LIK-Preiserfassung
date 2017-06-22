@@ -12,14 +12,15 @@ import { PefFormatNumber } from './pef-format-number/pef-format-number';
 import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-pipe';
 import { PefHighlightOnFocus } from './pef-highlight-on-focus/pef-highlight-on-focus';
 import { PefIcon } from './pef-icon/pef-icon';
+import { PefMessageDialogComponent } from './pef-message-dialog/pef-message-dialog';
 import { PefNoBreakString } from './pef-no-break-string-pipe/pef-no-break-string-pipe';
 import { PefPerfectScrollbarDirective } from './pef-perfect-scrollbar/pef-perfect-scrollbar';
 import { PefPerfectVirtualscrollScrollbarDirective } from './pef-perfect-virtualscroll-scrollbar/pef-perfect-virtualscroll-scrollbar';
 import { PefSearchInput } from './pef-search-input/pef-search-input';
 import { PefSvgIcons } from './pef-svg-icons/pef-svg-icons';
 import { PefToggleButtonDirective } from './pef-toggle-button/pef-toggle-button';
-import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
 import { PefVirtualFooter, PefVirtualItem, PefVirtualHeader } from './pef-virtual-scroll/virtual-item';
+import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
 
 @NgModule({
     imports: [CommonModule, IonicModule, TranslateModule],
@@ -33,6 +34,7 @@ import { PefVirtualFooter, PefVirtualItem, PefVirtualHeader } from './pef-virtua
         PefFormatNumberPipe,
         PefHighlightOnFocus,
         PefIcon,
+        PefMessageDialogComponent,
         PefNoBreakString,
         PefPerfectScrollbarDirective,
         PefPerfectVirtualscrollScrollbarDirective,
@@ -48,6 +50,7 @@ import { PefVirtualFooter, PefVirtualItem, PefVirtualHeader } from './pef-virtua
         PefDialogOneButtonComponent,
         PefDialogYesNoComponent,
         PefDialogYesNoEditComponent,
+        PefMessageDialogComponent,
     ],
     exports: [
         PefDetectIonListItemHeightDirective,
@@ -59,6 +62,7 @@ import { PefVirtualFooter, PefVirtualItem, PefVirtualHeader } from './pef-virtua
         PefFormatNumberPipe,
         PefHighlightOnFocus,
         PefIcon,
+        PefMessageDialogComponent,
         PefNoBreakString,
         PefPerfectScrollbarDirective,
         PefPerfectVirtualscrollScrollbarDirective,

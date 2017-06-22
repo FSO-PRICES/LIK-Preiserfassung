@@ -98,7 +98,24 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
                 return [];
             })
+            .combineLatest(this.currentPreismeldung$, (preismeldungen, currentPreismeldung) => {
+                return !!currentPreismeldung && currentPreismeldung.isModified && !preismeldungen.some(x => x.pmId === currentPreismeldung.pmId) ? [(currentPreismeldung as P.PreismeldungBag)].concat(preismeldungen) : preismeldungen;
+            })
+            .debounceTime(100)
             .publishReplay(1).refCount();
+
+        const selectFirstPreismeldung$ = this.filteredPreismeldungen$
+            .withLatestFrom(this.currentPreismeldung$, (filteredPreismeldungen, currentPreismeldung) => {
+                if (!!currentPreismeldung && (currentPreismeldung.isModified || filteredPreismeldungen.some(x => x.pmId === currentPreismeldung.pmId))) return null;
+                return filteredPreismeldungen[0];
+            })
+            .filter(x => !!x);
+
+        const selectNoPreismeldung$ = this.filteredPreismeldungen$
+            .withLatestFrom(this.currentPreismeldung$, (filteredPreismeldungen, currentPreismeldung) => {
+                return filteredPreismeldungen.length === 0 && !!currentPreismeldung && !currentPreismeldung.isModified;
+            })
+            .filter(x => x);
 
         const requestSelectNextPreismeldung$ = this.observePropertyCurrentValue<{}>('requestSelectNextPreismeldung').filter(x => !!x);
         const selectNext$ = this.selectNextPreismeldung$.merge(requestSelectNextPreismeldung$)
@@ -117,18 +134,20 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 return filteredPreismeldungen[currentPreismeldungIndex - 1];
             });
 
-        this.selectPreismeldung$ = this.selectClickedPreismeldung$.merge(selectNext$).merge(selectPrev$)
+        this.selectPreismeldung$ = this.selectClickedPreismeldung$.merge(selectNext$).merge(selectPrev$).merge(selectFirstPreismeldung$).merge(selectNoPreismeldung$.map(() => null))
             .publishReplay(1).refCount();
 
         this.subscriptions.push(
             this.currentPreismeldung$
-                .withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$, (bag, filteredPreismeldungen, ionItemHeight: number) => ({ bag, filteredPreismeldungen, ionItemHeight }))
+                .combineLatest(this.filteredPreismeldungen$, (bag, filteredPreismeldungen) => ({ bag, filteredPreismeldungen }))
+                .withLatestFrom(this.ionItemHeight$, (x, ionItemHeight: number) => ({ bag: x.bag, filteredPreismeldungen: x.filteredPreismeldungen, ionItemHeight }))
+                .delay(100)
                 .subscribe(x => {
+                    if (!x.bag) return;
                     const index = x.filteredPreismeldungen.findIndex(y => y.pmId === x.bag.pmId);
                     if (index < 0)
                         return;
                     var d = this.virtualScroll.calculateDimensions();
-                    const scrollTop = Math.floor(index / d.itemsPerRow + 1) * d.childHeight - Math.max(0, (d.itemsPerCol - 1)) * d.childHeight;
                     if ((index + 1) * x.ionItemHeight > this.virtualScroll.element.nativeElement.scrollTop + d.viewHeight) {
                         this.virtualScroll.element.nativeElement.scrollTop = ((index + 1) * x.ionItemHeight) - d.viewHeight;
                         this.virtualScroll.refresh();

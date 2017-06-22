@@ -9,6 +9,7 @@ import { PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 
 import * as fromRoot from '../../reducers';
+import { SavePreismeldungPriceSaveActionSaveNavigateTab } from '../../actions/preismeldungen';
 
 @IonicPage({
     segment: 'pms-price-entry/:pmsNummer'
@@ -64,7 +65,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         const cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data));
 
         this.selectedTab$ = this.selectTab$
-            .merge(this.save$.filter(x => x.type === 'NO_SAVE_NAVIGATE').map((x: P.SavePreismeldungPriceSaveActionNoSaveNavigate) => x.tabName))
+            .merge(this.save$.filter(x => x.type === 'NO_SAVE_NAVIGATE' || x.type === 'SAVE_AND_NAVIGATE_TAB').map((x: P.SavePreismeldungPriceSaveActionNoSaveNavigate | P.SavePreismeldungPriceSaveActionSaveNavigateTab) => x.tabName))
             .startWith('PREISMELDUNG')
             .publishReplay(1).refCount();
 
@@ -145,7 +146,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         );
 
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
-        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_sufficientPreismeldungen')).map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_ausreichend-artikel')).map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
             .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({
@@ -158,7 +159,7 @@ export class PmsPriceEntryPage implements OnDestroy {
             requestSelectPreismeldung$
                 .filter(x => !x.isCurrentModified)
                 .delay(100)
-                .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }))
+                .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung ? x.selectedPreismeldung.pmId : null }))
         );
 
         this.subscriptions.push(

@@ -48,3 +48,14 @@ export class PefDialogService {
         return Observable.fromPromise(loader.present());
     }
 }
+
+export const YesNoButtons = [
+    {
+        textKey: 'btn_yes',
+        dismissValue: 'YES'
+    },
+    {
+        textKey: 'btn_no',
+        dismissValue: 'NO'
+    },
+];

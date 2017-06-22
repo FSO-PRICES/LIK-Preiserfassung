@@ -30,12 +30,14 @@ export type SavePreismeldungPriceSaveActionSaveDuplicate = { type: 'SAVE_AND_DUP
 export type SavePreismeldungPriceSaveActionSaveNavigateDashboard = { type: 'SAVE_AND_NAVIGATE_TO_DASHBOARD', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
 export type SavePreismeldungPriceSaveActionReset = { type: 'RESET' };
 export type SavePreismeldungPriceSaveActionNoSaveNavigate = { type: 'NO_SAVE_NAVIGATE', tabName: string };
+export type SavePreismeldungPriceSaveActionSaveNavigateTab = { type: 'SAVE_AND_NAVIGATE_TAB', saveWithData: SavePreismeldungPriceSaveActionWithDataType[], tabName: string };
 
 export type SavePreismeldungPriceSaveActionSave =
     SavePreismeldungPriceSaveActionJustSave |
     SavePreismeldungPriceSaveActionSaveMoveNext |
     SavePreismeldungPriceSaveActionSaveDuplicate |
-    SavePreismeldungPriceSaveActionSaveNavigateDashboard;
+    SavePreismeldungPriceSaveActionSaveNavigateDashboard |
+    SavePreismeldungPriceSaveActionSaveNavigateTab;
 
 export type SavePreismeldungPriceSaveAction =
     SavePreismeldungPriceSaveActionSave |
