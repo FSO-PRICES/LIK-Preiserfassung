@@ -4,11 +4,9 @@ import { Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { assign } from 'lodash';
 
-import { ReactiveComponent, PefDialogService, pefContains } from 'lik-shared';
+import { ReactiveComponent, PefDialogService, PefMessageDialogService, pefContains } from 'lik-shared';
 
 import * as P from '../../../common-models';
-
-import { PefDialogYesNoComponent } from 'lik-shared';
 
 type WarenkorbUiItem = {
     isExpanded: boolean;
@@ -46,7 +44,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
     private subscriptions = [];
 
-    constructor(private pefDialogService: PefDialogService, translateService: TranslateService) {
+    constructor(private pefDialogService: PefDialogService, private pefMessageDialogService: PefMessageDialogService, translateService: TranslateService) {
         super();
 
         const currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung').take(1);
@@ -165,7 +163,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
         this.numberOfEp$ = warenkobUiItemsFiltered$.map(x => x.filter(y => y.warenkorbInfo.warenkorbItem.type === 'LEAF').length).startWith(0);
 
-        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_ausreichend-artikel')).map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefMessageDialogService.displayDialogYesNo('dialogText_ausreichend').map(x => x.data));
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.flatMap(warenkorbUiItem => (warenkorbUiItem.preismeldungCount >= (warenkorbUiItem.warenkorbInfo.warenkorbItem as P.Models.WarenkorbLeaf).anzahlPreiseProPMS ? dialogSufficientPreismeldungen$ : Observable.of('YES')).map(x => ({ answer: x, warenkorbUiItem })))

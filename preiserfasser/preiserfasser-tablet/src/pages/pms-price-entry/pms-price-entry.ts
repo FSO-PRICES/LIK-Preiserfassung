@@ -5,7 +5,7 @@ import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
-import { PefDialogService, PefDialogYesNoComponent } from 'lik-shared';
+import { PefDialogService, PefMessageDialogService } from 'lik-shared';
 import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
 
 import * as fromRoot from '../../reducers';
@@ -58,6 +58,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         private navController: NavController,
         private navParams: NavParams,
         private pefDialogService: PefDialogService,
+        private pefMessageDialogService: PefMessageDialogService,
         private store: Store<fromRoot.AppState>,
         private zone: NgZone,
         translateService: TranslateService
@@ -146,7 +147,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         );
 
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
-        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogYesNoComponent, translateService.instant('dialogText_ausreichend-artikel')).map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefMessageDialogService.displayDialogYesNo('dialogText_ausreichend-artikel').map(x => x.data));
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$
             .withLatestFrom(this.currentPreismeldung$.startWith(null), (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({

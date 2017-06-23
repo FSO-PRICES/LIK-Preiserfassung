@@ -45,7 +45,7 @@
                     <h5 class="large">Vorperiode</h5>
                     <preismeldung-info-popover-left [class.hidden]="!(preismeldung$ | async)?.refPreismeldung || !(preismeldung$ | async)?.refPreismeldung.aktion"
                         [preismeldung]="preismeldung$ | async" [forceClose]="distinctPreismeldung$ | async" [extraWidth]="window.document.getElementById('row-1-middle-section').offsetWidth + 'px'"
-                        [height]="popoverHeight$ | async" (popoverActive)="infoPopoverLeftActive$.emit($event)"></preismeldung-info-popover-left>
+                        [height]="'0px'" (popoverActive)="infoPopoverLeftActive$.emit($event)"></preismeldung-info-popover-left>
                 </div>
                 <div class="middle-section" id="row-1-middle-section"></div>
                 <div class="current-period" id="row-1-current-period">
@@ -109,9 +109,12 @@
                             <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('preis') | async">
                                 <ion-label class="currency-label">CHF</ion-label>
                                 <ion-input #preis [class.display-none]="infoPopoverRightActive$ | async" type="number" min="0.00" step="0.01" pef-highlight-on-focus
-                                    pef-disable-input-number-behaviour pef-disable-input-negative-number [class.ng-invalid]="createInvalidObservableFor('preis') | async"
-                                    [readonly]="preisAndMengeDisabled$ | async" [class.readonly]="preisAndMengeDisabled$ | async"
-                                    (blur)="preisChanged$.emit(preis.value)" [value]="(preisCurrentValue$ | async)?.value"></ion-input>
+                                    pef-disable-input-number-behaviour pef-disable-input-negative-number
+                                    [class.ng-invalid]="createInvalidObservableFor('preis') | async"
+                                    [readonly]="preisAndMengeDisabled$ | async"
+                                    [class.readonly]="preisAndMengeDisabled$ | async"
+                                    (blur)="preisChanged$.emit(preis.value)"
+                                    [value]="(preisCurrentValue$ | async)?.value"></ion-input>
                                 <ion-input #preisVorReduktion [class.display-none]="!(infoPopoverRightActive$ | async)" type="number" min="0.00" step="0.01"
                                     pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
                                     [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async" (blur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)"
@@ -187,8 +190,7 @@
                     </div>
                 </div>
                 <div class="current-period">
-                    <button ion-button color="java" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)"
-                        [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
+                    <button ion-button color="java" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
                 </div>
             </div>
             <div class="columns product-detail-row row-4">

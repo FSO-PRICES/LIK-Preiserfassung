@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { keys, assign } from 'lodash';
 import { isBefore } from 'date-fns';
 
-import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, maxMinNumberValidatorFactory, PefDialogService, PefMessageDialogService } from 'lik-shared';
 import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
 
 import * as P from '../../../../../common-models';
@@ -60,8 +60,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public chooseReductionPercentage$ = new EventEmitter();
     public infoPopoverLeftActive$ = new EventEmitter<boolean>();
     public infoPopoverRightActive$ = new EventEmitter<boolean>();
-    public popoverHeight$: Observable<string>;
-
     public preisNumberFormattingOptions = preisNumberFormattingOptions;
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
@@ -81,7 +79,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     private subscriptions: Subscription[] = [];
 
-    constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, translateService: TranslateService, @Inject('windowObject') public window: any) {
+    constructor(formBuilder: FormBuilder, pefDialogService: PefDialogService, pefMessageDialogService: PefMessageDialogService, translateService: TranslateService, @Inject('windowObject') public window: any) {
         super();
 
         const infoPopoverLeftActive$ = this.infoPopoverLeftActive$.startWith(false).publishReplay(1).refCount();
@@ -133,7 +131,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.subscriptions.push(
             this.distinctPreismeldung$
                 .subscribe(bag => {
-                    // console.log('resetting')
                     this.form.reset({
                         pmId: bag.pmId,
                         preis: bag.preismeldung.preis,
@@ -253,8 +250,23 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 artikeltext: this.form.value.artikeltext
             }));
 
+        this.isSaveDisabled$ = this.distinctPreismeldung$.combineLatest(this.currentTime$, (bag, currentTime) => {
+            if (!bag) return false;
+            if (!!bag.preismeldung.uploadRequestedAt) return true;
+            if (!bag.refPreismeldung) return false;
+            const dateRegex = /(\d+)\.(\d+)\.(\d+)/;
+            const parsed = dateRegex.exec(bag.refPreismeldung.erhebungsAnfangsDatum);
+            if (!parsed) return false;
+            const erhebungsAnfangsDatum = new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
+            return isBefore(currentTime, erhebungsAnfangsDatum) ? true : false;
+        }).publishReplay(1).refCount();
+
         this.preisAndMengeDisabled$ = bearbeitungscodeChanged$
-            .map(x => this.calcPreisAndMengeDisabled(x));
+            .map(x => this.calcPreisAndMengeDisabled(x))
+            .withLatestFrom(this.isSaveDisabled$, (disabledBasedOnBearbeitungsCode, isSaveDisabled) => {
+                console.log(disabledBasedOnBearbeitungsCode, isSaveDisabled)
+                return disabledBasedOnBearbeitungsCode || isSaveDisabled;
+            });
 
         this.showVPArtikelNeu$ = bearbeitungscodeChanged$
             .map(x => x === 7 || x === 2)
@@ -322,12 +334,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     },
                     {
                         condition: () => bag.hasPriceWarning && !bag.messages.kommentar,
-                        observable: () => pefDialogService.displayDialogOneButton('btn_edit', 'dialogText_abnormal-preisentwicklung')
+                        observable: () => pefMessageDialogService.displayDialogOneButton('btn_edit', 'dialogText_abnormal-preisentwicklung')
                             .map(res => ({ type: 'CANCEL' } as P.SavePreismeldungPriceSaveAction))
                     },
                     {
                         condition: () => [1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer,
-                        observable: () => pefDialogService.displayDialogYesNo('dialogText_unveraendert-pm-text')
+                        observable: () => pefMessageDialogService.displayDialogYesNo('dialogText_unveraendert-pm-text')
                             .map(res => res.data === 'YES' ? { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_artikeltext_unverändert_bestätigt'] }] } : { type: 'CANCEL' })
                     },
                     {
@@ -336,7 +348,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         // Falls mehrmals hintereinander A gesetzt wird, kann Preis theoretisch höher, gleich oder unter VP-Meldung liegen. Normalfall ist im Ausverkauf jedoch, dass die „Aktion“ unverändert oder tiefer als VP zu liegen kommt.
                         // -> Falls Aktionspreis/ Menge in T über VP: Warnmeldung im Sinne von „Ist der Preis noch in Aktion ? Bitte überprüfen und [zurück zur Eingabe] / [verwerfen] / [bestätigen]“.
                         condition: () => [99, 1].some(x => x === this.form.value.bearbeitungscode) && this.form.value.aktion && bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage > 0,
-                        observable: () => pefDialogService.displayDialogYesNoEdit('dialogText_aktion-message-preis-hoeher')
+                        observable: () => pefMessageDialogService.displayDialogYesNoEdit('dialogText_aktion-message-preis-hoeher')
                             .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
                                 res.data === 'YES'
                                     ? { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_steigender-aktionspreis-bestaetigt'] }] }
@@ -348,7 +360,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         // Falls Preis/Menge in T gleich/kleiner Aktionspreis/Menge VP, jedoch kein Flag A in T gesetzt ist, Message: „Ist Artikel aktuell in Aktion?“
                         // [JA](Flag A in T schreiben/Speichern/Forward) / [NEIN](Bemerkung: „Nicht mehr Aktion bei unverändertem Preis“/Speichern/Forward)
                         condition: () => [99, 1].some(x => x === this.form.value.bearbeitungscode) && !this.form.value.aktion && !!bag.refPreismeldung && bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage <= 0,
-                        observable: () => pefDialogService.displayDialogYesNoEdit('dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis')
+                        observable: () => pefMessageDialogService.displayDialogYesNoEdit('dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis')
                             .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
                                 res.data === 'YES'
                                     ? { type: saveAction.type, saveWithData: [{ type: 'AKTION', value: true }] }
@@ -360,7 +372,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         // Falls Aktionspreis/Menge in T grösser/gleich Preis/Menge VP, jedoch kein Aktionsflag in VP gesetzt ist, Dialog öffnen: „Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?“ mit [JA]
                         // -> autotext / [EDIT] / [Kommentar] -> falls möglich direkt zu Kommentarfeld wechseln (oder falls aufwändig zurück zur normalen Maske, also EDIT)
                         condition: () => [99, 1, 77].some(x => x === this.form.value.bearbeitungscode) && this.form.value.aktion && !!bag.refPreismeldung && !bag.refPreismeldung.aktion && bag.preismeldung.d_DPToVP.percentage >= 0,
-                        observable: () => pefDialogService.displayMessageDialog([{ textKey: 'btn_yes', dismissValue: 'YES' }, { textKey: 'btn_edit', dismissValue: 'EDIT' }, { textKey: 'btn_comment', dismissValue: 'COMMENT' }], 'dialogText_aktueller-aktionspreis-gleich-groesser-vp-normalpreis')
+                        observable: () => pefMessageDialogService.displayMessageDialog([{ textKey: 'btn_yes', dismissValue: 'YES' }, { textKey: 'btn_edit', dismissValue: 'EDIT' }, { textKey: 'btn_comment', dismissValue: 'COMMENT' }], 'dialogText_aktueller-aktionspreis-gleich-groesser-vp-normalpreis')
                             .map(res => res.data === 'EDIT' ? { type: 'CANCEL' } :
                                 res.data === 'YES'
                                     ? { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp'] }] }
@@ -369,7 +381,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     {
                         // wrong dialog
                         condition: () => this.form.value.bearbeitungscode === 101 && /^R+$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 2,
-                        observable: () => pefDialogService.displayDialogYesNo('dialogText_rrr-message-mit-aufforderung-zu-produktersatz')
+                        observable: () => pefMessageDialogService.displayDialogYesNo('dialogText_rrr-message-mit-aufforderung-zu-produktersatz')
                             .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_keine-ersatzprodukte'] }] })
                     },
                     {
@@ -379,7 +391,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                 numActivePrices: bag.priceCountStatus.numActivePrices - 1,
                                 anzahlPreiseProPMS: bag.priceCountStatus.anzahlPreiseProPMS
                             };
-                            return pefDialogService.displayDialogYesNo('dialogText_aufforderung-ersatzsuche', params)
+                            return pefMessageDialogService.displayDialogYesNo('dialogText_aufforderung-ersatzsuche', params)
                                 .map(res => res.data === 'YES'
                                     ? { type: 'SAVE_AND_DUPLICATE_PREISMELDUNG', saveWithData: [{ type: 'COMMENT', comments: [] }] }
                                     : { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_keine-produkte'] }] }
@@ -430,17 +442,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .subscribe()
         );
 
-        this.isSaveDisabled$ = this.distinctPreismeldung$.combineLatest(this.currentTime$, (bag, currentTime) => {
-            if (!bag) return false;
-            if (!!bag.preismeldung.uploadRequestedAt) return true;
-            if (!bag.refPreismeldung) return false;
-            const dateRegex = /(\d+)\.(\d+)\.(\d+)/;
-            const parsed = dateRegex.exec(bag.refPreismeldung.erhebungsAnfangsDatum);
-            if (!parsed) return false;
-            const erhebungsAnfangsDatum = new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
-            return isBefore(currentTime, erhebungsAnfangsDatum) ? true : false;
-        }).publishReplay(1).refCount();
-
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .combineLatest(infoPopoverRightActive$, (bearbeitungscode, infoPopoverRightActive) => {
                 if (infoPopoverRightActive) {
@@ -451,11 +452,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         const showInvalid$ = this.form.valueChanges.merge(this.attemptSave$).publishReplay(1).refCount();
         this.createInvalidObservableFor = (controlName: string) => showInvalid$.map(() => !!this.form.controls[controlName].errors);
-
-        // this.popoverHeight$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
-        //     .delay(0)
-        //     .map(x => x === 7 ? (window.document.getElementById('row-2-last-period').offsetHeight - 8) + 'px' : window.document.getElementById('last-period-data-input-area').offsetHeight + 'px');
-        this.popoverHeight$ = Observable.of('0px');
 
         this.arrowDown$ = infoPopoverLeftActive$
             .combineLatest(this.preismeldung$, (infoPopoverLeftActive, bag) => ({ infoPopoverLeftActive, bag }))

@@ -19,7 +19,7 @@ import { PefApp } from './app.component';
 import { PreiserfasserCommonModule } from '../common';
 import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
 
-import { PefDialogService } from 'lik-shared';
+import { PefDialogService, PefMessageDialogService } from 'lik-shared';
 import { PefComponentsModule } from 'lik-shared';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -57,6 +57,7 @@ export function createTranslateLoader(http: Http) {
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         PefDialogService,
+        PefMessageDialogService,
         StatusBar,
         SplashScreen,
         ScreenOrientation,

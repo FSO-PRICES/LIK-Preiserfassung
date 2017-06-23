@@ -4,9 +4,6 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { PefDetectIonListItemHeightDirective } from './pef-detect-ion-list-item-height/pef-detect-ion-list-item-height';
-import { PefDialogOneButtonComponent } from './pef-dialog-one-button/pef-dialog-one-button';
-import { PefDialogYesNoComponent } from './pef-dialog-yes-no/pef-dialog-yes-no';
-import { PefDialogYesNoEditComponent } from './pef-dialog-yes-no-edit/pef-dialog-yes-no-edit';
 import { PefDisableInputNumberBehaviourDirective } from './pef-disable-input-number-behaviour/pef-disable-input-number-behaviour';
 import { PefFormatNumber } from './pef-format-number/pef-format-number';
 import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-pipe';
@@ -26,9 +23,6 @@ import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
     imports: [CommonModule, IonicModule, TranslateModule],
     declarations: [
         PefDetectIonListItemHeightDirective,
-        PefDialogOneButtonComponent,
-        PefDialogYesNoComponent,
-        PefDialogYesNoEditComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,
         PefFormatNumberPipe,
@@ -47,16 +41,10 @@ import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
         PefVirtualScroll,
     ],
     entryComponents: [
-        PefDialogOneButtonComponent,
-        PefDialogYesNoComponent,
-        PefDialogYesNoEditComponent,
         PefMessageDialogComponent,
     ],
     exports: [
         PefDetectIonListItemHeightDirective,
-        PefDialogOneButtonComponent,
-        PefDialogYesNoComponent,
-        PefDialogYesNoEditComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFormatNumber,
         PefFormatNumberPipe,

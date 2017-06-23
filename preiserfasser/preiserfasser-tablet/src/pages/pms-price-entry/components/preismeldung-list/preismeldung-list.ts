@@ -99,14 +99,14 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 return [];
             })
             .combineLatest(this.currentPreismeldung$, (preismeldungen, currentPreismeldung) => {
-                return !!currentPreismeldung && currentPreismeldung.isModified && !preismeldungen.some(x => x.pmId === currentPreismeldung.pmId) ? [(currentPreismeldung as P.PreismeldungBag)].concat(preismeldungen) : preismeldungen;
+                return !!currentPreismeldung && (currentPreismeldung.isNew || currentPreismeldung.isModified) && !preismeldungen.some(x => x.pmId === currentPreismeldung.pmId) ? [(currentPreismeldung as P.PreismeldungBag)].concat(preismeldungen) : preismeldungen;
             })
             .debounceTime(100)
             .publishReplay(1).refCount();
 
         const selectFirstPreismeldung$ = this.filteredPreismeldungen$
             .withLatestFrom(this.currentPreismeldung$, (filteredPreismeldungen, currentPreismeldung) => {
-                if (!!currentPreismeldung && (currentPreismeldung.isModified || filteredPreismeldungen.some(x => x.pmId === currentPreismeldung.pmId))) return null;
+                if (!!currentPreismeldung && (currentPreismeldung.isNew || filteredPreismeldungen.some(x => x.pmId === currentPreismeldung.pmId))) return null;
                 return filteredPreismeldungen[0];
             })
             .filter(x => !!x);
