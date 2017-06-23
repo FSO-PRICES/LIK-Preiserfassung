@@ -48,7 +48,7 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
                 .filter(bag => !!bag)
                 .subscribe(bag => {
                     const formDef = keys(bag.warenkorbPosition.productMerkmale)
-                        .reduce((agg, v) => assign(agg, { [`attribute_${v}`]: bag.attributes[v] }), {});
+                        .reduce((agg, v) => assign(agg, { [`attribute_${v}`]: !!bag.attributes ? bag.attributes[v] : null }), {});
                     this.form.reset(formDef);
                 })
         );
