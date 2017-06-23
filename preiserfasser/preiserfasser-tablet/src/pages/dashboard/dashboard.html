@@ -99,7 +99,7 @@
                 <h3>{{ 'heading_manage-preismeldestelle' | translate }}</h3>
             </div>
             <div class="summary">
-            {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | date:'MMMM y' }}
+            {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | pefDateTranslate:'MMMM YYYY' }}
             </div>
             <div class="statistics">
                 <ion-content>

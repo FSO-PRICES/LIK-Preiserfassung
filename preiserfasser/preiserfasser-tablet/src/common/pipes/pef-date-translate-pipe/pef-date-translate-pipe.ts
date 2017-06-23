@@ -8,8 +8,8 @@ import * as enLocale from 'date-fns/locale/en';
 import * as frLocale from 'date-fns/locale/fr';
 import * as itLocale from 'date-fns/locale/it';
 
-@Pipe({ name: 'pefMonthTranslate' })
-export class PefMonthTranslatePipe implements PipeTransform, OnDestroy {
+@Pipe({ name: 'pefDateTranslate' })
+export class PefDateTranslatePipe implements PipeTransform, OnDestroy {
     private currentLanguage: string;
 
     private subscriptions = [];
@@ -21,10 +21,10 @@ export class PefMonthTranslatePipe implements PipeTransform, OnDestroy {
         );
     }
 
-    transform(value: string, formatOptions: any) {
+    transform(value: any, formatOptions: any) {
         if (!value) return undefined;
 
-        return format(`2000-${value}-01`, 'MMMM', { locale: this.getLocale() });
+        return format(value, formatOptions, { locale: this.getLocale() });
     }
 
     getLocale() {
