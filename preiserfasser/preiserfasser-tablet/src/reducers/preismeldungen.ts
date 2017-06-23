@@ -122,8 +122,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 artikelnummer: payload.artikelnummer,
                 internetLink: payload.internetLink,
                 artikeltext: payload.artikeltext,
-                preisVPK: [1, 7].some(x => x === payload.bearbeitungscode) ? payload.preisVPK : null,
-                mengeVPK: [1, 7].some(x => x === payload.bearbeitungscode) ? payload.mengeVPK : null,
+                preisVPK: [2, 7].some(x => x === payload.bearbeitungscode) ? payload.preisVPK : null,
+                mengeVPK: [2, 7].some(x => x === payload.bearbeitungscode) ? payload.mengeVPK : null,
                 preisVorReduktion: payload.bearbeitungscode === 1 && payload.aktion ? payload.preisVorReduktion : null,
                 mengeVorReduktion: payload.bearbeitungscode === 1 && payload.aktion ? payload.mengeVorReduktion : null,
             };

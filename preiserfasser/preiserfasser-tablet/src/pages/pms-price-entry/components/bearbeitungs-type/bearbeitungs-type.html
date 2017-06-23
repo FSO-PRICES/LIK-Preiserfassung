@@ -1,5 +1,5 @@
 <div style="position: relative;">
-    <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)">
+    <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)" [disabled]="readonly$ | async">
         <div class="code-name" [class.highlighted]="(selectedBearbeitungsType$ | async)?.code != 99">{{ (selectedBearbeitungsType$ | async)?.codeName }}</div>
         <div class="description">{{ (selectedBearbeitungsType$ | async)?.description }}</div>
     </button>

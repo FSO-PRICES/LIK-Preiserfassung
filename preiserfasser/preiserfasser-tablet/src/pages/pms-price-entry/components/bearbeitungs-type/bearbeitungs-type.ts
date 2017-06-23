@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ElementRef, NgZone, forwardRef, HostListener, Input, Output, ChangeDetectionStrategy, SimpleChange, OnChanges, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, ElementRef, NgZone, forwardRef, HostListener, Input, Output, ChangeDetectionStrategy, SimpleChange, OnChanges, OnDestroy, HostBinding } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { assign } from 'lodash';
@@ -32,9 +32,11 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
 export class BearbeitungsTypeComponent extends ReactiveComponent implements ControlValueAccessor, OnChanges, OnDestroy {
     @Input() codeListType: CodeListType = 'STANDARD';
     @Input() nichtEmpfohleneBc: P.Models.Bearbeitungscode[];
+    @HostBinding('class.readonly') @Input() readonly: boolean;
     @Output('change') change$: Observable<P.Models.Bearbeitungscode>;
 
     public codeListType$ = this.observePropertyCurrentValue<CodeListType>('codeListType');
+    public readonly$ = this.observePropertyCurrentValue<boolean>('readonly');
 
     public buttonClicked$ = new EventEmitter<MouseEvent>();
     public buttonOn$: Observable<boolean>;
@@ -76,7 +78,8 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
         this.subscriptions.push(this.change$.subscribe(x => { this._onChange(x); }));
 
-        this.buttonOn$ = this.buttonClicked$.do(x => { x.cancelBubble = true; }).map(() => ({ type: 'TOGGLE' }))
+        this.buttonOn$ = this.buttonClicked$.do(x => { x.cancelBubble = true; })
+            .map(() => ({ type: 'TOGGLE' }))
             .merge(this.selectBearbeitungsType$.do(x => { x.event.cancelBubble = true; }).mapTo({ type: 'CLOSE' }))
             .merge(this.documentClick$.mapTo({ type: 'CLOSE' }))
             .scan((agg, v) => v.type === 'TOGGLE' ? !agg : false, false)

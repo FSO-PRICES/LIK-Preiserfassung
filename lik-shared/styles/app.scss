@@ -176,6 +176,17 @@ form.stacked-form {
     }
 }
 
+form.form-show-validation-hints {
+    .item-md.pef-item.on-dark.ng-invalid {
+        ion-input {
+            border-bottom-color: orange;
+        }
+        ion-label {
+            color: white;
+        }
+    }
+}
+
 .list-md .item-input:last-child {
     border-bottom: 0;
 }

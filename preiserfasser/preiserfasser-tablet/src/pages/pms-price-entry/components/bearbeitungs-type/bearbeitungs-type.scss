@@ -39,6 +39,9 @@ bearbeitungs-type {
                 color: white;
             }
         }
+        &[disabled] {
+            background-color: $alto;
+        }
     }
 
     .bearbeitungs-type-flyout {

@@ -222,7 +222,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.subscriptions.push(
             this.chooseReductionPercentage$
                 .flatMap(() => pefDialogService.displayDialog(DialogChoosePercentageReductionComponent, null, true).map(x => x.data))
-                .filter(x => x.type === 'OK')
+                .filter(x => !!x && x.type === 'OK')
                 .subscribe(({ percentage  })=> {
                     const currentPreis = parseFloat(this.form.value.preis);
                     if (isNaN(currentPreis)) return;
@@ -263,10 +263,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.preisAndMengeDisabled$ = bearbeitungscodeChanged$
             .map(x => this.calcPreisAndMengeDisabled(x))
-            .withLatestFrom(this.isSaveDisabled$, (disabledBasedOnBearbeitungsCode, isSaveDisabled) => {
-                console.log(disabledBasedOnBearbeitungsCode, isSaveDisabled)
-                return disabledBasedOnBearbeitungsCode || isSaveDisabled;
-            });
+            .combineLatest(this.isSaveDisabled$, (disabledBasedOnBearbeitungsCode, isSaveDisabled) => disabledBasedOnBearbeitungsCode || isSaveDisabled)
+            .publishReplay(1).refCount();
 
         this.showVPArtikelNeu$ = bearbeitungscodeChanged$
             .map(x => x === 7 || x === 2)
