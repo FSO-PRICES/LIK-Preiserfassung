@@ -26,6 +26,6 @@
     </ion-col>
 </ion-row>
 <div class="actions">
-    <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsParsed$ | async)" (click)="importWarenkorbClicked$.emit($event)">Import Preismeldestellen</button>
+    <button ion-button class="register-btn" type="button" [disabled]="!(warenkorbIsParsed$ | async)" (click)="importWarenkorbClicked$.emit($event)">Import Warenkorb</button>
     <span *ngIf="isWarenkorbImported$ | async" ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImportedCount$ | async}} Einträge wurden hinzugefügt</span>
 </div>

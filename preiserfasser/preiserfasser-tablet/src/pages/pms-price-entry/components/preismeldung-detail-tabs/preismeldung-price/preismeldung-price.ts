@@ -386,7 +386,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         condition: () => this.form.value.bearbeitungscode === 0,
                         observable: () => {
                             const params = {
-                                numActivePrices: bag.priceCountStatus.numActivePrices - 1,
+                                numActivePrices: bag.priceCountStatus.numActivePrices,
                                 anzahlPreiseProPMS: bag.priceCountStatus.anzahlPreiseProPMS
                             };
                             return pefMessageDialogService.displayDialogYesNo('dialogText_aufforderung-ersatzsuche', params)
@@ -406,7 +406,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             if (!agg) return v();
                             return (agg as any)
                                 .flatMap(lastAlertResult => {
-                                    if (lastAlertResult.type === 'CANCEL') return Observable.of(lastAlertResult);
+                                    if (['CANCEL', 'NO_SAVE_NAVIGATE'].some(x => x === lastAlertResult.type)) return Observable.of(lastAlertResult);
                                     return v().map(thisAlertResult => {
                                         if (P.isSavePreismeldungPriceSaveActionSave(lastAlertResult) && P.isSavePreismeldungPriceSaveActionSave(thisAlertResult)) {
                                             return assign({}, thisAlertResult, { saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(lastAlertResult.saveWithData)})

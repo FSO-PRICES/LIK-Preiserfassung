@@ -183,15 +183,26 @@ export class PmsPriceEntryPage implements OnDestroy {
             .merge(cancelEditReponse$.filter(x => x.dialogCode === 'SAVE').map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' })))
             .merge(requestNavigateHome$.filter(x => x === 'SAVE').map(() => ({ type: 'SAVE_AND_NAVIGATE_TO_DASHBOARD' })));
 
-        this.subscriptions.push(
+        const duplicatePreismeldung$ =
             this.duplicatePreismeldung$
                 .withLatestFrom(this.currentPreismeldung$, this.priceCountStatuses$, (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) => priceCountStatuses[currentPreismeldung.preismeldung.epNummer])
                 .flatMap(priceCountStatus => priceCountStatus.enough ? dialogSufficientPreismeldungen$ : Observable.of('YES'))
                 .filter(x => x === 'YES')
-                .merge(this.save$.filter(x => x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG'))
-                .flatMap(() => dialogNewPmbearbeitungsCode$)
+                .map(() => 'FROM_BUTTON')
+                .merge(this.save$.filter(x => x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG').map(x => 'FROM_CODE_0'))
+                .flatMap(source => dialogNewPmbearbeitungsCode$.map(({ action, bearbeitungscode }) => ({ action, source, bearbeitungscode })))
+                .publishReplay(1).refCount();
+
+        this.subscriptions.push(
+            duplicatePreismeldung$
                 .filter(x => x.action === 'OK')
                 .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }))
+        );
+
+        this.subscriptions.push(
+            duplicatePreismeldung$
+                .filter(x => x.action !== 'OK' && x.source === 'FROM_CODE_0')
+                .subscribe(x => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload: { type: 'JUST_SAVE', saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_keine-produkte'] }] } }))
         );
 
         this.subscriptions.push(

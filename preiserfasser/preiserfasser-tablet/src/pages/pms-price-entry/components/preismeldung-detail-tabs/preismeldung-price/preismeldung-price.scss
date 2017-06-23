@@ -380,6 +380,14 @@ preismeldung-price {
             }
         }
     }
+
+    .item-md.pef-item {
+        &.input-has-focus.on-dark {
+            ion-label {
+                color: white;
+            }
+        }
+    }
 }
 
 @media screen and (min-height: 800px) {
