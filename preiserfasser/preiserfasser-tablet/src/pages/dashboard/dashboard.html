@@ -132,12 +132,12 @@
                     <pef-icon name="wifi" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
                 </div>
                 <div class="row">
-                    <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount }}</div>
+                    <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount || 0 }}</div>
                     <div class="text">{{ 'text_preismeldung_erfasste' | translate }}</div>
                 </div>
                 <div class="buttons">
-                    <button ion-button type="button" (click)="loginClicked$.emit($event)" [hidden]="!(showLogin$ | async)">{{ 'btn_login' | translate }}</button>
-                    <button ion-button type="button" (click)="synchronizeClicked$.emit($event)" [disabled]="!(canSync$ | async)">{{ 'btn_synchronize' | translate }}</button>
+                    <button ion-button type="button" (click)="loginClicked$.emit($event)" [hidden]="!(showLogin$ | async)" [disabled]="(isSyncing$ | async)">{{ 'btn_login' | translate }}</button>
+                    <button ion-button type="button" (click)="synchronizeClicked$.emit($event)" [hidden]="!(canSync$ | async)" [disabled]="(isSyncing$ | async)">{{ 'btn_synchronize' | translate }}</button>
                     <button ion-button type="button" (click)="uploadPreismeldungenClicked$.emit($event)" [disabled]="!(canSync$ | async) || (showLogin$ | async) || (isSyncing$ | async) || !(hasOpenSavedPreismeldungen$ | async)">{{ 'btn_upload-now' | translate }}</button>
                 </div>
             </div>

@@ -94,10 +94,10 @@ export class DashboardPage implements OnDestroy {
             .flatMap(() => pefDialogService.displayModal('LoginModal'))
             .publishReplay(1).refCount();
 
-        this.showLogin$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
-        this.canSync$ = isLoggedIn$.map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).startWith(false);
+        this.showLogin$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null).map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
+        this.canSync$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null).map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).startWith(false);
 
-        const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => !x)
+        const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => x === false)
             .merge(this.store.select(fromRoot.getIsLoggedIn).skip(1).filter(x => x === false));
 
         this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
