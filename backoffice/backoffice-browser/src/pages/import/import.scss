@@ -3,6 +3,8 @@ form {
 }
 
 .container {
+    display: flex;
+    flex-direction: row;
     margin-bottom: 1em;
     padding: 0.2em;
 
@@ -19,6 +21,11 @@ form {
 
     .text-info {
         margin-top: 0.5em;
+    }
+
+    .column {
+        flex: 1;
+        align-self: center;
     }
 }
 

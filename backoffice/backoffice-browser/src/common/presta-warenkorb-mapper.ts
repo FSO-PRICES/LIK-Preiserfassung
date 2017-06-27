@@ -44,7 +44,7 @@ const indexes = {
 };
 
 
-export function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): P.WarenkorbTreeItem[] {
+export function buildTree(data: { de: string[][], fr: string[][], it: string[][] }) {
     const lastDepthGliederungspositionsnummers: { [index: number]: P.WarenkorbTreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
 
     const treeItems: P.WarenkorbTreeItem[] = [];
@@ -109,7 +109,8 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
         lastDepthGliederungspositionsnummers[treeItem.tiefencode] = treeItem;
     }
 
-    return treeItems;
+    const erhebungsmonat = data.de[0] ? data.de[0][indexes.erhebungsschemaperiode] : '';
+    return { warenkorb: treeItems, erhebungsmonat };
 }
 
 function parseProduktecode(s: string) {

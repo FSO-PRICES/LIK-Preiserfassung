@@ -25,7 +25,8 @@ export class PreismeldestelleEffects {
 
     @Effect()
     loadPreismeldestelle$ = this.actions$.ofType('PREISMELDESTELLE_LOAD')
-        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$.do(x => console.log('loggedIn?', x))))
+        .do(x => console.log('doing pe load:', x))
         .flatMap(() => loadAllPreismeldestellen())
         .map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action));
 
