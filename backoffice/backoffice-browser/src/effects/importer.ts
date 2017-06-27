@@ -27,13 +27,23 @@ export class ImporterEffects {
 
     @Effect()
     parseWarenkorbFile$ = this.actions$.ofType('PARSE_WARENKORB_FILE')
-        .flatMap(action => parseCsvAsObservable(action.payload.file).map(data => ({ language: action.payload.language, data })))
-        .map(({ language, data }) => ({ type: 'PARSE_WARENKORB_FILE_SUCCESS', payload: { data, language } } as importer.Action));
+        .flatMap(action => {
+            if (action.payload.file == null) {
+                return Observable.of({ type: 'PARSE_WARENKORB_FILE_SUCCESS', payload: { data: null, language: action.payload.language } } as importer.Action)
+            }
+            return parseCsvAsObservable(action.payload.file).map(data => ({ language: action.payload.language, data }))
+                .map(({ language, data }) => ({ type: 'PARSE_WARENKORB_FILE_SUCCESS', payload: { data, language } } as importer.Action))
+        });
 
     @Effect()
     parseFile$ = this.actions$.ofType('PARSE_FILE')
-        .flatMap(action => parseCsvAsObservable(action.payload.file).map(data => ({ parsedType: action.payload.parseType, data })))
-        .map(({ parsedType, data }) => ({ type: 'PARSE_FILE_SUCCESS', payload: { data, parsedType } } as importer.Action));
+        .flatMap(action => {
+            if (action.payload.file == null) {
+                return Observable.of({ type: 'PARSE_FILE_SUCCESS', payload: { data: null, parsedType: action.payload.parseType } } as importer.Action)
+            }
+            return parseCsvAsObservable(action.payload.file).map(data => ({ parsedType: action.payload.parseType, data }))
+                .map(({ parsedType, data }) => ({ type: 'PARSE_FILE_SUCCESS', payload: { data, parsedType } } as importer.Action))
+        });
 
     @Effect()
     importWarenkorb$ = this.actions$.ofType('IMPORT_WARENKORB')
