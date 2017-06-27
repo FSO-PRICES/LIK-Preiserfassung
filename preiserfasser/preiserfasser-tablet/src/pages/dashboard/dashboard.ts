@@ -97,8 +97,9 @@ export class DashboardPage implements OnDestroy {
         this.showLogin$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null).map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
         this.canSync$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null).map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).startWith(false);
 
-        const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => x === false)
-            .merge(this.store.select(fromRoot.getIsLoggedIn).skip(1).filter(x => x === false));
+        const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => x === false);
+        const dismissLoginLoading$ = this.isSyncing$.skip(1).filter(x => x === false)
+            .merge(this.store.select(fromRoot.getIsLoggedIn).skip(1).filter(x => x !== null));
 
         this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
         this.canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase)
@@ -135,7 +136,7 @@ export class DashboardPage implements OnDestroy {
             loginDialogDismissed$ // In case of login data entered
                 .filter(x => x.data.username !== null)
                 .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
-                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissSyncLoading$).map(() => payload))
+                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissLoginLoading$).map(() => payload))
                 .subscribe(payload => this.store.dispatch({ type: 'LOGIN', payload } as LoginAction)),
 
             loginDialogDismissed$ // In case of navigate to was set
