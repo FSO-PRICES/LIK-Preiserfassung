@@ -52,6 +52,7 @@ export class DashboardPage implements OnDestroy {
 
     public isSyncing$ = this.store.select(x => x.database.isDatabaseSyncing);
     public syncError$ = this.store.select(x => x.database.syncError);
+    public loginError$ = this.store.select(x => x.login.loginError);
     public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
     public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat)
         .filter(x => !!x)

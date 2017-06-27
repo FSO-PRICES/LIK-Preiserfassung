@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -13,7 +14,8 @@ export class LoginEffects {
 
     constructor(
         private actions$: Actions,
-        private store: Store<fromRoot.AppState>) {
+        private store: Store<fromRoot.AppState>,
+        private translate: TranslateService) {
     }
 
     @Effect()
@@ -38,7 +40,7 @@ export class LoginEffects {
             Observable.of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action)
                 .concat(loginIntoDatabase(payload)
                     .map(() => ({ user: { username: payload.username }, error: null }))
-                    .catch(() => Observable.of(({ user: null, error: 'Benutzername oder Password stimmen nicht überein.' })))
+                    .catch(() => Observable.of(({ user: null, error: this.translate.instant('error_login-wrong-credentials') })))
                     .map(({ user, error }) => (!error ?
                         { type: 'LOGIN_SUCCESS', payload: user } as login.Action :
                         { type: 'LOGIN_FAIL', payload: error } as login.Action)

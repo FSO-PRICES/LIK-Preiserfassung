@@ -1,6 +1,7 @@
 {
     "error_request_unauthorized": "Kein gültiges Login vorhanden. Login ist eventuell abgelaufen.",
     "error_synchronize_unknown-error": "Ein unbekannter Fehler ist während der Synchronisierung aufgetreten, bitte versuchen sie es später erneut oder kontaktieren sie einen Administrator",
+    "error_login-wrong-credentials": "Benutzername oder Password stimmen nicht überein.",
     "choose-preismeldestelle": "Preismeldestelle auswählen",
     "preismeldestelle": "Preismeldestelle",
     "control_artikeltext": "Artikeltext",

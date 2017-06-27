@@ -128,6 +128,7 @@
             <div class="actions">
                 <div class="status">
                     <span [hidden]="!(syncError$ | async)" class="error">{{syncError$ | async}}</span>
+                    <span [hidden]="!(loginError$ | async)" class="error">{{loginError$ | async}}</span>
                     <pef-icon name="sorting_arrows" class="syncing" [hidden]="!(isSyncing$ | async)"></pef-icon>
                     <pef-icon name="wifi" class="connectivity" [class.error]="!(canConnectToDatabase$ | async)"></pef-icon>
                 </div>
