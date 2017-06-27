@@ -61,6 +61,10 @@ export function reducer(state = initialState, action: importer.Action): State {
             return Object.assign({}, state, parsedData, { importError: null });
         }
 
+        case 'CLEAR_PARSED_FILES': {
+            return Object.assign({}, state, { parsedWarenkorb: null, parsedPreismeldestellen: null, parsedPreismeldungen: null });
+        }
+
         case 'IMPORT_WARENKORB_SUCCESS': {
             const { payload } = action;
             return Object.assign({}, state, { importedWarenkorb: payload, importError: null });

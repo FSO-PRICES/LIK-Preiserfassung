@@ -115,6 +115,7 @@ export class ImportPage implements OnDestroy {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
         this.store.dispatch({ type: 'IMPORTED_ALL_RESET' } as importer.Action);
+        this.store.dispatch({ type: 'CLEAR_PARSED_FILES' } as importer.Action);
     }
 
     public ngOnDestroy() {
