@@ -8,7 +8,7 @@ import { chain } from 'lodash';
 import { Models as P } from 'lik-shared';
 
 import { getDatabaseLastUploadedAt, setDatabaseLastUploadedAt } from './local-storage-utils';
-import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase, syncDatabase } from './pouchdb-utils';
+import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase, syncDatabase, getDocumentByKeyFromDb } from './pouchdb-utils';
 
 import { Actions as DatabaseAction } from '../actions/database';
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
@@ -29,6 +29,12 @@ export class DatabaseEffects {
     ];
 
     @Effect()
+    getLastSyncedAt$ = this.actions$
+        .ofType('LOAD_DATABASE_LAST_SYNCED_AT')
+        .flatMap(() => getDatabase().then(db => getDocumentByKeyFromDb(db, 'last-synced-at').then((doc: any) => doc.value).catch(() => null)))
+        .map(lastSyncedAt => ({ type: 'LOAD_DATABASE_LAST_SYNCED_AT_SUCCESS', payload: lastSyncedAt }));
+
+    @Effect()
     checkConnectivity$ = this.actions$
         .ofType('CHECK_CONNECTIVITY_TO_DATABASE')
         .flatMap(() =>
@@ -47,10 +53,21 @@ export class DatabaseEffects {
         .ofType('SYNC_DATABASE')
         .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
             .concat(syncDatabase(action.payload)
-                .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
+                .flatMap(() =>
+                    getDatabase().then(db =>
+                        db.get('last-synced-at')
+                            .then(doc => doc._rev).catch(() => null)
+                            .then(_rev => {
+                                const lastSyncedAt = new Date();
+                                return db.put({ _id: 'last-synced-at', _rev, value: lastSyncedAt }).then(() => lastSyncedAt);
+                            })
+                    )
+                )
+                .flatMap(lastSyncedAt => syncDatabase(action.payload).map(() => lastSyncedAt)) // Sync synced at
+                .map(lastSyncedAt => ({ type: 'SYNC_DATABASE_SUCCESS', payload: lastSyncedAt } as DatabaseAction))
+                .catch(error => Observable.from(this.convertErrorToActions(error)))
             )
-            .catch(error => Observable.from(this.convertErrorToActions(error)))
-    );
+        );
 
     @Effect()
     download$ = this.actions$
@@ -58,8 +75,8 @@ export class DatabaseEffects {
         .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
             .concat(downloadDatabase(action.payload)
                 .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
+                .catch(error => Observable.from(this.convertErrorToActions(error)))
             )
-            .catch(error => Observable.from(this.convertErrorToActions(error)))
         );
 
     @Effect()
@@ -79,7 +96,7 @@ export class DatabaseEffects {
                 )
                 .catch(error => Observable.from(this.convertErrorToActions(error)))
             )
-    );
+        );
 
     @Effect()
     checkLastUploadedAt$ = this.actions$

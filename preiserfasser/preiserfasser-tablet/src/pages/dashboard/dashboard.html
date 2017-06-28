@@ -136,6 +136,13 @@
                     <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount || 0 }}</div>
                     <div class="text">{{ 'text_preismeldung_erfasste' | translate }}</div>
                 </div>
+                <div class="row" *ngIf="!!(lastSyncedAt$ | async)">
+                    <div class="number">&nbsp;</div>
+                    <div class="text">
+                        {{ 'text_database-last-synced-at' | translate }}:<br>
+                        {{ (lastSyncedAt$ | async) | pefDateTranslate: 'DD MMMM YYYY HH:mm:ss' }}
+                    </div>
+                </div>
                 <div class="buttons">
                     <button ion-button type="button" (click)="loginClicked$.emit($event)" [hidden]="!(showLogin$ | async)" [disabled]="(isSyncing$ | async)">{{ 'btn_login' | translate }}</button>
                     <button ion-button type="button" (click)="synchronizeClicked$.emit($event)" [hidden]="!(canSync$ | async)" [disabled]="(isSyncing$ | async)">{{ 'btn_synchronize' | translate }}</button>

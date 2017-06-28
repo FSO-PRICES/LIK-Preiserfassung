@@ -30,7 +30,7 @@ export class LoginEffects {
                                 { type: 'SET_IS_LOGGED_IN', payload: loggedInUser } as login.Action
                             )
                     )
-                    .catch(error => Observable.of({ type: 'SET_IS_LOGGED_OUT', payload: error.message } as login.Action))
+                    .catch(error => Observable.of({ type: 'SET_IS_LOGGED_OUT' } as login.Action))
                 )
         );
 

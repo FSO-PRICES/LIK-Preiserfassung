@@ -60,6 +60,7 @@ export class DashboardPage implements OnDestroy {
             const parts = x.split('.');
             return parse(`${parts[2]}-${parts[1]}-${parts[0]}`);
         });
+    public lastSyncedAt$ = this.store.select(x => x.database.lastSyncedAt);
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
     public navigateToPriceEntry$ = new EventEmitter<P.Preismeldestelle>();
@@ -118,7 +119,10 @@ export class DashboardPage implements OnDestroy {
                 .filter(exists => exists)
                 .combineLatest(databaseHasBeenUploaded$)
                 // Re-/Load Statistics only when database exists and every time the database has been uploaded
-                .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction)),
+                .subscribe(() => {
+                    this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction);
+                    this.store.dispatch({ type: 'LOAD_DATABASE_LAST_SYNCED_AT' } as DatabaseAction);
+                }),
 
             this.canSync$
                 .filter(canSync => canSync)
@@ -163,7 +167,7 @@ export class DashboardPage implements OnDestroy {
             Observable.interval(10000).startWith(0)
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)),
 
-            this.store.select(x => x.database.isDatabaseSyncing).skip(1)
+            this.isSyncing$.skip(1)
                 .filter(synced => !synced)
                 .subscribe(() => {
                     this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
@@ -171,7 +175,8 @@ export class DashboardPage implements OnDestroy {
                 }),
 
             canConnectToDatabase$.skip(1)
-                .filter(canConnect => canConnect)
+                .withLatestFrom(this.isSyncing$, (canConnect, isSyncing) => ({ canConnect, isSyncing }))
+                .filter(({ canConnect, isSyncing }) => canConnect && !isSyncing)
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction))
         ];
     }

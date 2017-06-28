@@ -12,4 +12,6 @@ export type Actions =
     { type: 'CHECK_DATABASE_EXISTS', payload: null } |
     { type: 'SET_DATABASE_EXISTS', payload: boolean } |
     { type: 'CHECK_DATABASE_LAST_UPLOADED_AT', payload: null } |
-    { type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: Date };
+    { type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: Date } |
+    { type: 'LOAD_DATABASE_LAST_SYNCED_AT', payload: null } |
+    { type: 'LOAD_DATABASE_LAST_SYNCED_AT_SUCCESS', payload: Date };

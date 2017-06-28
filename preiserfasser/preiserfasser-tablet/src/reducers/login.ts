@@ -23,7 +23,7 @@ export function reducer(state = initialState, action: login.Action): State {
             return Object.assign({}, state, { isLoggedIn: true, user: { username: action.payload }, loginError: null });
         }
         case 'SET_IS_LOGGED_OUT': {
-            return Object.assign({}, state, { isLoggedIn: false, user: null, loginError: action.payload || state.loginError });
+            return Object.assign({}, state, { isLoggedIn: false, user: null });
         }
         case 'LOGIN_SUCCESS': {
             return Object.assign({}, state, { isLoggedIn: true, user: action.payload, loginError: null });

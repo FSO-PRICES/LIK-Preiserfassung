@@ -90,6 +90,7 @@
     "text_saving-preiserheber": "Preiserheber wird gespeichert. Bitte warte...",
     "text_database-successfully-deleted": "Lokale Daten wurden erfolgreich gelöscht.",
     "text_erhebungsmonat": "Erhebungsmonat",
+    "text_database-last-synced-at": "Letzte Synchronisation",
 
     "text_preismeldung_heruntergeladene": "Heruntergeladene",
     "text_preismeldung_hochgeladene": "Hochgeladene",
