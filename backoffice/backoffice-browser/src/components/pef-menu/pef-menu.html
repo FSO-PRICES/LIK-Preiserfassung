@@ -6,7 +6,7 @@
             clear
             href="javascript:"
             (click)="navigateToPage(entry.page)"
-            [class.active]="isCurrentPage(entry.page.name)">
+            [class.active]="isCurrentPage(entry.page?.name)">
             {{ entry.name }}
         </a>
         <a

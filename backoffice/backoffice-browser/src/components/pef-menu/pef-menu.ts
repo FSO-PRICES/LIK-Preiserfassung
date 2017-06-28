@@ -17,10 +17,13 @@ import { SettingsPage } from '../../pages/settings/settings';
 })
 export class PefMenuComponent {
     public pages = [
-        { page: PreiserheberPage, name: 'Preiserheber' },
-        { page: PreismeldestellePage, name: 'Preismeldestellen' },
-        { page: PreismeldungPage, name: 'Preismeldungen' },
+        { page: null, name: 'Status' },
         { page: ImportPage, name: 'Import' },
+        { page: PreismeldestellePage, name: 'PMS' },
+        { page: PreiserheberPage, name: 'Preiserheber' },
+        { page: PreismeldungPage, name: 'Preise' },
+        { page: null, name: 'Controlling' },
+        { page: null, name: 'Reporting' },
         { page: ExportToPrestaPage, name: 'Export' }
     ];
 
@@ -36,6 +39,7 @@ export class PefMenuComponent {
     }
 
     navigateToPage(page) {
+        if (page === null) return;
         this.navCtrl.setRoot(page, {}, { animate: false }).catch(error => {
             if (error === false) return; // If the error is just a "false" it is that the page cannot be left
             throw(error);
