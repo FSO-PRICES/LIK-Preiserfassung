@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { chunk } from 'lodash';
+import { chunk, assign } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as importer from '../actions/importer';
-import { dbNames, dropDatabase, getDatabase, putAdminUserToDatabase, dropLocalDatabase, getLocalDatabase, syncDb, getDatabaseAsObservable, getAllDocumentsFromDb } from './pouchdb-utils';
+import { dbNames, dropDatabase, getDatabase, putAdminUserToDatabase, dropLocalDatabase, getLocalDatabase, syncDb, getDatabaseAsObservable, getAllDocumentsFromDb, getDocumentByKeyFromDb } from './pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
 import { parseCsvAsObservable } from '../common/file-extensions';
@@ -49,9 +49,10 @@ export class ImporterEffects {
     importWarenkorb$ = this.actions$.ofType('IMPORT_WARENKORB')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => buildTree(action.payload))
-        .flatMap(payload => dropDatabase('warenkorb').then(_ => payload))
-        .flatMap(payload => getDatabase('warenkorb').then(db => db.put({ _id: 'warenkorb', products: payload })
-            .then<P.WarenkorbDocument>(_ => db.get('warenkorb'))))
+        .flatMap(data => dropDatabase('warenkorb').then(_ => data))
+        .flatMap(data => getDatabase('warenkorb').then(db => db.put({ _id: 'warenkorb', products: data.warenkorb })
+            .then<P.WarenkorbDocument>(_ => db.get('warenkorb'))
+            .then(warenkorb => db.put({ _id: 'erhebungsmonat', monthAsString: data.erhebungsmonat }).then(() => warenkorb))))
         .flatMap(warenkorb => this.updateImportMetadata(dbNames.warenkorb, importer.Type.warenkorb).map(() => warenkorb))
         .map(warenkorb => ({ type: 'IMPORT_WARENKORB_SUCCESS', payload: warenkorb } as importer.Action));
 
@@ -69,7 +70,7 @@ export class ImporterEffects {
         );
 
     @Effect()
-    importPreismeldungen$ = this.actions$.ofType('IMPORT_PREISMELDUNGEN')
+    importPaaareismeldungen$ = this.actions$.ofType('IMPORT_PREISMELDUNGEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => preparePm(action.payload))
         .flatMap(pmInfo => dropLocalDatabase(dbNames.preismeldung).then(_ => pmInfo).catch(_ => pmInfo))
@@ -91,7 +92,7 @@ export class ImporterEffects {
         .map(latestImportedAtList => ({ type: 'LOAD_LATEST_IMPORTED_AT_SUCCESS', payload: latestImportedAtList } as importer.Action));
 
     @Effect()
-    importedAll = this.actions$.ofType('IMPORTED_ALL')
+    importedAll$ = this.actions$.ofType('IMPORTED_ALL')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => resetAndContinueWith(
             { type: 'IMPORTED_ALL_RESET' },
@@ -105,6 +106,14 @@ export class ImporterEffects {
             )
         )
 
+    @Effect()
+    loadErhebungsmonate$ = this.actions$.ofType('LOAD_ERHEBUNGSMONATE')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(() => getDatabaseAsObservable(dbNames.warenkorb).flatMap(db => this.getErhebungsmonatDocument(db)).map(warenkorbErhebungsmonat => ({ warenkorbErhebungsmonat })))
+        .flatMap(data => getDatabaseAsObservable(dbNames.preismeldestelle).flatMap(db => this.getErhebungsmonatDocument(db)).map(preismeldestellenErhebungsmonat => assign({}, data, { preismeldestellenErhebungsmonat })))
+        .flatMap(data => getDatabaseAsObservable(dbNames.preismeldung).flatMap(db => this.getErhebungsmonatDocument(db)).map(preismeldungenErhebungsmonat => assign({}, data, { preismeldungenErhebungsmonat })))
+        .map(payload => ({ type: 'LOAD_ERHEBUNGSMONATE_SUCCESS', payload }))
+
     private updateImportMetadata(dbName: string, importerType: string) {
         return this.loggedInUser$
             .take(1)
@@ -113,5 +122,11 @@ export class ImporterEffects {
                 .then(doc => doc._rev).catch(() => undefined)
                 .then(_rev => db.put({ latestImportAt: new Date().valueOf(), _id: importerType, _rev })))
             );
+    }
+
+    private getErhebungsmonatDocument(db: PouchDB.Database<PouchDB.Core.Encodable>) {
+        return getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat')
+            .then(doc => { console.log('doc', doc); return doc.monthAsString })
+            .catch(() => null);
     }
 }

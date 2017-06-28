@@ -30,6 +30,10 @@ export class ImportPage implements OnDestroy {
     public latestPreismeldestellenImportAt$ = this.store.select(fromRoot.getImportedPreismeldestellenAt);
     public latestPreismeldungenImportAt$ = this.store.select(fromRoot.getImportedPreismeldungenAt);
 
+    public warenkorbErhebungsmonat$ = this.store.select(fromRoot.getWarenkorbErhebungsmonat);
+    public preismeldestellenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldestellenErhebungsmonat);
+    public preismeldungenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldungenErhebungsmonat);
+
     public importError$ = this.store.select(fromRoot.getImporterState).map(s => s.importError);
     public importedAll$ = this.store.select(fromRoot.getImportedAll);
     public recreateUserDbsClicked$ = new EventEmitter();
@@ -101,7 +105,10 @@ export class ImportPage implements OnDestroy {
 
 
             Observable.merge(warenkorbImported$, preismeldungenImported$, preismeldestellenImported$)
-                .subscribe(() => this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action)),
+                .subscribe(() => {
+                    this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
+                    this.store.dispatch({ type: 'LOAD_ERHEBUNGSMONATE' } as importer.Action);
+                }),
 
             warenkorbImported$
                 .combineLatest(preismeldestellenImported$, preismeldungenImported$, (warenkorb, preismeldestellen, preismeldungen) => !!warenkorb && !!preismeldestellen && !!preismeldungen)
@@ -114,6 +121,7 @@ export class ImportPage implements OnDestroy {
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
+        this.store.dispatch({ type: 'LOAD_ERHEBUNGSMONATE' } as importer.Action);
         this.store.dispatch({ type: 'IMPORTED_ALL_RESET' } as importer.Action);
         this.store.dispatch({ type: 'CLEAR_PARSED_FILES' } as importer.Action);
     }

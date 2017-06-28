@@ -18,6 +18,10 @@ export interface State {
     importedPreismeldungen: P.Preismeldung[];
     importedPreismeldungenAt: Date;
 
+    warenkorbErhebungsmonat: string;
+    preismeldestellenErhebungsmonat: string;
+    preismeldungenErhebungsmonat: string;
+
     importError: string;
     importedAll: { success: boolean, error: string }
 };
@@ -34,6 +38,10 @@ const initialState: State = {
     parsedPreismeldungen: null,
     importedPreismeldungen: null,
     importedPreismeldungenAt: null,
+
+    warenkorbErhebungsmonat: null,
+    preismeldestellenErhebungsmonat: null,
+    preismeldungenErhebungsmonat: null,
 
     importError: null,
     importedAll: null
@@ -111,6 +119,11 @@ export function reducer(state = initialState, action: importer.Action): State {
             return Object.assign({}, state, { importedAll: { success: false, error: action.payload }, importError: null })
         }
 
+        case 'LOAD_ERHEBUNGSMONATE_SUCCESS': {
+            const { warenkorbErhebungsmonat, preismeldestellenErhebungsmonat, preismeldungenErhebungsmonat } = action.payload
+            return Object.assign({}, state, { warenkorbErhebungsmonat, preismeldestellenErhebungsmonat, preismeldungenErhebungsmonat })
+        }
+
         default:
             return state;
     }
@@ -119,14 +132,17 @@ export function reducer(state = initialState, action: importer.Action): State {
 export const getParsedWarenkorb = (state: State) => state.parsedWarenkorb;
 export const getImportedWarenkorb = (state: State) => state.importedWarenkorb;
 export const getImportedWarenkorbAt = (state: State) => state.importedWarenkorbAt;
+export const getWarenkorbErhebungsmonat = (state: State) => state.warenkorbErhebungsmonat;
 
 export const getParsedPreismeldestellen = (state: State) => state.parsedPreismeldestellen;
 export const getImportedPreismeldestellen = (state: State) => state.importedPreismeldestellen;
 export const getImportedPreismeldestellenAt = (state: State) => state.importedPreismeldestellenAt;
+export const getPreismeldestellenErhebungsmonat = (state: State) => state.preismeldestellenErhebungsmonat;
 
 export const getParsedPreismeldungen = (state: State) => state.parsedPreismeldungen;
 export const getImportedPreismeldungen = (state: State) => state.importedPreismeldungen;
 export const getImportedPreismeldungenAt = (state: State) => state.importedPreismeldungenAt;
+export const getPreismeldungenErhebungsmonat = (state: State) => state.preismeldungenErhebungsmonat;
 
 export const getImportedAll = (state: State) => state.importedAll;
 

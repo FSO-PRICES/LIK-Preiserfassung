@@ -18,7 +18,9 @@ export type Action =
     { type: 'IMPORTED_ALL', payload: null } |
     { type: 'IMPORTED_ALL_RESET', payload: null } |
     { type: 'IMPORTED_ALL_SUCCESS', payload: null } |
-    { type: 'IMPORTED_ALL_FAILURE', payload: string };
+    { type: 'IMPORTED_ALL_FAILURE', payload: string } |
+    { type: 'LOAD_ERHEBUNGSMONATE', payload: null } |
+    { type: 'LOAD_ERHEBUNGSMONATE_SUCCESS', payload: { warenkorbErhebungsmonat: string, preismeldestellenErhebungsmonat: string, preismeldungenErhebungsmonat: string } };
 
 export namespace Type {
     export const warenkorb = 'warenkorb';

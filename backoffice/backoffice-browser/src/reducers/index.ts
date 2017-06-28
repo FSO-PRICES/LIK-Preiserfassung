@@ -99,14 +99,17 @@ export const getImporterState = (state: AppState) => state.importer;
 export const getImporterParsedWarenkorb = createSelector(getImporterState, fromImporter.getParsedWarenkorb);
 export const getImportedWarenkorb = createSelector(getImporterState, fromImporter.getImportedWarenkorb);
 export const getImportedWarenkorbAt = createSelector(getImporterState, fromImporter.getImportedWarenkorbAt);
+export const getWarenkorbErhebungsmonat = createSelector(getImporterState, fromImporter.getWarenkorbErhebungsmonat);
 
 export const getImporterParsedPreismeldestellen = createSelector(getImporterState, fromImporter.getParsedPreismeldestellen);
 export const getImportedPreismeldestellen = createSelector(getImporterState, fromImporter.getImportedPreismeldestellen);
 export const getImportedPreismeldestellenAt = createSelector(getImporterState, fromImporter.getImportedPreismeldestellenAt);
+export const getPreismeldestellenErhebungsmonat = createSelector(getImporterState, fromImporter.getPreismeldestellenErhebungsmonat);
 
 export const getImporterParsedPreismeldungen = createSelector(getImporterState, fromImporter.getParsedPreismeldungen);
 export const getImportedPreismeldungen = createSelector(getImporterState, fromImporter.getImportedPreismeldungen);
 export const getImportedPreismeldungenAt = createSelector(getImporterState, fromImporter.getImportedPreismeldungenAt);
+export const getPreismeldungenErhebungsmonat = createSelector(getImporterState, fromImporter.getPreismeldungenErhebungsmonat);
 
 export const getImportedAll = createSelector(getImporterState, fromImporter.getImportedAll);
 
