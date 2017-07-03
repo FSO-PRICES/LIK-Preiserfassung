@@ -90,9 +90,9 @@ function _syncDatabase(url: string, username: string, params: { push: boolean, p
         .flatMap(pouch => {
             const couch = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<PouchDB.Core.Encodable>;
             return getDocumentByKeyFromDb(pouch, 'user-db-id').catch(() => ({ value: 'pouchUserDbId-not-found' }))
-                .then((pouchDoc: any) => getDocumentByKeyFromDb(couch, 'user-db-id').catch(() => ({ value: 'couchUserDbId-not-found'})).then((couchDoc: any) => ({ couchUserDbId: couchDoc.value, pouchUserDbId: pouchDoc.value, pouch, couch })));
+                .then((pouchDoc: any) => getDocumentByKeyFromDb(couch, 'user-db-id').catch(() => ({ value: 'couchUserDbId-not-found' })).then((couchDoc: any) => ({ couchUserDbId: couchDoc.value, pouchUserDbId: pouchDoc.value, pouch, couch })));
         })
-        .flatMap(({ pouchUserDbId, couchUserDbId,  pouch, couch }) => {
+        .flatMap(({ pouchUserDbId, couchUserDbId, pouch, couch }) => {
             if (!(!params.push || pouchUserDbId === couchUserDbId || pouchUserDbId === 'pouchUserDbId-not-found')) {
                 return Observable.of({});
             }
