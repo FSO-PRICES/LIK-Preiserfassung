@@ -327,10 +327,11 @@ preismeldung-price {
         }
         .current-period {
             display: flex;
-            flex-direction: column;
-            button {
-                align-self: flex-end;
-            }
+            flex-direction: row;
+            justify-content: flex-end;
+        }
+        .save-button, .next-button {
+            @include set-margin-top(2);
         }
     }
 
