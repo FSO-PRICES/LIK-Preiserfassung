@@ -327,11 +327,17 @@ preismeldung-price {
         }
         .current-period {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+        }
+        .buttons-container {
+            @include set-padding-top(2);
+            display: flex;
             justify-content: flex-end;
         }
-        .save-button, .next-button {
-            @include set-margin-top(2);
+        .textzeil {
+            color: orange;
+            text-align: right;
+            @include set-padding-top(2);
         }
     }
 
@@ -394,7 +400,7 @@ preismeldung-price {
 @media screen and (min-height: 800px) {
     preismeldung-price {
         .product-detail-row.row-3 {
-            .current-period > button {
+            .current-period > * {
                 display: none;
             }
         }

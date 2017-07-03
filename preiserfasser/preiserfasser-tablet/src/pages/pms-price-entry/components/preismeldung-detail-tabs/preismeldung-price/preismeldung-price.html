@@ -194,16 +194,20 @@
                     </div>
                 </div>
                 <div class="current-period">
-                    <button ion-button color="java" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)" (click)="attemptSave$.emit($event)"
-                        [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
-                    <button ion-button icon-only color="primary" class="next-button" [class.with-top-margin]="true" (click)="requestSelectNextPreismeldung$.emit({})">
-                        <pef-icon name="arrow_right"></pef-icon>
-                    </button>
+                    <div class="textzeil" *ngIf="(preismeldung$ | async)?.textzeile.length">
+                        <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>
+                    </div>
+                    <div class="buttons-container">
+                        <button ion-button color="java" class="save-button" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
+                        <button ion-button icon-only color="primary" class="next-button" (click)="requestSelectNextPreismeldung$.emit({})">
+                            <pef-icon name="arrow_right"></pef-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="columns product-detail-row row-4">
                 <div class="textzeil">
-                    <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>&nbsp;
+                    <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>
                 </div>
                 <button ion-button color="primary" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
                     (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
