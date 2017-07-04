@@ -14,10 +14,12 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Output('resetClicked') resetClicked$ = new EventEmitter();
+    @Input() isDesktop: boolean;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
+    public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
 

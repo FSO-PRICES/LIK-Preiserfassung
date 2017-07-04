@@ -1,55 +1,29 @@
 <div class="pms-price-entry-content">
-    <preismeldungen-sort
-        *ngIf="false"
-        [isDesktop]="isDesktop$ | async"
-        [preismeldungen]="preismeldungen$ | async">
+    <preismeldungen-sort *ngIf="false" [isDesktop]="isDesktop$ | async" [preismeldungen]="preismeldungen$ | async">
     </preismeldungen-sort>
-    <preismeldung-toolbar
-        [preismeldung]="currentPreismeldung$ | async"
-        [selectedTab]="selectedTab$ | async"
-        (selectTab)="selectTab$.emit($event)"
+    <preismeldung-toolbar [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async" (selectTab)="selectTab$.emit($event)"
         (buttonClicked)="toolbarButtonClicked$.emit($event)">
     </preismeldung-toolbar>
     <div class="work-area">
         <div class="preismeldung-details-container">
             <div class="tabs-container" [class.display-none]="!(currentPreismeldung$ | async)">
-                <preismeldung-info-warenkorb
-                    [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
-                    [isDesktop]="isDesktop$ | async"
-                    [preismeldung]="currentPreismeldung$ | async"
-                    [preismeldestelle]="preismeldestelle$ | async"
-                    [warenkorb]="warenkorb$ | async"
+                <preismeldung-info-warenkorb [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'" [isDesktop]="isDesktop$ | async"
+                    [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [warenkorb]="warenkorb$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
-                <preismeldung-info
-                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
-                    [preismeldung]="currentPreismeldung$ | async"
-                    [preismeldestelle]="preismeldestelle$ | async"
-                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                <preismeldung-info [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'" [isDesktop]="isDesktop$ | async"
+                    [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
                     (resetClicked)="resetPreismeldung$.emit()"></preismeldung-info>
-                <preismeldung-attributes
-                    [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
-                    [preismeldung]="currentPreismeldung$ | async"
-                    [preismeldestelle]="preismeldestelle$ | async"
-                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                <preismeldung-attributes [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'" [preismeldung]="currentPreismeldung$ | async"
+                    [isDesktop]="isDesktop$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
                     (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"></preismeldung-attributes>
-                <preismeldung-messages
-                    [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
-                    [isActive]="(selectedTab$ | async) == 'MESSAGES'"
-                    [preismeldung]="currentPreismeldung$ | async"
-                    [preismeldestelle]="preismeldestelle$ | async"
-                    [priceCountStatus]="currentPriceCountStatus$ | async"
-                    (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"></preismeldung-messages>
-                <preismeldung-price
-                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'"
-                    [preismeldung]="currentPreismeldung$ | async"
-                    [currentTime]="currentTime$ | async"
-                    [preismeldestelle]="preismeldestelle$ | async"
-                    [priceCountStatus]="currentPriceCountStatus$ | async"
-                    [requestPreismeldungSave]="requestPreismeldungSave$ | async"
-                    [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
-                    (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
-                    (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
-                    (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
+                <preismeldung-messages [class.display-none]="(selectedTab$ | async) != 'MESSAGES'" [isActive]="(selectedTab$ | async) == 'MESSAGES'"
+                    [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
+                    [isDesktop]="isDesktop$ | async" (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"></preismeldung-messages>
+                <preismeldung-price [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'" [preismeldung]="currentPreismeldung$ | async"
+                    [isDesktop]="isDesktop$ | async" [currentTime]="currentTime$ | async" [preismeldestelle]="preismeldestelle$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async" [requestPreismeldungSave]="requestPreismeldungSave$ | async"
+                    [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async" (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
+                    (duplicatePreismeldung)="duplicatePreismeldung$.emit()" (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
                     (save)="save$.emit($event)"></preismeldung-price>
             </div>
             <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
@@ -57,15 +31,9 @@
             </div>
         </div>
         <div class="preismeldung-list-container">
-            <preismeldung-list
-                [preismeldungen]="preismeldungen$ | async"
-                [currentTime]="currentTime$ | async"
-                [preismeldestelle]="preismeldestelle$ | async"
-                [currentPreismeldung]="currentPreismeldung$ | async"
-                (selectPreismeldung)="selectPreismeldung$.emit($event)"
-                (addNewPreisreihe)="addNewPreisreihe$.emit()"
-                [currentLanguage]="currentLanguage$ | async"
-                [requestSelectNextPreismeldung]="requestSelectNextPreismeldung$ | async"
+            <preismeldung-list [preismeldungen]="preismeldungen$ | async" [currentTime]="currentTime$ | async" [preismeldestelle]="preismeldestelle$ | async"
+                [currentPreismeldung]="currentPreismeldung$ | async" (selectPreismeldung)="selectPreismeldung$.emit($event)"
+                (addNewPreisreihe)="addNewPreisreihe$.emit()" [currentLanguage]="currentLanguage$ | async" [requestSelectNextPreismeldung]="requestSelectNextPreismeldung$ | async"
                 [isDesktop]="isDesktop$ | async"></preismeldung-list>
         </div>
     </div>

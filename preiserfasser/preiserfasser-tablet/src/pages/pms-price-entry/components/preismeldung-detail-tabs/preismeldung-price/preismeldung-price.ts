@@ -24,6 +24,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() requestPreismeldungSave: P.SavePreismeldungPriceSaveAction;
     @Input() requestPreismeldungQuickEqual: string;
+    @Input() isDesktop: boolean;
     @Output('preismeldungPricePayload') preismeldungPricePayload$: Observable<P.PreismeldungPricePayload>;
     @Output('save') save$: Observable<P.SavePreismeldungPriceSaveAction>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
@@ -73,6 +74,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
+    isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
     currentTime$ = this.observePropertyCurrentValue<Date>('currentTime').publishReplay(1).refCount();
 
     form: FormGroup;
@@ -223,7 +225,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             this.chooseReductionPercentage$
                 .flatMap(() => pefDialogService.displayDialog(DialogChoosePercentageReductionComponent, null, true).map(x => x.data))
                 .filter(x => !!x && x.type === 'OK')
-                .subscribe(({ percentage  })=> {
+                .subscribe(({ percentage }) => {
                     const currentPreis = parseFloat(this.form.value.preis);
                     if (isNaN(currentPreis)) return;
                     this.form.patchValue({
@@ -409,7 +411,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                     if (['CANCEL', 'NO_SAVE_NAVIGATE'].some(x => x === lastAlertResult.type)) return Observable.of(lastAlertResult);
                                     return v().map(thisAlertResult => {
                                         if (P.isSavePreismeldungPriceSaveActionSave(lastAlertResult) && P.isSavePreismeldungPriceSaveActionSave(thisAlertResult)) {
-                                            return assign({}, thisAlertResult, { saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(lastAlertResult.saveWithData)})
+                                            return assign({}, thisAlertResult, { saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(lastAlertResult.saveWithData) })
                                         } else {
                                             return thisAlertResult;
                                         }

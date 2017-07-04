@@ -17,12 +17,14 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     @Input() preismeldung: P.CurrentPreismeldungBag;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
+    @Input() isDesktop: boolean;
     @Output('preismeldungMessagesPayload') preismeldungMessagesPayload$: Observable<P.PreismeldungMessagesPayload>;
 
     public isActive$ = this.observePropertyCurrentValue<boolean>('isActive');
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung').publishReplay(1).refCount();
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     public preismeldestelle$ = this.observePropertyCurrentValue<P.PriceCountStatus>('preismeldestelle');
+    public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
 
     public bemerkungenHistory$: Observable<{ author: string, text: string }[]>;
 

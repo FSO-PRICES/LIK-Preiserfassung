@@ -1,98 +1,103 @@
 <preismeldung-readonly-header [preismeldung]="preismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async"></preismeldung-readonly-header>
 
-<div class="detail-tab-bottom-part">
-    <h5 class="large">{{ 'heading_information-about-preismeldung' | translate }}</h5>
+<ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop$ | async">
+    <div class="detail-tab-bottom-part">
+        <h5 class="large">{{ 'heading_information-about-preismeldung' | translate }}</h5>
 
-    <div class="info-table">
-        <div class="info-table-row">
-            <div class="info-table-cell-heading">
-                Preismeldung ID
+        <div class="info-table">
+            <div class="info-table-row">
+                <div class="info-table-cell-heading">
+                    Preismeldung ID
+                </div>
+                <div class="info-table-cell-value">
+                    {{ formatPreismeldungId(preismeldung$ | async) }}
+                </div>
             </div>
-            <div class="info-table-cell-value">
-                {{ formatPreismeldungId(preismeldung$ | async) }}
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Artikeltext (wie geliefert)
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.artikeltext }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Preis vor Reduktion
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Menge vor Reduktion
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit
+                    | pefPropertyTranslate }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Datum vor Reduktion
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.datumVorReduktion }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Anzahl Fehlende Preis R
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.fehlendePreiseR.length }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Basispreis
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.basisPreis | pefFormatNumber: numberFormattingOptions }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Basismenge
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.basisMenge }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
+                    pefPropertyTranslate }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Preis geführt seit
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.refPreismeldung.preisGueltigSeitDatum }}
+                </div>
+            </div>
+            <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                <div class="info-table-cell-heading">
+                    Artikelnummer
+                </div>
+                <div class="info-table-cell-value">
+                    {{ (preismeldung$ | async)?.preismeldung.artikelnummer || '&#x2013;' }}
+                </div>
+            </div>
+            <div class="info-table-row">
+                <div class="info-table-cell-heading">
+                    Internetlink
+                </div>
+                <div class="info-table-cell-value">
+                    <a *ngIf="(preismeldung$ | async)?.preismeldung.internetLink" href="{{ (formatInternetLink((preismeldung$ | async)?.preismeldung.internetLink)) }}"
+                        target="_blank">{{ (preismeldung$ | async)?.preismeldung.internetLink }}</a>
+                    <span *ngIf="!(preismeldung$ | async)?.preismeldung.internetLink">&ndash;</span>
+                </div>
             </div>
         </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Artikeltext (wie geliefert)
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.artikeltext }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Preis vor Reduktion
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Menge vor Reduktion
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Datum vor Reduktion
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.datumVorReduktion }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Anzahl Fehlende Preis R
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.fehlendePreiseR.length }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Basispreis
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.basisPreis | pefFormatNumber: numberFormattingOptions }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Basismenge
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.basisMenge }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Preis geführt seit
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.refPreismeldung.preisGueltigSeitDatum }}
-            </div>
-        </div>
-        <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-            <div class="info-table-cell-heading">
-                Artikelnummer
-            </div>
-            <div class="info-table-cell-value">
-                {{ (preismeldung$ | async)?.preismeldung.artikelnummer || '&#x2013;' }}
-            </div>
-        </div>
-        <div class="info-table-row">
-            <div class="info-table-cell-heading">
-                Internetlink
-            </div>
-            <div class="info-table-cell-value">
-                <a *ngIf="(preismeldung$ | async)?.preismeldung.internetLink" href="{{ (formatInternetLink((preismeldung$ | async)?.preismeldung.internetLink)) }}" target="_blank">{{ (preismeldung$ | async)?.preismeldung.internetLink }}</a>
-                <span *ngIf="!(preismeldung$ | async)?.preismeldung.internetLink">&ndash;</span>
-            </div>
-        </div>
+        <button ion-button class="reset-button" (click)="resetClicked$.emit()" [disabled]="!!(preismeldung$ | async)?.preismeldung.uploadRequestedAt">{{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate}}</button>
     </div>
-    <button ion-button class="reset-button" (click)="resetClicked$.emit()" [disabled]="!!(preismeldung$ | async)?.preismeldung.uploadRequestedAt">{{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate}}</button>
-</div>
+</ion-content>

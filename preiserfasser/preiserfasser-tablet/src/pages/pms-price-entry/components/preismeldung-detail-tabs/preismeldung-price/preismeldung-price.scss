@@ -5,8 +5,10 @@ preismeldung-price {
     flex-direction: column;
     background-color: $alto;
 
-    ion-content.content-md {
+    form {
         flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .header {

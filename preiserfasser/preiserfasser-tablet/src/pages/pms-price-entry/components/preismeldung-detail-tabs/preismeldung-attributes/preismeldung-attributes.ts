@@ -15,6 +15,7 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
     @Input() preismeldung: P.Models.Preismeldung;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
+    @Input() isDesktop: boolean;
 
     @Output('preismeldungAttributesPayload') preismeldungAttributesPayload$: Observable<string[]>;
 
@@ -23,6 +24,7 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
+    public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
 
     form: FormGroup;
 
