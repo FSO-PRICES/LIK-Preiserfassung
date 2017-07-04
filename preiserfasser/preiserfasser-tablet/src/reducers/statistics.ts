@@ -1,4 +1,5 @@
 import { assign, values } from 'lodash';
+import { parse } from 'date-fns';
 
 import * as statistics from '../actions/statistics';
 
@@ -36,7 +37,7 @@ export function reducer(state = initialState, action: statistics.Action): State 
                 }),
                 { downloadedCount: 0, totalCount: 0, uploadedCount: 0, openSavedCount: 0, openUnsavedCount: 0 }
             );
-            return assign({}, state, { pmsStatistics: assign({}, action.payload.preismeldestelleStatistics, { total }), erhebungsmonat: action.payload.monthAsString });
+            return assign({}, state, { pmsStatistics: assign({}, action.payload.preismeldestelleStatistics, { total }), erhebungsmonat: convertPefDateToDateFnsString(action.payload.monthAsString) });
         }
 
         case 'PREISMELDUNG_STATISTICS_RESET': {
@@ -46,6 +47,11 @@ export function reducer(state = initialState, action: statistics.Action): State 
         default:
             return state;
     }
+}
+
+const convertPefDateToDateFnsString = s => {
+    const parts = s.split('.');
+    return parse(`${parts[2]}-${parts[1]}-${parts[0]}`);
 }
 
 export const getPreismeldungenStatistics = (state: State) => state.pmsStatistics;

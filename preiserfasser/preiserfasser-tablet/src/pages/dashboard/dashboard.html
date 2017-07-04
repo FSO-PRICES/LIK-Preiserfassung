@@ -19,7 +19,7 @@
         <div class="preismeldestellen">
             <div class="header-line">
                 <h3>{{ 'choose-preismeldestelle' | translate }}</h3>
-                <div class="current-time">{{currentTime$ | async}}</div>
+                <div class="current-time">{{ currentTime$ | async | pefDateTranslate:'dddd, DD.MM.YYYY HH:mm' }}</div>
             </div>
             <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
             <div class="pms-header-table">
@@ -31,13 +31,19 @@
                         <div class="pms-header-cell-content"></div>
                     </div>
                     <div class="pms-header-cell pms-open-unsaved">
-                        <div class="pms-header-cell-content"><pef-icon name="todo"></pef-icon></div>
+                        <div class="pms-header-cell-content">
+                            <pef-icon name="todo"></pef-icon>
+                        </div>
                     </div>
                     <div class="pms-header-cell pms-open-saved">
-                        <div class="pms-header-cell-content"><pef-icon name="checkmark"></pef-icon></div>
+                        <div class="pms-header-cell-content">
+                            <pef-icon name="checkmark"></pef-icon>
+                        </div>
                     </div>
                     <div class="pms-header-cell pms-uploaded">
-                        <div class="pms-header-cell-content"><pef-icon name="upload"></pef-icon></div>
+                        <div class="pms-header-cell-content">
+                            <pef-icon name="upload"></pef-icon>
+                        </div>
                     </div>
                     <div class="pms-header-cell pms-actions">
                         <div class="pms-header-cell-content"></div>
@@ -49,9 +55,7 @@
                     <div class="pms-row" *virtualItem="let preismeldestelle">
                         <div class="pms-cell pms-name">
                             <div class="pms-cell-content">
-                                <a ion-button clear
-                                    class="pms-detail-link"
-                                    (click)="navigateToDetails$.emit(preismeldestelle)">
+                                <a ion-button clear class="pms-detail-link" (click)="navigateToDetails$.emit(preismeldestelle)">
                                     <pef-icon name="shop"></pef-icon>
                                     <pef-floating-icon [icon-name]="'warning'" [bottom-right]="true" *ngIf="preismeldestelle.keinErhebungsart"></pef-floating-icon>
                                 </a>
@@ -62,29 +66,26 @@
                             <div class="pms-cell-content"></div>
                         </div>
                         <div class="pms-cell pms-open-unsaved">
-                            <div class="pms-cell-content">{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.openUnsavedCount }}</div>
+                            <div class="pms-cell-content">{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.openUnsavedCount
+                                }}
+                            </div>
                         </div>
                         <div class="pms-cell pms-open-saved">
                             <div class="pms-cell-content">{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.openSavedCount }}</div>
                         </div>
                         <div class="pms-cell pms-uploaded">
                             <div class="pms-cell-content" [class.completed-pms]="isPreismeldestelleCompleted(preismeldestelle)">
-                                {{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.uploadedCount }}/{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.totalCount }}
+                                {{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.uploadedCount }}/{{ ((preismeldungenStatistics$
+                                | async) || {})[preismeldestelle.pmsNummer]?.totalCount }}
                             </div>
                         </div>
                         <div class="pms-cell pms-actions">
                             <div class="pms-cell-content">
-                                <a ion-button icon-only
-                                    class="price-entry-button"
-                                    [class.visibility-hidden]="!preismeldestelle.isPdf || preismeldestelle.keinErhebungsart"
-                                    href="javascript:"
-                                    (click)="openPrint$.emit(preismeldestelle)">
+                                <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="!preismeldestelle.isPdf || preismeldestelle.keinErhebungsart"
+                                    href="javascript:" (click)="openPrint$.emit(preismeldestelle)">
                                     <pef-icon name="pdf"></pef-icon>
                                 </a>
-                                <a ion-button icon-only
-                                    class="price-entry-button"
-                                    [class.visibility-hidden]="preismeldestelle.keinErhebungsart"
-                                    href="javascript:"
+                                <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="preismeldestelle.keinErhebungsart" href="javascript:"
                                     (click)="navigateToPriceEntry$.emit(preismeldestelle)">
                                     <pef-icon name="todo"></pef-icon>
                                 </a>
@@ -99,7 +100,7 @@
                 <h3>{{ 'heading_manage-preismeldestelle' | translate }}</h3>
             </div>
             <div class="summary">
-            {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | pefDateTranslate:'MMMM YYYY' }}
+                {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | pefDateTranslate:'MMMM YYYY' }}
             </div>
             <div class="statistics">
                 <ion-content>
@@ -139,8 +140,8 @@
                 <div class="row" *ngIf="!!(lastSyncedAt$ | async)">
                     <div class="number">&nbsp;</div>
                     <div class="text">
-                        {{ 'text_database-last-synced-at' | translate }}:<br>
-                        {{ (lastSyncedAt$ | async) | pefDateTranslate: 'DD MMMM YYYY HH:mm:ss' }}
+                        {{ 'text_database-last-synced-at' | translate }}:<br> {{ (lastSyncedAt$ | async) | pefDateTranslate:
+                        'DD MMMM YYYY HH:mm:ss' }}
                     </div>
                 </div>
                 <div class="buttons">

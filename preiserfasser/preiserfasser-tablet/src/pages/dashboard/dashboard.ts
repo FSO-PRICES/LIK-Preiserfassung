@@ -5,10 +5,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription, Observable } from 'rxjs';
 import assign from 'lodash/assign';
 
-import { format, parse } from 'date-fns';
-import * as deLocale from 'date-fns/locale/de';
-// import * as frLocale from 'date-fns/locale/fr';
-
 import { pefSearch, PefDialogService, Models as P, parseErhebungsartForForm } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
@@ -32,8 +28,7 @@ type DashboardPms = P.Preismeldestelle & {
 export class DashboardPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     private preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen).map(preismeldestellen => preismeldestellen.map(this.toDashboardPms));
-    public currentTime$ = this.store.select(fromRoot.getCurrentTime)
-        .map(x => (format as any)(x, 'dddd, DD.MM.YYYY HH:mm', { locale: deLocale }));
+    public currentTime$ = this.store.select(fromRoot.getCurrentTime);
 
     public filterTextValueChanges = new EventEmitter<string>();
     public uploadPreismeldungenClicked$ = new EventEmitter();
@@ -54,12 +49,7 @@ export class DashboardPage implements OnDestroy {
     public syncError$ = this.store.select(x => x.database.syncError);
     public loginError$ = this.store.select(x => x.login.loginError);
     public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
-    public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat)
-        .filter(x => !!x)
-        .map(x => {
-            const parts = x.split('.');
-            return parse(`${parts[2]}-${parts[1]}-${parts[0]}`);
-        });
+    public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat);
     public lastSyncedAt$ = this.store.select(x => x.database.lastSyncedAt);
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
