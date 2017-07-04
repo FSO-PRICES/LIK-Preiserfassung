@@ -28,7 +28,7 @@ export class ExportToPrestaPage implements OnDestroy {
 
     public isErhebungsorgannummerSet$: Observable<boolean>;
 
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         this.isErhebungsorgannummerSet$ = this.settings$
@@ -60,7 +60,9 @@ export class ExportToPrestaPage implements OnDestroy {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
     }
 
-    public ngOnDestroy() {
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

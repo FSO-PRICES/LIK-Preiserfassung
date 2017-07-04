@@ -26,7 +26,7 @@ export class PreiserheberPage implements OnDestroy {
     public allowToSave$: Observable<boolean>;
 
     public form: FormGroup;
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     constructor(
         private navCtrl: NavController,
@@ -106,8 +106,10 @@ export class PreiserheberPage implements OnDestroy {
         this.store.dispatch({ type: 'LOAD_PREISERHEBER' } as PreiserheberAction);
     }
 
-    public ngOnDestroy() {
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     public navigateToDashboard() {

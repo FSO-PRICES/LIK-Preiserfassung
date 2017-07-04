@@ -44,7 +44,7 @@ export class PreiserheberPage implements OnDestroy {
     public cancelEditDialog$: Observable<any>;
     public confirmDeleteDialog$: Observable<any>;
 
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         const confirmDeleteText = 'Die Preiserheber können nicht mehr mit diesem Konto synchronisieren und alle aktuell erfassten Preismeldungen gehen verloren.';
@@ -174,7 +174,9 @@ export class PreiserheberPage implements OnDestroy {
         this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' } as PreiszuweisungAction);
     }
 
-    public ngOnDestroy() {
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

@@ -25,7 +25,7 @@ export class PreismeldestellePage implements OnDestroy {
     public isCurrentModified$: Observable<boolean>;
     public cancelEditDialog$: Observable<any>;
 
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
@@ -72,14 +72,14 @@ export class PreismeldestellePage implements OnDestroy {
 
     public ionViewCanLeave(): Promise<boolean> {
         return Observable.merge(
-                this.isCurrentModified$
-                    .filter(modified => modified === false)
-                    .map(() => true),
-                this.isCurrentModified$
-                    .filter(modified => modified === true)
-                    .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
-                    .map(dialogCode => dialogCode === 'THROW_CHANGES')
-            )
+            this.isCurrentModified$
+                .filter(modified => modified === false)
+                .map(() => true),
+            this.isCurrentModified$
+                .filter(modified => modified === true)
+                .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
+                .map(dialogCode => dialogCode === 'THROW_CHANGES')
+        )
             .take(1)
             .toPromise();
     }
@@ -89,8 +89,9 @@ export class PreismeldestellePage implements OnDestroy {
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as PreismeldestelleAction);
     }
 
-    public ngOnDestroy() {
-        if (!this.subscriptions || this.subscriptions.length === 0) return;
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

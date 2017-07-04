@@ -19,7 +19,7 @@ export class SettingsPage implements OnDestroy {
     public showValidationHints$: Observable<boolean>;
 
     public form: FormGroup;
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
     private loader: Loading;
 
     constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private formBuilder: FormBuilder) {
@@ -91,8 +91,9 @@ export class SettingsPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        if (!this.subscriptions || this.subscriptions.length === 0) return;
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     private presentLoadingScreen() {

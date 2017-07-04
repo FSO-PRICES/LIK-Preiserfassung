@@ -29,7 +29,7 @@ export class PreismeldungPage implements OnDestroy {
     public isCurrentModified$: Observable<boolean>;
     public cancelEditDialog$: Observable<any>;
 
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
@@ -80,14 +80,14 @@ export class PreismeldungPage implements OnDestroy {
 
     public ionViewCanLeave(): Promise<boolean> {
         return Observable.merge(
-                this.isCurrentModified$
-                    .filter(modified => modified === false || modified === null)
-                    .map(() => true),
-                this.isCurrentModified$
-                    .filter(modified => modified === true)
-                    .flatMap(() => this.cancelEditDialog$)
-                    .map(dialogCode => dialogCode === 'THROW_CHANGES')
-            )
+            this.isCurrentModified$
+                .filter(modified => modified === false || modified === null)
+                .map(() => true),
+            this.isCurrentModified$
+                .filter(modified => modified === true)
+                .flatMap(() => this.cancelEditDialog$)
+                .map(dialogCode => dialogCode === 'THROW_CHANGES')
+        )
             .take(1)
             .toPromise();
     }
@@ -100,6 +100,8 @@ export class PreismeldungPage implements OnDestroy {
     public ngOnDestroy() {
         this.store.dispatch({ type: 'CLEAR_PREISMELDUNG_FOR_PMS' } as preismeldung.Action);
         this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null } as preismeldung.Action);
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

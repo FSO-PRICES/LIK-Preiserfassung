@@ -27,7 +27,7 @@ export class PreismeldungDetailComponent extends ReactiveComponent implements On
     public isEditing$: Observable<boolean>;
     public showValidationHints$: Observable<boolean>;
 
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     public form: FormGroup;
 
@@ -81,8 +81,9 @@ export class PreismeldungDetailComponent extends ReactiveComponent implements On
         this.baseNgOnChanges(changes);
     }
 
-    public ngOnDestroy() {
-        if (!this.subscriptions || this.subscriptions.length === 0) return;
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }

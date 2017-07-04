@@ -18,7 +18,7 @@ export class PefDialogLoginComponent implements OnDestroy {
     public loginClicked$ = new EventEmitter();
     public loginError$ = this.store.select(fromRoot.getLoginError).publishReplay(1).refCount();
 
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     constructor(public viewCtrl: ViewController, private formBuilder: FormBuilder, private store: Store<fromRoot.AppState>) {
         this.form = formBuilder.group({
@@ -42,9 +42,10 @@ export class PefDialogLoginComponent implements OnDestroy {
         ];
     }
 
-    public ngOnDestroy() {
-        if (!this.subscriptions || this.subscriptions.length === 0) return;
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 
     navigateToSettings() {

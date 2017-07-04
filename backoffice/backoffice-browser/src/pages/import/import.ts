@@ -38,7 +38,7 @@ export class ImportPage implements OnDestroy {
     public importedAll$ = this.store.select(fromRoot.getImportedAll);
     public recreateUserDbsClicked$ = new EventEmitter();
 
-    private subscriptions: Subscription[];
+    private subscriptions: Subscription[] = [];
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         const parsedWarenkorb$ = this.store.select(fromRoot.getImporterParsedWarenkorb)
@@ -126,7 +126,9 @@ export class ImportPage implements OnDestroy {
         this.store.dispatch({ type: 'CLEAR_PARSED_FILES' } as importer.Action);
     }
 
-    public ngOnDestroy() {
-        this.subscriptions.map(s => !s.closed ? s.unsubscribe() : null);
+    ngOnDestroy() {
+        this.subscriptions
+            .filter(s => !!s && !s.closed)
+            .forEach(s => s.unsubscribe());
     }
 }
