@@ -1,7 +1,8 @@
 <div style="position: relative;">
-    <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)" [disabled]="readonly$ | async">
-        <div class="code-name" [class.highlighted]="(selectedBearbeitungsType$ | async)?.code != 99">{{ (selectedBearbeitungsType$ | async)?.codeName }}</div>
-        <div class="description">{{ (selectedBearbeitungsType$ | async)?.description }}</div>
+    <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)"
+        [disabled]="readonly$ | async">
+        <div class="code-name" [class.highlighted]="(selectedBearbeitungsType$ | async)?.code != 99">{{ 'text_code' | translate }}&nbsp;{{ (selectedBearbeitungsType$ | async)?.codeName }}</div>
+        <div class="description">{{ ((selectedBearbeitungsType$ | async)?.description) | translate }}</div>
     </button>
     <div class="bearbeitungs-type-flyout" [class.visible]="buttonOn$ | async" [style.marginBottom]="marginBottom$ | async">
         <ion-list>
@@ -9,8 +10,8 @@
                 <div class="icon">
                     <pef-icon [name]="bearbeitungsType.iconName"></pef-icon>
                 </div>
-                <div class="code-name">{{ bearbeitungsType.codeName }}</div>
-                <div class="description">{{ bearbeitungsType.description }}</div>
+                <div class="code-name">{{ 'text_code' | translate }}&nbsp;{{ bearbeitungsType.codeName }}</div>
+                <div class="description">{{ bearbeitungsType.description | translate }}</div>
             </ion-item>
         </ion-list>
     </div>

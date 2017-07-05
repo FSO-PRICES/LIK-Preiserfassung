@@ -6,11 +6,11 @@
                 | pefPropertyTranslate }}
             </div>
             <ion-item class="pef-item on-dark" *ngIf="!(isInternet$ | async)">
-                <ion-label> Artikelnummer </ion-label>
+                <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
                 <ion-input type="text" formControlName="artikelnummer" [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async"></ion-input>
             </ion-item>
             <ion-item class="pef-item on-dark" *ngIf="isInternet$ | async">
-                <ion-label> {{ 'label_preiserffassung_internetlink' | translate }} </ion-label>
+                <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
                 <ion-input type="text" formControlName="internetLink" [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async"></ion-input>
             </ion-item>
             <button class="pef-icon-secondary server-url-button" ion-button icon-only (click)="navigateToInternetLink(form.value.internetLink)"
@@ -23,7 +23,7 @@
         </div>
         <div class="header-line">
             <ion-item class="pef-item on-dark">
-                <ion-label> Artikeltext * </ion-label>
+                <ion-label>{{ 'label_artikeltext' | translate }}&nbsp;*</ion-label>
                 <ion-input type="text" formControlName="artikeltext" [class.validation-error]="true" [readonly]="isSaveDisabled$ | async"
                     [class.readonly]="isSaveDisabled$ | async"></ion-input>
             </ion-item>
@@ -43,14 +43,14 @@
         <div class="product-detail-body">
             <div class="columns product-detail-row row-1">
                 <div class="last-period">
-                    <h5 class="large">Vorperiode</h5>
+                    <h5 class="large">{{ 'heading_vorperiode' | translate }}</h5>
                     <preismeldung-info-popover-left [class.hidden]="!(preismeldung$ | async)?.refPreismeldung || !(preismeldung$ | async)?.refPreismeldung.aktion"
                         [preismeldung]="preismeldung$ | async" [forceClose]="distinctPreismeldung$ | async" [extraWidth]="window.document.getElementById('row-1-middle-section').offsetWidth + 'px'"
                         [height]="'0px'" (popoverActive)="infoPopoverLeftActive$.emit($event)"></preismeldung-info-popover-left>
                 </div>
                 <div class="middle-section" id="row-1-middle-section"></div>
                 <div class="current-period" id="row-1-current-period">
-                    <h5 class="large">Aktuelle Periode</h5>
+                    <h5 class="large">{{ 'heading_aktuelle_periode' | translate }}</h5>
                     <preismeldung-info-popover-right [class.hidden]="(preismeldung$ | async)?.preismeldung.bearbeitungscode != 1 || !(preismeldung$ | async)?.preismeldung.aktion"
                         [preismeldung]="preismeldung$ | async" [forceClose]="distinctPreismeldung$ | async" [popoverLeft]="window.document.getElementById('row-1-middle-section').offsetWidth + 'px + ' + window.document.getElementById('row-1-current-period').offsetWidth + 'px'"
                         [width]="window.document.getElementById('row-1-current-period').offsetWidth + 'px'" [height]="'0px'"
@@ -59,7 +59,7 @@
             </div>
             <div class="columns product-detail-row row-2" [class.info-popover-active]="infoPopoverLeftActive$ | async">
                 <div class="last-period" *ngIf="!(preismeldung$ | async)?.refPreismeldung">
-                    Nicht zutreffend.
+                    {{ 'text_nicht_zutreffend' | translate }}
                 </div>
                 <div class="last-period" *ngIf="(preismeldung$ | async)?.refPreismeldung" id="row-2-last-period">
                     <div class="data-input-area" id="last-period-data-input-area">
@@ -69,7 +69,7 @@
                             <div class="number">{{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.preisVorReduktion
                                 : (preismeldung$ | async)?.refPreismeldung.preis) | pefFormatNumber: preisNumberFormattingOptions
                                 }} </div>
-                            <div class="unit">CHF</div>
+                            <div class="unit">{{ 'text_chf' | translate }}</div>
                         </div>
                         <div class="last-period-quantity">
                             <div class="number">{{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion
@@ -80,7 +80,7 @@
                         <div class="last-period-bottom-row" [class.visibility-hidden]="infoPopoverLeftActive$ | async">
                             <ion-list radio-group>
                                 <ion-item>
-                                    <ion-label>Aktion</ion-label>
+                                    <ion-label>{{ 'text_aktion' | translate }}</ion-label>
                                     <ion-radio value="aktion" [disabled]="true" [checked]="(preismeldung$ | async)?.refPreismeldung?.aktion"></ion-radio>
                                 </ion-item>
                             </ion-list>
@@ -113,7 +113,7 @@
                         <h6 [innerHTML]="currentPeriodHeading$ | async | translate"></h6>
                         <ion-list>
                             <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('preis') | async">
-                                <ion-label class="currency-label">CHF</ion-label>
+                                <ion-label class="currency-label">{{ 'text_chf' | translate }}</ion-label>
                                 <ion-input #preis [class.display-none]="infoPopoverRightActive$ | async" type="number" min="0.00" step="0.01" pef-highlight-on-focus
                                     pef-disable-input-number-behaviour pef-disable-input-negative-number [class.ng-invalid]="createInvalidObservableFor('preis') | async"
                                     [readonly]="preisAndMengeDisabled$ | async" [class.readonly]="preisAndMengeDisabled$ | async"
@@ -142,7 +142,7 @@
                         <div class="current-period-aktion-row">
                             <ion-list radio-group class="reduction-radio-group-list" [class.visibility-hidden]="infoPopoverRightActive$ | async">
                                 <ion-item>
-                                    <ion-label>Aktion</ion-label>
+                                    <ion-label>{{ 'text_aktion' | translate }}</ion-label>
                                     <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit(!form.value.aktion)" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
                                 </ion-item>
                             </ion-list>
@@ -162,7 +162,7 @@
                         <h6 [innerHTML]="'heading_artikel-neu' | translate"></h6>
                         <ion-list>
                             <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async">
-                                <ion-label>CHF</ion-label>
+                                <ion-label>{{ 'text_chf' | translate }}</ion-label>
                                 <ion-input #preisVPK type="number" min="0.00" step="0.01" pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
                                     [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async" (blur)="preisVPKChanged$.emit(preisVPK.value)"
                                     [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async" [value]="(preisVPKCurrentValue$ | async)?.value"></ion-input>
@@ -198,7 +198,7 @@
                         <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>
                     </div>
                     <div class="buttons-container">
-                        <button ion-button color="java" class="save-button" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
+                        <button ion-button color="java" class="save-button" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
                         <button ion-button icon-only color="primary" class="next-button" (click)="requestSelectNextPreismeldung$.emit({})">
                             <pef-icon name="arrow_right"></pef-icon>
                         </button>
@@ -210,7 +210,7 @@
                     <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>
                 </div>
                 <button ion-button color="primary" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
-                    (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">Erfassung speichern</button>
+                    (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
                 <button ion-button icon-only color="primary" class="next-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
                     (click)="requestSelectNextPreismeldung$.emit({})">
                     <pef-icon name="arrow_right"></pef-icon>

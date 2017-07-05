@@ -40,7 +40,7 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
     public buttonClicked$ = new EventEmitter<MouseEvent>();
     public buttonOn$: Observable<boolean>;
-    public selectBearbeitungsType$ = new EventEmitter<{event: Event, bearbeitungsType: BearbeitungsType}>();
+    public selectBearbeitungsType$ = new EventEmitter<{ event: Event, bearbeitungsType: BearbeitungsType }>();
     public documentClick$ = new EventEmitter<MouseEvent>();
     public marginBottom$: Observable<string>;
 
@@ -104,7 +104,7 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
         this.documentClick$.emit($event);
     }
 
-    _onChange = (value: any) => {};
+    _onChange = (value: any) => { };
     _onTouched: () => any = () => { };
 
     registerOnChange(fn: (value: any) => void): void {
@@ -130,17 +130,13 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
             .forEach(s => s.unsubscribe());
     }
 
-    public standardBearbeitungsTypes: BearbeitungsType[] = [
-        { code: 99, iconName: 'recommended', description: 'Standardabbuchung', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[99]}` },
-        { code: 44, iconName: 'recommended', description: 'Saisonales Product nicht vorhanden', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[44]}` },
-        { code: 101, iconName: 'recommended', description: 'Aktuell nicht an Lager', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[101]}` },
-        { code: 1, iconName: 'recommended', description: 'Direkter Ersatz', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[1]}` },
-        { code: 7, iconName: 'recommended', description: 'Verkettung', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[7]}` },
-        { code: 0, iconName: 'recommended', description: 'Preisereihe beenden', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[0]}` }
-    ];
+    private codeToBearbeitungsType = (code: P.Models.Bearbeitungscode) => ({
+        code,
+        iconName: 'recommended',
+        description: `bearbeitungscode_${code}`,
+        codeName: P.Models.bearbeitungscodeDescriptions[code]
+    });
 
-    public newPmBearbeitungsTypes: BearbeitungsType[] = [
-        { code: 2, iconName: 'recommended', description: 'Neue Preismeldung inkl. VP', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[2]}` },
-        { code: 3, iconName: 'recommended', description: 'Neue Preismeldung exkl. VP', codeName: `Code ${P.Models.bearbeitungscodeDescriptions[3]}` },
-    ];
+    public standardBearbeitungsTypes: BearbeitungsType[] = [99, 44, 101, 1, 7, 0].map(this.codeToBearbeitungsType);
+    public newPmBearbeitungsTypes: BearbeitungsType[] = [2, 3].map(this.codeToBearbeitungsType);
 }

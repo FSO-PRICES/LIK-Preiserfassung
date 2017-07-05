@@ -7,7 +7,7 @@
         <div class="info-table">
             <div class="info-table-row">
                 <div class="info-table-cell-heading">
-                    Preismeldung ID
+                    {{ 'label_preismeldung-id' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ formatPreismeldungId(preismeldung$ | async) }}
@@ -15,7 +15,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Artikeltext (wie geliefert)
+                    {{ 'label_artikeltext-geliefert' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.artikeltext }}
@@ -23,7 +23,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Preis vor Reduktion
+                    {{ 'label_preis-vor-reduktion' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
@@ -31,7 +31,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Menge vor Reduktion
+                    {{ 'label_menge-vor-reduktion' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit
@@ -40,7 +40,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Datum vor Reduktion
+                    {{ 'label_datum-vor-reduktion' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.datumVorReduktion }}
@@ -48,7 +48,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Anzahl Fehlende Preis R
+                    {{ 'label_anzahl-fehlende-preis-r' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.fehlendePreiseR.length }}
@@ -56,7 +56,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Basispreis
+                    {{ 'label_basispreis' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.basisPreis | pefFormatNumber: numberFormattingOptions }}
@@ -64,7 +64,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Basismenge
+                    {{ 'label_basismenge' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.basisMenge }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
@@ -73,7 +73,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Preis geführt seit
+                    {{ 'label_preis-gefuehrt-seit' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.refPreismeldung.preisGueltigSeitDatum }}
@@ -81,7 +81,7 @@
             </div>
             <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
                 <div class="info-table-cell-heading">
-                    Artikelnummer
+                    {{ 'label_artikelnummer' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     {{ (preismeldung$ | async)?.preismeldung.artikelnummer || '&#x2013;' }}
@@ -89,7 +89,7 @@
             </div>
             <div class="info-table-row">
                 <div class="info-table-cell-heading">
-                    Internetlink
+                    {{ 'label_internetlink' | translate }}
                 </div>
                 <div class="info-table-cell-value">
                     <a *ngIf="(preismeldung$ | async)?.preismeldung.internetLink" href="{{ (formatInternetLink((preismeldung$ | async)?.preismeldung.internetLink)) }}"

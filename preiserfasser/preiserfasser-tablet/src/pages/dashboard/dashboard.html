@@ -18,14 +18,14 @@
     <div class="work-area">
         <div class="preismeldestellen">
             <div class="header-line">
-                <h3>{{ 'choose-preismeldestelle' | translate }}</h3>
+                <h3>{{ 'heading_choose-preismeldestelle' | translate }}</h3>
                 <div class="current-time">{{ currentTime$ | async | pefDateTranslate:'dddd, DD.MM.YYYY HH:mm' }}</div>
             </div>
             <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
             <div class="pms-header-table">
                 <div class="pms-header-row">
                     <div class="pms-header-cell pms-name">
-                        <div class="pms-header-cell-content">{{ 'preismeldestelle' | translate }}</div>
+                        <div class="pms-header-cell-content">{{ 'heading_preismeldestelle' | translate }}</div>
                     </div>
                     <div class="pms-header-cell pms-flag">
                         <div class="pms-header-cell-content"></div>
