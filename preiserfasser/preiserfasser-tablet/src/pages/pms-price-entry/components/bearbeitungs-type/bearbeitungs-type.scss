@@ -64,6 +64,7 @@ bearbeitungs-type {
     }
     ion-item.bearbeitungs-type-option {
         padding: 0;
+        min-height: 2.5em;
         &:not(:last-of-type) .item-inner {
             border-bottom: 2px solid $alto;
         }

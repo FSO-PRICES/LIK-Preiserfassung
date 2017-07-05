@@ -71,7 +71,7 @@ export class PreismeldungenEffects {
             preismeldungen: x.preismeldungen,
             pmsPreismeldungenSort: x.pmsPreismeldungenSort
         })))
-        .withLatestFrom(this.store.select(fromRoot.getWarenkorb), (x, warenkorb) => ({
+        .combineLatest(this.store.select(fromRoot.getWarenkorb).filter(x => !!x.length).take(1), (x, warenkorb) => ({
             pms: x.pms,
             warenkorb,
             refPreismeldungen: x.refPreismeldungen,

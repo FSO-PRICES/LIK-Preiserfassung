@@ -280,9 +280,9 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 preismeldung: newPreismeldung,
                 warenkorbPosition: currentPreismeldung.warenkorbPosition
             }, state.priceCountStatuses), {
-                priceCountStatus: createPriceCountStatus(currentPreismeldung.priceCountStatus.numActivePrices + 1, currentPreismeldung.priceCountStatus.anzahlPreiseProPMS),
-                isNew: true
-            });
+                    priceCountStatus: createPriceCountStatus(currentPreismeldung.priceCountStatus.numActivePrices + 1, currentPreismeldung.priceCountStatus.anzahlPreiseProPMS),
+                    isNew: true
+                });
 
             return assign({}, state, { currentPreismeldung: newCurrentPreismeldung });
         }
@@ -303,9 +303,9 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
                 preismeldung: newPreismeldung,
                 warenkorbPosition: action.payload.warenkorbPosition
             }, state.priceCountStatuses), {
-                priceCountStatus: createPriceCountStatus(numActivePrices + 1, action.payload.warenkorbPosition.anzahlPreiseProPMS),
-                isNew: true
-            });
+                    priceCountStatus: createPriceCountStatus(numActivePrices + 1, action.payload.warenkorbPosition.anzahlPreiseProPMS),
+                    isNew: true
+                });
             return assign({}, state, { currentPreismeldung: assign({}, newCurrentPreismeldung, { messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung) }) });
         }
 
@@ -317,7 +317,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 // tslint:disable-next-line:no-unused-variable
 function debugDifference(obj1: any, obj2: any, props: string[]) {
     props.forEach(p => {
-        console.log(p, 'l:' , obj1[p], 'r:', obj2[p], obj1[p] === obj2[p]);
+        console.log(p, 'l:', obj1[p], 'r:', obj2[p], obj1[p] === obj2[p]);
     });
 }
 

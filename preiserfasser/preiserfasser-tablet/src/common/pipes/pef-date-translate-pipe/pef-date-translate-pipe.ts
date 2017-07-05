@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform, OnDestroy } from '@angular/core';
+import { Pipe, PipeTransform, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { format } from 'date-fns';
 import * as fromRoot from '../../../reducers';
@@ -7,17 +7,23 @@ import * as deLocale from 'date-fns/locale/de';
 import * as enLocale from 'date-fns/locale/en';
 import * as frLocale from 'date-fns/locale/fr';
 import * as itLocale from 'date-fns/locale/it';
+import { Subscription } from 'rxjs';
 
-@Pipe({ name: 'pefDateTranslate' })
+@Pipe({ name: 'pefDateTranslate', pure: false })
 export class PefDateTranslatePipe implements PipeTransform, OnDestroy {
+    private latestValue: string = null;
+    private latestReturnValue: string = null;
+
     private currentLanguage: string;
 
-    private subscriptions = [];
+    private subscriptions: Subscription[] = [];
 
-    constructor(store: Store<fromRoot.AppState>) {
+    constructor(private store: Store<fromRoot.AppState>, private ref: ChangeDetectorRef) {
         this.subscriptions.push(
             store.select(fromRoot.getCurrentLanguage)
-                .subscribe(lang => this.currentLanguage = lang)
+                .subscribe(lang => {
+                    this.currentLanguage = lang;
+                })
         );
     }
 

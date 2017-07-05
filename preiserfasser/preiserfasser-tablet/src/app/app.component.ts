@@ -49,20 +49,28 @@ export class PefApp implements OnInit {
                 this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
                 this.store.dispatch({ type: 'LOAD_WARENKORB' });
             });
+
+        this.store.select(fromRoot.getPreiserheber)
+            .filter(p => !!p)
+            .map(p => p.languageCode)
+            .filter(languageCode => !!languageCode)
+            .subscribe(languageCode => this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: languageCode }));
     }
 
     initialiseLanguages() {
-        const defaultLanguage = 'de';
-        this.translate.setDefaultLang(defaultLanguage);
-        this.store.dispatch({ type: 'SET_AVAILABLE_LANGUAGES', payload: [defaultLanguage, 'fr', 'it'] });
+        this.translate.setDefaultLang('dummy'); // so that untranslated texts get shown as raw keys
+        this.store.dispatch({ type: 'SET_AVAILABLE_LANGUAGES', payload: ['de', 'en', 'fr', 'it'] });
         this.store.select(fromRoot.getCurrentLanguage)
             .filter(x => !!x)
-            .subscribe(x => this.translate.use(x));
-        this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: defaultLanguage });
+            .subscribe(x => {
+                this.translate.use(x);
+            });
+        this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: 'de' });
     }
 
     public ngOnInit() {
         this.store.dispatch({ type: 'LOAD_SETTINGS' });
+        this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
         this.store.dispatch({ type: 'CHECK_DATABASE_LAST_UPLOADED_AT' });
         this.store.select(fromRoot.getSettings)
             .filter(setting => !!setting)

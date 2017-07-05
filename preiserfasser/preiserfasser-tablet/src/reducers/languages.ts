@@ -26,6 +26,9 @@ export function reducer(state = initialState, action: Actions): State {
         }
 
         case 'SET_CURRENT_LANGUAGE': {
+            if (state.currentLanguage === action.payload) {
+                return state;
+            }
             if (!state.languageCodes.find(x => x === action.payload)) {
                 throw `Invalid language: '${action.payload}'`;
             }
