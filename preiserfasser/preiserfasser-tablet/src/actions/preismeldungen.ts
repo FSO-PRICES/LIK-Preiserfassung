@@ -28,7 +28,6 @@ export type SavePreismeldungPriceSaveActionJustSave = { type: 'JUST_SAVE', saveW
 export type SavePreismeldungPriceSaveActionSaveMoveNext = { type: 'SAVE_AND_MOVE_TO_NEXT', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
 export type SavePreismeldungPriceSaveActionSaveDuplicate = { type: 'SAVE_AND_DUPLICATE_PREISMELDUNG', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
 export type SavePreismeldungPriceSaveActionSaveNavigateDashboard = { type: 'SAVE_AND_NAVIGATE_TO_DASHBOARD', saveWithData: SavePreismeldungPriceSaveActionWithDataType[] };
-export type SavePreismeldungPriceSaveActionReset = { type: 'RESET' };
 export type SavePreismeldungPriceSaveActionNoSaveNavigate = { type: 'NO_SAVE_NAVIGATE', tabName: string };
 export type SavePreismeldungPriceSaveActionSaveNavigateTab = { type: 'SAVE_AND_NAVIGATE_TAB', saveWithData: SavePreismeldungPriceSaveActionWithDataType[], tabName: string };
 
@@ -42,7 +41,6 @@ export type SavePreismeldungPriceSaveActionSave =
 export type SavePreismeldungPriceSaveAction =
     SavePreismeldungPriceSaveActionSave |
     SavePreismeldungPriceSaveActionCancel |
-    SavePreismeldungPriceSaveActionReset |
     SavePreismeldungPriceSaveActionNoSaveNavigate;
 
 export const isSavePreismeldungPriceSaveActionSave = (x: SavePreismeldungPriceSaveAction) =>

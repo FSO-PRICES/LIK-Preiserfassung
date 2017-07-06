@@ -24,7 +24,7 @@
                     [priceCountStatus]="currentPriceCountStatus$ | async" [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async" (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()" (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
-                    (save)="save$.emit($event)"></preismeldung-price>
+                    (requestThrowChanges)="requestThrowChanges$.emit({})" (save)="save$.emit($event)"></preismeldung-price>
             </div>
             <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
                 Keine Preismeldung selektiert

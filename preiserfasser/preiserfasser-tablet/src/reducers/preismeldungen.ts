@@ -172,8 +172,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
 
             let nextPreismeldung;
             if (action.payload.saveAction.type === 'SAVE_AND_MOVE_TO_NEXT' && nextId !== null) {
-                const preismeldungToMakeCurrent = !!nextId ? state.entities[nextId] : state.entities[0];
-                nextPreismeldung = assign({}, preismeldungToMakeCurrent, { priceCountStatus: state.priceCountStatuses[preismeldungToMakeCurrent.preismeldung.epNummer], isModified: false, isNew: false, originalBearbeitungscode: preismeldungToMakeCurrent.preismeldung.bearbeitungscode, messages: parsePreismeldungMessages(preismeldungToMakeCurrent.preismeldung) });
+                nextPreismeldung = createCurrentPreismeldungBag(!!nextId ? state.entities[nextId] : state.entities[0], state.priceCountStatuses)
             } else {
                 nextPreismeldung = assign(cloneDeep(currentPreismeldung), { messages: parsePreismeldungMessages(currentPreismeldung.preismeldung) });
             }
@@ -373,7 +372,7 @@ function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatu
         hasMessageToCheck: calcHasMessageToCheck(messages),
         hasPriceWarning: warningAndTextzeile.hasPriceWarning,
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
-        resetEvent: null,
+        resetEvent: new Date().getTime(),
         textzeile: warningAndTextzeile.textzeile
     });
 }

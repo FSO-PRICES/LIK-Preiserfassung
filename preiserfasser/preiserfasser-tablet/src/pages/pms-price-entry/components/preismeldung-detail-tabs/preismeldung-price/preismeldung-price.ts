@@ -29,6 +29,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('save') save$: Observable<P.SavePreismeldungPriceSaveAction>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
     @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
+    @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
 
     public preismeldung$: Observable<P.CurrentPreismeldungBag>;
     public distinctPreismeldung$: Observable<P.CurrentPreismeldungBag>;
@@ -324,7 +325,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .subscribe()
         );
 
-        this.save$ = saveWithBag$
+        const saveLogic$ = saveWithBag$
             .filter(x => !x.bag.hasAttributeWarning)
             .flatMap(({ saveAction, bag }) => {
                 const alerts: { condition: () => boolean; observable: () => Observable<P.SavePreismeldungPriceSaveAction> }[] = [
@@ -334,8 +335,17 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     },
                     {
                         condition: () => bag.hasPriceWarning && !bag.messages.kommentar,
-                        observable: () => pefMessageDialogService.displayDialogOneButton('btn_edit', 'dialogText_abnormal-preisentwicklung')
-                            .map(res => ({ type: 'CANCEL' } as P.SavePreismeldungPriceSaveAction))
+                        observable: () => pefMessageDialogService.displayMessageDialog([{ textKey: 'btn_yes', dismissValue: 'YES' }, { textKey: 'btn_verwerfen', dismissValue: 'THROW_CHANGES' }, { textKey: 'btn_edit-comment', dismissValue: 'EDIT' }], 'dialogText_abnormal-preisentwicklung')
+                            .map(res => {
+                                switch (res.data) {
+                                    case 'YES':
+                                        return { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_abnormale-preisentwicklung-bestaetigt'] }] };
+                                    case 'THROW_CHANGES':
+                                        return 'THROW_CHANGES';
+                                    case 'EDIT':
+                                        return { type: 'CANCEL' };
+                                }
+                            })
                     },
                     {
                         condition: () => [1, 7].some(code => code === this.form.value.bearbeitungscode) && bag.refPreismeldung.artikeltext === this.form.value.artikeltext && bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer,
@@ -408,7 +418,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             if (!agg) return v();
                             return (agg as any)
                                 .flatMap(lastAlertResult => {
-                                    if (['CANCEL', 'NO_SAVE_NAVIGATE'].some(x => x === lastAlertResult.type)) return Observable.of(lastAlertResult);
+                                    if (lastAlertResult === 'THROW_CHANGES' || (['CANCEL', 'NO_SAVE_NAVIGATE'].some(x => x === lastAlertResult.type))) return Observable.of(lastAlertResult);
                                     return v().map(thisAlertResult => {
                                         if (P.isSavePreismeldungPriceSaveActionSave(lastAlertResult) && P.isSavePreismeldungPriceSaveActionSave(thisAlertResult)) {
                                             return assign({}, thisAlertResult, { saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(lastAlertResult.saveWithData) })
@@ -417,10 +427,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                         }
                                     });
                                 })
-                        }, null) as Observable<P.SavePreismeldungPriceSaveAction>
-                    : Observable.of({ type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: [] }] } as P.SavePreismeldungPriceSaveAction);
+                        }, null) as Observable<P.SavePreismeldungPriceSaveAction | string>
+                    : Observable.of({ type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: [] }] } as P.SavePreismeldungPriceSaveAction | string);
             })
-            .filter(x => x.type !== 'CANCEL');
+            .publishReplay(1).refCount();
+
+        this.save$ = saveLogic$.filter(x => x !== 'THROW_CHANGES' && ((x as P.SavePreismeldungPriceSaveAction).type !== 'CANCEL'))
+        this.requestThrowChanges$ = saveLogic$.filter(x => x === 'THROW_CHANGES').mapTo({});
 
         this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
             .merge(this.distinctPreismeldung$.mapTo(false));

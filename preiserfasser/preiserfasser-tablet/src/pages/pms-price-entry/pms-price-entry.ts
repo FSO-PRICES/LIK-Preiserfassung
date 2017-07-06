@@ -41,6 +41,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     ionViewDidLoad$ = new EventEmitter();
     resetPreismeldung$ = new EventEmitter();
     requestSelectNextPreismeldung$ = new EventEmitter<{}>();
+    requestThrowChanges$ = new EventEmitter<{}>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -161,6 +162,13 @@ export class PmsPriceEntryPage implements OnDestroy {
                 .filter(x => !x.isCurrentModified)
                 .delay(100)
                 .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung ? x.selectedPreismeldung.pmId : null }))
+        );
+
+        this.subscriptions.push(
+            this.requestThrowChanges$
+                .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
+                .delay(100)
+                .subscribe(currentPreismeldung => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: currentPreismeldung.pmId }))
         );
 
         this.subscriptions.push(
