@@ -458,7 +458,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.currentPeriodHeading$ = this.changeBearbeitungscode$.merge(this.distinctPreismeldung$.map(x => x.preismeldung.bearbeitungscode))
             .combineLatest(infoPopoverRightActive$, (bearbeitungscode, infoPopoverRightActive) => {
                 if (infoPopoverRightActive) {
-                    return 'heading_artikel-vor-reduktion';
+                    return 'heading_artikel-ausser-reduktion';
                 }
                 return [7, 2, 3].some(x => x === bearbeitungscode) ? 'heading_artikel-neu' : 'heading_artikel';
             });
