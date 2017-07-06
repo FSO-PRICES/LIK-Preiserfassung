@@ -273,7 +273,7 @@ export function preparePreiserheberForExport(preiserhebers: (P.Erheber & { pmsNu
             () => ({
                 'Erhebungsmonat': erhebungsmonat,
                 'Preissubsystem': 2, // Fix 2 defined by Serge "Das Preissubsystem ist effektiv Konstant auf 2"
-                'Erhebungsorgannummer': toNumber(erhebungsorgannummer, 1, 'Erhebungsorgannummer'),
+                'Erhebungsorgannummer': toNumber(erhebungsorgannummer, 2, 'Erhebungsorgannummer'),
                 'PE_Nummer': toNumber(preiserheber.peNummer, 10, 'PE_Nummer'),
                 'PE_Vorname': toText(preiserheber.firstName, 40, 'PE_Vorname'),
                 'PE_Name': toText(preiserheber.surname, 40, 'PE_Name'),
