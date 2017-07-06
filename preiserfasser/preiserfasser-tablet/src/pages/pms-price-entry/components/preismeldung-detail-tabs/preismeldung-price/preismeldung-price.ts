@@ -401,7 +401,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                     : { type: 'SAVE_AND_NAVIGATE_TAB', saveWithData: [{ type: 'COMMENT', comments: [] }], tabName: 'MESSAGES' })
                     },
                     {
-                        // wrong dialog
                         condition: () => this.form.value.bearbeitungscode === 101 && /^R+$/.exec(bag.refPreismeldung.fehlendePreiseR) && bag.refPreismeldung.fehlendePreiseR.length >= 2,
                         observable: () => pefMessageDialogService.displayDialogYesNo('dialogText_rrr-message-mit-aufforderung-zu-produktersatz')
                             .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_keine-ersatzprodukte'] }] })
