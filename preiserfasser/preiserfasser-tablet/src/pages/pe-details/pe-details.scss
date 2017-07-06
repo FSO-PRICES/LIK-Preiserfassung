@@ -35,6 +35,11 @@ preiserheber-page.ion-page {
             flex: 1;
             margin: 0;
         }
+
+        .button.button-md, a[ion-button].button.button-md:hover {
+            color: $white;
+            fill: $white;
+        }
     }
 
     .preiserheber-content {

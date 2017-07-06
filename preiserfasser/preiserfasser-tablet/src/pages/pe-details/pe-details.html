@@ -1,6 +1,10 @@
 <div class="wrapper">
     <div class="header">
         <h3>{{'heading_preiserheber' | translate}}</h3>
+        <a ion-button large clear class="align-right" color="white" (click)="cancelClicked$.emit($event)">
+            {{'btn_close' | translate}}
+            <pef-icon name="close_screen"></pef-icon>
+        </a>
     </div>
     <ion-content no-scroll>
         <div class="preiserheber-content">
@@ -61,12 +65,12 @@
                                 <ion-input type="text" formControlName="street"></ion-input>
                             </ion-item>
                             <ion-item class="pef-item on-dark">
-                                <ion-label stacked>{{'label_preiserheber_town' | translate}}</ion-label>
-                                <ion-input type="text" formControlName="town"></ion-input>
-                            </ion-item>
-                            <ion-item class="pef-item on-dark">
                                 <ion-label stacked>{{'label_preiserheber_postcode' | translate}}</ion-label>
                                 <ion-input type="text" formControlName="postcode"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label stacked>{{'label_preiserheber_town' | translate}}</ion-label>
+                                <ion-input type="text" formControlName="town"></ion-input>
                             </ion-item>
                         </ion-list>
                     </div>
