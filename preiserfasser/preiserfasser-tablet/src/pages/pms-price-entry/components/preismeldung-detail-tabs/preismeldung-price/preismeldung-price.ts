@@ -514,11 +514,18 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     formLevelValidationFactory() {
         return (group: FormGroup) => {
             const bearbeitungscode = group.get('bearbeitungscode');
+            const aktion = group.get('aktion');
             if (!![2, 7].some(x => x === bearbeitungscode.value)) {
                 const preisVPK = group.get('preisVPK');
                 preisVPK.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])(preisVPK));
                 const mengeVPK = group.get('mengeVPK');
                 mengeVPK.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })])(mengeVPK));
+            }
+            else if (bearbeitungscode.value === 1 && !!aktion) {
+                const preisVorReduktion = group.get('preisVorReduktion');
+                preisVorReduktion.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])(preisVorReduktion));
+                const mengeVorReduktion = group.get('mengeVorReduktion');
+                mengeVorReduktion.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 999999.99, { padRight: 2, truncate: 2 })])(mengeVorReduktion));
             }
         };
     }
