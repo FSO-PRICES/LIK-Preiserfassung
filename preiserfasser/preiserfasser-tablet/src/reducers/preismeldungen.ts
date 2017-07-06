@@ -441,8 +441,8 @@ function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPriceP
                         d_VPKToVPAlterArtikel.warning = exceedsLimit(d_VPKToVPAlterArtikel.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7)
                         d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                     } else { // VP -
-                        d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7);
-                        d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                        d_VPKToVPAlterArtikel.warning = exceedsLimit(d_VPKToVPAlterArtikel.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                     }
                 }
                 else { // T A
