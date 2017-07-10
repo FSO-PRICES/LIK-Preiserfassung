@@ -20,6 +20,7 @@ export class PmsDetailsPage implements OnDestroy {
     public pms$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
     public languages$ = this.store.select(fromRoot.getLanguagesList);
 
+    public pmsGeschlossenClicked$ = new EventEmitter();
     public formErrors$: Observable<string[]>;
     public hasErrors$: Observable<boolean>;
 
@@ -63,27 +64,6 @@ export class PmsDetailsPage implements OnDestroy {
             .distinctUntilKeyChanged('_rev')
             .publishReplay(1).refCount();
 
-        distinctPreismeldestelle$
-            .subscribe((preismeldestelle: P.Preismeldestelle) => {
-                this.form.markAsUntouched();
-                this.form.markAsPristine();
-                this.form.patchValue({
-                    kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
-                    name: preismeldestelle.name,
-                    supplement: preismeldestelle.supplement,
-                    street: preismeldestelle.street,
-                    postcode: preismeldestelle.postcode,
-                    town: preismeldestelle.town,
-                    telephone: preismeldestelle.telephone,
-                    email: preismeldestelle.email,
-                    languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
-                    ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
-                    pmsGeschlossen: preismeldestelle.pmsGeschlossen,
-                    erhebungsartComment: preismeldestelle.erhebungsartComment,
-                    zusatzInformationen: preismeldestelle.zusatzInformationen,
-                }, { onlySelf: true, emitEvent: false });
-            });
-
         const canSave$ = this.saveClicked$
             .map(() => ({ isValid: this.form.valid }))
             .publishReplay(1).refCount();
@@ -99,6 +79,27 @@ export class PmsDetailsPage implements OnDestroy {
         this.hasErrors$ = this.formErrors$.map(x => !!x && x.length > 0);
 
         this.subscriptions = [
+            distinctPreismeldestelle$
+                .subscribe((preismeldestelle: P.Preismeldestelle) => {
+                    this.form.markAsUntouched();
+                    this.form.markAsPristine();
+                    this.form.patchValue({
+                        kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
+                        name: preismeldestelle.name,
+                        supplement: preismeldestelle.supplement,
+                        street: preismeldestelle.street,
+                        postcode: preismeldestelle.postcode,
+                        town: preismeldestelle.town,
+                        telephone: preismeldestelle.telephone,
+                        email: preismeldestelle.email,
+                        languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
+                        ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
+                        pmsGeschlossen: preismeldestelle.pmsGeschlossen,
+                        erhebungsartComment: preismeldestelle.erhebungsartComment,
+                        zusatzInformationen: preismeldestelle.zusatzInformationen,
+                    }, { onlySelf: true, emitEvent: false });
+                }),
+
             this.store.select(fromRoot.getPreismeldestellen)
                 .filter(x => !!x && x.length > 0)
                 .subscribe(() => {
@@ -110,6 +111,17 @@ export class PmsDetailsPage implements OnDestroy {
             this.form.valueChanges
                 .map(() => assign({}, this.form.value, { erhebungsart: encodeErhebungsartFromForm(this.form.value) }))
                 .subscribe(payload => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction)),
+
+            this.pmsGeschlossenClicked$.mapTo(null)
+                .merge(distinctPreismeldestelle$)
+                .scan((pmsGeschlossen, p) => {
+                    if (!!p) return p.pmsGeschlossen;
+                    return pmsGeschlossen === this.form.value.pmsGeschlossen ? null : this.form.value.pmsGeschlossen;
+                }, 0)
+                .filter(pmsGeschlossen => !pmsGeschlossen)
+                .subscribe(x => {
+                    this.form.patchValue({ pmsGeschlossen: 0 });
+                }),
 
             save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction))
         ];

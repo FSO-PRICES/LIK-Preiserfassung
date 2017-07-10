@@ -202,19 +202,19 @@
             <ion-list radio-group class="padding-to-header" formControlName="pmsGeschlossen">
                 <ion-item>
                     <ion-label>Ferien</ion-label>
-                    <ion-radio value="1"></ion-radio>
+                    <ion-radio value="1" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>geschlossen (temporär)</ion-label>
-                    <ion-radio value="2"></ion-radio>
+                    <ion-radio value="2" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>Geschäftsaufgabe</ion-label>
-                    <ion-radio value="3"></ion-radio>
+                    <ion-radio value="3" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>anderes (bitte unter Zusatzinformation erläutern)</ion-label>
-                    <ion-radio value="4"></ion-radio>
+                    <ion-radio value="4" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
                 </ion-item>
             </ion-list>
         </ion-col>
