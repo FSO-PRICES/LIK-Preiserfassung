@@ -28,5 +28,5 @@ export function parseCsvAsObservable(file: any): Observable<any> {
 
 export function toCsv(data: any[], header: boolean = true, quote: boolean = false): string {
     // @types/papaparse is not available for v4.3.3
-    return Papa.unparse(data, { delimiter: ';', header, quoteChar: '"', quote })
+    return Papa.unparse(data, { delimiter: ';', header, quoteChar: '"', quote }) + '\n';
 }
