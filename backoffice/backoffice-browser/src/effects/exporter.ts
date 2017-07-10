@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
-import { assign, keyBy } from 'lodash';
+import { assign, keyBy, orderBy } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
-import { dbNames, getAllDocumentsForPrefixFromDb, getDatabaseAsObservable, getDocumentByKeyFromDb, getAllDocumentsFromDb } from './pouchdb-utils';
+import { dbNames, getAllDocumentsForPrefixFromDb, getDatabaseAsObservable, getDocumentByKeyFromDb, getAllDocumentsFromDb, getDatabase } from './pouchdb-utils';
 import { toCsv } from '../common/file-extensions';
 import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
@@ -28,29 +28,29 @@ export class ExporterEffects {
     @Effect()
     exportPreismeldungen$ = this.actions$.ofType('EXPORT_PREISMELDUNGEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => loadAllPreismeldungen()
-            .map(preismeldungen => preismeldungen.filter(pm => pm.istAbgebucht))
-            .flatMap(preismeldungen => {
-                if (preismeldungen.length === 0) throw new Error('Keine abgebuchte preismeldungen vorhanden.');
-                return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
-                    .flatMap(db => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => erhebungsmonat))
-                    .flatMap(erhebungsmonat =>
-                        resetAndContinueWith({ type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
-                            doAsyncAsObservable(() => {
-                                const content = toCsv(preparePmForExport(preismeldungen, erhebungsmonat.monthAsString));
-                                const count = preismeldungen.length;
-                                const envelope = createEnvelope(MessageTypes.Preismeldungen);
+        .flatMap(() => loadAllPreismeldungen())
+        .flatMap(preismeldungen => getDatabaseAsObservable(dbNames.warenkorb).flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>).map(warenkorbDoc => ({ preismeldungen, warenkorbDoc })))
+        .map(x => orderBy(x.preismeldungen.filter(pm => pm.istAbgebucht), [pm => x.warenkorbDoc.products.findIndex(p => pm.epNummer === p.gliederungspositionsnummer), pm => +pm.pmsNummer, pm => +pm.laufnummer]))
+        .flatMap(preismeldungen => {
+            if (preismeldungen.length === 0) throw new Error('Keine abgebuchte preismeldungen vorhanden.');
+            return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
+                .flatMap(db => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => erhebungsmonat))
+                .flatMap(erhebungsmonat =>
+                    resetAndContinueWith({ type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
+                        doAsyncAsObservable(() => {
+                            const content = toCsv(preparePmForExport(preismeldungen, erhebungsmonat.monthAsString));
+                            const count = preismeldungen.length;
+                            const envelope = createEnvelope(MessageTypes.Preismeldungen);
 
-                                FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
-                                FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pm_${envelope.fileSuffix}.csv`);
+                            FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
+                            FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pm_${envelope.fileSuffix}.csv`);
 
-                                return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
-                            })
-                        )
+                            return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
+                        })
                     )
-            })
-            .catch(error => Observable.of({ type: 'EXPORT_PREISMELDUNGEN_FAILURE', payload: error.message } as exporter.Action))
-        );
+                )
+        })
+        .catch(error => Observable.of({ type: 'EXPORT_PREISMELDUNGEN_FAILURE', payload: error.message } as exporter.Action))
 
     @Effect()
     exportPreismeldestellen$ = this.actions$.ofType('EXPORT_PREISMELDESTELLEN')

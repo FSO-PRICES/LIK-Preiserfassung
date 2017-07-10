@@ -69,6 +69,6 @@ function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>(prefix
         );
 }
 
-function getPreismeldungId(doc: { pmsNummer: string, epNummer: string, laufnummer: string  }) {
+function getPreismeldungId(doc: { pmsNummer: string, epNummer: string, laufnummer: string }) {
     return `${doc.pmsNummer}/${doc.epNummer}/${doc.laufnummer}`;
 }
