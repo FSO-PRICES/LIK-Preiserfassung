@@ -193,7 +193,7 @@ export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.
             `${pm.pmsNummer}/${pm.epNummer}/${pm.laufnummer}`,
             () => ({
                 'Erhebungsmonat': erhebungsmonat,
-                'Preissubsystem': toNumber(pm.pmRef.preissubsystem, 1, 'Preissubsystem'), // LIK = 2 0
+                'Preissubsystem': 2, // Preissubsystem is always 2 as defined by Serge
                 'Schemanummer': 0,
                 'Preiserhebungsort': toNumber(pm.pmsNummer, 8, 'Preiserhebungsort'),
                 'Erhebungspositionnummer': toNumber(pm.epNummer, 8, 'Erhebungspositionnummer'),
@@ -202,7 +202,7 @@ export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.
                 'Menge_T': toDecimal(pm.menge, 10, 3, 'Menge_T'),
                 'Preis_VPK': toDecimal(pm.preisVPK, 12, 4, 'Preis_VPK'), // TODO: depending on actioncode #97
                 'Menge_VPK': toDecimal(pm.mengeVPK, 10, 3, 'Menge_VPK'),
-                'Bearbeitungscode': toNumber(pm.bearbeitungscode, 2, 'Bearbeitungscode'),
+                'Bearbeitungscode': toNumber(pm.bearbeitungscode, 3, 'Bearbeitungscode'),
                 'Aktionscode': !pm.aktion ? 0 : 1,
                 'Preisbezeichnung': toText(pm.artikeltext, 200, 'Preisbezeichnung'),
                 'Artikelnummer': toText(pm.artikelnummer, 30, 'Artikelnummer'),
@@ -211,11 +211,11 @@ export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.
                 'PE_Kommentar': toText(pm.kommentar, 4000, 'PE_Kommentar'),
                 'Bemerkungen': toText(pm.bemerkungen, 4000, 'Bemerkungen'),
                 'Internet_Link': toText(pm.internetLink, 255, 'Internet_Link'),
-                'Erhebungszeitpunkt': toNumber(pm.pmRef.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
+                'Erhebungszeitpunkt': 0, // toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
                 'Sortiernummer': toNumber(sortNumber++, 5, 'Sortiernummer'),
-                'Preis_vor_Reduktion': toDecimal(pm.pmRef.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
-                'Menge_vor_Reduktion': toDecimal(pm.pmRef.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
-                'Datum_vor_Reduktion': pm.pmRef.datumVorReduktion,
+                'Preis_vor_Reduktion': toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
+                'Menge_vor_Reduktion': toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
+                'Datum_vor_Reduktion': pm.datumVorReduktion,
                 'Produktmerkmale': toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale')
             })
         )
