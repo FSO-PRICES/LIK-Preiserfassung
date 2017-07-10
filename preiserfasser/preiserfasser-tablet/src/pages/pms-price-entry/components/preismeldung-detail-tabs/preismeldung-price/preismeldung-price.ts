@@ -406,7 +406,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             .map(res => res.data === 'YES' ? { type: 'CANCEL' } : { type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_keine-ersatzprodukte'] }] })
                     },
                     {
-                        condition: () => this.form.value.bearbeitungscode === 0,
+                        condition: () => this.form.value.bearbeitungscode === 0 && bag.priceCountStatus.numActivePrices < bag.priceCountStatus.anzahlPreiseProPMS,
                         observable: () => {
                             const params = {
                                 numActivePrices: bag.priceCountStatus.numActivePrices,
