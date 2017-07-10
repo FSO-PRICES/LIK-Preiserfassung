@@ -46,6 +46,7 @@ export class PefApp implements OnInit {
         databaseExists$
             .filter(x => x)
             .subscribe(() => {
+                this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
                 this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
                 this.store.dispatch({ type: 'LOAD_WARENKORB' });
             });
@@ -70,7 +71,6 @@ export class PefApp implements OnInit {
 
     public ngOnInit() {
         this.store.dispatch({ type: 'LOAD_SETTINGS' });
-        this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
         this.store.dispatch({ type: 'CHECK_DATABASE_LAST_UPLOADED_AT' });
         this.store.select(fromRoot.getSettings)
             .filter(setting => !!setting)
