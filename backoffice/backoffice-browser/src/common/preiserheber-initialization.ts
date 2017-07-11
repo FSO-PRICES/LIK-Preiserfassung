@@ -3,7 +3,7 @@ import { assign, flatten, some } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
-import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb } from '../effects/pouchdb-utils';
+import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb, getSettings } from '../effects/pouchdb-utils';
 
 export interface UserDbStructure {
     preiserheber: P.Erheber;
@@ -12,6 +12,7 @@ export interface UserDbStructure {
     warenkorb: P.WarenkorbDocument;
     dbSchemaVersion: P.DbSchemaVersion;
     erhebungsmonat: P.Erhebungsmonat;
+    erhebungsorgannummer: P.DbErhebungsorgannummer
 }
 
 /**
@@ -22,6 +23,7 @@ export function createUserDbs(preiserheberIds: string[]) {
     return getDatabaseAsObservable(dbNames.warenkorb)
         .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => ({ warenkorb })))
         .flatMap(data => getDatabase(dbNames.preismeldung).then(preismeldungDb => preismeldungDb.get('erhebungsmonat').then(doc => clearRev<P.Erhebungsmonat>(doc)).catch(() => null).then(erhebungsmonat => assign(data, { erhebungsmonat }))))
+        .flatMap(data => getSettings().then(settings => assign(data, { erhebungsorgannummer: { _id: 'erhebungsorgannummer', value: settings.general.erhebungsorgannummer } })))
         .map(data => assign(data, { dbSchemaVersion: { _id: 'db-schema-version', version: P.ExpectedDbSchemaVersion } }))
         .flatMap(mainData => Observable.from(preiserheberIds)
             .flatMap(preiserheberId => getDatabase(dbNames.preiserheber).then(db => db.get(preiserheberId).then(doc => ({ preiserheber: clearRev<P.Erheber>(doc) }))))
@@ -85,6 +87,9 @@ function prepareDocs(docs: Partial<UserDbStructure>) {
     }
     if (!!docs.erhebungsmonat) {
         payload.push(docs.erhebungsmonat);
+    }
+    if (!!docs.erhebungsorgannummer) {
+        payload.push(docs.erhebungsorgannummer);
     }
     return payload;
 }

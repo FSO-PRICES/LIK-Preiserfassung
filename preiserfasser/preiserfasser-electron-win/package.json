@@ -1,17 +1,17 @@
 {
-  "name": "bfs-lik-preiserfasser-win",
-  "author": "Lambda IT GmbH",
-  "homepage": "http://lambda-it.ch/",
-  "private": true,
-  "version": "0.0.1",
-  "description": "",
-  "main": "main.js",
-  "scripts": {
-    "package-app": "package-app.bat"
-  },
-  "devDependencies": {
-    "electron": "^1.4.15",
-    "electron-packager": "^8.5.1",
-    "electron-winstaller": "^2.5.2"
-  }
+    "name": "bfs-lik-preiserfasser-win",
+    "author": "Lambda IT GmbH",
+    "homepage": "http://lambda-it.ch/",
+    "private": true,
+    "version": "v2.0.0-beta.1.1",
+    "description": "",
+    "main": "main.js",
+    "scripts": {
+        "package-app": "package-app.bat"
+    },
+    "devDependencies": {
+        "electron": "^1.4.15",
+        "electron-packager": "^8.5.1",
+        "electron-winstaller": "^2.5.2"
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange, ChangeDetectionStrategy, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChange, ChangeDetectionStrategy, ViewChild, OnDestroy, NgZone } from '@angular/core';
 import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,6 +10,9 @@ import * as P from '../../../common-models';
 
 type WarenkorbUiItem = {
     isExpanded: boolean;
+    showBFS: boolean;
+    canSelect: boolean;
+    notInSeason: boolean;
     depth: number;
     preismeldungCount: number;
     filteredLeafCount: number;
@@ -28,13 +31,14 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
     @Input() currentLanguage: string;
+    @Input() erhebungsInfo: P.ErhebungsInfo;
     @Output('closeChooseFromWarenkorb') closeChooseFromWarenkorb$: Observable<{ warenkorbPosition: P.Models.WarenkorbLeaf, bearbeitungscode: P.Models.Bearbeitungscode }>;
 
     public warenkorbUiItems$: Observable<WarenkorbUiItem[]>;
     public numberOfEp$: Observable<number>;
 
     public warenkorbItemClicked$ = new EventEmitter<WarenkorbUiItem>();
-    public warenkorbItemEpExpand$ = new EventEmitter<WarenkorbUiItem>();
+    public warenkorbItemEpExpand$ = new EventEmitter<{ event: MouseEvent, warenkorbUiItem: WarenkorbUiItem }>();
     public selectWarenkorbItem$ = new EventEmitter<WarenkorbUiItem>();
     public ngOnInit$ = new EventEmitter();
     public closeClicked$ = new EventEmitter();
@@ -44,21 +48,32 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
     private subscriptions = [];
 
-    constructor(private pefDialogService: PefDialogService, private pefMessageDialogService: PefMessageDialogService, translateService: TranslateService) {
+    constructor(private pefDialogService: PefDialogService, private pefMessageDialogService: PefMessageDialogService, translateService: TranslateService, private zone: NgZone) {
         super();
 
         const currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung').take(1);
 
+        const preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen').filter(x => !!x && !!x.length);
+        const erhebungsInfo$ = this.observePropertyCurrentValue<P.ErhebungsInfo>('erhebungsInfo').filter(x => !!x);
         const warenkobUiItems$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('warenkorb')
-            .combineLatest(this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen').filter(x => !!x && !!x.length), (warenkorb: P.WarenkorbInfo[], preismeldungen: P.PreismeldungBag[]) => {
-                return warenkorb.map(warenkorbInfo => ({
-                    isExpanded: false,
-                    depth: warenkorbInfo.warenkorbItem.tiefencode,
-                    preismeldungCount: preismeldungen.filter(y => y.preismeldung.epNummer === warenkorbInfo.warenkorbItem.gliederungspositionsnummer && y.preismeldung.bearbeitungscode !== 0).length,
-                    filteredLeafCount: warenkorbInfo.leafCount,
-                    warenkorbInfo
-                }));
-            }).delay(100);
+            .combineLatest(preismeldungen$, erhebungsInfo$, (warenkorb: P.WarenkorbInfo[], preismeldungen: P.PreismeldungBag[], erhebungsInfo: P.ErhebungsInfo) => {
+                const monthNumber = +(/\d{2}\.(\d{2}).\d{4}/.exec(erhebungsInfo.erhebungsmonat)[1]) - 1;
+                return warenkorb.map(warenkorbInfo => {
+                    const notInSeason = warenkorbInfo.warenkorbItem.type === 'LEAF' && !(warenkorbInfo.warenkorbItem.periodizitaetMonat & (1 << monthNumber));
+                    const canSelect = !notInSeason && !(erhebungsInfo.erhebungsorgannummer !== '69' && (warenkorbInfo.warenkorbItem.type === 'LEAF' && warenkorbInfo.warenkorbItem.erhebungstyp === 'z'));
+                    return {
+                        isExpanded: false,
+                        showBFS: warenkorbInfo.warenkorbItem.type === 'LEAF' && warenkorbInfo.warenkorbItem.erhebungstyp === 'z',
+                        canSelect,
+                        notInSeason,
+                        depth: warenkorbInfo.warenkorbItem.tiefencode,
+                        preismeldungCount: preismeldungen.filter(y => y.preismeldung.epNummer === warenkorbInfo.warenkorbItem.gliederungspositionsnummer && y.preismeldung.bearbeitungscode !== 0).length,
+                        filteredLeafCount: warenkorbInfo.leafCount,
+                        warenkorbInfo
+                    };
+                });
+            }).delay(100)
+            .startWith([]);
 
         const warenkobUiItemsFiltered$ = warenkobUiItems$
             .combineLatest(this.searchString$.debounceTime(500).startWith(null), this.currentLanguage$, (warenkobUiItems: WarenkorbUiItem[], searchString: string, currentLanguage: string) => {
@@ -74,8 +89,12 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
         type ClickAction = { warenkorbUiItems: WarenkorbUiItem[], scrollToY?: number, scrollToItemIndex?: number };
 
+        const warenkorbItemEpExpand$ = this.warenkorbItemEpExpand$
+            .do(x => x.event.stopPropagation())
+            .observeOnZone(zone);
+
         const clickAction$ = this.warenkorbItemClicked$.filter(x => x.warenkorbInfo.warenkorbItem.type === 'BRANCH').map(x => ({ action: 'EXPAND', warenkorbItemClicked: x }))
-            .merge(this.warenkorbItemEpExpand$.map(x => ({ action: 'EXPAND_ALL', warenkorbItemClicked: x })))
+            .merge(warenkorbItemEpExpand$.map(x => ({ action: 'EXPAND_ALL', warenkorbItemClicked: x.warenkorbUiItem })))
             .merge(this.collapseAllClicked$.map(() => ({ action: 'COLLAPSE_ALL' })))
             .startWith(null)
             .combineLatest(warenkobUiItemsFiltered$, currentPreismeldung$, (clickType: ClickType, warenkorb: WarenkorbUiItem[], currentPreismeldung: P.CurrentPreismeldungBag) => ({ clickType, warenkorb, currentPreismeldung }))
@@ -102,7 +121,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                     const descendants = this.findDescendantsOfWarenkorbItem(v.warenkorb, clickedGliederungspositionsnummer).map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer);
                     return {
                         warenkorbUiItems: v.warenkorb.filter(x => agg.warenkorbUiItems.some(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) && !descendants.some(y => y === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer))
-                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: false }) : x)
+                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: false }) : agg.warenkorbUiItems.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || x)
                     };
                 }
                 if (v.clickType.action === 'EXPAND') {
@@ -115,7 +134,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                                     isExpanded: itemInAgg ? itemInAgg.isExpanded : x.isExpanded,
                                 });
                             })
-                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x)
+                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : agg.warenkorbUiItems.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || x)
                     };
                 }
                 else {
@@ -130,7 +149,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                                     depth: itemInAgg ? itemInAgg.depth : v.clickType.warenkorbItemClicked.depth + 1
                                 });
                             })
-                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : x)
+                            .map(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === clickedGliederungspositionsnummer ? assign({}, x, { isExpanded: true }) : agg.warenkorbUiItems.find(y => y.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer) || x)
                     };
                 }
             }, <ClickAction>{ warenkorbUiItems: [] })
@@ -163,7 +182,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
         this.numberOfEp$ = warenkobUiItemsFiltered$.map(x => x.filter(y => y.warenkorbInfo.warenkorbItem.type === 'LEAF').length).startWith(0);
 
-        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefMessageDialogService.displayDialogYesNo('dialogText_ausreichend').map(x => x.data));
+        const dialogSufficientPreismeldungen$ = Observable.defer(() => pefMessageDialogService.displayDialogYesNo('dialogText_ausreichend-artikel').map(x => x.data));
         const dialogNewPmbearbeitungsCode$ = Observable.defer(() => pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).map(x => x.data));
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.flatMap(warenkorbUiItem => (warenkorbUiItem.preismeldungCount >= (warenkorbUiItem.warenkorbInfo.warenkorbItem as P.Models.WarenkorbLeaf).anzahlPreiseProPMS ? dialogSufficientPreismeldungen$ : Observable.of('YES')).map(x => ({ answer: x, warenkorbUiItem })))

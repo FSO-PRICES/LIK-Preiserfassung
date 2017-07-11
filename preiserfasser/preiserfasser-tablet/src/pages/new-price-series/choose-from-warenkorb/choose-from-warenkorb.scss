@@ -239,7 +239,10 @@ choose-from-warenkorb {
     .leaf-beispiele {
         @include crop-text();
     }
-    .count-status {
+    .season-icon {
+        margin-right: 1em;
+    }
+    .bfs-symbol, .count-status {
         font-weight: 500;
         @include set-padding-right(1);
     }

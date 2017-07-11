@@ -46,6 +46,7 @@ export class PefApp implements OnInit {
         databaseExists$
             .filter(x => x)
             .subscribe(() => {
+                this.store.dispatch({ type: 'LOAD_ERHEBUNGSINFO' });
                 this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
                 this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
                 this.store.dispatch({ type: 'LOAD_WARENKORB' });

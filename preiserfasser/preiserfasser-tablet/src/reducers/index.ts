@@ -5,44 +5,48 @@ import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from 'ngrx-store-logger';
 
 import { environment } from '../environments/environment';
-import * as fromPreismeldestellen from './preismeldestellen';
-import * as fromPreiserheber from './preiserheber';
+
 import * as fromAppConfig from './app-config';
-import * as fromPreismeldungen from './preismeldungen';
-import * as fromTime from './time';
 import * as fromDatabase from './database';
+import * as fromErhebungsInfo from './erhebungsinfo';
 import * as fromLanguages from './languages';
-import * as fromWarenkorb from './warenkorb';
+import * as fromLogin from './login';
+import * as fromPreiserheber from './preiserheber';
+import * as fromPreismeldestellen from './preismeldestellen';
+import * as fromPreismeldungen from './preismeldungen';
 import * as fromSettings from './setting';
 import * as fromStatistics from './statistics';
-import * as fromLogin from './login';
+import * as fromTime from './time';
+import * as fromWarenkorb from './warenkorb';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
     database: fromDatabase.State;
+    erhebungsInfo: fromErhebungsInfo.State;
     languages: fromLanguages.State;
+    login: fromLogin.State;
     preiserheber: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestellen.State;
     preismeldungen: fromPreismeldungen.State;
-    time: fromTime.State;
-    warenkorb: fromWarenkorb.State;
     settings: fromSettings.State;
     statistics: fromStatistics.State;
-    login: fromLogin.State;
+    time: fromTime.State;
+    warenkorb: fromWarenkorb.State;
 }
 
 const reducers = {
     appConfig: fromAppConfig.reducer,
     database: fromDatabase.reducer,
+    erhebungsInfo: fromErhebungsInfo.reducer,
     languages: fromLanguages.reducer,
+    login: fromLogin.reducer,
     preiserheber: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestellen.reducer,
     preismeldungen: fromPreismeldungen.reducer,
-    time: fromTime.reducer,
-    warenkorb: fromWarenkorb.reducer,
     settings: fromSettings.reducer,
     statistics: fromStatistics.reducer,
-    login: fromLogin.reducer,
+    time: fromTime.reducer,
+    warenkorb: fromWarenkorb.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -86,7 +90,7 @@ export const getCurrentSettings = createSelector(getSettingsState, fromSettings.
 
 export const getPreiserheberState = (state: AppState) => state.preiserheber;
 export const getPreiserheber = createSelector(getPreiserheberState, fromPreiserheber.getPreiserheber);
-export const getCurrentPreiserheber = createSelector(getPreiserheberState , fromPreiserheber.getCurrentPreiserheber);
+export const getCurrentPreiserheber = createSelector(getPreiserheberState, fromPreiserheber.getCurrentPreiserheber);
 
 export const getStatisticsState = (state: AppState) => state.statistics;
 export const getPreismeldungenStatistics = createSelector(getStatisticsState, fromStatistics.getPreismeldungenStatistics);
@@ -95,3 +99,5 @@ export const getErhebungsmonat = createSelector(getStatisticsState, fromStatisti
 export const getLoginState = (state: AppState) => state.login;
 export const getIsLoggedIn = createSelector(getLoginState, fromLogin.getIsLoggedIn);
 export const getLoggedInUser = createSelector(getLoginState, fromLogin.getLoggedInUser);
+
+export const getErhebungsInfo = (state: AppState) => state.erhebungsInfo;

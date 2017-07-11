@@ -30,8 +30,7 @@ export class PreiserheberEffects {
 
     @Effect()
     loadPreiserheber$ = this.actions$.ofType('PREISERHEBER_LOAD')
-        .let(continueEffectOnlyIfTrue(this.isLoggedIn$.do(x => console.log('loggedIn?', x))))
-        .do(x => console.log('doing pe load:', x))
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => loadAllPreiserheber())
         .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as preiserheber.Action));
 

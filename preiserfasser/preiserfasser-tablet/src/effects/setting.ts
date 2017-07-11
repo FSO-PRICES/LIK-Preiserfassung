@@ -6,6 +6,7 @@ import { getServerUrl, setServerUrl } from './local-storage-utils';
 import * as fromRoot from '../reducers';
 import * as setting from '../actions/setting';
 import { CurrentSetting } from '../reducers/setting';
+import { getDatabaseAsObservable } from './pouchdb-utils';
 
 @Injectable()
 export class SettingEffects {
@@ -21,9 +22,9 @@ export class SettingEffects {
         .ofType('LOAD_SETTINGS')
         .map(() => {
             const url = getServerUrl();
-            return !!url ?
-                { type: 'LOAD_SETTINGS_SUCCESS', payload: { serverConnection: { url } } } as setting.Action :
-                { type: 'LOAD_SETTINGS_FAIL' } as setting.Action;
+            return !!url
+                ? { type: 'LOAD_SETTINGS_SUCCESS', payload: { serverConnection: { url } } } as setting.Action
+                : { type: 'LOAD_SETTINGS_FAIL' } as setting.Action;
         });
 
     @Effect()
