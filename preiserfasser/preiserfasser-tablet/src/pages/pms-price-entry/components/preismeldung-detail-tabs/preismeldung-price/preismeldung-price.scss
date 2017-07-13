@@ -184,10 +184,16 @@ preismeldung-price {
                 }
             }
         }
-        .item-md.pef-item ion-input input {
-            width: 100%;
-            text-align: right;
+        .item-md.pef-item ion-input {
+            display: flex;
+            input {
+                text-align: right;
+            }
         }
+        // .item-md.pef-item ion-input input {
+        //     // width: 100%;
+        //     text-align: right;
+        // }
     }
 
     .product-detail-row.row-1 {
