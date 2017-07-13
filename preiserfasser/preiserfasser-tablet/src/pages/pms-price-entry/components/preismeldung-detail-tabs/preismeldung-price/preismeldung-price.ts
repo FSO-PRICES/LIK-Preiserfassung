@@ -532,7 +532,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 const mengeVPK = group.get('mengeVPK');
                 mengeVPK.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 9999999.99, { padRight: 2, truncate: 2 })])(mengeVPK));
             }
-            else if (bearbeitungscode.value === 1 && !!aktion) {
+            else if (bearbeitungscode.value === 1 && !!aktion.value) {
                 const preisVorReduktion = group.get('preisVorReduktion');
                 preisVorReduktion.setErrors(Validators.compose([Validators.required, maxMinNumberValidatorFactory(0.01, 99999999.99, { padRight: 2, truncate: 4 })])(preisVorReduktion));
                 const mengeVorReduktion = group.get('mengeVorReduktion');
