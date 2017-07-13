@@ -23,14 +23,14 @@ export function getOrCreateDatabase() {
 
 export const getOrCreateDatabaseAsObservable = () => Observable.fromPromise(getOrCreateDatabase());
 
-export function getDatabase(): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+export function getDatabase(): Promise<PouchDB.Database<{}>> {
     return _checkIfDatabaseExists(DB_NAME)
         .then(exists => new PouchDB(DB_NAME));
 }
 
 export const getDatabaseAsObservable = () => Observable.fromPromise(getDatabase());
 
-export function getDocumentByKeyFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, key: string): Promise<T> {
+export function getDocumentByKeyFromDb<T>(db: PouchDB.Database<{}>, key: string): Promise<T> {
     return db.get(key).then((doc: any) => doc as T);
 }
 
@@ -41,7 +41,7 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
     };
 }
 
-export function getAllDocumentsForPrefixFromDb(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string) {
+export function getAllDocumentsForPrefixFromDb(db: PouchDB.Database<{}>, prefix: string) {
     return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc));
 }
 
@@ -85,10 +85,10 @@ export function syncDatabase(data: { url: string, username: string }) {
     return _syncDatabase(data.url, data.username, { push: true, pull: true });
 }
 
-function _syncDatabase(url: string, username: string, params: { push: boolean, pull: boolean }): Observable<PouchDB.Replication.SyncResultComplete<PouchDB.Core.Encodable>> {
+function _syncDatabase(url: string, username: string, params: { push: boolean, pull: boolean }): Observable<PouchDB.Replication.SyncResultComplete<{}>> {
     return getDatabaseAsObservable()
         .flatMap(pouch => {
-            const couch = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<PouchDB.Core.Encodable>;
+            const couch = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<{}>;
             return getDocumentByKeyFromDb(pouch, 'user-db-id').catch(() => ({ value: 'pouchUserDbId-not-found' }))
                 .then((pouchDoc: any) => getDocumentByKeyFromDb(couch, 'user-db-id').catch(() => ({ value: 'couchUserDbId-not-found' })).then((couchDoc: any) => ({ couchUserDbId: couchDoc.value, pouchUserDbId: pouchDoc.value, pouch, couch })));
         })
@@ -98,7 +98,7 @@ function _syncDatabase(url: string, username: string, params: { push: boolean, p
             }
             const sync = pouch.sync(couch, { push: params.push, pull: params.pull, batch_size: 1000 });
 
-            return Observable.create((observer: Observer<PouchDB.Replication.SyncResultComplete<PouchDB.Core.Encodable>>) => {
+            return Observable.create((observer: Observer<PouchDB.Replication.SyncResultComplete<{}>>) => {
                 sync.on('complete', (info) => {
                     observer.next(info);
                     observer.complete();
@@ -111,8 +111,8 @@ function _syncDatabase(url: string, username: string, params: { push: boolean, p
 export function getLoggedInUser(url: string, username: string) {
     return getDatabaseAsObservable()
         .flatMap(pouch => {
-            const db = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<PouchDB.Core.Encodable>
-            return Observable.fromPromise(db.get('preiserheber').then(doc => doc.username).catch(() => null))
+            const db = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<{}>
+            return Observable.fromPromise(db.get('preiserheber').then((doc: any) => doc.username).catch(() => null))
         });
 }
 

@@ -16,7 +16,7 @@ export class ErhebungsInfoEffects {
     loadErheubngsInfoEffects$ = this.actions$
         .ofType('LOAD_ERHEBUNGSINFO')
         .flatMap(() => getDatabaseAsObservable())
-        .flatMap(db => db.get('erhebungsmonat').then(erhebungsmonatDoc => ({ db, erhebungsmonat: erhebungsmonatDoc.monthAsString })))
-        .flatMap(x => x.db.get('erhebungsorgannummer').then(erhebungsorgannummerDoc => ({ erhebungsmonat: x.erhebungsmonat, erhebungsorgannummer: erhebungsorgannummerDoc.value })))
+        .flatMap(db => db.get('erhebungsmonat').then((erhebungsmonatDoc: any) => ({ db, erhebungsmonat: erhebungsmonatDoc.monthAsString })))
+        .flatMap(x => x.db.get('erhebungsorgannummer').then((erhebungsorgannummerDoc: any) => ({ erhebungsmonat: x.erhebungsmonat, erhebungsorgannummer: erhebungsorgannummerDoc.value })))
         .map(payload => ({ type: 'LOAD_ERHEBUNGSINFO_SUCCESS', payload }));
 }

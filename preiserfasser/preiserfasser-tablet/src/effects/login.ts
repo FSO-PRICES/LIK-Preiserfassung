@@ -50,7 +50,7 @@ export class LoginEffects {
 
     private getSettingsAndUsername() {
         return getDatabaseAsObservable()
-            .flatMap(db => Observable.fromPromise(db.get('preiserheber').then(pe => pe.username)))
+            .flatMap(db => Observable.fromPromise(db.get('preiserheber').then((pe: any) => pe.username)))
             .combineLatest(this.store.select(fromRoot.getSettings).take(1), (username, settings) => ({ username, settings }));
     }
 }
