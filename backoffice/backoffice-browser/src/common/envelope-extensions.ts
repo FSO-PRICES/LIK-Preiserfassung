@@ -2,8 +2,8 @@ import * as moment from 'moment';
 
 export const MessageTypes = {
     Preismeldungen: '1025',
-    Preismeldestellen: '1025', // TODO: Set right message type numbers once defined in https://github.com/Lambda-IT/lik-studio/issues/109
-    Preiserheber: '1025',
+    Preismeldestellen: '1032',
+    Preiserheber: '1033',
 }
 
 export function createEnvelope(messageType: string = '1025') {
@@ -11,7 +11,7 @@ export function createEnvelope(messageType: string = '1025') {
     const date = moment().format('YYYY-MM-DDThh:mm:ss');
     return {
         content:
-`<?xml version="1.0" encoding="UTF-8"?>
+        `<?xml version="1.0" encoding="UTF-8"?>
 <eCH-0090:envelope version="1.0" xmlns:eCH-0090="http://www.ech.ch/xmlns/eCH-0090/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0090/1 http://www.ech.ch/xmlns/eCH-0090/1/eCH-0090-1-0.xsd">
 <eCH-0090:messageId>${messageId}</eCH-0090:messageId>
 <eCH-0090:messageType>${messageType}</eCH-0090:messageType>
