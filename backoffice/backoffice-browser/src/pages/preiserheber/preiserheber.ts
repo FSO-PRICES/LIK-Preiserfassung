@@ -12,7 +12,11 @@ import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel
 import { PefDialogConfirmDeleteComponent } from '../../components/pef-dialog-confirm-delete/pef-dialog-confirm-delete';
 import { PefDialogResetPasswordComponent } from '../../components/pef-dialog-reset-password/pef-dialog-reset-password';
 import { CurrentPreiszuweisung } from '../../reducers/preiszuweisung';
+import { IonicPage } from 'ionic-angular';
 
+@IonicPage({
+    segment: 'pe'
+})
 @Component({
     selector: 'preiserheber',
     templateUrl: 'preiserheber.html'

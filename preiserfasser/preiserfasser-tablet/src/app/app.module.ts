@@ -17,7 +17,7 @@ import { PEF_EFFECTS } from '../effects';
 
 import { PefApp } from './app.component';
 import { PreiserfasserCommonModule } from '../common';
-import { PmsPriceEntryModule, PmsPriceEntryPage } from '../pages/pms-price-entry';
+import { PmsPriceEntryModule } from '../pages/pms-price-entry';
 
 import { PefDialogService, PefMessageDialogService } from 'lik-shared';
 import { PefComponentsModule } from 'lik-shared';
@@ -51,8 +51,7 @@ export function createTranslateLoader(http: Http) {
     ],
     bootstrap: [IonicApp],
     entryComponents: [
-        PefApp,
-        PmsPriceEntryPage,
+        PefApp
     ],
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },

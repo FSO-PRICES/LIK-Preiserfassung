@@ -10,9 +10,6 @@ import { PefComponentsModule } from 'lik-shared';
     declarations: [
         PefDialogConfirmDeleteComponent
     ],
-    entryComponents: [
-        PefDialogConfirmDeleteComponent
-    ],
     exports: [PefDialogConfirmDeleteComponent]
 })
 export class PefDialogConfirmDeleteModule {

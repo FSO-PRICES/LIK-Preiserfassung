@@ -1,20 +1,9 @@
 <div class="toolbar toolbar-md" [class.danger-zone]="dangerZone$ | async">
     <ion-buttons>
-        <a
-            *ngFor="let entry of pages"
-            ion-button
-            clear
-            href="javascript:"
-            (click)="navigateToPage(entry.page)"
-            [class.active]="isCurrentPage(entry.page?.name)">
+        <a *ngFor="let entry of pages" ion-button clear href="javascript:" (click)="navigateToPage(entry.page)" [class.active]="isCurrentPage(entry.page?.name)">
             {{ entry.name }}
         </a>
-        <a
-            ion-button
-            clear
-            href="javascript:"
-            (click)="navigateToPage(settingsPage)"
-            [class.active]="isCurrentPage('SettingsPage')">
+        <a ion-button clear href="javascript:" (click)="navigateToPage('SettingsPage')" [class.active]="isCurrentPage('SettingsPage')">
             <pef-icon name="settings"></pef-icon>
         </a>
     </ion-buttons>

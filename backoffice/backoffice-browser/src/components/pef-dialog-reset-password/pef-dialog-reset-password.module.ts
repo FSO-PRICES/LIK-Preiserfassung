@@ -10,9 +10,6 @@ import { PefComponentsModule } from 'lik-shared';
     declarations: [
         PefDialogResetPasswordComponent
     ],
-    entryComponents: [
-        PefDialogResetPasswordComponent
-    ],
     exports: [PefDialogResetPasswordComponent]
 })
 export class PefDialogResetPasswordModule {

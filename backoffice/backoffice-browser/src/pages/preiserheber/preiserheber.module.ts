@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
-import { IonicModule } from 'ionic-angular';
-import { CommonModule } from '@angular/common';
+import { IonicPageModule } from 'ionic-angular';
 
 import { PreiserheberPage } from './preiserheber';
 import { PreiserheberDetailComponent } from './components/preiserheber-detail/preiserheber-detail';
@@ -14,19 +13,20 @@ import { PefDialogResetPasswordModule } from '../../components/pef-dialog-reset-
 import { PefComponentsModule } from 'lik-shared';
 
 @NgModule({
-    imports: [CommonModule, IonicModule, PefComponentsModule, PefMenuModule, PefDialogCancelEditModule, PefDialogConfirmDeleteModule, PefDialogResetPasswordModule],
     declarations: [
         PreiserheberPage,
         PreiserheberDetailComponent,
         PreiserheberListComponent,
         PreiserheberPreiszuweisungComponent
     ],
-    entryComponents: [
-        PreiserheberDetailComponent,
-        PreiserheberListComponent,
-        PreiserheberPreiszuweisungComponent
+    imports: [
+        IonicPageModule.forChild(PreiserheberPage),
+        PefComponentsModule,
+        PefMenuModule,
+        PefDialogCancelEditModule,
+        PefDialogConfirmDeleteModule,
+        PefDialogResetPasswordModule
     ],
-    exports: [PreiserheberPage, PreiserheberDetailComponent, PreiserheberListComponent, PreiserheberPreiszuweisungComponent]
 })
 export class PreiserheberModule {
 }

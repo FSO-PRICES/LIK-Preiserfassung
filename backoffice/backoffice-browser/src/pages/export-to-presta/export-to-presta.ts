@@ -6,7 +6,11 @@ import { PefDialogService } from 'lik-shared';
 
 import * as exporter from '../../actions/exporter';
 import * as fromRoot from '../../reducers';
+import { IonicPage } from 'ionic-angular';
 
+@IonicPage({
+    segment: 'export'
+})
 @Component({
     selector: 'export-to-presta',
     templateUrl: 'export-to-presta.html'

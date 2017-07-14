@@ -1,12 +1,15 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Loading, LoadingController } from 'ionic-angular';
+import { Loading, LoadingController, IonicPage } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
 
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
 
+@IonicPage({
+    segment: 'settings'
+})
 @Component({
     templateUrl: 'settings.html'
 })

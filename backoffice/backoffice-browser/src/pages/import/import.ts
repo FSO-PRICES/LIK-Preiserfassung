@@ -6,7 +6,11 @@ import { PefDialogService } from 'lik-shared';
 
 import * as importer from '../../actions/importer';
 import * as fromRoot from '../../reducers';
+import { IonicPage } from 'ionic-angular';
 
+@IonicPage({
+    segment: 'import'
+})
 @Component({
     templateUrl: 'import.html'
 })

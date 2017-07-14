@@ -9,7 +9,11 @@ import * as preismeldung from '../../actions/preismeldung';
 import * as preismeldestelle from '../../actions/preismeldestelle';
 
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
+import { IonicPage } from 'ionic-angular';
 
+@IonicPage({
+    segment: 'pm'
+})
 @Component({
     selector: 'preismeldung',
     templateUrl: 'preismeldung.html'

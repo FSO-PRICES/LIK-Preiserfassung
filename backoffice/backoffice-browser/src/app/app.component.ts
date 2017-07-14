@@ -8,9 +8,7 @@ import { Observable } from 'rxjs';
 import { PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
-import { PreiserheberPage } from '../pages/preiserheber/preiserheber';
 import { PefDialogLoginComponent } from '../components/pef-dialog-login/pef-dialog-login';
-import { SettingsPage } from '../pages/settings/settings';
 
 @Component({
     templateUrl: 'app.html'
@@ -19,7 +17,7 @@ export class Backoffice implements OnInit {
     @HostBinding('class') classes = 'app-root pef-desktop';
     @ViewChild('nav') navCtrl: NavController;
 
-    public rootPage = PreiserheberPage;
+    public rootPage = 'PreiserheberPage';
 
     constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>, private statusBar: StatusBar, private splashScreen: SplashScreen) {
         // Skip 1 is used to skip the first initial value and to wait for the new value after the dispatch
@@ -57,6 +55,6 @@ export class Backoffice implements OnInit {
     }
 
     public navigateToSettings() {
-        return this.navCtrl.setRoot(SettingsPage, {}, { animate: false });
+        return this.navCtrl.setRoot('SettingsPage', {}, { animate: false });
     }
 }

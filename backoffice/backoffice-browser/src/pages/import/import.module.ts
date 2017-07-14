@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
-import { IonicModule } from 'ionic-angular';
-import { CommonModule } from '@angular/common';
+import { IonicPageModule } from 'ionic-angular';
 
 import { ImportPage } from './import';
+
 import { WarenkorbImportComponent } from './warenkorb/warenkorb-import';
 import { PreismeldestellenImportComponent } from './preismeldestellen/preismeldestellen-import';
 import { PreismeldungenImportComponent } from './preismeldungen/preismeldungen-import';
@@ -10,19 +10,16 @@ import { PreismeldungenImportComponent } from './preismeldungen/preismeldungen-i
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 
 @NgModule({
-    imports: [CommonModule, IonicModule, PefMenuModule],
     declarations: [
         ImportPage,
         WarenkorbImportComponent,
         PreismeldestellenImportComponent,
         PreismeldungenImportComponent,
     ],
-    entryComponents: [
-        WarenkorbImportComponent,
-        PreismeldestellenImportComponent,
-        PreismeldungenImportComponent,
+    imports: [
+        IonicPageModule.forChild(ImportPage),
+        PefMenuModule
     ],
-    exports: [ImportPage, WarenkorbImportComponent, PreismeldestellenImportComponent, PreismeldungenImportComponent]
 })
 export class ImportModule {
 }

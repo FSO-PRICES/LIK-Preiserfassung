@@ -10,9 +10,6 @@ import { PefComponentsModule } from 'lik-shared';
     declarations: [
         PefDialogLoginComponent
     ],
-    entryComponents: [
-        PefDialogLoginComponent
-    ],
     exports: [PefDialogLoginComponent]
 })
 export class PefDialogLoginModule {

@@ -11,9 +11,6 @@ import { PefMenuComponent } from './pef-menu';
     declarations: [
         PefMenuComponent
     ],
-    entryComponents: [
-        PefMenuComponent
-    ],
     exports: [PefMenuComponent]
 })
 export class PefMenuModule {

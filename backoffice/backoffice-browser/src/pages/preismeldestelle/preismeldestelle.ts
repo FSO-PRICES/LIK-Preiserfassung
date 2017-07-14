@@ -7,7 +7,11 @@ import { Models as P, PefDialogService } from 'lik-shared';
 import * as fromRoot from '../../reducers';
 import { Action as PreismeldestelleAction } from '../../actions/preismeldestelle';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
+import { IonicPage } from 'ionic-angular';
 
+@IonicPage({
+    segment: 'pms'
+})
 @Component({
     selector: 'preismeldestelle',
     templateUrl: 'preismeldestelle.html'

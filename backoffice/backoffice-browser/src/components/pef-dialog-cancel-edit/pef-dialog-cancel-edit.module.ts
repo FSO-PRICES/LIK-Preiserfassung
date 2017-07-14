@@ -10,9 +10,6 @@ import { PefComponentsModule } from 'lik-shared';
     declarations: [
         PefDialogCancelEditComponent
     ],
-    entryComponents: [
-        PefDialogCancelEditComponent
-    ],
     exports: [PefDialogCancelEditComponent]
 })
 export class PefDialogCancelEditModule {
