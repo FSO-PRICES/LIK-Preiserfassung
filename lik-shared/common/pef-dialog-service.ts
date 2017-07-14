@@ -24,7 +24,7 @@ export class PefDialogService {
         if (requestDismiss$ !== null) {
             requestDismiss$.take(1).subscribe(() => dialog.dismiss());
         }
-        return Observable.bindCallback(cb => dialog.onWillDismiss(cb))()
+        return Observable.bindCallback<any[]>(cb => dialog.onWillDismiss(cb))()
             .map(([data, role]) => ({ data, role }));
     }
 
@@ -34,7 +34,7 @@ export class PefDialogService {
         if (options.requestDismiss$ !== null) {
             options.requestDismiss$.take(1).subscribe(() => dialog.dismiss());
         }
-        return Observable.bindCallback(cb => dialog.onWillDismiss(cb))()
+        return Observable.bindCallback<any[]>(cb => dialog.onWillDismiss(cb))()
             .map(([data, role]) => ({ data, role }));
     }
 

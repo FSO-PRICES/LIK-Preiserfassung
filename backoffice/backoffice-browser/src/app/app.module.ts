@@ -2,6 +2,8 @@ import { ErrorHandler, NgModule, LOCALE_ID } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+import { StatusBar } from '@ionic-native/status-bar';
+import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { PefDialogService } from 'lik-shared';
 import { PefComponentsModule } from 'lik-shared';
@@ -64,6 +66,8 @@ import { reducer } from '../reducers';
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         { provide: LOCALE_ID, useValue: 'de-CH' },
         PefDialogService,
+        StatusBar,
+        SplashScreen,
         { provide: 'windowObject', useValue: window }
     ]
 })

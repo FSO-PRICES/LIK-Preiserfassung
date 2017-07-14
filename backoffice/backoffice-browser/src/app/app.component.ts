@@ -1,7 +1,8 @@
 import { Component, HostBinding, ViewChild, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Platform, NavController } from 'ionic-angular';
-import { StatusBar, Splashscreen } from 'ionic-native';
+import { StatusBar } from '@ionic-native/status-bar';
+import { SplashScreen } from '@ionic-native/splash-screen';
 import { Observable } from 'rxjs';
 
 import { PefDialogService } from 'lik-shared';
@@ -20,7 +21,7 @@ export class Backoffice implements OnInit {
 
     public rootPage = PreiserheberPage;
 
-    constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>) {
+    constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>, private statusBar: StatusBar, private splashScreen: SplashScreen) {
         // Skip 1 is used to skip the first initial value and to wait for the new value after the dispatch
         const settings$ = store.select(fromRoot.getSettings).skip(1).publishReplay(1).refCount();
         const loginDialog$ = store.select(fromRoot.getIsLoggedIn).skip(1)
@@ -32,8 +33,8 @@ export class Backoffice implements OnInit {
         platform.ready().then(() => {
             // Okay, so the platform is ready and our plugins are available.
             // Here you can do any higher level native things you might need.
-            StatusBar.styleDefault();
-            Splashscreen.hide();
+            statusBar.hide();
+            splashScreen.hide();
         });
 
         settings$

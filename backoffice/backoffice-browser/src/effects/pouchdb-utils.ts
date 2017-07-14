@@ -1,6 +1,6 @@
 import * as bluebird from 'bluebird';
+import PouchDB from 'pouchdb';
 import * as PouchDBAllDbs from 'pouchdb-all-dbs';
-import * as PouchDB from 'pouchdb';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
 import { Observable } from 'rxjs';
 import { first, assign } from 'lodash';
@@ -62,7 +62,7 @@ export function putUserToDatabase(dbName, users: P.CouchSecurity) {
     ).flatMap(x => x);
 }
 
-export function getDatabase(dbName): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+export function getDatabase(dbName): Promise<PouchDB.Database<{}>> {
     return getCouchDb(dbName);
 }
 
@@ -79,19 +79,19 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
     };
 }
 
-export function getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.Database<PouchDB.Core.Encodable>): Promise<T[]> {
+export function getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>): Promise<T[]> {
     return db.allDocs({ include_docs: true }).then(x => x.rows.map(row => row.doc as T));
 }
 
-export function getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(db: PouchDB.Database<PouchDB.Core.Encodable>, prefix: string): Promise<T[]> {
+export function getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, prefix: string): Promise<T[]> {
     return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
-export function getAllDocumentsForKeysFromDb<T extends P.CouchProperties>(db: PouchDB.Database<PouchDB.Core.Encodable>, keys: string[]): Promise<T[]> {
+export function getAllDocumentsForKeysFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, keys: string[]): Promise<T[]> {
     return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
-export function getDocumentByKeyFromDb<T>(db: PouchDB.Database<PouchDB.Core.Encodable>, key: string): Promise<T> {
+export function getDocumentByKeyFromDb<T>(db: PouchDB.Database<{}>, key: string): Promise<T> {
     return db.get(key).then((doc: any) => doc as T);
 }
 
@@ -109,14 +109,14 @@ export function dropLocalDatabase(dbName) {
     return getLocalCouchDb(dbName).then(db => db.destroy().then(() => true).catch(() => false));
 }
 
-function getCouchDb(dbName: string): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+function getCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
     return getSettings().then(settings => {
         const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
         return Promise.resolve(couch);
     }).catch(err => new PouchDB(dbNames.emptyDb));
 }
 
-function getLocalCouchDb(dbName: string): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+function getLocalCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
     return Promise.resolve(new PouchDB(dbName));
 }
 
@@ -147,7 +147,7 @@ function setCouchLoginTime(timestamp: number) {
     return localStorage.setItem('couchdb_lastLoginTime', timestamp.toString());
 }
 
-export function loginToDatabase(credentials: { username: string, password: string }): Promise<PouchDB.Database<PouchDB.Core.Encodable>> {
+export function loginToDatabase(credentials: { username: string, password: string }): Promise<PouchDB.Database<{}>> {
     return getSettings().then(settings => {
         const couch = new PouchDB(`${settings.serverConnection.url}/${dbNames.users}`);
         const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
@@ -179,10 +179,10 @@ export function listUserDatabases() {
                 responseType: 'json',
                 method: 'GET'
             })
-            .map(x => x.response as string[])
-            .catch((error) => Observable.of([]))
+                .map(x => x.response as string[])
+                .catch((error) => Observable.of([]))
         )
-        .map(dbs => dbs.filter(n => n.startsWith('user_')));
+        .map((dbs: string[]) => dbs.filter(n => n.startsWith('user_')));
 }
 
 export function getUserDatabaseName(preiserheberId: string) {

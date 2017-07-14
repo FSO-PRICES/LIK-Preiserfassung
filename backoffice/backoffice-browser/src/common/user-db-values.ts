@@ -7,7 +7,7 @@ import { listUserDatabases, getDatabaseAsObservable, getAllDocumentsForPrefixFro
 
 export function loadAllPreismeldestellen() {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldestelle>('pms/')
-        .flatMap(preismeldestellen => getDatabaseAsObservable(dbNames.preismeldestelle)
+        .flatMap((preismeldestellen: any[]) => getDatabaseAsObservable(dbNames.preismeldestelle)
             .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/'))
             .map(unassignedPms => {
                 const remainingPms = unassignedPms.filter(pms => !preismeldestellen.some(x => x.pmsNummer === pms.pmsNummer));
@@ -18,7 +18,7 @@ export function loadAllPreismeldestellen() {
 
 export function loadAllPreismeldungen(pmsNummer: string = '') {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(`pm/${pmsNummer}`)
-        .flatMap(preismeldungen => getDatabaseAsObservable(dbNames.preismeldung)
+        .flatMap((preismeldungen: any[]) => getDatabaseAsObservable(dbNames.preismeldung)
             .flatMap(db => getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, `pm-ref/${pmsNummer}`).then(pmRefs => keyBy(pmRefs, pmRef => getPreismeldungId(pmRef))))
             .map(pmRefs => preismeldungen.map(pm => assign({}, pm, { pmRef: pmRefs[getPreismeldungId(pm)] }) as P.Preismeldung & { pmRef: P.PreismeldungReference }))
         );
@@ -26,7 +26,7 @@ export function loadAllPreismeldungen(pmsNummer: string = '') {
 
 export function loadAllPreiserheber() {
     return getAllDocumentsForPrefixFromUserDbs<P.Erheber>('preiserheber')
-        .flatMap(preiserheber => getDatabaseAsObservable(dbNames.preiserheber)
+        .flatMap((preiserheber: any[]) => getDatabaseAsObservable(dbNames.preiserheber)
             .flatMap(db => getAllDocumentsFromDb<P.Erheber>(db))
             .map(unassignedPe => {
                 const remainingPe = unassignedPe.filter(pe => !preiserheber.some(x => x.username === pe.username));

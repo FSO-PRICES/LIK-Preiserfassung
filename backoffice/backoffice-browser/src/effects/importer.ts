@@ -74,7 +74,7 @@ export class ImporterEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => preparePm(action.payload))
         .flatMap(pmInfo => dropLocalDatabase(dbNames.preismeldung).then(_ => pmInfo).catch(_ => pmInfo))
-        .flatMap(pmInfo => getLocalDatabase(dbNames.preismeldung).then(db => ({ pmInfo, db })).catch(_ => ({ pmInfo, db: <PouchDB.Database<PouchDB.Core.Encodable>>null })))
+        .flatMap(pmInfo => getLocalDatabase(dbNames.preismeldung).then(db => ({ pmInfo, db })).catch(_ => ({ pmInfo, db: <PouchDB.Database<{}>>null })))
         .flatMap(({ pmInfo, db }) =>
             Observable.from(chunk(pmInfo.preismeldungen, 6000).map(preismeldungenBatch => db.bulkDocs(preismeldungenBatch).then(_ => preismeldungenBatch.length)))
                 .combineAll()
@@ -103,7 +103,7 @@ export class ImporterEffects {
                     { type: 'IMPORTED_ALL_SUCCESS' } as importer.Action :
                     { type: 'IMPORTED_ALL_FAILURE', payload: error } as importer.Action
                 )
-            )
+        )
         )
 
     @Effect()
@@ -124,7 +124,7 @@ export class ImporterEffects {
             );
     }
 
-    private getErhebungsmonatDocument(db: PouchDB.Database<PouchDB.Core.Encodable>) {
+    private getErhebungsmonatDocument(db: PouchDB.Database<{}>) {
         return getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat')
             .then(doc => { console.log('doc', doc); return doc.monthAsString })
             .catch(() => null);

@@ -1,4 +1,4 @@
-import * as PouchDB from 'pouchdb';
+import PouchDB from 'pouchdb';
 import * as PouchDBAllDbs from 'pouchdb-all-dbs';
 import * as pouchDbAuthentication from 'pouchdb-authentication';
 import { Observable } from 'rxjs/Observable';

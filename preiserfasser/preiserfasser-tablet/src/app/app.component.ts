@@ -8,6 +8,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import * as fromRoot from '../reducers';
 
+import * as PouchDB from 'pouchdb';
+
 import { initialisePouchForDev } from '../effects/pouchdb-utils';
 
 @Component({
