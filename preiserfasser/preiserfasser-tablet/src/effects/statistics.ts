@@ -25,9 +25,9 @@ export class StatisticsEffects {
         .flatMap(() => getDatabase())
         .flatMap(db => getAllDocumentsForPrefixFromDb(db, 'pm-ref')
             .then((refPreismeldungen: P.PreismeldungReference[]) => {
-            const pmsRefPreismeldungen = groupBy(refPreismeldungen, p => p.pmsNummer);
-            return { db, pmsRefPreismeldungenTotals: mapValues(pmsRefPreismeldungen, value => ({ downloadedCount: value.length })) as { [pmsNummer: number]: { downloadedCount: number } } };
-        }))
+                const pmsRefPreismeldungen = groupBy(refPreismeldungen, p => p.pmsNummer);
+                return { db, pmsRefPreismeldungenTotals: mapValues(pmsRefPreismeldungen, value => ({ downloadedCount: value.length })) as { [pmsNummer: number]: { downloadedCount: number } } };
+            }))
         .flatMap(({ db, pmsRefPreismeldungenTotals }) => getAllDocumentsForPrefixFromDb(db, 'pm')
             .then((allPreismeldungen: P.Preismeldung[]) => {
                 const pmsPreismeldungen = groupBy(allPreismeldungen, p => p.pmsNummer);
