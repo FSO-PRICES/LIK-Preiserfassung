@@ -211,7 +211,7 @@ export function preparePmForExport(preismeldungen: (P.Preismeldung & { pmRef: P.
                 'PE_Kommentar': toText(pm.kommentar, 4000, 'PE_Kommentar'),
                 'Bemerkungen': toText(pm.bemerkungen, 4000, 'Bemerkungen'),
                 'Internet_Link': toText(pm.internetLink, 255, 'Internet_Link'),
-                'Erhebungszeitpunkt': 0, // toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
+                'Erhebungszeitpunkt': toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
                 'Sortiernummer': toNumber(sortNumber++, 5, 'Sortiernummer'),
                 'Preis_vor_Reduktion': toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
                 'Menge_vor_Reduktion': toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),

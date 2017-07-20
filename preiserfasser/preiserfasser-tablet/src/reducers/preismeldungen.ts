@@ -271,7 +271,7 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[preismeldungen.length - 1] + 1}`;
             const currentPreismeldung = state.currentPreismeldung;
             const newPmId = `pm/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`;
-            const newPreismeldung = createFreshPreismeldung(newPmId, currentPreismeldung.preismeldung.pmsNummer, currentPreismeldung.preismeldung.epNummer, nextLaufnummer, action.payload);
+            const newPreismeldung = createFreshPreismeldung(newPmId, currentPreismeldung.preismeldung.pmsNummer, currentPreismeldung.preismeldung.epNummer, nextLaufnummer, action.payload, currentPreismeldung.preismeldung.erhebungsZeitpunkt);
             const newCurrentPreismeldung = assign({}, createCurrentPreismeldungBag({
                 pmId: newPmId,
                 refPreismeldung: null,
@@ -294,7 +294,8 @@ export function reducer(state = initialState, action: preismeldungen.Actions): S
             const sortierungsnummer = preismeldungen.length === 0 ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1 : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
             const priceCountStatus = state.priceCountStatuses[action.payload.warenkorbPosition.gliederungspositionsnummer];
             const numActivePrices = !priceCountStatus ? 0 : priceCountStatus.numActivePrices;
-            const newPreismeldung = createFreshPreismeldung(newPmId, action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer, nextLaufnummer, action.payload.bearbeitungscode);
+            const erhebungsZeitpunkt = action.payload.warenkorbPosition.erhebungszeitpunkte === 1 ? 99 : null;
+            const newPreismeldung = createFreshPreismeldung(newPmId, action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer, nextLaufnummer, action.payload.bearbeitungscode, erhebungsZeitpunkt);
             const newCurrentPreismeldung = assign({}, createCurrentPreismeldungBag({
                 pmId: newPmId,
                 refPreismeldung: null,
@@ -324,7 +325,7 @@ function createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
     return { percentage: null, warning: false, textzeil: null };
 }
 
-const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: string, laufnummer: string, bearbeitungscode: P.Models.Bearbeitungscode): P.Models.Preismeldung => ({
+const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: string, laufnummer: string, bearbeitungscode: P.Models.Bearbeitungscode, erhebungsZeitpunkt?: number): P.Models.Preismeldung => ({
     _id: pmId,
     _rev: null,
     pmsNummer: pmsNummer,
@@ -351,7 +352,8 @@ const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: stri
     d_DPVorReduktionToVP: createInitialPercentageWithWarning(),
     productMerkmale: [],
     modifiedAt: null,
-    bearbeitungscode: bearbeitungscode,
+    bearbeitungscode,
+    erhebungsZeitpunkt,
     istAbgebucht: false,
     uploadRequestedAt: null
 });
