@@ -5,41 +5,44 @@ import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from 'ngrx-store-logger';
 
 import { environment } from '../environments/environment';
+import * as fromCockpit from './cockpit';
+import * as fromError from './error';
+import * as fromExporter from './exporter';
+import * as fromImporter from './importer';
+import * as fromLanguage from './language';
+import * as fromLogin from './login';
 import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestelle from './preismeldestelle';
 import * as fromPreismeldung from './preismeldung';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
-import * as fromLogin from './login';
-import * as fromLanguage from './language';
-import * as fromImporter from './importer';
-import * as fromExporter from './exporter';
-import * as fromError from './error';
 
 export interface AppState {
-    settings: fromSetting.State;
+    cockpit: fromCockpit.State;
+    errors: fromError.State;
+    exporter: fromExporter.State;
+    importer: fromImporter.State;
+    languages: fromLanguage.State;
+    login: fromLogin.State;
     preiserhebers: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestelle.State;
     preismeldungen: fromPreismeldung.State;
     preiszuweisungen: fromPreiszuweisung.State;
-    login: fromLogin.State;
-    languages: fromLanguage.State;
-    importer: fromImporter.State;
-    exporter: fromExporter.State;
-    errors: fromError.State;
+    settings: fromSetting.State;
 }
 
 const reducers = {
-    settings: fromSetting.reducer,
+    cockpit: fromCockpit.reducer,
+    errors: fromError.reducer,
+    exporter: fromExporter.reducer,
+    importer: fromImporter.reducer,
+    languages: fromLanguage.reducer,
+    login: fromLogin.reducer,
     preiserhebers: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestelle.reducer,
     preismeldungen: fromPreismeldung.reducer,
     preiszuweisungen: fromPreiszuweisung.reducer,
-    login: fromLogin.reducer,
-    languages: fromLanguage.reducer,
-    importer: fromImporter.reducer,
-    exporter: fromExporter.reducer,
-    errors: fromError.reducer
+    settings: fromSetting.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -118,3 +121,5 @@ export const getExporterState = (state: AppState) => state.exporter;
 export const getExportedPreismeldungen = createSelector(getExporterState, fromExporter.getExportedPreismeldungen);
 export const getExportedPreismeldestellen = createSelector(getExporterState, fromExporter.getExportedPreismeldestellen);
 export const getExportedPreiserheber = createSelector(getExporterState, fromExporter.getExportedPreiserheber);
+
+export const getCockpitState = (state: AppState) => state.cockpit;

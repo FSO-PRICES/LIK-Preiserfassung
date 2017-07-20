@@ -7,6 +7,7 @@ import { PreismeldungDetailComponent } from './components/preismeldung-detail/pr
 
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 import { PefComponentsModule } from 'lik-shared';
+import { PefDialogCancelEditModule } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit.module';
 
 @NgModule({
     declarations: [
@@ -17,6 +18,7 @@ import { PefComponentsModule } from 'lik-shared';
     imports: [
         IonicPageModule.forChild(PreismeldungPage),
         PefComponentsModule,
+        PefDialogCancelEditModule,
         PefMenuModule
     ],
 })

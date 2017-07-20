@@ -94,7 +94,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     scrollHeight: number;
     previousStart: number;
     previousEnd: number;
-    startupLoop: boolean = true;
+    startupLoop = true;
 
     constructor(private element: ElementRef, private renderer: Renderer) { }
 
@@ -117,7 +117,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         this.previousStart = undefined;
         this.previousEnd = undefined;
         const items = (changes as any).items || {};
-        if ((changes as any).items != undefined && items.previousValue == undefined || (items.previousValue != undefined && items.previousValue.length === 0)) {
+        if ((changes as any).items !== undefined && items.previousValue === undefined || (!!items.previousValue && items.previousValue.length === 0)) {
             this.startupLoop = true;
         }
         this.refresh();
@@ -152,7 +152,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         let itemsPerRow;
         let children = this.contentElementRef.nativeElement.children;
         for (itemsPerRow = 0; itemsPerRow < children.length; itemsPerRow++) {
-            if (offsetTop != undefined && offsetTop !== children[itemsPerRow].offsetTop) break;
+            if (offsetTop !== undefined && offsetTop !== children[itemsPerRow].offsetTop) break;
             offsetTop = children[itemsPerRow].offsetTop;
         }
         return itemsPerRow;
@@ -168,7 +168,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         let viewHeight = el.clientHeight - this.scrollbarHeight;
 
         let contentDimensions;
-        if (this.childWidth == undefined || this.childHeight == undefined) {
+        if (this.childWidth === undefined || this.childHeight === undefined) {
             contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
                 width: viewWidth,
                 height: viewHeight

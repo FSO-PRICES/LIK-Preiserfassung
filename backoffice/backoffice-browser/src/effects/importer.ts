@@ -126,7 +126,7 @@ export class ImporterEffects {
 
     private getErhebungsmonatDocument(db: PouchDB.Database<{}>) {
         return getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat')
-            .then(doc => { console.log('doc', doc); return doc.monthAsString })
+            .then(doc => doc.monthAsString)
             .catch(() => null);
     }
 }

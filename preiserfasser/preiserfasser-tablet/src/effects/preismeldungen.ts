@@ -212,7 +212,7 @@ export class PreismeldungenEffects {
         artikeltext: bag.preismeldung.artikeltext,
         bearbeitungscode: bag.preismeldung.bearbeitungscode,
         internetLink: bag.preismeldung.internetLink,
-        istAbgebucht: true,
+        istAbgebucht: bag.preismeldung.istAbgebucht,
         menge: bag.preismeldung.menge,
         mengeVPK: bag.preismeldung.mengeVPK,
         mengeVorReduktion: bag.preismeldung.mengeVorReduktion,

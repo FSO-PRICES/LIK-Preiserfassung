@@ -4,6 +4,7 @@ import { IonicPageModule } from 'ionic-angular';
 import { SettingsPage } from './settings';
 
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
+import { PefDialogCancelEditModule } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit.module';
 
 @NgModule({
     declarations: [
@@ -11,6 +12,7 @@ import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
     ],
     imports: [
         IonicPageModule.forChild(SettingsPage),
+        PefDialogCancelEditModule,
         PefMenuModule
     ],
 })

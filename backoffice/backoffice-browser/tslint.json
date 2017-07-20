@@ -41,7 +41,10 @@
         "no-duplicate-variable": true,
         "no-empty": false,
         "no-eval": true,
-        "no-inferrable-types": [true, "ignore-params"],
+        "no-inferrable-types": [
+            true,
+            "ignore-params"
+        ],
         "no-shadowed-variable": true,
         "no-string-literal": false,
         "no-switch-case-fall-through": false,
@@ -90,7 +93,6 @@
             "check-separator",
             "check-type"
         ],
-
         // codelyzer
         "directive-selector-prefix": [
             true,
@@ -119,7 +121,7 @@
         "use-input-property-decorator": true,
         "use-output-property-decorator": true,
         "use-host-property-decorator": true,
-        "no-input-rename": true,
+        "no-input-rename": false,
         "no-output-rename": false,
         "use-life-cycle-interface": true,
         "use-pipe-transform-interface": true,
@@ -127,7 +129,6 @@
         "directive-class-suffix": true,
         "templates-use-public": true,
         "invoke-injectable": true,
-
         // tslint-eslint-rules
         "object-curly-spacing": [
             true,

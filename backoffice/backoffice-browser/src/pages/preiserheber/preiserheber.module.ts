@@ -22,6 +22,7 @@ import { PefComponentsModule } from 'lik-shared';
     imports: [
         IonicPageModule.forChild(PreiserheberPage),
         PefComponentsModule,
+        PefDialogCancelEditModule,
         PefMenuModule,
         PefDialogCancelEditModule,
         PefDialogConfirmDeleteModule,

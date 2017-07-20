@@ -3,10 +3,9 @@ import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { isBefore, isAfter, addDays, subMilliseconds } from 'date-fns';
 
-import { ReactiveComponent, formatPercentageChange, pefSearch } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, pefSearch, PefVirtualScrollComponent } from 'lik-shared';
 
 import * as P from '../../../../common-models';
-import { PefVirtualScrollComponent } from '../../../../common/pef-virtual-scroll';
 
 @Component({
     selector: 'preismeldung-list',

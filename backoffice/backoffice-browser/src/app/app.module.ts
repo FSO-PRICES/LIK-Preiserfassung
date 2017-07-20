@@ -11,12 +11,15 @@ import { Backoffice } from './app.component';
 import { PefMenuModule } from '../components/pef-menu';
 import { PefDialogLoginModule, PefDialogLoginComponent } from '../components/pef-dialog-login';
 
+import { ExportToPrestaModule } from '../pages/export-to-presta';
+import { ImportModule } from '../pages/import';
 import { PreiserheberModule } from '../pages/preiserheber';
 import { PreismeldestelleModule } from '../pages/preismeldestelle';
 import { PreismeldungModule } from '../pages/preismeldung';
-import { ImportModule } from '../pages/import';
-import { ExportToPrestaModule } from '../pages/export-to-presta';
 import { SettingsModule } from '../pages/settings';
+import { StatusModule } from '../pages/status';
+
+import { PouchService } from '../services/PouchService';
 
 import { BO_EFFECTS } from '../effects';
 import { reducer } from '../reducers';
@@ -27,16 +30,17 @@ import { reducer } from '../reducers';
     ],
     imports: [
         BrowserModule,
+        ExportToPrestaModule,
+        ImportModule,
         IonicModule.forRoot(Backoffice),
         PefComponentsModule,
         PefDialogLoginModule,
         PefMenuModule,
-        ImportModule,
-        ExportToPrestaModule,
-        SettingsModule,
         PreiserheberModule,
         PreismeldestelleModule,
         PreismeldungModule,
+        SettingsModule,
+        StatusModule,
         StoreModule.provideStore(reducer),
         ...BO_EFFECTS
     ],
@@ -49,6 +53,7 @@ import { reducer } from '../reducers';
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         { provide: LOCALE_ID, useValue: 'de-CH' },
         PefDialogService,
+        PouchService,
         StatusBar,
         SplashScreen,
         { provide: 'windowObject', useValue: window }

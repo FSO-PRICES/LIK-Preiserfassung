@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { has, assign } from 'lodash';
 
 import * as fromRoot from '../reducers';
-import * as preiserheber from '../actions/preiserheber';
+import { Action } from '../actions/preiserheber';
 import * as preiszuweisung from '../actions/preiszuweisung';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { getDatabase, dropDatabase, createUser, dbNames, getUserDatabaseName, deleteUser, updateUser } from './pouchdb-utils';
@@ -32,7 +32,7 @@ export class PreiserheberEffects {
     loadPreiserheber$ = this.actions$.ofType('PREISERHEBER_LOAD')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => loadAllPreiserheber())
-        .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as preiserheber.Action));
+        .map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as Action));
 
     @Effect()
     resetPassword$ = this.actions$.ofType('RESET_PASSWORD')
@@ -51,8 +51,8 @@ export class PreiserheberEffects {
         .flatMap(({ preiserheberId, success }) => [
             { type: 'DELETE_PREISZUWEISUNG_SUCCESS' } as preiszuweisung.Action,
             success ?
-                { type: 'DELETE_PREISERHEBER_SUCCESS', payload: preiserheberId } as preiserheber.Action :
-                { type: 'DELETE_PREISERHEBER_FAILURE', payload: preiserheberId } as preiserheber.Action
+                { type: 'DELETE_PREISERHEBER_SUCCESS', payload: preiserheberId } as Action :
+                { type: 'DELETE_PREISERHEBER_FAILURE', payload: preiserheberId } as Action
         ]);
 
     @Effect()
@@ -107,8 +107,8 @@ export class PreiserheberEffects {
         // Reload saved preiserheber
         .flatMap(result => loadPreiserheber(result.preiserheber._id).map(preiserheber => assign(result, { preiserheber })))
         .map(result => !result.error ?
-            { type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber } as preiserheber.Action :
-            { type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error } as preiserheber.Action
+            { type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber } as Action :
+            { type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error } as Action
         );
 
     private getErrorText(error: any) {

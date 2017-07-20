@@ -161,6 +161,8 @@ interface __PreismeldungProperties {
 
     istAbgebucht: boolean;
 
+    erhebungsZeitpunkt?: number;
+
     uploadRequestedAt: string;
 }
 
@@ -301,6 +303,12 @@ export const Languages: LanguageDictionary = {
     'Italienisch': { languageCode: 'it', name: 'Italienisch' },
     'Englisch': { languageCode: 'en', name: 'Englisch' }
 };
+
+export interface LastSyncedAtProperties {
+    value: string;
+}
+
+export type LastSyncedAt = LastSyncedAtProperties & CouchProperties;
 
 export interface RegionProperties {
     name: string;

@@ -26,7 +26,7 @@ export function loadAllPreismeldungen(pmsNummer: string = '') {
 
 export function loadAllPreiserheber() {
     return getAllDocumentsForPrefixFromUserDbs<P.Erheber>('preiserheber')
-        .flatMap((preiserheber: any[]) => getDatabaseAsObservable(dbNames.preiserheber)
+        .flatMap((preiserheber: P.Erheber[]) => getDatabaseAsObservable(dbNames.preiserheber)
             .flatMap(db => getAllDocumentsFromDb<P.Erheber>(db))
             .map(unassignedPe => {
                 const remainingPe = unassignedPe.filter(pe => !preiserheber.some(x => x.username === pe.username));

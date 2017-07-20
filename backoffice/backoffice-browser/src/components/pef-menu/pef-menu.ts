@@ -11,7 +11,7 @@ import * as fromRoot from '../../reducers';
 })
 export class PefMenuComponent {
     public pages = [
-        { page: null, name: 'Status' },
+        { page: 'StatusPage', name: 'Status' },
         { page: 'ImportPage', name: 'Import' },
         { page: 'PreismeldestellePage', name: 'PMS' },
         { page: 'PreiserheberPage', name: 'Preiserheber' },
@@ -23,7 +23,7 @@ export class PefMenuComponent {
 
     public dangerZone$: Observable<boolean>;
 
-    constructor(private store: Store<fromRoot.AppState>, private navCtrl: NavController) {
+    constructor(store: Store<fromRoot.AppState>, private navCtrl: NavController) {
         this.dangerZone$ = store.select(fromRoot.getSettings)
             .filter(setting => !!setting && !!setting.serverConnection && !!setting.serverConnection.url)
             .map(setting => setting.serverConnection.url.indexOf('bfs-lik.lambda-it.ch') !== -1)

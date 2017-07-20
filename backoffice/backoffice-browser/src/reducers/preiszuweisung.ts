@@ -1,4 +1,4 @@
-import * as preiszuweisung from '../actions/preiszuweisung';
+import { Action } from '../actions/preiszuweisung';
 import { assign, remove, cloneDeep } from 'lodash';
 import { createSelector } from 'reselect';
 import { Models as P } from 'lik-shared';
@@ -21,15 +21,14 @@ const initialState: State = {
     currentPreiszuweisung: undefined,
 };
 
-export function reducer(state = initialState, action: preiszuweisung.Action): State {
+export function reducer(state = initialState, action: Action): State {
     switch (action.type) {
         case 'PREISZUWEISUNG_LOAD_SUCCESS': {
             const { payload } = action;
-            const preiszuweisungen = payload
-                .map<P.Preiszuweisung>(preiszuweisung => Object.assign({}, preiszuweisung));
+            const preiszuweisungen = payload.map<P.Preiszuweisung>(preiszuweisung => Object.assign({}, preiszuweisung));
             const preiszuweisungIds = preiszuweisungen.map(p => p._id);
-            const entities = preiszuweisungen.reduce((entities: { [_id: string]: P.Preiszuweisung }, preiszuweisung: P.Preiszuweisung) => {
-                return Object.assign(entities, { [preiszuweisung._id]: preiszuweisung });
+            const entities = preiszuweisungen.reduce((agg: { [_id: string]: P.Preiszuweisung }, preiszuweisung: P.Preiszuweisung) => {
+                return Object.assign(agg, { [preiszuweisung._id]: preiszuweisung });
             }, {});
             return assign({}, state, { preiszuweisungIds, entities, currentPreiszuweisung: undefined });
         }

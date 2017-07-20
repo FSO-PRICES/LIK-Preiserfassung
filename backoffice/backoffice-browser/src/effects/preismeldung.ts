@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { Models as P } from 'lik-shared';
 
 import { getDatabase, dbNames, getAllDocumentsForPrefix } from './pouchdb-utils';
-import * as preismeldung from '../actions/preismeldung';
+import { Action } from '../actions/preismeldung';
 import * as fromRoot from '../reducers';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { CurrentPreismeldung } from '../reducers/preismeldung';
@@ -35,7 +35,7 @@ export class PreismeldungEffects {
             warenkorbDoc,
             preismeldungen: x.preismeldungen,
         })))
-        .map(docs => ({ type: 'PREISMELDUNG_LOAD_FOR_PMS_SUCCESS', payload: docs } as preismeldung.Action));
+        .map(docs => ({ type: 'PREISMELDUNG_LOAD_FOR_PMS_SUCCESS', payload: docs } as Action));
 
     @Effect()
     loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNG_LOAD_UNEXPORTED')
@@ -43,7 +43,7 @@ export class PreismeldungEffects {
         .flatMap(() => getDatabase(dbNames.preismeldung).then(db => ({ db })))
         .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true }, getAllDocumentsForPrefix('pm-ref/'))).then(res => res.rows.map(y => y.doc) as P.CompletePreismeldung[]))
-        .map(docs => ({ type: 'PREISMELDUNG_LOAD_UNEXPORTED_SUCCESS', payload: docs } as preismeldung.Action));
+        .map(docs => ({ type: 'PREISMELDUNG_LOAD_UNEXPORTED_SUCCESS', payload: docs } as Action));
 
     @Effect()
     savePreismeldung$ = this.actions$.ofType('SAVE_PREISMELDUNG')
@@ -71,5 +71,5 @@ export class PreismeldungEffects {
                     .then<CurrentPreismeldung>(({ db, id }) => db.get(id))
             )
         )
-        .map(payload => ({ type: 'SAVE_PREISMELDUNG_SUCCESS', payload } as preismeldung.Action));
+        .map(payload => ({ type: 'SAVE_PREISMELDUNG_SUCCESS', payload } as Action));
 }

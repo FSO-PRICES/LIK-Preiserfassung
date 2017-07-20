@@ -16,8 +16,7 @@ import { PefPerfectVirtualscrollScrollbarDirective } from './pef-perfect-virtual
 import { PefSearchInput } from './pef-search-input/pef-search-input';
 import { PefSvgIcons } from './pef-svg-icons/pef-svg-icons';
 import { PefToggleButtonDirective } from './pef-toggle-button/pef-toggle-button';
-import { PefVirtualFooter, PefVirtualItem, PefVirtualHeader } from './pef-virtual-scroll/virtual-item';
-import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
+import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scroll';
 
 @NgModule({
     imports: [CommonModule, IonicModule, TranslateModule],
@@ -35,10 +34,7 @@ import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
         PefSearchInput,
         PefSvgIcons,
         PefToggleButtonDirective,
-        PefVirtualFooter,
-        PefVirtualHeader,
-        PefVirtualItem,
-        PefVirtualScroll,
+        PefVirtualScrollComponent,
     ],
     entryComponents: [
         PefMessageDialogComponent,
@@ -57,10 +53,7 @@ import { PefVirtualScroll } from './pef-virtual-scroll/virtual-scroll';
         PefSearchInput,
         PefSvgIcons,
         PefToggleButtonDirective,
-        PefVirtualFooter,
-        PefVirtualHeader,
-        PefVirtualItem,
-        PefVirtualScroll,
+        PefVirtualScrollComponent,
         TranslateModule
     ]
 })

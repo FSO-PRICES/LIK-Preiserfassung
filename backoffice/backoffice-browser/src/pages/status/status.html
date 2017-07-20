@@ -1,0 +1,6 @@
+<header pef-menu></header>
+<div class="page-wrapper">
+    <div class="page-content">
+        <status-report (load-data)="loadData$.next()" [report-executing]="reportExecuting$ | async" [cockpit-report-data]="cockpitReportData$ | async"></status-report>
+    </div>
+</div>

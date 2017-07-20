@@ -7,6 +7,7 @@ import { ReactiveComponent } from '../../common/ReactiveComponent';
 })
 export class PefPerfectScrollbarDirective extends ReactiveComponent implements OnChanges, AfterViewInit {
     @Input() enabled: boolean;
+    @Input() scrollToTop: {};
 
     private container: any;
 
@@ -27,7 +28,17 @@ export class PefPerfectScrollbarDirective extends ReactiveComponent implements O
                         Ps.update(this.container);
                     }, 1000);
                 });
-             });
+            });
+
+        this.observePropertyCurrentValue<{}>('scrollToTop')
+            .subscribe(() => {
+                this.ngZone.runOutsideAngular(() => {
+                    setTimeout(() => {
+                        this.container.scrollTop = 0;
+                        Ps.update(this.container);
+                    }, 100);
+                });
+            });
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

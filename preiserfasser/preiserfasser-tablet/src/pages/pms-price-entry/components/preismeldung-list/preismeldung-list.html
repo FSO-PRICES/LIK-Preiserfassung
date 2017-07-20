@@ -3,10 +3,10 @@
         <pef-search-input class="pms-search" (valueChanges)="filterText$.emit($event)"></pef-search-input>
     </div>
     <div class="preismeldung-list-check-filter">
-        <button ion-button icon-only color="wild-sand" [class.button-radio-selected]="filterTodoSelected$ | async"  (click)="selectFilterTodo$.emit()">
+        <button ion-button icon-only color="wild-sand" [class.button-radio-selected]="filterTodoSelected$ | async" (click)="selectFilterTodo$.emit()">
             <pef-icon name="todo"></pef-icon>
         </button>
-        <button ion-button icon-only color="wild-sand" [class.button-radio-selected]="filterCompletedSelected$ | async"  (click)="selectFilterCompleted$.emit()">
+        <button ion-button icon-only color="wild-sand" [class.button-radio-selected]="filterCompletedSelected$ | async" (click)="selectFilterCompleted$.emit()">
             <pef-icon name="checkmark"></pef-icon>
         </button>
         <div class="pms-name">
@@ -15,12 +15,9 @@
             </span>
         </div>
     </div>
-    <pef-virtual-scroll [items]="filteredPreismeldungen$ | async" [childHeight]="itemHeight" (update)="scrollList = $event" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)" pef-perfect-scrollbar [enabled]="isDesktop">
-        <ion-item
-            *ngFor="let bag of scrollList"
-            class="preismeldung-item"
-            (click)="selectClickedPreismeldung$.emit(bag)"
-            [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
+    <pef-virtual-scroll [items]="filteredPreismeldungen$ | async" [childHeight]="itemHeight" (update)="scrollList = $event" (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)"
+        pef-perfect-scrollbar [enabled]="isDesktop">
+        <ion-item *ngFor="let bag of scrollList" class="preismeldung-item" (click)="selectClickedPreismeldung$.emit(bag)" [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
             tappable>
             <div class="preismeldung-position-number">
                 {{ bag.preismeldung.epNummer }}<br/>&nbsp;
