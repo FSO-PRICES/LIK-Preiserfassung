@@ -1,0 +1,12 @@
+<div class="wrapper">
+    <div class="header">
+        <h3>{{'heading_pms-sort' | translate}}</h3>
+        <button ion-button clear class="close-button" (click)="closeClicked$.emit()">
+            {{ 'btn_close' | translate }}
+            <pef-icon name="close_screen"></pef-icon>
+        </button>
+    </div>
+    <ion-content no-scroll>
+        <pms-sort [preismeldungen]="preismeldungen$ | async" [isDesktop]="isDesktop$ | async"></pms-sort>
+    </ion-content>
+</div>

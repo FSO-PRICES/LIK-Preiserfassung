@@ -38,7 +38,7 @@
     </pef-virtual-scroll>
     <div class="preismeldung-list-footer">
         <div class="preismeldung-list-functions">
-            <button ion-button icon-only color="wild-sand" [disabled]="true">
+            <button ion-button icon-only color="wild-sand" (click)="sortPreismeldungen$.emit()" [disabled]="(currentPreismeldung$ | async)?.isModified || (currentPreismeldung$ | async)?.isNew">
                 <pef-icon name="sorting_arrows"></pef-icon>
             </button>
             <button ion-button icon-only color="wild-sand" (click)="addNewPreisreihe$.emit()" [disabled]="(currentPreismeldung$ | async)?.isModified">

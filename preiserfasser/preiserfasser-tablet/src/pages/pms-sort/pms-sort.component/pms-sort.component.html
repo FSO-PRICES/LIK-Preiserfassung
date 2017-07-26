@@ -1,0 +1,21 @@
+<div class="toolbar"></div>
+<div class="content">
+    <div class="help"></div>
+    <div class="pm-container">
+        <!-- <div class="drag-container"> -->
+        <!-- <ion-item class="foo" *ngFor="let item of (preismeldungen$ | async)">{{ item.preismeldung.epNummer }}</ion-item> -->
+        <pef-virtual-scroll [items]="preismeldungen$ | async" (update)="scrollList = $event" pef-perfect-scrollbar [enabled]="isDesktop">
+            <div *ngFor="let bag of scrollList" class="preismeldung-item-draggable" [attr.data-pmid]="bag.pmId" tappable>
+                <!-- <div *ngFor="let bag of (preismeldungen$ | async)" class="preismeldung-item-draggable" tappable>  -->
+                <div class="preismeldung-position-number">
+                    {{ bag.preismeldung.epNummer }}<br/>&nbsp;
+                </div>
+                <div class="preismeldung-description">
+                    <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
+                    <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
+                </div>
+            </div>
+            <!-- </div> -->
+        </pef-virtual-scroll>
+        <!-- </div> -->
+    </div>

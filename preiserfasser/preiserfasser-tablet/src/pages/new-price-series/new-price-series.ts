@@ -4,7 +4,6 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import * as P from '../../common-models';
-
 import * as fromRoot from '../../reducers';
 
 @IonicPage({

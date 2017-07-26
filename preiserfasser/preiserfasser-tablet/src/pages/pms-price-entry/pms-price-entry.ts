@@ -38,6 +38,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     duplicatePreismeldung$ = new EventEmitter();
     addNewPreisreihe$ = new EventEmitter();
+    navigateToPmsSort$ = new EventEmitter();
     ionViewDidLoad$ = new EventEmitter();
     resetPreismeldung$ = new EventEmitter();
     requestSelectNextPreismeldung$ = new EventEmitter<{}>();
@@ -213,10 +214,9 @@ export class PmsPriceEntryPage implements OnDestroy {
                 .subscribe(x => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload: { type: 'JUST_SAVE', saveWithData: [{ type: 'COMMENT', comments: ['kommentar-autotext_keine-produkte'] }] } }))
         );
 
-        this.subscriptions.push(
-            this.addNewPreisreihe$
-                .subscribe(() => this.navigateToNewPriceSeries())
-        );
+        this.subscriptions.push(this.addNewPreisreihe$.subscribe(() => this.navigateToNewPriceSeries()));
+
+        this.subscriptions.push(this.navigateToPmsSort$.subscribe(() => this.navigateToPmsSort()));
 
         this.subscriptions.push(
             this.ionViewDidLoad$
@@ -235,6 +235,10 @@ export class PmsPriceEntryPage implements OnDestroy {
 
     navigateToDashboard() {
         return this.navController.setRoot('DashboardPage');
+    }
+
+    navigateToPmsSort() {
+        return this.navController.setRoot('PmsSortPage', { pmsNummer: this.navParams.get('pmsNummer') });
     }
 
     navigateToNewPriceSeries() {

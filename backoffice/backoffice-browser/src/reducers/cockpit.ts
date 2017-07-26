@@ -84,7 +84,7 @@ export function reducer(state = initialState, action: cockpit.Action): State {
 
 function createStichtagGroupedCockpitPreismeldungSummary(refPreismeldungen: P.PreismeldungReference[], preismeldungenSynced: P.Preismeldung[]): StichtagGroupedCockpitPreismeldungSummary {
     const todoSynced = preismeldungenSynced.filter(pm => refPreismeldungen.some(r => r.pmId === pm._id));
-    const done = todoSynced.filter(pm => pm.d_DPToVP.percentage != null);
+    const done = todoSynced.filter(pm => pm.istAbgebucht);
     const doneUploaded = todoSynced.filter(pm => !!pm.uploadRequestedAt);
     const newPreismeldungen = preismeldungenSynced.filter(pm => !refPreismeldungen.some(r => r.pmId === pm._id));
     const newPreismeldungenUploaded = newPreismeldungen.filter(pm => !!pm.uploadRequestedAt);

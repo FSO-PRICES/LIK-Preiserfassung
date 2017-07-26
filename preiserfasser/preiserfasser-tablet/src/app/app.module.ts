@@ -1,6 +1,5 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { HttpModule, Http } from '@angular/http';
-import { VirtualScrollModule } from 'angular2-virtual-scroll';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StoreModule } from '@ngrx/store';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -40,7 +39,6 @@ export function createTranslateLoader(http: Http) {
         StoreModule.provideStore(reducer),
         ...PEF_EFFECTS,
         HttpModule,
-        VirtualScrollModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,

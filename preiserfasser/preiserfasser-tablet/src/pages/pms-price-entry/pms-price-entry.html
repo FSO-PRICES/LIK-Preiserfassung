@@ -33,8 +33,8 @@
         <div class="preismeldung-list-container">
             <preismeldung-list [preismeldungen]="preismeldungen$ | async" [currentTime]="currentTime$ | async" [preismeldestelle]="preismeldestelle$ | async"
                 [currentPreismeldung]="currentPreismeldung$ | async" (selectPreismeldung)="selectPreismeldung$.emit($event)"
-                (addNewPreisreihe)="addNewPreisreihe$.emit()" [currentLanguage]="currentLanguage$ | async" [requestSelectNextPreismeldung]="requestSelectNextPreismeldung$ | async"
-                [isDesktop]="isDesktop$ | async"></preismeldung-list>
+                (addNewPreisreihe)="addNewPreisreihe$.emit()" (sortPreismeldungen)="navigateToPmsSort$.emit()" [currentLanguage]="currentLanguage$ | async"
+                [requestSelectNextPreismeldung]="requestSelectNextPreismeldung$ | async" [isDesktop]="isDesktop$ | async"></preismeldung-list>
         </div>
     </div>
 </div>

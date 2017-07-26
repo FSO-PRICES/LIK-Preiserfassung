@@ -23,6 +23,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() requestSelectNextPreismeldung: {};
     @Output('selectPreismeldung') selectPreismeldung$: Observable<P.PreismeldungBag>;
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
+    @Output('sortPreismeldungen') sortPreismeldungen$ = new EventEmitter();
 
     @ViewChild(PefVirtualScrollComponent)
     private virtualScroll: any;
