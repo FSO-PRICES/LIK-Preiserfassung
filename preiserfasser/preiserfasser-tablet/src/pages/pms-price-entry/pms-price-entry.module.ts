@@ -11,7 +11,6 @@ import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialo
 import { DialogChoosePercentageReductionComponent } from './components/dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
 import { PmsPriceEntryPage } from './pms-price-entry';
 import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
-import { PreismeldungenSortComponent } from './components/preismeldungen-sort/preismeldungen-sort';
 import { PreismeldungInfoComponent } from './components/preismeldung-detail-tabs/preismeldung-info';
 import { PreismeldungInfoPopoverLeft } from './components/preismeldung-detail-tabs/preismeldung-price/preismeldung-info-popover-left/preismeldung-info-popover-left';
 import { PreismeldungInfoPopoverRight } from './components/preismeldung-detail-tabs/preismeldung-price/preismeldung-info-popover-right/preismeldung-info-popover-right';
@@ -34,7 +33,6 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
         DialogChoosePercentageReductionComponent,
         PmsPriceEntryPage,
         PreismeldungAttributesComponent,
-        PreismeldungenSortComponent,
         PreismeldungInfoComponent,
         PreismeldungInfoPopoverLeft,
         PreismeldungInfoPopoverRight,

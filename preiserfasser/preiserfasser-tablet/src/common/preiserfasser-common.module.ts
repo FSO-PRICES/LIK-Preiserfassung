@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { PefComponentsModule } from 'lik-shared';
 
+import { DelayDragDirective } from './delay-drag.directive';
 import { PefDisableInputNegativeNumberDirective } from './pef-disable-input-negative-number';
 import { PefFloatingIconDirective } from './pef-floating-icon/pef-floating-icon';
 import { PefDateTranslatePipe } from './pipes/pef-date-translate-pipe';
@@ -14,6 +15,7 @@ import { PefPropertyTranslatePipe } from './pipes/pef-property-translate-pipe';
 @NgModule({
     imports: [PefComponentsModule],
     declarations: [
+        DelayDragDirective,
         PefDisableInputNegativeNumberDirective,
         PefFloatingIconDirective,
         PefDateTranslatePipe,
@@ -21,6 +23,7 @@ import { PefPropertyTranslatePipe } from './pipes/pef-property-translate-pipe';
         PefPropertyTranslatePipe,
     ],
     exports: [
+        DelayDragDirective,
         PefDisableInputNegativeNumberDirective,
         PefFloatingIconDirective,
         PefDateTranslatePipe,
@@ -28,5 +31,4 @@ import { PefPropertyTranslatePipe } from './pipes/pef-property-translate-pipe';
         PefPropertyTranslatePipe
     ]
 })
-export class PreiserfasserCommonModule {
-}
+export class PreiserfasserCommonModule { }

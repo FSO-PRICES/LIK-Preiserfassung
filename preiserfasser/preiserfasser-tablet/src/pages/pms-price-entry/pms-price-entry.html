@@ -1,6 +1,4 @@
 <div class="pms-price-entry-content">
-    <preismeldungen-sort *ngIf="false" [isDesktop]="isDesktop$ | async" [preismeldungen]="preismeldungen$ | async">
-    </preismeldungen-sort>
     <preismeldung-toolbar [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async" (selectTab)="selectTab$.emit($event)"
         (buttonClicked)="toolbarButtonClicked$.emit($event)">
     </preismeldung-toolbar>

@@ -23,14 +23,15 @@ pms-sort {
     .pm-container {
         flex: 0 0 40%;
         max-width: 40%;
-        display: flex;
-        padding: 1em;
+        padding: 0 1em;
+        margin: 1em 0;
+        overflow-y: scroll;
+        // display: flex;
     }
 
     pef-virtual-scroll {
         flex: 1;
     }
-
 }
 
 .preismeldung-item-draggable {
@@ -90,6 +91,16 @@ pms-sort {
                 line-height: 1.25em;
             }
         }
+    }
+    .drag-handle {
+        background-color: transparent;
+        width: 50px;
+        max-width: 50px;
+        flex: 0 0 50px;
+        display: flex;
+        height: 50px;
+        margin-left: auto;
+        justify-content: center;
     }
     &.gu-mirror {
         font-size: 1.6rem;
