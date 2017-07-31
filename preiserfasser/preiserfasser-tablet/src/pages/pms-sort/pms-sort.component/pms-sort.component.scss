@@ -13,52 +13,98 @@ pms-sort {
     .content {
         flex: 1;
         display: flex;
+        flex-direction: column;
+    }
+
+    .work-area {
+        flex: 1;
+        display: flex;
+    }
+
+    .button-container {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 1em 1em 1em;
+        button {
+            min-width: 10em;
+        }
     }
 
     .help {
-        flex: 0 0 60%;
-        max-width: 60%;
+        flex: 0 0 55%;
+        max-width: 55%;
+    }
+
+    .right-side {
+        flex: 0 0 45%;
+        max-width: 45%;
+        padding: 0 1em;
+        margin: 1em 0;
+        display: flex;
     }
 
     .pm-container {
-        flex: 0 0 40%;
-        max-width: 40%;
-        padding: 0 1em;
-        margin: 1em 0;
         overflow-y: scroll;
-        // display: flex;
+        flex: 1;
     }
 
     pef-virtual-scroll {
         flex: 1;
     }
+
+    .right-side {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .function-buttons {
+        padding-left: 3.5em;
+        margin-bottom: 1em;
+    }
+
+    .button-md-wild-sand {
+        margin-left: 0;
+        &.active {
+            background-color: $surfie-green;
+            fill: white;
+        }
+    }
+
 }
 
 .preismeldung-item-draggable {
-    background-color: white;
     display: flex;
     align-items: center;
-    padding-left: 8px;
-    border-bottom-width: 0;
     min-height: 3.5em;
     @include set-margin-bottom(0.25);
-    &.selected {
-        background-color: $surfie-green;
-        color: white;
-        .preismeldung-position-number, .preismeldung-description .text {
-            color: white;
+
+    .button-md.selection-button {
+        font-size: 1em;
+        color: $outer-space;
+        background-color: white;
+        box-shadow: none;
+        margin: 0 1em 0 0;
+        flex: 0 0 2.5em;
+        width: 2.5em;
+        max-width: 2.5em;
+        padding: 0;
+        &:hover {
+            background-color: $egg-white;
+        }
+        &.active {
+            background-color: $egg-white;
         }
     }
-    &.item-md.item-block .item-inner {
-        @include set-padding(0, 0, 0, 0.5);
-    }
-    ion-label {
-        margin: 0;
+
+    .box-part {
+        flex: 0 0 calc(100% - 3.5em);
+        max-width: calc(100% - 3.5em);
+        width: calc(100% - 3.5em);
         display: flex;
-        height: 100%;
         align-items: center;
-        align-content: center;
-        font-size: 1em;
+        background-color: white;
+        padding-left: 8px;
     }
     .preismeldung-position-number {
         max-width: 4em;
@@ -67,9 +113,9 @@ pms-sort {
         font-weight: 500;
     }
     .preismeldung-description {
-        width: calc(100% - 9em);
-        max-width: calc(100% - 9em);
-        flex: 0 0 calc(100% - 9em);
+        width: calc(100% - 7em);
+        max-width: calc(100% - 7em);
+        flex: 0 0 calc(100% - 7em);
         display: flex;
         flex-direction: column;
         span {
@@ -104,6 +150,9 @@ pms-sort {
     }
     &.gu-mirror {
         font-size: 1.6rem;
+        .button-md.selection-button {
+            visibility: hidden;
+        }
     }
 }
 

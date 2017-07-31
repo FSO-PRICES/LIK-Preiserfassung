@@ -1,37 +1,38 @@
-<div class="toolbar"></div>
+<div class="toolbar">
+</div>
 <div class="content">
-    <div class="help"></div>
-    <div class="pm-container">
-        <!-- <pef-virtual-scroll [items]="preismeldungen$ | async" (update)="scrollList = $event" pef-perfect-scrollbar [enabled]="isDesktop">
-            <div style="height: 100%; width: 100%;">
-                <div *ngFor="let bag of scrollList" class="preismeldung-item-draggable" [attr.data-pmid]="bag.pmId" tappable>
-                    <div class="preismeldung-position-number">
-                        {{ bag.preismeldung.epNummer }}<br/>&nbsp;
-                    </div>
-                    <div class="preismeldung-description">
-                        <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
-                        <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
-                    </div>
-                </div>
-            </div>
-        </pef-virtual-scroll> -->
-        <!-- <div class="list-container"> -->
-        <!-- <pef-virtual-scroll [items]="preismeldungen$ | async" (update)="scrollList = $event" pef-perfect-scrollbar [enabled]="isDesktop">  -->
-        <div class="list">
-            <div *ngFor="let bag of (preismeldungen$ | async)" class="preismeldung-item-draggable" [attr.data-pmid]="bag.pmId">
-                <div class="preismeldung-position-number">
-                    {{ bag.preismeldung.epNummer }}<br/>&nbsp;
-                </div>
-                <div class="preismeldung-description">
-                    <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
-                    <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
-                </div>
-                <button class="drag-handle">
-                    <pef-icon name="stroke"></pef-icon>
+    <div class="work-area">
+        <div class="help"></div>
+        <div class="right-side">
+            <div class="function-buttons">
+                <button ion-button color="wild-sand" [class.active]="multiSelectMode$ | async" (click)="multiSelectClick$.emit()">
+                    <pef-icon name="sortierung_zahlen"></pef-icon>
                 </button>
             </div>
+            <div class="pm-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
+                <div class="list">
+                    <div *ngFor="let bag of (preismeldungen$ | async)" class="preismeldung-item-draggable" [attr.data-pmid]="bag.pmId">
+                        <button ion-button class="selection-button active" [class.visibility-hidden]="!(multiSelectMode$ | async)" (click)="selectForMultiselect$.emit(bag.pmId)">{{ bag.selectionIndex }}</button>
+                        <div class="box-part">
+                            <div class="preismeldung-position-number">
+                                {{ bag.preismeldung.epNummer }}<br/>&nbsp;
+                            </div>
+                            <div class="preismeldung-description">
+                                <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
+                                <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
+                            </div>
+                            <button class="drag-handle">
+                                <pef-icon name="stroke"></pef-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- </pef-virtual-scroll> -->
-        <!-- </div> -->
+
+    </div>
+    <div class="button-container">
+        <button ion-button color="primary" (click)="save$.emit()">{{ 'btn_order-save' | translate }}</button>
+        <button ion-button color="secondary">{{ 'btn_cancel' | translate }}</button>
     </div>
 </div>

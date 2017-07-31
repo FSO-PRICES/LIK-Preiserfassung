@@ -32,6 +32,7 @@
     "date-fns": "^1.28.5",
     "docuri": "^4.2.2",
     "dom-autoscroller": "^2.3.3",
+    "dragula": "^3.7.2",
     "ionic-angular": "3.3.0",
     "ionicons": "3.0.0",
     "lik-shared": "file:../../lik-shared",
