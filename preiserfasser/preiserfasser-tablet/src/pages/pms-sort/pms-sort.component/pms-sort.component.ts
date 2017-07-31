@@ -6,10 +6,12 @@ import autoScroll from 'dom-autoscroller';
 
 import * as P from '../../../common-models';
 import { Observable } from 'rxjs';
-import { assign, max, orderBy } from 'lodash';
+import { assign, max, orderBy, keys } from 'lodash';
 
-type SelectablePreismeldungBag = P.PreismeldungBag & { selectionIndex: number };
+// type SelectablePreismeldungBag = P.PreismeldungBag & { selectionIndex: number };
 type DropPreismeldungArg = { preismeldungPmId: string, dropBeforePmId: string };
+type MultiSelectIndexMap = { [pmId: string]: number };
+
 
 @Component({
     selector: 'pms-sort',
@@ -24,22 +26,24 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     @ViewChild(PefVirtualScrollComponent)
     private virtualScroll: any;
 
+    scrollList: Observable<P.PreismeldungBag[]>;
+
     private drake: dragula.Drake;
     private scroll: any;
 
     private ngAfterViewInit$ = new EventEmitter();
 
     private preismeldungen$: Observable<P.PreismeldungBag[]>;
+    private multiselectIndexes$: Observable<MultiSelectIndexMap>;
 
     public save$ = new EventEmitter();
     public multiSelectClick$ = new EventEmitter();
+    public multiSelectResetClick$ = new EventEmitter();
     public multiSelectMode$: Observable<boolean>;
     public selectForMultiselect$ = new EventEmitter<string>();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
 
     private subscriptions = [];
-
-    private theList = ['a', 'b', 'c']
 
     constructor(private el: ElementRef) {
         super();
@@ -47,45 +51,53 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         const preismeldungen$ = this.ngAfterViewInit$
             .delay(500)
             .flatMap(() => this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen'))
-            .map(x => x.map(y => assign({}, y, { selectionIndex: null })) as SelectablePreismeldungBag[]);
+            .publishReplay(1).refCount();
 
         this.multiSelectMode$ = this.multiSelectClick$
             .scan((agg, _) => !agg, false)
             .startWith(false)
             .publishReplay(1).refCount();
 
-        enum UserActionType { SELECT_FOR_MULTISLECT, DROP_PAYLOAD };
-        const userActions$ = this.selectForMultiselect$.map(payload => ({ type: UserActionType.SELECT_FOR_MULTISLECT, payload }))
-            .merge(this.dropPreismeldung$.map(payload => ({ type: UserActionType.DROP_PAYLOAD, payload })))
-            .startWith(null);
-        this.preismeldungen$ = userActions$
-            .combineLatest(preismeldungen$, (userActions, origPreismeldungen) => ({ userActions, origPreismeldungen }))
-            .withLatestFrom(this.multiSelectMode$, (v, multiSelectMode) => ({ userActions: v.userActions, origPreismeldungen: v.origPreismeldungen, multiSelectMode }))
-            .scan((agg: SelectablePreismeldungBag[], v) => {
-                if (!v.userActions) return v.origPreismeldungen;
-                if (v.userActions.type === UserActionType.SELECT_FOR_MULTISLECT) {
-                    const preismeldung = agg.find(p => p.pmId === v.userActions.payload);
-                    if (!!preismeldung.selectionIndex) {
-                        return agg.map(x => x.pmId === v.userActions.payload ? assign({}, x, { selectionIndex: null }) : x.selectionIndex > preismeldung.selectionIndex ? assign({}, x, { selectionIndex: x.selectionIndex - 1 }) : x);
-                    }
-                    const maxSelectionIndex = (max(agg.map(x => x.selectionIndex)) || 0) + 1;
-                    return agg.map(x => x.pmId === v.userActions.payload ? assign({}, x, { selectionIndex: maxSelectionIndex }) : x);
+        type MultiselectAction = { type: 'RESET' } | { type: 'TOGGLE_PM', payload: string };
+        this.multiselectIndexes$ = preismeldungen$.merge(this.multiSelectResetClick$, this.multiSelectMode$).map(payload => ({ type: 'RESET' }))
+            .merge(this.selectForMultiselect$.map(payload => ({ type: 'TOGGLE_PM', payload })))
+            .scan((agg: MultiSelectIndexMap, v: MultiselectAction) => {
+                if (v.type === 'RESET') return {};
+                const preismeldungIndex = agg[v.payload];
+                if (!!preismeldungIndex) {
+                    const biggerIndexes = keys(agg).filter(k => agg[k] > preismeldungIndex).map(k => ({ [k]: agg[k] - 1 }));
+                    return assign({}, agg, { [v.payload]: null }, ...biggerIndexes);
                 }
-                const dropPreismeldungBeforeSortierungsNummer = !v.userActions.payload.dropBeforePmId ? Number.MAX_VALUE : agg.find(b => b.pmId === v.userActions.payload.dropBeforePmId).sortierungsnummer;
-                let preismeldungenTemp: SelectablePreismeldungBag[];
+                return assign({}, agg, { [v.payload]: (max(keys(agg).map(k => agg[k])) || 0) + 1 });
+            }, {})
+            .publishReplay(1).refCount();
+
+        type PreismeldungenOrderAction = { type: 'RESET', payload: P.PreismeldungBag[] } | { type: 'DROP_PREISMELDUNG', payload: DropPreismeldungArg };
+        this.preismeldungen$ = preismeldungen$.map(payload => ({ type: 'RESET', payload }))
+            .merge(this.dropPreismeldung$.map(payload => ({ type: 'DROP_PREISMELDUNG', payload })))
+            .withLatestFrom(this.multiSelectMode$, this.multiselectIndexes$.startWith(null), (preismeldungenOrderAction: PreismeldungenOrderAction, multiSelectMode: boolean, multiselectIndexes: MultiSelectIndexMap) => ({ preismeldungenOrderAction, multiSelectMode, multiselectIndexes }))
+            .scan((agg, v) => {
+                if (v.preismeldungenOrderAction.type === 'RESET') return v.preismeldungenOrderAction.payload;
+                const { dropBeforePmId, preismeldungPmId } = v.preismeldungenOrderAction.payload;
+                const dropPreismeldungBeforeSortierungsNummer = !dropBeforePmId ? Number.MAX_VALUE : agg.find(b => b.pmId === dropBeforePmId).sortierungsnummer;
+                let preismeldungenTemp: P.PreismeldungBag[];
                 if (!v.multiSelectMode) {
-                    preismeldungenTemp = agg.map((b, i) => b.pmId === v.userActions.payload.preismeldungPmId ? assign({}, b, { sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - 0.1 }) : b)
+                    preismeldungenTemp = agg.map((b, i) => b.pmId === preismeldungPmId ? assign({}, b, { sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - 0.1 }) : b)
                 } else {
-                    const preismeldungenToMove = orderBy(agg.filter(x => !!x.selectionIndex), x => x.selectionIndex, 'desc');
-                    const preismeldungenToMoveOrdered = preismeldungenToMove.map((b, i) => assign({}, b, { sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - (i * 0.0001) }));
-                    preismeldungenTemp = agg.map((b, i) => preismeldungenToMoveOrdered.find(x => x.pmId === b.pmId) || b);
+                    const preismeldungenToMove = orderBy(keys(v.multiselectIndexes).filter(k => !!v.multiselectIndexes[k]).map(pmId => ({ pmId, selectionIndex: v.multiselectIndexes[pmId] })), x => x.selectionIndex, 'desc');
+                    const preismeldungenToMoveOrdered = preismeldungenToMove.map((x, i) => ({ pmId: x.pmId, sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - ((i + 1) * 0.0001) }));
+                    preismeldungenTemp = agg.map((b, i) => {
+                        const pmWithNewOrder = preismeldungenToMoveOrdered.find(x => x.pmId === b.pmId);
+                        return !!pmWithNewOrder ? assign({}, b, { sortierungsnummer: pmWithNewOrder.sortierungsnummer }) : b;
+                    });
                 }
                 return orderBy(preismeldungenTemp, x => x.sortierungsnummer).map((b, i) => {
                     const pm = b.sortierungsnummer !== i + 1 ? assign({}, b, { sortierungsnummer: i + 1 }) : b;
                     return assign({}, pm, { selectionIndex: null });
                 });
-            }, []);
-        // .do (x => console.log(x))
+            }, [] as P.PreismeldungBag[]);
+
+        this.preismeldungen$.filter(x => !!x.length).take(1).delay(100).subscribe(() => this.virtualScroll.refresh());
 
         this.save$
             .map(() =>
@@ -97,22 +109,23 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     }
 
     public ngOnInit() {
-        const thatDrake = this.drake = dragula([this.el.nativeElement.querySelector('.list')], {
+        const thatDrake = this.drake = dragula([this.el.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content')], {
             moves: (el, container, handle) => {
                 let searchElement = handle;
                 while (searchElement !== el && searchElement.className !== 'drag-handle') {
                     searchElement = searchElement.parentElement;
                 }
-                console.log(searchElement.className);
                 return searchElement.className === 'drag-handle';
             }
         });
         thatDrake.on('drop', (el, target, source, sibling) => {
             const siblingPmId = !!sibling ? sibling.dataset.pmid : null;
             this.dropPreismeldung$.emit({ preismeldungPmId: el.dataset.pmid, dropBeforePmId: siblingPmId });
-        })
+        });
+        thatDrake.on('drag', () => this.el.nativeElement.querySelector('pef-virtual-scroll').classList.add('is-dragging'));
+        thatDrake.on('dragend', () => this.el.nativeElement.querySelector('pef-virtual-scroll').classList.remove('is-dragging'));
         this.scroll = autoScroll(
-            [this.el.nativeElement.querySelector('.pm-container')], {
+            [this.el.nativeElement.querySelector('pef-virtual-scroll')], {
                 margin: 30,
                 maxSpeed: 25,
                 scrollWhenOutside: true,
@@ -120,8 +133,10 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                     return this.down && thatDrake.dragging;
                 }
             }
-        )
+        );
     }
+
+    get many preismeldungen working properly
 
     public ngAfterViewInit() { this.ngAfterViewInit$.emit() };
 
