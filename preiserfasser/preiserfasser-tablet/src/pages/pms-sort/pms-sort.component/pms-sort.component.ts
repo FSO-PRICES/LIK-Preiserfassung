@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, Input, ViewChild, OnChanges, SimpleChange, ChangeDetectionStrategy, ElementRef, AfterViewInit, OnInit, Inject } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Input, ViewChild, OnChanges, SimpleChange, ChangeDetectionStrategy, ElementRef, AfterViewInit, OnInit, Inject, Output } from '@angular/core';
 import { ReactiveComponent, PefVirtualScrollComponent } from 'lik-shared';
 
 import dragula from 'dragula';
@@ -7,6 +7,7 @@ import autoScroll from 'dom-autoscroller';
 import * as P from '../../../common-models';
 import { Observable } from 'rxjs';
 import { assign, max, orderBy, keys } from 'lodash';
+import { TranslateService } from "@ngx-translate/core";
 
 // type SelectablePreismeldungBag = P.PreismeldungBag & { selectionIndex: number };
 type DropPreismeldungArg = { preismeldungPmId: string, dropBeforePmId: string };
@@ -23,6 +24,10 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     @Input() isDesktop: boolean;
     isDesktop$ = this.observePropertyCurrentValue<boolean>('isDesktop');
 
+    @Output('cancel') cancel$ = new EventEmitter();
+    @Output('save') public save$ = new EventEmitter();
+    @Output('preismeldung-sort-save') public preismeldungSortSave$: Observable<P.Models.PmsPreismeldungenSortProperties>;
+
     @ViewChild(PefVirtualScrollComponent)
     private virtualScroll: any;
 
@@ -36,20 +41,21 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     private preismeldungen$: Observable<P.PreismeldungBag[]>;
     private multiselectIndexes$: Observable<MultiSelectIndexMap>;
 
-    public save$ = new EventEmitter();
     public multiSelectClick$ = new EventEmitter();
     public multiSelectResetClick$ = new EventEmitter();
+    public onDrag$ = new EventEmitter();
     public multiSelectMode$: Observable<boolean>;
+    public multipleSelected$: Observable<boolean>;
     public selectForMultiselect$ = new EventEmitter<string>();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
 
     private subscriptions = [];
 
-    constructor(private el: ElementRef) {
+    constructor(private el: ElementRef, @Inject('windowObject') private window: any, private translateService: TranslateService) {
         super();
 
         const preismeldungen$ = this.ngAfterViewInit$
-            .delay(500)
+            .delay(100)
             .flatMap(() => this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen'))
             .publishReplay(1).refCount();
 
@@ -71,6 +77,9 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                 return assign({}, agg, { [v.payload]: (max(keys(agg).map(k => agg[k])) || 0) + 1 });
             }, {})
             .publishReplay(1).refCount();
+
+        this.multipleSelected$ = this.multiselectIndexes$
+            .map(x => keys(x).filter(k => !!x[k]).length > 1);
 
         type PreismeldungenOrderAction = { type: 'RESET', payload: P.PreismeldungBag[] } | { type: 'DROP_PREISMELDUNG', payload: DropPreismeldungArg };
         this.preismeldungen$ = preismeldungen$.map(payload => ({ type: 'RESET', payload }))
@@ -97,15 +106,22 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                 });
             }, [] as P.PreismeldungBag[]);
 
-        this.preismeldungen$.filter(x => !!x.length).take(1).delay(100).subscribe(() => this.virtualScroll.refresh());
+        this.subscriptions.push(this.preismeldungen$.filter(x => !!x.length).take(1).delay(100).subscribe(() => this.virtualScroll.refresh()));
 
-        this.save$
-            .map(() =>
-                Array.from<HTMLElement>(this.el.nativeElement.querySelectorAll('.list > .preismeldung-item-draggable'))
-                    .map((x, index) => ({ pmId: x.dataset.pmid, sortierungsnummer: index + 1 }))
-            )
-            .subscribe(x => console.log(x));
+        this.preismeldungSortSave$ = this.save$
+            .withLatestFrom(this.preismeldungen$, (_, preismeldungen) => preismeldungen)
+            .map(preismeldungen => ({ sortOrder: preismeldungen.map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })) }));
 
+        this.subscriptions.push(
+            this.onDrag$
+                .withLatestFrom(this.multiselectIndexes$.map(x => keys(x).filter(k => !!x[k]).length), (_, numPreismeldungenSelected) => numPreismeldungenSelected)
+                .delay(0)
+                .subscribe(numPreismeldungenSelected => {
+                    if (numPreismeldungenSelected > 1) this.window.document.querySelector('.gu-mirror').classList.add('multiple-selected');
+                    this.window.document.querySelector('.gu-mirror .message').innerHTML = `${numPreismeldungenSelected || 1} ${translateService.instant('label_preismeldungen')}`;
+                    this.el.nativeElement.querySelector('pef-virtual-scroll').classList.add('is-dragging');
+                })
+        );
     }
 
     public ngOnInit() {
@@ -122,7 +138,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
             const siblingPmId = !!sibling ? sibling.dataset.pmid : null;
             this.dropPreismeldung$.emit({ preismeldungPmId: el.dataset.pmid, dropBeforePmId: siblingPmId });
         });
-        thatDrake.on('drag', () => this.el.nativeElement.querySelector('pef-virtual-scroll').classList.add('is-dragging'));
+        thatDrake.on('drag', () => this.onDrag$.emit());
         thatDrake.on('dragend', () => this.el.nativeElement.querySelector('pef-virtual-scroll').classList.remove('is-dragging'));
         this.scroll = autoScroll(
             [this.el.nativeElement.querySelector('pef-virtual-scroll')], {
@@ -135,8 +151,6 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
             }
         );
     }
-
-    get many preismeldungen working properly
 
     public ngAfterViewInit() { this.ngAfterViewInit$.emit() };
 

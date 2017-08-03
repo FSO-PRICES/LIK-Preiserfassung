@@ -49,6 +49,7 @@ pms-sort {
         flex: 1;
         &.is-dragging {
             .multi-select {
+                // opacity: 0.2;
                 visibility: hidden;
             }
         }
@@ -81,15 +82,25 @@ pms-sort {
     @include set-margin-bottom(0.25);
 
     .when-dragging {
-        background-color: white;
-        // display: flex;
         display: none;
-        // flex: 0 0 100%;
+        flex: 0 0 100%;
+        min-height: 3.5em;
+        padding-left: 3.5em;
+        .inner-part {
+            padding-left: calc(3.5em + 8px);
+            flex: 1 1 100%;
+            min-width: 100%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+        }
     }
 
     .when-not-dragging {
         flex: 0 0 100%;
+        max-width: 100%;
         display: flex;
+        align-items: center;
     }
 
     .button-md.selection-button {
@@ -163,9 +174,6 @@ pms-sort {
     }
     &.gu-mirror {
         font-size: 1.6rem;
-        .button-md.selection-button {
-            visibility: hidden;
-        }
     }
 }
 
@@ -176,11 +184,13 @@ pms-sort {
     opacity: 0.8;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
     filter: alpha(opacity=80);
-    .when-dragging {
-        display: flex;
-    }
-    .when-not-dragging {
-        display: none;
+    &.multiple-selected {
+        .when-dragging {
+            display: flex;
+        }
+        .when-not-dragging {
+            display: none;
+        }
     }
 }
 .gu-hide {

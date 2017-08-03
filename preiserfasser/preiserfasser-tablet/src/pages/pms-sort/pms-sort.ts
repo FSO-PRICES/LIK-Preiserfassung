@@ -16,6 +16,8 @@ import * as fromRoot from '../../reducers';
 })
 export class PmsSortPage implements OnDestroy {
     ionViewDidLoad$ = new EventEmitter();
+    closeClicked$ = new EventEmitter();
+    save$ = new EventEmitter();
     isDesktop$ = this.store.select(fromRoot.getIsDesktop).publishReplay(1).refCount();
     preismeldungen$ = this.ionViewDidLoad$.combineLatest(this.store.select(fromRoot.getPreismeldungen), (_, preismeldungen) => preismeldungen);
 
@@ -29,6 +31,14 @@ export class PmsSortPage implements OnDestroy {
                 .take(1)
                 .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: this.navParams.get('pmsNummer') }))
         );
+
+        this.subscriptions.push(
+            this.closeClicked$.subscribe(() => {
+                this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
+                this.navController.setRoot('PmsPriceEntryPage', { pmsNummer: this.navParams.get('pmsNummer') });
+            })
+        );
+        this.subscriptions.push(this.save$.subscribe(sortOrderDoc => this.store.dispatch({ type: 'PREISMELDUNGEN_SORT_SAVE', payload: ({ pmsNummer: this.navParams.get('pmsNummer'), sortOrderDoc }) })));
     }
 
     ionViewDidLoad() {

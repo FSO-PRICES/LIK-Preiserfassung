@@ -3,9 +3,9 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as docuri from 'docuri';
 import { format, startOfMonth } from 'date-fns';
-import { assign, cloneDeep, flatMap } from 'lodash';
+import { assign, cloneDeep, flatMap, isEqual } from 'lodash';
 
-import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
+import { getDatabase, getAllDocumentsForPrefix, getDatabaseAsObservable } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import * as P from '../common-models';
 import { preismeldungCompareFn } from 'lik-shared';
@@ -176,6 +176,14 @@ export class PreismeldungenEffects {
                 .then(() => bag.preismeldung._id)
             ))
         .map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload }));
+
+    preismeldungenSortSave = this.actions$
+        .ofType('PREISMELDUNGEN_SORT_SAVE')
+        .flatMap(({ payload }) => getDatabaseAsObservable().map(db => ({ db, payload })))
+        .flatMap(x => x.db.get(`pms-sort/${x.payload.pmsNummer}`).then((dbDoc: P.Models.PmsPreismeldungenSort) => ({ dbDoc, payload: x.payload, db: x.db })))
+        .filter(x => !isEqual(x.dbDoc.sortOrder, x.payload.sortOrderDoc.sortOrder))
+        .flatMap(x => x.db.put(assign({}, x.dbDoc, x.payload.sortOrderDoc)))
+        .subscribe();
 
     savePreismeldung(currentPreismeldungBag: P.CurrentPreismeldungBag, copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]) {
         return getDatabase()

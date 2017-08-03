@@ -13,7 +13,16 @@
             <div class="pm-container">
                 <pef-virtual-scroll [items]="preismeldungen$ | async" (update)="scrollList = $event" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                     <div *ngFor="let bag of scrollList" class="preismeldung-item-draggable" [attr.data-pmid]="bag.pmId" [class.multi-select]="!!(multiselectIndexes$ | async)[bag.pmId]">
-                        <!-- <div class="when-dragging">Many Preismeldungen</div> -->
+                        <div class="when-dragging">
+                            <div class="inner-part">
+                                <div class="message">
+                                    Many Preismeldungen
+                                </div>
+                                <button class="drag-handle">
+                                    <pef-icon name="stroke"></pef-icon>
+                                </button>
+                            </div>
+                        </div>
                         <div class="when-not-dragging">
                             <button ion-button class="selection-button active" [class.visibility-hidden]="!(multiSelectMode$ | async)" (click)="selectForMultiselect$.emit(bag.pmId)">{{ (multiselectIndexes$ | async)[bag.pmId] }}</button>
                             <div class="box-part">
@@ -24,9 +33,9 @@
                                     <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
                                     <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
                                 </div>
-                                <button class="drag-handle">
-                                <pef-icon name="stroke"></pef-icon>
-                            </button>
+                                <button class="drag-handle" [disabled]="(multiSelectMode$ | async) && !(multiselectIndexes$ | async)[bag.pmId]">
+                                    <pef-icon name="stroke"></pef-icon>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -37,6 +46,6 @@
     </div>
     <div class="button-container">
         <button ion-button color="primary" (click)="save$.emit()">{{ 'btn_order-save' | translate }}</button>
-        <button ion-button color="secondary">{{ 'btn_cancel' | translate }}</button>
+        <button ion-button color="secondary" (click)="cancel$.emit()">{{ 'btn_cancel' | translate }}</button>
     </div>
 </div>
