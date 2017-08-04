@@ -88,17 +88,16 @@ export class PreiserheberEffects {
                         username: currentPreiserheber.username
                     });
                     return ({ db, create, preiserheber, password });
-                    // return (create ? db.post(preiserheber) : updatePreiserheber(preiserheber))
-                    //     .then((response) => ({ id: response.id, created: create, password }));
                 })
         )
-        .flatMap(({ db, create, password, preiserheber }) => create ?
-            db.post(preiserheber).then(() => ({ created: create, password, id: preiserheber._id })) :
-            updatePreiserheber(preiserheber).map(() => ({ created: false, password, id: preiserheber._id }))
+        .flatMap(({ db, create, password, preiserheber }) =>
+            create
+                ? db.post(preiserheber).then(() => ({ created: create, password, preiserheber }))
+                : Observable.of({ created: false, password, preiserheber })
         )
-        .flatMap(({ id, created, password }) => loadPreiserheber(id)
-            // Initialize a database for created erheber
-            .flatMap(preiserheber => (created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null, created }))
+        .flatMap(({ preiserheber, created, password }) =>
+            // create user or update password
+            Observable.fromPromise((created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null, created }))
                 .catch(error => ({ preiserheber: null as P.Erheber, error: this.getErrorText(error), created: false }))
             )
         )
