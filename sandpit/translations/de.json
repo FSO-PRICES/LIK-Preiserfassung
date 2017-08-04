@@ -34,12 +34,10 @@
     "control_artikeltext": "Artikeltext",
     "control_menge": "Aktuelle Periode Menge",
     "control_mengeVorReduktion": "Aktuelle Periode Menge ausser Aktion",
-    "control_mengeVPNormalNeuerArtikel": "Vorperiode Menge",
     "control_mengeVPK": "Vorperiode Menge",
     "control_preis": "Aktuelle Periode Preis",
     "control_preisVorReduktion": "Aktuelle Periode Preis ausser Aktion",
     "control_preisVPK": "Vorperiode Preis",
-    "control_preisVPNormalNeuerArtikel": "Vorperiode Preis",
     "dialogText_abnormal-preisentwicklung": "Grosse Veränderung! Bitte Preismeldung prüfen und allenfalls kommentieren.",
     "dialogText_aktion-message-preis-hoeher": "Artikel teurer als in Vorperiode. Ist der Artikel wirklich in Aktion?",
     "dialogText_aktueller-aktionspreis-gleich-groesser-vp-normalpreis": "Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?",
@@ -205,5 +203,8 @@
     "validation_street_required": "Bitte erfassen Sie die Strasse der Preismeldestelle.",
     "validation_surname_required": "Bitte erfassen Sie den Name der 1. Kontaktperson.",
     "validation_town_required": "Bitte erfassen Sie den Ort der Preismeldestelle.",
-    "NEW (#163)": "Eine neue Preisreihe sollte nicht in Aktion gestartet werden. Bitte wählen Sie ein anderes Produkt aus."
+    "control_mengeVPNormalNeuerArtikel": "Vorperiode Menge",
+    "control_preisVPNormalNeuerArtikel": "Vorperiode Preis",
+    "NEW (#163)": "Eine neue Preisreihe sollte nicht in Aktion gestartet werden. Bitte wählen Sie ein anderes Produkt aus.",
+    "NEW (#150)": "Preis ausser Aktion"
 }
