@@ -158,8 +158,9 @@ export class DashboardPage implements OnDestroy {
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)),
 
             this.isSyncing$.skip(1)
-                .filter(synced => !synced)
+                .filter(isSyncing => !isSyncing)
                 .subscribe(() => {
+                    this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
                     this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
                     this.store.dispatch({ type: 'LOAD_WARENKORB' });
                 }),
