@@ -18,6 +18,7 @@ export const dbNames = {
     preismeldestelle: 'preismeldestellen',
     region: 'regionen',
     preiszuweisung: 'preiszuweisungen',
+    backup_erfasste_preismeldungen: 'backup_erfasste_preismeldungen',
     preismeldung: 'preismeldungen',
     setting: 'settings',
     import: 'imports'
@@ -25,7 +26,13 @@ export const dbNames = {
 
 dropLocalDatabase(dbNames.emptyDb);
 
-export function createUser(erheber: P.Erheber, password: string) {
+export function createOrUpdateUser(erheber: P.Erheber, password: string) {
+    return getDatabaseAsObservable('_users')
+        .flatMap(db => db.get(`org.couchdb.user:${erheber.username}`).then(() => true).catch(() => false).then(userExists => ({ db, userExists })))
+        .flatMap(x => x.userExists ? updateUser(erheber, password) : createUser(erheber, password));
+}
+
+function createUser(erheber: P.Erheber, password: string) {
     return getDatabase('_users').then((db: any) => db.signUp(erheber._id, password));
 }
 
@@ -85,6 +92,10 @@ export function getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.D
 
 export function getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, prefix: string): Promise<T[]> {
     return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
+}
+
+export function getAllIdRevsForPrefixFromDb(db: PouchDB.Database<{}>, prefix: string): Promise<P.CouchProperties[]> {
+    return db.allDocs(getAllDocumentsForPrefix(prefix)).then(x => x.rows.map(row => ({ _id: row.id, _rev: row.value.rev })));
 }
 
 export function getAllDocumentsForKeysFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, keys: string[]): Promise<T[]> {

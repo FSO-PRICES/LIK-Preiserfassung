@@ -189,7 +189,7 @@ function parseStringOrEmpty(s: string) {
 
 function translationsToStringOrNull(de: string, fr: string, it: string) {
     return !!de || !!fr || !!it ?
-        { de: parseStringOrEmpty(de), fr: parseStringOrEmpty(fr), it: parseStringOrEmpty(it) } :
+        { de: parseStringOrEmpty(de), fr: parseStringOrEmpty(fr), it: parseStringOrEmpty(it), en: null } :
         null;
 }
 

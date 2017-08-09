@@ -8,7 +8,7 @@ import { chain } from 'lodash';
 import { Models as P } from 'lik-shared';
 
 import { getDatabaseLastUploadedAt, setDatabaseLastUploadedAt } from './local-storage-utils';
-import { checkIfDatabaseExists, checkConnectivity, getDatabase, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase, syncDatabase, getDocumentByKeyFromDb } from './pouchdb-utils';
+import { checkIfDatabaseExists, checkConnectivity, getDatabase, getDatabaseAsObservable, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase, syncDatabase, getDocumentByKeyFromDb } from './pouchdb-utils';
 
 import { Actions as DatabaseAction } from '../actions/database';
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
@@ -51,22 +51,23 @@ export class DatabaseEffects {
     @Effect()
     syncDatabase$ = this.actions$
         .ofType('SYNC_DATABASE')
-        .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
-            .concat(syncDatabase(action.payload)
-                .flatMap(() =>
-                    getDatabase().then(db =>
-                        db.get('last-synced-at')
-                            .then(doc => doc._rev).catch(() => null)
-                            .then(_rev => {
-                                const lastSyncedAt = new Date();
-                                return db.put({ _id: 'last-synced-at', _rev, value: lastSyncedAt }).then(() => lastSyncedAt);
-                            })
+        .flatMap(action =>
+            Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
+                .concat(syncDatabase(action.payload)
+                    .flatMap(result => result.didSync
+                        ? getDatabaseAsObservable()
+                            .flatMap(db => db.get('last-synced-at').then(doc => doc._rev).catch(() => null)
+                                .then(_rev => {
+                                    const lastSyncedAt = new Date();
+                                    return db.put({ _id: 'last-synced-at', _rev, value: lastSyncedAt }).then(() => lastSyncedAt);
+                                })
+                            )
+                            .flatMap(lastSyncedAt => syncDatabase(action.payload).map(() => lastSyncedAt)) // Sync synced at
+                            .map(lastSyncedAt => ({ type: 'SYNC_DATABASE_SUCCESS', payload: lastSyncedAt } as DatabaseAction))
+                            .catch(error => Observable.from(this.convertErrorToActions(error)))
+                        : Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: 'Mismatch in user-db-id' })
                     )
-                )
-                .flatMap(lastSyncedAt => syncDatabase(action.payload).map(() => lastSyncedAt)) // Sync synced at
-                .map(lastSyncedAt => ({ type: 'SYNC_DATABASE_SUCCESS', payload: lastSyncedAt } as DatabaseAction))
-                .catch(error => Observable.from(this.convertErrorToActions(error)))
-            )
+                ), 1 // limit concurrency
         );
 
     @Effect()

@@ -7,16 +7,17 @@ import { has, assign } from 'lodash';
 
 import * as fromRoot from '../reducers';
 import { Action } from '../actions/preiserheber';
-import * as preiszuweisung from '../actions/preiszuweisung';
+import * as preiszuweisungActions from '../actions/preiszuweisung';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { getDatabase, dropDatabase, createUser, dbNames, getUserDatabaseName, deleteUser, updateUser } from './pouchdb-utils';
+import { getDatabase, getDatabaseAsObservable, dropDatabase, createOrUpdateUser, updateUser, dbNames, getUserDatabaseName, deleteUser } from './pouchdb-utils';
 import { Models as P, CurrentPreiserheber } from '../common-models';
-import { createUserDb, updateUserDb } from '../common/preiserheber-initialization';
+import { createUserDb, updateUserAndZuweisungDb } from '../common/preiserheber-initialization';
 import { loadAllPreiserheber, loadPreiserheber, updatePreiserheber } from '../common/user-db-values';
 
 @Injectable()
 export class PreiserheberEffects {
     currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber);
+    currentPreiszuweisung$ = this.store.select(fromRoot.getCurrentPreiszuweisung);
     isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     private errorCodes: { [code: string]: string } = {
@@ -49,7 +50,7 @@ export class PreiserheberEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action => deletePreiserheber(action.payload).then(success => ({ preiserheberId: action.payload._id as string, success })))
         .flatMap(({ preiserheberId, success }) => [
-            { type: 'DELETE_PREISZUWEISUNG_SUCCESS' } as preiszuweisung.Action,
+            { type: 'DELETE_PREISZUWEISUNG_SUCCESS' } as preiszuweisungActions.Action,
             success ?
                 { type: 'DELETE_PREISERHEBER_SUCCESS', payload: preiserheberId } as Action :
                 { type: 'DELETE_PREISERHEBER_FAILURE', payload: preiserheberId } as Action
@@ -58,15 +59,10 @@ export class PreiserheberEffects {
     @Effect()
     savePreiserheber$ = this.actions$.ofType('SAVE_PREISERHEBER')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber: CurrentPreiserheber) => ({ password: action.payload, currentPreiserheber }))
+        .withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber) => ({ password: action.payload, currentPreiserheber }))
         .flatMap(({ password, currentPreiserheber }) =>
             getDatabase(dbNames.preiserheber)
-                .then(db => { // Only check if the document exists if a revision already exists
-                    if (!!currentPreiserheber._rev) {
-                        return db.get(currentPreiserheber._id).then(doc => ({ db, doc }));
-                    }
-                    return Promise.resolve({ db, doc: {} });
-                })
+                .then(db => !!currentPreiserheber._rev ? db.get(currentPreiserheber._id).then(doc => ({ db, doc })) : Promise.resolve({ db, doc: {} }))
                 .then(({ db, doc }) => { // Create or update the erheber
                     const create = !doc._rev;
                     const preiserheber = Object.assign({}, doc, {
@@ -86,7 +82,7 @@ export class PreiserheberEffects {
                         postcode: currentPreiserheber.postcode,
                         town: currentPreiserheber.town,
                         username: currentPreiserheber.username
-                    });
+                    }) as P.Erheber;
                     return ({ db, create, preiserheber, password });
                 })
         )
@@ -96,18 +92,18 @@ export class PreiserheberEffects {
                 : Observable.of({ created: false, password, preiserheber })
         )
         .flatMap(({ preiserheber, created, password }) =>
-            // create user or update password
-            Observable.fromPromise((created ? createUser(preiserheber, password) : updateUser(preiserheber, password)).then(() => ({ preiserheber, error: null, created }))
-                .catch(error => ({ preiserheber: null as P.Erheber, error: this.getErrorText(error), created: false }))
-            )
-        )
+            createOrUpdateUser(preiserheber, password)
+                .map(() => ({ preiserheber, error: null, created }))
+                .catch(error => Observable.of({ preiserheber: null as P.Erheber, error: this.getErrorText(error), created: false })))
+        .withLatestFrom(this.currentPreiszuweisung$, (result, currentPreiszuweisung) => ({ result, currentPreiszuweisung }))
         // Only create or update the user db if there was no error
-        .flatMap(result => !result.error ? (result.created ? createUserDb(result.preiserheber) : updateUserDb(result.preiserheber)).map(error => assign(result, { error })) : Observable.of(result))
+        .flatMap(({ result, currentPreiszuweisung }) => !result.error ? (result.created ? createUserDb(result.preiserheber) : updateUserAndZuweisungDb(result.preiserheber, currentPreiszuweisung)).map(error => assign(result, { error })) : Observable.of(result))
         // Reload saved preiserheber
         .flatMap(result => loadPreiserheber(result.preiserheber._id).map(preiserheber => assign(result, { preiserheber })))
-        .map(result => !result.error ?
-            { type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber } as Action :
-            { type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error } as Action
+        .flatMap(result => getDatabaseAsObservable(dbNames.preiszuweisung).flatMap(db => db.get(result.preiserheber._id)).map(preiszuweisung => assign(result, { preiszuweisung })))
+        .flatMap(result => !result.error ?
+            [{ type: 'SAVE_PREISERHEBER_SUCCESS', payload: result.preiserheber }, { type: 'SAVE_PREISZUWEISUNG_SUCCESS', payload: result.preiszuweisung }] :
+            [{ type: 'SAVE_PREISERHEBER_FAILURE', payload: result.error }, { type: 'SAVE_PREISZUWEISUNG_FAILURE', payload: result.error }]
         );
 
     private getErrorText(error: any) {

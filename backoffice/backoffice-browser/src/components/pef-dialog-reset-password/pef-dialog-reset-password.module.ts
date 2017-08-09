@@ -7,9 +7,8 @@ import { PefComponentsModule } from 'lik-shared';
 
 @NgModule({
     imports: [CommonModule, IonicModule, PefComponentsModule],
-    declarations: [
-        PefDialogResetPasswordComponent
-    ],
+    declarations: [PefDialogResetPasswordComponent],
+    entryComponents: [PefDialogResetPasswordComponent],
     exports: [PefDialogResetPasswordComponent]
 })
 export class PefDialogResetPasswordModule {

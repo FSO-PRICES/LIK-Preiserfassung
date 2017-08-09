@@ -3,7 +3,7 @@ import { assign, flatten, some } from 'lodash';
 
 import { Models as P } from 'lik-shared';
 
-import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb, getSettings } from '../effects/pouchdb-utils';
+import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefix, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb, getSettings, getAllDocumentsFromDb, getAllIdRevsForPrefixFromDb } from '../effects/pouchdb-utils';
 
 export interface UserDbStructure {
     preiserheber: P.Erheber;
@@ -15,103 +15,151 @@ export interface UserDbStructure {
     erhebungsorgannummer: P.DbErhebungsorgannummer
 }
 
-/**
- * Create userDbs for given preiserheber IDs. Adding the warenkorb, current erhebungsmonat (if any), db-schema-version, preismeldestellen, preismeldungen and userDbId
- * Returns null if no error has occured, otherwise returns a string describing the error.
- */
 export function createUserDbs(preiserheberIds: string[]) {
-    return getDatabaseAsObservable(dbNames.warenkorb)
-        .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => ({ warenkorb })))
-        .flatMap(data => getDatabase(dbNames.preismeldung).then(preismeldungDb => preismeldungDb.get('erhebungsmonat').then(doc => clearRev<P.Erhebungsmonat>(doc)).catch(() => null).then(erhebungsmonat => assign(data, { erhebungsmonat }))))
-        .flatMap(data => getSettings().then(settings => assign(data, { erhebungsorgannummer: { _id: 'erhebungsorgannummer', value: settings.general.erhebungsorgannummer } })))
-        .map(data => assign(data, { dbSchemaVersion: { _id: 'db-schema-version', version: P.ExpectedDbSchemaVersion } }))
-        .flatMap(mainData => Observable.from(preiserheberIds)
-            .flatMap(preiserheberId => getDatabase(dbNames.preiserheber).then(db => db.get(preiserheberId).then(doc => ({ preiserheber: clearRev<P.Erheber>(doc) }))))
-            .flatMap(preiserheberData => getPmsNummers(preiserheberData.preiserheber._id).then(pmsNummers => assign(preiserheberData, { pmsNummers })))
-            // Create a collection of user db creation observables, false means that no user db was created
-            .map(preiserheberData => preiserheberData.pmsNummers.length === 0 ?
-                // Do nothing if no preiszuweisung was assigned
-                Observable.of(false) :
-                // For each preiserheber with preiszuweisung create their own user db
-                Observable.fromPromise(dropDatabase(getUserDatabaseName(preiserheberData.preiserheber._id)))
-                    .flatMap(() => getPreismeldestellen(preiserheberData.pmsNummers).map(preismeldestellen => ({ preismeldestellen })))
-                    .flatMap(pmsData => getPreismeldungen(preiserheberData.pmsNummers).map(preismeldungen => assign(pmsData, { preismeldungen })))
-                    .map(pmsData => assign({}, mainData, preiserheberData, pmsData))
-                    .flatMap(payload => getDatabase(getUserDatabaseName(preiserheberData.preiserheber._id)).then(db => db.bulkDocs({ docs: prepareDocs(payload) } as any)).then(() => payload))
-                    .flatMap(({ preiserheber }) => putUserToDatabase(getUserDatabaseName(preiserheber._id), { members: { names: [preiserheber._id] } }))
-                    .mapTo(true)
-            )
-        )
-        // Return an error if no user db was created
-        .combineAll((...userDbsCreated) => !some(userDbsCreated) ? 'Es gibt keine zugewiesene preismeldestellen' : null)
-        // Handle other kind of errors
-        .catch(error => Observable.of(getErrorMessage(error)))
+    return _fetchStandardUserDbData()
+        .flatMap(data => getDatabase(dbNames.preiserheber).then(db => getAllDocumentsFromDb<P.Erheber>(db).then(preiserhebers => ({ data, preiserhebers }))))
+        .flatMap(x => Observable.from(x.preiserhebers).flatMap(preiserheber => _createUserDb(assign({}, x.data, { preiserheber }))))
 }
 
-/**
- * Create userDb for given preiserheber. Adding the warenkorb, current erhebungsmonat (if any), db-schema-version and userDbId
- * Returns null if no error has occured, otherwise returns a string describing the error.
- */
 export function createUserDb(preiserheber: P.Erheber) {
-    return getDatabaseAsObservable(dbNames.warenkorb)
-        .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => clearRev<P.WarenkorbDocument>(doc)).then(warenkorb => ({ warenkorb })).catch(() => ({})))
-        .flatMap(data => getDatabase(dbNames.preismeldung).then(preismeldungDb => preismeldungDb.get('erhebungsmonat').then(doc => clearRev<P.Erhebungsmonat>(doc)).catch(() => null).then(erhebungsmonat => assign(data, { erhebungsmonat }))))
-        .map(data => assign(data, { preiserheber, dbSchemaVersion: { _id: 'db-schema-version', version: P.ExpectedDbSchemaVersion } }))
-        .flatMap(data => getDatabase(getUserDatabaseName(preiserheber._id)).then(db => db.bulkDocs({ docs: prepareDocs(data) } as any)))
-        .mapTo(null)
+    return _fetchStandardUserDbData()
+        .flatMap(data => _createUserDb(assign({}, data, { preiserheber })))
+        .flatMap(error => !!error ? Observable.of(error) : updateZuweisung(preiserheber.username, []).mapTo(null))
+}
+
+type StandardUserDbData = { preiserheber: P.Erheber, warenkorb: P.WarenkorbDocument, erhebungsmonat: P.Erhebungsmonat, erhebungsorgannummer: P.DbErhebungsorgannummerProperties };
+
+function _createUserDb({ preiserheber, warenkorb, erhebungsmonat, erhebungsorgannummer }: StandardUserDbData) {
+    const standardDocs = [
+        assign({}, preiserheber, { _id: 'preiserheber', _rev: undefined }),
+        createUserDbIdDoc(),
+        warenkorb,
+        erhebungsmonat,
+        erhebungsorgannummer,
+        { _id: 'db-schema-version', version: P.ExpectedDbSchemaVersion }
+    ];
+
+    return getPmsNummers(preiserheber._id)
+        .flatMap(pmsNummers => getPreismeldestellen(pmsNummers).map(preismeldestellen => ({ pmsNummers, preismeldestellen })))
+        .flatMap(x => getPreismeldungen(x.pmsNummers).map(preismeldungen => [...x.preismeldestellen, ...preismeldungen, ...standardDocs]))
+        .flatMap(data => getDatabaseAsObservable(getUserDatabaseName(preiserheber.username)).flatMap(db => db.bulkDocs({ docs: data } as any)))
+        .mapTo(<string>null)
         .catch(error => Observable.of(getErrorMessage(error)));
 }
 
-/**
- * Update userDb with given preiserheber.
- * Returns null if no error has occured, otherwise returns a string describing the error.
- */
-export function updateUserDb(preiserheber: P.Erheber) {
-    return getDatabaseAsObservable(getUserDatabaseName(preiserheber._id))
-        .flatMap(db => db.bulkDocs({ docs: prepareDocs({ preiserheber }) } as any))
-        .mapTo(null)
+function _fetchStandardUserDbData() {
+    return getDatabaseAsObservable(dbNames.warenkorb)
+        .flatMap(warenkorbDb => warenkorbDb.get('warenkorb').then(doc => ({ warenkorb: clearRev<P.WarenkorbDocument>(doc) })))
+        .flatMap(data => getDatabase(dbNames.preismeldung).then(preismeldungDb => preismeldungDb.get('erhebungsmonat').then(doc => assign(data, { erhebungsmonat: clearRev<P.Erhebungsmonat>(doc) }))))
+        .flatMap(data => getSettings().then(settings => assign(data, { erhebungsorgannummer: { _id: 'erhebungsorgannummer', value: settings.general.erhebungsorgannummer } })));
+}
+
+function createPmsDocsBasedOnZuweisung(preiserheberId: string, currentPreismeldestellenNummern: string[], newPreismeldestellenNummern: string[]) {
+    const toCreate = newPreismeldestellenNummern.filter(n => !currentPreismeldestellenNummern.some(c => c === n));
+    const toRemove = currentPreismeldestellenNummern.filter(c => !newPreismeldestellenNummern.some(n => n === c));
+
+    const preiserheberId$ = getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).publishReplay(1).refCount();
+
+    return getDatabaseAsObservable(dbNames.preismeldestelle)
+        // 'pms/' records to be created or deleted from user db
+        .flatMap(db => getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, toCreate.map(x => `pms/${x}`)))
+        .flatMap(preismeldestellen => getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).flatMap(db => getAllIdRevsForPrefixFromDb(db, 'pms/')).map(existingPmsRecords => ({ preismeldestellen, existingPmsRecords })))
+        .map(x => {
+            const pmsToCreate = toCreate.map(y => x.preismeldestellen.find(z => z.pmsNummer === y)).map(pms => clearRev<P.CouchProperties>(pms));
+            const pmsToRemove = toRemove.map(y => x.existingPmsRecords.find(z => z._id === `pms/${y}`)).map(pms => assign({}, pms, { _deleted: true }));
+            return [...pmsToCreate, ...pmsToRemove];
+        })
+        // 'pm-ref/' records to be created in user db
+        .flatMap(docs => getDatabaseAsObservable(dbNames.preismeldung).map(db => ({ docs, db })))
+        .flatMap(x => !toCreate.length
+            ? Observable.of(x.docs)
+            : Observable.forkJoin(toCreate.map(pmsNummer => Observable.from(getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(x.db, `pm-ref/${pmsNummer}`))))
+                .map(preismeldungenArray => flatten(preismeldungenArray).map(pm => clearRev<P.PreismeldungReference>(pm)))
+                .map(pmRefDocs => [...pmRefDocs, ...x.docs])
+        )
+        // 'pm/' and 'pm-sort' records to be created in user db (sourced from backup db) and deleted from backup db
+        .flatMap(docs => !toCreate.length
+            ? Observable.of({ forUserDb: docs, forBackupDb: [] })
+            : getDatabaseAsObservable(dbNames.backup_erfasste_preismeldungen)
+                .flatMap(db => Observable.forkJoin(
+                    [
+                        ...toCreate.map(pmsNummer => Observable.from(getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, `pm/${pmsNummer}`))),
+                        ...toCreate.map(pmsNummer => Observable.from(getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, `pms-sort/${pmsNummer}`)))
+                    ])
+                    .map(preismeldungenArray => flatten(preismeldungenArray))
+                    .map(pmDocs => ({
+                        forUserDb: [...docs, ...pmDocs.map(pm => clearRev<P.CouchProperties>(pm))],
+                        forBackupDb: pmDocs.map(p => ({ _id: p._id, _rev: p._rev, _deleted: true }))
+                    }))
+                ))
+        // 'pm-ref/' records to be deleted from user db
+        .flatMap(docs => !toRemove.length
+            ? Observable.of(docs)
+            : getDatabaseAsObservable(getUserDatabaseName(preiserheberId))
+                .flatMap(db => Observable.forkJoin(toRemove.map(pmsNummer => Observable.from(getAllIdRevsForPrefixFromDb(db, `pm-ref/${pmsNummer}`))))
+                    .map(preismeldungenArray => flatten(preismeldungenArray).map(pm => assign({}, pm, { _deleted: true })))
+                    .map(pmRefDocs => ({ forUserDb: [...pmRefDocs, ...docs.forUserDb], forBackupDb: docs.forBackupDb }))
+                ))
+        // 'pm' records to be deleted from user db _and_ 'pm' records to be created in backup db
+        .flatMap(docs => !toRemove.length
+            ? Observable.of(docs)
+            : getDatabaseAsObservable(getUserDatabaseName(preiserheberId))
+                .flatMap(db => Observable.forkJoin(
+                    [
+                        ...toRemove.map(pmsNummer => Observable.from(getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, `pm/${pmsNummer}`))),
+                        ...toRemove.map(pmsNummer => Observable.from(getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, `pms-sort/${pmsNummer}`)))
+                    ])
+                    .map(preismeldungenArray => flatten(preismeldungenArray))
+                    .map(preismeldungen => ({
+                        forUserDb: [...docs.forUserDb, ...(preismeldungen.map(p => ({ _id: p._id, _rev: p._rev, _deleted: true })))],
+                        forBackupDb: [...docs.forBackupDb, ...(preismeldungen.map(p => assign(p, { _rev: undefined })))]
+                    }))
+                ));
+}
+
+function assignUndefinedRevIfNotInList(doc: P.CouchProperties, list: P.CouchProperties[]) {
+    const item = list.find(i => i._id === doc._id);
+    const _rev = !!item ? item._rev : undefined;
+    return assign({}, doc, { _rev });
+}
+
+export function updateUserAndZuweisungDb(preiserheber: P.Erheber, currentPrieszuweisung: P.Preiszuweisung) {
+    return updateZuweisung(preiserheber._id, currentPrieszuweisung.preismeldestellenNummern)
+        .flatMap(() => getDatabaseAsObservable(getUserDatabaseName(preiserheber._id)))
+        .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/').then(preismeldestellen => ({ db, preismeldestellen })))
+        .flatMap(x => createPmsDocsBasedOnZuweisung(preiserheber._id, x.preismeldestellen.map(p => p.pmsNummer), currentPrieszuweisung.preismeldestellenNummern).map(docs => assign(x, { docs })))
+        .flatMap(x => x.db.bulkDocs(x.docs.forUserDb).then(() => x.docs.forBackupDb))
+        .flatMap(docsForBackupDb => getDatabaseAsObservable(dbNames.backup_erfasste_preismeldungen).flatMap(db => db.bulkDocs(docsForBackupDb)))
+        .mapTo(<string>null)
         .catch(error => Observable.of(getErrorMessage(error)));
+}
+
+function updateZuweisung(preiserheberId: string, preismeldestellenNummern: string[]) {
+    return getDatabaseAsObservable(dbNames.preiszuweisung)
+        .flatMap(db => db.get(preiserheberId).catch(() => ({ _id: preiserheberId, preiserheberId })).then(preiszuweisung => ({ preiszuweisung, db })))
+        .flatMap(({ preiszuweisung, db }) => db.put(assign(preiszuweisung, { preismeldestellenNummern })));
 }
 
 function getErrorMessage(error: { name: string, message: string, stack: string }) {
     return error.message;
 }
 
-function prepareDocs(docs: Partial<UserDbStructure>) {
-    const payload: any[] = [assign({}, docs.preiserheber, { _id: 'preiserheber' }), ...(docs.preismeldestellen || []), ...(docs.preismeldungen || []), createUserDbIdDoc()]
-    if (!!docs.warenkorb) {
-        payload.push(docs.warenkorb);
-    }
-    if (!!docs.dbSchemaVersion) {
-        payload.push(docs.dbSchemaVersion)
-    }
-    if (!!docs.erhebungsmonat) {
-        payload.push(docs.erhebungsmonat);
-    }
-    if (!!docs.erhebungsorgannummer) {
-        payload.push(docs.erhebungsorgannummer);
-    }
-    return payload;
-}
-
 function getPreismeldestellen(pmsNummers: string[]) {
     return getDatabaseAsObservable(dbNames.preismeldestelle)
-        .flatMap(db => getAllDocumentsForKeysFromDb(db, pmsNummers.map(x => `pms/${x}`)));
+        .flatMap(db => getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, pmsNummers.map(x => `pms/${x}`)))
+        .map(preismeldestellen => preismeldestellen.map(pm => clearRev<P.Preismeldestelle>(pm)));
 }
 
 function getPreismeldungen(pmsNummers: string[]) {
     return getDatabaseAsObservable(dbNames.preismeldung)
-        .flatMap(db =>
-            Observable.from(pmsNummers.map(pmsNummer => getAllDocumentsForPrefixFromDb(db, `pm-ref/${pmsNummer}`) as Promise<P.Preismeldung[]>))
-                .combineAll<Promise<P.Preismeldung[]>, P.Preismeldung[][]>()
-                .map(preismeldungenArray => flatten(preismeldungenArray).map(pm => clearRev<P.PreismeldungReference>(pm)))
-        );
+        .flatMap(db => !pmsNummers.length ? Observable.of([]) : Observable.forkJoin(pmsNummers.map(pmsNummer => Observable.from(getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, `pm-ref/${pmsNummer}`)))))
+        .map(preismeldungenArray => flatten(preismeldungenArray).map(pm => clearRev<P.PreismeldungReference>(pm)));
 }
 
 function getPmsNummers(preiserheberId: string) {
-    return getDatabase(dbNames.preiszuweisung).then(preiszuweisungDb => getDocumentByKeyFromDb<P.Preiszuweisung>(preiszuweisungDb, preiserheberId))
-        .then(preiszuweisung => preiszuweisung.preismeldestellenNummern)
-        .catch(() => [])
+    return getDatabaseAsObservable(dbNames.preiszuweisung)
+        .flatMap(preiszuweisungDb => getDocumentByKeyFromDb<P.Preiszuweisung>(preiszuweisungDb, preiserheberId).catch(() => ({ preismeldestellenNummern: <string[]>[] })))
+        .map(preiszuweisung => preiszuweisung.preismeldestellenNummern)
 }
 
 function createUserDbIdDoc() {

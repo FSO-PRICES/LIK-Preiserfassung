@@ -176,6 +176,8 @@ export interface PercentageWithWarning {
 
 export type PreismeldungProperties = PreismeldungUri & _PreismeldungProperties;
 
+export type DbErhebungsorgannummerProperties = { value: string };
+
 export interface CouchProperties {
     _id: string;
     _rev: string;
@@ -183,7 +185,7 @@ export interface CouchProperties {
 
 export const ExpectedDbSchemaVersion = 2;
 
-export type DbErhebungsorgannummer = { value: string } & CouchProperties;
+export type DbErhebungsorgannummer = DbErhebungsorgannummerProperties & CouchProperties;
 export type DbSchemaVersion = { version: number } & CouchProperties;
 export type Erhebungsmonat = ErhebungsmonatProperties & CouchProperties;
 export type Preismeldestelle = PreismeldestelleProperties & CouchProperties;
@@ -196,6 +198,7 @@ export type PmsToPeMap = { erheber: Erheber, preismeldestellen: Preismeldestelle
 
 export interface PropertyTranslation {
     de: string;
+    en: string;
     fr: string;
     it: string;
 }

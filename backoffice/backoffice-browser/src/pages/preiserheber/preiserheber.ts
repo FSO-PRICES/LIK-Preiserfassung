@@ -138,11 +138,11 @@ export class PreiserheberPage implements OnDestroy {
                 .flatMap(password => this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', dismissLoadingScreen$).map(() => password))
                 .subscribe(password => store.dispatch({ type: 'SAVE_PREISERHEBER', payload: password } as PreiserheberAction)),
 
-            this.savePreiserheber$
-                .withLatestFrom(this.currentPreiszuweisung$, (_, currentPreiszuweisung) => currentPreiszuweisung)
-                .filter(currentPreiszuweisung => currentPreiszuweisung.isModified)
-                .withLatestFrom(this.currentPreiserheber$, (_, current) => current)
-                .subscribe(current => store.dispatch({ type: 'SAVE_PREISZUWEISUNG', payload: current._id } as PreiszuweisungAction)),
+            // this.savePreiserheber$
+            //     .withLatestFrom(this.currentPreiszuweisung$, (_, currentPreiszuweisung) => currentPreiszuweisung)
+            //     .filter(currentPreiszuweisung => currentPreiszuweisung.isModified)
+            //     .withLatestFrom(this.currentPreiserheber$, (_, current) => current)
+            //     .subscribe(current => store.dispatch({ type: 'SAVE_PREISZUWEISUNG', payload: current._id } as PreiszuweisungAction)),
 
             this.deletePreiserheber$
                 .withLatestFrom(this.currentPreiserheber$, (_, currentPreiserheber) => currentPreiserheber)

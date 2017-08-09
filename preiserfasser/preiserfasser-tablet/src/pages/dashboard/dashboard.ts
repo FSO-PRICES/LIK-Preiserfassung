@@ -163,6 +163,7 @@ export class DashboardPage implements OnDestroy {
                     this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
                     this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
                     this.store.dispatch({ type: 'LOAD_WARENKORB' });
+                    this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction);
                 }),
 
             canConnectToDatabase$.skip(1)

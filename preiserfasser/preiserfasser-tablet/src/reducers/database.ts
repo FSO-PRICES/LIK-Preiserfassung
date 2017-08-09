@@ -30,7 +30,7 @@ export function reducer(state = initialState, action: database.Actions): State {
             return Object.assign({}, state, { canConnectToDatabase: action.payload });
 
         case 'SET_DATABASE_IS_SYNCING':
-            return Object.assign({}, state, { isDatabaseSyncing: true });
+            return Object.assign({}, state, { isDatabaseSyncing: true, syncError: null });
 
         case 'SYNC_DATABASE_FAILURE':
             return Object.assign({}, state, { isDatabaseSyncing: false, syncError: action.payload });

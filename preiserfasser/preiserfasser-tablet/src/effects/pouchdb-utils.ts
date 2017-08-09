@@ -4,8 +4,9 @@ import * as pouchDbAuthentication from 'pouchdb-authentication';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { assign } from 'lodash';
+import { format } from 'date-fns';
 
-import { Models as P } from 'lik-shared';
+import { Models as P, parseDate } from 'lik-shared';
 
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
@@ -85,27 +86,54 @@ export function syncDatabase(data: { url: string, username: string }) {
     return _syncDatabase(data.url, data.username, { push: true, pull: true });
 }
 
-function _syncDatabase(url: string, username: string, params: { push: boolean, pull: boolean }): Observable<PouchDB.Replication.SyncResultComplete<{}>> {
+function _syncDatabase(url: string, username: string, params: { push: boolean, pull: boolean }): Observable<{ didSync: boolean, info: PouchDB.Replication.SyncResultComplete<{}> }> {
     return getDatabaseAsObservable()
         .flatMap(pouch => {
             const couch = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<{}>;
             return getDocumentByKeyFromDb(pouch, 'user-db-id').catch(() => ({ value: 'pouchUserDbId-not-found' }))
-                .then((pouchDoc: any) => getDocumentByKeyFromDb(couch, 'user-db-id').catch(() => ({ value: 'couchUserDbId-not-found' })).then((couchDoc: any) => ({ couchUserDbId: couchDoc.value, pouchUserDbId: pouchDoc.value, pouch, couch })));
+                .then((pouchDoc: any) => getDocumentByKeyFromDb(couch, 'user-db-id').catch(() => ({ value: 'couchUserDbId-not-found' })).then((couchDoc: any) => ({ couchUserDbId: couchDoc.value, pouchUserDbId: pouchDoc.value, pouch, couch })))
+                .then(x => getDocumentByKeyFromDb<{ monthAsString: string }>(pouch, 'erhebungsmonat').catch(() => ({ monthAsString: null })).then(({ monthAsString }) => assign(x, { pouchErhebungsmonat: monthAsString })))
+                .then(x => getDocumentByKeyFromDb<{ monthAsString: string }>(couch, 'erhebungsmonat').catch(() => ({ monthAsString: null })).then(({ monthAsString }) => assign(x, { couchErhebungsmonat: monthAsString })))
+                .then(x => getDocumentByKeyFromDb<{ username: string }>(pouch, 'preiserheber').catch(() => ({ username: null })).then(({ username }) => assign(x, { username })))
         })
-        .flatMap(({ pouchUserDbId, couchUserDbId, pouch, couch }) => {
-            if (!(!params.push || pouchUserDbId === couchUserDbId || pouchUserDbId === 'pouchUserDbId-not-found')) {
-                return Observable.of({});
+        .flatMap(({ pouchUserDbId, couchUserDbId, pouch, couch, pouchErhebungsmonat, couchErhebungsmonat, username }) => {
+            if (couchErhebungsmonat !== pouchErhebungsmonat) {
+                if (!pouchErhebungsmonat) {
+                    return Observable.from(pouch.destroy())
+                        .flatMap(() => getDatabaseAsObservable())
+                        .map(newPouch => ({ doSync: true, couch, pouch: newPouch }));
+                }
+                return backupDatabase(pouch, `lik_${pouchErhebungsmonat}_${format(new Date(), 'YYYYMMDDTHHmmss')}`)
+                    .flatMap(() => Observable.from(pouch.destroy()))
+                    .flatMap(() => getDatabaseAsObservable())
+                    .map(newPouch => ({ doSync: true, couch, pouch: newPouch }));
+            }
+            if (pouchUserDbId === couchUserDbId || pouchUserDbId === 'pouchUserDbId-not-found') {
+                return Observable.of({ doSync: true, pouch, couch });
+            }
+            return Observable.of({ doSync: false, couch: null, pouch: null });
+        })
+        .flatMap(({ doSync, couch, pouch }) => {
+            if (!doSync) {
+                return Observable.of({ didSync: false, info: null });
             }
             const sync = pouch.sync(couch, { push: params.push, pull: params.pull, batch_size: 1000 });
 
-            return Observable.create((observer: Observer<PouchDB.Replication.SyncResultComplete<{}>>) => {
+            return Observable.create((observer: Observer<{ didSync: boolean, info: PouchDB.Replication.SyncResultComplete<{}> }>) => {
                 sync.on('complete', (info) => {
-                    observer.next(info);
+                    observer.next({ didSync: true, info });
                     observer.complete();
                 });
                 sync.on('error', (error) => observer.error(error));
             });
         });
+}
+
+function backupDatabase(db: PouchDB.Database<{}>, newDatabaseName) {
+    return Observable.create((observer: Observer<{}>) => {
+        db.replicate.to(new PouchDB(newDatabaseName)).on('complete', () => { observer.next(null); observer.complete(); });
+    })
+
 }
 
 export function getLoggedInUser(url: string, username: string) {
