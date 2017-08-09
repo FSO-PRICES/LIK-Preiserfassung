@@ -1,9 +1,10 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable, Observer } from 'rxjs';
 import { assign, flatten, some } from 'lodash';
+import * as moment from 'moment';
 
 import { Models as P } from 'lik-shared';
 
-import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefix, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb, getSettings, getAllDocumentsFromDb, getAllIdRevsForPrefixFromDb } from '../effects/pouchdb-utils';
+import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefix, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb, getSettings, getAllDocumentsFromDb, getAllIdRevsForPrefixFromDb, listAllDatabases } from '../effects/pouchdb-utils';
 
 export interface UserDbStructure {
     preiserheber: P.Erheber;
@@ -16,9 +17,16 @@ export interface UserDbStructure {
 }
 
 export function createUserDbs(preiserheberIds: string[]) {
-    return _fetchStandardUserDbData()
+    return backupAndDeleteAllMonthDatabases()
+        .flatMap(() => _fetchStandardUserDbData())
         .flatMap(data => getDatabase(dbNames.preiserheber).then(db => getAllDocumentsFromDb<P.Erheber>(db).then(preiserhebers => ({ data, preiserhebers }))))
         .flatMap(x => Observable.from(x.preiserhebers).flatMap(preiserheber => _createUserDb(assign({}, x.data, { preiserheber }))))
+}
+
+function backupAndDeleteAllMonthDatabases() {
+    return listAllDatabases()
+        .map(dbs => dbs.filter(db => db.startsWith('user_') || db === dbNames.orphaned_erfasste_preismeldungen))
+        .flatMap(dbs => dbs.length === 0 ? Observable.of({}) : Observable.forkJoin(dbs.map(dbName => backupAndDeleteDatabase(dbName, `backup_${dbName}_${moment().format('YYYYMMDDhhmmss')}`))));
 }
 
 export function createUserDb(preiserheber: P.Erheber) {
@@ -80,7 +88,7 @@ function createPmsDocsBasedOnZuweisung(preiserheberId: string, currentPreismelde
         // 'pm/' and 'pm-sort' records to be created in user db (sourced from backup db) and deleted from backup db
         .flatMap(docs => !toCreate.length
             ? Observable.of({ forUserDb: docs, forBackupDb: [] })
-            : getDatabaseAsObservable(dbNames.backup_erfasste_preismeldungen)
+            : getDatabaseAsObservable(dbNames.orphaned_erfasste_preismeldungen)
                 .flatMap(db => Observable.forkJoin(
                     [
                         ...toCreate.map(pmsNummer => Observable.from(getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, `pm/${pmsNummer}`))),
@@ -129,7 +137,7 @@ export function updateUserAndZuweisungDb(preiserheber: P.Erheber, currentPrieszu
         .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/').then(preismeldestellen => ({ db, preismeldestellen })))
         .flatMap(x => createPmsDocsBasedOnZuweisung(preiserheber._id, x.preismeldestellen.map(p => p.pmsNummer), currentPrieszuweisung.preismeldestellenNummern).map(docs => assign(x, { docs })))
         .flatMap(x => x.db.bulkDocs(x.docs.forUserDb).then(() => x.docs.forBackupDb))
-        .flatMap(docsForBackupDb => getDatabaseAsObservable(dbNames.backup_erfasste_preismeldungen).flatMap(db => db.bulkDocs(docsForBackupDb)))
+        .flatMap(docsForBackupDb => getDatabaseAsObservable(dbNames.orphaned_erfasste_preismeldungen).flatMap(db => db.bulkDocs(docsForBackupDb)))
         .mapTo(<string>null)
         .catch(error => Observable.of(getErrorMessage(error)));
 }
@@ -160,6 +168,15 @@ function getPmsNummers(preiserheberId: string) {
     return getDatabaseAsObservable(dbNames.preiszuweisung)
         .flatMap(preiszuweisungDb => getDocumentByKeyFromDb<P.Preiszuweisung>(preiszuweisungDb, preiserheberId).catch(() => ({ preismeldestellenNummern: <string[]>[] })))
         .map(preiszuweisung => preiszuweisung.preismeldestellenNummern)
+}
+
+function backupAndDeleteDatabase(oldDatabaseName, newDatabaseName) {
+    return getDatabaseAsObservable(oldDatabaseName)
+        .flatMap(oldDb => getDatabaseAsObservable(newDatabaseName).map(newDb => ({ oldDb, newDb })))
+        .flatMap(x => Observable.create((observer: Observer<{}>) => {
+            x.oldDb.replicate.to(x.newDb).on('complete', () => { observer.next(x.oldDb); observer.complete(); });
+        }))
+        .flatMap((oldDb: any) => oldDb.destroy())
 }
 
 function createUserDbIdDoc() {

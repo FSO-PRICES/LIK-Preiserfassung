@@ -18,7 +18,7 @@ export const dbNames = {
     preismeldestelle: 'preismeldestellen',
     region: 'regionen',
     preiszuweisung: 'preiszuweisungen',
-    backup_erfasste_preismeldungen: 'backup_erfasste_preismeldungen',
+    orphaned_erfasste_preismeldungen: 'orphaned_erfasste_preismeldungen',
     preismeldung: 'preismeldungen',
     setting: 'settings',
     import: 'imports'
@@ -179,7 +179,7 @@ export function checkServerConnection() {
         }));
 }
 
-export function listUserDatabases() {
+export function listAllDatabases() {
     return Observable.fromPromise(getSettings())
         .flatMap(settings => Observable
             .ajax({
@@ -190,8 +190,12 @@ export function listUserDatabases() {
                 responseType: 'json',
                 method: 'GET'
             }).map(x => x.response as string[])
-            .catch((error) => Observable.of([]))
-        )
+            .catch((error) => Observable.of(<string[]>[]))
+        );
+}
+
+export function listUserDatabases() {
+    return listAllDatabases()
         .map((dbs: string[]) => dbs.filter(n => n.startsWith('user_')));
 }
 
