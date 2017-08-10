@@ -4,10 +4,10 @@ import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../common-models';
 
 @Component({
-    selector: 'status-report-detail',
-    templateUrl: 'status-report-detail.html'
+    selector: 'cockpit-report-detail',
+    templateUrl: 'cockpit-report-detail.html'
 })
-export class StatusReportDetailComponent extends ReactiveComponent implements OnChanges {
+export class CockpitReportDetailComponent extends ReactiveComponent implements OnChanges {
     @Input() preiserheber: P.CockpitPreiserheberSummary;
     @Input() erhebungsZeitpunktKey: string;
 

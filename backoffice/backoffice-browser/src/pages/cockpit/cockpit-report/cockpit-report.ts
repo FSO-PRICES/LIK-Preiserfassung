@@ -9,10 +9,10 @@ import * as P from '../../../common-models';
 import { PefVirtualScrollComponent } from 'lik-shared';
 
 @Component({
-    selector: 'status-report',
-    templateUrl: 'status-report.html'
+    selector: 'cockpit-report',
+    templateUrl: 'cockpit-report.html'
 })
-export class StatusReportComponent extends ReactiveComponent implements OnChanges, OnInit {
+export class CockpitReportComponent extends ReactiveComponent implements OnChanges, OnInit {
     @Input('report-executing') reportExecuting: boolean;
     @Input('cockpit-report-data') cockpitReportData: P.CockpitReportData;
     @Output('load-data') loadData$ = new EventEmitter();

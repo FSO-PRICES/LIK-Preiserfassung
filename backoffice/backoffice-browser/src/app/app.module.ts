@@ -11,13 +11,13 @@ import { Backoffice } from './app.component';
 import { PefMenuModule } from '../components/pef-menu';
 import { PefDialogLoginModule, PefDialogLoginComponent } from '../components/pef-dialog-login';
 
+import { CockpitModule } from '../pages/cockpit';
 import { ExportToPrestaModule } from '../pages/export-to-presta';
 import { ImportModule } from '../pages/import';
 import { PreiserheberModule } from '../pages/preiserheber';
 import { PreismeldestelleModule } from '../pages/preismeldestelle';
 import { PreismeldungModule } from '../pages/preismeldung';
 import { SettingsModule } from '../pages/settings';
-import { StatusModule } from '../pages/status';
 
 import { PouchService } from '../services/PouchService';
 
@@ -40,7 +40,7 @@ import { reducer } from '../reducers';
         PreismeldestelleModule,
         PreismeldungModule,
         SettingsModule,
-        StatusModule,
+        CockpitModule,
         StoreModule.provideStore(reducer),
         ...BO_EFFECTS
     ],

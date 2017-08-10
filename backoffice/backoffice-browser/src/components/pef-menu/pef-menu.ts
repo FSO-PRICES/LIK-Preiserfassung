@@ -11,7 +11,7 @@ import * as fromRoot from '../../reducers';
 })
 export class PefMenuComponent {
     public pages = [
-        { page: 'StatusPage', name: 'Status' },
+        { page: 'CockpitPage', name: 'Status' },
         { page: 'ImportPage', name: 'Import' },
         { page: 'PreismeldestellePage', name: 'PMS' },
         { page: 'PreiserheberPage', name: 'Preiserheber' },

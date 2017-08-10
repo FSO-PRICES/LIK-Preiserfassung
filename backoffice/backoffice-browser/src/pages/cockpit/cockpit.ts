@@ -6,13 +6,13 @@ import * as fromRoot from '../../reducers';
 import { Observable } from 'rxjs';
 
 @IonicPage({
-    segment: 'status'
+    segment: 'cockpit'
 })
 @Component({
-    selector: 'status-page',
-    templateUrl: 'status.html'
+    selector: 'cockpit-page',
+    templateUrl: 'cockpit.html'
 })
-export class StatusPage implements OnDestroy {
+export class CockpitPage implements OnDestroy {
     public reportExecuting$: Observable<boolean>;
     public loadData$ = new EventEmitter();
     public cockpitReportData$ = this.store.select(fromRoot.getCockpitState);

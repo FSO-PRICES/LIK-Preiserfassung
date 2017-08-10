@@ -2,25 +2,25 @@ import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
 import { VirtualScrollModule } from 'angular2-virtual-scroll';
 
-import { StatusPage } from './status';
-import { StatusReportComponent } from './status-report/status-report';
-import { StatusReportDetailComponent } from './status-report-detail/status-report-detail';
+import { CockpitPage } from './cockpit';
+import { CockpitReportComponent } from './cockpit-report/cockpit-report';
+import { CockpitReportDetailComponent } from './cockpit-report-detail/cockpit-report-detail';
 
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 import { PefComponentsModule } from 'lik-shared';
 
 @NgModule({
     declarations: [
-        StatusPage,
-        StatusReportComponent,
-        StatusReportDetailComponent
+        CockpitPage,
+        CockpitReportComponent,
+        CockpitReportDetailComponent
     ],
     imports: [
-        IonicPageModule.forChild(StatusPage),
+        IonicPageModule.forChild(CockpitPage),
         PefComponentsModule,
         PefMenuModule,
         VirtualScrollModule
     ],
 })
-export class StatusModule {
+export class CockpitModule {
 }

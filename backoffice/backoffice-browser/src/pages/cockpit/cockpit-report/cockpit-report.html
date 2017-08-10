@@ -6,7 +6,7 @@
             <div class="pef-item item item-block item-md item-label-stacked item-input">
                 <div class="item-inner">
                     <div class="input-wrapper">
-                        <ion-label stacked>Sprache</ion-label>
+                        <ion-label stacked>Erhebungszeitpunkt</ion-label>
                         <div class="input input-md pef-select">
                             <select formControlName="erhebungsZeitpunkt">
                                 <option value="indifferent">Indifferent</option>
@@ -67,6 +67,6 @@
     </div>
 
     <div class="container">
-        <status-report-detail [preiserheber]="selectedPreiserheber$ | async" [erhebungsZeitpunktKey]="form.value.erhebungsZeitpunkt"></status-report-detail>
+        <cockpit-report-detail [preiserheber]="selectedPreiserheber$ | async" [erhebungsZeitpunktKey]="form.value.erhebungsZeitpunkt"></cockpit-report-detail>
     </div>
 </div>
