@@ -60,7 +60,7 @@ export function updatePreiserheber(preiserheber: P.Erheber) {
         .flatMap(({ db, updatedPreiserheber }) => db.put(updatedPreiserheber));
 }
 
-function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>(prefix: string) {
+export function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>(prefix: string): Observable<T[]> {
     return listUserDatabases()
         .flatMap(dbnames => Observable.from(dbnames)
             .flatMap(dbname => getDatabaseAsObservable(dbname))

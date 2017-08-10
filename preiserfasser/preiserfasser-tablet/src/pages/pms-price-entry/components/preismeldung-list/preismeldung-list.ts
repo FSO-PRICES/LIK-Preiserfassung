@@ -3,7 +3,7 @@ import { Content } from 'ionic-angular';
 import { Observable } from 'rxjs';
 import { isBefore, isAfter, addDays, subMilliseconds } from 'date-fns';
 
-import { ReactiveComponent, formatPercentageChange, pefSearch, PefVirtualScrollComponent } from 'lik-shared';
+import { ReactiveComponent, formatPercentageChange, pefSearch, PefVirtualScrollComponent, parseDate } from 'lik-shared';
 
 import * as P from '../../../../common-models';
 
@@ -173,17 +173,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         return P.Models.bearbeitungscodeDescriptions[bearbeitungscode];
     }
 
-    dateRegex = /(\d+)\.(\d+)\.(\d+)/;
-    parseDate(s: string) {
-        const parsed = this.dateRegex.exec(s);
-        if (!parsed) return null;
-        return new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
-    }
-
     calcStichtagStatus(bag: P.PreismeldungBag, currentTime: Date) {
         if (!bag.refPreismeldung) return null;
-        const erhebungsAnfangsDatum = this.parseDate(bag.refPreismeldung.erhebungsAnfangsDatum);
-        const erhebungsEndDatum = this.parseDate(bag.refPreismeldung.erhebungsEndDatum);
+        const erhebungsAnfangsDatum = parseDate(bag.refPreismeldung.erhebungsAnfangsDatum);
+        const erhebungsEndDatum = parseDate(bag.refPreismeldung.erhebungsEndDatum);
         if (isBefore(currentTime, erhebungsAnfangsDatum)) return 'gray';
         if (isAfter(currentTime, erhebungsAnfangsDatum) && isBefore(currentTime, subMilliseconds(erhebungsEndDatum, 1))) return 'green';
         if (isAfter(currentTime, erhebungsEndDatum) && isBefore(currentTime, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))) return 'orange';

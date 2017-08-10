@@ -6,6 +6,7 @@ import { storeLogger } from 'ngrx-store-logger';
 
 import { environment } from '../environments/environment';
 import * as fromCockpit from './cockpit';
+import * as fromControlling from './controlling';
 import * as fromError from './error';
 import * as fromExporter from './exporter';
 import * as fromImporter from './importer';
@@ -19,6 +20,7 @@ import * as fromSetting from './setting';
 
 export interface AppState {
     cockpit: fromCockpit.State;
+    controlling: fromControlling.State;
     errors: fromError.State;
     exporter: fromExporter.State;
     importer: fromImporter.State;
@@ -33,6 +35,7 @@ export interface AppState {
 
 const reducers = {
     cockpit: fromCockpit.reducer,
+    controlling: fromControlling.reducer,
     errors: fromError.reducer,
     exporter: fromExporter.reducer,
     importer: fromImporter.reducer,
@@ -55,6 +58,10 @@ export function reducer(state: AppState, action: any): AppState {
         return developmentReducer(state, action);
     }
 }
+
+export const getControllingState = (state: AppState) => state.controlling;
+export const getStichtagPreismeldungenUpdated = createSelector(getControllingState, fromControlling.getStichtagPreismeldungenUpdated);
+
 
 export const getPreiserheberState = (state: AppState) => state.preiserhebers;
 export const getPreiserhebers = createSelector(getPreiserheberState, fromPreiserheber.getAll);

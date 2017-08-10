@@ -98,6 +98,11 @@ export function getAllIdRevsForPrefixFromDb(db: PouchDB.Database<{}>, prefix: st
     return db.allDocs(getAllDocumentsForPrefix(prefix)).then(x => x.rows.map(row => ({ _id: row.id, _rev: row.value.rev })));
 }
 
+export function getAllDocumentsForPrefixFromDbName<T extends P.CouchProperties>(dbName: string, prefix: string): Observable<T[]> {
+    return getDatabaseAsObservable(dbName)
+        .flatMap(db => getAllDocumentsForPrefixFromDb<T>(db, prefix));
+}
+
 export function getAllDocumentsForKeysFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, keys: string[]): Promise<T[]> {
     return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }

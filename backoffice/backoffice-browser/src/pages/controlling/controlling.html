@@ -1,6 +1,7 @@
 <header pef-menu></header>
 <div class="page-wrapper">
     <ion-content class="page-content">
-        <h3>TODO</h3>
+        <button type="button" class="load-data" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Stichtage für neue Preisreihen ergänzen</button>
+        <div *ngIf="(numStichtagPreismeldungenUpdated$ | async) != null"><br/>{{ (numStichtagPreismeldungenUpdated$ | async) }} Preisreihen wurden ergänzt.</div>
     </ion-content>
 </div>
