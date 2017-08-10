@@ -16,7 +16,7 @@ export class PefMenuComponent {
         { page: 'PreismeldestellePage', name: 'PMS' },
         { page: 'PreiserheberPage', name: 'Preiserheber' },
         { page: 'PreismeldungPage', name: 'Preise' },
-        { page: null, name: 'Controlling' },
+        { page: 'ControllingPage', name: 'Controlling' },
         { page: null, name: 'Reporting' },
         { page: 'ExportToPrestaPage', name: 'Export' }
     ];

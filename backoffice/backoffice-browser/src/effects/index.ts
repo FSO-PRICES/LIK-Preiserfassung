@@ -1,6 +1,7 @@
 import { EffectsModule } from '@ngrx/effects';
 
 import { CockpitEffects } from './cockpit';
+import { ControllingEffects } from './controlling';
 import { ExporterEffects } from './exporter';
 import { ImporterEffects } from './importer';
 import { LoginEffects } from './login';
@@ -12,6 +13,7 @@ import { SettingEffects } from './setting';
 
 export const BO_EFFECTS = [
     EffectsModule.run(CockpitEffects),
+    EffectsModule.run(ControllingEffects),
     EffectsModule.run(ExporterEffects),
     EffectsModule.run(ImporterEffects),
     EffectsModule.run(LoginEffects),

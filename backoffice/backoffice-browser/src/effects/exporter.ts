@@ -13,6 +13,7 @@ import { toCsv } from '../common/file-extensions';
 import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
 import { loadAllPreismeldestellen, loadAllPreismeldungen, loadAllPreiserheber } from '../common/user-db-values';
+import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
 import { createEnvelope, MessageTypes } from '../common/envelope-extensions';
 import { Observable } from 'rxjs/Observable';
 
@@ -87,7 +88,8 @@ export class ExporterEffects {
     @Effect()
     exportPreiserheber$ = this.actions$.ofType('EXPORT_PREISERHEBER')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(({ payload }) => loadAllPreiserheber()
+        .flatMap(({ payload }) => copyUserDbErheberDetailsToPreiserheberDb().map(() => payload))
+        .flatMap(payload => loadAllPreiserheber()
             .flatMap(preiserheber => {
                 if (preiserheber.length === 0) throw new Error('Keine preiserheber erfasst.');
                 return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
