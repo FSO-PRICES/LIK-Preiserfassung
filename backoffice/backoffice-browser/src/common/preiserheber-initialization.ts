@@ -2,7 +2,7 @@ import { Observable, Observer } from 'rxjs';
 import { assign, flatten, some } from 'lodash';
 import * as moment from 'moment';
 
-import { Models as P } from 'lik-shared';
+import { Models as P, allPropertiesExeceptIdAndRev } from 'lik-shared';
 
 import { dropDatabase, getDatabase, putUserToDatabase, dbNames, getUserDatabaseName, getAllDocumentsForPrefix, getAllDocumentsForPrefixFromDb, clearRev, getDatabaseAsObservable, getAllDocumentsForKeysFromDb, getDocumentByKeyFromDb, getSettings, getAllDocumentsFromDb, getAllIdRevsForPrefixFromDb, listAllDatabases } from '../effects/pouchdb-utils';
 
@@ -136,7 +136,8 @@ export function updateUserAndZuweisungDb(preiserheber: P.Erheber, currentPrieszu
         .flatMap(() => getDatabaseAsObservable(getUserDatabaseName(preiserheber._id)))
         .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/').then(preismeldestellen => ({ db, preismeldestellen })))
         .flatMap(x => createPmsDocsBasedOnZuweisung(preiserheber._id, x.preismeldestellen.map(p => p.pmsNummer), currentPrieszuweisung.preismeldestellenNummern).map(docs => assign(x, { docs })))
-        .flatMap(x => x.db.bulkDocs(x.docs.forUserDb).then(() => x.docs.forBackupDb))
+        .flatMap(x => x.db.get('preiserheber').then(doc => assign(x, { preiserheber: assign({}, doc, allPropertiesExeceptIdAndRev(preiserheber)) })))
+        .flatMap(x => x.db.bulkDocs([...x.docs.forUserDb, x.preiserheber]).then(() => x.docs.forBackupDb))
         .flatMap(docsForBackupDb => getDatabaseAsObservable(dbNames.orphaned_erfasste_preismeldungen).flatMap(db => db.bulkDocs(docsForBackupDb)))
         .mapTo(<string>null)
         .catch(error => Observable.of(getErrorMessage(error)));
