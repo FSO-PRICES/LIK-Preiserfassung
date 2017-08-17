@@ -52,8 +52,6 @@
     },
     "devDependencies": {
         "@ionic/app-scripts": "2.0.1",
-        "@ionic/cli-plugin-cordova": "1.6.2",
-        "@ionic/cli-plugin-ionic-angular": "1.4.1",
         "@types/bluebird": "^3.0.37",
         "@types/jasmine": "ts2.0",
         "@types/lodash": "^4.14.64",
@@ -61,7 +59,7 @@
         "@types/pouchdb": "6.1.1",
         "codecov": "^2.1.0",
         "codelyzer": "^3.0.1",
-        "ionic": "3.7.0",
+        "ionic": "3.9.1",
         "jasmine-core": "^2.5.2",
         "jasmine-spec-reporter": "^3.2.0",
         "karma": "^1.5.0",
