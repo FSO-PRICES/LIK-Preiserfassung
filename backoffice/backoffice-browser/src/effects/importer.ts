@@ -88,7 +88,7 @@ export class ImporterEffects {
     @Effect()
     loadLatestImportedAt$ = this.actions$.ofType('LOAD_LATEST_IMPORTED_AT')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => getDatabase(dbNames.import).then(db => db.allDocs({ include_docs: true }).then(result => result.rows.map(row => row.doc))))
+        .flatMap(() => getDatabase(dbNames.import).then(db => db.allDocs({ include_docs: true }).then(result => result.rows.map(row => row.doc as P.LastImportAt))))
         .map(latestImportedAtList => ({ type: 'LOAD_LATEST_IMPORTED_AT_SUCCESS', payload: latestImportedAtList } as importer.Action));
 
     @Effect()

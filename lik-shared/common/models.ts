@@ -343,3 +343,9 @@ export interface Erhebungsart {
     erhebungsart_papierlisteVorOrt: boolean,
     erhebungsart_papierlisteAbgegeben: boolean
 }
+
+export interface LastImportAtProperties {
+    latestImportAt: number;
+}
+
+export type LastImportAt = LastImportAtProperties & CouchProperties;
