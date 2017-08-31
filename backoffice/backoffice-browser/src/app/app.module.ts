@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { PefDialogService, PefComponentsModule } from 'lik-shared';
 
@@ -23,6 +24,7 @@ import { PouchService } from '../services/PouchService';
 
 import { BO_EFFECTS } from '../effects';
 import { reducer } from '../reducers';
+import { PefMessageDialogService, PefLanguageService } from 'lik-shared';
 
 @NgModule({
     declarations: [
@@ -42,6 +44,7 @@ import { reducer } from '../reducers';
         SettingsModule,
         CockpitModule,
         StoreModule.provideStore(reducer),
+        TranslateModule.forRoot(),
         ...BO_EFFECTS
     ],
     bootstrap: [IonicApp],
@@ -53,6 +56,8 @@ import { reducer } from '../reducers';
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         { provide: LOCALE_ID, useValue: 'de-CH' },
         PefDialogService,
+        PefLanguageService,
+        PefMessageDialogService,
         PouchService,
         StatusBar,
         SplashScreen,

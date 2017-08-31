@@ -17,6 +17,7 @@ import * as fromPreismeldestelle from './preismeldestelle';
 import * as fromPreismeldung from './preismeldung';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
+import * as fromWarenkorb from './warenkorb';
 
 export interface AppState {
     cockpit: fromCockpit.State;
@@ -31,6 +32,7 @@ export interface AppState {
     preismeldungen: fromPreismeldung.State;
     preiszuweisungen: fromPreiszuweisung.State;
     settings: fromSetting.State;
+    warenkorb: fromWarenkorb.State;
 }
 
 const reducers = {
@@ -46,6 +48,7 @@ const reducers = {
     preismeldungen: fromPreismeldung.reducer,
     preiszuweisungen: fromPreiszuweisung.reducer,
     settings: fromSetting.reducer,
+    warenkorb: fromWarenkorb.reducer
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -87,8 +90,8 @@ export const getCurrentSettings = createSelector(getSettingState, fromSetting.ge
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldung.getAll);
 export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldung.getCurrentPreismeldung);
-export const getUnexportedPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldung.getUnexportedPreismeldungen);
-export const getUnexportedPreismeldungenAreLoaded = createSelector(getPreismeldungenState, fromPreismeldung.getAreUnexportedLoaded);
+// export const getUnexportedPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldung.getUnexportedPreismeldungen);
+// export const getUnexportedPreismeldungenAreLoaded = createSelector(getPreismeldungenState, fromPreismeldung.getAreUnexportedLoaded);
 
 
 export const getLoginState = (state: AppState) => state.login;
@@ -129,4 +132,10 @@ export const getExportedPreismeldungen = createSelector(getExporterState, fromEx
 export const getExportedPreismeldestellen = createSelector(getExporterState, fromExporter.getExportedPreismeldestellen);
 export const getExportedPreiserheber = createSelector(getExporterState, fromExporter.getExportedPreiserheber);
 
+
 export const getCockpitState = (state: AppState) => state.cockpit;
+
+
+export const getWarenkorbState = (state: AppState) => state.warenkorb;
+
+

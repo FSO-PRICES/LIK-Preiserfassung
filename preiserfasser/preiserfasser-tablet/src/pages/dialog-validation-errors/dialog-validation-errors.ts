@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ViewController, NavParams, IonicPage } from 'ionic-angular';
 
+use from lik-shared
+
 @IonicPage()
 @Component({
     selector: 'dialog-validation-errors',

@@ -4,51 +4,42 @@
         <form>
             <div class="row container">
                 <div class="column">
-                    <warenkorb-import
-                        (fileSelected)="warenkorbFileSelected$.emit($event)"
-                        (import)="warenkorbStartImport$.emit($event)"
-                        [parsed]="warenkorbFileParsed$ | async"
+                    <warenkorb-import (fileSelected)="warenkorbFileSelected$.emit($event)" (import)="warenkorbStartImport$.emit($event)" [parsed]="warenkorbFileParsed$ | async"
                         [importedCount]="warenkorbImportedCount$ | async">
                     </warenkorb-import>
                 </div>
                 <div class="column">
-                    <div class="text-info">Zuletzt importiert am: {{latestWarenkorbImportAt$ | async | date:"medium"}}</div>
-                    <div class="text-info">Aktueller Erhebungsmonat: {{warenkorbErhebungsmonat$ | async}}</div>
+                    <div class="text-info">Zuletzt importiert am: {{ latestWarenkorbImportAt$ | async | date:"medium" }}</div>
+                    <div class="text-info">Aktueller Erhebungsmonat: {{ warenkorbErhebungsmonat$ | async | date:"MMM y" }}</div>
                 </div>
             </div>
             <div class="row container">
                 <div class="column">
-                    <preismeldestellen-import
-                        (fileSelected)="preismeldestelleFileSelected$.emit($event)"
-                        (import)="preismeldestellenStartImport$.emit($event)"
-                        [parsed]="preismeldestelleFileParsed$ | async"
-                        [importedCount]="preismeldestellenImportedCount$ | async">
+                    <preismeldestellen-import (fileSelected)="preismeldestelleFileSelected$.emit($event)" (import)="preismeldestellenStartImport$.emit($event)"
+                        [parsed]="preismeldestelleFileParsed$ | async" [importedCount]="preismeldestellenImportedCount$ | async">
                     </preismeldestellen-import>
                 </div>
                 <div class="column">
-                    <div class="text-info">Zuletzt importiert am: {{latestPreismeldestellenImportAt$ | async | date:"medium"}}</div>
-                    <div class="text-info">Aktueller Erhebungsmonat: {{preismeldestellenErhebungsmonat$ | async}}</div>
+                    <div class="text-info">Zuletzt importiert am: {{ latestPreismeldestellenImportAt$ | async | date:"medium" }}</div>
+                    <div class="text-info">Aktueller Erhebungsmonat: {{ preismeldestellenErhebungsmonat$ | async | date:"MMM y" }}</div>
                 </div>
             </div>
             <div class="row container">
                 <div class="column">
-                    <preismeldungen-import
-                        (fileSelected)="preismeldungFileSelected$.emit($event)"
-                        (import)="preismeldungenStartImport$.emit($event)"
-                        [parsed]="preismeldungFileParsed$ | async"
-                        [importedCount]="preismeldungenImportedCount$ | async">
+                    <preismeldungen-import (fileSelected)="preismeldungFileSelected$.emit($event)" (import)="preismeldungenStartImport$.emit($event)"
+                        [parsed]="preismeldungFileParsed$ | async" [importedCount]="preismeldungenImportedCount$ | async">
                     </preismeldungen-import>
                 </div>
                 <div class="column">
-                    <div class="text-info">Zuletzt importiert am: {{latestPreismeldungenImportAt$ | async | date:"medium"}}</div>
-                    <div class="text-info">Aktueller Erhebungsmonat: {{preismeldungenErhebungsmonat$ | async}}</div>
+                    <div class="text-info">Zuletzt importiert am: {{ latestPreismeldungenImportAt$ | async | date:"medium" }}</div>
+                    <div class="text-info">Aktueller Erhebungsmonat: {{ preismeldungenErhebungsmonat$ | async | date:"MMM y" }}</div>
                 </div>
             </div>
             <div class="row">
                 <div class="column">
-                    <div *ngIf="importError$ | async" ion-text color="danger">{{importError$ | async}}</div>
+                    <div *ngIf="importError$ | async" ion-text color="danger">{{ importError$ | async }}</div>
                     <button ion-button type="button" (click)="recreateUserDbsClicked$.emit($event)">Preiserheber Daten bereitstellen</button>
-                    <span *ngIf="(importedAll$ | async)?.error" ion-text color="danger">{{(importedAll$ | async)?.error}}</span>
+                    <span *ngIf="(importedAll$ | async)?.error" ion-text color="danger">{{ (importedAll$ | async)?.error }}</span>
                     <span *ngIf="(importedAll$ | async)?.success" ion-text color="primary">Preiserheber Datenbanken wurden erfolgreich initialisiert</span>
                 </div>
             </div>

@@ -3,7 +3,6 @@ import { HttpModule, Http } from '@angular/http';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StoreModule } from '@ngrx/store';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
@@ -22,10 +21,6 @@ import { PefDialogService, PefMessageDialogService } from 'lik-shared';
 import { PefComponentsModule } from 'lik-shared';
 import { BrowserModule } from '@angular/platform-browser';
 
-export function createTranslateLoader(http: Http) {
-    return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
-
 @NgModule({
     declarations: [
         PefApp,
@@ -39,13 +34,7 @@ export function createTranslateLoader(http: Http) {
         StoreModule.provideStore(reducer),
         ...PEF_EFFECTS,
         HttpModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: (createTranslateLoader),
-                deps: [Http]
-            }
-        })
+        TranslateModule.forRoot()
     ],
     bootstrap: [IonicApp],
     entryComponents: [

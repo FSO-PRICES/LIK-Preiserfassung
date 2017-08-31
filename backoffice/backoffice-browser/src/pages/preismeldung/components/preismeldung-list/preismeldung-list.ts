@@ -17,7 +17,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('selectPmsNummer')
     public selectPreismeldestelleNummer$: Observable<string>;
     @Output('selected')
-    public selectPreismeldung$ = new EventEmitter<P.Preismeldung>();
+    public selectPreismeldung$ = new EventEmitter<string>();
 
     public current$: Observable<P.Preismeldung>;
     public preismeldungen$: Observable<PreismeldungBag[]>;
@@ -48,7 +48,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 return idSearch !== null ?
                     filterById(preismeldungen, idSearch) :
                     pefSearch(filterText, preismeldungen, [pm => pm.warenkorbPosition.gliederungspositionsnummer, pm => pm.warenkorbPosition.positionsbezeichnung.de, pm => pm.preismeldung.artikeltext])
-            });
+            })
+            .debounceTime(300)
+            .startWith([]);
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

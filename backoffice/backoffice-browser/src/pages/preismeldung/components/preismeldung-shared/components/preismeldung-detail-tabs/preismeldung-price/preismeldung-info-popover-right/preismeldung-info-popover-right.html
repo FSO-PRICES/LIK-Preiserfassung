@@ -1,0 +1,11 @@
+<button ion-button icon-only color="wild-sand" class="info-toggle" [class.active]="popoverActive$ | async" (click)="buttonClicked$.emit()">
+    <pef-icon name="price_tag_info"></pef-icon>
+</button>
+    <!--[style.display]="(popoverActive$ | async) ? 'flex' : 'none'"-->
+<div class="info-popover"
+    [style.display]="none"
+    [style.left]="sanitizer.bypassSecurityTrustStyle(popoverLeft$ | async)"
+    [style.maxHeight]="sanitizer.bypassSecurityTrustStyle(popoverMaxHeight$ | async)"
+    [style.width]="sanitizer.bypassSecurityTrustStyle(popoverWidth$ | async)"
+    [style.height]="sanitizer.bypassSecurityTrustStyle(popoverHeight$ | async)">
+</div>

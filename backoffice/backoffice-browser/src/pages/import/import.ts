@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
-import { PefDialogService } from 'lik-shared';
+import { PefDialogService, parseDate } from 'lik-shared';
 
 import * as importer from '../../actions/importer';
 import * as fromRoot from '../../reducers';
@@ -34,9 +34,9 @@ export class ImportPage implements OnDestroy {
     public latestPreismeldestellenImportAt$ = this.store.select(fromRoot.getImportedPreismeldestellenAt);
     public latestPreismeldungenImportAt$ = this.store.select(fromRoot.getImportedPreismeldungenAt);
 
-    public warenkorbErhebungsmonat$ = this.store.select(fromRoot.getWarenkorbErhebungsmonat);
-    public preismeldestellenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldestellenErhebungsmonat);
-    public preismeldungenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldungenErhebungsmonat);
+    public warenkorbErhebungsmonat$ = this.store.select(fromRoot.getWarenkorbErhebungsmonat).map(parseDate);
+    public preismeldestellenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldestellenErhebungsmonat).map(parseDate);
+    public preismeldungenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldungenErhebungsmonat).map(parseDate);
 
     public importError$ = this.store.select(fromRoot.getImporterState).map(s => s.importError);
     public importedAll$ = this.store.select(fromRoot.getImportedAll);

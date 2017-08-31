@@ -24,6 +24,22 @@ export function loadAllPreismeldungen(pmsNummer: string = '') {
         );
 }
 
+export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
+    return getDatabaseAsObservable(dbNames.preiszuweisung)
+        .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))
+        .flatMap(preiszuweisungen => {
+            const preiszuweisung = preiszuweisungen.find(x => x.preismeldestellenNummern.some(n => n === pmsNummer));
+            if (!!preiszuweisung) {
+                return getDatabaseAsObservable(`user_${preiszuweisung.preiserheberId}`)
+                    .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, `pm/${pmsNummer}`).then(preismeldungen => ({ db, preismeldungen })))
+                    .flatMap(({ db, preismeldungen }) => db.get(`pms/${pmsNummer}`).then((pms: P.Preismeldestelle) => ({ preismeldungen, pms })))
+                    .flatMap(({ preismeldungen, pms }) => getDatabaseAsObservable(dbNames.preismeldung).map(db => ({ db, preismeldungen, pms })))
+                    .flatMap(({ db, preismeldungen, pms }) => getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, `pm-ref/${pmsNummer}`).then(refPreismeldungen => ({ refPreismeldungen, preismeldungen, pms })));
+            }
+            return Observable.of({ refPreismeldungen: [], preismeldungen: [], pms: null })
+        });
+}
+
 export function loadAllPreiserheber() {
     return getAllDocumentsForPrefixFromUserDbs<P.Erheber>('preiserheber')
         .flatMap((preiserheber: P.Erheber[]) => getDatabaseAsObservable(dbNames.preiserheber)

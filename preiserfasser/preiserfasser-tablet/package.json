@@ -28,7 +28,7 @@
         "@ngrx/core": "^1.2.0",
         "@ngrx/effects": "^2.0.3",
         "@ngrx/store": "^2.2.2",
-        "@ngx-translate/http-loader": "0.0.3",
+        "@ngx-translate/core": "^7.2.0",
         "date-fns": "^1.28.5",
         "docuri": "^4.2.2",
         "dom-autoscroller": "^2.3.3",

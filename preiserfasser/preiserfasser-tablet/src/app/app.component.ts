@@ -11,6 +11,7 @@ import * as fromRoot from '../reducers';
 import * as PouchDB from 'pouchdb';
 
 import { initialisePouchForDev } from '../effects/pouchdb-utils';
+import { translations } from 'lik-shared';
 
 @Component({
     template: `
@@ -63,7 +64,8 @@ export class PefApp implements OnInit {
 
     initialiseLanguages() {
         this.translate.setDefaultLang('dummy'); // so that untranslated texts get shown as raw keys
-        this.store.dispatch({ type: 'SET_AVAILABLE_LANGUAGES', payload: ['de', 'en', 'fr', 'it'] });
+        Object.keys(translations).forEach(lang => this.translate.setTranslation(lang, translations[lang]));
+        this.store.dispatch({ type: 'SET_AVAILABLE_LANGUAGES', payload: Object.keys(translations) });
         this.store.select(fromRoot.getCurrentLanguage)
             .filter(x => !!x)
             .subscribe(x => {

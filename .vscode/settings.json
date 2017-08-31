@@ -1,4 +1,5 @@
 {
+    "autoimport.doubleQuotes": false,
     "editor.detectIndentation": false,
     "editor.formatOnSave": true,
     "editor.formatOnType": true,

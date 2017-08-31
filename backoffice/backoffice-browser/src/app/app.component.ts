@@ -5,10 +5,11 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { Observable } from 'rxjs';
 
-import { PefDialogService } from 'lik-shared';
+import { PefDialogService, translations } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import { PefDialogLoginComponent } from '../components/pef-dialog-login/pef-dialog-login';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     templateUrl: 'app.html'
@@ -19,7 +20,13 @@ export class Backoffice implements OnInit {
 
     public rootPage = 'PreiserheberPage';
 
-    constructor(platform: Platform, private pefDialogService: PefDialogService, private store: Store<fromRoot.AppState>, private statusBar: StatusBar, private splashScreen: SplashScreen) {
+    constructor(
+        platform: Platform,
+        private pefDialogService: PefDialogService,
+        private store: Store<fromRoot.AppState>,
+        private statusBar: StatusBar,
+        private translateService: TranslateService,
+        private splashScreen: SplashScreen) {
         // Skip 1 is used to skip the first initial value and to wait for the new value after the dispatch
         const settings$ = store.select(fromRoot.getSettings).skip(1).publishReplay(1).refCount();
         const loginDialog$ = store.select(fromRoot.getIsLoggedIn).skip(1)
@@ -48,10 +55,14 @@ export class Backoffice implements OnInit {
         loginDialog$
             .filter(dialogCode => dialogCode === 'NAVIGATE_TO_SETTINGS')
             .subscribe(() => this.navigateToSettings());
+
+        translateService.setTranslation('de', translations.de);
+        translateService.use('de');
     }
 
     public ngOnInit() {
         this.store.dispatch({ type: 'SETTING_LOAD' });
+        this.store.dispatch({ type: 'LOAD_WARENKORB' });
     }
 
     public navigateToSettings() {
