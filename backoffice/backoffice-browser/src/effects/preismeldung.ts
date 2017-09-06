@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { assign } from 'lodash';
+import { assign, cloneDeep, flatMap, isEqual } from 'lodash';
+import { format, startOfMonth } from 'date-fns';
 
-import { Models as P } from 'lik-shared';
+import * as P from '../common-models';
+import { createVorReduktionProperties, propertiesFromCurrentPreismeldung, messagesFromCurrentPreismeldung, productMerkmaleFromCurrentPreismeldung } from '../pages/preismeldung/components/preismeldung-shared/effects/preismeldung-effects-fns';
 
-import { getDatabase, dbNames, getAllDocumentsForPrefix } from './pouchdb-utils';
+import { getDatabase, getDatabaseAsObservable, getAllDocumentsFromDb, dbNames, getAllDocumentsForPrefix } from './pouchdb-utils';
 import { loadPreismeldungenAndRefPreismeldungForPms } from '../common/user-db-values';
 import { Action } from '../actions/preismeldung';
 import * as fromRoot from '../reducers';
@@ -28,49 +30,74 @@ export class PreismeldungEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(({ payload: pmsNummer }) => loadPreismeldungenAndRefPreismeldungForPms(pmsNummer))
         .withLatestFrom(this.store.select(fromRoot.getWarenkorbState), (x, warenkorb) => assign({}, x, { warenkorb, pmsPreismeldungenSort: null }))
-        .map(docs => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: docs } as Action));
+        .map(docs => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: assign(docs, { isAdminApp: true }) } as Action));
 
-    // @Effect()
-    // loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNG_LOAD_UNEXPORTED')
-    //     .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-    //     .flatMap(() => getDatabase(dbNames.preismeldung).then(db => ({ db })))
-    //     .filter(({ db }) => db != null)
-    //     .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true }, getAllDocumentsForPrefix('pm-ref/'))).then(res => res.rows.map(y => y.doc) as P.CompletePreismeldung[]))
-    //     .map(docs => ({ type: 'PREISMELDUNG_LOAD_UNEXPORTED_SUCCESS', payload: docs } as Action));
+    @Effect()
+    savePreismeldungPrice$ = this.actions$
+        .ofType('SAVE_PREISMELDUNG_PRICE')
+        .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => ({ currentPreismeldung, payload: action.payload }))
+        .map(({ currentPreismeldung, payload }) => ({ currentPreismeldung: assign({}, currentPreismeldung, { preismeldung: assign({}, currentPreismeldung.preismeldung, createVorReduktionProperties(currentPreismeldung)) }), payload }))
+        .flatMap(x => {
+            const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
+            let currentPreismeldung = x.currentPreismeldung;
+            const kommentarAutotext = flatMap(saveAction.saveWithData.filter(y => y.type === 'COMMENT').map((y: P.SavePreismeldungPriceSaveActionCommentsType) => y.comments));
+            const aktionAtions = saveAction.saveWithData.filter(y => y.type === 'AKTION') as P.SavePreismeldungPriceSaveActionAktionType[];
+            if (aktionAtions.length > 1) {
+                throw new Error(`More than one AKTION: ${JSON.stringify(saveAction)}`);
+            }
+            const setAktion = aktionAtions.length === 1 ? { preismeldung: assign({}, x.currentPreismeldung.preismeldung, { aktion: aktionAtions[0].value }) } : null;
+            currentPreismeldung = assign({}, x.currentPreismeldung, { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext }) }, setAktion);
+            return this.savePreismeldungPrice(currentPreismeldung)
+                .map(preismeldung => ({ preismeldung, saveAction }));
+        })
+        .map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload }));
 
-    // @Effect()
-    // savePreismeldung$ = this.actions$.ofType('SAVE_PREISMELDUNG')
-    //     .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-    //     .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: CurrentPreismeldungBag) => ({ currentPreismeldung }))
-    //     .flatMap(({ currentPreismeldung: bag }) =>
-    //         Observable.fromPromise(
-    //             getDatabase(dbNames.preismeldung)
-    //                 .then(db => { // Only check if the document exists if a revision already exists
-    //                     if (!!bag.preismeldung._rev) {
-    //                         return db.get(bag.preismeldung._id).then(doc => ({ db, doc }));
-    //                     }
-    //                     return Promise.resolve({ db, doc: {} });
-    //                 })
-    //                 .then(({ db, doc }) => { // Create or update the preismeldung
-    //                     const create = !doc._rev;
-    //                     const preismeldung = Object.assign({}, doc, <P.Preismeldung>{
-    //                         _id: bag.preismeldung._id,
-    //                         _rev: bag.preismeldung._rev,
-    //                         bemerkungen: bag.preismeldung.bemerkungen
-    //                     });
-    //                     return (create ? db.post(preismeldung) : db.put(preismeldung))
-    //                         .then((response) => ({ db, id: response.id }));
-    //                 })
-    //                 .then<P.Preismeldung>(({ db, id }) => db.get(id))
-    //         )
-    //     )
-    //     .map(payload => ({ type: 'SAVE_PREISMELDUNG_SUCCESS', payload } as Action));
+    @Effect()
+    savePreismeldungMessages$ = this.actions$
+        .ofType('SAVE_PREISMELDING_MESSAGES')
+        .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
+        .flatMap(currentPreismeldung => this.savePreismeldungMessages(currentPreismeldung))
+        .map(payload => ({ type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload }));
+
+    @Effect()
+    savePreismeldungAttributes$ = this.actions$
+        .ofType('SAVE_PREISMELDING_ATTRIBUTES')
+        .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
+        .flatMap(currentPreismeldung => this.savePreismeldungAttributes(currentPreismeldung))
+        .map(payload => ({ type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload }));
+
+    savePreismeldung(currentPreismeldungBag: P.CurrentPreismeldungBag, copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]) {
+        return getDatabaseAsObservable(dbNames.preiszuweisung)
+            .flatMap(db => getAllDocumentsFromDb<P.Models.Preiszuweisung>(db))
+            .flatMap(preiszuweisungen => {
+                const preiszuweisung = preiszuweisungen.find(x => x.preismeldestellenNummern.some(n => n === currentPreismeldungBag.preismeldung.pmsNummer));
+                return getDatabaseAsObservable(`user_${preiszuweisung.preiserheberId}`)
+            })
+            .flatMap(db => db.get(currentPreismeldungBag.preismeldung._id).then(doc => ({ db, doc })))
+            .flatMap(({ db, doc }) => {
+                const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
+                return db.put(assign({}, doc, ...copyObjects)).then(() => db);
+            })
+            .flatMap(db => db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
+    }
+
+    savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+        return this.savePreismeldung(currentPreismeldungBag, [
+            bag => propertiesFromCurrentPreismeldung(bag),
+            bag => messagesFromCurrentPreismeldung(bag)
+        ]);
+    }
+
+    savePreismeldungMessages(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+        return this.savePreismeldung(currentPreismeldungBag, [
+            bag => messagesFromCurrentPreismeldung(bag)
+        ]);
+    }
+
+    savePreismeldungAttributes(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+        return this.savePreismeldung(currentPreismeldungBag, [
+            bag => productMerkmaleFromCurrentPreismeldung(bag)
+        ]);
+    }
+
 }
-
-// function loadAllPreismeldungen(pmsNummer: string = '') {
-//     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(`pm/${pmsNummer}`)
-//         .flatMap((preismeldungen: any[]) => getDatabaseAsObservable(dbNames.preismeldung)
-//             .flatMap(db => getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, `pm-ref/${pmsNummer}`).then(pmRefs => keyBy(pmRefs, pmRef => getPreismeldungId(pmRef))))
-//             .map(pmRefs => preismeldungen.map(pm => assign({}, pm, { pmRef: pmRefs[getPreismeldungId(pm)] }) as P.Preismeldung & { pmRef: P.PreismeldungReference }))
-//         );
-// }

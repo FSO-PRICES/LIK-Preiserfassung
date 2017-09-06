@@ -90,6 +90,8 @@ export const getCurrentSettings = createSelector(getSettingState, fromSetting.ge
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldung.getAll);
 export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldung.getCurrentPreismeldung);
+export const getPreismeldungenStatus = createSelector(getPreismeldungenState, fromPreismeldung.getPreismeldungenStatus);
+export const getPreismeldungenCurrentPmsNummer = createSelector(getPreismeldungenState, fromPreismeldung.getPreismeldungenCurrentPmsNummer);
 // export const getUnexportedPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldung.getUnexportedPreismeldungen);
 // export const getUnexportedPreismeldungenAreLoaded = createSelector(getPreismeldungenState, fromPreismeldung.getAreUnexportedLoaded);
 

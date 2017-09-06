@@ -10,6 +10,7 @@ import * as fromRoot from '../reducers';
 import * as P from '../common-models';
 import { preismeldungCompareFn } from 'lik-shared';
 import { SavePreismeldungPriceSaveActionCommentsType, SavePreismeldungPriceSaveActionAktionType } from '../actions/preismeldungen';
+import { createVorReduktionProperties, propertiesFromCurrentPreismeldung, messagesFromCurrentPreismeldung, productMerkmaleFromCurrentPreismeldung } from '../pages/pms-price-entry/components/preismeldung-shared/effects/preismeldung-effects-fns';
 
 const preismeldungUri = docuri.route(P.Models.preismeldungUriRoute);
 
@@ -72,6 +73,7 @@ export class PreismeldungenEffects {
             pmsPreismeldungenSort: x.pmsPreismeldungenSort
         })))
         .combineLatest(this.store.select(fromRoot.getWarenkorb).filter(x => !!x.length).take(1), (x, warenkorb) => ({
+            isAdminApp: false,
             pms: x.pms,
             warenkorb,
             refPreismeldungen: x.refPreismeldungen,
@@ -83,7 +85,7 @@ export class PreismeldungenEffects {
     savePreismeldungPrice$ = this.actions$
         .ofType('SAVE_PREISMELDUNG_PRICE')
         .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => ({ currentPreismeldung, payload: action.payload }))
-        .map(({ currentPreismeldung, payload }) => ({ currentPreismeldung: assign({}, currentPreismeldung, { preismeldung: assign({}, currentPreismeldung.preismeldung, this.createVorReduktionProperties(currentPreismeldung)) }), payload }));
+        .map(({ currentPreismeldung, payload }) => ({ currentPreismeldung: assign({}, currentPreismeldung, { preismeldung: assign({}, currentPreismeldung.preismeldung, createVorReduktionProperties(currentPreismeldung)) }), payload }));
 
     @Effect()
     savePreismeldung$ = this.savePreismeldungPrice$
@@ -115,7 +117,7 @@ export class PreismeldungenEffects {
                         epNummer: currentPreismeldung.preismeldung.epNummer,
                         laufnummer: currentPreismeldung.preismeldung.laufnummer,
                         pmsNummer: currentPreismeldung.preismeldung.pmsNummer
-                    }, this.propertiesFromCurrentPreismeldung(currentPreismeldung), this.messagesFromCurrentPreismeldung(currentPreismeldung), this.productMerkmaleFromCurrentPreismeldung(currentPreismeldung))).then(() => db)
+                    }, propertiesFromCurrentPreismeldung(currentPreismeldung), messagesFromCurrentPreismeldung(currentPreismeldung), productMerkmaleFromCurrentPreismeldung(currentPreismeldung))).then(() => db)
                 )
                 .then(db =>
                     db.get(`pms-sort/${currentPreismeldung.preismeldung.pmsNummer}`)
@@ -197,103 +199,25 @@ export class PreismeldungenEffects {
 
     savePreismeldungMessages(currentPreismeldungBag: P.CurrentPreismeldungBag) {
         return this.savePreismeldung(currentPreismeldungBag, [
-            bag => this.messagesFromCurrentPreismeldung(bag)
+            bag => messagesFromCurrentPreismeldung(bag)
         ]);
     }
 
     savePreismeldungAttributes(currentPreismeldungBag: P.CurrentPreismeldungBag) {
         return this.savePreismeldung(currentPreismeldungBag, [
-            bag => this.productMerkmaleFromCurrentPreismeldung(bag)
+            bag => productMerkmaleFromCurrentPreismeldung(bag)
         ]);
     }
-
-    savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
-        return this.savePreismeldung(currentPreismeldungBag, [
-            bag => this.propertiesFromCurrentPreismeldung(bag),
-            bag => this.messagesFromCurrentPreismeldung(bag)
-        ]);
-    }
-
-    propertiesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
-        aktion: bag.preismeldung.aktion,
-        artikelnummer: bag.preismeldung.artikelnummer,
-        artikeltext: bag.preismeldung.artikeltext,
-        bearbeitungscode: bag.preismeldung.bearbeitungscode,
-        erhebungsZeitpunkt: bag.preismeldung.erhebungsZeitpunkt,
-        internetLink: bag.preismeldung.internetLink,
-        istAbgebucht: true,
-        menge: bag.preismeldung.menge,
-        mengeVPK: bag.preismeldung.mengeVPK,
-        mengeVorReduktion: bag.preismeldung.mengeVorReduktion,
-        modifiedAt: format(new Date()),
-        d_DPToVP: bag.preismeldung.d_DPToVP,
-        d_DPToVPVorReduktion: bag.preismeldung.d_DPToVPVorReduktion,
-        d_DPToVPK: bag.preismeldung.d_DPToVPK,
-        d_VPKToVPAlterArtikel: bag.preismeldung.d_VPKToVPAlterArtikel,
-        d_VPKToVPVorReduktion: bag.preismeldung.d_VPKToVPVorReduktion,
-        d_DPVorReduktionToVPVorReduktion: bag.preismeldung.d_DPVorReduktionToVPVorReduktion,
-        d_DPVorReduktionToVP: bag.preismeldung.d_DPVorReduktionToVP,
-        preis: bag.preismeldung.preis,
-        preisVPK: bag.preismeldung.preisVPK,
-        preisVorReduktion: bag.preismeldung.preisVorReduktion,
-        fehlendePreiseR: bag.preismeldung.fehlendePreiseR,
-        datumVorReduktion: bag.preismeldung.datumVorReduktion
-    })
-
-    messagesFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
-        notiz: bag.messages.notiz,
-        kommentar: bag.messages.kommentarAutotext.join(',') + (bag.messages.kommentarAutotext.length > 0 ? '\\n' : '') + bag.messages.kommentar,
-        bemerkungen: bag.messages.bemerkungenHistory + (!!bag.messages.bemerkungenHistory ? '\\n' : '') + (!!bag.messages.bemerkungen ? 'PE:' + bag.messages.bemerkungen : ''),
-        modifiedAt: format(new Date()),
-    })
-
-    productMerkmaleFromCurrentPreismeldung = (bag: P.CurrentPreismeldungBag) => ({
-        productMerkmale: cloneDeep(bag.attributes),
-        modifiedAt: format(new Date())
-    })
 
     createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
         return { percentage: null, warning: false, textzeil: null };
     }
 
-    createVorReduktionProperties(bag: P.PreismeldungBag): { preisVorReduktion: string; mengeVorReduktion: string; datumVorReduktion: string } {
-        let preisVorReduktion, mengeVorReduktion, datumVorReduktion;
-        const today = format(new Date(), 'DD.MM.YYYY');
-        const firstDayOfMonth = format(startOfMonth(new Date()), 'DD.MM.YYYY');
-
-        if (!bag.preismeldung.aktion) {
-            preisVorReduktion = bag.preismeldung.preis;
-            mengeVorReduktion = bag.preismeldung.menge;
-            datumVorReduktion = today;
-        } else {
-            switch (bag.preismeldung.bearbeitungscode) {
-                case 99: {
-                    preisVorReduktion = `${bag.refPreismeldung.preisVorReduktion}`
-                    mengeVorReduktion = `${bag.refPreismeldung.mengeVorReduktion}`;
-                    datumVorReduktion = `${bag.refPreismeldung.datumVorReduktion}`;
-                    break;
-                }
-                case 2:
-                case 7: {
-                    preisVorReduktion = bag.preismeldung.preisVPK;
-                    mengeVorReduktion = bag.preismeldung.mengeVPK;
-                    datumVorReduktion = firstDayOfMonth;
-                    break;
-                }
-                case 1: {
-                    preisVorReduktion = bag.preismeldung.preisVorReduktion;
-                    mengeVorReduktion = bag.preismeldung.mengeVorReduktion;
-                    datumVorReduktion = today;
-                    break;
-                }
-            }
-        }
-
-        return {
-            preisVorReduktion,
-            mengeVorReduktion,
-            datumVorReduktion
-        };
+    savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+        return this.savePreismeldung(currentPreismeldungBag, [
+            bag => propertiesFromCurrentPreismeldung(bag),
+            bag => messagesFromCurrentPreismeldung(bag)
+        ]);
     }
 
     copyPreismeldungPropertiesFromRefPreismeldung(rpm: P.Models.PreismeldungReference) {

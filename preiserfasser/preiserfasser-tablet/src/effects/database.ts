@@ -12,7 +12,7 @@ import { checkIfDatabaseExists, checkConnectivity, getDatabase, getDatabaseAsObs
 
 import { Actions as DatabaseAction } from '../actions/database';
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
-import { Actions as PreismeldungAction } from '../actions/preismeldungen';
+import { Action as PreismeldungAction } from '../actions/preismeldungen';
 import { Action as LoginAction } from '../actions/login';
 import { Action as StatisticsAction } from '../actions/statistics';
 import * as fromRoot from '../reducers';

@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { PefDateTranslatePipe } from './pef-date-translate-pipe/pef-date-translate-pipe';
 import { PefDetectIonListItemHeightDirective } from './pef-detect-ion-list-item-height/pef-detect-ion-list-item-height';
+import { PefDialogValidationErrorsComponent } from './pef-dialog-validation-errors/pef-dialog-validation-errors';
 import { PefDisableInputNumberBehaviourDirective } from './pef-disable-input-number-behaviour/pef-disable-input-number-behaviour';
 import { PefFloatingIconComponent } from './pef-floating-icon/pef-floating-icon';
 import { PefFormatNumber } from './pef-format-number/pef-format-number';
@@ -27,6 +28,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
     declarations: [
         PefDateTranslatePipe,
         PefDetectIonListItemHeightDirective,
+        PefDialogValidationErrorsComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFloatingIconComponent,
         PefFormatNumber,
@@ -45,11 +47,13 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefVirtualScrollComponent,
     ],
     entryComponents: [
-        PefMessageDialogComponent,
+        PefDialogValidationErrorsComponent,
+        PefMessageDialogComponent
     ],
     exports: [
         PefDateTranslatePipe,
         PefDetectIonListItemHeightDirective,
+        PefDialogValidationErrorsComponent,
         PefDisableInputNumberBehaviourDirective,
         PefFloatingIconComponent,
         PefFormatNumber,

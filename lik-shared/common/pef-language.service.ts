@@ -3,5 +3,5 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class PefLanguageService {
-    currentLanguage$ = Observable.of('de');
+    public currentLanguage$ = Observable.of('de');
 }

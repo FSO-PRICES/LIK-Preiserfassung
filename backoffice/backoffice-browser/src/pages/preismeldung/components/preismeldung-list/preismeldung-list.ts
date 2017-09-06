@@ -2,39 +2,35 @@ import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges } from 
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent, Models as P, pefSearch } from 'lik-shared';
+import { ReactiveComponent, pefSearch } from 'lik-shared';
 
-import { PreismeldungBag } from '../../../../reducers/preismeldung';
+import * as P from '../../../../common-models';
 
 @Component({
     selector: 'preismeldung-list',
     templateUrl: 'preismeldung-list.html'
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
-    @Input() preismeldungen: PreismeldungBag[];
-    @Input() preismeldestellen: P.Preismeldestelle[];
-    @Input() current: P.Preismeldung;
-    @Output('selectPmsNummer')
-    public selectPreismeldestelleNummer$: Observable<string>;
-    @Output('selected')
-    public selectPreismeldung$ = new EventEmitter<string>();
+    @Input() preismeldungen: P.PreismeldungBag[];
+    @Input() preismeldestellen: P.Models.Preismeldestelle[];
+    @Input() currentPreismeldung: P.PreismeldungBag;
+    @Input() status: string;
+    @Output('selectPmsNummer') public selectPreismeldestelleNummer$: Observable<string>;
+    @Output('selectPreismeldung') public selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
 
-    public current$: Observable<P.Preismeldung>;
-    public preismeldungen$: Observable<PreismeldungBag[]>;
-    public preismeldestellen$: Observable<P.Preismeldestelle[]>;
+    public preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
+    public preismeldestellen$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle[]>('preismeldestellen');
+    public currentPreismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('currentPreismeldung');
+    public status$ = this.observePropertyCurrentValue<string>('status');
 
     public preismeldestelleNummerSelected$ = new EventEmitter<string>();
     public filterTextValueChanges = new EventEmitter<string>();
 
-    public filteredPreismeldungen$: Observable<PreismeldungBag[]>;
-    public viewPortItems: PreismeldungBag[];
+    public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
+    public viewPortItems: P.PreismeldungBag[];
 
     constructor(private formBuilder: FormBuilder) {
         super();
-
-        this.preismeldungen$ = this.observePropertyCurrentValue<PreismeldungBag[]>('preismeldungen');
-        this.preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('preismeldestellen');
-        this.current$ = this.observePropertyCurrentValue<P.Preismeldung>('current');
 
         this.selectPreismeldestelleNummer$ = this.preismeldestelleNummerSelected$
             .filter(x => !!x);
@@ -67,7 +63,7 @@ function matchesIdSearch(filterText: string) {
     return { pmsNummer, epNummer, laufNummer };
 }
 
-function filterById(preismeldungen: PreismeldungBag[], { pmsNummer, epNummer, laufNummer }: { pmsNummer: string, epNummer: string, laufNummer?: string }) {
+function filterById(preismeldungen: P.PreismeldungBag[], { pmsNummer, epNummer, laufNummer }: { pmsNummer: string, epNummer: string, laufNummer?: string }) {
     return preismeldungen.filter(p =>
         p.preismeldung.pmsNummer.indexOf(pmsNummer) !== -1 &&
         (!epNummer || p.preismeldung.epNummer.indexOf(epNummer) !== -1) &&

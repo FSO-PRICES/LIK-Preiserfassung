@@ -5,47 +5,21 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { PreiserfasserCommonModule } from '../../common';
 import { PefComponentsModule } from 'lik-shared';
-
-import { BearbeitungsTypeComponent } from './components/bearbeitungs-type/bearbeitungs-type';
-import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
-import { DialogChoosePercentageReductionComponent } from './components/dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
-import { PmsPriceEntryPage } from './pms-price-entry';
-import { PreismeldungAttributesComponent } from './components/preismeldung-detail-tabs/preismeldung-attributes';
-import { PreismeldungInfoComponent } from './components/preismeldung-detail-tabs/preismeldung-info';
-import { PreismeldungInfoPopoverLeft } from './components/preismeldung-detail-tabs/preismeldung-price/preismeldung-info-popover-left/preismeldung-info-popover-left';
-import { PreismeldungInfoPopoverRight } from './components/preismeldung-detail-tabs/preismeldung-price/preismeldung-info-popover-right/preismeldung-info-popover-right';
-import { PreismeldungInfoWarenkorbComponent } from './components/preismeldung-detail-tabs/preismeldung-info-warenkorb';
+import { PreismeldungSharedModule } from './components/preismeldung-shared';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
-import { PreismeldungMessagesComponent } from './components/preismeldung-detail-tabs/preismeldung-messages';
-import { PreismeldungPriceComponent } from './components/preismeldung-detail-tabs/preismeldung-price';
-import { PreismeldungReadonlyHeader } from './components/preismeldung-detail-tabs/preismeldung-readonly-header';
-import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
+
+import { PmsPriceEntryPage } from './pms-price-entry';
 
 @NgModule({
     imports: [
         IonicPageModule.forChild(PmsPriceEntryPage),
         PefComponentsModule,
-        PreiserfasserCommonModule
+        PreiserfasserCommonModule,
+        PreismeldungSharedModule
     ],
     declarations: [
-        BearbeitungsTypeComponent,
-        DialogCancelEditComponent,
-        DialogChoosePercentageReductionComponent,
-        PmsPriceEntryPage,
-        PreismeldungAttributesComponent,
-        PreismeldungInfoComponent,
-        PreismeldungInfoPopoverLeft,
-        PreismeldungInfoPopoverRight,
-        PreismeldungInfoWarenkorbComponent,
         PreismeldungListComponent,
-        PreismeldungMessagesComponent,
-        PreismeldungPriceComponent,
-        PreismeldungReadonlyHeader,
-        PreismeldungToolbarComponent
-    ],
-    entryComponents: [
-        DialogCancelEditComponent,
-        DialogChoosePercentageReductionComponent,
+        PmsPriceEntryPage,
     ],
     providers: [
         { provide: 'windowObject', useValue: window }

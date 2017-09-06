@@ -1,7 +1,8 @@
 preismeldung {
-    .preismeldung-detail-container {
+    .page-content .container.preismeldung-detail-container {
         flex: 3 1;
         display: flex;
+        background-color: transparent;
         @include set-margin(0, 0, 0, 0.5);
         @include set-padding(1, 1, 1, 1);
     }
@@ -10,6 +11,7 @@ preismeldung {
         flex: 1;
         margin-left: 20px;
         display: flex;
+        background-color: $mercury;
         > * {
             flex: 1;
         }
@@ -37,5 +39,13 @@ preismeldung {
     preismeldung-toolbar {
         flex: 0 0 5.25em;
         max-width: 5.25em;
+    }
+
+    .detail-tab-bottom-part {
+        @include set-padding(1, 1, 1, 1);
+        flex: 1 1 auto;
+        background-color: $mercury;
+        display: flex;
+        flex-direction: column;
     }
 }

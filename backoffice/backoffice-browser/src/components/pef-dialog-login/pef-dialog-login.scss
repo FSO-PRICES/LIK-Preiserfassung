@@ -1,13 +1,15 @@
-.error {
-    color: $alizarin-crimson;
-}
+pef-dialog-login {
+    .error {
+        color: $alizarin-crimson;
+    }
 
-pef-icon {
-    fill: $blue-chill;
-}
+    pef-icon {
+        fill: $blue-chill;
+    }
 
-.pef-dialog-login-button-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    .pef-dialog-login-button-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 }

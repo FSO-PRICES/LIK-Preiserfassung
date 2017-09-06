@@ -6,7 +6,7 @@ import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
 import { PefDialogService, PefMessageDialogService } from 'lik-shared';
-import { DialogCancelEditComponent } from './components/dialog-cancel-edit/dialog-cancel-edit';
+import { DialogCancelEditComponent } from './components/preismeldung-shared';
 
 import * as fromRoot from '../../reducers';
 import { SavePreismeldungPriceSaveActionSaveNavigateTab } from '../../actions/preismeldungen';

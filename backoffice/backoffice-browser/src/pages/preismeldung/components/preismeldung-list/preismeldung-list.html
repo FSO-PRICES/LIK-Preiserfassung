@@ -4,13 +4,10 @@
         <option *ngFor="let preismeldestelle of preismeldestellen$ | async" [value]="preismeldestelle.pmsNummer">{{preismeldestelle.pmsNummer}}&nbsp;&nbsp;&nbsp;{{preismeldestelle.name}}</option>
     </select>
     <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
-    <ion-content pef-perfect-virtualscroll-scrollbar  enabled="true">
+    <div *ngIf="!!(status$ | async)">{{ status$ | async }}</div>
+    <ion-content pef-perfect-virtualscroll-scrollbar enabled="true">
         <ion-list [virtualScroll]="filteredPreismeldungen$ | async" approxItemHeight="50px" [class.hidden]="(filteredPreismeldungen$ | async).length === 0">
-            <ion-item
-                class="pef-advanced-item"
-                *virtualItem="let bag"
-                (click)="selectPreismeldung$.emit(bag.preismeldung._id)"
-                [class.selected]="bag.preismeldung._id == (current$ | async)?._id"
+            <ion-item class="pef-advanced-item" *virtualItem="let bag" (click)="selectPreismeldung$.emit(bag)" [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
                 tappable>
                 <div class="pef-item-title">
                     {{ bag.preismeldung.epNummer }}<br/>&nbsp;
