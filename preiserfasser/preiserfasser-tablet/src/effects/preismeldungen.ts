@@ -8,9 +8,7 @@ import { assign, cloneDeep, flatMap, isEqual } from 'lodash';
 import { getDatabase, getAllDocumentsForPrefix, getDatabaseAsObservable } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import * as P from '../common-models';
-import { preismeldungCompareFn } from 'lik-shared';
-import { SavePreismeldungPriceSaveActionCommentsType, SavePreismeldungPriceSaveActionAktionType } from '../actions/preismeldungen';
-import { createVorReduktionProperties, propertiesFromCurrentPreismeldung, messagesFromCurrentPreismeldung, productMerkmaleFromCurrentPreismeldung } from '../pages/pms-price-entry/components/preismeldung-shared/effects/preismeldung-effects-fns';
+import { preismeldungCompareFn, SavePreismeldungPriceSaveActionCommentsType, SavePreismeldungPriceSaveActionAktionType, createVorReduktionProperties, propertiesFromCurrentPreismeldung, messagesFromCurrentPreismeldung, productMerkmaleFromCurrentPreismeldung } from 'lik-shared';
 
 const preismeldungUri = docuri.route(P.Models.preismeldungUriRoute);
 
@@ -93,7 +91,7 @@ export class PreismeldungenEffects {
         .flatMap(x => {
             const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
             let currentPreismeldung = x.currentPreismeldung;
-            const kommentarAutotext = flatMap<string[][], string>(saveAction.saveWithData.filter(x => x.type === 'COMMENT').map((x: SavePreismeldungPriceSaveActionCommentsType) => x.comments));
+            const kommentarAutotext = flatMap(saveAction.saveWithData.filter(x => x.type === 'COMMENT').map((x: SavePreismeldungPriceSaveActionCommentsType) => x.comments));
             const aktionAtions = saveAction.saveWithData.filter(x => x.type === 'AKTION') as SavePreismeldungPriceSaveActionAktionType[];
             if (aktionAtions.length > 1) {
                 throw new Error(`More than one AKTION: ${JSON.stringify(saveAction)}`);

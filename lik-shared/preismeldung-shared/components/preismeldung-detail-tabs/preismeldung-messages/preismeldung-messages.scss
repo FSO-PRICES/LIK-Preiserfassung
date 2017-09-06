@@ -1,0 +1,59 @@
+@import "../../../../styles/imports.scss";
+
+preismeldung-messages {
+    display: flex;
+    flex-direction: column;
+
+    ion-content.content-md {
+        flex: 1;
+    }
+
+    h3:not(:first-child) {
+        margin-top: 2em;
+    }
+
+    button {
+        align-self: flex-start;
+    }
+
+    ion-item.pef-textarea-item {
+        max-width: 40em;
+        padding-left: 0;
+        margin-bottom: 0.5em;
+        &.item-md.item-block .item-inner {
+            padding-right: 0;
+            border-bottom-width: 0;
+        }
+        ion-textarea {
+            border-bottom: 2px solid $hit-gray;
+            &.readonly {
+                border-bottom-width: 0px;
+                background-color: $wild-sand;
+                text-area {
+                    opacity: 0.6;
+                }
+            }
+        }
+        &.input-has-focus {
+            ion-input, ion-textarea {
+                border-bottom-color: $blue-chill;
+            }
+            .item-inner {
+                box-shadow: none;
+            }
+            &:last-child {
+                box-shadow: none;
+            }
+        }
+    }
+
+    .message-author {
+        font-weight: 500;
+        min-width: 3em;
+        display: inline-block;
+    }
+
+    .kommentar-autotext, .message-history:last-of-type {
+        margin-bottom: 0.5em;
+    }
+}

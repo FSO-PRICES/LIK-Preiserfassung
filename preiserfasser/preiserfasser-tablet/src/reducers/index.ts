@@ -13,11 +13,10 @@ import * as fromLanguages from './languages';
 import * as fromLogin from './login';
 import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestellen from './preismeldestellen';
-import * as fromPreismeldungen from './preismeldungen';
+import { fromWarenkorb, fromPreismeldungen } from 'lik-shared';
 import * as fromSettings from './setting';
 import * as fromStatistics from './statistics';
 import * as fromTime from './time';
-import * as fromWarenkorb from './warenkorb';
 
 export interface AppState {
     appConfig: fromAppConfig.State;

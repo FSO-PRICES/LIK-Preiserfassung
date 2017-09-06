@@ -5,14 +5,13 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 import { chain } from 'lodash';
 
-import { Models as P } from 'lik-shared';
+import { Models as P, PreismeldungAction } from 'lik-shared';
 
 import { getDatabaseLastUploadedAt, setDatabaseLastUploadedAt } from './local-storage-utils';
 import { checkIfDatabaseExists, checkConnectivity, getDatabase, getDatabaseAsObservable, dropDatabase, downloadDatabase, getAllDocumentsForPrefix, uploadDatabase, syncDatabase, getDocumentByKeyFromDb } from './pouchdb-utils';
 
 import { Actions as DatabaseAction } from '../actions/database';
 import { Actions as PreismeldestelleAction } from '../actions/preismeldestellen';
-import { Action as PreismeldungAction } from '../actions/preismeldungen';
 import { Action as LoginAction } from '../actions/login';
 import { Action as StatisticsAction } from '../actions/statistics';
 import * as fromRoot from '../reducers';

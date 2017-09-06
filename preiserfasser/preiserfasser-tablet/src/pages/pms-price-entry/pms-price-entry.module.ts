@@ -4,8 +4,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { PreiserfasserCommonModule } from '../../common';
-import { PefComponentsModule } from 'lik-shared';
-import { PreismeldungSharedModule } from './components/preismeldung-shared';
+import { PefComponentsModule, PreismeldungSharedModule } from 'lik-shared';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
 
 import { PmsPriceEntryPage } from './pms-price-entry';

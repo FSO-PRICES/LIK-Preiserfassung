@@ -5,11 +5,9 @@ import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as P from '../../common-models';
-import { PefDialogService, PefMessageDialogService } from 'lik-shared';
-import { DialogCancelEditComponent } from './components/preismeldung-shared';
+import { PefDialogService, PefMessageDialogService, DialogCancelEditComponent, SavePreismeldungPriceSaveActionSaveNavigateTab } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
-import { SavePreismeldungPriceSaveActionSaveNavigateTab } from '../../actions/preismeldungen';
 
 @IonicPage({
     segment: 'pms-price-entry/:pmsNummer'
