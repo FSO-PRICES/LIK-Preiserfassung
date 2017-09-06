@@ -60,7 +60,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 const monthNumber = +(/\d{2}\.(\d{2}).\d{4}/.exec(erhebungsInfo.erhebungsmonat)[1]) - 1;
                 return warenkorb.map(warenkorbInfo => {
                     const notInSeason = warenkorbInfo.warenkorbItem.type === 'LEAF' && !(warenkorbInfo.warenkorbItem.periodizitaetMonat & (1 << monthNumber));
-                    const canSelect = !notInSeason && !(erhebungsInfo.erhebungsorgannummer !== '69' && (warenkorbInfo.warenkorbItem.type === 'LEAF' && warenkorbInfo.warenkorbItem.erhebungstyp === 'z'));
+                    const canSelect = !notInSeason && !(warenkorbInfo.warenkorbItem.type === 'LEAF' && warenkorbInfo.warenkorbItem.erhebungstyp === 'z');
                     return {
                         isExpanded: false,
                         showBFS: warenkorbInfo.warenkorbItem.type === 'LEAF' && warenkorbInfo.warenkorbItem.erhebungstyp === 'z',
