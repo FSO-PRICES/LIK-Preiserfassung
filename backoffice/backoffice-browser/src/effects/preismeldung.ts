@@ -5,7 +5,7 @@ import { assign, cloneDeep, flatMap, isEqual } from 'lodash';
 import { format, startOfMonth } from 'date-fns';
 
 import * as P from '../common-models';
-import { createVorReduktionProperties, propertiesFromCurrentPreismeldung, messagesFromCurrentPreismeldung, productMerkmaleFromCurrentPreismeldung } from '../pages/preismeldung/components/preismeldung-shared/effects/preismeldung-effects-fns';
+import { createVorReduktionProperties, propertiesFromCurrentPreismeldung, messagesFromCurrentPreismeldung, productMerkmaleFromCurrentPreismeldung, PreismeldungAction, SavePreismeldungPriceSaveActionSave, SavePreismeldungPriceSaveActionCommentsType, SavePreismeldungPriceSaveActionAktionType } from 'lik-shared';
 
 import { getDatabase, getDatabaseAsObservable, getAllDocumentsFromDb, dbNames, getAllDocumentsForPrefix } from './pouchdb-utils';
 import { loadPreismeldungenAndRefPreismeldungForPms } from '../common/user-db-values';
@@ -30,7 +30,7 @@ export class PreismeldungEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(({ payload: pmsNummer }) => loadPreismeldungenAndRefPreismeldungForPms(pmsNummer))
         .withLatestFrom(this.store.select(fromRoot.getWarenkorbState), (x, warenkorb) => assign({}, x, { warenkorb, pmsPreismeldungenSort: null }))
-        .map(docs => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: assign(docs, { isAdminApp: true }) } as Action));
+        .map(docs => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: assign(docs, { isAdminApp: true }) } as PreismeldungAction));
 
     @Effect()
     savePreismeldungPrice$ = this.actions$
@@ -38,10 +38,10 @@ export class PreismeldungEffects {
         .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => ({ currentPreismeldung, payload: action.payload }))
         .map(({ currentPreismeldung, payload }) => ({ currentPreismeldung: assign({}, currentPreismeldung, { preismeldung: assign({}, currentPreismeldung.preismeldung, createVorReduktionProperties(currentPreismeldung)) }), payload }))
         .flatMap(x => {
-            const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
+            const saveAction = x.payload as SavePreismeldungPriceSaveActionSave;
             let currentPreismeldung = x.currentPreismeldung;
-            const kommentarAutotext = flatMap(saveAction.saveWithData.filter(y => y.type === 'COMMENT').map((y: P.SavePreismeldungPriceSaveActionCommentsType) => y.comments));
-            const aktionAtions = saveAction.saveWithData.filter(y => y.type === 'AKTION') as P.SavePreismeldungPriceSaveActionAktionType[];
+            const kommentarAutotext = flatMap(saveAction.saveWithData.filter(y => y.type === 'COMMENT').map((y: SavePreismeldungPriceSaveActionCommentsType) => y.comments));
+            const aktionAtions = saveAction.saveWithData.filter(y => y.type === 'AKTION') as SavePreismeldungPriceSaveActionAktionType[];
             if (aktionAtions.length > 1) {
                 throw new Error(`More than one AKTION: ${JSON.stringify(saveAction)}`);
             }

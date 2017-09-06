@@ -2,14 +2,12 @@ import { Component, OnDestroy, EventEmitter, ChangeDetectionStrategy } from '@an
 import { Store } from '@ngrx/store';
 import { Subscription, Observable } from 'rxjs';
 
-import { PefDialogService } from 'lik-shared';
+import { PefDialogService, DialogCancelEditComponent, PreismeldungAction } from 'lik-shared';
 import * as P from '../../common-models';
 
 import * as fromRoot from '../../reducers';
-import * as preismeldung from '../../actions/preismeldung';
 import * as preismeldestelle from '../../actions/preismeldestelle';
 
-import { DialogCancelEditComponent } from './components/preismeldung-shared';
 import { IonicPage } from 'ionic-angular';
 
 @IonicPage({
@@ -81,7 +79,7 @@ export class PreismeldungPage implements OnDestroy {
             this.selectPreismeldestelleNummer$
                 .delay(200)
                 .subscribe(pmsNummer => {
-                    this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: pmsNummer } as preismeldung.Action)
+                    this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: pmsNummer } as PreismeldungAction)
                 })
         );
 
@@ -151,7 +149,7 @@ export class PreismeldungPage implements OnDestroy {
 
     public ngOnDestroy() {
         // this.store.dispatch({ type: 'CLEAR_PREISMELDUNG_FOR_PMS' } as preismeldung.Action);
-        this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null } as preismeldung.Action);
+        this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null } as PreismeldungAction);
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());

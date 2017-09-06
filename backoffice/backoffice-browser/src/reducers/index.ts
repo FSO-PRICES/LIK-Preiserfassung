@@ -14,10 +14,9 @@ import * as fromLanguage from './language';
 import * as fromLogin from './login';
 import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestelle from './preismeldestelle';
-import * as fromPreismeldung from './preismeldung';
+import { fromWarenkorb, fromPreismeldungen } from 'lik-shared';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
-import * as fromWarenkorb from './warenkorb';
 
 export interface AppState {
     cockpit: fromCockpit.State;
@@ -29,7 +28,7 @@ export interface AppState {
     login: fromLogin.State;
     preiserhebers: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestelle.State;
-    preismeldungen: fromPreismeldung.State;
+    preismeldungen: fromPreismeldungen.State;
     preiszuweisungen: fromPreiszuweisung.State;
     settings: fromSetting.State;
     warenkorb: fromWarenkorb.State;
@@ -45,7 +44,7 @@ const reducers = {
     login: fromLogin.reducer,
     preiserhebers: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestelle.reducer,
-    preismeldungen: fromPreismeldung.reducer,
+    preismeldungen: fromPreismeldungen.reducer,
     preiszuweisungen: fromPreiszuweisung.reducer,
     settings: fromSetting.reducer,
     warenkorb: fromWarenkorb.reducer
@@ -88,12 +87,10 @@ export const getCurrentSettings = createSelector(getSettingState, fromSetting.ge
 
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
-export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldung.getAll);
-export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldung.getCurrentPreismeldung);
-export const getPreismeldungenStatus = createSelector(getPreismeldungenState, fromPreismeldung.getPreismeldungenStatus);
-export const getPreismeldungenCurrentPmsNummer = createSelector(getPreismeldungenState, fromPreismeldung.getPreismeldungenCurrentPmsNummer);
-// export const getUnexportedPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldung.getUnexportedPreismeldungen);
-// export const getUnexportedPreismeldungenAreLoaded = createSelector(getPreismeldungenState, fromPreismeldung.getAreUnexportedLoaded);
+export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);
+export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
+export const getPreismeldungenStatus = createSelector(getPreismeldungenState, fromPreismeldungen.getPreismeldungenStatus);
+export const getPreismeldungenCurrentPmsNummer = createSelector(getPreismeldungenState, fromPreismeldungen.getPreismeldungenCurrentPmsNummer);
 
 
 export const getLoginState = (state: AppState) => state.login;

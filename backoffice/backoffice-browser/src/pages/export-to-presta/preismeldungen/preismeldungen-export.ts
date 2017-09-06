@@ -1,9 +1,7 @@
 import { EventEmitter, Output, Component, Input, OnChanges, SimpleChange } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent } from 'lik-shared';
-
-import { PreismeldungBag } from '../../../reducers/preismeldung';
+import { ReactiveComponent, PreismeldungBag } from 'lik-shared';
 
 @Component({
     selector: 'preismeldungen-export',
