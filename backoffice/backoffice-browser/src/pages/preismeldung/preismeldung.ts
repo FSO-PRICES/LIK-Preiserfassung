@@ -1,6 +1,8 @@
 import { Component, OnDestroy, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription, Observable } from 'rxjs';
+import { orderBy } from 'lodash';
+import * as moment from 'moment';
 
 import { PefDialogService, DialogCancelEditComponent, PreismeldungAction } from 'lik-shared';
 import * as P from '../../common-models';
@@ -19,7 +21,8 @@ import { IonicPage } from 'ionic-angular';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreismeldungPage implements OnDestroy {
-    public preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
+    public preismeldungen$ = this.store.select(fromRoot.getPreismeldungen)
+        .map(preismeldungen => orderBy(preismeldungen, [pm => moment(new Date(pm.preismeldung.modifiedAt)).startOf('second'), pm => +pm.preismeldung.epNummer, pm => pm.preismeldung.laufnummer], ['desc', 'asc', 'asc']));
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
     public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
     public status$ = this.store.select(fromRoot.getPreismeldungenStatus);
@@ -148,7 +151,6 @@ export class PreismeldungPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        // this.store.dispatch({ type: 'CLEAR_PREISMELDUNG_FOR_PMS' } as preismeldung.Action);
         this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null } as PreismeldungAction);
         this.subscriptions
             .filter(s => !!s && !s.closed)
