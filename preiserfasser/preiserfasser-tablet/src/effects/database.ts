@@ -37,53 +37,58 @@ export class DatabaseEffects {
     checkConnectivity$ = this.actions$
         .ofType('CHECK_CONNECTIVITY_TO_DATABASE')
         .flatMap(() =>
-            Observable.of({ type: 'RESET_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)
-                .concat(this.store.select(fromRoot.getSettings).take(1)
+            Observable.concat(
+                [{ type: 'RESET_CONNECTIVITY_TO_DATABASE' } as DatabaseAction],
+                this.store.select(fromRoot.getSettings).take(1)
                     .flatMap(settings => !!settings && !settings.isDefault ?
                         checkConnectivity(settings.serverConnection.url).catch(() => Observable.of(false)) :
                         Observable.of(false)
                     )
                     .map(isAlive => ({ type: 'SET_CONNECTIVITY_STATUS', payload: isAlive } as DatabaseAction))
-                )
+            )
         );
 
     @Effect()
     syncDatabase$ = this.actions$
         .ofType('SYNC_DATABASE')
         .flatMap(action =>
-            Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
-                .concat(syncDatabase(action.payload)
-                    .flatMap(result => result.didSync
-                        ? getDatabaseAsObservable()
+            Observable.concat(
+                [{ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction],
+                syncDatabase(action.payload)
+                    .flatMap(result =>
+                        getDatabaseAsObservable()
                             .flatMap(db => db.get('last-synced-at').then(doc => doc._rev).catch(() => null)
                                 .then(_rev => {
                                     const lastSyncedAt = new Date();
                                     return db.put({ _id: 'last-synced-at', _rev, value: lastSyncedAt }).then(() => lastSyncedAt);
                                 })
                             )
-                            .flatMap(lastSyncedAt => syncDatabase(action.payload).map(() => lastSyncedAt)) // Sync synced at
-                            .map(lastSyncedAt => ({ type: 'SYNC_DATABASE_SUCCESS', payload: lastSyncedAt } as DatabaseAction))
-                            .catch(error => Observable.from(this.convertErrorToActions(error)))
-                        : Observable.of({ type: 'SYNC_DATABASE_FAILURE', payload: 'Mismatch in user-db-id' })
-                    )
-                ), 1 // limit concurrency
+                            .flatMap(lastSyncedAt => syncDatabase(action.payload)
+                                .map(x => ({ type: 'SYNC_DATABASE_SUCCESS', payload: lastSyncedAt } as DatabaseAction))
+                            )
+                    ).catch(error => this.convertErrorToActions(this.tryParseError(error)))
+            ),
+        1
         );
 
     @Effect()
     download$ = this.actions$
         .ofType('DOWNLOAD_DATABASE')
-        .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
-            .concat(downloadDatabase(action.payload)
-                .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
-                .catch(error => Observable.from(this.convertErrorToActions(error)))
+        .flatMap(action =>
+            Observable.concat(
+                [{ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction],
+                downloadDatabase(action.payload)
+                    .map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction))
+                    .catch(error => this.convertErrorToActions(this.tryParseError(error)))
             )
         );
 
     @Effect()
     uploadDatabase$ = this.actions$
         .ofType('UPLOAD_DATABASE')
-        .flatMap(action => Observable.of({ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction)
-            .concat(this.updatePreismeldungen()
+        .flatMap(action => Observable.concat(
+            [{ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction],
+            this.updatePreismeldungen()
                 .flatMap(() =>
                     uploadDatabase(action.payload)
                         .flatMap(() => {
@@ -94,8 +99,8 @@ export class DatabaseEffects {
                             ];
                         })
                 )
-                .catch(error => Observable.from(this.convertErrorToActions(error)))
-            )
+                .catch(error => Observable.from(this.convertErrorToActions(this.tryParseError(error))))
+        )
         );
 
     @Effect()
@@ -119,32 +124,31 @@ export class DatabaseEffects {
         .flatMap(() => dropDatabase())
         .flatMap(() => [
             { type: 'SET_DATABASE_EXISTS', payload: false },
-            ... this.resetActions
+            ...this.resetActions
         ]);
 
-    private tryParseError(error: { name: string, message: string, stack: string }) {
+    private convertErrorToActions(errorText: string) {
+        const actions: any[] = [{ type: 'SYNC_DATABASE_FAILURE', payload: errorText } as DatabaseAction]
+        return (errorText === 'error_request_unauthorized')
+            ? [...actions, { type: 'SET_IS_LOGGED_OUT', payload: errorText } as LoginAction]
+            : actions;
+    }
+
+    private tryParseError(error: { name: string, message: string, stack: string } | string) {
+        if (typeof error === 'string') return error;
         if (!!error && !!error.name) {
             switch (error.name) {
                 case 'unauthorized':
-                    return this.translate.instant('error_request_unauthorized');
+                    return 'error_request_unauthorized';
                 case 'unknown':
                 default:
-                    return this.translate.instant('error_synchronize_unknown-error');
+                    return 'error_synchronize_unknown-error';
             }
         }
         if (!!error && !!error.message) {
             return error.message;
         }
-        return error;
-    }
-
-    private convertErrorToActions(error, ) {
-        const errorText = this.tryParseError(error);
-        const actions: any[] = [{ type: 'SYNC_DATABASE_FAILURE', payload: errorText } as DatabaseAction]
-        if (!!error && error.status === 401) { // Append logged out action if an unauthorized response was returned
-            actions.push({ type: 'SET_IS_LOGGED_OUT', payload: errorText } as LoginAction)
-        }
-        return actions;
+        return 'error_synchronize_unknown-error';
     }
 
     private updatePreismeldungen() {
