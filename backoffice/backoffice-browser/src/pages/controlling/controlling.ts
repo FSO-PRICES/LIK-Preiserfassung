@@ -4,7 +4,7 @@ import { Observable, Subscription } from 'rxjs';
 
 import { PefDialogService } from 'lik-shared';
 
-import * as importer from '../../actions/importer';
+import * as controlling from '../../actions/controlling';
 import * as fromRoot from '../../reducers';
 import { IonicPage } from 'ionic-angular';
 
@@ -39,14 +39,16 @@ export class ControllingPage implements OnDestroy {
                 .subscribe(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', this.reportExecuting$.filter(x => !x).take(1)))
         );
 
-        this.subscriptions.push(
-            this.loadData$.subscribe(() => this.store.dispatch({ type: 'UPDATE_STICHTAGE' }))
-        );
+        this.subscriptions.push(this.loadData$.subscribe(() => this.store.dispatch(controlling.createUpdateStichtageAction())));
     }
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'RUN_PRE-CONTROLLING_TASKS' });
+    }
+
+    public runControlling(v) {
+        this.store.dispatch(controlling.createRunControllingAction(v));
     }
 
     ngOnDestroy() {

@@ -48,6 +48,7 @@ export const de = {
     'dialogText_rrr-message-mit-aufforderung-zu-produktersatz': `Dieser Artikel fehlt schon länger. Gibt es ein vergleichbares Ersatzprodukt?`,
     'dialogText_unveraendert-pm-text': `Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?`,
     'dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis': `Aktionspreis der VP war gleich oder grösser als aktueller Normalpreis. Ist der aktuelle Preis ein Aktionspreis?`,
+    'error_user-db-id-mismatch': `Datenbank ID's stimmen nich überein. Bitte kontaktieren Sie den Administrator.`,
     'error_login-wrong-credentials': `Benutzername und Password stimmen nicht überein.`,
     'error_request_unauthorized': `Kein gültiges Login vorhanden. Login ist eventuell abgelaufen.`,
     'error_synchronize_unknown-error': `Ein unbekannter Fehler ist während der Synchronisierung aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Administrator.`,

@@ -1,7 +1,17 @@
 <header pef-menu></header>
 <div class="page-wrapper">
     <ion-content class="page-content">
-        <button type="button" class="load-data" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Stichtage für neue Preisreihen ergänzen</button>
-        <div *ngIf="(numStichtagPreismeldungenUpdated$ | async) != null"><br/>{{ (numStichtagPreismeldungenUpdated$ | async) }} Preisreihen wurden ergänzt.</div>
+        <div>
+            <button type="button" class="load-data" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Stichtage für neue Preisreihen ergänzen</button>
+            <div *ngIf="(numStichtagPreismeldungenUpdated$ | async) != null"><br/>{{ (numStichtagPreismeldungenUpdated$ | async) }} Preisreihen wurden ergänzt.</div>
+        </div>
+
+        <div class="controlling-reports">
+            <select #controllingSelect>
+                <option value="CONTROLLING_0100">Heizöl, Treibstoffe (Stichtag 1): Vollständigkeit</option>
+                <option value="CONTROLLING_0200">Heizöl, Treibstoffe (Stichtag 2): Vollständigkeit</option>
+            </select>
+            <button type="button" class="load-data" ion-button (click)="runControlling(controllingSelect.value)">ausführen</button>
+        </div>
     </ion-content>
 </div>
