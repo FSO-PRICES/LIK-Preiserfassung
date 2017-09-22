@@ -90,6 +90,11 @@ export function getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.D
     return db.allDocs({ include_docs: true }).then(x => x.rows.map(row => row.doc as T));
 }
 
+export function getAllDocumentsFromDbName<T extends P.CouchProperties>(dbName: string): Observable<T[]> {
+    return getDatabaseAsObservable(dbName)
+        .flatMap(db => getAllDocumentsFromDb<T>(db));
+}
+
 export function getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, prefix: string): Promise<T[]> {
     return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }

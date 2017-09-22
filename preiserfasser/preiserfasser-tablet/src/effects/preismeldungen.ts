@@ -208,7 +208,7 @@ export class PreismeldungenEffects {
     }
 
     createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
-        return { percentage: null, warning: false, textzeil: null };
+        return { percentage: null, warning: false, limitType: null, textzeil: null };
     }
 
     savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {

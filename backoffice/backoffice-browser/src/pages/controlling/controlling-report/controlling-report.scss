@@ -1,0 +1,38 @@
+controlling-report {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .top-section {
+        display: flex;
+    }
+
+    .btn-execute {
+        margin: 0 0 0 20px;
+    }
+
+    .controlling-selected {
+        padding: 6px 8px;
+    }
+
+    .table-wrapper {
+        margin-top: 20px;
+        overflow: auto;
+    }
+
+    .report-table {
+        min-width: 100%;
+        user-select: auto;
+
+        th {
+            white-space: nowrap;
+            text-align: left;
+            padding-right: 10px;
+        }
+
+        td {
+            white-space: nowrap;
+            padding-right: 10px;
+        }
+    }
+}

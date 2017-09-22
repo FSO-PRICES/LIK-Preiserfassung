@@ -1,5 +1,12 @@
 controlling-page {
-    .controlling-reports {
+    .page-wrapper {
+        flex-direction: column;
+    }
+    stichtage {
+        display: flex;
+    }
+    controlling-report {
+        display: flex;
         margin-top: 30px;
     }
 }

@@ -332,7 +332,7 @@ function debugDifference(obj1: any, obj2: any, props: string[]) {
 }
 
 function createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
-    return { percentage: null, warning: false, textzeil: null };
+    return { percentage: null, warning: false, limitType: null, textzeil: null };
 }
 
 const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: string, laufnummer: string, bearbeitungscode: P.Models.Bearbeitungscode, erhebungsZeitpunkt?: number): P.Models.Preismeldung => ({
@@ -393,12 +393,15 @@ function createStartingPercentageWithWarning(percentage: number): P.Models.Perce
     return {
         percentage,
         warning: false,
+        limitType: null,
         textzeil: null
     };
 }
 
-function exceedsLimit(percentage: number, negativeLimit: number, positiveLimit: number): boolean {
-    return percentage < negativeLimit || percentage > positiveLimit;
+function exceedsLimit(percentage: number, negativeLimitType: P.Models.LimitType, negativeLimit: number, positiveLimitType: P.Models.LimitType, positiveLimit: number): P.Models.LimitType {
+    if (percentage < negativeLimit) return negativeLimitType;
+    if (percentage > positiveLimit) return positiveLimitType;
+    return null;
 }
 
 function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPricePayload): { percentages: P.Models.PreismeldungPercentages, hasPriceWarning: boolean, textzeile: string[] } {
@@ -414,57 +417,72 @@ function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPriceP
         switch (bag.preismeldung.bearbeitungscode) {
             case 99: {
                 if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
-                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.negativeLimite, bag.warenkorbPosition.positiveLimite);
+                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitNegativeLimite, bag.warenkorbPosition.negativeLimite, P.Models.limitPositiveLimite, bag.warenkorbPosition.positiveLimite);
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
                 } else {
-                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
                 }
                 break;
             }
             case 1: {
                 if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) { // VP -, T -
-                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                 } else if (bag.refPreismeldung.aktion && !bag.preismeldung.aktion) { // VP A, T -
-                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
-                    d_DPToVPVorReduktion.warning = exceedsLimit(d_DPToVPVorReduktion.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPToVPVorReduktion.limitType = exceedsLimit(d_DPToVPVorReduktion.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPToVPVorReduktion.warning = !!d_DPToVPVorReduktion.limitType;
                     d_DPToVPVorReduktion.textzeil = d_DPToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                 } else if (bag.refPreismeldung.aktion && bag.preismeldung.aktion) { // VP A, T A
-                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
-                    d_DPVorReduktionToVPVorReduktion.warning = exceedsLimit(d_DPVorReduktionToVPVorReduktion.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVPVorReduktion.limitType = exceedsLimit(d_DPVorReduktionToVPVorReduktion.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVPVorReduktion.warning = !!d_DPVorReduktionToVPVorReduktion.limitType;
                     d_DPVorReduktionToVPVorReduktion.textzeil = d_DPVorReduktionToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                 }
                 else { // VP -, T A
-                    d_DPToVP.warning = exceedsLimit(d_DPToVP.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
-                    d_DPVorReduktionToVP.warning = exceedsLimit(d_DPVorReduktionToVP.percentage, bag.warenkorbPosition.negativeLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVP.limitType = exceedsLimit(d_DPVorReduktionToVP.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVP.warning = !!d_DPVorReduktionToVP.limitType;
                     d_DPVorReduktionToVP.textzeil = d_DPVorReduktionToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                 }
                 break;
             }
             case 7: {
                 if (!bag.preismeldung.aktion) { // T -
-                    d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.negativeLimite, bag.warenkorbPosition.positiveLimite);
+                    d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitNegativeLimite, bag.warenkorbPosition.negativeLimite, P.Models.limitPositiveLimite, bag.warenkorbPosition.positiveLimite);
+                    d_DPToVPK.warning = !!d_DPToVPK.limitType;
                     d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
                     if (bag.refPreismeldung.aktion) { // VP A
-                        d_VPKToVPVorReduktion.warning = exceedsLimit(d_VPKToVPVorReduktion.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPVorReduktion.limitType = exceedsLimit(d_VPKToVPVorReduktion.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPVorReduktion.warning = !!d_VPKToVPVorReduktion.limitType;
                         d_VPKToVPVorReduktion.textzeil = d_VPKToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                     } else { // VP -
-                        d_VPKToVPAlterArtikel.warning = exceedsLimit(d_VPKToVPAlterArtikel.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPAlterArtikel.limitType = exceedsLimit(d_VPKToVPAlterArtikel.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPAlterArtikel.warning = !!d_VPKToVPAlterArtikel.limitType;
                         d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                     }
                 }
                 else { // T A
-                    d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVPK.warning = !!d_DPToVPK.limitType;
                     d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
                     if (bag.refPreismeldung.aktion) { // VP A
-                        d_VPKToVPVorReduktion.warning = exceedsLimit(d_VPKToVPVorReduktion.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPVorReduktion.limitType = exceedsLimit(d_VPKToVPVorReduktion.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPVorReduktion.warning = !!d_VPKToVPVorReduktion.limitType;
                         d_VPKToVPVorReduktion.textzeil = d_VPKToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                     } else { // VP -
-                        d_VPKToVPAlterArtikel.warning = exceedsLimit(d_VPKToVPAlterArtikel.percentage, bag.warenkorbPosition.negativeLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPAlterArtikel.limitType = exceedsLimit(d_VPKToVPAlterArtikel.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPAlterArtikel.warning = !!d_VPKToVPAlterArtikel.limitType;
                         d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
                     }
                 }
@@ -474,10 +492,12 @@ function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPriceP
     } else {
         if (bag.preismeldung.bearbeitungscode === 2) {
             if (!bag.preismeldung.aktion) {
-                d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.negativeLimite, bag.warenkorbPosition.positiveLimite);
+                d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitNegativeLimite, bag.warenkorbPosition.negativeLimite, P.Models.limitPositiveLimite, bag.warenkorbPosition.positiveLimite);
+                d_DPToVPK.warning = !!d_DPToVPK.limitType;
                 d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
             } else {
-                d_DPToVPK.warning = exceedsLimit(d_DPToVPK.percentage, bag.warenkorbPosition.abweichungPmUG2, bag.warenkorbPosition.abweichungPmOG2);
+                d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                d_DPToVPK.warning = !!d_DPToVPK.limitType;
                 d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
             }
         }

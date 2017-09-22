@@ -63,6 +63,9 @@ export function reducer(state: AppState, action: any): AppState {
 
 export const getControllingState = (state: AppState) => state.controlling;
 export const getStichtagPreismeldungenUpdated = createSelector(getControllingState, fromControlling.getStichtagPreismeldungenUpdated);
+export const getControllingReportData = createSelector(getControllingState, fromControlling.getControllingReportData);
+export const getControllingRawCachedData = createSelector(getControllingState, fromControlling.getControllingRawCachedData);
+export const getControllingReportExecuting = createSelector(getControllingState, fromControlling.getControllingReportExecuting);
 
 
 export const getPreiserheberState = (state: AppState) => state.preiserhebers;

@@ -168,9 +168,31 @@ interface __PreismeldungProperties {
 
 type _PreismeldungProperties = __PreismeldungProperties & PreismeldungPercentages;
 
+export const limitNegativeLimite = 'negativeLimite';
+export const limitPositiveLimite = 'positiveLimite';
+export const limitAbweichungPmUG2 = 'abweichungPmUG2';
+export const limitAbweichungPmOG2 = 'abweichungPmOG2';
+export const limitNegativeLimite_1 = 'negativeLimite_1';
+export const limitPositiveLimite_1 = 'positiveLimite_1';
+export const limitNegativeLimite_7 = 'negativeLimite_7';
+export const limitPositiveLimite_7 = 'positiveLimite_7';
+
+export type LimitType =
+    | null
+    | typeof limitNegativeLimite
+    | typeof limitPositiveLimite
+    | typeof limitAbweichungPmUG2
+    | typeof limitAbweichungPmOG2
+    | typeof limitNegativeLimite_1
+    | typeof limitPositiveLimite_1
+    | typeof limitNegativeLimite_7
+    | typeof limitPositiveLimite_7;
+
+
 export interface PercentageWithWarning {
     percentage: number;
     warning: boolean;
+    limitType: LimitType;
     textzeil: string;
 }
 
@@ -215,8 +237,11 @@ export interface WarenkorbTreeItemBase {
     info: PropertyTranslation;
 }
 
+export const WarenkorbItemTypeBranch = 'BRANCH';
+export const WarenkorbItemTypeLeaf = 'LEAF';
+
 export interface WarenkorbBranch extends WarenkorbTreeItemBase {
-    type: 'BRANCH';
+    type: typeof WarenkorbItemTypeBranch;
 }
 
 export enum PeriodizitaetMonat {
@@ -236,7 +261,7 @@ export enum PeriodizitaetMonat {
 }
 
 export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
-    type: 'LEAF';
+    type: typeof WarenkorbItemTypeLeaf;
     standardmenge: number;
     standardeinheit: PropertyTranslation;
     erhebungstyp: string;
@@ -261,7 +286,7 @@ export type WarenkorbTreeItem = WarenkorbBranch | WarenkorbLeaf;
 export type WarenkorbHierarchicalTreeItem = (WarenkorbBranch & { children: WarenkorbHierarchicalTreeItem[] }) | WarenkorbLeaf;
 
 export interface WarenkorbDocumentProperties {
-    products: (WarenkorbBranch | WarenkorbLeaf)[];
+    products: WarenkorbTreeItem[];
 }
 
 export type WarenkorbDocument = WarenkorbDocumentProperties & CouchProperties;

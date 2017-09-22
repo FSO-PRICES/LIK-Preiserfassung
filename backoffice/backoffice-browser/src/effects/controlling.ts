@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
 import * as moment from 'moment';
 
 import * as controlling from '../actions/controlling';
-import { getAllDocumentsForPrefixFromUserDbs } from '../common/user-db-values';
-import { getAllDocumentsForPrefixFromDbName, listUserDatabases, dbNames, getDatabaseAsObservable, getAllDocumentsForPrefixFromDb } from './pouchdb-utils';
+import { getAllDocumentsForPrefixFromUserDbs, loadAllPreismeldestellen, loadAllPreiserheber } from '../common/user-db-values';
+import { getAllDocumentsForPrefixFromDbName, listUserDatabases, dbNames, getDatabaseAsObservable, getAllDocumentsForPrefixFromDb, getAllDocumentsFromDbName } from './pouchdb-utils';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import * as fromRoot from '../reducers';
@@ -37,10 +37,22 @@ export class ControllingEffects {
     runControlling$ = this.actions$
         .ofType(controlling.RUN_CONTROLLING)
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(({ payload }) => getAllDocumentsForPrefixFromDbName<P.PreismeldungReference>(dbNames.preismeldung, 'pm-ref/').map(refPreismeldungen => ({ controllingType: payload, data: { refPreismeldungen } })))
-        .flatMap(({ controllingType, data }) => getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>('pm/').map(preismeldungen => ({ controllingType, data: Object.assign(data, { preismeldungen }) })))
-        .flatMap(({ controllingType, data }) => getDatabaseAsObservable(dbNames.warenkorb).flatMap(db => db.get<P.WarenkorbDocument>('warenkorb')).map(warenkorb => ({ controllingType, data: Object.assign(data, { warenkorb }) })))
-        .map(x => controlling.createRunControllingDataReadyAction(x.controllingType, x.data));
+        .withLatestFrom(this.store.select(fromRoot.getControllingRawCachedData), (action, rawCachedData) => ({ action, rawCachedData }))
+        .flatMap(({ action, rawCachedData }) =>
+            Observable.concat(
+                Observable.of(controlling.createRunControllingExecutingAction()),
+                Observable.if(
+                    () => !!rawCachedData,
+                    Observable.of({ controllingType: action.payload, data: rawCachedData }).delay(500),
+                    getAllDocumentsForPrefixFromDbName<P.PreismeldungReference>(dbNames.preismeldung, 'pm-ref/').map(refPreismeldungen => ({ controllingType: action.payload, data: { refPreismeldungen } }))
+                        .flatMap(({ controllingType, data }) => getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>('pm/').map(preismeldungen => ({ controllingType, data: { ...data, preismeldungen } })))
+                        .flatMap(({ controllingType, data }) => loadAllPreismeldestellen().map(preismeldestellen => ({ controllingType, data: { ...data, preismeldestellen } })))
+                        .flatMap(({ controllingType, data }) => loadAllPreiserheber().map(preiserheber => ({ controllingType, data: { ...data, preiserheber } })))
+                        .flatMap(({ controllingType, data }) => getDatabaseAsObservable(dbNames.warenkorb).flatMap(db => db.get<P.WarenkorbDocument>('warenkorb')).map(warenkorb => ({ controllingType, data: { ...data, warenkorb } })))
+                        .flatMap(({ controllingType, data }) => getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisung).map(preiszuweisungen => ({ controllingType, data: { ...data, preiszuweisungen } })))
+                ).map(x => controlling.createRunControllingDataReadyAction(x.controllingType, x.data))
+            )
+        )
 }
 
 function updateStichtage() {

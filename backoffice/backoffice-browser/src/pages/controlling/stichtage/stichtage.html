@@ -1,0 +1,2 @@
+<button type="button" ion-button (click)="runReport$.emit()" [disabled]="reportExecuting$ | async">Stichtage für neue Preisreihen ergänzen</button>
+<div *ngIf="(numStichtagPreismeldungenUpdated$ | async) != null"><br/>{{ (numStichtagPreismeldungenUpdated$ | async) }} Preisreihen wurden ergänzt.</div>
