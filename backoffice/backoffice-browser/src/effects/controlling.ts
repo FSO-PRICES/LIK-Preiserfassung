@@ -12,7 +12,7 @@ import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import * as fromRoot from '../reducers';
 
-import { Models as P, parseDate } from 'lik-shared';
+import { Models as P, PreismeldungBag } from 'lik-shared';
 
 @Injectable()
 export class ControllingEffects {
@@ -53,6 +53,27 @@ export class ControllingEffects {
                 ).map(x => controlling.createRunControllingDataReadyAction(x.controllingType, x.data))
             )
         )
+
+    @Effect()
+    selectControllingPm$ = this.actions$
+        .ofType(controlling.SELECT_CONTROLLING_PM)
+        .map(({ payload }) => payload)
+        .withLatestFrom(this.store.select(fromRoot.getControllingRawCachedData), (pmId, controllingRawCachedData) => {
+            if (!pmId) {
+                return controlling.createSelectControllingPmWithBagAction(null);
+            }
+
+            const refPreismeldung = controllingRawCachedData.refPreismeldungen.find(x => x.pmId === pmId);
+            const preismeldung = controllingRawCachedData.preismeldungen.find(x => x._id === pmId);
+            const epNummer = (refPreismeldung || preismeldung).epNummer;
+            return controlling.createSelectControllingPmWithBagAction({
+                pmId,
+                refPreismeldung,
+                sortierungsnummer: null,
+                preismeldung,
+                warenkorbPosition: controllingRawCachedData.warenkorb.products.find(x => x.gliederungspositionsnummer === epNummer) as P.WarenkorbLeaf
+            });
+        });
 }
 
 function updateStichtage() {

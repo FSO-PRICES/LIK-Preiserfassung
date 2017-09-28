@@ -54,17 +54,17 @@ export class PreismeldungEffects {
 
     @Effect()
     savePreismeldungMessages$ = this.actions$
-        .ofType('SAVE_PREISMELDING_MESSAGES')
+        .ofType('SAVE_PREISMELDUNG_MESSAGES')
         .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
         .flatMap(currentPreismeldung => this.savePreismeldungMessages(currentPreismeldung))
-        .map(payload => ({ type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload }));
+        .map(payload => ({ type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS', payload }));
 
     @Effect()
     savePreismeldungAttributes$ = this.actions$
-        .ofType('SAVE_PREISMELDING_ATTRIBUTES')
+        .ofType('SAVE_PREISMELDUNG_ATTRIBUTES')
         .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung)
         .flatMap(currentPreismeldung => this.savePreismeldungAttributes(currentPreismeldung))
-        .map(payload => ({ type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload }));
+        .map(payload => ({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS', payload }));
 
     savePreismeldung(currentPreismeldungBag: P.CurrentPreismeldungBag, copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]) {
         return getDatabaseAsObservable(dbNames.preiszuweisung)

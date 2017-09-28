@@ -1,10 +1,12 @@
-import { Models as P } from 'lik-shared';
+import { Models as P, PreismeldungBag } from 'lik-shared';
 
 export const UPDATE_STICHTAGE = 'UPDATE_STICHTAGE';
 export const UPDATE_STICHTAGE_SUCCESS = 'UPDATE_STICHTAGE_SUCCESS';
 export const RUN_CONTROLLING = 'RUN_CONTROLLING';
 export const RUN_CONTROLLING_EXECUTING = 'RUN_CONTROLLING_EXECUTING';
 export const RUN_CONTROLLING_DATA_READY = 'RUN_CONTROLLING_DATA_READY';
+export const SELECT_CONTROLLING_PM = 'SELECT_CONTROLLING_PM';
+export const SELECT_CONTROLLING_PM_WITH_BAG = 'SELECT_CONTROLLING_PM_WITH_BAG';
 
 export const CONTROLLING_0100 = 'CONTROLLING_0100';
 export const CONTROLLING_0200 = 'CONTROLLING_0200';
@@ -30,7 +32,6 @@ export const CONTROLLING_0530 = 'CONTROLLING_0530';
 export const CONTROLLING_0540 = 'CONTROLLING_0540';
 export const CONTROLLING_0600 = 'CONTROLLING_0600';
 export const CONTROLLING_0700 = 'CONTROLLING_0700';
-
 
 export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0100
@@ -68,15 +69,19 @@ export interface ControllingData {
 };
 
 export type ControllingAction =
-    { type: typeof UPDATE_STICHTAGE } |
-    { type: typeof UPDATE_STICHTAGE_SUCCESS; payload: P.Preismeldung[]; } |
-    { type: typeof RUN_CONTROLLING; payload: CONTROLLING_TYPE; } |
-    { type: typeof RUN_CONTROLLING_EXECUTING } |
-    { type: typeof RUN_CONTROLLING_DATA_READY; payload: { controllingType: CONTROLLING_TYPE, data: ControllingData } };
+    | { type: typeof UPDATE_STICHTAGE }
+    | { type: typeof UPDATE_STICHTAGE_SUCCESS; payload: P.Preismeldung[]; }
+    | { type: typeof RUN_CONTROLLING; payload: CONTROLLING_TYPE; }
+    | { type: typeof RUN_CONTROLLING_EXECUTING }
+    | { type: typeof RUN_CONTROLLING_DATA_READY; payload: { controllingType: CONTROLLING_TYPE, data: ControllingData } }
+    | { type: typeof SELECT_CONTROLLING_PM; payload: string; }
+    | { type: typeof SELECT_CONTROLLING_PM_WITH_BAG; payload: PreismeldungBag; };
 
 export const createUpdateStichtageAction = (): ControllingAction => ({ type: UPDATE_STICHTAGE });
 export const createUpdateStichtageSuccessAction = (preismeldungen: P.Preismeldung[]): ControllingAction => ({ type: UPDATE_STICHTAGE_SUCCESS, payload: preismeldungen });
 
-export const createRunControllingAction = (controllingType: CONTROLLING_TYPE): ControllingAction => ({ type: RUN_CONTROLLING, payload: controllingType });
-export const createRunControllingExecutingAction = () => ({ type: RUN_CONTROLLING_EXECUTING });
+export const createRunControllingAction = (controllingType: CONTROLLING_TYPE): ControllingAction => ({ type: RUN_CONTROLLING, payload: (controllingType as CONTROLLING_TYPE) });
+export const createRunControllingExecutingAction = (): ControllingAction => ({ type: RUN_CONTROLLING_EXECUTING });
 export const createRunControllingDataReadyAction = (controllingType: CONTROLLING_TYPE, data: ControllingData): ControllingAction => ({ type: RUN_CONTROLLING_DATA_READY, payload: { controllingType, data } });
+export const createSelectControllingPmAction = (pmId: string): ControllingAction => ({ type: SELECT_CONTROLLING_PM, payload: pmId });
+export const createSelectControllingPmWithBagAction = (bag: PreismeldungBag): ControllingAction => ({ type: SELECT_CONTROLLING_PM_WITH_BAG, payload: bag });

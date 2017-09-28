@@ -7,7 +7,11 @@ const fwith = <T>(o: T, fn: (o: T) => any) => fn(o);
 export interface ControllingReportData {
     controllingType: controlling.CONTROLLING_TYPE;
     columns: string[];
-    values: (string | number)[][];
+    rows: {
+        pmId: string;
+        canView: boolean;
+        values: (string | number)[];
+    }[]
 }
 
 export interface State {
@@ -56,12 +60,19 @@ function runReport(data: controlling.ControllingData, controllingType: controlli
     const results = erhebungsPositionen
         .map(x => ({
             values: controllingConfig.columns.map(v => columnDefinition[v](x)),
+            canView: !!x.preismeldung,
+            pmId: !!x.preismeldung ? x.preismeldung._id : x.refPreismeldung.pmId,
             ...controllingConfig.sortBy.reduce((acc, v, i) => ({ ...acc, [`sort${i}`]: fwith(columnDefinition[v.column](x), y => v.convertToNumber ? +y : y) }), {})
         }));
     const orderedResults = orderBy(results, controllingConfig.sortBy.map((_, i) => `sort${i}`));
     return {
         columns: controllingConfig.columns,
-        values: orderedResults.map(r => r.values)
+        rows: orderedResults
+            .map(r => ({
+                pmId: r.pmId,
+                canView: r.canView,
+                values: r.values
+            }))
     };
 }
 

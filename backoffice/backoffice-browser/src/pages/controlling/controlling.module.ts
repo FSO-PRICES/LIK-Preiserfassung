@@ -4,6 +4,8 @@ import { IonicPageModule } from 'ionic-angular';
 import { ControllingPage } from './controlling';
 import { ControllingReportComponent } from './controlling-report/controlling-report';
 import { StichtageComponent } from './stichtage/stichtage';
+import { EditPreismeldungComponent } from './edit-preismeldung/edit-preismeldung';
+import { PefComponentsModule, PreismeldungSharedModule } from 'lik-shared';
 
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 
@@ -11,10 +13,13 @@ import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
     declarations: [
         ControllingPage,
         StichtageComponent,
-        ControllingReportComponent
+        ControllingReportComponent,
+        EditPreismeldungComponent
     ],
     imports: [
         IonicPageModule.forChild(ControllingPage),
+        PefComponentsModule,
+        PreismeldungSharedModule,
         PefMenuModule
     ],
 })

@@ -48,18 +48,19 @@ export const isSavePreismeldungPriceSaveActionSave = (x: SavePreismeldungPriceSa
     x.type === 'JUST_SAVE' || x.type === 'SAVE_AND_MOVE_TO_NEXT' || x.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD' || x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG';
 
 export type PreismeldungAction =
-    { type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: string } |
-    { type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: { isAdminApp: boolean; warenkorb: P.WarenkorbInfo[]; refPreismeldungen: P.Models.PreismeldungReference[]; preismeldungen: P.Models.Preismeldung[]; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort, pms: P.Models.Preismeldestelle } } |
-    { type: 'PREISMELDUNGEN_RESET', payload: null } |
-    { type: 'SELECT_PREISMELDUNG', payload: string } |
-    { type: 'UPDATE_PREISMELDUNG_PRICE', payload: PreismeldungPricePayload } |
-    { type: 'UPDATE_PREISMELDUNG_MESSAGES', payload: PreismeldungMessagesPayload } |
-    { type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload: string[] } |
-    { type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; saveAction: SavePreismeldungPriceSaveAction } } |
-    { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort } } |
-    { type: 'RESET_PREISMELDUNG_SUCCESS', payload: P.Models.Preismeldung } |
-    { type: 'DELETE_PREISMELDUNG_SUCCESS', payload: string } |
-    { type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload: P.Models.Preismeldung } |
-    { type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload: P.Models.Preismeldung } |
-    { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 } |
-    { type: 'NEW_PREISMELDUNG', payload: { pmsNummer: string; bearbeitungscode: P.Models.Bearbeitungscode; warenkorbPosition: P.Models.WarenkorbLeaf } };
+    | { type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: string }
+    | { type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload: { isAdminApp: boolean; warenkorb: P.WarenkorbInfo[]; refPreismeldungen: P.Models.PreismeldungReference[]; preismeldungen: P.Models.Preismeldung[]; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort, pms: P.Models.Preismeldestelle } }
+    | { type: 'PREISMELDUNGEN_RESET', payload: null }
+    | { type: 'SELECT_PREISMELDUNG', payload: string }
+    | { type: 'UPDATE_PREISMELDUNG_PRICE', payload: PreismeldungPricePayload }
+    | { type: 'UPDATE_PREISMELDUNG_MESSAGES', payload: PreismeldungMessagesPayload }
+    | { type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload: string[] }
+    | { type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; saveAction: SavePreismeldungPriceSaveAction } }
+    | { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort } }
+    | { type: 'RESET_PREISMELDUNG_SUCCESS', payload: P.Models.Preismeldung }
+    | { type: 'DELETE_PREISMELDUNG_SUCCESS', payload: string }
+    | { type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload: P.Models.Preismeldung }
+    | { type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload: P.Models.Preismeldung }
+    | { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 }
+    | { type: 'NEW_PREISMELDUNG', payload: { pmsNummer: string; bearbeitungscode: P.Models.Bearbeitungscode; warenkorbPosition: P.Models.WarenkorbLeaf } }
+    | { type: 'SELECT_CONTROLLING_PM_WITH_BAG'; payload: P.PreismeldungBag };

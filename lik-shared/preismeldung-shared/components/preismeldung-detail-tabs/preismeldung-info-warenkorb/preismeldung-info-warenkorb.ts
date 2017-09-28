@@ -92,7 +92,7 @@ import { Observable } from 'rxjs';
                                 }}%
                             </div>
                         </div>
-                        <div class="info-warenkorb-row">
+                        <div class="info-warenkorb-row" *ngIf="!!((preismeldung$ | async)?.priceCountStatus)">
                             <div class="info-warenkorb-cell heading"> {{ 'label_info-warenkorb_anzahl-preismeldungen' | translate }} </div>
                             <div class="info-warenkorb-cell value">
                                 ({{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}&nbsp;/&nbsp;{{ (preismeldung$ | async)?.priceCountStatus.anzahlPreiseProPMS

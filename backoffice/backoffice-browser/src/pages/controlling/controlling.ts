@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
-import { PefDialogService } from 'lik-shared';
+import * as P from 'lik-shared';
 
 import * as controlling from '../../actions/controlling';
 import * as fromRoot from '../../reducers';
@@ -23,11 +23,22 @@ export class ControllingPage implements OnDestroy {
 
     public runControllingReport$ = new EventEmitter<controlling.CONTROLLING_TYPE>();
     public controllingReportData$ = this.store.select(fromRoot.getControllingReportData);
-    public getControllingReportExecuting$ = this.store.select(fromRoot.getControllingReportExecuting);
+    public controllingReportExecuting$ = this.store.select(fromRoot.getControllingReportExecuting);
+    public currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung);
+    public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
+
+    public editPreismeldungId$ = new EventEmitter<string>();
+
+    public updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
+    public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
+    public savePreismeldungPrice$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
+    public savePreismeldungMessages$ = new EventEmitter();
+    public savePreismeldungAttributes$ = new EventEmitter();
+    public closeClicked$ = new EventEmitter();
 
     private onDestroy$ = new EventEmitter();
 
-    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
+    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: P.PefDialogService) {
         this.stichtageReportExecuting$ = this.runStichtageReport$.mapTo(true)
             .merge(this.runStichtageReport$.flatMap(() => Observable.defer(() => this.stichtagPreismeldungenUpdated$.skip(1).take(1))).mapTo(false))
             .startWith(false)
@@ -39,7 +50,7 @@ export class ControllingPage implements OnDestroy {
             .publishReplay(1).refCount();
 
         this.stichtageReportExecuting$.filter(x => !!x).map(() => this.stichtageReportExecuting$.filter(x => !x).take(1))
-            .merge(this.getControllingReportExecuting$.filter(x => !!x).map(() => this.getControllingReportExecuting$.filter(x => !x).take(1)))
+            .merge(this.controllingReportExecuting$.filter(x => !!x).map(() => this.controllingReportExecuting$.filter(x => !x).take(1)))
             .takeUntil(this.onDestroy$)
             .subscribe(x => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', x))
 
@@ -50,6 +61,34 @@ export class ControllingPage implements OnDestroy {
         this.runControllingReport$
             .takeUntil(this.onDestroy$)
             .subscribe(v => this.store.dispatch(controlling.createRunControllingAction(v)));
+
+        this.editPreismeldungId$
+            .takeUntil(this.onDestroy$)
+            .subscribe(v => this.store.dispatch(controlling.createSelectControllingPmAction(v)));
+
+        this.updatePreismeldungPreis$
+            .takeUntil(this.onDestroy$)
+            .subscribe(payload => this.store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload }));
+
+        this.updatePreismeldungMessages$
+            .takeUntil(this.onDestroy$)
+            .subscribe(payload => this.store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload }));
+
+        this.savePreismeldungPrice$
+            .takeUntil(this.onDestroy$)
+            .subscribe(payload => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload }));
+
+        this.savePreismeldungMessages$
+            .takeUntil(this.onDestroy$)
+            .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_MESSAGES' }));
+
+        this.savePreismeldungAttributes$
+            .takeUntil(this.onDestroy$)
+            .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES' }));
+
+        this.closeClicked$
+            .takeUntil(this.onDestroy$)
+            .subscribe(() => this.store.dispatch(controlling.createSelectControllingPmAction(null)));
     }
 
     public ionViewDidEnter() {

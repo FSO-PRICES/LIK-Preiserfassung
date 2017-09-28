@@ -8,12 +8,11 @@ import * as P from '../../../common-models';
     templateUrl: 'controlling-report.html'
 })
 export class ControllingReportComponent extends ReactiveComponent implements OnChanges {
-    @Input() reportExecuting: boolean;
     @Input() reportData: P.ControllingReportData;
     @Output('runReport') runReport$ = new EventEmitter<string>();
+    @Output('editPreismeldungId') editPreismeldungId$ = new EventEmitter<string>();
 
     public reportData$ = this.observePropertyCurrentValue<P.ControllingReportData>('reportData').publishReplay(1).refCount();
-    public reportExecuting$ = this.observePropertyCurrentValue<boolean>('reportExecuting');
 
     constructor() {
         super();

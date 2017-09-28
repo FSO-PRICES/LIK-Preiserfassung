@@ -1,3 +1,5 @@
+@import "../../../theme/imports.scss";
+
 controlling-report {
     flex: 1;
     display: flex;
@@ -5,6 +7,7 @@ controlling-report {
 
     .top-section {
         display: flex;
+        flex: 0 0 auto;
     }
 
     .btn-execute {
@@ -18,21 +21,33 @@ controlling-report {
     .table-wrapper {
         margin-top: 20px;
         overflow: auto;
+        flex: 1;
     }
 
     .report-table {
         min-width: 100%;
         user-select: auto;
 
+        tr:nth-child(odd) {
+            background-color: darken($alto, 3%);
+        }
         th {
             white-space: nowrap;
             text-align: left;
             padding-right: 10px;
+            padding-bottom: 8px;
         }
 
         td {
             white-space: nowrap;
             padding-right: 10px;
         }
+    }
+
+    .edit-pm {
+        fill: white;
+        margin: 2px 0;
+        padding: 1px;
+        height: auto;
     }
 }

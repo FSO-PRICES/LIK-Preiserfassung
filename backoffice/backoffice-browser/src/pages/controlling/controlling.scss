@@ -1,6 +1,7 @@
 controlling-page {
     .page-wrapper {
         flex-direction: column;
+        position: relative;
     }
     stichtage {
         display: flex;
@@ -9,4 +10,13 @@ controlling-page {
         display: flex;
         margin-top: 30px;
     }
+    edit-preismeldung {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
 }

@@ -25,17 +25,22 @@
         <option value="CONTROLLING_0600">0600: Bemerkungen ans BFS</option>
         <option value="CONTROLLING_0700">0700: Preise/EP: Abweichung von Vorgabe (gemäss ES)</option>
     </select>
-    <button type="button" ion-button class="btn-execute" (click)="runReport$.emit(controllingSelect.value)" [disabled]="reportExecuting$ | async">ausführen</button>
+    <button type="button" ion-button class="btn-execute" (click)="runReport$.emit(controllingSelect.value)">ausführen</button>
 </div>
 
 <div class="table-wrapper" *ngIf="!!(reportData$ | async)">
     <table class="report-table">
         <thead>
+            <th></th>
             <th *ngFor="let column of (reportData$ | async)?.columns">{{ column }}</th>
         </thead>
-        <tr *ngFor="let row of (reportData$ | async)?.values">
-            <td>ICON</td>
-            <td *ngFor="let value of row">{{ value }}</td>
+        <tr *ngFor="let row of (reportData$ | async)?.rows">
+            <td>
+                <button [class.visibility-hidden]="!row.canView" ion-button class="edit-pm" (click)="editPreismeldungId$.emit(row.pmId)">
+                    <pef-icon name="todo"></pef-icon>
+                </button>
+            </td>
+            <td *ngFor="let value of row.values">{{ value }}</td>
         </tr>
     </table>
 </div>

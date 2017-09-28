@@ -131,8 +131,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .withLatestFrom(this.form.valueChanges.startWith({ notiz: '', kommentar: '', bemerkungen: '' }), (_, formValue) => formValue)
             .debounceTime(100)
             .withLatestFrom(this.isAdminApp$.startWith(false), (x, isAdminApp) => assign(x, { isAdminApp }))
-            .map(x => ({ notiz: x.notiz.replace('\n', '¶'), kommentar: x.kommentar.replace('\n', '¶'), bemerkungen: x.bemerkungen.replace('\n', '¶'), isAdminApp: x.isAdminApp }))
-            .do(x => console.log('payload', x))
+            .map(x => ({ notiz: x.notiz.replace('\n', '¶'), kommentar: x.kommentar.replace('\n', '¶'), bemerkungen: x.bemerkungen.replace('\n', '¶'), isAdminApp: x.isAdminApp }));
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

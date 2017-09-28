@@ -104,6 +104,19 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             return assign({}, state, { currentPreismeldung: createCurrentPreismeldungBag(entity, state.priceCountStatuses, state.isAdminApp) });
         }
 
+        case 'SELECT_CONTROLLING_PM_WITH_BAG': {
+            const { payload: entity } = action;
+            return {
+                ...state,
+                isAdminApp: true,
+                currentPreismeldung: !!entity ? createCurrentPreismeldungBag(entity, state.priceCountStatuses, true) : null,
+                entities: {},
+                preismeldungIds: [],
+                pmsNummer: null,
+                priceCountStatuses: {}
+            };
+        }
+
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 
@@ -386,7 +399,7 @@ function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatu
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
         resetEvent: new Date().getTime(),
         textzeile: warningAndTextzeile.textzeile
-    });
+    }) as P.CurrentPreismeldungBag;
 }
 
 function createStartingPercentageWithWarning(percentage: number): P.Models.PercentageWithWarning {
@@ -410,8 +423,8 @@ function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPriceP
     const d_DPToVPK = createStartingPercentageWithWarning(calculatePercentageChange(parseFloat(bag.preismeldung.preisVPK), parseFloat(bag.preismeldung.mengeVPK), parseFloat(payload.preis), parseFloat(payload.menge)));
     const d_VPKToVPAlterArtikel = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preisVPK), parseFloat(payload.mengeVPK)));
     const d_VPKToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVPK), parseFloat(payload.mengeVPK)));
-    const d_DPVorReduktionToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
-    const d_DPVorReduktionToVP = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
+    const d_DPVorReduktionToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung || !payload.aktion ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
+    const d_DPVorReduktionToVP = createStartingPercentageWithWarning(!bag.refPreismeldung || !payload.aktion ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
 
     if (!!bag.refPreismeldung) {
         switch (bag.preismeldung.bearbeitungscode) {

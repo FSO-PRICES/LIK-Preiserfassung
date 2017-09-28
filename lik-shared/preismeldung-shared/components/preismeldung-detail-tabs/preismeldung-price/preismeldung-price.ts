@@ -32,7 +32,7 @@ import * as P from '../../../models';
                         [disabled]="!form.value.internetLink" *ngIf="isInternet$ | async">
                             <pef-icon name="server_url"></pef-icon>
                         </button>
-                    <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async)?.priceCountStatus.ok, 'not-ok': !(preismeldung$ | async)?.priceCountStatus.ok }">
+                    <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async)?.priceCountStatus?.ok, 'not-ok': !(preismeldung$ | async)?.priceCountStatus?.ok }">
                         <span *ngIf="!(isAdminApp$ | async)">{{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}/{{ (preismeldung$ | async)?.priceCountStatus.anzahlPreiseProPMS }}</span>
                     </div>
                 </div>
