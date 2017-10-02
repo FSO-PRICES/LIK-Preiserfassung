@@ -110,6 +110,11 @@
                         <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
                     </div>
                     <div class="row">
+                        <pef-icon name="todo"></pef-icon>
+                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openUnsavedCount }}</div>
+                        <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
+                    </div>
+                    <div class="row">
                         <pef-icon name="upload"></pef-icon>
                         <div class="number">{{ (preismeldungenStatistics$ | async)?.total.uploadedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
@@ -118,11 +123,6 @@
                         <pef-icon name="checkmark"></pef-icon>
                         <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_offen-erfasst' | translate }}</div>
-                    </div>
-                    <div class="row">
-                        <pef-icon name="todo"></pef-icon>
-                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openUnsavedCount }}</div>
-                        <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
                     </div>
                 </ion-content>
             </div>

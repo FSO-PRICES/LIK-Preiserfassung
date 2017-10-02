@@ -13,6 +13,7 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
     @Input() warenkorb: P.fromWarenkorb.WarenkorbInfo[];
     @Output('updatePreismeldungPreis') updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     @Output('updatePreismeldungMessages') updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
+    @Output('updatePreismeldungAttributes') updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     @Output('savePreismeldungMessages') savePreismeldungMessages$: Observable<{}>;
     @Output('savePreismeldungAttributes') savePreismeldungAttributes$: Observable<{}>;
     @Output('closeClicked') closeClicked$: Observable<{}>;

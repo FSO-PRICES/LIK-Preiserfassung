@@ -235,7 +235,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             return assign({}, state, { currentPreismeldung: null, entities, priceCountStatuses, preismeldungIds });
         }
 
-        case 'SAVE_PREISMELDING_MESSAGES_SUCCESS': {
+        case 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS': {
             const messages = parsePreismeldungMessages(action.payload, state.isAdminApp);
             const attrs = {
                 _rev: action.payload._rev,
@@ -258,7 +258,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             });
         }
 
-        case 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS': {
+        case 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS': {
             const { productMerkmale } = action.payload;
             const attrs = {
                 _rev: action.payload._rev,

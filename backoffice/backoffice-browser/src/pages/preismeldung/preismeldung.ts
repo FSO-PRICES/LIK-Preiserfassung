@@ -124,14 +124,14 @@ export class PreismeldungPage implements OnDestroy {
             createTabLeaveObservable('PRODUCT_ATTRIBUTES')
                 .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
                 .filter(currentPreismeldung => !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isAttributesModified)
-                .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_ATTRIBUTES' }))
+                .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES' }))
         );
 
         this.subscriptions.push(
             createTabLeaveObservable('MESSAGES')
                 .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
                 .filter(currentPreismeldung => !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isMessagesModified)
-                .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDING_MESSAGES' }))
+                .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_MESSAGES' }))
         );
 
         this.subscriptions.push(

@@ -31,7 +31,10 @@ const initialState: State = {
 export function reducer(state = initialState, action: controlling.ControllingAction): State {
     switch (action.type) {
         case controlling.UPDATE_STICHTAGE_SUCCESS:
-            return { ...state, stichtagPreismeldungenUpdated: action.payload }
+            return { ...state, stichtagPreismeldungenUpdated: action.payload };
+
+        case controlling.CLEAR_CONTROLLING:
+            return { ...state, controllingReport: null, rawCachedData: null };
 
         case controlling.RUN_CONTROLLING_EXECUTING: {
             return {
@@ -49,6 +52,27 @@ export function reducer(state = initialState, action: controlling.ControllingAct
             };
         }
 
+        case controlling.SAVE_PREISMELDUNG_PRICE_SUCCESS:
+        case controlling.SAVE_PREISMELDUNG_MESSAGES_SUCCESS:
+        case controlling.SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS: {
+            const preismeldung = (action.type === controlling.SAVE_PREISMELDUNG_PRICE_SUCCESS) ? action.payload.preismeldung : action.payload;
+            const cachedPreismeldung = state.rawCachedData.preismeldungen.find(x => x._id === preismeldung._id);
+            if (!cachedPreismeldung) return state;
+            const rawCachedData = {
+                ...state.rawCachedData, preismeldungen: state.rawCachedData.preismeldungen.map(x => x._id === preismeldung._id ? preismeldung : x)
+            };
+            const report = runReport({
+                ...state.rawCachedData,
+                preismeldungen: [preismeldung],
+                refPreismeldungen: state.rawCachedData.refPreismeldungen.filter(x => x.pmId === preismeldung._id)
+            }, state.controllingReport.controllingType);
+            const row = report.rows.find(x => x.pmId === preismeldung._id);
+            return {
+                ...state,
+                rawCachedData,
+                controllingReport: { ...state.controllingReport, rows: state.controllingReport.rows.map(x => x.pmId === row.pmId ? row : x) }
+            };
+        }
         default:
             return state;
     }
@@ -542,7 +566,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             type: REPORT_EXCLUDE_EP,
             range: []
         } as GliederungspositionnummerRangeType,
-        erherbungsPositionFilter: (x: ControllingErhebungsPosition) => !!x.preismeldung && [0, 2, 3].some(c => c === x.preismeldung.bearbeitungscode),
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) => !!x.preismeldung && [1, 7].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0430]: {
         ...base_0300_0310_0320_0400_0410_0420_0430_config,
@@ -550,7 +574,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             type: REPORT_EXCLUDE_EP,
             range: []
         } as GliederungspositionnummerRangeType,
-        erherbungsPositionFilter: (x: ControllingErhebungsPosition) => !!x.preismeldung && [1, 7].some(c => c === x.preismeldung.bearbeitungscode),
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) => !!x.preismeldung && [0, 2, 3].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0440]: report_0440_config,
     [controlling.CONTROLLING_0500]: {

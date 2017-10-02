@@ -59,8 +59,8 @@ export type PreismeldungAction =
     | { type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort } }
     | { type: 'RESET_PREISMELDUNG_SUCCESS', payload: P.Models.Preismeldung }
     | { type: 'DELETE_PREISMELDUNG_SUCCESS', payload: string }
-    | { type: 'SAVE_PREISMELDING_MESSAGES_SUCCESS', payload: P.Models.Preismeldung }
-    | { type: 'SAVE_PREISMELDING_ATTRIBUTES_SUCCESS', payload: P.Models.Preismeldung }
+    | { type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS', payload: P.Models.Preismeldung }
+    | { type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS', payload: P.Models.Preismeldung }
     | { type: 'DUPLICATE_PREISMELDUNG', payload: 2 | 3 }
     | { type: 'NEW_PREISMELDUNG', payload: { pmsNummer: string; bearbeitungscode: P.Models.Bearbeitungscode; warenkorbPosition: P.Models.WarenkorbLeaf } }
     | { type: 'SELECT_CONTROLLING_PM_WITH_BAG'; payload: P.PreismeldungBag };

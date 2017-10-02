@@ -31,6 +31,7 @@ export class ControllingPage implements OnDestroy {
 
     public updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
+    public updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     public savePreismeldungPrice$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     public savePreismeldungMessages$ = new EventEmitter();
     public savePreismeldungAttributes$ = new EventEmitter();
@@ -74,6 +75,10 @@ export class ControllingPage implements OnDestroy {
             .takeUntil(this.onDestroy$)
             .subscribe(payload => this.store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload }));
 
+        this.updatePreismeldungAttributes$
+            .takeUntil(this.onDestroy$)
+            .subscribe(payload => this.store.dispatch({ type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload }));
+
         this.savePreismeldungPrice$
             .takeUntil(this.onDestroy$)
             .subscribe(payload => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload }));
@@ -94,6 +99,7 @@ export class ControllingPage implements OnDestroy {
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'RUN_PRE-CONTROLLING_TASKS' });
+        this.store.dispatch(controlling.createClearControllingAction());
     }
 
     ngOnDestroy() {

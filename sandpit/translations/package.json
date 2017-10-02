@@ -5,7 +5,7 @@
     "main": "csv_to_json.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "json_to_typescript": "./node_modules/.bin/ts-node ./json_to_typescript.ts",
+        "csv_to_typescript": "node ./csv_to_typescript.js",
         "typescript_to_csv": "./node_modules/.bin/ts-node ./typescript_to_csv.ts"
     },
     "keywords": [],

@@ -1,209 +1,208 @@
-key;DE;EN;FR;IT
-"a_navigate-to-settings";"Einstellungen bearbeiten";"Edit settings";"Définir les paramètres";"Modificare impostazioni"
-"bearbeitungscode_0";"Preisreihe beenden";"Discontinue the price series";"Terminer la série de prix";"Interrompere la serie di prezzo"
-"bearbeitungscode_1";"Direkter Ersatz";"Direct substitution";"Substitution directe";"Sostituzione diretta"
-"bearbeitungscode_101";"Aktuell nicht an Lager";"Out of stock";"Momentanément pas disponible";"Momentaneamente non disponibile"
-"bearbeitungscode_2";"Neue Preismeldung mit Vorperiodenpreis";"New item with price of previous period";"Nouvel article avec prix de la période précédente";"Nuovo articolo con prezzo del periodo precedente"
-"bearbeitungscode_3";"Neue Preismeldung ohne Vorperiodenpreis";"New item without price of previous period";"Nouvel article sans prix de la période précédente";"Nuovo articolo senza prezzo del periodo precedente"
-"bearbeitungscode_44";"Saisonales Produkt aktuell nicht verfügbar";"Seasonal product temporary out of stock";"Article saisonnier non disponible";"Articolo stagionale mancante"
-"bearbeitungscode_7";"Verkettung";"Chaining";"Chaînage";"Concatenamento"
-"bearbeitungscode_99";"Standardabbuchung";"Standard entry";"Saisie standard";"Entrata standard"
-"btn_cancel";"Abbrechen";"Cancel";"Annuler";"Annullare"
-"btn_close";"Schliessen";"Close";"Fermer";"Chiudere"
-"btn_comment";"Kommentieren";"Comment";"Commenter";"Commentare"
-"btn_continue-editing";"Weiterbearbeiten";"Continue editing";"Continuer la saisie";"Continuare modifica"
-"btn_delete-local-entries";"Lokale Daten von Gerät löschen";"Delete local entries from device";"Effacer les données locales de l'appareil";"Cancellare dati locali dall'apparecchio"
-"btn_edit-comment";"EDIT/kommentieren";"";"";""
-"btn_edit";"Bearbeiten";"Edit";"Editer";"Modificare"
-"btn_erfassung_speichern";"Speichern";"Save";"Enregistrer";"Salvare"
-"btn_erledigt";"Erledigt";"Done";"Terminé";"Eseguito"
-"btn_leeren";"Leeren";"Clear";"Effacer";"Svuotare"
-"btn_login";"Login";"Login";"Login";"Login"
-"btn_no";"Nein";"No";"Non";"No"
-"btn_ok";"OK";"OK";"OK";"OK"
-"btn_order-save";"Reihenfolge übernehmen";"";"";""
-"btn_pm-delete";"Preismeldung löschen";"Delete price data";"Supprimer l'article";"Cancellare articolo"
-"btn_pm-reset";"Preismeldung zurücksetzen";"Reset price data";"Réinitialiser l'article";"Azzerare articolo"
-"btn_reset-selection";"Selektion aufheben";"";"";""
-"btn_save";"Speichern";"Save";"Engregistrer";"Salvare"
-"btn_synchronize";"Synchronisieren";"Synchronize";"Synchroniser";"Sincronizzare"
-"btn_upload-now";"Jetzt hochladen";"Upload now";"Transférer les données";"Caricare ora"
-"btn_verwerfen";"Verwerfen";"";"";""
-"btn_warenkorb_collapse_all";"Alles zuklappen";"Collapse all";"Réduir le tout";"Ridurre tutto"
-"btn_yes";"Ja";"Yes";"Oui";"Sì"
-"control_artikeltext";"Artikeltext";"Item name";"Description de l'article";"Descrizione dell'articolo"
-"control_menge";"Aktuelle Periode Menge";"Quantity current period";"Quantité période actuelle";"Quantità periodo attuale"
-"control_mengeVorReduktion";"Aktuelle Periode Menge ausser Aktion";"";"";""
-"control_mengeVPNormalNeuerArtikel";"Vorperiode Menge";"Quantity previous period";"Quantité période précédente";"Quantità periodo precedente"
-"control_mengeVPK";"Vorperiode Menge";"";"";""
-"control_preis";"Aktuelle Periode Preis";"Price current period";"Prix période actuelle";"Prezzo periodo attuale"
-"control_preisVorReduktion";"Aktuelle Periode Preis ausser Aktion";"";"";""
-"control_preisVPK";"Vorperiode Preis";"";"";""
-"control_preisVPNormalNeuerArtikel";"Vorperiode Preis";"Price previous period";"Prix période précédente";"Prezzo periodo precedente"
-"dialogText_abnormal-preisentwicklung";"Grosse Veränderung! Bitte Preismeldung prüfen und allenfalls kommentieren.";"Change out of range! Please verify price data and add comment if needed.";"Variation importante! Veuillez vérifier les informations et commenter si besoin. ";"Variazione importante! Per favore verificare i dati e commentarli se necessario."
-"dialogText_aktion-message-preis-hoeher";"Artikel teurer als in Vorperiode. Ist der Artikel wirklich in Aktion?";"Item price higher than last period. Is item still on sale this month?";"Article plus cher que lors de la période précédente. Le prix est-il vraiment en action ?";"Articolo più caro rispetto al periodo precedente. È effettivamente in azione?"
-"dialogText_aktueller-aktionspreis-gleich-groesser-vp-normalpreis";"Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?";"Today's reduced price is greater than or equal to the normal price of previous period. Is price correct?";"Le prix actuel en action est supérieur/égal au prix normal de la période précédente. Le prix enregistré est-il correct?";"Prezzo scontato attuale più uguale o più elevato rispetto al periodo precedente. È corretto il prezzo rilevato?"
-"dialogText_aufforderung-ersatzsuche";"In der EP sind nur {{numActivePrices}}/{{anzahlPreiseProPMS}} Artikel erfasst. Wollen Sie ein neues Produkt erfassen?";"Only {{numActivePrices}}/{{anzahlPreiseProPMS}} items recorded in this position. Would you like to record a new item?";"Seuls {{numActivePrices}}/{{anzahlPreiseProPMS}} articles sont relevés dans cette EP. Voulez-vous enregistrer un nouvel article ?";"Nella varietà sono rilevati solo {{numActivePrices}}/{{anzahlPreiseProPMS}} articoli. Vuole aggiungere un articolo?"
-"dialogText_ausreichend-artikel";"Es sind bereits ausreichend Artikel in der EP erfasst. Wollen Sie dennoch ein neues Produkt erfassen?";"Already enough items of this type recorded. Would you like to add a new item nevertheless?";"Le nombre d'articles dans cette EP est suffisant. Voulez-vous vraiment enregistrer un article supplémentaire ?";"Nella varietà sono già rilevati abbastanza prodotti. Vuole comunque rilevare un articolo in più?"
-"dialogText_rrr-message-mit-aufforderung-zu-produktersatz";"Dieser Artikel fehlt schon länger. Gibt es ein vergleichbares Ersatzprodukt?";"Item missing for a while. Is there a similar product to replace it?";"Cet article manque depuis longtemps. Y-a-t'il un article semblable pour un remplacement ?";"Questo articolo manca da qualche mese. Esiste un articolo paragonabile per sostituirlo?"
-"dialogText_unveraendert-pm-text";"Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?";"Are new item's name and number really unchanged to former item?";"La description/le numéro d'article est-il vraiment identique à celle/celui de l'article du mois précédent?";"La descrizione dell'articolo/il numero dell'articolo sono effettivamente gli stessi rispetto al prodotto precedente?"
-"dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis";"Aktionspreis der VP war gleich oder grösser als aktueller Normalpreis. Ist der aktuelle Preis ein Aktionspreis?";"Reduced price of previous period equal to or higher than current normal price. Is product still on sale?";"Le prix en action de la période précédente est supérieur/égal au prix normal actuel. Le prix actuel est-il en action ?";"Il prezzo scontato del periodo precedente era lo stesso o più elevato rispetto al prezzo attuale.  Il prezzo attuale è scontato?"
-"error_user-db-id-mismatch";"Datenbank ID's stimmen nich überein. Bitte kontaktieren Sie den Administrator.";"";"";""
-"error_login-wrong-credentials";"Benutzername und Password stimmen nicht überein.";"User name and password do not match.";"L'identificateur et/ou le mot de passe n'est pas correct.";"Il nome utente e la password non corrispondono."
-"error_request_unauthorized";"Kein gültiges Login vorhanden. Login ist eventuell abgelaufen.";"No valid login found. Login has probably expired.";"Login pas valable. Login probablement expiré. ";"Il login non è valido. È probabilmente scaduto."
-"error_synchronize_unknown-error";"Ein unbekannter Fehler ist während der Synchronisierung aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Administrator.";"Unknown error while synchronizing. Please try again later or contact the administrator.";"Une erreur d'origine inconnue a eu lieu lors de la synchronisation. Veuillez réessayer plus tard ou contacter l'administrateur. ";"Si è verificato un errore sconosciuto durante la sincronizzazione. Riprovi più tardi o contatti l'amministratore."
-"heading_aktuelle_periode";"Aktuelle Periode";"Current period";"Période actuelle";"Periodo attuale"
-"heading_artikel-ausser-aktion";"Artikel ausser Aktion";"";"";""
-"heading_artikel-neu";"Artikel neu";"New item";"Nouvel article";"Nuovo articolo"
-"heading_artikel-vor-reduktion";"Artikel vor Reduktion";"Item before reduction";"Article avant réduction";"Articolo non scontato"
-"heading_artikel";"Artikel";"Item";"Article";"Articolo"
-"heading_bearbeitungscode-auswaehlen";"Bearbeitungscode auswählen";"Choose treatment code";"Choisir le code de traitement";"Scegliere un codice di trattamento"
-"heading_choose-preismeldestelle";"Preismeldestelle auswählen";"Choose shop";"Sélectionner un point de vente";"Scegliere un punto vendita"
-"heading_danger-zone";"Gefährlicher Abschnitt";"Danger zone";"Etape dangereuse";"Zona pericolosa"
-"heading_information-about-preismeldung";"Information über die Preismeldung";"Information about price";"Information sur le prix";"Informazione sul prezzo"
-"heading_information-about-warenkorbposition";"Information über die Erhebungsposition (EP)";"Information about variety";"Information sur la position (EP)";"Informazione sulla varietà"
-"heading_kommentar-zum-aktuellen-monat";"Kommentar zum aktuellen Monat";"Comment about current month";"Commentaire sur le mois actuel";"Commento per il mese attuale"
-"heading_kommunikation";"Fragen und Antworten";"Questions and answers";"Questions et réponses";"Domande e risposte"
-"heading_login";"Login";"Login";"Login";"Login"
-"heading_manage-preismeldestelle";"Preismeldestellen verwalten";"Manage stores";"Gérer les points de vente";"Gestire i punti vendita"
-"heading_meine-notiz";"Meine Notiz";"My notes";"Mes notes";"I miei appunti"
-"heading_pms-details";"Angaben zur Preismeldestelle";"Information about store";"Informations sur le point de vente";"Informazioni sul punto vendita"
-"heading_pms-sort";"Sortierung der Auswahlliste der Preismeldung anpassen";"";"";""
-"heading_preiserheber";"Preiserheber/in";"Price collector";"Enquêteur/-trice";"Rilevatore"
-"heading_preismeldestelle";"Preismeldestelle";"Store";"Point de vente";"Punto vendita"
-"heading_preismeldung-attributes";"Produkteigenschaften";"Item features";"Caractéristiques du produit";"Caratteristiche dell'articolo"
-"heading_settings";"Einstellungen";"Settings";"Paramètres";"Impostazioni"
-"heading_validation-error";"Validierungsfehler";"Validation error";"Erreur de validation";"Errore di validazione"
-"heading_vorperiode";"Vorperiode";"Previous period";"Période précédente";"Periodo precedente"
-"heading_warenkorb_neu_preisreihe_hinzufügen";"Neue Preisreihe hinzufügen";"Add new price series";"Ajouter une série de prix";"Aggiungere nuova serie di prezzo"
-"installed-software-version";"Installierte Software-Version";"Installed software version";"Version du programme installé";"Versione software installata"
-"kommentar-autotext_abnormale-preisentwicklung-bestaetigt";"Abnormale Preisentwicklung bestätigt.";"";"";""
-"kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp";"Aktueller Aktionspreis teuerer als Normalpreis VP bestätigt.";"Current reduced price higher than normal price of previous period confirmed.";"Prix actuel en action supérieur au prix normal de la période précédente confirmé";"Prezzo scontato attuale più elevato rispetto al prezzo normale del periodo precedente confermato."
-"kommentar-autotext_aktueller-normalpreis-billiger-aktionspreis_vp";"Aktueller Normalpreis billiger als/gleich Aktionspreis VP bestätigt.";"Current normal price cheaper/equal to reduced price of previous period confirmed.";"Prix normal actuel inférieur/égal au prix en action de la période précédente confirmé";"Prezzo attuale non scontato più vantaggioso o uguale al prezzo scontato del periodo precedente confermato."
-"kommentar-autotext_artikeltext-unveraendert-bestaetigt";"Artikeltext unverändert bestätigt.";"Unchanged item name confirmed.";"Description de l'article identique confirmée";"Descrizione identica dell'articolo confermata."
-"kommentar-autotext_keine-ersatzprodukte";"Keine Ersatzprodukte in Sortiment vorhanden.";"No replacement items in range.";"Pas d'article de remplacement dans l'assortiment";"Non ci sono articoli di sostituzione nell'assortimento."
-"kommentar-autotext_keine-produkte";"Keine Produkte in Sortiment vorhanden.";"No items in range.";"Pas d'article disponible dans l'assortiment";"Non ci sono articoli nell'assortimento."
-"kommentar-autotext_presta-setzt-normalpreis";"PRESTA beendet Preisreihe mit Normalpreis.";"PRESTA ends price series on normal level.";"PRESTA interrompt la série de prix avec un retour au prix normal. ";"PRESTA interrompe la serie di prezzo con il prezzo non scontato."
-"kommentar-autotext_steigender-aktionspreis-bestaetigt";"Steigender Aktionspreis bestätigt.";"Increase of reduced price confirmed.";"Prix en action à la hausse confirmé. ";"Aumento del prezzo in azione confermato."
-"label_anzahl-fehlende-preis-r";"Anzahl Code R";"Number of code R";"Nombre de code R";"Numero di codici R"
-"label_artikelnummer";"Artikelnummer";"Item number";"Numéro d'article";"Numero dell'articolo"
-"label_artikeltext-geliefert";"Artikeltext (geliefert)";"Item name (as delivered)";"Desctiption de l'article (tel que délivré)";"Descrizione dell'articolo rilevata"
-"label_artikeltext";"Artikeltext";"Item name";"Description de l'article";"Descrizione dell'articolo"
-"label_basismenge";"Basismenge";"Initial quantity";"Quantité de base";"Quantità di base"
-"label_basispreis";"Basispreis";"Initial price";"Prix de base";"Prezzo di base"
-"label_datum-vor-reduktion";"Datum vor Reduktion";"Date before reduction";"Date avant la réduction";"Data prima dello sconto"
-"label_info-warenkorb_anzahl-preismeldungen";"Anzahl Preismeldungen (Aktuell/Vorgabe)";"Number of items (recorded/required)";"Nombre d'articles (actuels/requis)";"Numero di articoli (rilevati/richiesti)"
-"label_info-warenkorb_beispiele";"Beispiele";"Examples";"Exemples";"Esempi"
-"label_info-warenkorb_code";"Code";"Code";"Code";"Codice"
-"label_info-warenkorb_erfassungszeitraum";"Erfassungszeitraum";"Survey period";"Période de relevé";"Periodo di rilevazione"
-"label_info-warenkorb_erlaubte-normalpreisentwicklung";"Erlaubte Normalpreisentwicklung";"Admitted normal price change";"Evolution normale de prix admise";"Evoluzione di prezzo normale ammessa"
-"label_info-warenkorb_info";"Info";"Info";"Info";"Info"
-"label_info-warenkorb_periodizitaet";"Periodizität";"Periodicity";"Périodicité";"Periodicità"
-"label_info-warenkorb_position-im-warenkorb";"Position im Warenkorb";"Position in market basket";"Position dans le panier typer";"Posizione nel paniere tipo"
-"label_info-warenkorb_preismeldung-wird-erhoben-im";"Erhebungsposition wird erhoben im";"Item is recorded in";"Article relevé en";"Articolo viene rilevato nel"
-"label_info-warenkorb_standardmenge";"Standardmenge";"Standard quantity";"Quantité standard";"Quantità standard"
-"label_internetlink";"Internetlink";"Web address";"Lien internet";"Link Internet"
-"label_login_password";"Passwort";"Password";"Mot de passe";"Password"
-"label_login_username";"Benutzername";"User name";"Nom d'utilisateur";"Nome utente"
-"label_menge-vor-reduktion";"Menge vor Reduktion";"Quantity before reduction";"Quantité avant réduction";"Quantità prima dello sconto"
-"label_neue-preisreihe-code-2";"Neue Preisreihe: Vorperiode und aktuelle Periode bekannt (Code 2)";"New price series: Price of current and last period known (Code 2)";"Nouvel article : période précédente et actuelle connues (code 2)";"Nuovo articolo: prezzo del periodo precedente e del periodo attuale conosciuti (codice 2)"
-"label_neue-preisreihe-code-3";"Neue Preisreihe: Aktuelle Periode bekannt (Code 3)";"New price series: Price of current period known (Code 2)";"Nouvel article : Période actulle connue (code 3)";"Nuovo articolo: prezzo del periodo attuale conosciuto (codice 3)"
-"label_pms_adresse";"Adresse";"Address";"Adresse";"Indirizzo"
-"label_pms_bemerkungen_erhebungsart";"Bemerkungen zur Erhebungsart";"Remark on type of survey";"Remarquesur le type de relevé";"Commenti sulla tecnica di rilevazione"
-"label_pms_email";"eMail";"eMail";"eMail";"eMail"
-"label_pms_erhebungsart_abgegeben";"Papierliste durch PMS ausgefüllt";"Paper form completed by store";"Formulaire papier rempli par la PMS";"Modulo cartaceo completato dal punto vendita"
-"label_pms_erhebungsart_email";"eMail";"eMail";"eMail";"eMail"
-"label_pms_erhebungsart_internet";"Internet";"Internet";"Internet";"Internet"
-"label_pms_erhebungsart_persoenlich";"Papierliste vor Ort";"Paper form on site";"Formulaire papier ";"Modulo di carta"
-"label_pms_erhebungsart_telephone";"Telefon";"Telephone";"Téléphone";"Telefono"
-"label_pms_erhebungsart_vor-ort-app";"Tablet vor Ort";"Tablet on site";"Tablette sur le terrain";"Tablet nel punto vendita"
-"label_pms_erhebungsart";"Erhebungsart";"Survey type";"Type de relevé";"Tecnica di rilevazione"
-"label_pms_erhebungsregion";"Erhebungsregion";"Survey region";"Région de relevé";"Regione di rilevazione"
-"label_pms_fax";"Fax";"Fax";"Fax";"Fax"
-"label_pms_kontaktperson_1";"1. Kontaktperson";"Contact 1";"Personne de contact 1";"Persona di contatto 1"
-"label_pms_kontaktperson_2";"2. Kontaktperson";"Contact 2";"Personne de contact 2";"Persona di contatto 2"
-"label_pms_kontaktperson_first-name";"Vorname";"First name";"Prénom";"Nome"
-"label_pms_kontaktperson_person-function";"Funktion";"Function";"Fonction";"Funzione"
-"label_pms_kontaktperson_surname";"Name";"Surname";"Nom";"Cognome"
-"label_pms_language-code";"Sprache";"Language";"Langue";"Lingua"
-"label_pms_mobile";"Mobile";"Mobile";"Mobile";"Cellulare"
-"label_pms_name";"Name";"Name";"Nom";"Nome"
-"label_pms_pmsGeschlossen_1";"Ferien";"Vacation";"Vacances";"Ferie"
-"label_pms_pmsGeschlossen_2";"geschlossen (temporär)";"Temporarily closed";"Fermé temporairement";"Chiuso (temporaneamente)"
-"label_pms_pmsGeschlossen_3";"Geschäftsaufgabe";"Store closure";"Cessation d'activité définitive";"Chiusura del negozio"
-"label_pms_pmsGeschlossen_4";"anderes (bitte unter Zusatzinformation erläutern)";"other (please comment under complementary information)";"Autres (svp préciser dans informations supplémentaires)";"Altro (per favore precisare nel campo informazioni complementari)"
-"label_pms_pmsGeschlossen";"Verhinderungsgrund der Erhebung in PMS";"Reason why shop data cannot be recorded this month";"Raison pour laquelle le relevé n'a pas pur avoir lieu dans le point de vente";"Motivo perché la rilevazione non può essere eseguita questo mese"
-"label_pms_postcode";"PLZ";"Postal code";"Code postal";"CAP"
-"label_pms_preismeldestellenummer";"Preismeldestellen-Nummer";"Store number";"Numéro de PMS";"Numero del punto vendita"
-"label_pms_region";"Region";"Region";"Région";"Regione di rilevazione"
-"label_pms_street";"Strasse";"Street";"Rue";"Via"
-"label_pms_telephone";"Telefon";"Telephone";"Téléphone";"Telefono"
-"label_pms_town";"Ort";"City";"Ville";"Città"
-"label_pms_zusatzinformationen";"Zusatzinformationen zur Preismeldestelle";"Complementary information about store";"Information complémentaire sur le point de vente";"Informazioni complementari sul punto vendita"
-"label_pms_zusatzname";"Zusatzname";"Complementary name";"Nom complémentaire";"Nome complementare"
-"label_preis-gefuehrt-seit";"Preisreihe seit";"In survey since";"Relevé depuis";"Rilevato da"
-"label_preis-vor-reduktion";"Preis vor Reduktion";"Price before reduction";"Prix avant réduction";"Prezzo prima dello sconto"
-"label_preiserheber_email";"eMail";"eMail";"eMail";"eMail"
-"label_preiserheber_erhebungsregion";"Erhebungsregion";"Region of survey";"Région de relevé";"Regione di rilevazione"
-"label_preiserheber_fax";"Fax";"Fax";"Fax";"Fax"
-"label_preiserheber_firstName";"Vorname";"First name";"Prénom";"Nome"
-"label_preiserheber_languageCode";"Sprache";"Language";"Langue";"Lingua"
-"label_preiserheber_mobilephone";"Mobilnummer";"Mobile";"Mobile";"Cellulare"
-"label_preiserheber_postcode";"PLZ";"Postal code";"Code postal";"CAP"
-"label_preiserheber_street";"Strasse";"Street";"Rue";"Via"
-"label_preiserheber_surname";"Nachname";"Surname";"Nom";"Cognome"
-"label_preiserheber_telephone";"Festnetznummer";"Telephone";"Téléphone";"Telefono fisso"
-"label_preiserheber_town";"Ort";"City";"Ville";"Città"
-"label_preiserheber_webseite";"Webseite";"Website";"Site internet";"Sito Internet"
-"label_preismeldung-id";"Preis-ID";"Price-ID";"Prix-ID";"ID-Prezzo"
-"label_preismeldungen";"Preismeldungen";"";"";""
-"label_print_aktion";"Aktion";"Sale";"Action";"Azione"
-"label_print_anzahl-code-r";"Anzahl Code R";"Number of code R";"Nombre de code R";"Numero di codici R"
-"label_print_ausverkauf";"Ausverkauf";"Clearance sale";"Solde";"Saldi"
-"label_print_chf";"CHF";"CHF";"CHF";"CHF"
-"label_print_code";"Code";"Code";"Code";"Codice"
-"label_print_menge-vor-reduktion";"Menge vor Reduktion";"Quantity before reduction";"Quantité avant réduction";"Quantità prima dello sconto"
-"label_print_menge";"Menge";"Quantity";"Quantité";"Quantità"
-"label_print_pm-id";"Preis-ID";"Price-ID";"Prix-ID";"ID-Prezzo"
-"label_print_pos";"Pos.";"Pos.";"Pos.";"Pos."
-"label_print_preis-vor-reduktion";"Preis vor Reduktion";"Price before reduction";"Prix avant réduction";"Prezzo prima dello sconto"
-"label_print_preis";"Preis";"Price";"Prix";"Prezzo"
-"label_print_shop";"Shop";"Store";"Point de vente";"Punto vendita"
-"label_print_standardmenge";"Standardmenge";"Standard quantity";"Quantité standard";"Quantità standard"
-"server-connection-url";"URL des Datenbank-Servers";"URL of the database-server";"URL du serveur de la base de données";"URL del server della banca dati"
-"text_aktion";"Aktion";"Sale";"Action";"Azione"
-"text_chf";"CHF";"CHF";"CHF";"CHF"
-"text_code";"Code";"Code";"Code";"Codice"
-"text_database-last-synced-at";"Letzte Synchronisation";"Database last synced at";"Dernière synchronisation";"Ultima sincronizzazione"
-"text_database-successfully-deleted";"Lokale Daten wurden erfolgreich gelöscht";"Database successfully deleted";"Données locales supprimées";"I dati locali sono stati cancellati con successo"
-"text_erhebungsmonat";"Erhebungsmonat";"Month of survey";"Mois d'enquête";"Mese di rilevazione"
-"text_nicht_zutreffend";"Nicht zutreffend";"Not applicable";"Non applicable";"Non applicabile"
-"text_no";"Nein";"No";"Non";"No"
-"text_not-specified";"Nicht angegeben";"Not specified";"Pas spécifié";"Non specificato"
-"text_preismeldung_erfasste";"erfasste Preismeldungen";"Prices recorded";"Articles relevés";"Articoli rilevati"
-"text_preismeldung_heruntergeladene";"heruntergeladene Preise";"Prices downloaded";"Articles téléchargés";"Prezzi scaricati"
-"text_preismeldung_hochgeladene";"hochgeladene Preise";"Prices uploaded";"Articles transférés";"Prezzi caricati"
-"text_preismeldung_offen-erfasst";"in Arbeit: erfasste Preise";"In progress: Prices recorded";"En cours : prix relevés";"In progresso: prezzi rilevati"
-"text_preismeldung_offen-nicht-erfasst";"in Arbeit: nichterfasste Preise";"In progress: Prices to record";"En cours : prix non relevés";"In progresso: prezzi non rilevati"
-"text_saving-preiserheber";"Preiserheber-Info wird gespeichert. Bitte warten...";"Saving info about price collector. Please wait...";"Les informations sur l'enquêteur/trice sont en cours de sauvegarde. Prière de patienter…";"L'informazione relativa al rilevatore viene salvata. Attendere prego…"
-"text_saving-settings";"Einstellungen werden gespeichert. Bitte warten...";"Saving settings. Please wait...";"Les paramètres sont en cours de sauvegarde. Prière de patienter…";"Le impostazioni vengono salvate. Attendere prego…"
-"text_synchronizing-data";"Datensynchronisierung läuft. Bitte warten...";"Synchronizing data. Please wait...";"La synchronisation des données est en cours. Prière de patienter…";"Sincronizzazione in corso. Attendere prego…"
-"text_textzeil_limitverletzung";"Limitverletzung: Preisentwicklung.";"Out of range: Price change.";"Violation des limites: Variation de prix";"Fuori limite: evoluzione dei prezzi."
-"text_textzeil_nicht_vergleichbar";"Neuer und alter Artikel nicht vergleichbar!";"Replacement item is not comparable to former item";"Nouvel et ancien article pas comparables";"Nuovo articolo non paragonabile con l'articolo precedente!"
-"text_warenkorb_anzahlergebnisse";"Treffer";"Results found";"Résultats trouvés";"Risultati"
-"text_yes";"Ja";"Yes";"Oui";"Si"
-"validation_erhebungsart_required";"Bitte erfassen Sie die Erhebungsart der Preismeldestelle";"Please specify the survey type for this store";"Veuillez svp préciser le type de relevé pour ce point de vente";"Per favore indicare la tecnica di rilevazione del punto vendita"
-"validation_erhebungsregion_required";"Bitte erfassen Sie die Region der Preismeldestelle";"Please specify the survey region for this store";"Veuillez svp préciser la région de relevé pour ce point de vente";"Per favore indicare la regione del punto vendita"
-"validation_firstName_required";"Bitte erfassen Sie den Vorname der 1. Kontaktperson.";"Please specify the first name of contact 1.";"Veuillez svp préciser le prénom de la personne de contact 1";"Per favore indicare il nome della persona di contatto 1."
-"validation_formatted_number-out-of-range";"Ungültige Eingabe im Feld ""{{controlName}}. Bitte Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben."";"Not allowed entry for ""{{controlName}}. Number must be between {{minNumber}} and {{maxNumber}}."";"Saisie non autorisée pour ""{{controlName}}. Veullez saisir un nombre entre {{minNumber}} et {{maxNumber}}."";"Entrata non valida nel campo ""{{controlName}}. Per favore indicare una cifra tra {{minNumber}} e {{maxNumber}}.""
-"validation_formatted_required";"Feld ""{{controlName}} ist erforderlich."";"""{{controlName}} is required."";"Le champs ""{{controlName}} doit être saisi."";"E necessario compilare il campo ""{{controlName}}.""
-"validation_frage-antworten";"Bitte Frage im Kommunikationskanal beantworten.";"Please answer question in communication stream.";"Veuillez répondre à la question du dialogue";"Per favore rispondere alla domanda nel campo comunicazione."
-"validation_languageCode_required";"Bitte erfassen Sie die Sprache der Preismeldestelle.";"Please specify the language for this store.";"Veuillez saisir la langue du point de vente";"Per favore indicare la lingua del punto vendita."
-"validation_name_required";"Bitte erfassen Sie den Namen der Preismeldestelle.";"Please specify the name of the store.";"Veuillez saisir le nom du point de vente";"Per favore indicare il nome del punto vendita."
-"validation_personFunction_required";"Bitte erfassen Sie die Funktion der 1. Kontaktperson.";"Please specify the function of contact 1.";"Veuillez saisir la fonction de la personne de contact 1";"Per favore indicare la funzione del punto vendita."
-"validation_postcode_required";"Bitte erfassen Sie die PLZ der Preismeldestelle.";"Please specify the postal code of the store.";"Veuillez saisir le NPA du point de vente";"Per favore indicare il CAP del punto vendita."
-"validation_produktMerkmale_erfassen";"Bitte Produktmerkmale erfassen.";"Please specify the product features.";"Veuillez saisir les caractéristiques du produit";"Per favore indicare il nome del punto vendita."
-"validation_street_required";"Bitte erfassen Sie die Strasse der Preismeldestelle.";"Please specify the street of the store.";"Veuillez saisir l'adresse du point de vente";"Per favore indicare la via del punto vendita."
-"validation_surname_required";"Bitte erfassen Sie den Name der 1. Kontaktperson.";"Please specify the surname of contact 1.";"Veuillez saisir le nom de la personne de contact 1";"Per favore indicare il nome della persona di contatto 1."
-"validation_town_required";"Bitte erfassen Sie den Ort der Preismeldestelle.";"Please specify the city of the store.";"Veuillez saisir la localité du point de vente";"Per favore indicare la città del punto vendita."
-"NEW (#163)";"Eine neue Preisreihe sollte nicht in Aktion gestartet werden. Bitte wählen Sie ein anderes Produkt aus.";"New price series should not start with reduced price. Please choose a normal priced item for replacement.";"Une nouvelle série de prix ne doit pas commencer par un prix en action. Veuillez choisir un autre article. ";"Una nuova serie di prezzo non deve iniziare con un prezzo in azione. Pregasi scegliere un'altro articolo."
+﻿a_navigate-to-settings,Einstellungen bearbeiten,Edit settings,Paramètres,Modificare impostazioni
+bearbeitungscode_0,Preisreihe beenden,Discontinue the price series,Fin de la série de prix,Interrompere la serie di prezzo
+bearbeitungscode_1,Direkter Ersatz,Direct substitution,Substitution directe,Sostituzione diretta
+bearbeitungscode_101,Aktuell nicht an Lager,Out of stock,Momentanément indisponible,Momentaneamente non disponibile
+bearbeitungscode_2,Neue Preismeldung mit Vorperiodenpreis,New item with price of previous period,Nouvel article avec prix de la période précédente,Nuovo articolo con prezzo del periodo precedente
+bearbeitungscode_3,Neue Preismeldung,New item,Nouvel article,Nuovo articolo
+bearbeitungscode_44,Saisonales Produkt aktuell nicht verfügbar,Seasonal product temporary out of stock,Article saisonnier indisponible,Articolo stagionale mancante
+bearbeitungscode_7,Verkettung,Chaining,Chaînage,Concatenamento
+bearbeitungscode_99,Standardabbuchung,Standard entry,Saisie standard,Entrata standard
+btn_cancel,Abbrechen,Cancel,Annuler,Annullare
+btn_close,Schliessen,Close,Fermer,Chiudere
+btn_comment,Kommentieren,Comment,Commenter,Commentare
+btn_continue-editing,Weiterbearbeiten,Continue editing,Continuer la saisie,Continuare modifica
+btn_delete-local-entries,Lokale Daten von Gerät löschen,Delete local entries from device,Effacer les données locales de l'appareil,Cancellare dati locali dall'apparecchio
+btn_edit-comment,Bearbeiten/kommentieren,Edit/comment,Editer/Commenter,Modificare/Commentare
+btn_edit,Bearbeiten,Edit,Editer,Modificare
+btn_erfassung_speichern,Speichern,Save,Enregistrer,Salvare
+btn_erledigt,Erledigt,Done,Terminer,Eseguito
+btn_leeren,Leeren,Clear,Effacer,Svuotare
+btn_login,Anmelden,Login,se connecter,Login
+btn_no,Nein,No,Non,No
+btn_ok,OK,OK,OK,OK
+btn_order-save,Reihenfolge übernehmen,Save order,Enregistrer le tri,Salvare l'ordine
+btn_pm-delete,Preismeldung löschen,Delete price data,Supprimer l'article,Cancellare articolo
+btn_pm-reset,Preismeldung zurücksetzen,Reset price data,Réinitialiser l'article,Azzerare articolo
+btn_reset-selection,Auswahl aufheben,Reset selection,Désélectionner,Deselezionare
+btn_save,Speichern,Save,Enregistrer,Salvare
+btn_synchronize,Synchronisieren,Synchronize,Synchroniser,Sincronizzare
+btn_upload-now,Jetzt hochladen,Upload now,Transférer,Caricare ora
+btn_verwerfen,Verwerfen,Discard,Annuler,Annullare le modifiche
+btn_warenkorb_collapse_all,Alles zuklappen,Collapse all,Réduire le tout,Ridurre tutto
+btn_yes,Ja,Yes,Oui,Sì
+control_artikeltext,Artikeltext,Item name,Description de l'article,Descrizione dell'articolo
+control_menge,Menge aktuelle Periode,Quantity current period,Quantité période actuelle,Quantità periodo attuale
+control_mengeVorReduktion,Menge aktuelle Periode (ohne Mengenrabatt),Quantity current period (without quantity discount),Quantité période actuelle (sans rabais de quantité),Quantità periodo attuale (senza sconto sulla quantità)
+control_mengeVPNormalNeuerArtikel,Menge Vorperiode (neuer Artikel),Quantity previous period (new item),Quantité période précédente (nouvel article),Quantità periodo precedente (nuovo articolo)
+control_mengeVPK,Menge Vorperiode,Quantity previous period,Quantité période précédente,Quantità periodo precedente
+control_preis,Preis aktuelle Periode,Price current period,Prix période actuelle,Prezzo periodo attuale
+control_preisVorReduktion,Preis ausser Aktion,Price without reduction,Prix hors action,Prezzo non in azione
+control_preisVPK,Preis der Vorperiode,Price previous period,Prix période précédente,Prezzo periodo precedente
+control_preisVPNormalNeuerArtikel,Preis der Vorperiode (neuer Artikel),Price previous period (new item),Prix période précédente (nouvel article),Prezzo periodo precedente (nuovo articolo)
+dialogText_abnormal-preisentwicklung,Grosse Veränderung! Bitte Preismeldung prüfen und allenfalls kommentieren.,Change out of range! Please verify price data and add comment if needed.,Variation importante ! Veuillez vérifier les informations et commenter si besoin. ,Variazione importante! Per favore verificare i dati e commentarli se necessario.
+dialogText_aktion-message-preis-hoeher,Artikel teurer als in Vorperiode. Ist der Artikel wirklich in Aktion?,Item price higher than last period. Is item still on sale this month?,Article plus cher que lors de la période précédente. Le prix est-il vraiment en action ?,Articolo più caro rispetto al periodo precedente. È effettivamente in azione?
+dialogText_aktueller-aktionspreis-gleich-groesser-vp-normalpreis,Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?,Today's reduced price is greater than or equal to the normal price of previous period. Is price correct?,Le prix actuel en action est supérieur/égal au prix normal de la période précédente. Le prix enregistré est-il correct ?,Prezzo scontato attuale più uguale o più elevato rispetto al periodo precedente. È corretto il prezzo rilevato?
+dialogText_aufforderung-ersatzsuche,In der EP sind nur {{numActivePrices}}/{{anzahlPreiseProPMS}} Artikel erfasst. Wollen Sie ein neues Produkt erfassen?,Only {{numActivePrices}}/{{anzahlPreiseProPMS}} items recorded in this position. Would you like to record a new item?,Seuls {{numActivePrices}}/{{anzahlPreiseProPMS}} articles sont enregistrés dans cette EP. Voulez-vous relever un nouvel article ?,Nella varietà sono rilevati solo {{numActivePrices}}/{{anzahlPreiseProPMS}} articoli. Vuole aggiungere un articolo?
+dialogText_ausreichend-artikel,Es sind bereits ausreichend Artikel in der EP erfasst. Wollen Sie dennoch ein neues Produkt erfassen?,Already enough items of this type recorded. Would you like to add a new item nevertheless?,Le nombre d'articles dans cette EP est suffisant. Voulez-vous vraiment relever un article supplémentaire ?,Nella varietà sono già rilevati abbastanza prodotti. Vuole comunque rilevare un articolo in più?
+dialogText_rrr-message-mit-aufforderung-zu-produktersatz,Dieser Artikel fehlt schon länger. Gibt es ein vergleichbares Ersatzprodukt?,Item missing for a while. Is there a similar product to replace it?,Cet article manque depuis longtemps. Y a-t-il un article semblable disponible pour un remplacement ?,Questo articolo manca da qualche mese. Esiste un articolo paragonabile per sostituirlo?
+dialogText_unveraendert-pm-text,Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?,Are new item's name and number really unchanged to former item?,Description/numéro d'article : vraiment identique au mois précédent ?,La descrizione dell'articolo/il numero dell'articolo sono effettivamente gli stessi rispetto al prodotto precedente?
+dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis,Aktionspreis der VP war gleich oder grösser als aktueller Normalpreis. Ist der aktuelle Preis ein Aktionspreis?,Reduced price of previous period equal to or higher than current normal price. Is product still on sale?,Le prix en action de la période précédente est supérieur/égal au prix normal actuel. Le prix actuel est-il en action ?,Il prezzo scontato del periodo precedente era lo stesso o più elevato rispetto al prezzo attuale.  Il prezzo attuale è scontato?
+error_user-db-id-mismatch,Datenbank ID's stimmen nicht überein. Bitte Admin kontaktieren.,Mismatch User-DB-ID. Please contact admin.,Problème d'identification (User-DB-ID). Veuillez contacter l'administrateur.,Errore di autenticazione (User-DB-ID). Si prega di contattare l'amministratore.
+error_login-wrong-credentials,Benutzername und Password stimmen nicht überein.,User name and password do not match.,Le nom d'utilsateur et/ou le mot de passe n'est pas correct.,Il nome utente e la password non corrispondono.
+error_request_unauthorized,Kein gültiges Login vorhanden. Login ist eventuell abgelaufen.,No valid login found. Login has probably expired.,Login pas valable. Login probablement expiré. ,Il login non è valido. È probabilmente scaduto.
+error_synchronize_unknown-error,Ein unbekannter Fehler ist während der Synchronisierung aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Administrator.,Unknown error while synchronizing. Please try again later or contact the administrator.,Une erreur inconnue a eu lieu lors de la synchronisation. Veuillez réessayer ultérieurement ou contacter l'administrateur. ,Si è verificato un errore sconosciuto durante la sincronizzazione. Riprovi più tardi o contatti l'amministratore.
+heading_aktuelle_periode,Aktuelle Periode,Current period,Période actuelle,Periodo attuale
+heading_artikel-ausser-aktion,Artikel ausser Aktion,Item without reduction,Article hors action,Articolo non scontato
+heading_artikel-neu,Artikel neu,New item,Nouvel article,Nuovo articolo
+heading_artikel-vor-reduktion,Artikel vor Reduktion,Item before reduction,Article avant réduction,Articolo prima dello sconto
+heading_artikel,Artikel,Item,Article,Articolo
+heading_bearbeitungscode-auswaehlen,Bearbeitungscode auswählen,Choose treatment code,Choisir le code de traitement,Scegliere un codice di trattamento
+heading_choose-preismeldestelle,Erhebung,Survey,Enquête,Rilevazione
+heading_danger-zone,Gefährlicher Abschnitt,Danger zone,Étape dangereuse !,Zona pericolosa
+heading_information-about-preismeldung,Information über die Preismeldung,Information about price,Information sur l'article,Informazione sul prezzo
+heading_information-about-warenkorbposition,Information über die Erhebungsposition (EP),Information about variety,Information sur la position (EP),Informazione sulla varietà
+heading_kommentar-zum-aktuellen-monat,Kommentar zum aktuellen Monat,Comment about current month,Commentaire sur le mois actuel,Commento per il mese attuale
+heading_kommunikation,Fragen und Antworten,Questions and answers,Questions et réponses,Domande e risposte
+heading_login,Anmeldung,Login,Connexion,Login
+heading_manage-preismeldestelle,Preismeldungen,Prices,Prix,Prezzi
+heading_meine-notiz,Meine Notiz,My notes,Mes notes,I miei appunti
+heading_pms-details,Angaben zur Preismeldestelle,Information about store,Informations sur le point de vente,Informazioni sul punto vendita
+heading_pms-sort,Reihenfolge der Artikelliste,Order of items,Ordre de la liste d'article,Ordine della lista degli articoli
+heading_preiserheber,Preiserheber/in,Price collector,Enquêteur/-trice,Rilevatore
+heading_preismeldestelle,Preismeldestelle,Store,Point de vente,Punto vendita
+heading_preismeldung-attributes,Produkteigenschaften,Item features,Caractéristiques du produit,Caratteristiche del prodotto
+heading_settings,Einstellungen,Settings,Paramètres,Impostazioni
+heading_validation-error,Validierungsfehler,Validation error,Erreur de validation,Errore di validazione
+heading_vorperiode,Vorperiode,Previous period,Période précédente,Periodo precedente
+heading_warenkorb_neu_preisreihe_hinzufügen,Neue Preisreihe hinzufügen,Add new price series,Ajouter une série de prix,Aggiungere nuova serie di prezzo
+installed-software-version,Installierte Software-Version,Installed software version,Version du programme installé,Versione software installata
+kommentar-autotext_abnormale-preisentwicklung-bestaetigt,Abnormale Preisentwicklung bestätigt.,Abnormal price change confirmed.,Variation de prix anormale confirmée.,Variazione del prezzo anomale confirmata.
+kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp,Aktueller Aktionspreis teuerer als Normalpreis VP bestätigt.,Current reduced price higher than normal price of previous period confirmed.,Prix actuel en action supérieur au prix normal de la période précédente confirmé,Prezzo scontato attuale più elevato rispetto al prezzo normale del periodo precedente confermato.
+kommentar-autotext_aktueller-normalpreis-billiger-aktionspreis_vp,Aktueller Normalpreis billiger als/gleich Aktionspreis VP bestätigt.,Current normal price cheaper/equal to reduced price of previous period confirmed.,Prix normal actuel inférieur/égal au prix en action de la période précédente confirmé,Prezzo attuale non scontato più vantaggioso o uguale al prezzo scontato del periodo precedente confermato.
+kommentar-autotext_artikeltext-unveraendert-bestaetigt,Artikeltext unverändert bestätigt.,Unchanged item name confirmed.,Description de l'article identique confirmé/e,Descrizione identica dell'articolo confermata.
+kommentar-autotext_keine-ersatzprodukte,Keine Ersatzprodukte in Sortiment vorhanden.,No replacement items in range.,Pas d'article de remplacement dans l'assortiment,Non ci sono articoli di sostituzione nell'assortimento.
+kommentar-autotext_keine-produkte,Keine Produkte in Sortiment vorhanden.,No items in range.,Pas d'article disponible dans l'assortiment,Non ci sono articoli nell'assortimento.
+kommentar-autotext_presta-setzt-normalpreis,PRESTA beendet Preisreihe mit Normalpreis.,PRESTA ends price series on normal level.,PRESTA interrompt la série de prix avec un retour au prix normal. ,PRESTA interrompe la serie di prezzo con il prezzo non scontato.
+kommentar-autotext_steigender-aktionspreis-bestaetigt,Steigender Aktionspreis bestätigt.,Increase of reduced price confirmed.,Prix en action à la hausse confirmé. ,Aumento del prezzo in azione confermato.
+label_anzahl-fehlende-preis-r,Anzahl Code R,Number of code R,Nombre de code R,Numero di codici R
+label_artikelnummer,Artikelnummer,Item number,Numéro d'article,Numero dell'articolo
+label_artikeltext-geliefert,Artikeltext (geliefert),Item name (as delivered),Description de l'article (tel que livré),Descrizione dell'articolo rilevata
+label_artikeltext,Artikeltext,Item name,Description de l'article,Descrizione dell'articolo
+label_basismenge,Basismenge,Initial quantity,Quantité initiale,Quantità di base
+label_basispreis,Basispreis,Initial price,Prix initial,Prezzo di base
+label_datum-vor-reduktion,Datum vor Reduktion,Date before reduction,Date avant la réduction,Data prima dello sconto
+label_info-warenkorb_anzahl-preismeldungen,Anzahl Preismeldungen (Aktuell/Vorgabe),Number of items (recorded/required),Nombre d'articles (actuels/requis),Numero di articoli (rilevati/richiesti)
+label_info-warenkorb_beispiele,Beispiele,Examples,Exemples,Esempi
+label_info-warenkorb_code,Code,Code,Code,Codice
+label_info-warenkorb_erfassungszeitraum,Erfassungszeitraum,Survey period,Période de relevé,Periodo di rilevazione
+label_info-warenkorb_erlaubte-normalpreisentwicklung,Erlaubte Normalpreisentwicklung,Admitted normal price change,Évolution normale de prix admise,Evoluzione di prezzo normale ammessa
+label_info-warenkorb_info,Info,Info,Info,Info
+label_info-warenkorb_periodizitaet,Periodizität,Periodicity,Périodicité,Periodicità
+label_info-warenkorb_position-im-warenkorb,Position im Warenkorb,Position in market basket,Position dans le panier-type,Posizione nel paniere tipo
+label_info-warenkorb_preismeldung-wird-erhoben-im,Erhebungsposition wird erhoben im,Item is recorded in,Article relevé en,Articolo viene rilevato nel
+label_info-warenkorb_standardmenge,Standardmenge,Standard quantity,Quantité standard,Quantità standard
+label_internetlink,Internetlink,Web address,Lien internet,Link Internet
+label_login_password,Passwort,Password,Mot de passe,Password
+label_login_username,Benutzername,User name,Nom d'utilisateur,Nome utente
+label_menge-vor-reduktion,Menge vor Reduktion,Quantity before reduction,Quantité avant réduction,Quantità prima dello sconto
+label_neue-preisreihe-code-2,Neue Preisreihe: Vorperiode und aktuelle Periode bekannt (Code 2),New price series: current and last period known (Code 2),Nouvel article : période précédente et actuelle connues (code 2),Nuovo articolo: periodo precedente e attuale conosciuti (codice 2)
+label_neue-preisreihe-code-3,Neue Preisreihe: Nur aktuelle Periode bekannt (Code 3),New price series: current period known (Code 2),Nouvel article : uniquement période actuelle connue (code 3),Nuovo articolo: periodo attuale conosciuto (codice 3)
+label_pms_adresse,Adresse,Address,Adresse,Indirizzo
+label_pms_bemerkungen_erhebungsart,Bemerkungen zur Erhebungsart,Remark on type of survey,Remarque sur le type de relevé,Commenti sulla tecnica di rilevazione
+label_pms_email,eMail,eMail,eMail,eMail
+label_pms_erhebungsart_abgegeben,Papierliste durch PMS ausgefüllt,Paper form completed by store,Formulaire papier rempli par le point de vente,Modulo cartaceo completato dal punto vendita
+label_pms_erhebungsart_email,eMail,eMail,eMail,eMail
+label_pms_erhebungsart_internet,Internet,Internet,Internet,Internet
+label_pms_erhebungsart_persoenlich,Papierliste vor Ort,Paper form on site,Formulaire papier ,Modulo di carta
+label_pms_erhebungsart_telephone,Telefon,Telephone,Téléphone,Telefono
+label_pms_erhebungsart_vor-ort-app,Tablet vor Ort,Tablet on site,Tablette sur le terrain,Tablet nel punto vendita
+label_pms_erhebungsart,Erhebungsart,Survey type,Type de relevé,Tecnica di rilevazione
+label_pms_erhebungsregion,Erhebungsregion,Survey region,Région de relevé,Regione di rilevazione
+label_pms_fax,Fax,Fax,Fax,Fax
+label_pms_kontaktperson_1,1. Kontaktperson,Contact 1,Personne de contact 1,Persona di contatto 1
+label_pms_kontaktperson_2,2. Kontaktperson,Contact 2,Personne de contact 2,Persona di contatto 2
+label_pms_kontaktperson_first-name,Vorname,First name,Prénom,Nome
+label_pms_kontaktperson_person-function,Funktion,Function,Fonction,Funzione
+label_pms_kontaktperson_surname,Name,Surname,Nom,Cognome
+label_pms_language-code,Sprache,Language,Langue,Lingua
+label_pms_mobile,Mobile,Mobile,Mobile,Cellulare
+label_pms_name,Name,Name,Nom,Nome
+label_pms_pmsGeschlossen_1,Ferien,Vacation,Vacances,Ferie
+label_pms_pmsGeschlossen_2,geschlossen (temporär),Temporarily closed,Fermé temporairement,Chiuso (temporaneamente)
+label_pms_pmsGeschlossen_3,Geschäftsaufgabe,Store closure,Cessation d'activité définitive,Chiusura del negozio
+label_pms_pmsGeschlossen_4,anderes (bitte unter Zusatzinformation erläutern),other (please comment under complementary information),Autre (svp préciser dans informations supplémentaires),Altro (per favore precisare nel campo informazioni complementari)
+label_pms_pmsGeschlossen,Verhinderungsgrund der Erhebung in PMS,Reason why shop data cannot be recorded this month,Raison du non-relevé,Motivo perché la rilevazione non può essere eseguita questo mese
+label_pms_postcode,PLZ,Postal code,Code postal,CAP
+label_pms_preismeldestellenummer,Preismeldestellen-Nummer,Store number,Numéro de PMS,Numero del punto vendita
+label_pms_region,Region,Region,Région,Regione di rilevazione
+label_pms_street,Strasse,Street,Rue,Via
+label_pms_telephone,Telefon,Telephone,Téléphone,Telefono
+label_pms_town,Ort,City,Ville,Città
+label_pms_zusatzinformationen,Zusatzinformationen zur Preismeldestelle,Complementary information about store,Information complémentaire sur le point de vente,Informazioni complementari sul punto vendita
+label_pms_zusatzname,Zusatzname,Complementary name,Nom complémentaire,Nome complementare
+label_preis-gefuehrt-seit,Preisreihe seit,In survey since,Relevé depuis,Rilevato da
+label_preis-vor-reduktion,Preis vor Reduktion,Price before reduction,Prix avant réduction,Prezzo prima dello sconto
+label_preiserheber_email,eMail,eMail,eMail,eMail
+label_preiserheber_erhebungsregion,Erhebungsregion,Region of survey,Région de relevé,Regione di rilevazione
+label_preiserheber_fax,Fax,Fax,Fax,Fax
+label_preiserheber_firstName,Vorname,First name,Prénom,Nome
+label_preiserheber_languageCode,Sprache,Language,Langue,Lingua
+label_preiserheber_mobilephone,Mobilnummer,Mobile,Mobile,Cellulare
+label_preiserheber_postcode,PLZ,Postal code,Code postal,CAP
+label_preiserheber_street,Strasse,Street,Rue,Via
+label_preiserheber_surname,Nachname,Surname,Nom,Cognome
+label_preiserheber_telephone,Festnetznummer,Telephone,Téléphone,Telefono fisso
+label_preiserheber_town,Ort,City,Ville,Città
+label_preiserheber_webseite,Webseite,Website,Site internet,Sito Internet
+label_preismeldung-id,Preis-ID,Price-ID,ID-Prix,ID-Prezzo
+label_preismeldungen,Preismeldungen,Prices,Prix,Prezzi
+label_print_aktion,Aktion,Sale,Action,Azione
+label_print_anzahl-code-r,Anzahl Code R,Number of code R,Nombre de code R,Numero di codici R
+label_print_ausverkauf,Ausverkauf,Clearance sale,Solde,Saldi
+label_print_chf,CHF,CHF,CHF,CHF
+label_print_code,Code,Code,Code,Codice
+label_print_menge-vor-reduktion,Menge vor Reduktion,Quantity before reduction,Quantité avant réduction,Quantità prima dello sconto
+label_print_menge,Menge,Quantity,Quantité,Quantità
+label_print_pm-id,Preis-ID,Price-ID,ID-Prix,ID-Prezzo
+label_print_pos,Pos.,Pos.,Pos.,Pos.
+label_print_preis-vor-reduktion,Preis vor Reduktion,Price before reduction,Prix avant réduction,Prezzo prima dello sconto
+label_print_preis,Preis,Price,Prix,Prezzo
+label_print_shop,Shop,Store,Point de vente,Punto vendita
+label_print_standardmenge,Standardmenge,Standard quantity,Quantité standard,Quantità standard
+server-connection-url,URL des Datenbank-Servers,URL of the database-server,URL du serveur de la base de données,URL del server della banca dati
+text_aktion,Aktion,Sale,Action,Azione
+text_chf,CHF,CHF,CHF,CHF
+text_code,Code,Code,Code,Codice
+text_database-last-synced-at,Letzte Synchronisation,Database last synced at,Dernière synchronisation,Ultima sincronizzazione
+text_database-successfully-deleted,Lokale Daten wurden erfolgreich gelöscht,Database successfully deleted,Données locales supprimées,I dati locali sono stati cancellati con successo
+text_erhebungsmonat,Erhebungsmonat,Month of survey,Mois d'enquête,Mese di rilevazione
+text_nicht_zutreffend,Nicht zutreffend,Not applicable,Pas applicable,Non applicabile
+text_no,Nein,No,Non,No
+text_not-specified,Nicht angegeben,Not specified,Non spécifié,Non specificato
+text_preismeldung_erfasste,nicht gelieferte Preise,Prices to upload,Prix à transférer,Prezzi a caricare
+text_preismeldung_heruntergeladene,erhaltene Preise,Prices received,Prix téléchargés,Prezzi scaricati
+text_preismeldung_hochgeladene,gelieferte Preise,Prices uploaded,Prix transférés,Prezzi caricati
+text_preismeldung_offen-erfasst,erfasste Preise,Prices done,Prix déjà relevés,Prezzi rilevati
+text_preismeldung_offen-nicht-erfasst,zu erfassende Preise,Prices to do,Prix à relever,Prezzi non rilevati
+text_saving-preiserheber,Preiserheber-Info wird gespeichert. Bitte warten...,Saving info about price collector. Please wait...,Les informations sur l'enquêteur/trice sont en cours de sauvegarde. Prière de patienter…,L'informazione relativa al rilevatore viene salvata. Attendere prego…
+text_saving-settings,Einstellungen werden gespeichert. Bitte warten...,Saving settings. Please wait...,Les paramètres sont en cours de sauvegarde. Prière de patienter…,Le impostazioni vengono salvate. Attendere prego…
+text_synchronizing-data,Datensynchronisierung läuft. Bitte warten...,Synchronizing data. Please wait...,La synchronisation des données est en cours. Prière de patienter…,Sincronizzazione in corso. Attendere prego…
+text_textzeil_limitverletzung,Limitverletzung: Preisentwicklung.,Out of range: Price change.,Violation des limites: Variation de prix,Fuori limite: evoluzione dei prezzi.
+text_textzeil_nicht_vergleichbar,Neuer und alter Artikel nicht vergleichbar!,Replacement item is not comparable to former item,Nouvel et ancien article pas comparables,Nuovo articolo non paragonabile con l'articolo precedente!
+text_warenkorb_anzahlergebnisse,Treffer,Results found,Résultats,Risultati
+text_yes,Ja,Yes,Oui,Si
+validation_erhebungsart_required,Bitte erfassen Sie die Erhebungsart der Preismeldestelle,Please specify the survey type for this store,Veuillez svp préciser le type de relevé pour ce point de vente,Per favore indicare la tecnica di rilevazione del punto vendita
+validation_erhebungsregion_required,Bitte erfassen Sie die Region der Preismeldestelle,Please specify the survey region for this store,Veuillez svp préciser la région de relevé pour ce point de vente,Per favore indicare la regione del punto vendita
+validation_firstName_required,Bitte erfassen Sie den Vorname der 1. Kontaktperson.,Please specify the first name of contact 1.,Veuillez svp préciser le prénom de la personne de contact 1,Per favore indicare il nome della persona di contatto 1.
+validation_formatted_number-out-of-range,"Ungültige Eingabe im Feld ""{{controlName}}. Bitte Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben.""","Not allowed entry for ""{{controlName}}. Number must be between {{minNumber}} and {{maxNumber}}.""","Saisie non autorisée pour ""{{controlName}}. Veuillez saisir un nombre entre {{minNumber}} et {{maxNumber}}.""","Entrata non valida nel campo ""{{controlName}}. Per favore indicare una cifra tra {{minNumber}} e {{maxNumber}}."""
+validation_formatted_required,"Feld ""{{controlName}} ist erforderlich.""","""{{controlName}} is required.""","Le champs ""{{controlName}} doit être saisi.""","E necessario compilare il campo ""{{controlName}}."""
+validation_frage-antworten,Bitte Frage im Kommunikationskanal beantworten.,Please answer question in communication stream.,Veuillez répondre à la question du dialogue,Per favore rispondere alla domanda nel campo comunicazione.
+validation_languageCode_required,Bitte erfassen Sie die Sprache der Preismeldestelle.,Please specify the language for this store.,Veuillez saisir la langue du point de vente,Per favore indicare la lingua del punto vendita.
+validation_name_required,Bitte erfassen Sie den Namen der Preismeldestelle.,Please specify the name of the store.,Veuillez saisir le nom du point de vente,Per favore indicare il nome del punto vendita.
+validation_personFunction_required,Bitte erfassen Sie die Funktion der 1. Kontaktperson.,Please specify the function of contact 1.,Veuillez saisir la fonction de la personne de contact 1,Per favore indicare la funzione del punto vendita.
+validation_postcode_required,Bitte erfassen Sie die PLZ der Preismeldestelle.,Please specify the postal code of the store.,Veuillez saisir le NPA du point de vente,Per favore indicare il CAP del punto vendita.
+validation_produktMerkmale_erfassen,Bitte Produktmerkmale erfassen.,Please specify the product features.,Veuillez saisir les caractéristiques du produit,Per favore indicare il nome del punto vendita.
+validation_street_required,Bitte erfassen Sie die Strasse der Preismeldestelle.,Please specify the street of the store.,Veuillez saisir l'adresse du point de vente,Per favore indicare la via del punto vendita.
+validation_surname_required,Bitte erfassen Sie den Name der 1. Kontaktperson.,Please specify the surname of contact 1.,Veuillez saisir le nom de la personne de contact 1,Per favore indicare il nome della persona di contatto 1.
+validation_town_required,Bitte erfassen Sie den Ort der Preismeldestelle.,Please specify the city of the store.,Veuillez saisir la localité du point de vente,Per favore indicare la città del punto vendita.
+NEW (#163),Eine neue Preisreihe sollte nicht in Aktion gestartet werden. Bitte wählen Sie ein anderes Produkt aus.,New price series should not start with reduced price. Please choose a normal priced item for replacement.,Une nouvelle série de prix ne doit pas commencer par un prix en action. Veuillez choisir un autre article. ,Una nuova serie di prezzo non deve iniziare con un prezzo in azione. Pregasi scegliere un'altro articolo.
