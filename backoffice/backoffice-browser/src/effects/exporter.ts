@@ -44,7 +44,7 @@ export class ExporterEffects {
                             const envelope = createEnvelope(MessageTypes.Preismeldungen);
 
                             FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
-                            FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pm_${envelope.fileSuffix}.csv`);
+                            FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `data_${envelope.fileSuffix}.csv`);
 
                             return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
                         })
@@ -75,7 +75,7 @@ export class ExporterEffects {
                                 const envelope = createEnvelope(MessageTypes.Preismeldestellen);
 
                                 FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
-                                FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pms_${envelope.fileSuffix}.csv`);
+                                FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `data_${envelope.fileSuffix}.csv`);
 
                                 return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
                             })
@@ -103,7 +103,7 @@ export class ExporterEffects {
                                 const envelope = createEnvelope(MessageTypes.Preiserheber);
 
                                 FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
-                                FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `export-pe_${envelope.fileSuffix}.csv`);
+                                FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `data_${envelope.fileSuffix}.csv`);
 
                                 return { type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count };
                             })
