@@ -1,8 +1,39 @@
-select.item-md {
-    width: 100%;
-    @include set-margin-bottom(1.25);
-    height: 48px;
-    border: 1px;
-    border-radius: 2px;
-    box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.24);
+.ion-page preismeldung-list {
+    select.item-md {
+        width: 100%;
+        @include set-margin-bottom(1.25);
+        height: 48px;
+        border: 1px;
+        border-radius: 2px;
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.24);
+    }
+
+    .preismeldung-status-done {
+        max-width: 5em;
+        flex: 0 0 5em;
+        display: flex;
+        flex-direction: column;
+        .code {
+            margin-right: 8px;
+            text-align: right;
+            color: orange;
+            font-weight: bold;
+        }
+        .percentage {
+            margin-right: 8px;
+            text-align: right;
+        }
+    }
+
+    .pef-advanced-item {
+        .pef-item-description {
+            width: calc(100% - 9em);
+            max-width: calc(100% - 9em);
+        }
+        &[tappable]:hover:not(.selected) {
+            .percentage {
+                color: $white;
+            }
+        }
+    }
 }

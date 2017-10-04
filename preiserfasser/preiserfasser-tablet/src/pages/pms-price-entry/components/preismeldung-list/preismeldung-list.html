@@ -30,7 +30,7 @@
                 <pef-icon name="alarmclock_normal" [svgCssClasses]="calcStichtagStatus(bag, (currentTime$ | async))"></pef-icon>
                 <div class="status-bar"></div>
             </div>
-            <div class="preismeldung-status-done" *ngIf="bag.preismeldung.d_DPToVP.percentage != null">
+            <div class="preismeldung-status-done" *ngIf="bag.preismeldung.istAbgebucht">
                 <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)"></div>
                 <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
             </div>

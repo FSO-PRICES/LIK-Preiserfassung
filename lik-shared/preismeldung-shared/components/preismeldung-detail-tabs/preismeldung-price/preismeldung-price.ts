@@ -486,7 +486,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
         this.isSaveDisabled$ = this.distinctPreismeldung$.combineLatest(this.currentTime$, this.isAdminApp$, (bag, currentTime, isAdminApp) => {
             if (!bag) return false;
-            if (isAdminApp) return false;
+            if (isAdminApp) return !bag.preismeldung.uploadRequestedAt;
             if (!!bag.preismeldung.uploadRequestedAt) return true;
             if (!bag.refPreismeldung) return false;
             const dateRegex = /(\d+)\.(\d+)\.(\d+)/;

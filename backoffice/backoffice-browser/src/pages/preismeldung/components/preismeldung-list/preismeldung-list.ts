@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges } from 
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent, pefSearch } from 'lik-shared';
+import { ReactiveComponent, pefSearch, formatPercentageChange } from 'lik-shared';
 
 import * as P from '../../../../common-models';
 
@@ -52,6 +52,17 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
+
+    formatPercentageChange = (preismeldung: P.Models.Preismeldung) => {
+        return preismeldung.d_DPToVPK != null && preismeldung.d_DPToVPK.percentage != null && !isNaN(preismeldung.d_DPToVPK.percentage)
+            ? formatPercentageChange(preismeldung.d_DPToVPK.percentage, 1)
+            : formatPercentageChange(preismeldung.d_DPToVP.percentage, 1);
+    }
+
+    getBearbeitungscodeDescription(bearbeitungscode: P.Models.Bearbeitungscode) {
+        return P.Models.bearbeitungscodeDescriptions[bearbeitungscode];
+    }
+
 }
 
 function matchesIdSearch(filterText: string) {

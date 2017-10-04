@@ -16,6 +16,10 @@
                     <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung.de }}</span>
                     <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
                 </div>
+                <div class="preismeldung-status-done" *ngIf="bag.preismeldung.istAbgebucht">
+                    <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)"></div>
+                    <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
+                </div>
             </ion-item>
         </ion-list>
     </ion-content>
