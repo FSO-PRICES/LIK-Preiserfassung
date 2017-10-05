@@ -22,11 +22,11 @@ import * as P from '../../../models';
                     </div>
                     <ion-item class="pef-item on-dark" *ngIf="!(isInternet$ | async)">
                         <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
-                        <ion-input type="text" formControlName="artikelnummer" [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async"></ion-input>
+                        <ion-input type="text" formControlName="artikelnummer" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-input>
                     </ion-item>
                     <ion-item class="pef-item on-dark" *ngIf="isInternet$ | async">
                         <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
-                        <ion-input type="text" formControlName="internetLink" [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async"></ion-input>
+                        <ion-input type="text" formControlName="internetLink" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-input>
                     </ion-item>
                     <button class="pef-icon-secondary server-url-button" ion-button icon-only (click)="navigateToInternetLink(form.value.internetLink)"
                         [disabled]="!form.value.internetLink" *ngIf="isInternet$ | async">
@@ -39,8 +39,8 @@ import * as P from '../../../models';
                 <div class="header-line">
                     <ion-item class="pef-item on-dark">
                         <ion-label>{{ 'label_artikeltext' | translate }}&nbsp;*</ion-label>
-                        <ion-input type="text" formControlName="artikeltext" [class.validation-error]="true" [readonly]="isSaveDisabled$ | async"
-                            [class.readonly]="isSaveDisabled$ | async"></ion-input>
+                        <ion-input type="text" formControlName="artikeltext" [class.validation-error]="true" [readonly]="isReadonly$ | async"
+                            [class.readonly]="isReadonly$ | async"></ion-input>
                     </ion-item>
                     <div class="right-column">
                         <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only class="pef-icon-secondary duplicate" (click)="duplicatePreismeldung$.emit()"
@@ -132,13 +132,13 @@ import * as P from '../../../models';
                                         <ion-label class="currency-label">{{ 'text_chf' | translate }}</ion-label>
                                         <ion-input #preis type="number" min="0.00" step="0.01" pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
                                             [class.ng-invalid]="createInvalidObservableFor('preis') | async" [readonly]="preisAndMengeDisabled$ | async"
-                                            [class.readonly]="preisAndMengeDisabled$ | async" (blur)="preisChanged$.emit(preis.value)"
+                                            [class.readonly]="preisAndMengeDisabled$ | async" (blur)="preisChanged$.emit(preis.value)" (keydown)="nonFormKeyDown$.emit()"
                                             [value]="(preisCurrentValue$ | async)?.value"></ion-input>
                                     </ion-item>
                                     <div class="unit-item-wrapper">
                                         <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('menge') | async">
                                             <ion-input #menge type="number" step="any" pef-disable-input-number-behaviour pef-disable-input-negative-number [class.ng-invalid]="createInvalidObservableFor('menge') | async"
-                                                [readonly]="preisAndMengeDisabled$ | async" [class.readonly]="preisAndMengeDisabled$ | async"
+                                                [readonly]="preisAndMengeDisabled$ | async" [class.readonly]="preisAndMengeDisabled$ | async" (keydown)="nonFormKeyDown$.emit()"
                                                 (blur)="mengeChanged$.emit(menge.value)" [value]="form.value.menge"></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
@@ -151,14 +151,14 @@ import * as P from '../../../models';
                                         <ion-label class="currency-label">{{ 'text_chf' | translate }}</ion-label>
                                         <ion-input #preisVorReduktion type="number" min="0.00" step="0.01" pef-highlight-on-focus pef-disable-input-number-behaviour
                                             pef-disable-input-negative-number [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async"
-                                            (blur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)" [readonly]="isSaveDisabled$ | async"
-                                            [class.readonly]="isSaveDisabled$ | async" [value]="form.value.preisVorReduktion"></ion-input>
+                                            (blur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)" (keydown)="nonFormKeyDown$.emit()" [readonly]="isReadonly$ | async"
+                                            [class.readonly]="isReadonly$ | async" [value]="form.value.preisVorReduktion"></ion-input>
                                     </ion-item>
                                     <div class="unit-item-wrapper">
                                         <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async">
                                             <ion-input #mengeVorReduktion type="number" step="any" pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
-                                                [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async" (blur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)"
-                                                [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async" [value]="form.value.mengeVorReduktion"></ion-input>
+                                                [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async" (blur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)" (keydown)="nonFormKeyDown$.emit()"
+                                                [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async" [value]="form.value.mengeVorReduktion"></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
                                             <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqual$.emit()" [disabled]="preisAndMengeDisabled$ | async">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</button>
@@ -172,13 +172,13 @@ import * as P from '../../../models';
                                             <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit(!form.value.aktion)" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
                                         </ion-item>
                                     </ion-list>
-                                    <div class="aktion-percent-container" [class.visibility-hidden]="!form.value.aktion || !(preismeldung$ | async)?.refPreismeldung || (infoPopoverRightActive$ | async) || (isSaveDisabled$ | async)">
+                                    <div class="aktion-percent-container" [class.visibility-hidden]="!form.value.aktion || !(preismeldung$ | async)?.refPreismeldung || (infoPopoverRightActive$ | async) || (isReadonly$ | async)">
                                         <button class="aktion-percent-button" ion-button color="mercury" (click)="chooseReductionPercentage$.emit()">%</button>
                                     </div>
                                     <div class="code" [class.visibility-hidden]="!formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR)">{{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}</div>
                                 </div>
                                 <bearbeitungs-type [class.visibility-hidden]="infoPopoverRightActive$ | async" formControlName="bearbeitungscode" (change)="changeBearbeitungscode$.emit($event)"
-                                    [codeListType]="codeListType$ | async" [readonly]="isSaveDisabled$ | async" [nichtEmpfohleneBc]="(distinctPreismeldung$ | async)?.warenkorbPosition.nichtEmpfohleneBc"></bearbeitungs-type>
+                                    [codeListType]="codeListType$ | async" [readonly]="isReadonly$ | async" [nichtEmpfohleneBc]="(distinctPreismeldung$ | async)?.warenkorbPosition.nichtEmpfohleneBc"></bearbeitungs-type>
                             </div>
                         </div>
                     </div>
@@ -191,13 +191,13 @@ import * as P from '../../../models';
                                         <ion-label>{{ 'text_chf' | translate }}</ion-label>
                                         <ion-input #preisVPK type="number" min="0.00" step="0.01" pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
                                             [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async" (blur)="preisVPKChanged$.emit(preisVPK.value)"
-                                            [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async" [value]="(preisVPKCurrentValue$ | async)?.value"></ion-input>
+                                            [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async" [value]="(preisVPKCurrentValue$ | async)?.value"></ion-input>
                                     </ion-item>
                                     <div class="unit-item-wrapper">
                                         <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async">
                                             <ion-input #mengeVPK type="number" step="any" pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
                                                 [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async" (blur)="mengeVPKChanged$.emit(mengeVPK.value)"
-                                                [readonly]="isSaveDisabled$ | async" [class.readonly]="isSaveDisabled$ | async" [value]="form.value.mengeVPK"></ion-input>
+                                                [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async" [value]="form.value.mengeVPK"></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
                                             <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqualVP$.emit()" [disabled]="preisAndMengeDisabled$ | async">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</button>
@@ -224,7 +224,7 @@ import * as P from '../../../models';
                                 <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>
                             </div>
                             <div class="buttons-container">
-                                <button ion-button color="java" class="save-button" (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
+                                <button ion-button color="java" class="save-button" (click)="attemptSave$.emit($event)" [class.look-disabled]="isSaveLookDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
                                 <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only color="primary" class="next-button" (click)="requestSelectNextPreismeldung$.emit({})">
                                     <pef-icon name="arrow_right"></pef-icon>
                                 </button>
@@ -236,7 +236,7 @@ import * as P from '../../../models';
                             <span *ngFor="let textzeil of (preismeldung$ | async)?.textzeile" [innerHTML]="(textzeil | translate) + '\u00a0'"></span>
                         </div>
                         <button ion-button color="primary" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
-                            (click)="attemptSave$.emit($event)" [disabled]="isSaveDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
+                            (click)="attemptSave$.emit($event)" [class.look-disabled]="isSaveLookDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
                         <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only color="primary" class="next-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
                             (click)="requestSelectNextPreismeldung$.emit({})">
                             <pef-icon name="arrow_right"></pef-icon>
@@ -260,6 +260,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
     @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
     @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
+
 
     public preismeldung$: Observable<P.CurrentPreismeldungBag>;
     public distinctPreismeldung$: Observable<P.CurrentPreismeldungBag>;
@@ -299,9 +300,13 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public arrowRight$: Observable<P.Models.PercentageWithWarning>;
 
     public currentPeriodHeading$: Observable<string>;
+    public isReadonly$: Observable<boolean>;
     public isSaveDisabled$: Observable<boolean>;
+    public isSaveLookDisabled$: Observable<boolean>;
 
     public isInternet$: Observable<boolean>;
+
+    public nonFormKeyDown$ = new EventEmitter();
 
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
@@ -484,7 +489,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 artikeltext: this.form.value.artikeltext
             }));
 
-        this.isSaveDisabled$ = this.distinctPreismeldung$.combineLatest(this.currentTime$, this.isAdminApp$, (bag, currentTime, isAdminApp) => {
+        this.isReadonly$ = this.distinctPreismeldung$.combineLatest(this.currentTime$, this.isAdminApp$, (bag, currentTime, isAdminApp) => {
             if (!bag) return false;
             if (isAdminApp) return !bag.preismeldung.uploadRequestedAt;
             if (!!bag.preismeldung.uploadRequestedAt) return true;
@@ -496,9 +501,26 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             return isBefore(currentTime, erhebungsAnfangsDatum) ? true : false;
         }).publishReplay(1).refCount();
 
+        this.isSaveDisabled$ = this.preismeldung$
+            .filter(x => !!x)
+            .combineLatest(this.isReadonly$, (bag, isReadonly) => !bag.isModified || isReadonly)
+            .publishReplay(1).refCount();
+
+        const FIELD_MODIFIED = 'FIELD_MODIFIED';
+        const IS_SAVE_DISABLED = 'IS_SAVE_DISABLED';
+        type LookValueType = { type: 'FIELD_MODIFIED'; } | { type: 'IS_SAVE_DISABLED'; value: boolean; };
+        this.isSaveLookDisabled$ = this.nonFormKeyDown$.merge(this.preisChanged$, this.mengeChanged$, this.preisVorReduktionChanged$, this.mengeVorReduktionChanged$).mapTo({ type: 'FIELD_MODIFIED' })
+            .merge(this.isSaveDisabled$.map(isSavedDisabled => ({ type: 'IS_SAVE_DISABLED', value: isSavedDisabled })))
+            .scan((agg, v: LookValueType) => {
+                if (v.type === 'FIELD_MODIFIED') return false;
+                return v.value;
+            }, true)
+            .startWith(true)
+            .publishReplay(1).refCount();
+
         this.preisAndMengeDisabled$ = bearbeitungscodeChanged$
             .map(x => this.calcPreisAndMengeDisabled(x))
-            .combineLatest(this.isSaveDisabled$, (disabledBasedOnBearbeitungsCode, isSaveDisabled) => disabledBasedOnBearbeitungsCode || isSaveDisabled)
+            .combineLatest(this.isReadonly$, (disabledBasedOnBearbeitungsCode, isReadonly) => disabledBasedOnBearbeitungsCode || isReadonly)
             .publishReplay(1).refCount();
 
         this.showVPArtikelNeu$ = bearbeitungscodeChanged$
@@ -543,7 +565,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         const canSave$ = this.attemptSave$.mapTo({ type: 'JUST_SAVE' } as P.SavePreismeldungPriceSaveAction).merge(this.requestPreismeldungSave$)
-            .map(x => ({ saveAction: x, isValid: this.form.valid }))
+            .withLatestFrom(this.isSaveDisabled$, (saveAction, isSaveDisabled) => ({ saveAction, isSaveDisabled }))
+            .filter(x => !x.isSaveDisabled)
+            .map(({ saveAction }) => ({ saveAction, isValid: this.form.valid }))
             .publishReplay(1).refCount();
 
         const saveWithBag$ = canSave$.filter(x => x.isValid)

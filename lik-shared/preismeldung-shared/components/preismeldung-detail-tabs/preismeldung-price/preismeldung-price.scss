@@ -360,6 +360,12 @@ preismeldung-price {
         }
     }
 
+    .look-disabled {
+        cursor: default;
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
     .save-button {
         margin-bottom: 0;
         &.with-top-margin {

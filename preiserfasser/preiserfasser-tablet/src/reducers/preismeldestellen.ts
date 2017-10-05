@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
-import { Models as P }  from 'lik-shared';
+import { Models as P } from 'lik-shared';
 import * as preismeldestellen from '../actions/preismeldestellen';
-import { assign, cloneDeep } from 'lodash';
+import { assign, cloneDeep, isEqual } from 'lodash';
 
 export type CurrentPreismeldestelle = P.Preismeldestelle & {
     isModified: boolean;
@@ -32,14 +32,41 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
             return assign({}, initialState);
 
         case 'PREISMELDUNGEN_LOAD_SUCCESS':
-            return assign({}, state, { currentPreismeldestelle: action.payload.pms });
+            return { ...state, currentPreismeldestelle: { ...action.payload.pms, isModified: false } };
 
         case 'PREISMELDESTELLE_SELECT':
-            return assign({}, state, { currentPreismeldestelle: cloneDeep(state.entities[action.payload]) });
+            return { ...state, currentPreismeldestelle: { ...cloneDeep(state.entities[action.payload]), isModified: false } };
 
         case 'UPDATE_CURRENT_PREISMELDESTELLE': {
             const { payload } = action;
 
+            const isKontaktPersonSame = (a, b) => !!a && !!b
+                && a.firstName === b.firstName
+                && a.surname === b.surname
+                && a.personFunction === b.personFunction
+                && a.languageCode === b.languageCode
+                && a.telephone === b.telephone
+                && a.mobile === b.mobile
+                && a.fax === b.fax
+                && a.email === b.email;
+
+            if (payload.name === state.currentPreismeldestelle.name
+                && payload.supplement === state.currentPreismeldestelle.supplement
+                && payload.street === state.currentPreismeldestelle.street
+                && payload.supplement === state.currentPreismeldestelle.supplement
+                && payload.postcode === state.currentPreismeldestelle.postcode
+                && payload.town === state.currentPreismeldestelle.town
+                && payload.telephone === state.currentPreismeldestelle.telephone
+                && payload.email === state.currentPreismeldestelle.email
+                && payload.languageCode === state.currentPreismeldestelle.languageCode
+                && payload.erhebungsart === state.currentPreismeldestelle.erhebungsart
+                && payload.pmsGeschlossen === state.currentPreismeldestelle.pmsGeschlossen
+                && payload.erhebungsartComment === state.currentPreismeldestelle.erhebungsartComment
+                && payload.zusatzInformationen === state.currentPreismeldestelle.zusatzInformationen
+                && isKontaktPersonSame(payload.kontaktpersons[0], state.currentPreismeldestelle.kontaktpersons[0])
+                && isKontaktPersonSame(payload.kontaktpersons[1], state.currentPreismeldestelle.kontaktpersons[1])) {
+                return state;
+            }
             const valuesFromPayload = {
                 name: payload.name,
                 supplement: payload.supplement,
@@ -53,16 +80,11 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
                 pmsGeschlossen: payload.pmsGeschlossen,
                 erhebungsartComment: payload.erhebungsartComment,
                 zusatzInformationen: payload.zusatzInformationen,
-                kontaktpersons: cloneDeep(payload.kontaktpersons),
+                kontaktpersons: cloneDeep(payload.kontaktpersons)
             };
 
-            const currentPreismeldestelle = assign({},
-                state.currentPreismeldestelle,
-                valuesFromPayload,
-                { isModified: true }
-            );
-
-            return Object.assign({}, state, { currentPreismeldestelle });
+            const currentPreismeldestelle = { ...state.currentPreismeldestelle, ...valuesFromPayload, isModified: true };
+            return { ...state, currentPreismeldestelle };
         }
 
         case 'SAVE_PREISMELDESTELLE_SUCCESS': {

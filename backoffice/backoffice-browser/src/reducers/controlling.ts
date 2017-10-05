@@ -55,6 +55,7 @@ export function reducer(state = initialState, action: controlling.ControllingAct
         case controlling.SAVE_PREISMELDUNG_PRICE_SUCCESS:
         case controlling.SAVE_PREISMELDUNG_MESSAGES_SUCCESS:
         case controlling.SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS: {
+            if (!state.rawCachedData) return state;
             const preismeldung = (action.type === controlling.SAVE_PREISMELDUNG_PRICE_SUCCESS) ? action.payload.preismeldung : action.payload;
             const cachedPreismeldung = state.rawCachedData.preismeldungen.find(x => x._id === preismeldung._id);
             if (!cachedPreismeldung) return state;
