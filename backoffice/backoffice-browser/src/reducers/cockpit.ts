@@ -40,13 +40,26 @@ export interface CockpitReportData {
     }
 }
 
-export type State = CockpitReportData;
+export interface State {
+    isExecuting: boolean;
+    cockpitReportData: CockpitReportData;
+};
 
-const initialState: State = null;
+const initialState: State = {
+    isExecuting: false,
+    cockpitReportData: null
+}
 
 export function reducer(state = initialState, action: cockpit.Action): State {
     switch (action.type) {
-        case 'LOAD_COCKPIT_DATA_SUCCESS': {
+        case cockpit.LOAD_COCKPIT_DATA_EXECUTING: {
+            return {
+                isExecuting: true,
+                cockpitReportData: null
+            };
+        }
+
+        case cockpit.LOAD_COCKPIT_DATA_SUCCESS: {
             const { preiserheber, preiszuweisungen, refPreismeldungen, preismeldungen, preismeldestellen, lastSyncedAt } = action.payload;
             const preiserheberSummary = preiserheber.map(erheber => {
                 const preiszuweisung = preiszuweisungen.find(z => z.preiserheberId === erheber.username);
@@ -70,12 +83,15 @@ export function reducer(state = initialState, action: cockpit.Action): State {
             const unassignedPriesmeldestellen = preismeldestellen.filter(pms => !assignedPmsNummern.some(pmsNummer => pmsNummer === pms.pmsNummer));
             const unassignedPmsPreismeldungSummary = createCockpitPmsPreismeldungenSummary(unassignedPriesmeldestellen, unassignedRefPreismeldungen, []);
             return {
-                preiserheber: preiserheberSummary,
-                unassigned: {
-                    summary: unassignedSummary,
-                    pmsPreismeldungSummary: unassignedPmsPreismeldungSummary
+                isExecuting: false,
+                cockpitReportData: {
+                    preiserheber: preiserheberSummary,
+                    unassigned: {
+                        summary: unassignedSummary,
+                        pmsPreismeldungSummary: unassignedPmsPreismeldungSummary
+                    }
                 }
-            }
+            };
         }
         default:
             return state;
@@ -121,3 +137,6 @@ function createCockpitPmsPreismeldungenSummary(preismeldestellen: P.Preismeldest
         };
     });
 }
+
+export const getCockpitIsExecuting = (state: State) => state.isExecuting;
+export const getCockpitReportData = (state: State) => state.cockpitReportData;

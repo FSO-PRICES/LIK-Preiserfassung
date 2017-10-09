@@ -136,6 +136,8 @@ export const getExportedPreiserheber = createSelector(getExporterState, fromExpo
 
 
 export const getCockpitState = (state: AppState) => state.cockpit;
+export const getCockpitReportData = createSelector(getCockpitState, fromCockpit.getCockpitReportData);
+export const getCockpitIsExecuting = createSelector(getCockpitState, fromCockpit.getCockpitIsExecuting);
 
 
 export const getWarenkorbState = (state: AppState) => state.warenkorb;

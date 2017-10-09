@@ -1,4 +1,4 @@
-<button type="button" class="load-data" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async" *ngIf="!(cockpitReportData$ | async)">Statusbericht laden</button>
+<button type="button" class="load-data" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</button>
 
 <div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)">
     <div class="container">

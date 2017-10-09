@@ -22,6 +22,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
 
     public reportExecuting$ = this.observePropertyCurrentValue<boolean>('reportExecuting');
     public cockpitReportData$ = this.observePropertyCurrentValue<P.CockpitReportData>('cockpitReportData');
+    public hasExecutedOnce$: Observable<boolean>;
     public filteredPreiserheber$: Observable<P.CockpitPreiserheberSummary[]>;
     public filteredSummary$: Observable<P.CockpitPreismeldungSummary>;
     public scrollList: Observable<P.CockpitPreiserheberSummary[]>;
@@ -82,6 +83,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
             .startWith(null)
             .publishReplay(1).refCount();
 
+        this.hasExecutedOnce$ = this.cockpitReportData$.filter(x => !!x).mapTo(true).take(1);
     }
 
     public updateScrollList(event) {
