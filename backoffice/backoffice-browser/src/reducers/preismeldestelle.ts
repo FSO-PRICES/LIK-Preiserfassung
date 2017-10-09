@@ -1,6 +1,6 @@
 import { Models as P } from 'lik-shared';
 
-import * as preismeldestelle from '../actions/preismeldestelle';
+import * as preismeldestelleActions from '../actions/preismeldestelle';
 import { assign, cloneDeep } from 'lodash';
 import { createSelector } from 'reselect';
 
@@ -23,7 +23,7 @@ const initialState: State = {
     erhebungsregionen: [],
 };
 
-export function reducer(state = initialState, action: preismeldestelle.Action): State {
+export function reducer(state = initialState, action: preismeldestelleActions.Action): State {
     switch (action.type) {
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;
@@ -43,12 +43,41 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
         }
 
         case 'SELECT_PREISMELDESTELLE': {
-            const currentPreismeldestelle = action.payload == null ? null : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false });
-            return assign({}, state, { currentPreismeldestelle: currentPreismeldestelle });
+            const currentPreismeldestelle = action.payload == null ? null : { ...cloneDeep(state.entities[action.payload]), isModified: false, isSaved: false };
+            return { ...state, currentPreismeldestelle };
         }
 
         case 'UPDATE_CURRENT_PREISMELDESTELLE': {
             const { payload } = action;
+
+            const isEqual = (a, b) => (a === b) || (!a && !b);
+            const isKontaktPersonSame = (a, b) => !!a && !!b
+                && isEqual(a.firstName, b.firstName)
+                && isEqual(a.surname, b.surname)
+                && isEqual(a.personFunction, b.personFunction)
+                && isEqual(a.languageCode, b.languageCode)
+                && isEqual(a.telephone, b.telephone)
+                && isEqual(a.mobile, b.mobile)
+                && isEqual(a.fax, b.fax)
+                && isEqual(a.email, b.email);
+
+            if (isEqual(payload.name, state.currentPreismeldestelle.name)
+                && isEqual(payload.supplement, state.currentPreismeldestelle.supplement)
+                && isEqual(payload.street, state.currentPreismeldestelle.street)
+                && isEqual(payload.supplement, state.currentPreismeldestelle.supplement)
+                && isEqual(payload.postcode, state.currentPreismeldestelle.postcode)
+                && isEqual(payload.town, state.currentPreismeldestelle.town)
+                && isEqual(payload.telephone, state.currentPreismeldestelle.telephone)
+                && isEqual(payload.email, state.currentPreismeldestelle.email)
+                && isEqual(payload.languageCode, state.currentPreismeldestelle.languageCode)
+                && isEqual(payload.erhebungsart, state.currentPreismeldestelle.erhebungsart)
+                && isEqual(payload.pmsGeschlossen, state.currentPreismeldestelle.pmsGeschlossen)
+                && isEqual(payload.erhebungsartComment, state.currentPreismeldestelle.erhebungsartComment)
+                && isEqual(payload.zusatzInformationen, state.currentPreismeldestelle.zusatzInformationen)
+                && isKontaktPersonSame(payload.kontaktpersons[0], state.currentPreismeldestelle.kontaktpersons[0])
+                && isKontaktPersonSame(payload.kontaktpersons[1], state.currentPreismeldestelle.kontaktpersons[1])) {
+                return state;
+            }
 
             const valuesFromPayload = {
                 _id: payload._id,
@@ -67,13 +96,9 @@ export function reducer(state = initialState, action: preismeldestelle.Action): 
                 kontaktpersons: cloneDeep(payload.kontaktpersons)
             };
 
-            const currentPreismeldestelle = assign({},
-                state.currentPreismeldestelle,
-                valuesFromPayload,
-                { isModified: true }
-            );
+            const currentPreismeldestelle = { ...state.currentPreismeldestelle, ...valuesFromPayload, isModified: true };
 
-            return Object.assign({}, state, { currentPreismeldestelle });
+            return { ...state, currentPreismeldestelle };
         }
 
         case 'SAVE_PREISMELDESTELLE_SUCCESS': {

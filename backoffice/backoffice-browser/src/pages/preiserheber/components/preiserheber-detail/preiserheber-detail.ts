@@ -17,25 +17,17 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     @Input() erhebungsregionen: string[];
     @Input() preissubsysteme: P.Preissubsystem[];
 
-    @Output('save')
-    public save$: Observable<P.Erheber>;
-    @Output('delete')
-    public delete$: Observable<string>;
-    @Output('cancel')
-    public cancelClicked$ = new EventEmitter<Event>();
-    @Output('resetPassword')
-    public resetPasswordClicked$ = new EventEmitter<Event>();
-    @Output('update')
-    public update$: Observable<P.Erheber>;
+    @Output('save') public save$: Observable<P.Erheber>;
+    @Output('cancel') public cancelClicked$ = new EventEmitter<Event>();
+    @Output('resetPassword') public resetPasswordClicked$ = new EventEmitter<Event>();
+    @Output('update') public update$: Observable<P.Erheber>;
 
     public preiserheber$: Observable<P.Erheber>;
-    public languages$: Observable<P.Language[]>;;
+    public languages$: Observable<P.Language[]>;
     public erhebungsregionen$: Observable<string[]>;
 
     public resetForm$: Observable<boolean>;
     public saveClicked$ = new EventEmitter<Event>();
-    public deleteClicked$ = new EventEmitter<Event>();
-
     public isEditing$: Observable<boolean>;
     public showValidationHints$: Observable<boolean>;
 
@@ -106,14 +98,6 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.isEditing$ = this.preiserheber$.map(x => !!x && !!x._rev)
             .publishReplay(1).refCount();
-
-        const canDelete$ = this.deleteClicked$
-            .withLatestFrom(this.isEditing$, (_, isEditing) => isEditing)
-            .publishReplay(1).refCount();
-
-        this.delete$ = canDelete$.filter(isEditing => isEditing)
-            .publishReplay(1).refCount()
-            .map(x => this.form.get('password').value);
 
         this.subscriptions = [
             distinctPreiserheber$

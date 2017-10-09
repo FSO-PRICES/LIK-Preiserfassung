@@ -35,7 +35,6 @@ export class PreiserheberPage implements OnDestroy {
     public cancelPreiserheber$ = new EventEmitter();
     public resetPassword$ = new EventEmitter();
     public savePreiserheber$ = new EventEmitter();
-    public deletePreiserheber$ = new EventEmitter();
     public updatePreiserheber$ = new EventEmitter<P.Erheber>();
     public assignPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
     public unassignPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
@@ -47,6 +46,7 @@ export class PreiserheberPage implements OnDestroy {
     public resetPasswordDialog$: Observable<any>;
     public cancelEditDialog$: Observable<any>;
     public confirmDeleteDialog$: Observable<any>;
+    public deleteClicked$ = new EventEmitter<Event>();
 
     private subscriptions: Subscription[] = [];
 
@@ -138,13 +138,7 @@ export class PreiserheberPage implements OnDestroy {
                 .flatMap(password => this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', dismissLoadingScreen$).map(() => password))
                 .subscribe(password => store.dispatch({ type: 'SAVE_PREISERHEBER', payload: password } as PreiserheberAction)),
 
-            // this.savePreiserheber$
-            //     .withLatestFrom(this.currentPreiszuweisung$, (_, currentPreiszuweisung) => currentPreiszuweisung)
-            //     .filter(currentPreiszuweisung => currentPreiszuweisung.isModified)
-            //     .withLatestFrom(this.currentPreiserheber$, (_, current) => current)
-            //     .subscribe(current => store.dispatch({ type: 'SAVE_PREISZUWEISUNG', payload: current._id } as PreiszuweisungAction)),
-
-            this.deletePreiserheber$
+            this.deleteClicked$
                 .withLatestFrom(this.currentPreiserheber$, (_, currentPreiserheber) => currentPreiserheber)
                 .flatMap(currentPreiserheber => this.confirmDeleteDialog$.map(y => ({ currentPreiserheber, dialogCode: y })))
                 .filter(x => x.dialogCode === 'CONFIRM_DELETE')
@@ -159,16 +153,12 @@ export class PreiserheberPage implements OnDestroy {
 
     public ionViewCanLeave(): Promise<boolean> {
         return Observable.merge(
-            this.isCurrentModified$
-                .filter(modified => modified === false || modified === null)
-                .map(() => true),
+            this.isCurrentModified$.filter(modified => modified === false || modified === null).map(() => true),
             this.isCurrentModified$
                 .filter(modified => modified === true)
                 .flatMap(() => this.cancelEditDialog$)
                 .map(dialogCode => dialogCode === 'THROW_CHANGES')
-        )
-            .take(1)
-            .toPromise();
+        ).take(1).toPromise();
     }
 
     public ionViewDidEnter() {
@@ -179,6 +169,7 @@ export class PreiserheberPage implements OnDestroy {
     }
 
     ngOnDestroy() {
+        this.store.dispatch({ type: 'SELECT_PREISERHEBER', payload: null } as PreiserheberAction);
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());

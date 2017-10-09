@@ -25,7 +25,7 @@
                     [isAdminApp]="false" (save)="save$.emit($event)"></preismeldung-price>
             </div>
             <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
-                Keine Preismeldung selektiert
+                {{ 'label_no_preismeldung-selected' | translate }}
             </div>
         </div>
         <div class="preismeldung-list-container">

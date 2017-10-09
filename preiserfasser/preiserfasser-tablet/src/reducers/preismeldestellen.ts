@@ -67,6 +67,7 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
                 && isKontaktPersonSame(payload.kontaktpersons[1], state.currentPreismeldestelle.kontaktpersons[1])) {
                 return state;
             }
+
             const valuesFromPayload = {
                 name: payload.name,
                 supplement: payload.supplement,

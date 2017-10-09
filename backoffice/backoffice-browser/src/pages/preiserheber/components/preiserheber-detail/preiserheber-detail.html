@@ -3,17 +3,20 @@
         <span *ngSwitchCase="true">Editieren</span>
         <span *ngSwitchDefault>Erfassen</span>
     </h1>
+    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(preiserheber$ | async)?.isModified">Speichern</button>
+    <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
     <ion-list no-lines>
         <div *ngIf="!!(preiserheber$ | async)?.error" class="error-text">
             <p>{{(preiserheber$ | async)?.error}}</p>
         </div>
-        <ion-item formGroupName="preiserheber"class="pef-item">
+        <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label stacked>Benutzername</ion-label>
             <ion-input type="text" formControlName="username" [readonly]="isEditing$ | async"></ion-input>
         </ion-item>
         <div *ngIf="!(isEditing$ | async)" class="help-text">
             <p>
-                Muss mit einem Buchstaben anfangen, mindestens 3 Zeichen lang sein und darf nur kleine Buchstaben, Zahlen und folgende Zeichen haben: "_ $ , + -"
+                Muss mit einem Buchstaben anfangen, mindestens 3 Zeichen lang sein und darf nur kleine Buchstaben, Zahlen und folgende Zeichen
+                haben: "_ $ , + -"
             </p>
         </div>
         <ion-item class="pef-item" *ngIf="!(isEditing$ | async)">
@@ -90,7 +93,4 @@
             <ion-input type="text" formControlName="postcode"></ion-input>
         </ion-item>
     </ion-list>
-    <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
-    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
-    <button type="button" ion-button class="danger" (click)="deleteClicked$.emit($event)" [disabled]="!(isEditing$ | async)">Löschen</button>
 </form>

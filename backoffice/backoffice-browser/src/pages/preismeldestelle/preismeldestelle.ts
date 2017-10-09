@@ -76,16 +76,10 @@ export class PreismeldestellePage implements OnDestroy {
 
     public ionViewCanLeave(): Promise<boolean> {
         return Observable.merge(
-            this.isCurrentModified$
-                .filter(modified => modified === false)
-                .map(() => true),
-            this.isCurrentModified$
-                .filter(modified => modified === true)
-                .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
-                .map(dialogCode => dialogCode === 'THROW_CHANGES')
-        )
-            .take(1)
-            .toPromise();
+            this.isCurrentModified$.filter(modified => modified === false).map(() => true),
+            this.isCurrentModified$.filter(modified => modified === true)
+                .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode).map(dialogCode => dialogCode === 'THROW_CHANGES')
+        ).take(1).toPromise();
     }
 
     public ionViewDidEnter() {
@@ -94,6 +88,7 @@ export class PreismeldestellePage implements OnDestroy {
     }
 
     ngOnDestroy() {
+        this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: null } as PreismeldestelleAction);
         this.subscriptions
             .filter(s => !!s && !s.closed)
             .forEach(s => s.unsubscribe());

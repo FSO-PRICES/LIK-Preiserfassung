@@ -6,32 +6,22 @@
                 <h1 class="large">
                     Preiserheber
                 </h1>
-                <button ion-button type="button" end (click)="createPreiserheber$.emit($event)">Erstellen</button>
+                <div class="buttons">
+                    <button ion-button type="button" end (click)="createPreiserheber$.emit($event)" [disabled]="(isEditing$ | async)">Erstellen</button>
+                    <button type="button" ion-button class="danger" (click)="deleteClicked$.emit($event)" [disabled]="!(isEditing$ | async)">Löschen</button>
+                </div>
             </div>
-            <preiserheber-list
-                [list]="preiserhebers$ | async"
-                [current]="currentPreiserheber$ | async"
-                (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
+            <preiserheber-list [list]="preiserhebers$ | async" [current]="currentPreiserheber$ | async" (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
         </div>
         <div class="preiserheber-detail-container container">
-            <preiserheber-detail *ngIf="isEditing$ | async"
-                [preiserheber]="currentPreiserheber$ | async"
-                [languages]="languages$ | async"
-                [erhebungsregionen]="erhebungsregionen$ | async"
-                (save)="savePreiserheber$.emit($event)"
-                (delete)="deletePreiserheber$.emit($event)"
-                (cancel)="cancelPreiserheber$.emit($event)"
-                (update)="updatePreiserheber$.emit($event)"
-                (resetPassword)="resetPassword$.emit($event)"></preiserheber-detail>
+            <preiserheber-detail *ngIf="isEditing$ | async" [preiserheber]="currentPreiserheber$ | async" [languages]="languages$ | async"
+                [erhebungsregionen]="erhebungsregionen$ | async" (save)="savePreiserheber$.emit($event)" (cancel)="cancelPreiserheber$.emit($event)"
+                (update)="updatePreiserheber$.emit($event)" (resetPassword)="resetPassword$.emit($event)"></preiserheber-detail>
         </div>
         <div class="preiserheber-preiszuweisung-container container">
             <preiserheber-preiszuweisung [class.hidden]="!((isEditing$ | async) && !(isCreating$ | async) && (preiszuweisungIsInitialized$ | async))"
-                [preiszuweisungen]="preiszuweisungen$ | async"
-                [preismeldestellen]="preismeldestellen$ | async"
-                [current]="currentPreiszuweisung$ | async"
-                (save)="savePreiserheber$.emit()"
-                (assign)="assignPreismeldestelle$.emit($event)"
-                (unassign)="unassignPreismeldestelle$.emit($event)"></preiserheber-preiszuweisung>
+                [preiszuweisungen]="preiszuweisungen$ | async" [preismeldestellen]="preismeldestellen$ | async" [current]="currentPreiszuweisung$ | async"
+                (save)="savePreiserheber$.emit()" (assign)="assignPreismeldestelle$.emit($event)" (unassign)="unassignPreismeldestelle$.emit($event)"></preiserheber-preiszuweisung>
         </div>
     </div>
 </div>

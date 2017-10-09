@@ -1,5 +1,4 @@
 preiserheber-preiszuweisung {
-
     ion-grid.grid {
         padding: 0;
 
@@ -16,6 +15,17 @@ preiserheber-preiszuweisung {
         }
     }
 
+    .spacer-col  {
+        max-width: 61.5px;
+    }
+
+    .actions-container {
+        padding: 0 1em;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
     .zuweisung-list {
         display: flex;
         flex: 1;
@@ -26,7 +36,7 @@ preiserheber-preiszuweisung {
 
         .pef-advanced-item-flex-container {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
 
             ion-content {
                 flex: 1;

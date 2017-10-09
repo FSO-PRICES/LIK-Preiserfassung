@@ -16,12 +16,9 @@ import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldestelle: P.Preismeldestelle;
     @Input() languages: P.Language[];
-    @Output('save')
-    public save$: Observable<{ isValid: boolean }>;
-    @Output('cancel')
-    public cancelClicked$ = new EventEmitter<Event>();
-    @Output('update')
-    public update$: Observable<P.Preismeldestelle>;
+    @Output('save') public save$: Observable<{ isValid: boolean }>;
+    @Output('cancel') public cancelClicked$ = new EventEmitter<Event>();
+    @Output('update') public update$: Observable<P.Preismeldestelle>;
 
     public preismeldestelle$: Observable<P.Preismeldestelle>;
     public languages$: Observable<P.Language[]>;

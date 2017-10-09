@@ -49,7 +49,7 @@ import { BrowserModule } from '@angular/platform-browser';
         SplashScreen,
         ScreenOrientation,
         PefLanguageService,
-        // { provide: PefLanguageService, useValue: PreiserfasserTabletPefLanguageService },
+        { provide: PefLanguageService, useClass: PreiserfasserTabletPefLanguageService },
         { provide: 'windowObject', useValue: window }
     ]
 })

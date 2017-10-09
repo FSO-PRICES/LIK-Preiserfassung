@@ -37,18 +37,18 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
         }
 
         case 'SELECT_PREISERHEBER': {
-            const currentPreiserheber = action.payload == null ? null : Object.assign({}, cloneDeep(state.entities[action.payload]), { isModified: false, isSaved: false });
-            return assign({}, state, { currentPreiserheber: currentPreiserheber });
+            const currentPreiserheber = action.payload == null ? null : { ...cloneDeep(state.entities[action.payload]), isModified: false, isSaved: false, isNew: false };
+            return { ...state, currentPreiserheber: currentPreiserheber };
         }
 
         case 'RESET_PASSWORD_SUCCESS': {
-            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, { isPasswordResetted: true });
-            return assign({}, state, { currentPreiserheber });
+            const currentPreiserheber = { ...state.currentPreiserheber, isPasswordResetted: true };
+            return { ...state, currentPreiserheber };
         }
 
         case 'CLEAR_RESET_PASSWORD_STATE': {
-            const currentPreiserheber = Object.assign({}, state.currentPreiserheber, { isPasswordResetted: null });
-            return assign({}, state, { currentPreiserheber });
+            const currentPreiserheber = { ...state.currentPreiserheber, isPasswordResetted: null };
+            return { ...state, currentPreiserheber };
         }
 
         case 'DELETE_PREISERHEBER_SUCCESS': {
@@ -83,11 +83,31 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 isSaved: false,
                 isNew: true
             };
-            return assign({}, state, { currentPreiserheber: newPreiserheber });
+            return { ...state, currentPreiserheber: newPreiserheber };
         }
 
         case 'UPDATE_CURRENT_PREISERHEBER': {
             const { payload } = action;
+
+            const isEqual = (a, b) => (a === b) || (!a && !b);
+
+            if (isEqual(payload.peNummer, state.currentPreiserheber.peNummer)
+                && isEqual(payload.username, state.currentPreiserheber.username)
+                && isEqual(payload.firstName, state.currentPreiserheber.firstName)
+                && isEqual(payload.surname, state.currentPreiserheber.surname)
+                && isEqual(payload.erhebungsregion, state.currentPreiserheber.erhebungsregion)
+                && isEqual(payload.languageCode, state.currentPreiserheber.languageCode)
+                && isEqual(payload.telephone, state.currentPreiserheber.telephone)
+                && isEqual(payload.mobilephone, state.currentPreiserheber.mobilephone)
+                && isEqual(payload.email, state.currentPreiserheber.email)
+                && isEqual(payload.fax, state.currentPreiserheber.fax)
+                && isEqual(payload.webseite, state.currentPreiserheber.webseite)
+                && isEqual(payload.street, state.currentPreiserheber.street)
+                && isEqual(payload.postcode, state.currentPreiserheber.postcode)
+                && isEqual(payload.town, state.currentPreiserheber.town)
+                && isEqual(payload.town, state.currentPreiserheber.town)) {
+                return state;
+            }
 
             const valuesFromPayload = {
                 _id: payload._id,
@@ -107,13 +127,9 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 town: payload.town
             } as P.Erheber;
 
-            const currentPreiserheber = assign({},
-                state.currentPreiserheber,
-                valuesFromPayload,
-                { isModified: true }
-            );
+            const currentPreiserheber = { ...state.currentPreiserheber, ...valuesFromPayload, isModified: true };
 
-            return Object.assign({}, state, { currentPreiserheber });
+            return { ...state, currentPreiserheber };
         }
 
         case 'SAVE_PREISERHEBER_SUCCESS': {

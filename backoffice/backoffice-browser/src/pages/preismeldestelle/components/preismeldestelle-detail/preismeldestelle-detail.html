@@ -1,5 +1,9 @@
 <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
     <h1 class="large">Editieren</h1>
+    <div class="actions">
+        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(preismeldestelle$ | async).isModified">Speichern</button>
+        <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+    </div>
     <ion-row>
         <ion-col>
             <h5>Preismeldestellenummer</h5>
@@ -229,8 +233,4 @@
             </ion-list>
         </ion-col>
     </ion-row>
-    <div class="actions">
-        <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
-        <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
-    </div>
 </form>
