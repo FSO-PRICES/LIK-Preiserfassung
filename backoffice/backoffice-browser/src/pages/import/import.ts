@@ -12,6 +12,7 @@ import { IonicPage } from 'ionic-angular';
     segment: 'import'
 })
 @Component({
+    selector: 'import-page',
     templateUrl: 'import.html'
 })
 export class ImportPage implements OnDestroy {
@@ -30,97 +31,73 @@ export class ImportPage implements OnDestroy {
     public preismeldungFileParsed$: Observable<boolean>;
     public preismeldungenImportedCount$: Observable<number>;
 
-    public latestWarenkorbImportAt$ = this.store.select(fromRoot.getImportedWarenkorbAt);
-    public latestPreismeldestellenImportAt$ = this.store.select(fromRoot.getImportedPreismeldestellenAt);
-    public latestPreismeldungenImportAt$ = this.store.select(fromRoot.getImportedPreismeldungenAt);
+    public getImportedAllDataAt$ = this.store.select(fromRoot.getImportedAllDataAt);
 
-    public warenkorbErhebungsmonat$ = this.store.select(fromRoot.getWarenkorbErhebungsmonat).map(parseDate);
-    public preismeldestellenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldestellenErhebungsmonat).map(parseDate);
-    public preismeldungenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldungenErhebungsmonat).map(parseDate);
+    public warenkorbErhebungsmonat$: Observable<Date>;
+    public preismeldestellenErhebungsmonat$: Observable<Date>;
+    public preismeldungenErhebungsmonat$: Observable<Date>;
 
-    public importError$ = this.store.select(fromRoot.getImporterState).map(s => s.importError);
-    public importedAll$ = this.store.select(fromRoot.getImportedAll);
-    public recreateUserDbsClicked$ = new EventEmitter();
+    public canImport$: Observable<boolean>;
+    public import$ = new EventEmitter();
 
-    private subscriptions: Subscription[] = [];
+    public resetFileInputs$: Observable<{}>;
+
+    private onDestroy$ = new EventEmitter();
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
-        const parsedWarenkorb$ = this.store.select(fromRoot.getImporterParsedWarenkorb)
+        const parsedWarenkorb$ = this.store.select(fromRoot.getImporterParsedWarenkorb).publishReplay(1).refCount();
+        const parsedPreismeldestellen$ = this.store.select(fromRoot.getImporterParsedPreismeldestellen).publishReplay(1).refCount();
+        const parsedPreismeldungen$ = this.store.select(fromRoot.getImporterParsedPreismeldungen).publishReplay(1).refCount();
+
+        this.warenkorbErhebungsmonat$ = this.store.select(fromRoot.getWarenkorbErhebungsmonat).map(parseDate)
+            .combineLatest(parsedWarenkorb$, (m, parsedWarenkorb) => !!parsedWarenkorb ? null : m);
+        this.preismeldestellenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldestellenErhebungsmonat).map(parseDate)
+            .combineLatest(parsedPreismeldestellen$, (m, parsedWarenkorb) => !!parsedWarenkorb ? null : m);
+        this.preismeldungenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldungenErhebungsmonat).map(parseDate)
+            .combineLatest(parsedPreismeldungen$, (m, parsedWarenkorb) => !!parsedWarenkorb ? null : m);
+
+        this.warenkorbFileParsed$ = parsedWarenkorb$.map(content => content != null && content.de != null && content.fr != null && content.it != null);
+        this.preismeldestelleFileParsed$ = parsedPreismeldestellen$.map(content => content != null);
+        this.preismeldungFileParsed$ = parsedPreismeldungen$.map(content => content != null);
+
+        this.warenkorbImportedCount$ = store.select(fromRoot.getImportedWarenkorb).map(x => !x ? null : x.products.length);
+        this.preismeldestellenImportedCount$ = store.select(fromRoot.getImportedPreismeldestellen).map(x => !x ? null : x.length);
+        this.preismeldungenImportedCount$ = store.select(fromRoot.getImportedPreismeldungen).map(x => !x ? null : x.length);
+
+        this.warenkorbFileSelected$
+            .takeUntil(this.onDestroy$)
+            .subscribe(data => store.dispatch({ type: 'PARSE_WARENKORB_FILE', payload: { file: data.file, language: data.language } } as importer.Action));
+
+        this.preismeldestelleFileSelected$
+            .takeUntil(this.onDestroy$)
+            .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldestellen } } as importer.Action));
+
+        this.preismeldungFileSelected$
+            .takeUntil(this.onDestroy$)
+            .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldungen } } as importer.Action));
+
+        const parsedData$ = Observable.combineLatest(
+            parsedWarenkorb$.filter(content => content != null && content.de != null && content.fr != null && content.it != null),
+            parsedPreismeldungen$.filter(x => !!x),
+            parsedPreismeldestellen$.filter(x => !!x),
+            (parsedWarenkorb, parsedPreismeldungen, parsedPreismeldestellen) => ({ parsedWarenkorb, parsedPreismeldungen, parsedPreismeldestellen }))
             .publishReplay(1).refCount();
-        const parsedPreismeldestellen$ = this.store.select(fromRoot.getImporterParsedPreismeldestellen)
-            .publishReplay(1).refCount();
-        const parsedPreismeldungen$ = this.store.select(fromRoot.getImporterParsedPreismeldungen)
-            .publishReplay(1).refCount();
 
-        const warenkorbImported$ = store.select(fromRoot.getImportedWarenkorb)
-            .skip(1)
-            .filter(x => !!x)
-            .publishReplay(1).refCount();
-        const preismeldestellenImported$ = store.select(fromRoot.getImportedPreismeldestellen)
-            .skip(1)
-            .filter(x => !!x)
-            .publishReplay(1).refCount();
-        const preismeldungenImported$ = store.select(fromRoot.getImportedPreismeldungen)
-            .skip(1)
-            .filter(x => !!x)
+        this.canImport$ = parsedData$.mapTo(true).startWith(false)
             .publishReplay(1).refCount();
 
-        this.warenkorbFileParsed$ = parsedWarenkorb$
-            .map(content => content != null && content.de != null && content.fr != null && content.it != null);
-        this.preismeldestelleFileParsed$ = parsedPreismeldestellen$
-            .map(content => content != null);
-        this.preismeldungFileParsed$ = parsedPreismeldungen$
-            .map(content => content != null);
+        this.import$
+            .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', this.getImportedAllDataAt$.filter(x => !!x).skip(1).take(1)))
+            .takeUntil(this.onDestroy$)
+            .withLatestFrom(parsedData$, (_, parsedData) => parsedData)
+            .subscribe(parsedData => {
+                store.dispatch({ type: 'IMPORT_DATA', payload: parsedData });
+            });
 
-        this.warenkorbImportedCount$ = warenkorbImported$
-            .map(x => x.products.length);
-        this.preismeldestellenImportedCount$ = preismeldestellenImported$
-            .map(x => x.length);
-        this.preismeldungenImportedCount$ = preismeldungenImported$
-            .map(x => x.length);
-
-        const dismissWarenkorbLoading$ = warenkorbImported$.skip(1).merge(this.importError$.skip(1));
-        const dismissPreismeldestellenLoading$ = preismeldestellenImported$.skip(1).merge(this.importError$.skip(1));
-        const dismissPreismeldungenLoading$ = preismeldungenImported$.skip(1).merge(this.importError$.skip(1));
-
-        this.subscriptions = [
-            this.warenkorbFileSelected$
-                .asObservable()
-                .subscribe(data => store.dispatch({ type: 'PARSE_WARENKORB_FILE', payload: { file: data.file, language: data.language } } as importer.Action)),
-            this.warenkorbStartImport$
-                .withLatestFrom(parsedWarenkorb$, (_, parsedWarenkorb) => parsedWarenkorb)
-                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', dismissWarenkorbLoading$).map(() => data))
-                .subscribe(data => store.dispatch({ type: 'IMPORT_WARENKORB', payload: data } as importer.Action)),
-
-            this.preismeldestelleFileSelected$
-                .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldestellen } } as importer.Action)),
-            this.preismeldestellenStartImport$
-                .withLatestFrom(parsedPreismeldestellen$, (_, parsedPreismeldestellen) => parsedPreismeldestellen)
-                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', dismissPreismeldestellenLoading$).map(() => data))
-                .subscribe(data => store.dispatch({ type: 'IMPORT_PREISMELDESTELLEN', payload: data } as importer.Action)),
-
-
-            this.preismeldungFileSelected$
-                .subscribe(file => store.dispatch({ type: 'PARSE_FILE', payload: { file, parseType: importer.Type.preismeldungen } } as importer.Action)),
-            this.preismeldungenStartImport$
-                .withLatestFrom(parsedPreismeldungen$, (_, parsedPreismeldungen) => parsedPreismeldungen)
-                .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', dismissPreismeldungenLoading$).map(() => data))
-                .subscribe(data => store.dispatch({ type: 'IMPORT_PREISMELDUNGEN', payload: data } as importer.Action)),
-
-
-            Observable.merge(warenkorbImported$, preismeldungenImported$, preismeldestellenImported$)
-                .subscribe(() => {
-                    this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
-                    this.store.dispatch({ type: 'LOAD_ERHEBUNGSMONATE' } as importer.Action);
-                }),
-
-            warenkorbImported$
-                .combineLatest(preismeldestellenImported$, preismeldungenImported$, (warenkorb, preismeldestellen, preismeldungen) => !!warenkorb && !!preismeldestellen && !!preismeldungen)
-                .filter(importedAll => importedAll)
-                .merge(this.recreateUserDbsClicked$)
-                .subscribe(() => store.dispatch({ type: 'IMPORTED_ALL' } as importer.Action))
-        ];
-    }
+        this.resetFileInputs$ = this.getImportedAllDataAt$
+            .filter(x => !!x).skip(1)
+            .map(() => ({}));
+    };
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
@@ -131,8 +108,6 @@ export class ImportPage implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.onDestroy$.next();
     }
 }

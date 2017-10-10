@@ -172,12 +172,17 @@ function getPmsNummers(preiserheberId: string) {
 }
 
 function backupAndDeleteDatabase(oldDatabaseName, newDatabaseName) {
+    // return getDatabaseAsObservable(oldDatabaseName)
+    //     .flatMap(oldDb => getDatabaseAsObservable(newDatabaseName).map(newDb => ({ oldDb, newDb })))
+    //     .flatMap(x => Observable.create((observer: Observer<{}>) => {
+    //         x.oldDb.replicate.to(x.newDb).on('complete', () => { observer.next(x.oldDb); observer.complete(); });
+    //     }))
+    //     .flatMap((oldDb: any) => oldDb.destroy())
+
+    // backup and delete is only intended for development and testing
+    // production requirement is that the old database must _always_ be deleted
     return getDatabaseAsObservable(oldDatabaseName)
-        .flatMap(oldDb => getDatabaseAsObservable(newDatabaseName).map(newDb => ({ oldDb, newDb })))
-        .flatMap(x => Observable.create((observer: Observer<{}>) => {
-            x.oldDb.replicate.to(x.newDb).on('complete', () => { observer.next(x.oldDb); observer.complete(); });
-        }))
-        .flatMap((oldDb: any) => oldDb.destroy())
+        .flatMap((oldDb: any) => oldDb.destroy());
 }
 
 function createUserDbIdDoc() {

@@ -6,6 +6,7 @@ export type Action =
     { type: 'PARSE_FILE', payload: { file: File, parseType: string } } |
     { type: 'PARSE_FILE_SUCCESS', payload: { data: string[][], parsedType: string } } |
     { type: 'CLEAR_PARSED_FILES', payload: null } |
+    { type: 'IMPORT_STARTED', payload: null } |
     { type: 'IMPORT_WARENKORB', payload: { de: string[][], fr: string[][], it: string[][] } } |
     { type: 'IMPORT_WARENKORB_SUCCESS', payload: P.WarenkorbDocument } |
     { type: 'IMPORT_PREISMELDESTELLEN', payload: string[][] } |
@@ -15,7 +16,6 @@ export type Action =
     { type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: P.PreismeldungReference[] } |
     { type: 'LOAD_LATEST_IMPORTED_AT' } |
     { type: 'LOAD_LATEST_IMPORTED_AT_SUCCESS', payload: { latestImportAt: number, _id: string }[] } |
-    { type: 'IMPORTED_ALL', payload: null } |
     { type: 'IMPORTED_ALL_RESET', payload: null } |
     { type: 'IMPORTED_ALL_SUCCESS', payload: null } |
     { type: 'IMPORTED_ALL_FAILURE', payload: string } |
@@ -26,4 +26,5 @@ export namespace Type {
     export const warenkorb = 'warenkorb';
     export const preismeldestellen = 'preismeldestellen';
     export const preismeldungen = 'preismeldungen';
+    export const all_data = 'all_data';
 }

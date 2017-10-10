@@ -592,7 +592,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     },
                     {
                         condition: () => !isAdminApp && bag.hasPriceWarning && !bag.messages.kommentar,
-                        observable: () => pefMessageDialogService.displayMessageDialog([{ textKey: 'btn_verwerfen', dismissValue: 'THROW_CHANGES' }, { textKey: 'btn_edit-comment', dismissValue: 'EDIT' }], 'dialogText_abnormal-preisentwicklung')
+                        observable: () => pefMessageDialogService.displayMessageDialog([{ textKey: 'btn_yes', dismissValue: 'YES' }, { textKey: 'btn_verwerfen', dismissValue: 'THROW_CHANGES' }, { textKey: 'btn_edit-comment', dismissValue: 'EDIT' }], 'dialogText_abnormal-preisentwicklung')
                             .map(res => {
                                 switch (res.data) {
                                     case 'YES':

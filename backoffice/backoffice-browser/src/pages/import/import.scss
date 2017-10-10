@@ -1,34 +1,49 @@
-form {
-    flex: 1;
-}
+import-page {
+    form {
+        flex: 1;
+    }
 
-.container {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 1em;
-    padding: 0.2em 0.5em;
-
-    .actions {
+    .container {
         display: flex;
         flex-direction: row;
-        align-items: center;
+        margin-bottom: 1em;
+        padding: 0.2em 0.5em;
 
-        span.text {
+        .actions {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            span.text {
+                flex: 1;
+                padding: 0.5em 0;
+            }
+        }
+
+        .text-info {
+            margin-top: 50px;
+        }
+
+        .column {
             flex: 1;
-            padding-left: 1em;
+            align-self: center;
+
+            &.info-column {
+                align-self: flex-start;
+            }
         }
     }
 
-    .text-info {
-        margin-top: 0.5em;
+    .import-row {
+        display: flex;
+
+        .column {
+            flex: 1;
+            align-self: center;
+        }
     }
 
-    .column {
-        flex: 1;
-        align-self: center;
+    ion-content.content-md {
+        background-color: transparent;
     }
-}
-
-ion-content.content-md {
-    background-color: transparent;
 }

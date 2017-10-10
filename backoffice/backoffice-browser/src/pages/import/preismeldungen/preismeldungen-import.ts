@@ -9,19 +9,20 @@ import { ReactiveComponent } from 'lik-shared';
     templateUrl: 'preismeldungen-import.html',
 })
 export class PreismeldungenImportComponent extends ReactiveComponent implements OnChanges {
-    @Output('fileSelected')
-    public fileSelected$: Observable<File>;
-    @Output('import')
-    public importPreismeldungenClicked$ = new EventEmitter<Event>();
-
     @Input() parsed: string[];
     @Input() importedCount: string[];
+    @Input() resetFileInput: {};
+
+    @Output('fileSelected') public fileSelected$: Observable<File>;
+    @Output('import') public importPreismeldungenClicked$ = new EventEmitter<Event>();
 
     public preismeldungenSelected$ = new EventEmitter<Event>();
 
     public preismeldungenAreParsed$: Observable<boolean>;
     public preismeldungenImportedCount$: Observable<number>;
     public arePreismeldungenImported$: Observable<boolean>;
+
+    public resetInputValue$: Observable<null>;
 
     constructor() {
         super();
@@ -33,6 +34,10 @@ export class PreismeldungenImportComponent extends ReactiveComponent implements 
         this.preismeldungenImportedCount$ = this.observePropertyCurrentValue<number>('importedCount');
 
         this.arePreismeldungenImported$ = this.preismeldungenImportedCount$.map(x => x > 0);
+
+        this.resetInputValue$ = this.observePropertyCurrentValue<{}>('resetFileInput')
+            .map(() => ({ value: null }))
+            .publishReplay(1).refCount();
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

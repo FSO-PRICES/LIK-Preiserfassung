@@ -9,13 +9,12 @@ import { ReactiveComponent } from 'lik-shared';
     templateUrl: 'warenkorb-import.html',
 })
 export class WarenkorbImportComponent extends ReactiveComponent implements OnChanges {
-    @Output('fileSelected')
-    public fileSelected$: Observable<{ file: File, language: string }>;
-    @Output('import')
-    public importWarenkorbClicked$ = new EventEmitter<Event>();
-
     @Input() parsed: boolean;
     @Input() importedCount: string[];
+    @Input() resetFileInput: {};
+
+    @Output('fileSelected') public fileSelected$: Observable<{ file: File, language: string }>;
+    @Output('import') public importWarenkorbClicked$ = new EventEmitter<Event>();
 
     public warenkorbSelectedDe$ = new EventEmitter<Event>();
     public warenkorbSelectedFr$ = new EventEmitter<Event>();
@@ -24,6 +23,8 @@ export class WarenkorbImportComponent extends ReactiveComponent implements OnCha
     public warenkorbIsParsed$: Observable<boolean>;
     public warenkorbImportedCount$: Observable<number>;
     public isWarenkorbImported$: Observable<boolean>;
+
+    public resetInputValue$: Observable<null>;
 
     constructor() {
         super();
@@ -41,6 +42,10 @@ export class WarenkorbImportComponent extends ReactiveComponent implements OnCha
         this.warenkorbImportedCount$ = this.observePropertyCurrentValue<number>('importedCount');
 
         this.isWarenkorbImported$ = this.warenkorbImportedCount$.map(x => x > 0);
+
+        this.resetInputValue$ = this.observePropertyCurrentValue<{}>('resetFileInput')
+            .map(() => ({ value: null }))
+            .publishReplay(1).refCount();
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
