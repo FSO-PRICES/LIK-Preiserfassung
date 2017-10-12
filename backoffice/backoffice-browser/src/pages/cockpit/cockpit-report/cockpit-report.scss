@@ -12,6 +12,7 @@ cockpit-report {
         display: flex;
 
         .container {
+            display: flex;
             flex: 1;
             flex-direction: column;
             padding: 1em;
@@ -27,15 +28,23 @@ cockpit-report {
         margin-bottom: 1em;
 
         select {
-            height: 33px;
+            height: 2.5em;
         }
     }
 
     .list-header {
+        background-color: $alto;
+        margin-bottom: 0.5em;
         padding-left: 8px;
-        > div {
+        .labels {
             display: flex;
-            margin: 1em 0 1em 0;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+        .summary {
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+            display: flex;
         }
         .name { flex: 0 0 50%; }
         .todo { flex: 0 0 16.6%; }
@@ -44,6 +53,7 @@ cockpit-report {
     }
 
     .status-number {
+        display: inline-block;
         padding: 0.25em 0.5em;
         font-weight: 500;
         &.good {
@@ -70,6 +80,10 @@ cockpit-report {
         .todo { width: 33.3%; }
         .done { width: 33.3%; }
         .new-preismeldungen { width: 33.3%; }
+    }
+
+    ion-item.pef-advanced-item.cockpit-preiserheber:first-of-type {
+        margin-bottom: 1.5em;
     }
 
     .last-synced-at {

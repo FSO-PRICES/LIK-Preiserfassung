@@ -25,13 +25,13 @@
             </ion-item>
         </form>
         <div class="list-header">
-            <div>
+            <div class="labels">
                 <div class="name"></div>
                 <div class="todo">todo</div>
                 <div class="done">done</div>
                 <div class="new-preismeldungen">neu</div>
             </div>
-            <div>
+            <div class="summary">
                 <div class="name"></div>
                 <div class="todo">
                     <span class="status-number" [class.good]="(filteredSummary$ | async).todo == (filteredSummary$ | async).todoSynced">{{ (filteredSummary$ | async).todo }}</span>
@@ -45,7 +45,7 @@
             </div>
         </div>
         <pef-virtual-scroll [items]="filteredPreiserheber$ | async" (update)="updateScrollList($event)" pef-perfect-scrollbar [enabled]="true">
-            <ion-item class="pef-advanced-item" *ngFor="let preiserheber of scrollList" (click)="selectPreiserheber$.emit(preiserheber)"
+            <ion-item class="pef-advanced-item cockpit-preiserheber" *ngFor="let preiserheber of scrollList" (click)="selectPreiserheber$.emit(preiserheber)"
                 [class.selected]="(selectedPreiserheber$ | async)?.username == preiserheber.username" tappable>
                 <div class="pef-item-description">
                     <span class="text">{{ preiserheber.erheber.firstName }} {{preiserheber.erheber.surname}}</span>

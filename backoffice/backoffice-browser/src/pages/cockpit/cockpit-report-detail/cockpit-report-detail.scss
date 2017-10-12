@@ -22,16 +22,18 @@ cockpit-report-detail {
     }
 
     .pms-summary-header {
+        background-color: $alto;
         div {
             padding: 1em 0 1em 0;
         }
     }
 
     .pms-summary-row {
-            border-bottom: 1px solid $hit-gray;
-            &:first-of-type {
-                border-top: 1px solid $hit-gray;
-            }
+        border-bottom: 1px solid $hit-gray;
+        &:first-of-type {
+            margin-top: 1em;
+            border-top: 1px solid $hit-gray;
+        }
         > div {
             padding: 0.5em 0;
             display: flex;
