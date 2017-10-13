@@ -59,7 +59,7 @@
                         <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].doneUploaded == preiserheber.summary[form.value.erhebungsZeitpunkt].todo">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].done }}</span>
                     </div>
                     <div class="new-preismeldungen">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen == preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungenUploaded">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen }}</span>
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].doneUploaded == preiserheber.summary[form.value.erhebungsZeitpunkt].todo">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen }}</span>
                     </div>
                 </div>
             </ion-item>

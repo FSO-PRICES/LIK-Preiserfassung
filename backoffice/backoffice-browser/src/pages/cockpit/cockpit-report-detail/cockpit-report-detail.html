@@ -1,8 +1,11 @@
 <div class="pms-section" *ngIf="!!(preiserheber$ | async)">
-    <h3>{{ (preiserheber$ | async).erheber.firstName }} {{ (preiserheber$ | async).erheber.surname }}, {{ (preiserheber$ | async).erheber.erhebungsregion
-        }}
+    <h3>
+        <span>{{ (preiserheber$ | async).erheber.firstName }} {{ (preiserheber$ | async).erheber.surname }}</span>
+        <span *ngIf="!!((preiserheber$ | async).erheber.erhebungsregion)">, {{ (preiserheber$ | async).erheber.erhebungsregion }}</span>
     </h3>
-    <div class="last-synced-at">Zuletzt synchronisiert am: <b>{{ !(preiserheber$ | async).lastSyncedAt ? '&ndash;' : ((preiserheber$ | async).lastSyncedAt | date: 'medium') }}</b></div>
+    <div class="last-synced-at">Zuletzt synchronisiert am:
+        <b>{{ !(preiserheber$ | async).lastSyncedAt ? '&ndash;' : ((preiserheber$ | async).lastSyncedAt | date: 'medium') }}</b>
+    </div>
     <div class="pms-summary-header">
         <div class="name"></div>
         <div class="todo">todo</div>
@@ -23,7 +26,7 @@
                 <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].done }}</span>
             </div>
             <div class="new-preismeldungen">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen == pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungenUploaded">{{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}</span>
+                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}</span>
             </div>
         </div>
     </pef-virtual-scroll>

@@ -2,6 +2,13 @@ cockpit-report-detail {
     flex: 1;
     display: flex;
 
+    h3 {
+        word-spacing: -0.25em;
+        span {
+            word-spacing: normal;
+        }
+    }
+
     .pms-section {
         flex: 1;
         display: flex;
