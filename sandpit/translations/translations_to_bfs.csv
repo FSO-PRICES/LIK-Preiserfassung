@@ -4,7 +4,7 @@ bearbeitungscode_1,Direkter Ersatz,Direct substitution,Substitution directe,Sost
 bearbeitungscode_101,Aktuell nicht an Lager,Out of stock,Momentanément indisponible,Momentaneamente non disponibile
 bearbeitungscode_2,Neue Preismeldung mit Vorperiodenpreis,New item with price of previous period,Nouvel article avec prix de la période précédente,Nuovo articolo con prezzo del periodo precedente
 bearbeitungscode_3,Neue Preismeldung,New item,Nouvel article,Nuovo articolo
-bearbeitungscode_44,Saisonal fehlend,Seasonal out of stock,Indisponibilité saisonière,Indisponibilità stagionale
+bearbeitungscode_44,Saisonales Produkt aktuell nicht verfügbar,Seasonal product temporary out of stock,Article saisonnier indisponible,Articolo stagionale mancante
 bearbeitungscode_7,Verkettung,Chaining,Chaînage,Concatenamento
 bearbeitungscode_99,Standardabbuchung,Standard entry,Saisie standard,Entrata standard
 btn_cancel,Abbrechen,Cancel,Annuler,Annullare
@@ -17,13 +17,13 @@ btn_edit,Bearbeiten,Edit,Editer,Modificare
 btn_erfassung_speichern,Speichern,Save,Enregistrer,Salvare
 btn_erledigt,Erledigt,Done,Terminer,Eseguito
 btn_leeren,Leeren,Clear,Effacer,Svuotare
-btn_login,Anmelden,Login,Login,Login
+btn_login,Anmelden,Login,se connecter,Login
 btn_no,Nein,No,Non,No
 btn_ok,OK,OK,OK,OK
 btn_order-save,Reihenfolge übernehmen,Save order,Enregistrer le tri,Salvare l'ordine
 btn_pm-delete,Preismeldung löschen,Delete price data,Supprimer l'article,Cancellare articolo
 btn_pm-reset,Preismeldung zurücksetzen,Reset price data,Réinitialiser l'article,Azzerare articolo
-btn_reset-selection,Auswahl aufheben,Reset selection,Annuler la sélection,Deselezionare
+btn_reset-selection,Auswahl aufheben,Reset selection,Désélectionner,Deselezionare
 btn_save,Speichern,Save,Enregistrer,Salvare
 btn_synchronize,Synchronisieren,Synchronize,Synchroniser,Sincronizzare
 btn_upload-now,Jetzt hochladen,Upload now,Transférer,Caricare ora
@@ -39,7 +39,7 @@ control_preis,Preis aktuelle Periode,Price current period,Prix période actuelle
 control_preisVorReduktion,Preis ausser Aktion,Price without reduction,Prix hors action,Prezzo non in azione
 control_preisVPK,Preis der Vorperiode,Price previous period,Prix période précédente,Prezzo periodo precedente
 control_preisVPNormalNeuerArtikel,Preis der Vorperiode (neuer Artikel),Price previous period (new item),Prix période précédente (nouvel article),Prezzo periodo precedente (nuovo articolo)
-dialogText_abnormal-preisentwicklung,Grosse Preisveränderungen/-differenzen. Stimmen die eingegebenen Preise und Mengen?,Change out of range! Are prices and quantities correct?,Variation importante ! Le prix et la quantité sont-ils corrects ?,Variazione importante! Sono corretti i prezzi e le quantità?
+dialogText_abnormal-preisentwicklung,Grosse Veränderung! Bitte Preismeldung prüfen und allenfalls kommentieren.,Change out of range! Please verify price data and add comment if needed.,Variation importante ! Veuillez vérifier les informations et commenter si besoin. ,Variazione importante! Per favore verificare i dati e commentarli se necessario.
 dialogText_aktion-message-preis-hoeher,Artikel teurer als in Vorperiode. Ist der Artikel wirklich in Aktion?,Item price higher than last period. Is item still on sale this month?,Article plus cher que lors de la période précédente. Le prix est-il vraiment en action ?,Articolo più caro rispetto al periodo precedente. È effettivamente in azione?
 dialogText_aktueller-aktionspreis-gleich-groesser-vp-normalpreis,Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?,Today's reduced price is greater than or equal to the normal price of previous period. Is price correct?,Le prix actuel en action est supérieur/égal au prix normal de la période précédente. Le prix enregistré est-il correct ?,Prezzo scontato attuale più uguale o più elevato rispetto al periodo precedente. È corretto il prezzo rilevato?
 dialogText_aufforderung-ersatzsuche,In der EP sind nur {{numActivePrices}}/{{anzahlPreiseProPMS}} Artikel erfasst. Wollen Sie ein neues Produkt erfassen?,Only {{numActivePrices}}/{{anzahlPreiseProPMS}} items recorded in this position. Would you like to record a new item?,Seuls {{numActivePrices}}/{{anzahlPreiseProPMS}} articles sont enregistrés dans cette EP. Voulez-vous relever un nouvel article ?,Nella varietà sono rilevati solo {{numActivePrices}}/{{anzahlPreiseProPMS}} articoli. Vuole aggiungere un articolo?
@@ -88,11 +88,6 @@ label_anzahl-fehlende-preis-r,Anzahl Code R,Number of code R,Nombre de code R,Nu
 label_artikelnummer,Artikelnummer,Item number,Numéro d'article,Numero dell'articolo
 label_artikeltext-geliefert,Artikeltext (geliefert),Item name (as delivered),Description de l'article (tel que livré),Descrizione dell'articolo rilevata
 label_artikeltext,Artikeltext,Item name,Description de l'article,Descrizione dell'articolo
-label_cancel-edit-continue-editing-line-1,Auf «Weiterbearbeiten» klicken um bei dieser Preismeldung zu bleiben,"Continue editing by clicking ""edit""","Cliquer sur ""continuer la saisie"" pour rester sur l'article actuel",Cliccare su « continuare il rilevamento » per rimanere sull’articolo attuale
-label_cancel-edit-continue-editing-line-2,(Dateineingabe bleibt erhalten).,(data will be maintained),(les informations déjà saisies restent affichées),(le informazioni già inserite vengono visualizzate)
-label_cancel-edit-ignore-changes-line-1,Auf «Änderungen verwerfen» klicken um diese Preismeldung zu verlassen,"Ingore changes by clicking ""discard""","Cliquer sur ""annuler"" pour quitter",Cliccare su « Annullare le modifiche » per uscire
-label_cancel-edit-ignore-changes-line-2,(Dateneingabe geht verloren).,(data will get lost),(les informations déjà saisies sont perdues),(le informazioni già inserite sono perse)
-label_cancel-edit-preismeldung-data-changed,Die Angaben der aktuellen Preismeldung wurden geändert!,Item data changed,Des informations sur l'article actuel ont été modifiées!,Delle informazioni sull’articolo attuale sono state modificate
 label_basismenge,Basismenge,Initial quantity,Quantité initiale,Quantità di base
 label_basispreis,Basispreis,Initial price,Prix initial,Prezzo di base
 label_datum-vor-reduktion,Datum vor Reduktion,Date before reduction,Date avant la réduction,Data prima dello sconto
@@ -112,7 +107,6 @@ label_login_username,Benutzername,User name,Nom d'utilisateur,Nome utente
 label_menge-vor-reduktion,Menge vor Reduktion,Quantity before reduction,Quantité avant réduction,Quantità prima dello sconto
 label_neue-preisreihe-code-2,Neue Preisreihe: Vorperiode und aktuelle Periode bekannt (Code 2),New price series: current and last period known (Code 2),Nouvel article : période précédente et actuelle connues (code 2),Nuovo articolo: periodo precedente e attuale conosciuti (codice 2)
 label_neue-preisreihe-code-3,Neue Preisreihe: Nur aktuelle Periode bekannt (Code 3),New price series: current period known (Code 2),Nouvel article : uniquement période actuelle connue (code 3),Nuovo articolo: periodo attuale conosciuto (codice 3)
-label_no_preismeldung-selected,Keine Preismeldung selektiert,No item selected,Aucun article sélectionné,Nessun articolo selezionato
 label_pms_adresse,Adresse,Address,Adresse,Indirizzo
 label_pms_bemerkungen_erhebungsart,Bemerkungen zur Erhebungsart,Remark on type of survey,Remarque sur le type de relevé,Commenti sulla tecnica di rilevazione
 label_pms_email,eMail,eMail,eMail,eMail
@@ -193,15 +187,15 @@ text_preismeldung_offen-nicht-erfasst,zu erfassende Preise,Prices to do,Prix à 
 text_saving-preiserheber,Preiserheber-Info wird gespeichert. Bitte warten...,Saving info about price collector. Please wait...,Les informations sur l'enquêteur/trice sont en cours de sauvegarde. Prière de patienter…,L'informazione relativa al rilevatore viene salvata. Attendere prego…
 text_saving-settings,Einstellungen werden gespeichert. Bitte warten...,Saving settings. Please wait...,Les paramètres sont en cours de sauvegarde. Prière de patienter…,Le impostazioni vengono salvate. Attendere prego…
 text_synchronizing-data,Datensynchronisierung läuft. Bitte warten...,Synchronizing data. Please wait...,La synchronisation des données est en cours. Prière de patienter…,Sincronizzazione in corso. Attendere prego…
-text_textzeil_limitverletzung,Limitverletzung: Preisentwicklung.,Out of range: Price change.,Dépassement des limites: Variation de prix,Fuori limite: evoluzione dei prezzi.
+text_textzeil_limitverletzung,Limitverletzung: Preisentwicklung.,Out of range: Price change.,Violation des limites: Variation de prix,Fuori limite: evoluzione dei prezzi.
 text_textzeil_nicht_vergleichbar,Neuer und alter Artikel nicht vergleichbar!,Replacement item is not comparable to former item,Nouvel et ancien article pas comparables,Nuovo articolo non paragonabile con l'articolo precedente!
 text_warenkorb_anzahlergebnisse,Treffer,Results found,Résultats,Risultati
 text_yes,Ja,Yes,Oui,Si
 validation_erhebungsart_required,Bitte erfassen Sie die Erhebungsart der Preismeldestelle,Please specify the survey type for this store,Veuillez svp préciser le type de relevé pour ce point de vente,Per favore indicare la tecnica di rilevazione del punto vendita
 validation_erhebungsregion_required,Bitte erfassen Sie die Region der Preismeldestelle,Please specify the survey region for this store,Veuillez svp préciser la région de relevé pour ce point de vente,Per favore indicare la regione del punto vendita
 validation_firstName_required,Bitte erfassen Sie den Vorname der 1. Kontaktperson.,Please specify the first name of contact 1.,Veuillez svp préciser le prénom de la personne de contact 1,Per favore indicare il nome della persona di contatto 1.
-validation_formatted_number-out-of-range,"Ungültige Eingabe im Feld ""{{controlName}}"". Bitte Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben.","Invalid entry for ""{{controlName}}"". Number must be between {{minNumber}} and {{maxNumber}}.","Saisie non autorisée pour ""{{controlName}}"". Veuillez saisir un nombre entre {{minNumber}} et {{maxNumber}}.","Entrata non valida nel campo ""{{controlName}}"". Per favore indicare una cifra tra {{minNumber}} e {{maxNumber}}."
-validation_formatted_required,"Feld ""{{controlName}}"" ist erforderlich.","""{{controlName}}"" is required.","Le champs ""{{controlName}}"" doit être saisi.","E necessario compilare il campo ""{{controlName}}""."
+validation_formatted_number-out-of-range,"Ungültige Eingabe im Feld ""{{controlName}}. Bitte Zahl zwischen {{minNumber}} und {{maxNumber}} eingegeben.""","Not allowed entry for ""{{controlName}}. Number must be between {{minNumber}} and {{maxNumber}}.""","Saisie non autorisée pour ""{{controlName}}. Veuillez saisir un nombre entre {{minNumber}} et {{maxNumber}}.""","Entrata non valida nel campo ""{{controlName}}. Per favore indicare una cifra tra {{minNumber}} e {{maxNumber}}."""
+validation_formatted_required,"Feld ""{{controlName}} ist erforderlich.""","""{{controlName}} is required.""","Le champs ""{{controlName}} doit être saisi.""","E necessario compilare il campo ""{{controlName}}."""
 validation_frage-antworten,Bitte Frage im Kommunikationskanal beantworten.,Please answer question in communication stream.,Veuillez répondre à la question du dialogue,Per favore rispondere alla domanda nel campo comunicazione.
 validation_languageCode_required,Bitte erfassen Sie die Sprache der Preismeldestelle.,Please specify the language for this store.,Veuillez saisir la langue du point de vente,Per favore indicare la lingua del punto vendita.
 validation_name_required,Bitte erfassen Sie den Namen der Preismeldestelle.,Please specify the name of the store.,Veuillez saisir le nom du point de vente,Per favore indicare il nome del punto vendita.

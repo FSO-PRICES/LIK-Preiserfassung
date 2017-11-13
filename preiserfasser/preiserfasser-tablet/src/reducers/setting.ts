@@ -3,7 +3,6 @@ import { assign } from 'lodash';
 import { Models as P } from 'lik-shared';
 
 import * as setting from '../actions/setting';
-import { environment } from '../environments/environment';
 
 export type CurrentSetting = P.Setting & {
     isModified: boolean;
@@ -21,17 +20,23 @@ const initialState: State = {
     currentSettings: null
 };
 
-const defaultSetting = { version: environment.version };
-
 export function reducer(state = initialState, action: setting.Action): State {
     switch (action.type) {
+        case 'SET_VERSION': {
+            return {
+                ...state,
+                settings: { ...state.settings, version: action.payload },
+                currentSettings: { ...state.currentSettings, version: action.payload }
+            };
+        }
+
         case 'LOAD_SETTINGS_SUCCESS': {
-            const settings = assign({}, state.currentSettings, action.payload, { isDefault: false, isModified: false }, defaultSetting);
+            const settings = assign({}, state.currentSettings, action.payload, { isDefault: false, isModified: false });
             return assign({}, state, { settings, currentSettings: settings });
         }
 
         case 'LOAD_SETTINGS_FAIL': {
-            const settings = assign({}, { serverConnection: null, isDefault: true, isModified: false }, defaultSetting);
+            const settings = assign({}, { serverConnection: null, isDefault: true, isModified: false });
             return assign({}, state, { settings, currentSettings: settings });
         }
 
@@ -46,14 +51,13 @@ export function reducer(state = initialState, action: setting.Action): State {
                 state.settings,
                 valuesFromPayload,
                 { isModified: true, isSaved: false },
-                defaultSetting
             );
 
-            return Object.assign({}, state, { currentSettings });
+            return { ...state, currentSettings };
         }
 
         case 'SAVE_SETTINGS_SUCCESS': {
-            const settings = Object.assign({}, state.settings, action.payload, { isDefault: false, isModified: false, isSaved: true }, defaultSetting);
+            const settings = Object.assign({}, state.settings, action.payload, { isDefault: false, isModified: false, isSaved: true });
             return assign({}, state, { settings, currentSettings: settings });
         }
 

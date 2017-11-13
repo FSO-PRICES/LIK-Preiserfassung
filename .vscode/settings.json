@@ -1,14 +1,26 @@
 {
-    "autoimport.doubleQuotes": false,
     "editor.detectIndentation": false,
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
     "editor.insertSpaces": true,
     "editor.renderWhitespace": "boundary",
     "editor.tabSize": 4,
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.git": true,
+        "**/.hg": true,
+        "**/.svn": true,
+        "lik-shared/**/*.js": true,
+        "lik-shared/**/*.js.map": true
+    },
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     "html.suggest.angular1": false,
+    "prettier.cssEnable": [],
+    "prettier.graphqlEnable": [],
+    "prettier.javascriptEnable": [],
+    "prettier.jsonEnable": [],
+    "prettier.typescriptEnable": [],
     "typescript.format.insertSpaceAfterCommaDelimiter": true,
     "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
     "typescript.format.insertSpaceAfterKeywordsInControlFlowStatements": true,
@@ -19,13 +31,5 @@
     "typescript.format.placeOpenBraceOnNewLineForControlBlocks": false,
     "typescript.format.placeOpenBraceOnNewLineForFunctions": false,
     "typescript.tsdk": "./node_modules/typescript/lib",
-    "vsicons.presets.angular": true,
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/.DS_Store": true,
-        "lik-shared/**/*.js": true,
-        "lik-shared/**/*.js.map": true
-    }
+    "vsicons.presets.angular": true
 }

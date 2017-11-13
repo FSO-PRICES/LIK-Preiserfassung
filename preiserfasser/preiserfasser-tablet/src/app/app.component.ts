@@ -13,6 +13,9 @@ import * as PouchDB from 'pouchdb';
 import { initialisePouchForDev } from '../effects/pouchdb-utils';
 import { translations } from 'lik-shared';
 
+import { environment } from '../environments/environment';
+
+
 @Component({
     template: `
         <pef-svg-icons></pef-svg-icons>
@@ -32,6 +35,7 @@ export class PefApp implements OnInit {
                 // remember when testing, this will fail on the desktop with "cannot read property 'apply' of undefined"
                 screenOrientation.lock('landscape');
             }
+            this.store.dispatch({ type: 'SET_VERSION', payload: environment.version });
             this.isDesktop = !platform.is('mobile');
             this.store.dispatch({ type: 'APP_CONFIG_SET_IS_DESKTOP', payload: this.isDesktop });
             this.store.dispatch({ type: 'CHECK_DATABASE_EXISTS' });
