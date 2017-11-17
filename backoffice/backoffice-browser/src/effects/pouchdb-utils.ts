@@ -144,11 +144,12 @@ function getLocalCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
 export function syncDb(dbName: string) {
     return dropDatabase(dbName).then(() => {
         return getSettings().then(settings => {
+            console.log('DEBUG: SETTINGS:', settings);
             const pouch = new PouchDB(`${dbName}`);
             const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
-            return pouch.sync(couch, { push: true, pull: false, batch_size: 1000 }).then(() => true).catch(() => true);
+            return pouch.sync(couch, { push: true, pull: false, batch_size: 1000 }).then(() => true);
         });
-    }).catch(err => new PouchDB(dbNames.emptyDb));
+    });
 }
 
 function _checkIfDatabaseExists(dbName) {

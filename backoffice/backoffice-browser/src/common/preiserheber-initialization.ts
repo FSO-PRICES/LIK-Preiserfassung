@@ -17,10 +17,15 @@ export interface UserDbStructure {
 }
 
 export function createUserDbs(preiserheberIds: string[]) {
+    console.log('DEBUG: IN CREATEUSERDBS')
     return backupAndDeleteAllMonthDatabases()
+        .do(x => console.log('DEBUG: AFTER DELETE MONTH DBS'))
         .flatMap(() => _fetchStandardUserDbData())
+        .do(x => console.log('DEBUG: AFTER FETCHING STANDARD USER DATA', x))
         .flatMap(data => getDatabase(dbNames.preiserheber).then(db => getAllDocumentsFromDb<P.Erheber>(db).then(preiserhebers => ({ data, preiserhebers }))))
-        .flatMap(x => Observable.from(x.preiserhebers).flatMap(preiserheber => _createUserDb(assign({}, x.data, { preiserheber }))))
+        .do(x => console.log('DEBUG: AFTER GETTING PREISERHEBER DATA', x))
+        .flatMap(x => x.preiserhebers.length === 0 ? Observable.of(null) : Observable.from(x.preiserhebers).flatMap(preiserheber => _createUserDb(assign({}, x.data, { preiserheber }))))
+        .do(x => console.log('DEBUG: AFTER _CREATEUSERDB'));
 }
 
 function backupAndDeleteAllMonthDatabases() {

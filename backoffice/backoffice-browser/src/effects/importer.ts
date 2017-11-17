@@ -56,21 +56,30 @@ export class ImporterEffects {
         .flatMap(warenkorb => this.updateImportMetadata(dbNames.warenkorb, importer.Type.warenkorb).map(() => warenkorb))
         .map(warenkorb => ({ type: 'IMPORT_WARENKORB_SUCCESS', payload: warenkorb } as importer.Action));
 
+    // Observable.forkJoin(
+    //     this.importPreismeldungen(parsedPreismeldungen),
+    //     this.importPreismeldestellen(parsedPreismeldestellen),
+    //     this.importWarenkorb(parsedWarenkorb),
+    //     (importPreismeldungAction, importPreismeldestellenAction, importWarenkorbAction) => [importPreismeldungAction, importPreismeldestellenAction, importWarenkorbAction]
+    // )
     @Effect()
     import$ = this.actions$.ofType('IMPORT_DATA')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => action.payload)
         .flatMap(({ parsedPreismeldungen, parsedPreismeldestellen, parsedWarenkorb }) =>
             Observable.concat([{ type: 'IMPORT_STARTED' }],
-                Observable.forkJoin(
-                    this.importPreismeldungen(parsedPreismeldungen),
-                    this.importPreismeldestellen(parsedPreismeldestellen),
-                    this.importWarenkorb(parsedWarenkorb),
-                    (importPreismeldungAction, importPreismeldestellenAction, importWarenkorbAction) => [importPreismeldungAction, importPreismeldestellenAction, importWarenkorbAction]
-                )
+                this.importPreismeldungen(parsedPreismeldungen)
+                    .do(x => console.log('1. IMPORTPREISMELDESTELLEN'))
+                    .flatMap(importPreismeldungAction => this.importPreismeldestellen(parsedPreismeldestellen).map(importPreismeldestellenAction => [importPreismeldungAction, importPreismeldestellenAction]))
+                    .do(x => console.log('2. IMPORTWARENKORB'))
+                    .flatMap(actions => this.importWarenkorb(parsedWarenkorb).map(importWarenkorbAction => [...actions, importWarenkorbAction]))
+                    .do(x => console.log('3. DROPANDRECREATEALLUSERDBS'))
                     .flatMap(actions => this.dropAndRecreateAllUserDbs().map(action => [action, ...actions]))
+                    .do(x => console.log('4. UPDATEIMPORTMETADATA'))
                     .flatMap(actions => this.updateImportMetadata(null, importer.Type.all_data).map(() => actions))
+                    .do(x => console.log('5. LOADLATESTIMPORTEDAT'))
                     .flatMap(actions => this.loadLatestImportedAt().map(action => [action, ...actions]))
+                    .do(x => console.log('6. ACTIONS', x))
                     .flatMap(actions => actions)
             ));
 
@@ -105,16 +114,24 @@ export class ImporterEffects {
 
     private importPreismeldungen(parsedPreismeldungen: string[][]) {
         return Observable.fromPromise(dropLocalDatabase(dbNames.preismeldung))
+            .do(x => console.log('DEBUG: DROPPED LOCAL PREISMELDUNG DB'))
             .flatMap(() => getLocalDatabase(dbNames.preismeldung))
+            .do(x => console.log('DEBUG: CREATED LOCAL PREISMELDUNG DB'))
             .flatMap(db => {
                 const pmInfo = preparePm(parsedPreismeldungen);
+                console.log('DEBUG: PREPARED PREISMELDUNGEN');
                 return Observable.from(chunk(pmInfo.preismeldungen, 6000).map(preismeldungenBatch => db.bulkDocs(preismeldungenBatch).then(_ => preismeldungenBatch.length).catch(err => console.log('error is', err))))
                     .combineAll()
+                    .do(x => console.log('DEBUG: OUTPUT FROM CHUNKING', x))
                     .map(() => ({ pmInfo, db }));
             })
+            .do(x => console.log('DEBUG: AFTER WRITING PREISMELDUNGEN TO LOCAL DB'))
             .flatMap(({ pmInfo, db }) => db.put({ _id: 'erhebungsmonat', monthAsString: pmInfo.erhebungsmonat }).then(() => pmInfo.preismeldungen))
+            .do(x => console.log('DEBUG: AFTER WRITING ERHEBUNGSMONAT TO LOCAL DB, ABOUT TO SYNC'))
             .flatMap(preismeldungen => syncDb('preismeldungen').then(() => preismeldungen))
+            .do(x => console.log('DEBUG: AFTER SYNC'))
             .flatMap(preismeldungen => this.updateImportMetadata(dbNames.preismeldung, importer.Type.preismeldungen).map(() => preismeldungen))
+            .do(x => console.log('DEBUG: AFTER UPDATING METADATA'))
             .map(preismeldungen => ({ type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: preismeldungen } as importer.Action));
     }
 
@@ -143,8 +160,10 @@ export class ImporterEffects {
     private dropAndRecreateAllUserDbs() {
         return getDatabaseAsObservable(dbNames.preiserheber)
             .flatMap(preiserheberDb => getAllDocumentsFromDb<P.Erheber>(preiserheberDb))
+            .do(preiserhebers => console.log('DEBUG: PREISERHEBERS:', preiserhebers.map(p => p._id)))
             .flatMap(preiserhebers =>
                 createUserDbs(preiserhebers.map(p => p._id))
+                    .do(x => console.log('DEBUG: AFTER CREATING USER DBS'))
                     .map(error => !error ?
                         { type: 'IMPORTED_ALL_SUCCESS', payload: preiserhebers.length } as importer.Action :
                         { type: 'IMPORTED_ALL_FAILURE', payload: error } as importer.Action
