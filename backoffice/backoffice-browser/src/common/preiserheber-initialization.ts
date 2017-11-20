@@ -24,7 +24,7 @@ export function createUserDbs(preiserheberIds: string[]) {
         .do(x => console.log('DEBUG: AFTER FETCHING STANDARD USER DATA', x))
         .flatMap(data => getDatabase(dbNames.preiserheber).then(db => getAllDocumentsFromDb<P.Erheber>(db).then(preiserhebers => ({ data, preiserhebers }))))
         .do(x => console.log('DEBUG: AFTER GETTING PREISERHEBER DATA', x))
-        .flatMap(x => x.preiserhebers.length === 0 ? Observable.of(null) : Observable.from(x.preiserhebers).flatMap(preiserheber => _createUserDb(assign({}, x.data, { preiserheber }))))
+        .flatMap(x => x.preiserhebers.length === 0 ? Observable.of(null) : Observable.forkJoin(x.preiserhebers.map(preiserheber => _createUserDb(assign({}, x.data, { preiserheber })))))
         .do(x => console.log('DEBUG: AFTER _CREATEUSERDB'));
 }
 
@@ -43,6 +43,7 @@ export function createUserDb(preiserheber: P.Erheber) {
 type StandardUserDbData = { preiserheber: P.Erheber, warenkorb: P.WarenkorbDocument, erhebungsmonat: P.Erhebungsmonat, erhebungsorgannummer: P.DbErhebungsorgannummerProperties };
 
 function _createUserDb({ preiserheber, warenkorb, erhebungsmonat, erhebungsorgannummer }: StandardUserDbData) {
+    console.log(`DEBUG: CREATE USER DB ${preiserheber.username}`);
     const standardDocs = [
         assign({}, preiserheber, { _id: 'preiserheber', _rev: undefined }),
         createUserDbIdDoc(),

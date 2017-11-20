@@ -87,7 +87,7 @@ export class ImportPage implements OnDestroy {
             .publishReplay(1).refCount();
 
         this.import$
-            .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', this.getImportedAllDataAt$.distinctUntilChanged().skip(1).take(1)))
+            .flatMap(data => this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', this.getImportedAllDataAt$.skip(1).take(1)))
             .takeUntil(this.onDestroy$)
             .withLatestFrom(parsedData$, (_, parsedData) => parsedData)
             .subscribe(parsedData => {

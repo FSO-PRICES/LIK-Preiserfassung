@@ -9,6 +9,8 @@ import { Models as P } from 'lik-shared';
 
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
+// PouchDB.debug.enable('pouchdb:api');
+PouchDB.debug.enable('pouchdb:http');
 
 export const dbNames = {
     emptyDb: 'inexistant',

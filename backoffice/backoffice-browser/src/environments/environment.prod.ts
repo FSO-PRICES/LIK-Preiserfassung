@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    version: '2.00.002',
+    version: '2.00.003',
 
     defaultSettings: {
         serverConnection: {

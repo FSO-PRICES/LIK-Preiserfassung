@@ -75,10 +75,6 @@ export function reducer(state = initialState, action: importer.Action): State {
                 importedWarenkorb: null,
                 importedPreismeldestellen: null,
                 importedPreismeldungen: null,
-                importedWarenkorbAt: null,
-                importedPreismeldestellenAt: null,
-                importedPreismeldungenAt: null,
-                importedAllDataAt: null
             };
         }
 
