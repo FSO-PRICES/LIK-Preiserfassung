@@ -1,4 +1,4 @@
-<pms-print [pmsNummer]="isPrintingPmsNummer$ | async" (finishedPrinting)="finishedPrinting$.emit()"></pms-print>
+<!-- <pms-print [pmsNummer]="isPrintingPmsNummer$ | async" (finishedPrinting)="finishedPrinting$.emit()"></pms-print> -->
 <div class="dashboard-content">
     <div class="pef-toolbar">
         <div class="app-info-container">
@@ -81,10 +81,10 @@
                         </div>
                         <div class="pms-cell pms-actions">
                             <div class="pms-cell-content">
-                                <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="!preismeldestelle.isPdf || preismeldestelle.keinErhebungsart"
+                                <!-- <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="!preismeldestelle.isPdf || preismeldestelle.keinErhebungsart"
                                     href="javascript:" (click)="openPrint$.emit(preismeldestelle)">
                                     <pef-icon name="pdf"></pef-icon>
-                                </a>
+                                </a> -->
                                 <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="preismeldestelle.keinErhebungsart" href="javascript:"
                                     (click)="navigateToPriceEntry$.emit(preismeldestelle)">
                                     <pef-icon name="todo"></pef-icon>
@@ -140,8 +140,8 @@
                 <div class="row" *ngIf="!!(lastSyncedAt$ | async)">
                     <div class="number">&nbsp;</div>
                     <div class="text">
-                        {{ 'text_database-last-synced-at' | translate }}:<br> {{ (lastSyncedAt$ | async) | pefDateTranslate:
-                        'DD MMMM YYYY HH:mm:ss' }}
+                        {{ 'text_database-last-synced-at' | translate }}:
+                        <br> {{ (lastSyncedAt$ | async) | pefDateTranslate: 'DD MMMM YYYY HH:mm:ss' }}
                     </div>
                 </div>
                 <div class="buttons">

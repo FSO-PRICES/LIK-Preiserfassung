@@ -4,11 +4,18 @@ import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
 import { assign, keyBy, orderBy } from 'lodash';
 
-import { Models as P } from 'lik-shared';
+import { Models as P, preismeldestelleId, preismeldungId, preismeldungRefId, pmsSortId } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
-import { dbNames, getAllDocumentsForPrefixFromDb, getDatabaseAsObservable, getDocumentByKeyFromDb, getAllDocumentsFromDb, getDatabase } from './pouchdb-utils';
+import {
+    dbNames,
+    getAllDocumentsForPrefixFromDb,
+    getDatabaseAsObservable,
+    getDocumentByKeyFromDb,
+    getAllDocumentsFromDb,
+    getDatabase,
+} from './pouchdb-utils';
 import { toCsv } from '../common/file-extensions';
 import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
@@ -21,105 +28,175 @@ import { Observable } from 'rxjs/Observable';
 export class ExporterEffects {
     isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
-    constructor(
-        private actions$: Actions,
-        private store: Store<fromRoot.AppState>) {
-    }
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    exportPreismeldungen$ = this.actions$.ofType('EXPORT_PREISMELDUNGEN')
+    exportPreismeldungen$ = this.actions$
+        .ofType('EXPORT_PREISMELDUNGEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => loadAllPreismeldungen())
-        .flatMap(preismeldungen => getDatabaseAsObservable(dbNames.warenkorb).flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>).map(warenkorbDoc => ({ preismeldungen, warenkorbDoc })))
-        .map(x => orderBy(x.preismeldungen.filter(pm => pm.istAbgebucht), [pm => x.warenkorbDoc.products.findIndex(p => pm.epNummer === p.gliederungspositionsnummer), pm => +pm.pmsNummer, pm => +pm.laufnummer]))
+        .flatMap(preismeldungen =>
+            getDatabaseAsObservable(dbNames.warenkorb)
+                .flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>)
+                .map(warenkorbDoc => ({ preismeldungen, warenkorbDoc }))
+        )
+        .map(x =>
+            orderBy(x.preismeldungen.filter(pm => pm.istAbgebucht), [
+                pm => x.warenkorbDoc.products.findIndex(p => pm.epNummer === p.gliederungspositionsnummer),
+                pm => +pm.pmsNummer,
+                pm => +pm.laufnummer,
+            ])
+        )
         .flatMap(preismeldungen => {
             if (preismeldungen.length === 0) throw new Error('Keine abgebuchte preismeldungen vorhanden.');
             return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
-                .flatMap(db => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => erhebungsmonat))
+                .flatMap(db =>
+                    getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(
+                        erhebungsmonat => erhebungsmonat
+                    )
+                )
                 .flatMap(erhebungsmonat =>
-                    resetAndContinueWith({ type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
+                    resetAndContinueWith(
+                        { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
                         doAsyncAsObservable(() => {
                             const content = toCsv(preparePmForExport(preismeldungen, erhebungsmonat.monthAsString));
                             const count = preismeldungen.length;
                             const envelope = createEnvelope(MessageTypes.Preismeldungen);
 
-                            FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
-                            FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `data_${envelope.fileSuffix}.csv`);
+                            FileSaver.saveAs(
+                                new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
+                                `envl_${envelope.fileSuffix}.xml`
+                            );
+                            FileSaver.saveAs(
+                                new Blob([content], { type: 'text/csv;charset=utf-8' }),
+                                `data_${envelope.fileSuffix}.csv`
+                            );
 
                             return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
                         })
                     )
-                )
+                );
         })
-        .catch(error => Observable.of({ type: 'EXPORT_PREISMELDUNGEN_FAILURE', payload: error.message } as exporter.Action))
-
-    @Effect()
-    exportPreismeldestellen$ = this.actions$.ofType('EXPORT_PREISMELDESTELLEN')
-        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => loadAllPreismeldestellen()
-            .flatMap(preismeldestellen => {
-                if (preismeldestellen.length === 0) throw new Error('Keine preismeldestellen vorhanden.');
-                return getDatabaseAsObservable(dbNames.preismeldestelle)
-                    .flatMap(db => db.bulkDocs(preismeldestellen, { new_edits: false })) // new_edits: false -> enables the insertion of foreign docs
-                    .flatMap(() => // retrieve all pms documents from 'master' preismeldestelle db with the assigned erhebungsmonat
-                        getDatabaseAsObservable(dbNames.preismeldestelle)
-                            .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, 'pms/')
-                                .then(updatedPreismeldestellen => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({ updatedPreismeldestellen, erhebungsmonat })))
-                            )
-                    )
-                    .flatMap(({ updatedPreismeldestellen, erhebungsmonat }) =>
-                        resetAndContinueWith({ type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
-                            doAsyncAsObservable(() => {
-                                const content = toCsv(preparePmsForExport(updatedPreismeldestellen, erhebungsmonat.monthAsString));
-                                const count = updatedPreismeldestellen.length;
-                                const envelope = createEnvelope(MessageTypes.Preismeldestellen);
-
-                                FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
-                                FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `data_${envelope.fileSuffix}.csv`);
-
-                                return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
-                            })
-                        )
-                    )
-            })
-            .catch(error => Observable.of({ type: 'EXPORT_PREISMELDESTELLEN_FAILURE', payload: error.message } as exporter.Action))
+        .catch(error =>
+            Observable.of({ type: 'EXPORT_PREISMELDUNGEN_FAILURE', payload: error.message } as exporter.Action)
         );
 
     @Effect()
-    exportPreiserheber$ = this.actions$.ofType('EXPORT_PREISERHEBER')
+    exportPreismeldestellen$ = this.actions$
+        .ofType('EXPORT_PREISMELDESTELLEN')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(() =>
+            loadAllPreismeldestellen()
+                .flatMap(preismeldestellen => {
+                    if (preismeldestellen.length === 0) throw new Error('Keine preismeldestellen vorhanden.');
+                    return getDatabaseAsObservable(dbNames.preismeldestelle)
+                        .flatMap(db => db.bulkDocs(preismeldestellen, { new_edits: false })) // new_edits: false -> enables the insertion of foreign docs
+                        .flatMap(() =>
+                            // retrieve all pms documents from 'master' preismeldestelle db with the assigned erhebungsmonat
+                            getDatabaseAsObservable(dbNames.preismeldestelle).flatMap(db =>
+                                getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId()).then(
+                                    updatedPreismeldestellen =>
+                                        getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(
+                                            erhebungsmonat => ({ updatedPreismeldestellen, erhebungsmonat })
+                                        )
+                                )
+                            )
+                        )
+                        .flatMap(({ updatedPreismeldestellen, erhebungsmonat }) =>
+                            resetAndContinueWith(
+                                { type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
+                                doAsyncAsObservable(() => {
+                                    const content = toCsv(
+                                        preparePmsForExport(updatedPreismeldestellen, erhebungsmonat.monthAsString)
+                                    );
+                                    const count = updatedPreismeldestellen.length;
+                                    const envelope = createEnvelope(MessageTypes.Preismeldestellen);
+
+                                    FileSaver.saveAs(
+                                        new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
+                                        `envl_${envelope.fileSuffix}.xml`
+                                    );
+                                    FileSaver.saveAs(
+                                        new Blob([content], { type: 'text/csv;charset=utf-8' }),
+                                        `data_${envelope.fileSuffix}.csv`
+                                    );
+
+                                    return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
+                                })
+                            )
+                        );
+                })
+                .catch(error =>
+                    Observable.of({
+                        type: 'EXPORT_PREISMELDESTELLEN_FAILURE',
+                        payload: error.message,
+                    } as exporter.Action)
+                )
+        );
+
+    @Effect()
+    exportPreiserheber$ = this.actions$
+        .ofType('EXPORT_PREISERHEBER')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(({ payload }) => copyUserDbErheberDetailsToPreiserheberDb().map(() => payload))
-        .flatMap(payload => loadAllPreiserheber()
-            .flatMap(preiserheber => {
-                if (preiserheber.length === 0) throw new Error('Keine preiserheber erfasst.');
-                return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
-                    .flatMap(db => getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({ erhebungsorgannummer: payload, erhebungsmonat })))
-                    .flatMap(x => getPePreiszuweisungen(preiserheber).map(peZuweisungen => assign(x, { peZuweisungen })))
-                    .flatMap(({ peZuweisungen, erhebungsmonat, erhebungsorgannummer }) =>
-                        resetAndContinueWith({ type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action,
-                            doAsyncAsObservable(() => {
-                                const content = toCsv(preparePreiserheberForExport(peZuweisungen, erhebungsmonat.monthAsString, erhebungsorgannummer));
-                                const count = peZuweisungen.length;
-                                const envelope = createEnvelope(MessageTypes.Preiserheber);
-
-                                FileSaver.saveAs(new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }), `envl_${envelope.fileSuffix}.xml`);
-                                FileSaver.saveAs(new Blob([content], { type: 'text/csv;charset=utf-8' }), `data_${envelope.fileSuffix}.csv`);
-
-                                return { type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count };
-                            })
+        .flatMap(payload =>
+            loadAllPreiserheber()
+                .flatMap(preiserheber => {
+                    if (preiserheber.length === 0) throw new Error('Keine preiserheber erfasst.');
+                    return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
+                        .flatMap(db =>
+                            getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({
+                                erhebungsorgannummer: payload,
+                                erhebungsmonat,
+                            }))
                         )
-                    )
-            })
-            .catch(error => Observable.of({ type: 'EXPORT_PREISERHEBER_FAILURE', payload: error.message } as exporter.Action))
-        )
+                        .flatMap(x =>
+                            getPePreiszuweisungen(preiserheber).map(peZuweisungen => assign(x, { peZuweisungen }))
+                        )
+                        .flatMap(({ peZuweisungen, erhebungsmonat, erhebungsorgannummer }) =>
+                            resetAndContinueWith(
+                                { type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action,
+                                doAsyncAsObservable(() => {
+                                    const content = toCsv(
+                                        preparePreiserheberForExport(
+                                            peZuweisungen,
+                                            erhebungsmonat.monthAsString,
+                                            erhebungsorgannummer
+                                        )
+                                    );
+                                    const count = peZuweisungen.length;
+                                    const envelope = createEnvelope(MessageTypes.Preiserheber);
+
+                                    FileSaver.saveAs(
+                                        new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
+                                        `envl_${envelope.fileSuffix}.xml`
+                                    );
+                                    FileSaver.saveAs(
+                                        new Blob([content], { type: 'text/csv;charset=utf-8' }),
+                                        `data_${envelope.fileSuffix}.csv`
+                                    );
+
+                                    return { type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count };
+                                })
+                            )
+                        );
+                })
+                .catch(error =>
+                    Observable.of({ type: 'EXPORT_PREISERHEBER_FAILURE', payload: error.message } as exporter.Action)
+                )
+        );
 }
 
 function getPePreiszuweisungen(preiserheber: P.Erheber[]) {
-    return getDatabaseAsObservable(dbNames.preiszuweisung)
-        .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db)
-            .then(preiszuweisungen => {
-                const zuweisungsMap = keyBy(preiszuweisungen, pz => pz.preiserheberId);
-                return preiserheber.map(pe => assign({}, pe, { pmsNummers: zuweisungsMap[pe.username] && zuweisungsMap[pe.username].preismeldestellenNummern || [] }));
-            })
-        );
+    return getDatabaseAsObservable(dbNames.preiszuweisung).flatMap(db =>
+        getAllDocumentsFromDb<P.Preiszuweisung>(db).then(preiszuweisungen => {
+            const zuweisungsMap = keyBy(preiszuweisungen, pz => pz.preiserheberId);
+            return preiserheber.map(pe =>
+                assign({}, pe, {
+                    pmsNummers:
+                        (zuweisungsMap[pe.username] && zuweisungsMap[pe.username].preismeldestellenNummern) || [],
+                })
+            );
+        })
+    );
 }

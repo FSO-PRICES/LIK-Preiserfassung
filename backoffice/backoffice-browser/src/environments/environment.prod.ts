@@ -1,10 +1,10 @@
 export const environment = {
     production: true,
-    version: '2.00.003',
+    version: '2.00.004',
 
     defaultSettings: {
         serverConnection: {
-            url: 'http://bfs-lik.lambda-it.ch:5984/'
-        }
-    }
+            url: 'http://bfs-lik.lambda-it.ch:5984/',
+        },
+    },
 };

@@ -16,7 +16,6 @@
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "html.suggest.angular1": false,
-  "prettier.disableLanguages": ["typescript"],
   "typescript.format.insertSpaceAfterCommaDelimiter": true,
   "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
   "typescript.format.insertSpaceAfterKeywordsInControlFlowStatements": true,

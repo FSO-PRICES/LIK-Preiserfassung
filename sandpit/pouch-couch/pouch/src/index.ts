@@ -19,9 +19,10 @@ function sync() {
 
 function modifyLocal() {
     // console.log('blah')
-    pouch.get('preismeldestelle_Manor')
+    pouch
+        .get('preismeldestelle_Manor')
         .then(x => {
-            console.log('modifyLocal', x)
+            console.log('modifyLocal', x);
             x['priceReports'][1].price = 1.74;
             return pouch.put(x);
         })
@@ -31,17 +32,17 @@ function modifyLocal() {
 }
 
 function deleteDatabase() {
-    pouch.destroy()
-        .then(() => console.log('database destroyed'));
+    pouch.destroy().then(() => console.log('database destroyed'));
 }
 
 function query() {
-    couch.allDocs({
-        include_docs: true,
-        startkey: 'pm/',
-        endkey: 'pm/\uffff'
-    })
-    .then(x => console.log(x));
+    couch
+        .allDocs({
+            include_docs: true,
+            startkey: 'pm_',
+            endkey: 'pm_\uffff',
+        })
+        .then(x => console.log(x));
 }
 
 const login = bluebird.promisify<string, string, any>(couch.login, { context: couch });
@@ -51,10 +52,9 @@ const login = bluebird.promisify<string, string, any>(couch.login, { context: co
 //     console.log(JSON.stringify(x));
 // });
 
-login('germaine_exemple', 'secret')
-    .then(x => {
-        // query();
-        sync();
-        // modifyLocal();
-        // deleteDatabase();
-    })
+login('germaine_exemple', 'secret').then(x => {
+    // query();
+    sync();
+    // modifyLocal();
+    // deleteDatabase();
+});

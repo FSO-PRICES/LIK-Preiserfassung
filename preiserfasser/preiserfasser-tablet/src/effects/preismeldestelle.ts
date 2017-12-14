@@ -7,21 +7,21 @@ import { assign } from 'lodash';
 import { getDatabase, getAllDocumentsForPrefix } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestellen';
+import { preismeldestelleId } from 'lik-shared';
 
 @Injectable()
 export class PreismeldestelleEffects {
     currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
 
-    constructor(
-        private actions$: Actions,
-        private store: Store<fromRoot.AppState>
-    ) { }
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadPreismeldestellen$ = this.actions$
         .ofType('PREISMELDESTELLEN_LOAD_ALL')
         .flatMap(() => getDatabase())
-        .flatMap(db => db.allDocs(Object.assign({}, getAllDocumentsForPrefix('pms'), { include_docs: true })))
+        .flatMap(db =>
+            db.allDocs(Object.assign({}, getAllDocumentsForPrefix(preismeldestelleId()), { include_docs: true }))
+        )
         .map(allDocs => ({ type: 'PREISMELDESTELLEN_LOAD_SUCCESS', payload: allDocs.rows.map(x => x.doc) }));
 
     @Effect()
@@ -30,9 +30,13 @@ export class PreismeldestelleEffects {
         .withLatestFrom(this.currentPreismeldestelle$, (_, currentPreismeldestelle) => currentPreismeldestelle)
         .flatMap(currentPreismeldestelle => {
             return getDatabase()
-                .then(db => db.get(`pms/${currentPreismeldestelle.pmsNummer}`).then(doc => ({ db, doc })))
-                .then(({ db, doc }) => db.put(assign({}, doc, this.propertiesFromCurrentPreismeldestelle(currentPreismeldestelle))).then(() => db))
-                .then(db => db.get(`pms/${currentPreismeldestelle.pmsNummer}`));
+                .then(db => db.get(preismeldestelleId(currentPreismeldestelle.pmsNummer)).then(doc => ({ db, doc })))
+                .then(({ db, doc }) =>
+                    db
+                        .put(assign({}, doc, this.propertiesFromCurrentPreismeldestelle(currentPreismeldestelle)))
+                        .then(() => db)
+                )
+                .then(db => db.get(preismeldestelleId(currentPreismeldestelle.pmsNummer)));
         })
         .map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload }));
 
@@ -54,7 +58,7 @@ export class PreismeldestelleEffects {
             pmsGeschlossen: currentPreismeldestelle.pmsGeschlossen,
             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
             zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
-            kontaktpersons: currentPreismeldestelle.kontaktpersons
+            kontaktpersons: currentPreismeldestelle.kontaktpersons,
         };
     }
 }

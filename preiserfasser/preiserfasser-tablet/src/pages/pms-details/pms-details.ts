@@ -13,7 +13,7 @@ import { Actions as preismeldestellenAction } from '../../actions/preismeldestel
 @IonicPage()
 @Component({
     selector: 'pms-details',
-    templateUrl: 'pms-details.html'
+    templateUrl: 'pms-details.html',
 })
 export class PmsDetailsPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
@@ -38,52 +38,62 @@ export class PmsDetailsPage implements OnDestroy {
         private store: Store<fromRoot.AppState>,
         private formBuilder: FormBuilder
     ) {
-        this.form = formBuilder.group({
-            kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),
-            name: [null, Validators.required],
-            supplement: [null],
-            street: [null, Validators.required],
-            postcode: [null, Validators.required],
-            town: [null, Validators.required],
-            telephone: [null],
-            email: [null],
-            languageCode: [null, Validators.required],
-            erhebungsart_tablet: [false],
-            erhebungsart_telefon: [false],
-            erhebungsart_email: [false],
-            erhebungsart_internet: [false],
-            erhebungsart_papierlisteVorOrt: [false],
-            erhebungsart_papierlisteAbgegeben: [false],
-            pmsGeschlossen: [0],
-            erhebungsartComment: [null],
-            zusatzInformationen: [null],
-        }, { validator: this.formLevelValidationFactory() });
+        this.form = formBuilder.group(
+            {
+                kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),
+                name: [null, Validators.required],
+                supplement: [null],
+                street: [null, Validators.required],
+                postcode: [null, Validators.required],
+                town: [null, Validators.required],
+                telephone: [null],
+                email: [null],
+                languageCode: [null, Validators.required],
+                erhebungsart_tablet: [false],
+                erhebungsart_telefon: [false],
+                erhebungsart_email: [false],
+                erhebungsart_internet: [false],
+                erhebungsart_papierlisteVorOrt: [false],
+                erhebungsart_papierlisteAbgegeben: [false],
+                pmsGeschlossen: [0],
+                erhebungsartComment: [null],
+                zusatzInformationen: [null],
+            },
+            { validator: this.formLevelValidationFactory() }
+        );
 
         const distinctPreismeldestelle$ = this.pms$
             .filter(x => !!x)
             .distinctUntilKeyChanged('_rev')
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         const canSave$ = this.saveClicked$
             .map(() => ({ isValid: this.form.valid }))
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
-        const save$ = canSave$.filter(x => x.isValid)
-            .publishReplay(1).refCount();
+        const save$ = canSave$
+            .filter(x => x.isValid)
+            .publishReplay(1)
+            .refCount();
 
-        this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
+        this.showValidationHints$ = canSave$
+            .distinctUntilChanged()
+            .mapTo(true)
             .merge(distinctPreismeldestelle$.mapTo(false))
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
-        this.formErrors$ = this.showValidationHints$.map(showErrors => showErrors ? this.getFormErrors() : []);
+        this.formErrors$ = this.showValidationHints$.map(showErrors => (showErrors ? this.getFormErrors() : []));
         this.hasErrors$ = this.formErrors$.map(x => !!x && x.length > 0);
 
         this.subscriptions = [
-            distinctPreismeldestelle$
-                .subscribe((preismeldestelle: P.Preismeldestelle) => {
-                    this.form.markAsUntouched();
-                    this.form.markAsPristine();
-                    this.form.patchValue({
+            distinctPreismeldestelle$.subscribe((preismeldestelle: P.Preismeldestelle) => {
+                this.form.markAsUntouched();
+                this.form.markAsPristine();
+                this.form.patchValue(
+                    {
                         kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                         name: preismeldestelle.name,
                         supplement: preismeldestelle.supplement,
@@ -97,10 +107,13 @@ export class PmsDetailsPage implements OnDestroy {
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
                         zusatzInformationen: preismeldestelle.zusatzInformationen,
-                    }, { onlySelf: true, emitEvent: false });
-                }),
+                    },
+                    { onlySelf: true, emitEvent: false }
+                );
+            }),
 
-            this.store.select(fromRoot.getPreismeldestellen)
+            this.store
+                .select(fromRoot.getPreismeldestellen)
                 .filter(x => !!x && x.length > 0)
                 .subscribe(() => {
                     this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
@@ -110,9 +123,12 @@ export class PmsDetailsPage implements OnDestroy {
 
             this.form.valueChanges
                 .map(() => assign({}, this.form.value, { erhebungsart: encodeErhebungsartFromForm(this.form.value) }))
-                .subscribe(payload => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction)),
+                .subscribe(payload =>
+                    store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction)
+                ),
 
-            this.pmsGeschlossenClicked$.mapTo(null)
+            this.pmsGeschlossenClicked$
+                .mapTo(null)
                 .merge(distinctPreismeldestelle$)
                 .scan((pmsGeschlossen, p) => {
                     if (!!p) return p.pmsGeschlossen;
@@ -123,25 +139,16 @@ export class PmsDetailsPage implements OnDestroy {
                     this.form.patchValue({ pmsGeschlossen: 0 });
                 }),
 
-            save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction))
+            save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction)),
         ];
     }
 
     public ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
     public getFormErrors() {
-        const getErrors = (control, name) => {
-            const controls = values(mapValues<{ [key: string]: { name: string, control: {} } }>(control.controls, (value, key) => ({ name: key, control: value })));
-            if (controls.length === 0) {
-                return !control.errors ? [] : Object.keys(control.errors).map(errorType => `validation_${name}_${errorType}`);
-            }
-            return controls.reduce((prev, curr) => [...prev, ...getErrors(curr.control, curr.name)], []);
-        };
-        return [...getErrors(this.form, 'form'), ...Object.keys(this.form.errors || {}).map(errorType => `validation_${errorType}`)];
+        return Object.keys(this.form.errors || {}).map(errorType => `validation_${errorType}`);
     }
 
     private initKontaktpersonGroup() {
@@ -154,12 +161,13 @@ export class PmsDetailsPage implements OnDestroy {
             mobile: [null],
             fax: [null],
             email: [null],
-            languageCode: [null]
+            languageCode: [null],
         });
     }
 
     private getKontaktPersonMapping(kontaktpersons: P.KontaktPerson[]) {
-        if (!kontaktpersons || kontaktpersons.length === 0) kontaktpersons = [<any>{ languageCode: '' }, { languageCode: '' }];
+        if (!kontaktpersons || kontaktpersons.length === 0)
+            kontaktpersons = [<any>{ languageCode: '' }, { languageCode: '' }];
         return kontaktpersons.map(x => ({
             oid: x.oid,
             firstName: x.firstName,
@@ -169,7 +177,7 @@ export class PmsDetailsPage implements OnDestroy {
             mobile: x.mobile,
             fax: x.fax,
             email: x.email,
-            languageCode: x.languageCode || ''
+            languageCode: x.languageCode || '',
         }));
     }
 
@@ -179,15 +187,11 @@ export class PmsDetailsPage implements OnDestroy {
 
     formLevelValidationFactory() {
         return (group: FormGroup) => {
-            if (!group.get('erhebungsart_tablet').value
-                && !group.get('erhebungsart_telefon').value
-                && !group.get('erhebungsart_email').value
-                && !group.get('erhebungsart_internet').value
-                && !group.get('erhebungsart_papierlisteVorOrt').value
-                && !group.get('erhebungsart_papierlisteAbgegeben').value) {
-                return { 'erhebungsart_required': true };
-            }
+            return Object.keys(group.controls)
+                .filter(x => x.startsWith('erhebungsart_'))
+                .every(k => !group.get(k).value)
+                ? { erhebungsart_required: true }
+                : null;
         };
     }
-
 }

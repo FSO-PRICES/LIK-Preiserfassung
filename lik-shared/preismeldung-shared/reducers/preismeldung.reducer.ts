@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 import { assign, cloneDeep, sortBy, keys, initial, last, omit, uniq } from 'lodash';
 
 import * as P from '../models';
+import { preismeldungId } from '../../common/helper-functions';
 import { PreismeldungAction } from '../actions/preismeldung.actions';
 
 export interface PreismeldungBag {
@@ -64,7 +65,7 @@ const initialState: State = {
     entities: {},
     currentPreismeldung: null,
     priceCountStatuses: {},
-    status: null
+    status: null,
 };
 
 export function reducer(state = initialState, action: PreismeldungAction): State {
@@ -72,25 +73,50 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         case 'PREISMELDUNGEN_LOAD_SUCCESS': {
             const { payload } = action;
 
-            const preismeldungBags = payload.preismeldungen
-                .map<P.PreismeldungBag>(preismeldung => {
-                    const warenkorbPosition = payload.warenkorb.find(p => p.warenkorbItem.gliederungspositionsnummer === preismeldung.epNummer).warenkorbItem as P.Models.WarenkorbLeaf;
-                    return assign({}, {
+            const preismeldungBags = payload.preismeldungen.map<P.PreismeldungBag>(preismeldung => {
+                const warenkorbPosition = payload.warenkorb.find(
+                    p => p.warenkorbItem.gliederungspositionsnummer === preismeldung.epNummer
+                ).warenkorbItem as P.Models.WarenkorbLeaf;
+                return assign(
+                    {},
+                    {
                         pmId: preismeldung._id,
                         preismeldung,
                         refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
-                        sortierungsnummer: !!payload.pmsPreismeldungenSort ? payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id).sortierungsnummer : null,
-                        warenkorbPosition
-                    });
-                });
+                        sortierungsnummer: !!payload.pmsPreismeldungenSort
+                            ? payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
+                                  .sortierungsnummer
+                            : null,
+                        warenkorbPosition,
+                    }
+                );
+            });
 
             const pmsNummer = !!action.payload.pms ? action.payload.pms.pmsNummer : null;
-            const status = !action.payload.pms ? 'Preismeldestelle nicht zugewiesen.' : !action.payload.preismeldungen.length ? 'Preismeldungen noch nicht von der Preiserheber App synchronsiert.' : null;
+            const status = !action.payload.pms
+                ? 'Preismeldestelle nicht zugewiesen.'
+                : !action.payload.preismeldungen.length
+                  ? 'Preismeldungen noch nicht von der Preiserheber App synchronsiert.'
+                  : null;
 
-            const preismeldungIds = !!payload.pmsPreismeldungenSort ? sortBy(preismeldungBags, x => x.sortierungsnummer).map(x => x.pmId) : sortBy(preismeldungBags, x => x.pmId).map(x => x.pmId);
-            const entities = preismeldungBags.reduce((agg: { [_id: string]: P.PreismeldungBag }, preismeldungBag: P.PreismeldungBag) => assign(agg, { [preismeldungBag.pmId]: preismeldungBag }), {});
+            const preismeldungIds = !!payload.pmsPreismeldungenSort
+                ? sortBy(preismeldungBags, x => x.sortierungsnummer).map(x => x.pmId)
+                : sortBy(preismeldungBags, x => x.pmId).map(x => x.pmId);
+            const entities = preismeldungBags.reduce(
+                (agg: { [_id: string]: P.PreismeldungBag }, preismeldungBag: P.PreismeldungBag) =>
+                    assign(agg, { [preismeldungBag.pmId]: preismeldungBag }),
+                {}
+            );
             const priceCountStatuses = createPriceCountStatuses(entities);
-            return assign({}, state, { pmsNummer, preismeldungIds, entities, currentPreismeldung: null, priceCountStatuses, status, isAdminApp: payload.isAdminApp });
+            return assign({}, state, {
+                pmsNummer,
+                preismeldungIds,
+                entities,
+                currentPreismeldung: null,
+                priceCountStatuses,
+                status,
+                isAdminApp: payload.isAdminApp,
+            });
         }
 
         case 'PREISMELDUNGEN_RESET':
@@ -101,7 +127,9 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             if (!entity) {
                 return assign({}, state, { currentPreismeldung: null });
             }
-            return assign({}, state, { currentPreismeldung: createCurrentPreismeldungBag(entity, state.priceCountStatuses, state.isAdminApp) });
+            return assign({}, state, {
+                currentPreismeldung: createCurrentPreismeldungBag(entity, state.priceCountStatuses, state.isAdminApp),
+            });
         }
 
         case 'SELECT_CONTROLLING_PM_WITH_BAG': {
@@ -109,11 +137,13 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             return {
                 ...state,
                 isAdminApp: true,
-                currentPreismeldung: !!entity ? createCurrentPreismeldungBag(entity, state.priceCountStatuses, true) : null,
+                currentPreismeldung: !!entity
+                    ? createCurrentPreismeldungBag(entity, state.priceCountStatuses, true)
+                    : null,
                 entities: {},
                 preismeldungIds: [],
                 pmsNummer: null,
-                priceCountStatuses: {}
+                priceCountStatuses: {},
             };
         }
 
@@ -122,16 +152,23 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
             // debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVorReduktion', 'mengeVorReduktion', 'preisVPK', 'mengeVPK', 'aktion', 'bearbeitungscode', 'artikelnummer', 'internetLink', 'artikeltext']);
 
-            if (state.currentPreismeldung.preismeldung.preis === payload.preis
-                && state.currentPreismeldung.preismeldung.menge === payload.menge
-                && (payload.bearbeitungscode !== 1 || !payload.aktion || (state.currentPreismeldung.preismeldung.preisVorReduktion === payload.preisVorReduktion && state.currentPreismeldung.preismeldung.mengeVorReduktion === payload.mengeVorReduktion))
-                && state.currentPreismeldung.preismeldung.preisVPK === payload.preisVPK
-                && state.currentPreismeldung.preismeldung.mengeVPK === payload.mengeVPK
-                && state.currentPreismeldung.preismeldung.aktion === payload.aktion
-                && state.currentPreismeldung.preismeldung.bearbeitungscode === payload.bearbeitungscode
-                && state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer
-                && state.currentPreismeldung.preismeldung.internetLink === payload.internetLink
-                && state.currentPreismeldung.preismeldung.artikeltext === payload.artikeltext) { return state; }
+            if (
+                state.currentPreismeldung.preismeldung.preis === payload.preis &&
+                state.currentPreismeldung.preismeldung.menge === payload.menge &&
+                (payload.bearbeitungscode !== 1 ||
+                    !payload.aktion ||
+                    (state.currentPreismeldung.preismeldung.preisVorReduktion === payload.preisVorReduktion &&
+                        state.currentPreismeldung.preismeldung.mengeVorReduktion === payload.mengeVorReduktion)) &&
+                state.currentPreismeldung.preismeldung.preisVPK === payload.preisVPK &&
+                state.currentPreismeldung.preismeldung.mengeVPK === payload.mengeVPK &&
+                state.currentPreismeldung.preismeldung.aktion === payload.aktion &&
+                state.currentPreismeldung.preismeldung.bearbeitungscode === payload.bearbeitungscode &&
+                state.currentPreismeldung.preismeldung.artikelnummer === payload.artikelnummer &&
+                state.currentPreismeldung.preismeldung.internetLink === payload.internetLink &&
+                state.currentPreismeldung.preismeldung.artikeltext === payload.artikeltext
+            ) {
+                return state;
+            }
 
             let dataToUpdate = {
                 preis: payload.preis,
@@ -151,18 +188,39 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             if (payload.bearbeitungscode === 0 && state.currentPreismeldung.refPreismeldung.aktion) {
                 messages = assign({}, messages, { kommentarAutotext: ['kommentar-autotext_presta-setzt-normalpreis'] });
             } else {
-                messages = assign({}, messages, { kommentarAutotext: messages.kommentarAutotext.filter(x => x !== 'kommentar-autotext_presta-setzt-normalpreis') });
+                messages = assign({}, messages, {
+                    kommentarAutotext: messages.kommentarAutotext.filter(
+                        x => x !== 'kommentar-autotext_presta-setzt-normalpreis'
+                    ),
+                });
             }
 
-            const tempCurrentPreismeldung = assign({},
+            const tempCurrentPreismeldung = assign(
+                {},
                 state.currentPreismeldung,
-                { preismeldung: assign({}, state.currentPreismeldung.preismeldung, dataToUpdate, createFehlendePreiseR(state.currentPreismeldung, payload)) },
-                createNewPriceCountStatus(state.currentPreismeldung, state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer], payload),
+                {
+                    preismeldung: assign(
+                        {},
+                        state.currentPreismeldung.preismeldung,
+                        dataToUpdate,
+                        createFehlendePreiseR(state.currentPreismeldung, payload)
+                    ),
+                },
+                createNewPriceCountStatus(
+                    state.currentPreismeldung,
+                    state.priceCountStatuses[state.currentPreismeldung.preismeldung.epNummer],
+                    payload
+                ),
                 { isModified: true, messages }
             );
 
             const { percentages, hasPriceWarning, textzeile } = createPercentages(tempCurrentPreismeldung, payload);
-            const currentPreismeldung = assign({}, tempCurrentPreismeldung, { hasPriceWarning, textzeile }, { preismeldung: assign({}, tempCurrentPreismeldung.preismeldung, percentages) });
+            const currentPreismeldung = assign(
+                {},
+                tempCurrentPreismeldung,
+                { hasPriceWarning, textzeile },
+                { preismeldung: assign({}, tempCurrentPreismeldung.preismeldung, percentages) }
+            );
 
             return assign({}, state, { currentPreismeldung });
         }
@@ -170,47 +228,77 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         case 'UPDATE_PREISMELDUNG_MESSAGES': {
             const { payload } = action;
 
-            if (state.currentPreismeldung.messages.notiz === payload.notiz
-                && state.currentPreismeldung.messages.kommentar === payload.kommentar
-                && state.currentPreismeldung.messages.bemerkungen === payload.bemerkungen) { return state; }
+            if (
+                state.currentPreismeldung.messages.notiz === payload.notiz &&
+                state.currentPreismeldung.messages.kommentar === payload.kommentar &&
+                state.currentPreismeldung.messages.bemerkungen === payload.bemerkungen
+            ) {
+                return state;
+            }
 
             const messages = assign({}, state.currentPreismeldung.messages, payload);
 
-            const currentPreismeldung = assign({},
-                state.currentPreismeldung, { messages, isMessagesModified: true, hasMessageToCheck: calcHasMessageToCheck(messages) }
-            );
+            const currentPreismeldung = assign({}, state.currentPreismeldung, {
+                messages,
+                isMessagesModified: true,
+                hasMessageToCheck: calcHasMessageToCheck(messages),
+            });
 
             return assign({}, state, { currentPreismeldung });
         }
 
         case 'SAVE_PREISMELDUNG_PRICE_SUCCESS': {
-            const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false, lastSaveAction: action.payload.saveAction });
+            const currentPreismeldung = assign(
+                {},
+                state.currentPreismeldung,
+                { preismeldung: action.payload.preismeldung },
+                { isModified: false, lastSaveAction: action.payload.saveAction }
+            );
 
             const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung.pmId);
             const nextId = index === state.preismeldungIds.length - 1 ? null : state.preismeldungIds[index + 1];
 
             let nextPreismeldung;
             if (action.payload.saveAction.type === 'SAVE_AND_MOVE_TO_NEXT' && nextId !== null) {
-                nextPreismeldung = createCurrentPreismeldungBag(!!nextId ? state.entities[nextId] : state.entities[0], state.priceCountStatuses, state.isAdminApp)
+                nextPreismeldung = createCurrentPreismeldungBag(
+                    !!nextId ? state.entities[nextId] : state.entities[0],
+                    state.priceCountStatuses,
+                    state.isAdminApp
+                );
             } else {
-                nextPreismeldung = assign(cloneDeep(currentPreismeldung), { messages: parsePreismeldungMessages(currentPreismeldung.preismeldung, state.isAdminApp) });
+                nextPreismeldung = assign(cloneDeep(currentPreismeldung), {
+                    messages: parsePreismeldungMessages(currentPreismeldung.preismeldung, state.isAdminApp),
+                });
             }
 
-            const entities = assign({}, state.entities, { [currentPreismeldung.pmId]: assign({}, currentPreismeldung) });
+            const entities = assign({}, state.entities, {
+                [currentPreismeldung.pmId]: assign({}, currentPreismeldung),
+            });
 
-            return assign({}, state, { currentPreismeldung: nextPreismeldung, entities, priceCountStatuses: createPriceCountStatuses(entities) });
+            return assign({}, state, {
+                currentPreismeldung: nextPreismeldung,
+                entities,
+                priceCountStatuses: createPriceCountStatuses(entities),
+            });
         }
 
         case 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS': {
-            const currentPreismeldung = assign({}, state.currentPreismeldung, { preismeldung: action.payload.preismeldung }, { isModified: false, isNew: false });
+            const currentPreismeldung = assign(
+                {},
+                state.currentPreismeldung,
+                { preismeldung: action.payload.preismeldung },
+                { isModified: false, isNew: false }
+            );
             const preismeldungIds = action.payload.pmsPreismeldungenSort.sortOrder.map(x => x.pmId);
-            const entities = assign({}, state.entities, { [currentPreismeldung.pmId]: assign({}, currentPreismeldung) });
+            const entities = assign({}, state.entities, {
+                [currentPreismeldung.pmId]: assign({}, currentPreismeldung),
+            });
 
             return assign({}, state, {
                 currentPreismeldung,
                 entities,
                 preismeldungIds,
-                priceCountStatuses: createPriceCountStatuses(entities)
+                priceCountStatuses: createPriceCountStatuses(entities),
             });
         }
 
@@ -218,12 +306,15 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const resettedEntity = assign({}, state.entities[action.payload._id], { preismeldung: action.payload });
             const entities = assign({}, state.entities, { [action.payload._id]: assign({}, resettedEntity) });
             const priceCountStatuses = createPriceCountStatuses(entities);
-            const currentPreismeldung = assign({},
-                createCurrentPreismeldungBag(resettedEntity, priceCountStatuses, state.isAdminApp), {
+            const currentPreismeldung = assign(
+                {},
+                createCurrentPreismeldungBag(resettedEntity, priceCountStatuses, state.isAdminApp),
+                {
                     isModified: false,
                     lastSaveAction: { type: 'RESET', data: null, saveWithData: null },
-                    resetEvent: new Date().getTime()
-                });
+                    resetEvent: new Date().getTime(),
+                }
+            );
             return assign({}, state, { currentPreismeldung, entities, priceCountStatuses });
         }
 
@@ -241,20 +332,30 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 _rev: action.payload._rev,
                 bemerkungen: action.payload.bemerkungen,
                 kommentar: action.payload.kommentar,
-                notiz: action.payload.notiz
+                notiz: action.payload.notiz,
             };
 
-            const currentPreismeldung = !state.currentPreismeldung || state.currentPreismeldung.pmId !== action.payload._id
-                ? state.currentPreismeldung
-                : assign({}, state.currentPreismeldung, { isMessagesModified: false, messages, preismeldung: assign({}, state.currentPreismeldung.preismeldung, attrs) });
+            const currentPreismeldung =
+                !state.currentPreismeldung || state.currentPreismeldung.pmId !== action.payload._id
+                    ? state.currentPreismeldung
+                    : assign({}, state.currentPreismeldung, {
+                          isMessagesModified: false,
+                          messages,
+                          preismeldung: assign({}, state.currentPreismeldung.preismeldung, attrs),
+                      });
 
             const entities = !state.entities[action.payload._id]
                 ? state.entities
-                : assign({}, state.entities, { [action.payload._id]: assign({}, state.entities[action.payload._id], { messages, preismeldung: assign({}, state.entities[action.payload._id].preismeldung, attrs) }) });
+                : assign({}, state.entities, {
+                      [action.payload._id]: assign({}, state.entities[action.payload._id], {
+                          messages,
+                          preismeldung: assign({}, state.entities[action.payload._id].preismeldung, attrs),
+                      }),
+                  });
 
             return assign({}, state, {
                 currentPreismeldung,
-                entities
+                entities,
             });
         }
 
@@ -262,74 +363,157 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const { productMerkmale } = action.payload;
             const attrs = {
                 _rev: action.payload._rev,
-                productMerkmale
+                productMerkmale,
             };
 
-            const currentPreismeldung = !state.currentPreismeldung || state.currentPreismeldung.pmId !== action.payload._id
-                ? state.currentPreismeldung
-                : assign({}, state.currentPreismeldung, { isAttributesModified: false, attributes: productMerkmale, preismeldung: assign({}, state.currentPreismeldung.preismeldung, attrs) });
+            const currentPreismeldung =
+                !state.currentPreismeldung || state.currentPreismeldung.pmId !== action.payload._id
+                    ? state.currentPreismeldung
+                    : assign({}, state.currentPreismeldung, {
+                          isAttributesModified: false,
+                          attributes: productMerkmale,
+                          preismeldung: assign({}, state.currentPreismeldung.preismeldung, attrs),
+                      });
 
             const entities = !state.entities[action.payload._id]
                 ? state.entities
-                : assign({}, state.entities, { [action.payload._id]: assign({}, state.entities[action.payload._id], { productMerkmale, preismeldung: assign({}, state.entities[action.payload._id].preismeldung, attrs) }) });
+                : assign({}, state.entities, {
+                      [action.payload._id]: assign({}, state.entities[action.payload._id], {
+                          productMerkmale,
+                          preismeldung: assign({}, state.entities[action.payload._id].preismeldung, attrs),
+                      }),
+                  });
 
             return assign({}, state, {
                 currentPreismeldung,
-                entities
+                entities,
             });
         }
 
         case 'UPDATE_PREISMELDUNG_ATTRIBUTES': {
             const attributes = action.payload;
 
-            const currentPreismeldung = assign({},
-                state.currentPreismeldung, { attributes, isAttributesModified: true, hasAttributeWarning: calcHasAttributeWarning(attributes, state.currentPreismeldung.warenkorbPosition.productMerkmale) }
-            );
+            const currentPreismeldung = assign({}, state.currentPreismeldung, {
+                attributes,
+                isAttributesModified: true,
+                hasAttributeWarning: calcHasAttributeWarning(
+                    attributes,
+                    state.currentPreismeldung.warenkorbPosition.productMerkmale
+                ),
+            });
 
             return assign({}, state, { currentPreismeldung });
         }
 
         case 'DUPLICATE_PREISMELDUNG': {
-            const preismeldungen = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer);
-            const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[preismeldungen.length - 1] + 1}`;
+            const preismeldungen = getAll(state).filter(
+                x =>
+                    x.warenkorbPosition.gliederungspositionsnummer ===
+                    state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer
+            );
+            const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[
+                preismeldungen.length - 1
+            ] + 1}`;
             const currentPreismeldung = state.currentPreismeldung;
-            const newPmId = `pm/${currentPreismeldung.preismeldung.pmsNummer}/ep/${currentPreismeldung.preismeldung.epNummer}/lauf/${nextLaufnummer}`;
-            const newPreismeldung = createFreshPreismeldung(newPmId, currentPreismeldung.preismeldung.pmsNummer, currentPreismeldung.preismeldung.epNummer, nextLaufnummer, action.payload, currentPreismeldung.preismeldung.erhebungsZeitpunkt);
-            const newCurrentPreismeldung = assign({}, createCurrentPreismeldungBag({
-                pmId: newPmId,
-                refPreismeldung: null,
-                sortierungsnummer: currentPreismeldung.sortierungsnummer + 1,
-                preismeldung: newPreismeldung,
-                warenkorbPosition: currentPreismeldung.warenkorbPosition
-            }, state.priceCountStatuses, state.isAdminApp), {
-                    priceCountStatus: createPriceCountStatus(currentPreismeldung.priceCountStatus.numActivePrices + 1, currentPreismeldung.priceCountStatus.anzahlPreiseProPMS),
-                    isNew: true
-                });
+            const newPmId = preismeldungId(
+                currentPreismeldung.preismeldung.pmsNummer,
+                currentPreismeldung.preismeldung.epNummer,
+                nextLaufnummer
+            );
+            const newPreismeldung = createFreshPreismeldung(
+                newPmId,
+                currentPreismeldung.preismeldung.pmsNummer,
+                currentPreismeldung.preismeldung.epNummer,
+                nextLaufnummer,
+                action.payload,
+                currentPreismeldung.preismeldung.erhebungsZeitpunkt
+            );
+            const newCurrentPreismeldung = assign(
+                {},
+                createCurrentPreismeldungBag(
+                    {
+                        pmId: newPmId,
+                        refPreismeldung: null,
+                        sortierungsnummer: currentPreismeldung.sortierungsnummer + 1,
+                        preismeldung: newPreismeldung,
+                        warenkorbPosition: currentPreismeldung.warenkorbPosition,
+                    },
+                    state.priceCountStatuses,
+                    state.isAdminApp
+                ),
+                {
+                    priceCountStatus: createPriceCountStatus(
+                        currentPreismeldung.priceCountStatus.numActivePrices + 1,
+                        currentPreismeldung.priceCountStatus.anzahlPreiseProPMS
+                    ),
+                    isNew: true,
+                }
+            );
 
             return assign({}, state, { currentPreismeldung: newCurrentPreismeldung });
         }
 
         case 'NEW_PREISMELDUNG': {
             const allPreismeldungen = getAll(state);
-            const preismeldungen = getAll(state).filter(x => x.warenkorbPosition.gliederungspositionsnummer === action.payload.warenkorbPosition.gliederungspositionsnummer);
-            const nextLaufnummer = `${preismeldungen.length === 0 ? 1 : preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[preismeldungen.length - 1] + 1}`;
-            const newPmId = `pm/${action.payload.pmsNummer}/ep/${action.payload.warenkorbPosition.gliederungspositionsnummer}/lauf/${nextLaufnummer}`;
-            const sortierungsnummer = preismeldungen.length === 0 ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1 : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
-            const priceCountStatus = state.priceCountStatuses[action.payload.warenkorbPosition.gliederungspositionsnummer];
+            const preismeldungen = getAll(state).filter(
+                x =>
+                    x.warenkorbPosition.gliederungspositionsnummer ===
+                    action.payload.warenkorbPosition.gliederungspositionsnummer
+            );
+            const nextLaufnummer = `${
+                preismeldungen.length === 0
+                    ? 1
+                    : preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[
+                          preismeldungen.length - 1
+                      ] + 1
+            }`;
+            const newPmId = preismeldungId(
+                action.payload.pmsNummer,
+                action.payload.warenkorbPosition.gliederungspositionsnummer,
+                nextLaufnummer
+            );
+            const sortierungsnummer =
+                preismeldungen.length === 0
+                    ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
+                    : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
+            const priceCountStatus =
+                state.priceCountStatuses[action.payload.warenkorbPosition.gliederungspositionsnummer];
             const numActivePrices = !priceCountStatus ? 0 : priceCountStatus.numActivePrices;
             const erhebungsZeitpunkt = action.payload.warenkorbPosition.erhebungszeitpunkte === 1 ? 99 : null;
-            const newPreismeldung = createFreshPreismeldung(newPmId, action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer, nextLaufnummer, action.payload.bearbeitungscode, erhebungsZeitpunkt);
-            const newCurrentPreismeldung = assign({}, createCurrentPreismeldungBag({
-                pmId: newPmId,
-                refPreismeldung: null,
-                sortierungsnummer,
-                preismeldung: newPreismeldung,
-                warenkorbPosition: action.payload.warenkorbPosition
-            }, state.priceCountStatuses, state.isAdminApp), {
-                    priceCountStatus: createPriceCountStatus(numActivePrices + 1, action.payload.warenkorbPosition.anzahlPreiseProPMS),
-                    isNew: true
-                });
-            return assign({}, state, { currentPreismeldung: assign({}, newCurrentPreismeldung, { messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung, state.isAdminApp) }) });
+            const newPreismeldung = createFreshPreismeldung(
+                newPmId,
+                action.payload.pmsNummer,
+                action.payload.warenkorbPosition.gliederungspositionsnummer,
+                nextLaufnummer,
+                action.payload.bearbeitungscode,
+                erhebungsZeitpunkt
+            );
+            const newCurrentPreismeldung = assign(
+                {},
+                createCurrentPreismeldungBag(
+                    {
+                        pmId: newPmId,
+                        refPreismeldung: null,
+                        sortierungsnummer,
+                        preismeldung: newPreismeldung,
+                        warenkorbPosition: action.payload.warenkorbPosition,
+                    },
+                    state.priceCountStatuses,
+                    state.isAdminApp
+                ),
+                {
+                    priceCountStatus: createPriceCountStatus(
+                        numActivePrices + 1,
+                        action.payload.warenkorbPosition.anzahlPreiseProPMS
+                    ),
+                    isNew: true,
+                }
+            );
+            return assign({}, state, {
+                currentPreismeldung: assign({}, newCurrentPreismeldung, {
+                    messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung, state.isAdminApp),
+                }),
+            });
         }
 
         default:
@@ -348,7 +532,14 @@ function createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
     return { percentage: null, warning: false, limitType: null, textzeil: null };
 }
 
-const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: string, laufnummer: string, bearbeitungscode: P.Models.Bearbeitungscode, erhebungsZeitpunkt?: number): P.Models.Preismeldung => ({
+const createFreshPreismeldung = (
+    pmId: string,
+    pmsNummer: string,
+    epNummer: string,
+    laufnummer: string,
+    bearbeitungscode: P.Models.Bearbeitungscode,
+    erhebungsZeitpunkt?: number
+): P.Models.Preismeldung => ({
     _id: pmId,
     _rev: null,
     pmsNummer: pmsNummer,
@@ -378,10 +569,14 @@ const createFreshPreismeldung = (pmId: string, pmsNummer: string, epNummer: stri
     bearbeitungscode,
     erhebungsZeitpunkt,
     istAbgebucht: false,
-    uploadRequestedAt: null
+    uploadRequestedAt: null,
 });
 
-function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatuses: PriceCountStatusMap, isAdminApp: boolean) {
+function createCurrentPreismeldungBag(
+    entity: P.PreismeldungBag,
+    priceCountStatuses: PriceCountStatusMap,
+    isAdminApp: boolean
+) {
     const messages = parsePreismeldungMessages(entity.preismeldung, isAdminApp);
     const attributes = cloneDeep(entity.preismeldung.productMerkmale);
     const warningAndTextzeile = calcWarningAndTextzeile(entity);
@@ -398,7 +593,7 @@ function createCurrentPreismeldungBag(entity: P.PreismeldungBag, priceCountStatu
         hasPriceWarning: warningAndTextzeile.hasPriceWarning,
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
         resetEvent: new Date().getTime(),
-        textzeile: warningAndTextzeile.textzeile
+        textzeile: warningAndTextzeile.textzeile,
     }) as P.CurrentPreismeldungBag;
 }
 
@@ -407,96 +602,278 @@ function createStartingPercentageWithWarning(percentage: number): P.Models.Perce
         percentage,
         warning: false,
         limitType: null,
-        textzeil: null
+        textzeil: null,
     };
 }
 
-function exceedsLimit(percentage: number, negativeLimitType: P.Models.LimitType, negativeLimit: number, positiveLimitType: P.Models.LimitType, positiveLimit: number): P.Models.LimitType {
+function exceedsLimit(
+    percentage: number,
+    negativeLimitType: P.Models.LimitType,
+    negativeLimit: number,
+    positiveLimitType: P.Models.LimitType,
+    positiveLimit: number
+): P.Models.LimitType {
     if (percentage < negativeLimit) return negativeLimitType;
     if (percentage > positiveLimit) return positiveLimitType;
     return null;
 }
 
-function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPricePayload): { percentages: P.Models.PreismeldungPercentages, hasPriceWarning: boolean, textzeile: string[] } {
-    const d_DPToVP = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preis), parseFloat(payload.menge)));
-    const d_DPToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preis), parseFloat(payload.menge)));
-    const d_DPToVPK = createStartingPercentageWithWarning(calculatePercentageChange(parseFloat(bag.preismeldung.preisVPK), parseFloat(bag.preismeldung.mengeVPK), parseFloat(payload.preis), parseFloat(payload.menge)));
-    const d_VPKToVPAlterArtikel = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preisVPK), parseFloat(payload.mengeVPK)));
-    const d_VPKToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVPK), parseFloat(payload.mengeVPK)));
-    const d_DPVorReduktionToVPVorReduktion = createStartingPercentageWithWarning(!bag.refPreismeldung || !payload.aktion ? NaN : calculatePercentageChange(bag.refPreismeldung.preisVorReduktion, bag.refPreismeldung.mengeVorReduktion, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
-    const d_DPVorReduktionToVP = createStartingPercentageWithWarning(!bag.refPreismeldung || !payload.aktion ? NaN : calculatePercentageChange(bag.refPreismeldung.preis, bag.refPreismeldung.menge, parseFloat(payload.preisVorReduktion), parseFloat(payload.mengeVorReduktion)));
+function createPercentages(
+    bag: P.PreismeldungBag,
+    payload: P.PreismeldungPricePayload
+): { percentages: P.Models.PreismeldungPercentages; hasPriceWarning: boolean; textzeile: string[] } {
+    const d_DPToVP = createStartingPercentageWithWarning(
+        !bag.refPreismeldung
+            ? NaN
+            : calculatePercentageChange(
+                  bag.refPreismeldung.preis,
+                  bag.refPreismeldung.menge,
+                  parseFloat(payload.preis),
+                  parseFloat(payload.menge)
+              )
+    );
+    const d_DPToVPVorReduktion = createStartingPercentageWithWarning(
+        !bag.refPreismeldung
+            ? NaN
+            : calculatePercentageChange(
+                  bag.refPreismeldung.preisVorReduktion,
+                  bag.refPreismeldung.mengeVorReduktion,
+                  parseFloat(payload.preis),
+                  parseFloat(payload.menge)
+              )
+    );
+    const d_DPToVPK = createStartingPercentageWithWarning(
+        calculatePercentageChange(
+            parseFloat(bag.preismeldung.preisVPK),
+            parseFloat(bag.preismeldung.mengeVPK),
+            parseFloat(payload.preis),
+            parseFloat(payload.menge)
+        )
+    );
+    const d_VPKToVPAlterArtikel = createStartingPercentageWithWarning(
+        !bag.refPreismeldung
+            ? NaN
+            : calculatePercentageChange(
+                  bag.refPreismeldung.preis,
+                  bag.refPreismeldung.menge,
+                  parseFloat(payload.preisVPK),
+                  parseFloat(payload.mengeVPK)
+              )
+    );
+    const d_VPKToVPVorReduktion = createStartingPercentageWithWarning(
+        !bag.refPreismeldung
+            ? NaN
+            : calculatePercentageChange(
+                  bag.refPreismeldung.preisVorReduktion,
+                  bag.refPreismeldung.mengeVorReduktion,
+                  parseFloat(payload.preisVPK),
+                  parseFloat(payload.mengeVPK)
+              )
+    );
+    const d_DPVorReduktionToVPVorReduktion = createStartingPercentageWithWarning(
+        !bag.refPreismeldung || !payload.aktion
+            ? NaN
+            : calculatePercentageChange(
+                  bag.refPreismeldung.preisVorReduktion,
+                  bag.refPreismeldung.mengeVorReduktion,
+                  parseFloat(payload.preisVorReduktion),
+                  parseFloat(payload.mengeVorReduktion)
+              )
+    );
+    const d_DPVorReduktionToVP = createStartingPercentageWithWarning(
+        !bag.refPreismeldung || !payload.aktion
+            ? NaN
+            : calculatePercentageChange(
+                  bag.refPreismeldung.preis,
+                  bag.refPreismeldung.menge,
+                  parseFloat(payload.preisVorReduktion),
+                  parseFloat(payload.mengeVorReduktion)
+              )
+    );
 
     if (!!bag.refPreismeldung) {
         switch (bag.preismeldung.bearbeitungscode) {
             case 99: {
                 if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
-                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitNegativeLimite, bag.warenkorbPosition.negativeLimite, P.Models.limitPositiveLimite, bag.warenkorbPosition.positiveLimite);
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitNegativeLimite,
+                        bag.warenkorbPosition.negativeLimite,
+                        P.Models.limitPositiveLimite,
+                        bag.warenkorbPosition.positiveLimite
+                    );
                     d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
                 } else {
-                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitAbweichungPmUG2,
+                        bag.warenkorbPosition.abweichungPmUG2,
+                        P.Models.limitAbweichungPmOG2,
+                        bag.warenkorbPosition.abweichungPmOG2
+                    );
                     d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
                 }
                 break;
             }
             case 1: {
-                if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) { // VP -, T -
-                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
+                    // VP -, T -
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitNegativeLimite_1,
+                        bag.warenkorbPosition.negativeLimite_1,
+                        P.Models.limitPositiveLimite_1,
+                        bag.warenkorbPosition.positiveLimite_1
+                    );
                     d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
-                } else if (bag.refPreismeldung.aktion && !bag.preismeldung.aktion) { // VP A, T -
-                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                } else if (bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
+                    // VP A, T -
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitAbweichungPmUG2,
+                        bag.warenkorbPosition.abweichungPmUG2,
+                        P.Models.limitAbweichungPmOG2,
+                        bag.warenkorbPosition.abweichungPmOG2
+                    );
                     d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
-                    d_DPToVPVorReduktion.limitType = exceedsLimit(d_DPToVPVorReduktion.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPToVPVorReduktion.limitType = exceedsLimit(
+                        d_DPToVPVorReduktion.percentage,
+                        P.Models.limitNegativeLimite_1,
+                        bag.warenkorbPosition.negativeLimite_1,
+                        P.Models.limitPositiveLimite_1,
+                        bag.warenkorbPosition.positiveLimite_1
+                    );
                     d_DPToVPVorReduktion.warning = !!d_DPToVPVorReduktion.limitType;
-                    d_DPToVPVorReduktion.textzeil = d_DPToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
-                } else if (bag.refPreismeldung.aktion && bag.preismeldung.aktion) { // VP A, T A
-                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPToVPVorReduktion.textzeil = d_DPToVPVorReduktion.warning
+                        ? 'text_textzeil_nicht_vergleichbar'
+                        : null;
+                } else if (bag.refPreismeldung.aktion && bag.preismeldung.aktion) {
+                    // VP A, T A
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitAbweichungPmUG2,
+                        bag.warenkorbPosition.abweichungPmUG2,
+                        P.Models.limitAbweichungPmOG2,
+                        bag.warenkorbPosition.abweichungPmOG2
+                    );
                     d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
-                    d_DPVorReduktionToVPVorReduktion.limitType = exceedsLimit(d_DPVorReduktionToVPVorReduktion.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVPVorReduktion.limitType = exceedsLimit(
+                        d_DPVorReduktionToVPVorReduktion.percentage,
+                        P.Models.limitNegativeLimite_1,
+                        bag.warenkorbPosition.negativeLimite_1,
+                        P.Models.limitPositiveLimite_1,
+                        bag.warenkorbPosition.positiveLimite_1
+                    );
                     d_DPVorReduktionToVPVorReduktion.warning = !!d_DPVorReduktionToVPVorReduktion.limitType;
-                    d_DPVorReduktionToVPVorReduktion.textzeil = d_DPVorReduktionToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
-                }
-                else { // VP -, T A
-                    d_DPToVP.limitType = exceedsLimit(d_DPToVP.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                    d_DPVorReduktionToVPVorReduktion.textzeil = d_DPVorReduktionToVPVorReduktion.warning
+                        ? 'text_textzeil_nicht_vergleichbar'
+                        : null;
+                } else {
+                    // VP -, T A
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitAbweichungPmUG2,
+                        bag.warenkorbPosition.abweichungPmUG2,
+                        P.Models.limitAbweichungPmOG2,
+                        bag.warenkorbPosition.abweichungPmOG2
+                    );
                     d_DPToVP.warning = !!d_DPToVP.limitType;
                     d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
-                    d_DPVorReduktionToVP.limitType = exceedsLimit(d_DPVorReduktionToVP.percentage, P.Models.limitNegativeLimite_1, bag.warenkorbPosition.negativeLimite_1, P.Models.limitPositiveLimite_1, bag.warenkorbPosition.positiveLimite_1);
+                    d_DPVorReduktionToVP.limitType = exceedsLimit(
+                        d_DPVorReduktionToVP.percentage,
+                        P.Models.limitNegativeLimite_1,
+                        bag.warenkorbPosition.negativeLimite_1,
+                        P.Models.limitPositiveLimite_1,
+                        bag.warenkorbPosition.positiveLimite_1
+                    );
                     d_DPVorReduktionToVP.warning = !!d_DPVorReduktionToVP.limitType;
-                    d_DPVorReduktionToVP.textzeil = d_DPVorReduktionToVP.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                    d_DPVorReduktionToVP.textzeil = d_DPVorReduktionToVP.warning
+                        ? 'text_textzeil_nicht_vergleichbar'
+                        : null;
                 }
                 break;
             }
             case 7: {
-                if (!bag.preismeldung.aktion) { // T -
-                    d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitNegativeLimite, bag.warenkorbPosition.negativeLimite, P.Models.limitPositiveLimite, bag.warenkorbPosition.positiveLimite);
+                if (!bag.preismeldung.aktion) {
+                    // T -
+                    d_DPToVPK.limitType = exceedsLimit(
+                        d_DPToVPK.percentage,
+                        P.Models.limitNegativeLimite,
+                        bag.warenkorbPosition.negativeLimite,
+                        P.Models.limitPositiveLimite,
+                        bag.warenkorbPosition.positiveLimite
+                    );
                     d_DPToVPK.warning = !!d_DPToVPK.limitType;
                     d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
-                    if (bag.refPreismeldung.aktion) { // VP A
-                        d_VPKToVPVorReduktion.limitType = exceedsLimit(d_VPKToVPVorReduktion.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                    if (bag.refPreismeldung.aktion) {
+                        // VP A
+                        d_VPKToVPVorReduktion.limitType = exceedsLimit(
+                            d_VPKToVPVorReduktion.percentage,
+                            P.Models.limitNegativeLimite_7,
+                            bag.warenkorbPosition.negativeLimite_7,
+                            P.Models.limitPositiveLimite_7,
+                            bag.warenkorbPosition.positiveLimite_7
+                        );
                         d_VPKToVPVorReduktion.warning = !!d_VPKToVPVorReduktion.limitType;
-                        d_VPKToVPVorReduktion.textzeil = d_VPKToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
-                    } else { // VP -
-                        d_VPKToVPAlterArtikel.limitType = exceedsLimit(d_VPKToVPAlterArtikel.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPVorReduktion.textzeil = d_VPKToVPVorReduktion.warning
+                            ? 'text_textzeil_nicht_vergleichbar'
+                            : null;
+                    } else {
+                        // VP -
+                        d_VPKToVPAlterArtikel.limitType = exceedsLimit(
+                            d_VPKToVPAlterArtikel.percentage,
+                            P.Models.limitNegativeLimite_7,
+                            bag.warenkorbPosition.negativeLimite_7,
+                            P.Models.limitPositiveLimite_7,
+                            bag.warenkorbPosition.positiveLimite_7
+                        );
                         d_VPKToVPAlterArtikel.warning = !!d_VPKToVPAlterArtikel.limitType;
-                        d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                        d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning
+                            ? 'text_textzeil_nicht_vergleichbar'
+                            : null;
                     }
-                }
-                else { // T A
-                    d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                } else {
+                    // T A
+                    d_DPToVPK.limitType = exceedsLimit(
+                        d_DPToVPK.percentage,
+                        P.Models.limitAbweichungPmUG2,
+                        bag.warenkorbPosition.abweichungPmUG2,
+                        P.Models.limitAbweichungPmOG2,
+                        bag.warenkorbPosition.abweichungPmOG2
+                    );
                     d_DPToVPK.warning = !!d_DPToVPK.limitType;
                     d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
-                    if (bag.refPreismeldung.aktion) { // VP A
-                        d_VPKToVPVorReduktion.limitType = exceedsLimit(d_VPKToVPVorReduktion.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                    if (bag.refPreismeldung.aktion) {
+                        // VP A
+                        d_VPKToVPVorReduktion.limitType = exceedsLimit(
+                            d_VPKToVPVorReduktion.percentage,
+                            P.Models.limitNegativeLimite_7,
+                            bag.warenkorbPosition.negativeLimite_7,
+                            P.Models.limitPositiveLimite_7,
+                            bag.warenkorbPosition.positiveLimite_7
+                        );
                         d_VPKToVPVorReduktion.warning = !!d_VPKToVPVorReduktion.limitType;
-                        d_VPKToVPVorReduktion.textzeil = d_VPKToVPVorReduktion.warning ? 'text_textzeil_nicht_vergleichbar' : null;
-                    } else { // VP -
-                        d_VPKToVPAlterArtikel.limitType = exceedsLimit(d_VPKToVPAlterArtikel.percentage, P.Models.limitNegativeLimite_7, bag.warenkorbPosition.negativeLimite_7, P.Models.limitPositiveLimite_7, bag.warenkorbPosition.positiveLimite_7);
+                        d_VPKToVPVorReduktion.textzeil = d_VPKToVPVorReduktion.warning
+                            ? 'text_textzeil_nicht_vergleichbar'
+                            : null;
+                    } else {
+                        // VP -
+                        d_VPKToVPAlterArtikel.limitType = exceedsLimit(
+                            d_VPKToVPAlterArtikel.percentage,
+                            P.Models.limitNegativeLimite_7,
+                            bag.warenkorbPosition.negativeLimite_7,
+                            P.Models.limitPositiveLimite_7,
+                            bag.warenkorbPosition.positiveLimite_7
+                        );
                         d_VPKToVPAlterArtikel.warning = !!d_VPKToVPAlterArtikel.limitType;
-                        d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning ? 'text_textzeil_nicht_vergleichbar' : null;
+                        d_VPKToVPAlterArtikel.textzeil = d_VPKToVPAlterArtikel.warning
+                            ? 'text_textzeil_nicht_vergleichbar'
+                            : null;
                     }
                 }
                 break;
@@ -505,17 +882,28 @@ function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPriceP
     } else {
         if (bag.preismeldung.bearbeitungscode === 2) {
             if (!bag.preismeldung.aktion) {
-                d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitNegativeLimite, bag.warenkorbPosition.negativeLimite, P.Models.limitPositiveLimite, bag.warenkorbPosition.positiveLimite);
+                d_DPToVPK.limitType = exceedsLimit(
+                    d_DPToVPK.percentage,
+                    P.Models.limitNegativeLimite,
+                    bag.warenkorbPosition.negativeLimite,
+                    P.Models.limitPositiveLimite,
+                    bag.warenkorbPosition.positiveLimite
+                );
                 d_DPToVPK.warning = !!d_DPToVPK.limitType;
                 d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
             } else {
-                d_DPToVPK.limitType = exceedsLimit(d_DPToVPK.percentage, P.Models.limitAbweichungPmUG2, bag.warenkorbPosition.abweichungPmUG2, P.Models.limitAbweichungPmOG2, bag.warenkorbPosition.abweichungPmOG2);
+                d_DPToVPK.limitType = exceedsLimit(
+                    d_DPToVPK.percentage,
+                    P.Models.limitAbweichungPmUG2,
+                    bag.warenkorbPosition.abweichungPmUG2,
+                    P.Models.limitAbweichungPmOG2,
+                    bag.warenkorbPosition.abweichungPmOG2
+                );
                 d_DPToVPK.warning = !!d_DPToVPK.limitType;
                 d_DPToVPK.textzeil = d_DPToVPK.warning ? 'text_textzeil_limitverletzung' : null;
             }
         }
     }
-
 
     const percentages: P.Models.PreismeldungPercentages = {
         d_DPToVP,
@@ -524,10 +912,18 @@ function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPriceP
         d_VPKToVPAlterArtikel,
         d_VPKToVPVorReduktion,
         d_DPVorReduktionToVPVorReduktion,
-        d_DPVorReduktionToVP
+        d_DPVorReduktionToVP,
     };
 
-    const warningPercentages = [d_DPToVP, d_DPToVPVorReduktion, d_DPToVPK, d_VPKToVPAlterArtikel, d_VPKToVPVorReduktion, d_DPVorReduktionToVPVorReduktion, d_DPVorReduktionToVP];
+    const warningPercentages = [
+        d_DPToVP,
+        d_DPToVPVorReduktion,
+        d_DPToVPK,
+        d_VPKToVPAlterArtikel,
+        d_VPKToVPVorReduktion,
+        d_DPVorReduktionToVPVorReduktion,
+        d_DPVorReduktionToVP,
+    ];
 
     const hasPriceWarning = warningPercentages.some(x => x.warning);
 
@@ -539,9 +935,16 @@ function createPercentages(bag: P.PreismeldungBag, payload: P.PreismeldungPriceP
 function createPriceCountStatuses(entities: { [pmsNummer: string]: PreismeldungBag }) {
     const preismeldungBags = keys(entities).map(id => entities[id]);
     return preismeldungBags.reduce((agg, preismeldungBag) => {
-        const numActivePrices = preismeldungBags.filter(b => b.preismeldung.epNummer === preismeldungBag.preismeldung.epNummer && b.preismeldung.bearbeitungscode !== 0).length;
+        const numActivePrices = preismeldungBags.filter(
+            b =>
+                b.preismeldung.epNummer === preismeldungBag.preismeldung.epNummer &&
+                b.preismeldung.bearbeitungscode !== 0
+        ).length;
         return assign(agg, {
-            [preismeldungBag.preismeldung.epNummer]: createPriceCountStatus(numActivePrices, preismeldungBag.warenkorbPosition.anzahlPreiseProPMS)
+            [preismeldungBag.preismeldung.epNummer]: createPriceCountStatus(
+                numActivePrices,
+                preismeldungBag.warenkorbPosition.anzahlPreiseProPMS
+            ),
         });
     }, {});
 }
@@ -551,25 +954,36 @@ function createPriceCountStatus(numActivePrices: number, anzahlPreiseProPMS: num
         numActivePrices,
         anzahlPreiseProPMS: anzahlPreiseProPMS,
         ok: numActivePrices === anzahlPreiseProPMS,
-        enough: numActivePrices >= anzahlPreiseProPMS
+        enough: numActivePrices >= anzahlPreiseProPMS,
     };
 }
 
 function createFehlendePreiseR(preismeldung: CurrentPreismeldungBag, payload: P.PreismeldungPricePayload) {
     return {
-        fehlendePreiseR: payload.bearbeitungscode === 101 ? (preismeldung.refPreismeldung.fehlendePreiseR || '') + 'R' : ''
+        fehlendePreiseR:
+            payload.bearbeitungscode === 101 ? (preismeldung.refPreismeldung.fehlendePreiseR || '') + 'R' : '',
     };
 }
 
-function createNewPriceCountStatus(bag: CurrentPreismeldungBag, originalPriceCountStatus: PriceCountStatus, payload: P.PreismeldungPricePayload) {
+function createNewPriceCountStatus(
+    bag: CurrentPreismeldungBag,
+    originalPriceCountStatus: PriceCountStatus,
+    payload: P.PreismeldungPricePayload
+) {
     let priceCountStatus = assign({}, bag.isNew ? bag.priceCountStatus : originalPriceCountStatus);
 
     if (bag.originalBearbeitungscode === 0 && payload.bearbeitungscode !== 0) {
-        priceCountStatus = createPriceCountStatus(originalPriceCountStatus.numActivePrices + 1, originalPriceCountStatus.anzahlPreiseProPMS);
+        priceCountStatus = createPriceCountStatus(
+            originalPriceCountStatus.numActivePrices + 1,
+            originalPriceCountStatus.anzahlPreiseProPMS
+        );
     }
 
     if (bag.originalBearbeitungscode !== 0 && payload.bearbeitungscode === 0) {
-        priceCountStatus = createPriceCountStatus(originalPriceCountStatus.numActivePrices - 1, originalPriceCountStatus.anzahlPreiseProPMS);
+        priceCountStatus = createPriceCountStatus(
+            originalPriceCountStatus.numActivePrices - 1,
+            originalPriceCountStatus.anzahlPreiseProPMS
+        );
     }
 
     return { priceCountStatus };
@@ -595,20 +1009,43 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung, isAdminA
         notiz,
         kommentarAutotext: kommentarResult.length === 2 ? kommentarResult[0].split(',') : [],
         kommentar: kommentarResult.length === 2 ? kommentarResult[1] : kommentar,
-        bemerkungenHistory: !bemerkungen || !last(bemerkungenResult).startsWith(prefix) ? bemerkungen || '' : initial(bemerkungenResult).join('\\n'),
-        bemerkungen: !bemerkungen || !last(bemerkungenResult).startsWith(prefix) ? '' : last(bemerkungenResult).substring(prefix.length),
+        bemerkungenHistory:
+            !bemerkungen || !last(bemerkungenResult).startsWith(prefix)
+                ? bemerkungen || ''
+                : initial(bemerkungenResult).join('\\n'),
+        bemerkungen:
+            !bemerkungen || !last(bemerkungenResult).startsWith(prefix)
+                ? ''
+                : last(bemerkungenResult).substring(prefix.length),
     };
 }
 
-const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) => messages.notiz !== '' || (messages.bemerkungenHistory !== '' && messages.bemerkungen === '');
+const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) =>
+    messages.notiz !== '' || (messages.bemerkungenHistory !== '' && messages.bemerkungen === '');
 
 const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenkorb) => {
     return !!productMerkmaleFromWarenkorb ? !productMerkmaleFromWarenkorb.every((x, i) => !!attributes[i]) : false;
 };
 
 function calcWarningAndTextzeile(bag: PreismeldungBag) {
-    const { d_DPToVP, d_DPToVPVorReduktion, d_DPToVPK, d_VPKToVPAlterArtikel, d_VPKToVPVorReduktion, d_DPVorReduktionToVPVorReduktion, d_DPVorReduktionToVP } = bag.preismeldung;
-    const warningPercentages = [d_DPToVP, d_DPToVPVorReduktion, d_DPToVPK, d_VPKToVPAlterArtikel, d_VPKToVPVorReduktion, d_DPVorReduktionToVPVorReduktion, d_DPVorReduktionToVP];
+    const {
+        d_DPToVP,
+        d_DPToVPVorReduktion,
+        d_DPToVPK,
+        d_VPKToVPAlterArtikel,
+        d_VPKToVPVorReduktion,
+        d_DPVorReduktionToVPVorReduktion,
+        d_DPVorReduktionToVP,
+    } = bag.preismeldung;
+    const warningPercentages = [
+        d_DPToVP,
+        d_DPToVPVorReduktion,
+        d_DPToVPK,
+        d_VPKToVPAlterArtikel,
+        d_VPKToVPVorReduktion,
+        d_DPVorReduktionToVPVorReduktion,
+        d_DPVorReduktionToVP,
+    ];
     const hasPriceWarning = warningPercentages.some(x => x.warning);
     const textzeile = uniq(warningPercentages.filter(x => !!x.textzeil).map(x => x.textzeil));
     return { hasPriceWarning, textzeile };
@@ -621,4 +1058,6 @@ export const getPriceCountStatuses = (state: State) => state.priceCountStatuses;
 export const getPreismeldungenCurrentPmsNummer = (state: State) => state.pmsNummer;
 export const getPreismeldungenStatus = (state: State) => state.status;
 
-export const getAll = createSelector(getEntities, getPreismeldungIds, (entities, preismeldungIds) => preismeldungIds.map(x => entities[x]));
+export const getAll = createSelector(getEntities, getPreismeldungIds, (entities, preismeldungIds) =>
+    preismeldungIds.map(x => entities[x])
+);

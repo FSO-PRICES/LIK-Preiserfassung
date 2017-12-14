@@ -15,9 +15,7 @@ export interface ErheberProperties {
     town: string;
 }
 
-export const pmsUriRoute = 'pms/:pmsNummer';
-export const pmsPreismeldungenSortUriRoute = 'pms-sort/:pmsNummer';
-export interface PmsUri {
+export interface PmsId {
     pmsNummer: string;
 }
 
@@ -63,10 +61,7 @@ export interface ErhebungsmonatProperties {
     monthAsString: string;
 }
 
-export const preismeldungReferenceUriRoute = 'pm-ref/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
-export const preismeldungUriRoute = 'pm/:pmsNummer/ep/:epNummer/lauf/:laufnummer';
-export const preismeldungPmsPrefixUriRoute = 'pm/:pmsNummer';
-export interface PreismeldungUri {
+export interface PreismeldungId {
     pmsNummer: string;
     epNummer: string;
     laufnummer: string;
@@ -107,7 +102,7 @@ interface _PreismeldungReferenceProperties {
     bemerkungen: string;
 }
 
-export type PreismeldungReferenceProperties = PreismeldungUri & _PreismeldungReferenceProperties;
+export type PreismeldungReferenceProperties = PreismeldungId & _PreismeldungReferenceProperties;
 
 export type Bearbeitungscode = 0 | 1 | 2 | 3 | 7 | 44 | 99 | 101;
 export const bearbeitungscodeDescriptions = {
@@ -118,7 +113,7 @@ export const bearbeitungscodeDescriptions = {
     7: '7',
     44: 'S',
     99: '99',
-    101: 'R'
+    101: 'R',
 };
 
 export type Erhebungszeitpunkt = 1 | 2 | 10 | 20 | 99;
@@ -188,7 +183,6 @@ export type LimitType =
     | typeof limitNegativeLimite_7
     | typeof limitPositiveLimite_7;
 
-
 export interface PercentageWithWarning {
     percentage: number;
     warning: boolean;
@@ -196,7 +190,7 @@ export interface PercentageWithWarning {
     textzeil: string;
 }
 
-export type PreismeldungProperties = PreismeldungUri & _PreismeldungProperties;
+export type PreismeldungProperties = PreismeldungId & _PreismeldungProperties;
 
 export type DbErhebungsorgannummerProperties = { value: string };
 
@@ -216,7 +210,7 @@ export type Erheber = ErheberProperties & CouchProperties;
 export type PreismeldungReference = PreismeldungReferenceProperties & CouchProperties;
 export type Preismeldung = PreismeldungProperties & CouchProperties;
 
-export type PmsToPeMap = { erheber: Erheber, preismeldestellen: Preismeldestelle[] }[];
+export type PmsToPeMap = { erheber: Erheber; preismeldestellen: Preismeldestelle[] }[];
 
 export interface PropertyTranslation {
     de: string;
@@ -257,7 +251,7 @@ export enum PeriodizitaetMonat {
     September = 1 << 8,
     Oktober = 1 << 9,
     November = 1 << 10,
-    Dezember = 1 << 11
+    Dezember = 1 << 11,
 }
 
 export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
@@ -283,7 +277,9 @@ export interface WarenkorbLeaf extends WarenkorbTreeItemBase {
 
 export type WarenkorbTreeItem = WarenkorbBranch | WarenkorbLeaf;
 
-export type WarenkorbHierarchicalTreeItem = (WarenkorbBranch & { children: WarenkorbHierarchicalTreeItem[] }) | WarenkorbLeaf;
+export type WarenkorbHierarchicalTreeItem =
+    | (WarenkorbBranch & { children: WarenkorbHierarchicalTreeItem[] })
+    | WarenkorbLeaf;
 
 export interface WarenkorbDocumentProperties {
     products: WarenkorbTreeItem[];
@@ -292,8 +288,8 @@ export interface WarenkorbDocumentProperties {
 export type WarenkorbDocument = WarenkorbDocumentProperties & CouchProperties;
 
 export interface CouchSecurity {
-    admins?: { names?: string[], roles?: string[] };
-    members?: { names?: string[], roles?: string[] };
+    admins?: { names?: string[]; roles?: string[] };
+    members?: { names?: string[]; roles?: string[] };
 }
 
 export interface PreiszuweisungProperties {
@@ -326,10 +322,10 @@ export interface LanguageDictionary {
 }
 
 export const Languages: LanguageDictionary = {
-    'Deutsch': { languageCode: 'de', name: 'Deutsch' },
-    'Französisch': { languageCode: 'fr', name: 'Französisch' },
-    'Italienisch': { languageCode: 'it', name: 'Italienisch' },
-    'Englisch': { languageCode: 'en', name: 'Englisch' }
+    Deutsch: { languageCode: 'de', name: 'Deutsch' },
+    Französisch: { languageCode: 'fr', name: 'Französisch' },
+    Italienisch: { languageCode: 'it', name: 'Italienisch' },
+    Englisch: { languageCode: 'en', name: 'Englisch' },
 };
 
 export interface LastSyncedAtProperties {
@@ -361,12 +357,12 @@ export interface Preissubsystem {
 }
 
 export interface Erhebungsart {
-    erhebungsart_tablet: boolean,
-    erhebungsart_telefon: boolean,
-    erhebungsart_email: boolean,
-    erhebungsart_internet: boolean,
-    erhebungsart_papierlisteVorOrt: boolean,
-    erhebungsart_papierlisteAbgegeben: boolean
+    erhebungsart_tablet: boolean;
+    erhebungsart_telefon: boolean;
+    erhebungsart_email: boolean;
+    erhebungsart_internet: boolean;
+    erhebungsart_papierlisteVorOrt: boolean;
+    erhebungsart_papierlisteAbgegeben: boolean;
 }
 
 export interface LastImportAtProperties {
