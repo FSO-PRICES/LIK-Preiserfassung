@@ -73,7 +73,6 @@ export class PreismeldungenEffects {
                 }));
 
             const pmsPreismeldungenSort = x.pmsPreismeldungenSort || { _id: P.pmsSortId(x.pmsNummer), _rev: null };
-            console.log('asdf', pmsPreismeldungenSort, x.pmsNummer);
 
             if (missingPreismeldungs.length === 0) {
                 return Promise.resolve(x);
