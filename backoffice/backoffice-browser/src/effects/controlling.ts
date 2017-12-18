@@ -63,7 +63,7 @@ export class ControllingEffects {
                     )
                         .map(refPreismeldungen => ({ controllingType: action.payload, data: { refPreismeldungen } }))
                         .flatMap(({ controllingType, data }) =>
-                            getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungRefId()).map(
+                            getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).map(
                                 preismeldungen => ({
                                     controllingType,
                                     data: { ...data, preismeldungen },
