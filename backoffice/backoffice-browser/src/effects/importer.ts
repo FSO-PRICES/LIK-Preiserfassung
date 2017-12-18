@@ -116,6 +116,7 @@ export class ImporterEffects {
                     .flatMap(actions => this.updateImportMetadata(null, importer.Type.all_data).map(() => actions))
                     .do(x => console.log('5. LOADLATESTIMPORTEDAT'))
                     .flatMap(actions => this.loadLatestImportedAt().map(action => [action, ...actions]))
+                    .flatMap(actions => loaderhebungsMonateAction().then(action => [action, ...actions]))
                     .do(x => console.log('6. ACTIONS', x))
                     .flatMap(actions => actions)
             )
@@ -131,22 +132,7 @@ export class ImporterEffects {
     loadErhebungsmonate$ = this.actions$
         .ofType('LOAD_ERHEBUNGSMONATE')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() =>
-            getDatabaseAsObservable(dbNames.warenkorb)
-                .flatMap(db => this.getErhebungsmonatDocument(db))
-                .map(warenkorbErhebungsmonat => ({ warenkorbErhebungsmonat }))
-        )
-        .flatMap(data =>
-            getDatabaseAsObservable(dbNames.preismeldestelle)
-                .flatMap(db => this.getErhebungsmonatDocument(db))
-                .map(preismeldestellenErhebungsmonat => assign({}, data, { preismeldestellenErhebungsmonat }))
-        )
-        .flatMap(data =>
-            getDatabaseAsObservable(dbNames.preismeldung)
-                .flatMap(db => this.getErhebungsmonatDocument(db))
-                .map(preismeldungenErhebungsmonat => assign({}, data, { preismeldungenErhebungsmonat }))
-        )
-        .map(payload => ({ type: 'LOAD_ERHEBUNGSMONATE_SUCCESS', payload }));
+        .flatMap(() => loaderhebungsMonateAction());
 
     private updateImportMetadata(dbName: string, importerType: string) {
         return this.loggedInUser$
@@ -161,12 +147,6 @@ export class ImporterEffects {
                         .then(_rev => db.put({ latestImportAt: new Date().valueOf(), _id: importerType, _rev }))
                 )
             );
-    }
-
-    private getErhebungsmonatDocument(db: PouchDB.Database<{}>) {
-        return getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat')
-            .then(doc => doc.monthAsString)
-            .catch(() => null);
     }
 
     private importPreismeldungen(parsedPreismeldungen: string[][]) {
@@ -278,5 +258,36 @@ export class ImporterEffects {
                 latestImportedAtList =>
                     ({ type: 'LOAD_LATEST_IMPORTED_AT_SUCCESS', payload: latestImportedAtList } as importer.Action)
             );
+    }
+}
+
+async function loaderhebungsMonateAction() {
+    const payload = await loaderhebungsMonate();
+    return { type: 'LOAD_ERHEBUNGSMONATE_SUCCESS', payload };
+}
+
+async function loaderhebungsMonate() {
+    const warenkorbDb = await getDatabase(dbNames.warenkorb);
+    const warenkorbErhebungsmonat = await getErhebungsmonatDocument(warenkorbDb);
+
+    const preismeldestelleDb = await getDatabase(dbNames.preismeldestelle);
+    const preismeldestellenErhebungsmonat = await getErhebungsmonatDocument(preismeldestelleDb);
+
+    const preismeldungDb = await getDatabase(dbNames.preismeldung);
+    const preismeldungenErhebungsmonat = await getErhebungsmonatDocument(preismeldungDb);
+
+    return {
+        warenkorbErhebungsmonat,
+        preismeldestellenErhebungsmonat,
+        preismeldungenErhebungsmonat,
+    };
+}
+
+async function getErhebungsmonatDocument(db: PouchDB.Database<{}>) {
+    try {
+        const doc = await getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat');
+        return doc.monthAsString;
+    } catch (err) {
+        return null;
     }
 }
