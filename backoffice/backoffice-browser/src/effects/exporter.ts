@@ -87,9 +87,13 @@ export class ExporterEffects {
                                     resetAndContinueWith(
                                         { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
                                         doAsyncAsObservable(() => {
-                                            const content = toCsv(
-                                                preparePmForExport(filteredPreismeldungen, erhebungsmonat.monthAsString)
-                                            );
+                                            const content =
+                                                toCsv(
+                                                    preparePmForExport(
+                                                        filteredPreismeldungen,
+                                                        erhebungsmonat.monthAsString
+                                                    )
+                                                ) + '\n';
                                             const count = filteredPreismeldungen.length;
                                             const envelope = createEnvelope(MessageTypes.Preismeldungen, messageId);
 
@@ -142,9 +146,10 @@ export class ExporterEffects {
                             resetAndContinueWith(
                                 { type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
-                                    const content = toCsv(
-                                        preparePmsForExport(updatedPreismeldestellen, erhebungsmonat.monthAsString)
-                                    );
+                                    const content =
+                                        toCsv(
+                                            preparePmsForExport(updatedPreismeldestellen, erhebungsmonat.monthAsString)
+                                        ) + '\n';
                                     const count = updatedPreismeldestellen.length;
                                     const envelope = createEnvelope(MessageTypes.Preismeldestellen);
 
@@ -193,13 +198,14 @@ export class ExporterEffects {
                             resetAndContinueWith(
                                 { type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
-                                    const content = toCsv(
-                                        preparePreiserheberForExport(
-                                            peZuweisungen,
-                                            erhebungsmonat.monthAsString,
-                                            erhebungsorgannummer
-                                        )
-                                    );
+                                    const content =
+                                        toCsv(
+                                            preparePreiserheberForExport(
+                                                peZuweisungen,
+                                                erhebungsmonat.monthAsString,
+                                                erhebungsorgannummer
+                                            )
+                                        ) + '\n';
                                     const count = peZuweisungen.length;
                                     const envelope = createEnvelope(MessageTypes.Preiserheber);
 
