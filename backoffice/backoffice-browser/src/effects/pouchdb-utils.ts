@@ -23,15 +23,22 @@ export const dbNames = {
     orphaned_erfasste_preismeldungen: 'orphaned_erfasste_preismeldungen',
     preismeldung: 'preismeldungen',
     setting: 'settings',
-    import: 'imports'
+    import: 'imports',
+    exports: 'exports',
 };
 
 dropLocalDatabase(dbNames.emptyDb);
 
 export function createOrUpdateUser(erheber: P.Erheber, password: string) {
     return getDatabaseAsObservable('_users')
-        .flatMap(db => db.get(`org.couchdb.user:${erheber.username}`).then(() => true).catch(() => false).then(userExists => ({ db, userExists })))
-        .flatMap(x => x.userExists ? updateUser(erheber, password) : createUser(erheber, password));
+        .flatMap(db =>
+            db
+                .get(`org.couchdb.user:${erheber.username}`)
+                .then(() => true)
+                .catch(() => false)
+                .then(userExists => ({ db, userExists }))
+        )
+        .flatMap(x => (x.userExists ? updateUser(erheber, password) : createUser(erheber, password)));
 }
 
 function createUser(erheber: P.Erheber, password: string) {
@@ -48,9 +55,10 @@ export function updateUser(erheber: P.Erheber, password: string) {
 }
 
 export function deleteUser(username: string) {
-    return getDatabase('_users').then((db: any) =>
-        db.get(`org.couchdb.user:${username}`).then(doc => db.remove(doc))
-    ).then(() => true).catch(() => false);
+    return getDatabase('_users')
+        .then((db: any) => db.get(`org.couchdb.user:${username}`).then(doc => db.remove(doc)))
+        .then(() => true)
+        .catch(() => false);
 }
 
 export function putAdminUserToDatabase(dbName, username: string) {
@@ -59,15 +67,17 @@ export function putAdminUserToDatabase(dbName, username: string) {
 
 export function putUserToDatabase(dbName, users: P.CouchSecurity) {
     return Observable.fromPromise(
-        getSettings().then(settings => Observable.ajax({
-            url: `${settings.serverConnection.url}/${dbName}/_security`,
-            body: users,
-            headers: { 'Content-Type': 'application/json' },
-            crossDomain: true,
-            withCredentials: true,
-            responseType: 'json',
-            method: 'PUT'
-        }))
+        getSettings().then(settings =>
+            Observable.ajax({
+                url: `${settings.serverConnection.url}/${dbName}/_security`,
+                body: users,
+                headers: { 'Content-Type': 'application/json' },
+                crossDomain: true,
+                withCredentials: true,
+                responseType: 'json',
+                method: 'PUT',
+            })
+        )
     ).flatMap(x => x);
 }
 
@@ -84,7 +94,7 @@ export function getLocalDatabase(dbName) {
 export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWithinRangeOptions {
     return {
         startkey: `${prefix}`,
-        endkey: `${prefix}\uffff`
+        endkey: `${prefix}\uffff`,
     };
 }
 
@@ -93,24 +103,35 @@ export function getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.D
 }
 
 export function getAllDocumentsFromDbName<T extends P.CouchProperties>(dbName: string): Observable<T[]> {
-    return getDatabaseAsObservable(dbName)
-        .flatMap(db => getAllDocumentsFromDb<T>(db));
+    return getDatabaseAsObservable(dbName).flatMap(db => getAllDocumentsFromDb<T>(db));
 }
 
-export function getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, prefix: string): Promise<T[]> {
-    return db.allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix))).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
+export function getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(
+    db: PouchDB.Database<{}>,
+    prefix: string
+): Promise<T[]> {
+    return db
+        .allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix)))
+        .then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
 export function getAllIdRevsForPrefixFromDb(db: PouchDB.Database<{}>, prefix: string): Promise<P.CouchProperties[]> {
-    return db.allDocs(getAllDocumentsForPrefix(prefix)).then(x => x.rows.map(row => ({ _id: row.id, _rev: row.value.rev })));
+    return db
+        .allDocs(getAllDocumentsForPrefix(prefix))
+        .then(x => x.rows.map(row => ({ _id: row.id, _rev: row.value.rev })));
 }
 
-export function getAllDocumentsForPrefixFromDbName<T extends P.CouchProperties>(dbName: string, prefix: string): Observable<T[]> {
-    return getDatabaseAsObservable(dbName)
-        .flatMap(db => getAllDocumentsForPrefixFromDb<T>(db, prefix));
+export function getAllDocumentsForPrefixFromDbName<T extends P.CouchProperties>(
+    dbName: string,
+    prefix: string
+): Observable<T[]> {
+    return getDatabaseAsObservable(dbName).flatMap(db => getAllDocumentsForPrefixFromDb<T>(db, prefix));
 }
 
-export function getAllDocumentsForKeysFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>, keys: string[]): Promise<T[]> {
+export function getAllDocumentsForKeysFromDb<T extends P.CouchProperties>(
+    db: PouchDB.Database<{}>,
+    keys: string[]
+): Promise<T[]> {
     return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
 }
 
@@ -122,29 +143,41 @@ export function clearRev<T>(o: any): T {
     return assign({}, o, { _rev: undefined }) as T;
 }
 
-export const checkIfDatabaseExists = (dbName) => _checkIfDatabaseExists(dbName);
+export const checkIfDatabaseExists = dbName => _checkIfDatabaseExists(dbName);
 
-export function dropDatabase(dbName) {
-    return getCouchDb(dbName).then(db => db.destroy().then(() => true).catch(() => false));
+export function dropRemoteCouchDatabase(dbName) {
+    return getCouchDb(dbName).then(db =>
+        db
+            .destroy()
+            .then(() => true)
+            .catch(() => false)
+    );
 }
 
 export function dropLocalDatabase(dbName) {
-    return getLocalCouchDb(dbName).then(db => db.destroy().then(() => true).catch(() => false));
+    return getLocalCouchDb(dbName).then(db =>
+        db
+            .destroy()
+            .then(() => true)
+            .catch(() => false)
+    );
 }
 
 function getCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
-    return getSettings().then(settings => {
-        const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
-        return Promise.resolve(couch);
-    }).catch(err => new PouchDB(dbNames.emptyDb));
+    return getSettings()
+        .then(settings => {
+            const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
+            return Promise.resolve(couch);
+        })
+        .catch(err => new PouchDB(dbNames.emptyDb));
 }
 
 function getLocalCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
     return Promise.resolve(new PouchDB(dbName));
 }
 
-export function syncDb(dbName: string) {
-    return dropDatabase(dbName).then(() => {
+export function dropRemoteCouchDatabaseAndSyncLocalToRemote(dbName: string) {
+    return dropRemoteCouchDatabase(dbName).then(() => {
         return getSettings().then(settings => {
             console.log('DEBUG: SETTINGS:', settings);
             const pouch = new PouchDB(`${dbName}`);
@@ -155,61 +188,65 @@ export function syncDb(dbName: string) {
 }
 
 function _checkIfDatabaseExists(dbName) {
-    return getDatabase(dbName).then(() => true).catch(() => false);
+    return getDatabase(dbName)
+        .then(() => true)
+        .catch(() => false);
 }
 
 export function getSettings() {
-    return getLocalDatabase(dbNames.setting).then(db => db.allDocs(Object.assign({}, { include_docs: true })).then(res => first(res.rows.map(y => y.doc)) as P.Setting));
+    return getLocalDatabase(dbNames.setting).then(db =>
+        db.allDocs(Object.assign({}, { include_docs: true })).then(res => first(res.rows.map(y => y.doc)) as P.Setting)
+    );
 }
 
 export function isLoginExpired(expirationTime: number) {
     const lastLoginTime = localStorage.getItem('couchdb_lastLoginTime');
-    return true || !lastLoginTime || (+ new Date()) > parseInt(lastLoginTime, 10) + expirationTime;
+    return true || !lastLoginTime || +new Date() > parseInt(lastLoginTime, 10) + expirationTime;
 }
 
 function setCouchLoginTime(timestamp: number) {
     return localStorage.setItem('couchdb_lastLoginTime', timestamp.toString());
 }
 
-export function loginToDatabase(credentials: { username: string, password: string }): Promise<PouchDB.Database<{}>> {
+export function loginToDatabase(credentials: { username: string; password: string }): Promise<PouchDB.Database<{}>> {
     return getSettings().then(settings => {
         const couch = new PouchDB(`${settings.serverConnection.url}/${dbNames.users}`);
         const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
 
         return login(credentials.username, credentials.password).then(x => {
-            setCouchLoginTime(+ new Date());
+            setCouchLoginTime(+new Date());
             return couch;
         }) as any;
     });
 }
 
 export function checkServerConnection() {
-    return Observable.fromPromise(getSettings())
-        .flatMap(settings => Observable.ajax({
+    return Observable.fromPromise(getSettings()).flatMap(settings =>
+        Observable.ajax({
             url: settings.serverConnection.url,
             method: 'GET',
-            crossDomain: true
-        }));
+            crossDomain: true,
+        })
+    );
 }
 
 export function listAllDatabases() {
-    return Observable.fromPromise(getSettings())
-        .flatMap(settings => Observable
-            .ajax({
-                url: `${settings.serverConnection.url}/_all_dbs`,
-                headers: { 'Content-Type': 'application/json' },
-                crossDomain: true,
-                withCredentials: true,
-                responseType: 'json',
-                method: 'GET'
-            }).map(x => x.response as string[])
-            .catch((error) => Observable.of(<string[]>[]))
-        );
+    return Observable.fromPromise(getSettings()).flatMap(settings =>
+        Observable.ajax({
+            url: `${settings.serverConnection.url}/_all_dbs`,
+            headers: { 'Content-Type': 'application/json' },
+            crossDomain: true,
+            withCredentials: true,
+            responseType: 'json',
+            method: 'GET',
+        })
+            .map(x => x.response as string[])
+            .catch(error => Observable.of(<string[]>[]))
+    );
 }
 
 export function listUserDatabases() {
-    return listAllDatabases()
-        .map((dbs: string[]) => dbs.filter(n => n.startsWith('user_')));
+    return listAllDatabases().map((dbs: string[]) => dbs.filter(n => n.startsWith('user_')));
 }
 
 export function getUserDatabaseName(preiserheberId: string) {

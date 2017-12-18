@@ -12,7 +12,7 @@ import {
 } from 'lik-shared';
 
 import {
-    dropDatabase,
+    dropRemoteCouchDatabase,
     getDatabase,
     putUserToDatabase,
     dbNames,

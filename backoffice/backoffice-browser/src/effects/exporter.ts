@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
-import { assign, keyBy, orderBy } from 'lodash';
+import { assign, keyBy, orderBy, flatten } from 'lodash';
 
 import { Models as P, preismeldestelleId, preismeldungId, preismeldungRefId, pmsSortId } from 'lik-shared';
 
@@ -21,7 +21,7 @@ import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport }
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
 import { loadAllPreismeldestellen, loadAllPreismeldungen, loadAllPreiserheber } from '../common/user-db-values';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
-import { createEnvelope, MessageTypes } from '../common/envelope-extensions';
+import { createEnvelope, MessageTypes, createMesageId } from '../common/envelope-extensions';
 import { Observable } from 'rxjs/Observable';
 
 @Injectable()
@@ -34,51 +34,87 @@ export class ExporterEffects {
     exportPreismeldungen$ = this.actions$
         .ofType('EXPORT_PREISMELDUNGEN')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => loadAllPreismeldungen())
-        .flatMap(preismeldungen =>
-            getDatabaseAsObservable(dbNames.warenkorb)
-                .flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>)
-                .map(warenkorbDoc => ({ preismeldungen, warenkorbDoc }))
-        )
-        .map(x =>
-            orderBy(x.preismeldungen.filter(pm => pm.istAbgebucht), [
-                pm => x.warenkorbDoc.products.findIndex(p => pm.epNummer === p.gliederungspositionsnummer),
-                pm => +pm.pmsNummer,
-                pm => +pm.laufnummer,
-            ])
-        )
-        .flatMap(preismeldungen => {
-            if (preismeldungen.length === 0) throw new Error('Keine abgebuchte preismeldungen vorhanden.');
-            return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
-                .flatMap(db =>
-                    getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(
-                        erhebungsmonat => erhebungsmonat
-                    )
-                )
-                .flatMap(erhebungsmonat =>
-                    resetAndContinueWith(
-                        { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
-                        doAsyncAsObservable(() => {
-                            const content = toCsv(preparePmForExport(preismeldungen, erhebungsmonat.monthAsString));
-                            const count = preismeldungen.length;
-                            const envelope = createEnvelope(MessageTypes.Preismeldungen);
-
-                            FileSaver.saveAs(
-                                new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
-                                `envl_${envelope.fileSuffix}.xml`
-                            );
-                            FileSaver.saveAs(
-                                new Blob([content], { type: 'text/csv;charset=utf-8' }),
-                                `data_${envelope.fileSuffix}.txt`
-                            );
-
-                            return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
+        .flatMap(() =>
+            resetAndContinueWith(
+                { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
+                loadAllPreismeldungen().flatMap(preismeldungen =>
+                    getDatabaseAsObservable(dbNames.warenkorb)
+                        .flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>)
+                        .flatMap(warenkorbDoc => {
+                            return getDatabaseAsObservable(dbNames.exports)
+                                .flatMap(db => db.allDocs({ include_docs: true }))
+                                .map(x => {
+                                    const alreadyExportedPreismeldungIds = flatten(
+                                        x.rows.map((row: any) => (row.doc.preismeldungIds as any[]) || [])
+                                    );
+                                    const preismeldungenToExport = preismeldungen.filter(
+                                        pm => pm.istAbgebucht && !alreadyExportedPreismeldungIds.some(y => y === pm._id)
+                                    );
+                                    if (preismeldungenToExport.length === 0)
+                                        throw new Error('Keine neue abgebuchte Preismeldungen vorhanden.');
+                                    return orderBy(preismeldungenToExport, [
+                                        pm =>
+                                            warenkorbDoc.products.findIndex(
+                                                p => pm.epNummer === p.gliederungspositionsnummer
+                                            ),
+                                        pm => +pm.pmsNummer,
+                                        pm => +pm.laufnummer,
+                                    ]);
+                                });
                         })
-                    )
-                );
-        })
-        .catch(error =>
-            Observable.of({ type: 'EXPORT_PREISMELDUNGEN_FAILURE', payload: error.message } as exporter.Action)
+                        .flatMap(filteredPreismeldungen => {
+                            return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
+                                .flatMap(db =>
+                                    getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(
+                                        erhebungsmonat => erhebungsmonat
+                                    )
+                                )
+                                .flatMap(erhebungsmonat => {
+                                    const messageId = createMesageId();
+                                    return getDatabaseAsObservable(dbNames.exports)
+                                        .flatMap(db => {
+                                            const now = Date.now();
+                                            return db.put({
+                                                _id: now.toString(),
+                                                ts: new Date(now),
+                                                messageId,
+                                                preismeldungIds: filteredPreismeldungen.map(x => x._id),
+                                            });
+                                        })
+                                        .map(() => ({ erhebungsmonat, messageId }));
+                                })
+                                .flatMap(({ erhebungsmonat, messageId }) =>
+                                    resetAndContinueWith(
+                                        { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
+                                        doAsyncAsObservable(() => {
+                                            const content = toCsv(
+                                                preparePmForExport(filteredPreismeldungen, erhebungsmonat.monthAsString)
+                                            );
+                                            const count = filteredPreismeldungen.length;
+                                            const envelope = createEnvelope(MessageTypes.Preismeldungen, messageId);
+
+                                            FileSaver.saveAs(
+                                                new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
+                                                `envl_${envelope.fileSuffix}.xml`
+                                            );
+                                            FileSaver.saveAs(
+                                                new Blob([content], { type: 'text/csv;charset=utf-8' }),
+                                                `data_${envelope.fileSuffix}.txt`
+                                            );
+
+                                            return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
+                                        })
+                                    )
+                                );
+                        })
+                        .catch(error =>
+                            Observable.of({
+                                type: 'EXPORT_PREISMELDUNGEN_FAILURE',
+                                payload: error.message,
+                            } as exporter.Action)
+                        )
+                )
+            )
         );
 
     @Effect()
