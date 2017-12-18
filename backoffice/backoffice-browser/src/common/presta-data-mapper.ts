@@ -213,11 +213,15 @@ export function preparePmForExport(
             Menge_T: toDecimal(pm.menge, 10, 3, 'Menge_T'),
             Preis_VPK: toDecimal(pm.preisVPK, 12, 4, 'Preis_VPK'), // TODO: depending on actioncode #97
             Menge_VPK: toDecimal(pm.mengeVPK, 10, 3, 'Menge_VPK'),
-            Bearbeitungscode: toNumber(pm.bearbeitungscode, 3, 'Bearbeitungscode'),
+            Bearbeitungscode: excludeBearbeitungscode(toNumber(pm.bearbeitungscode, 3, 'Bearbeitungscode')),
             Aktionscode: !pm.aktion ? 0 : 1,
             Preisbezeichnung: toText(pm.artikeltext, 200, 'Preisbezeichnung'),
             Artikelnummer: toText(pm.artikelnummer, 30, 'Artikelnummer'),
-            Fehlende_Preise: toText(pm.fehlendePreiseR, 24, 'Fehlende_Preise'),
+            Fehlende_Preise: toText(
+                pm.fehlendePreiseR || (pm.bearbeitungscode === 44 ? 'S' : null),
+                24,
+                'Fehlende_Preise'
+            ),
             PE_Notiz: toText(pm.notiz, 4000, 'PE_Notiz'),
             PE_Kommentar: toText(pm.kommentar, 4000, 'PE_Kommentar'),
             Bemerkungen: toText(pm.bemerkungen, 4000, 'Bemerkungen'),
@@ -308,6 +312,9 @@ export function preparePreiserheberForExport(
         }))
     );
 }
+
+const excludeBearbeitungscode = (bearbeitungscode: number) =>
+    [99, 101, 44].some(x => x === bearbeitungscode) ? null : bearbeitungscode;
 
 function toNumber(value: any, maxLength: number, propertyName: string) {
     // The simple comparison is being used to compare against undefined too.
