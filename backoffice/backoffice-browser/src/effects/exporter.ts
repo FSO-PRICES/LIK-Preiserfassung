@@ -69,7 +69,7 @@ export class ExporterEffects {
                             );
                             FileSaver.saveAs(
                                 new Blob([content], { type: 'text/csv;charset=utf-8' }),
-                                `data_${envelope.fileSuffix}.csv`
+                                `data_${envelope.fileSuffix}.txt`
                             );
 
                             return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
@@ -118,7 +118,7 @@ export class ExporterEffects {
                                     );
                                     FileSaver.saveAs(
                                         new Blob([content], { type: 'text/csv;charset=utf-8' }),
-                                        `data_${envelope.fileSuffix}.csv`
+                                        `data_${envelope.fileSuffix}.txt`
                                     );
 
                                     return { type: 'EXPORT_PREISMELDESTELLEN_SUCCESS', payload: count };
@@ -173,7 +173,7 @@ export class ExporterEffects {
                                     );
                                     FileSaver.saveAs(
                                         new Blob([content], { type: 'text/csv;charset=utf-8' }),
-                                        `data_${envelope.fileSuffix}.csv`
+                                        `data_${envelope.fileSuffix}.txt`
                                     );
 
                                     return { type: 'EXPORT_PREISERHEBER_SUCCESS', payload: count };
