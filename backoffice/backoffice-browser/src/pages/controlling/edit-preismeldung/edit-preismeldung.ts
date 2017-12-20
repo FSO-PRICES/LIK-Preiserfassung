@@ -6,13 +6,14 @@ import * as P from '../../../common-models';
 
 @Component({
     selector: 'edit-preismeldung',
-    templateUrl: 'edit-preismeldung.html'
+    templateUrl: 'edit-preismeldung.html',
 })
 export class EditPreismeldungComponent extends ReactiveComponent implements OnChanges {
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
     @Input() warenkorb: P.fromWarenkorb.WarenkorbInfo[];
     @Output('updatePreismeldungPreis') updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
-    @Output('updatePreismeldungMessages') updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
+    @Output('updatePreismeldungMessages')
+    updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     @Output('updatePreismeldungAttributes') updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     @Output('savePreismeldungMessages') savePreismeldungMessages$: Observable<{}>;
     @Output('savePreismeldungAttributes') savePreismeldungAttributes$: Observable<{}>;
@@ -34,32 +35,48 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
         super();
 
         this.selectedTab$ = this.selectTab$
-            .merge(this.savePreismeldungPrice$.filter(x => x.type === 'NO_SAVE_NAVIGATE' || x.type === 'SAVE_AND_NAVIGATE_TAB').map((x: P.SavePreismeldungPriceSaveActionNoSaveNavigate | P.SavePreismeldungPriceSaveActionSaveNavigateTab) => x.tabName))
+            .merge(
+                this.savePreismeldungPrice$
+                    .filter(x => x.type === 'NO_SAVE_NAVIGATE' || x.type === 'SAVE_AND_NAVIGATE_TAB')
+                    .map(
+                        (
+                            x:
+                                | P.SavePreismeldungPriceSaveActionNoSaveNavigate
+                                | P.SavePreismeldungPriceSaveActionSaveNavigateTab
+                        ) => x.tabName
+                    )
+            )
             .startWith('PREISMELDUNG')
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         const tabPair$ = this.selectedTab$
             .scan((agg, v) => ({ from: agg.to, to: v }), { from: null, to: null })
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         const createTabLeaveObservable = (tabName: string) =>
             tabPair$
                 .filter(x => x.from === tabName)
-                .merge(this._closeClicked$.withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName));
+                .merge(
+                    this._closeClicked$.withLatestFrom(tabPair$, (_, tabPair) => tabPair).filter(x => x.to === tabName)
+                );
 
         this.savePreismeldungMessages$ = createTabLeaveObservable('MESSAGES')
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
-            .filter(currentPreismeldung => !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isMessagesModified);
+            .filter(
+                currentPreismeldung =>
+                    !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isMessagesModified
+            );
 
         this.savePreismeldungAttributes$ = createTabLeaveObservable('PRODUCT_ATTRIBUTES')
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
-            .filter(currentPreismeldung => !currentPreismeldung.isNew && currentPreismeldung.isAttributesModified)
+            .filter(currentPreismeldung => !currentPreismeldung.isNew && currentPreismeldung.isAttributesModified);
 
-        this.closeClicked$ = this._closeClicked$.delay(500);
+        this.closeClicked$ = this._closeClicked$;
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
-
 }

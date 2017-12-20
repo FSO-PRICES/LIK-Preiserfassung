@@ -9,11 +9,11 @@ import * as fromRoot from '../../reducers';
 import { IonicPage } from 'ionic-angular';
 
 @IonicPage({
-    segment: 'controlling'
+    segment: 'controlling',
 })
 @Component({
     selector: 'controlling-page',
-    templateUrl: 'controlling.html'
+    templateUrl: 'controlling.html',
 })
 export class ControllingPage implements OnDestroy {
     public runStichtageReport$ = new EventEmitter();
@@ -40,20 +40,42 @@ export class ControllingPage implements OnDestroy {
     private onDestroy$ = new EventEmitter();
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: P.PefDialogService) {
-        this.stichtageReportExecuting$ = this.runStichtageReport$.mapTo(true)
-            .merge(this.runStichtageReport$.flatMap(() => Observable.defer(() => this.stichtagPreismeldungenUpdated$.skip(1).take(1))).mapTo(false))
+        this.stichtageReportExecuting$ = this.runStichtageReport$
+            .mapTo(true)
+            .merge(
+                this.runStichtageReport$
+                    .flatMap(() => Observable.defer(() => this.stichtagPreismeldungenUpdated$.skip(1).take(1)))
+                    .mapTo(false)
+            )
             .startWith(false)
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         this.numStichtagPreismeldungenUpdated$ = this.runStichtageReport$
-            .merge(this.runStichtageReport$.flatMap(() => Observable.defer(() => this.stichtagPreismeldungenUpdated$.skip(1).take(1).map(x => x.length))))
+            .merge(
+                this.runStichtageReport$.flatMap(() =>
+                    Observable.defer(() =>
+                        this.stichtagPreismeldungenUpdated$
+                            .skip(1)
+                            .take(1)
+                            .map(x => x.length)
+                    )
+                )
+            )
             .startWith(null)
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
-        this.stichtageReportExecuting$.filter(x => !!x).map(() => this.stichtageReportExecuting$.filter(x => !x).take(1))
-            .merge(this.controllingReportExecuting$.filter(x => !!x).map(() => this.controllingReportExecuting$.filter(x => !x).take(1)))
+        this.stichtageReportExecuting$
+            .filter(x => !!x)
+            .map(() => this.stichtageReportExecuting$.filter(x => !x).take(1))
+            .merge(
+                this.controllingReportExecuting$
+                    .filter(x => !!x)
+                    .map(() => this.controllingReportExecuting$.filter(x => !x).take(1))
+            )
             .takeUntil(this.onDestroy$)
-            .subscribe(x => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', x))
+            .subscribe(x => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', x));
 
         this.runStichtageReport$
             .takeUntil(this.onDestroy$)
@@ -100,6 +122,10 @@ export class ControllingPage implements OnDestroy {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'RUN_PRE-CONTROLLING_TASKS' });
         this.store.dispatch(controlling.createClearControllingAction());
+    }
+
+    public ionViewDidLeave() {
+        this.store.dispatch({ type: controlling.CLEAR_CONTROLLING });
     }
 
     ngOnDestroy() {

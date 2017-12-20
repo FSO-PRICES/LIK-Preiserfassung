@@ -80,12 +80,15 @@ export function reducer(state = initialState, action: controlling.ControllingAct
                 state.controllingReport.controllingType
             );
             const row = report.rows.find(x => x.pmId === preismeldung._id);
+            const rows = !row
+                ? state.controllingReport.rows.filter(x => x.pmId !== preismeldung._id)
+                : state.controllingReport.rows.map(x => (x.pmId === row.pmId ? row : x));
             return {
                 ...state,
                 rawCachedData,
                 controllingReport: {
                     ...state.controllingReport,
-                    rows: state.controllingReport.rows.map(x => (x.pmId === row.pmId ? row : x)),
+                    rows,
                 },
             };
         }

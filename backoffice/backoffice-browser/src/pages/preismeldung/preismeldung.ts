@@ -1,6 +1,6 @@
 import { Component, OnDestroy, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription, Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { orderBy } from 'lodash';
 import * as moment from 'moment';
 
@@ -20,7 +20,7 @@ import { IonicPage } from 'ionic-angular';
     templateUrl: 'preismeldung.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PreismeldungPage implements OnDestroy {
+export class PreismeldungPage {
     public preismeldungen$ = this.store
         .select(fromRoot.getPreismeldungen)
         .map(preismeldungen =>
@@ -69,7 +69,7 @@ export class PreismeldungPage implements OnDestroy {
     public selectTab$ = new EventEmitter<string>();
     public selectedTab$: Observable<string>;
 
-    private subscriptions: Subscription[] = [];
+    private ionViewDidLeave$ = new Subject();
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
         const cancelEditDialog$ = Observable.defer(() =>
@@ -109,17 +109,16 @@ export class PreismeldungPage implements OnDestroy {
             .filter(x => x === 'PREISMELDUNG_QUICK_EQUAL')
             .map(() => new Date());
 
-        this.subscriptions.push(
-            this.updatePreismeldungPreis$.subscribe(payload =>
-                store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload })
-            )
-        );
+        this.updatePreismeldungPreis$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload }));
 
-        this.subscriptions.push(
-            this.selectPreismeldestelleNummer$.delay(200).subscribe(pmsNummer => {
+        this.selectPreismeldestelleNummer$
+            .delay(200)
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(pmsNummer => {
                 this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: pmsNummer } as PreismeldungAction);
-            })
-        );
+            });
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$.withLatestFrom(
             this.currentPreismeldung$.startWith(null),
@@ -131,17 +130,16 @@ export class PreismeldungPage implements OnDestroy {
             })
         );
 
-        this.subscriptions.push(
-            requestSelectPreismeldung$
-                .filter(x => !x.isCurrentModified)
-                .delay(100)
-                .subscribe(x =>
-                    this.store.dispatch({
-                        type: 'SELECT_PREISMELDUNG',
-                        payload: x.selectedPreismeldung ? x.selectedPreismeldung.pmId : null,
-                    })
-                )
-        );
+        requestSelectPreismeldung$
+            .filter(x => !x.isCurrentModified)
+            .delay(100)
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(x =>
+                this.store.dispatch({
+                    type: 'SELECT_PREISMELDUNG',
+                    payload: x.selectedPreismeldung ? x.selectedPreismeldung.pmId : null,
+                })
+            );
 
         const cancelEditReponse$ = requestSelectPreismeldung$
             .filter(x => x.isCurrentModified)
@@ -153,52 +151,42 @@ export class PreismeldungPage implements OnDestroy {
             .filter(x => x.dialogCode === 'SAVE')
             .map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' }));
 
-        this.subscriptions.push(
-            cancelEditReponse$
-                .filter(x => x.dialogCode === 'THROW_CHANGES')
-                .delay(100)
-                .subscribe(x =>
-                    this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId })
-                )
-        );
+        cancelEditReponse$
+            .filter(x => x.dialogCode === 'THROW_CHANGES')
+            .delay(100)
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
-        this.subscriptions.push(
-            this.save$
-                .filter(x => x.type !== 'NO_SAVE_NAVIGATE')
-                .subscribe(payload => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload })))
-        );
+        this.save$
+            .filter(x => x.type !== 'NO_SAVE_NAVIGATE')
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(payload => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload })));
 
-        this.subscriptions.push(
-            createTabLeaveObservable('PRODUCT_ATTRIBUTES')
-                .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
-                .filter(
-                    currentPreismeldung =>
-                        !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isAttributesModified
-                )
-                .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES' }))
-        );
-
-        this.subscriptions.push(
-            createTabLeaveObservable('MESSAGES')
-                .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
-                .filter(
-                    currentPreismeldung =>
-                        !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isMessagesModified
-                )
-                .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_MESSAGES' }))
-        );
-
-        this.subscriptions.push(
-            this.updatePreismeldungAttributes$.subscribe(payload =>
-                store.dispatch({ type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload })
+        createTabLeaveObservable('PRODUCT_ATTRIBUTES')
+            .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
+            .filter(
+                currentPreismeldung =>
+                    !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isAttributesModified
             )
-        );
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES' }));
 
-        this.subscriptions.push(
-            this.updatePreismeldungMessages$.subscribe(payload =>
-                store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload })
+        createTabLeaveObservable('MESSAGES')
+            .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
+            .filter(
+                currentPreismeldung =>
+                    !!currentPreismeldung && !currentPreismeldung.isNew && currentPreismeldung.isMessagesModified
             )
-        );
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_MESSAGES' }));
+
+        this.updatePreismeldungAttributes$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload }));
+
+        this.updatePreismeldungMessages$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload }));
     }
 
     public ionViewDidEnter() {
@@ -206,8 +194,9 @@ export class PreismeldungPage implements OnDestroy {
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as preismeldestelle.Action);
     }
 
-    public ngOnDestroy() {
+    public ionViewDidLeave() {
         this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null } as PreismeldungAction);
-        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
+        this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction);
+        this.ionViewDidLeave$.next();
     }
 }
