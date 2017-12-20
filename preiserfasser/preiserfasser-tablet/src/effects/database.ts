@@ -121,6 +121,7 @@ export class DatabaseEffects {
                     uploadDatabase(action.payload).flatMap(() => {
                         setDatabaseLastUploadedAt(new Date());
                         return [
+                            { type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction,
                             { type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: new Date() } as DatabaseAction,
                             { type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction,
                         ];
