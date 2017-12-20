@@ -95,31 +95,38 @@ function _syncDatabase(url: string, username: string, params: { push: boolean; p
     const ts = new Date().valueOf();
     return getDatabaseAsObservable()
         .flatMap(pouch => {
+            const couchOnOffline = new PouchDB(`${url}/onoffline`, { skip_setup: true }) as PouchDB.Database<{}>;
             const couch = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<{}>;
-            return getDocumentByKeyFromDb(pouch, 'user-db-id')
-                .catch(() => ({ value: 'pouchUserDbId-not-found' }))
-                .then((pouchDoc: any) =>
-                    getDocumentByKeyFromDb(couch, 'user-db-id').then((couchDoc: any) => ({
-                        couchUserDbId: couchDoc.value,
-                        pouchUserDbId: pouchDoc.value,
-                        pouch,
-                        couch,
-                    }))
-                )
-                .then(x =>
-                    getDocumentByKeyFromDb<{ monthAsString: string }>(pouch, 'erhebungsmonat')
-                        .catch(() => ({ monthAsString: null }))
-                        .then(({ monthAsString }) => assign(x, { pouchErhebungsmonat: monthAsString }))
-                )
-                .then(x =>
-                    getDocumentByKeyFromDb<{ monthAsString: string }>(couch, 'erhebungsmonat').then(
-                        ({ monthAsString }) => assign(x, { couchErhebungsmonat: monthAsString })
-                    )
-                )
-                .then(x =>
-                    getDocumentByKeyFromDb<{ username: string }>(pouch, 'preiserheber')
-                        .catch(() => ({ username: null }))
-                        .then(({ username }) => assign(x, { username }))
+            return getDocumentByKeyFromDb<P.OnOfflineStatus>(couchOnOffline, 'onoffline_status')
+                .then(onofflineStatus => {
+                    if (onofflineStatus.isOffline) throw 'DB OFFLINE';
+                })
+                .then(() =>
+                    getDocumentByKeyFromDb(pouch, 'user-db-id')
+                        .catch(() => ({ value: 'pouchUserDbId-not-found' }))
+                        .then((pouchDoc: any) =>
+                            getDocumentByKeyFromDb(couch, 'user-db-id').then((couchDoc: any) => ({
+                                couchUserDbId: couchDoc.value,
+                                pouchUserDbId: pouchDoc.value,
+                                pouch,
+                                couch,
+                            }))
+                        )
+                        .then(x =>
+                            getDocumentByKeyFromDb<{ monthAsString: string }>(pouch, 'erhebungsmonat')
+                                .catch(() => ({ monthAsString: null }))
+                                .then(({ monthAsString }) => assign(x, { pouchErhebungsmonat: monthAsString }))
+                        )
+                        .then(x =>
+                            getDocumentByKeyFromDb<{ monthAsString: string }>(couch, 'erhebungsmonat').then(
+                                ({ monthAsString }) => assign(x, { couchErhebungsmonat: monthAsString })
+                            )
+                        )
+                        .then(x =>
+                            getDocumentByKeyFromDb<{ username: string }>(pouch, 'preiserheber')
+                                .catch(() => ({ username: null }))
+                                .then(({ username }) => assign(x, { username }))
+                        )
                 );
         })
         .flatMap(
