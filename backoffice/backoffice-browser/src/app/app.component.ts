@@ -12,7 +12,7 @@ import { PefDialogLoginComponent } from '../components/pef-dialog-login/pef-dial
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    templateUrl: 'app.html'
+    templateUrl: 'app.html',
 })
 export class Backoffice implements OnInit {
     @HostBinding('class') classes = 'app-root pef-desktop';
@@ -26,14 +26,25 @@ export class Backoffice implements OnInit {
         private store: Store<fromRoot.AppState>,
         private statusBar: StatusBar,
         private translateService: TranslateService,
-        private splashScreen: SplashScreen) {
+        private splashScreen: SplashScreen
+    ) {
         // Skip 1 is used to skip the first initial value and to wait for the new value after the dispatch
-        const settings$ = store.select(fromRoot.getSettings).skip(1).publishReplay(1).refCount();
-        const loginDialog$ = store.select(fromRoot.getIsLoggedIn).skip(1)
+        const settings$ = store
+            .select(fromRoot.getSettings)
+            .skip(1)
+            .publishReplay(1)
+            .refCount();
+
+        const loginDialog$ = store
+            .select(fromRoot.getIsLoggedIn)
+            .skip(1)
             .withLatestFrom(settings$, (isLoggedIn, settings) => ({ isLoggedIn, settings }))
-            .filter(({ isLoggedIn, settings }) => !!settings && !settings.isDefault && isLoggedIn != null && !isLoggedIn)
+            .filter(
+                ({ isLoggedIn, settings }) => !!settings && !settings.isDefault && isLoggedIn != null && !isLoggedIn
+            )
             .flatMap(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data))
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         platform.ready().then(() => {
             // Okay, so the platform is ready and our plugins are available.
@@ -62,6 +73,7 @@ export class Backoffice implements OnInit {
 
     public ngOnInit() {
         this.store.dispatch({ type: 'SETTING_LOAD' });
+        this.store.dispatch({ type: 'LOAD_ONOFFLINE' });
         this.store.dispatch({ type: 'LOAD_WARENKORB' });
     }
 

@@ -11,4 +11,5 @@
     <ion-title>
         LIK PreisAdmin
     </ion-title>
+    <button ion-button class="on-off-line" (click)="onOffLineClicked$.emit()">{{ (isOffline$ | async) ? 'OFF-LINE' : 'ON-LINE' }}</button>
 </div>

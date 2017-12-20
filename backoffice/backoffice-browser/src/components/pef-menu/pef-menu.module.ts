@@ -8,10 +8,7 @@ import { PefMenuComponent } from './pef-menu';
 
 @NgModule({
     imports: [CommonModule, IonicModule, PefComponentsModule],
-    declarations: [
-        PefMenuComponent
-    ],
-    exports: [PefMenuComponent]
+    declarations: [PefMenuComponent],
+    exports: [PefMenuComponent],
 })
-export class PefMenuModule {
-}
+export class PefMenuModule {}

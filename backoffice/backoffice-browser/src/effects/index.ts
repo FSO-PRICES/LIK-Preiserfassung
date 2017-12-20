@@ -5,6 +5,7 @@ import { ControllingEffects } from './controlling';
 import { ExporterEffects } from './exporter';
 import { ImporterEffects } from './importer';
 import { LoginEffects } from './login';
+import { OnOfflineEffects } from './onoffline';
 import { PreiserheberEffects } from './preiserheber';
 import { PreismeldestelleEffects } from './preismeldestelle';
 import { PreismeldungEffects } from './preismeldung';
@@ -18,10 +19,11 @@ export const BO_EFFECTS = [
     EffectsModule.run(ExporterEffects),
     EffectsModule.run(ImporterEffects),
     EffectsModule.run(LoginEffects),
+    EffectsModule.run(OnOfflineEffects),
     EffectsModule.run(PreiserheberEffects),
     EffectsModule.run(PreismeldestelleEffects),
     EffectsModule.run(PreismeldungEffects),
     EffectsModule.run(PreiszuweisungEffects),
     EffectsModule.run(SettingEffects),
-    EffectsModule.run(WarenkorbEffects)
+    EffectsModule.run(WarenkorbEffects),
 ];

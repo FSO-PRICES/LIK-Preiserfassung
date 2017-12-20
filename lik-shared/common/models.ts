@@ -371,7 +371,7 @@ export interface LastImportAtProperties {
 
 export type LastImportAt = LastImportAtProperties & CouchProperties;
 
-export interface SystemLockStatus {
-    isLocked: boolean;
+export interface OnOfflineStatus {
+    isOffline: boolean;
     updatedAt: number;
 }

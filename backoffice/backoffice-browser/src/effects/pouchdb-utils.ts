@@ -25,6 +25,7 @@ export const dbNames = {
     setting: 'settings',
     import: 'imports',
     exports: 'exports',
+    onoffline: 'onoffline',
 };
 
 dropLocalDatabase(dbNames.emptyDb);

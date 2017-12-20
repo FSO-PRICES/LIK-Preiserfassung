@@ -1,8 +1,14 @@
-.toolbar {
-    background-color: $java;
-    margin: 0;
-    padding: 0;
-    min-height: initial;
+header {
+    .toolbar {
+        background-color: $java;
+        margin: 0;
+        padding: 0;
+        min-height: initial;
+
+        &.danger-zone {
+            background-color: $alizarin-crimson;
+        }
+    }
 
     .toolbar-title {
         color: $white;
@@ -12,6 +18,10 @@
         flex: 0;
     }
 
+    .on-off-line {
+        margin-left: 1em;
+    }
+
     ion-buttons {
         flex: 1;
         height: 3em;
@@ -19,23 +29,25 @@
         padding: 0;
         text-align: right;
 
-        a[ion-button] {
+        a.button.button-md.button-clear {
             margin: 0;
             height: 100%;
 
             &.active {
                 background-color: $blue-chill;
             }
-            &:hover {
-                background-color: $scooter !important;
+            &:hover:not(.disable-hover) {
+                background-color: $scooter;
             }
             span.button-inner {
                 color: $white;
             }
+            &.disabled {
+                opacity: 0.4;
+                &:hover:not(.disable-hover) {
+                    background-color: transparent;
+                }
+            }
         }
-    }
-
-    &.danger-zone {
-        background-color: $alizarin-crimson;
     }
 }

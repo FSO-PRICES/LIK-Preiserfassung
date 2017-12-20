@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { NavController } from 'ionic-angular';
-import { Observable } from 'rxjs/Observable';
+import { Observable, Subject } from 'rxjs';
 
 import * as fromRoot from '../../reducers';
 
 @Component({
     selector: 'header[pef-menu]',
-    templateUrl: 'pef-menu.html'
+    templateUrl: 'pef-menu.html',
 })
-export class PefMenuComponent {
+export class PefMenuComponent implements OnDestroy {
     public pages = [
         { page: 'CockpitPage', name: 'Status' },
         { page: 'ImportPage', name: 'Import' },
@@ -18,27 +18,42 @@ export class PefMenuComponent {
         { page: 'PreismeldungPage', name: 'Preise' },
         { page: 'ControllingPage', name: 'Controlling' },
         { page: null, name: 'Reporting' },
-        { page: 'ExportToPrestaPage', name: 'Export' }
+        { page: 'ExportToPrestaPage', name: 'Export' },
     ];
 
     public dangerZone$: Observable<boolean>;
+    public onOffLineClicked$ = new EventEmitter();
+    public isOffline$: Observable<boolean>;
+
+    private onDestroy$ = new Subject();
 
     constructor(store: Store<fromRoot.AppState>, private navCtrl: NavController) {
-        this.dangerZone$ = store.select(fromRoot.getSettings)
-            .filter(setting => !!setting && !!setting.serverConnection && !!setting.serverConnection.url)
-            .map(setting => setting.serverConnection.url.indexOf('bfs-lik.lambda-it.ch') !== -1)
+        this.dangerZone$ = store
+            .select(fromRoot.getSettings)
+            .filter(settings => !!settings && !!settings.serverConnection && !!settings.serverConnection.url)
+            .map(settings => settings.serverConnection.url.indexOf('bfs-lik.lambda-it.ch') !== -1)
             .startWith(false);
+
+        this.isOffline$ = store.select(fromRoot.getIsOffline);
+
+        this.onOffLineClicked$.takeUntil(this.onDestroy$).subscribe(() => {
+            store.dispatch({ type: 'TOGGLE_ONOFFLINE' });
+        });
     }
 
     navigateToPage(page) {
         if (page === null) return;
         this.navCtrl.setRoot(page, {}, { animate: false }).catch(error => {
             if (error === false) return; // If the error is just a "false" it is that the page cannot be left
-            throw (error);
+            throw error;
         });
     }
 
     isCurrentPage(pageName) {
         return this.navCtrl.getActive().name === pageName;
+    }
+
+    ngOnDestroy(): void {
+        this.onDestroy$.next();
     }
 }
