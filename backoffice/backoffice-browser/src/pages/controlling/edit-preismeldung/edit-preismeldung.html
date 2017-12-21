@@ -19,7 +19,8 @@
                 (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)" [isAdminApp]="true"></preismeldung-attributes>
             <preismeldung-messages [class.display-none]="(selectedTab$ | async) != 'MESSAGES'" [isActive]="(selectedTab$ | async) == 'MESSAGES'"
                 [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
-                [isDesktop]="true" (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)" [isAdminApp]="true"></preismeldung-messages>
+                [isDesktop]="true" (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)" (kommentarClearClicked)="kommentarClearClicked$.emit()"
+                [isAdminApp]="true"></preismeldung-messages>
             <preismeldung-price [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'" [preismeldung]="currentPreismeldung$ | async"
                 [isDesktop]="true" [currentTime]="null" [preismeldestelle]="preismeldestelle$ | async" [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                 [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async" (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"

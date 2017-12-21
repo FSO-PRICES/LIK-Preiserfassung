@@ -35,6 +35,7 @@ export class ControllingPage implements OnDestroy {
     public savePreismeldungPrice$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     public savePreismeldungMessages$ = new EventEmitter();
     public savePreismeldungAttributes$ = new EventEmitter();
+    public kommentarClearClicked$ = new EventEmitter<{}>();
     public closeClicked$ = new EventEmitter();
 
     private onDestroy$ = new EventEmitter();
@@ -112,6 +113,10 @@ export class ControllingPage implements OnDestroy {
         this.savePreismeldungAttributes$
             .takeUntil(this.onDestroy$)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES' }));
+
+        this.kommentarClearClicked$
+            .takeUntil(this.onDestroy$)
+            .subscribe(() => store.dispatch({ type: 'CLEAR_AUTOTEXTS' } as P.PreismeldungAction));
 
         this.closeClicked$
             .takeUntil(this.onDestroy$)

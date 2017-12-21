@@ -225,6 +225,22 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             return assign({}, state, { currentPreismeldung });
         }
 
+        case 'CLEAR_AUTOTEXTS': {
+            return !state.isAdminApp
+                ? state
+                : {
+                      ...state,
+                      currentPreismeldung: {
+                          ...state.currentPreismeldung,
+                          messages: {
+                              ...state.currentPreismeldung.messages,
+                              kommentarAutotext: [],
+                          },
+                          isMessagesModified: true,
+                      },
+                  };
+        }
+
         case 'UPDATE_PREISMELDUNG_MESSAGES': {
             const { payload } = action;
 

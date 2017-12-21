@@ -6,5 +6,6 @@
     <edit-preismeldung *ngIf="!!(currentPreismeldung$ | async)" [currentPreismeldung]="currentPreismeldung$ | async" [warenkorb]="warenkorb$ | async"
         (updatePreismeldungPreis)="updatePreismeldungPreis$.emit($event)" (updatePreismeldungMessages)="updatePreismeldungMessages$.emit($event)"
         (updatePreismeldungAttributes)="updatePreismeldungAttributes$.emit($event)" (closeClicked)="closeClicked$.emit()" (savePreismeldungPrice)="savePreismeldungPrice$.emit($event)"
-        (savePreismeldungMessages)="savePreismeldungMessages$.emit()" (savePreismeldungAttributes)="savePreismeldungAttributes$.emit()"></edit-preismeldung>
+        (savePreismeldungMessages)="savePreismeldungMessages$.emit()" (savePreismeldungAttributes)="savePreismeldungAttributes$.emit()"
+        (kommentarClearClicked)="kommentarClearClicked$.emit()"></edit-preismeldung>
 </div>

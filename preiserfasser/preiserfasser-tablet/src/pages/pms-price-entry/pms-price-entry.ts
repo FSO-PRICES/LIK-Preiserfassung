@@ -101,13 +101,7 @@ export class PmsPriceEntryPage implements OnDestroy {
             .merge(
                 this.save$
                     .filter(x => x.type === 'NO_SAVE_NAVIGATE' || x.type === 'SAVE_AND_NAVIGATE_TAB')
-                    .map(
-                        (
-                            x:
-                                | P.SavePreismeldungPriceSaveActionNoSaveNavigate
-                                | P.SavePreismeldungPriceSaveActionSaveNavigateTab
-                        ) => x.tabName
-                    )
+                    .map((x: P.SavePreismeldungPriceSaveActionNavigate) => x.tabName)
             )
             .startWith('PREISMELDUNG')
             .publishReplay(1)

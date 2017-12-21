@@ -65,6 +65,7 @@ export class PreismeldungPage {
     public save$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     public toolbarButtonClicked$ = new EventEmitter<string>();
     public requestPreismeldungQuickEqual$: Observable<{}>;
+    public kommentarClearClicked$ = new EventEmitter<{}>();
 
     public selectTab$ = new EventEmitter<string>();
     public selectedTab$: Observable<string>;
@@ -80,13 +81,7 @@ export class PreismeldungPage {
             .merge(
                 this.save$
                     .filter(x => x.type === 'NO_SAVE_NAVIGATE' || x.type === 'SAVE_AND_NAVIGATE_TAB')
-                    .map(
-                        (
-                            x:
-                                | P.SavePreismeldungPriceSaveActionNoSaveNavigate
-                                | P.SavePreismeldungPriceSaveActionSaveNavigateTab
-                        ) => x.tabName
-                    )
+                    .map((x: P.SavePreismeldungPriceSaveActionNavigate) => x.tabName)
             )
             .startWith('PREISMELDUNG')
             .publishReplay(1)
@@ -156,6 +151,10 @@ export class PreismeldungPage {
             .delay(100)
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
+
+        this.kommentarClearClicked$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(() => store.dispatch({ type: 'CLEAR_AUTOTEXTS' } as PreismeldungAction));
 
         this.save$
             .filter(x => x.type !== 'NO_SAVE_NAVIGATE')

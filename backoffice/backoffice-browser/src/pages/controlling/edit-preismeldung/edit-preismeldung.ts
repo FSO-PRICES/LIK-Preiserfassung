@@ -19,6 +19,7 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
     @Output('savePreismeldungAttributes') savePreismeldungAttributes$: Observable<{}>;
     @Output('closeClicked') closeClicked$: Observable<{}>;
     @Output('savePreismeldungPrice') savePreismeldungPrice$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
+    @Output('kommentarClearClicked') kommentarClearClicked$ = new EventEmitter<{}>();
 
     public selectTab$ = new EventEmitter<string>();
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung');

@@ -10,6 +10,7 @@ export {
     SavePreismeldungPriceSaveAction,
     SavePreismeldungPriceSaveActionNoSaveNavigate,
     SavePreismeldungPriceSaveActionSaveNavigateTab,
+    SavePreismeldungPriceSaveActionNavigate,
     SavePreismeldungPriceSaveActionWithDataType,
     isSavePreismeldungPriceSaveActionSave,
     preismeldungId,
