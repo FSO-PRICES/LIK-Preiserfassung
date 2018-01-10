@@ -153,9 +153,9 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .debounceTime(100)
             .withLatestFrom(this.isAdminApp$.startWith(false), (x, isAdminApp) => assign(x, { isAdminApp }))
             .map(x => ({
-                notiz: x.notiz.replace('\n', '¶'),
-                kommentar: x.kommentar.replace('\n', '¶'),
-                bemerkungen: x.bemerkungen.replace('\n', '¶'),
+                notiz: x.notiz.replace(/(?:\r\n|\r|\n)/g, '¶'),
+                kommentar: x.kommentar.replace(/(?:\r\n|\r|\n)/g, '¶'),
+                bemerkungen: x.bemerkungen.replace(/(?:\r\n|\r|\n)/g, '¶'),
                 isAdminApp: x.isAdminApp,
             }));
     }

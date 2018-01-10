@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable';
 import { sortBy, keyBy, assign } from 'lodash';
 
-import { Models as P, preismeldungId, preismeldungRefId, preismeldestelleId } from 'lik-shared';
+import { Models as P, preismeldungId, preismeldungRefId, preismeldestelleId, pmsSortId } from 'lik-shared';
 
 import {
     listUserDatabases,
@@ -27,24 +27,28 @@ export function loadAllPreismeldestellen() {
     );
 }
 
-export function loadAllPreismeldungen(pmsNummer: string = '') {
-    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).flatMap(
-        (preismeldungen: any[]) =>
-            getDatabaseAsObservable(dbNames.preismeldung)
-                .flatMap(db =>
-                    getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer)).then(
-                        pmRefs => keyBy(pmRefs, pmRef => getPreismeldungId(pmRef))
-                    )
-                )
-                .map(pmRefs =>
-                    preismeldungen.map(
-                        pm =>
-                            assign({}, pm, { pmRef: pmRefs[getPreismeldungId(pm)] }) as P.Preismeldung & {
-                                pmRef: P.PreismeldungReference;
-                            }
-                    )
-                )
-    );
+export function loadAllPreismeldungenForExport(pmsNummer: string = '') {
+    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer))
+        .flatMap(preismeldungen =>
+            getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).map(
+                preismeldungenSorts => ({
+                    preismeldungenSorts,
+                    preismeldungen,
+                })
+            )
+        )
+        .map(({ preismeldungenSorts, preismeldungen }) => {
+            const preismeldungenSortsKeyed = keyBy(preismeldungenSorts, preismeldungenSort =>
+                preismeldungenSort._id.substr(9)
+            );
+            return preismeldungen.map(pm => ({
+                pm,
+                sortOrder: (() => {
+                    const sortOrder = preismeldungenSortsKeyed[pm.pmsNummer].sortOrder.find(x => x.pmId === pm._id);
+                    return !!sortOrder ? sortOrder.sortierungsnummer : Number.MAX_SAFE_INTEGER;
+                })(),
+            }));
+        });
 }
 
 export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
@@ -128,8 +132,4 @@ export function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>
             .flatMap(db => getAllDocumentsForPrefixFromDb<T>(db, prefix))
             .reduce((acc, docs) => [...acc, ...docs], [])
     );
-}
-
-function getPreismeldungId(doc: { pmsNummer: string; epNummer: string; laufnummer: string }) {
-    return `${doc.pmsNummer}/${doc.epNummer}/${doc.laufnummer}`;
 }

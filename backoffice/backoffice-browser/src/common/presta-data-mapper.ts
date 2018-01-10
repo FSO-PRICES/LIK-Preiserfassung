@@ -197,11 +197,10 @@ export function preparePm(
 }
 
 export function preparePmForExport(
-    preismeldungen: (P.Models.Preismeldung & { pmRef: P.Models.PreismeldungReference })[],
+    preismeldungBags: ({ pm: P.Models.Preismeldung; sortOrder: number })[],
     erhebungsmonat: string
 ) {
-    let sortNumber = 1;
-    return preismeldungen.map(pm =>
+    return preismeldungBags.map(({ pm, sortOrder }) =>
         validatePreismeldung(`${pm.pmsNummer}/${pm.epNummer}/${pm.laufnummer}`, () => ({
             Erhebungsmonat: erhebungsmonat,
             Preissubsystem: 2, // Preissubsystem is always 2 as defined by Serge
@@ -215,19 +214,27 @@ export function preparePmForExport(
             Menge_VPK: toDecimal(pm.mengeVPK, 10, 3, 'Menge_VPK'),
             Bearbeitungscode: excludeBearbeitungscode(toNumber(pm.bearbeitungscode, 3, 'Bearbeitungscode')),
             Aktionscode: !pm.aktion ? 0 : 1,
-            Preisbezeichnung: toText(pm.artikeltext.substr(0, 200), 200, 'Preisbezeichnung'),
-            Artikelnummer: toText(pm.artikelnummer.substr(0, 30), 30, 'Artikelnummer'),
+            Preisbezeichnung: toText((pm.artikeltext || '').substr(0, 200), 200, 'Preisbezeichnung'),
+            Artikelnummer: toText((pm.artikelnummer || '').substr(0, 30), 30, 'Artikelnummer'),
             Fehlende_Preise: toText(
-                pm.fehlendePreiseR.substr(0, 24) || (pm.bearbeitungscode === 44 ? 'S' : null),
+                (pm.fehlendePreiseR || '').substr(0, 24) || (pm.bearbeitungscode === 44 ? 'S' : null),
                 24,
                 'Fehlende_Preise'
             ),
-            PE_Notiz: toText(pm.notiz.substr(0, 4000), 4000, 'PE_Notiz'),
-            PE_Kommentar: toText(pm.kommentar.substr(0, 4000), 4000, 'PE_Kommentar'),
-            Bemerkungen: toText(pm.bemerkungen.substr(0, 4000), 4000, 'Bemerkungen'),
-            Internet_Link: toText(pm.internetLink.substr(0, 2000), 2000, 'Internet_Link'),
+            PE_Notiz: toText((pm.notiz || '').replace(/(?:\r\n|\r|\n)/g, '¶').substr(0, 4000), 4000, 'PE_Notiz'),
+            PE_Kommentar: toText(
+                (pm.kommentar || '').replace(/(?:\r\n|\r|\n)/g, '¶').substr(0, 4000),
+                4000,
+                'PE_Kommentar'
+            ),
+            Bemerkungen: toText(
+                (pm.bemerkungen || '').replace(/(?:\r\n|\r|\n)/g, '¶').substr(0, 4000),
+                4000,
+                'Bemerkungen'
+            ),
+            Internet_Link: toText((pm.internetLink || '').substr(0, 2000), 2000, 'Internet_Link'),
             Erhebungszeitpunkt: toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
-            Sortiernummer: toNumber(sortNumber++, 5, 'Sortiernummer'),
+            Sortiernummer: toNumber(sortOrder, 5, 'Sortiernummer'),
             Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
             Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
             Datum_vor_Reduktion: pm.datumVorReduktion,

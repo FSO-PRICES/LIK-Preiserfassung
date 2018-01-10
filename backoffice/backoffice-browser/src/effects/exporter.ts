@@ -19,7 +19,11 @@ import {
 import { toCsv } from '../common/file-extensions';
 import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';
-import { loadAllPreismeldestellen, loadAllPreismeldungen, loadAllPreiserheber } from '../common/user-db-values';
+import {
+    loadAllPreismeldestellen,
+    loadAllPreismeldungenForExport,
+    loadAllPreiserheber,
+} from '../common/user-db-values';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
 import { createEnvelope, MessageTypes, createMesageId } from '../common/envelope-extensions';
 import { Observable } from 'rxjs/Observable';
@@ -37,7 +41,7 @@ export class ExporterEffects {
         .flatMap(() =>
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
-                loadAllPreismeldungen().flatMap(preismeldungen =>
+                loadAllPreismeldungenForExport().flatMap(preismeldungBags =>
                     getDatabaseAsObservable(dbNames.warenkorb)
                         .flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>)
                         .flatMap(warenkorbDoc => {
@@ -47,22 +51,24 @@ export class ExporterEffects {
                                     const alreadyExportedPreismeldungIds = flatten(
                                         x.rows.map((row: any) => (row.doc.preismeldungIds as any[]) || [])
                                     );
-                                    const preismeldungenToExport = preismeldungen.filter(
-                                        pm => pm.istAbgebucht && !alreadyExportedPreismeldungIds.some(y => y === pm._id)
+                                    const preismeldungenToExport = preismeldungBags.filter(
+                                        bag =>
+                                            bag.pm.istAbgebucht &&
+                                            !alreadyExportedPreismeldungIds.some(y => y === bag.pm._id)
                                     );
                                     if (preismeldungenToExport.length === 0)
                                         throw new Error('Keine neue abgebuchte Preismeldungen vorhanden.');
                                     return orderBy(preismeldungenToExport, [
-                                        pm =>
+                                        bag =>
                                             warenkorbDoc.products.findIndex(
-                                                p => pm.epNummer === p.gliederungspositionsnummer
+                                                p => bag.pm.epNummer === p.gliederungspositionsnummer
                                             ),
-                                        pm => +pm.pmsNummer,
-                                        pm => +pm.laufnummer,
+                                        bag => +bag.pm.pmsNummer,
+                                        bag => +bag.pm.laufnummer,
                                     ]);
                                 });
                         })
-                        .flatMap(filteredPreismeldungen => {
+                        .flatMap(filteredPreismeldungBags => {
                             return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
                                 .flatMap(db =>
                                     getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(
@@ -78,37 +84,34 @@ export class ExporterEffects {
                                                 _id: now.toString(),
                                                 ts: new Date(now),
                                                 messageId,
-                                                preismeldungIds: filteredPreismeldungen.map(x => x._id),
+                                                preismeldungIds: filteredPreismeldungBags.map(x => x.pm._id),
                                             });
                                         })
                                         .map(() => ({ erhebungsmonat, messageId }));
                                 })
                                 .flatMap(({ erhebungsmonat, messageId }) =>
-                                    resetAndContinueWith(
-                                        { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
-                                        doAsyncAsObservable(() => {
-                                            const content =
-                                                toCsv(
-                                                    preparePmForExport(
-                                                        filteredPreismeldungen,
-                                                        erhebungsmonat.monthAsString
-                                                    )
-                                                ) + '\n';
-                                            const count = filteredPreismeldungen.length;
-                                            const envelope = createEnvelope(MessageTypes.Preismeldungen, messageId);
+                                    doAsyncAsObservable(() => {
+                                        const content =
+                                            toCsv(
+                                                preparePmForExport(
+                                                    filteredPreismeldungBags,
+                                                    erhebungsmonat.monthAsString
+                                                )
+                                            ) + '\n';
+                                        const count = filteredPreismeldungBags.length;
+                                        const envelope = createEnvelope(MessageTypes.Preismeldungen, messageId);
 
-                                            FileSaver.saveAs(
-                                                new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
-                                                `envl_${envelope.fileSuffix}.xml`
-                                            );
-                                            FileSaver.saveAs(
-                                                new Blob([content], { type: 'text/csv;charset=utf-8' }),
-                                                `data_${envelope.fileSuffix}.txt`
-                                            );
+                                        FileSaver.saveAs(
+                                            new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
+                                            `envl_${envelope.fileSuffix}.xml`
+                                        );
+                                        FileSaver.saveAs(
+                                            new Blob([content], { type: 'text/csv;charset=utf-8' }),
+                                            `data_${envelope.fileSuffix}.txt`
+                                        );
 
-                                            return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
-                                        })
-                                    )
+                                        return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
+                                    })
                                 );
                         })
                         .catch(error =>
