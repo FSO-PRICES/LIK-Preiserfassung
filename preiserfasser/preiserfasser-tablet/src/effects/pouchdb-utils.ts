@@ -40,10 +40,14 @@ export function getAllDocumentsForPrefix(prefix: string): PouchDB.Core.AllDocsWi
     };
 }
 
-export function getAllDocumentsForPrefixFromDb(db: PouchDB.Database<{}>, prefix: string) {
+export function getAllDocumentsForPrefixFromDb<T>(db: PouchDB.Database<{}>, prefix: string) {
     return db
         .allDocs(assign({}, { include_docs: true }, getAllDocumentsForPrefix(prefix)))
-        .then(x => x.rows.map(row => row.doc));
+        .then(x => x.rows.map((row: any) => row.doc as T));
+}
+
+export function getDocumentWithFallback<T>(db: PouchDB.Database<{}>, id: string, fallback: T = null) {
+    return db.get(id).catch(err => fallback);
 }
 
 export const checkIfDatabaseExists = (): Promise<boolean> =>

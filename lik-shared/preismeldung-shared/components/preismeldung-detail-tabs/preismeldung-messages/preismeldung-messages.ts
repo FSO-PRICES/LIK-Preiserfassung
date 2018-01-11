@@ -40,7 +40,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                     <button ion-button color="java" (click)="kommentarClear$.emit()">{{ 'btn_leeren' | translate }}</button>
                     <h3>{{ 'heading_kommunikation' | translate }}</h3>
                     <div class="message-history" *ngIf="(bemerkungenHistory$ | async)?.length > 0">
-                        <div *ngFor="let h of (bemerkungenHistory$ | async)"><span class="message-author" *ngIf="!!h.author">{{h.author}}:</span>&nbsp;{{h.text}}</div>
+                        <div *ngFor="let h of (bemerkungenHistory$ | async)" class="message-item"><span class="message-author" *ngIf="!!h.author">{{h.author}}:</span><span class="message-text" [innerHtml]="h.text"></span></div>
                     </div>
                     <ion-item class="pef-textarea-item">
                         <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="erledigtDisabled$ | async" [readonly]="erledigtDisabled$ | async"></ion-textarea>
@@ -104,8 +104,8 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
         this.bemerkungenHistory$ = distinctPreismeldung$
             .map(x => {
                 const splitted = x.messages.bemerkungenHistory.split('\\n').map(y => {
-                    if (y.startsWith('PE:')) return { author: 'PE', text: y.substring(3) };
-                    if (y.startsWith('BFS:')) return { author: 'BFS', text: y.substring(4) };
+                    if (y.startsWith('PE:')) return { author: 'PE', text: y.substring(3).replace('¶', '<br/>') };
+                    if (y.startsWith('BFS:')) return { author: 'BFS', text: y.substring(4).replace('¶', '<br/>') };
                     return { author: null, text: y };
                 });
                 return splitted.length === 1 && !x.messages.bemerkungenHistory ? null : splitted;
@@ -115,8 +115,8 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
 
         distinctPreismeldung$.takeUntil(this.onDestroy$).subscribe(bag => {
             this.form.reset({
-                notiz: bag.messages.notiz,
-                kommentar: bag.messages.kommentar,
+                notiz: bag.messages.notiz.replace('¶', '\n'),
+                kommentar: bag.messages.kommentar.replace('¶', '\n'),
                 bemerkungen: bag.messages.bemerkungen.replace('¶', '\n'),
             });
         });

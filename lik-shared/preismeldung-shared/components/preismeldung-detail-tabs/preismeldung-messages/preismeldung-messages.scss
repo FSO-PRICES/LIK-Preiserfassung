@@ -1,4 +1,4 @@
-@import "../../../../styles/imports.scss";
+@import '../../../../styles/imports.scss';
 
 preismeldung-messages {
     display: flex;
@@ -35,7 +35,8 @@ preismeldung-messages {
             }
         }
         &.input-has-focus {
-            ion-input, ion-textarea {
+            ion-input,
+            ion-textarea {
                 border-bottom-color: $blue-chill;
             }
             .item-inner {
@@ -47,13 +48,26 @@ preismeldung-messages {
         }
     }
 
-    .message-author {
-        font-weight: 500;
-        min-width: 3em;
-        display: inline-block;
+    .message-history {
+        max-width: 40em;
     }
 
-    .kommentar-autotext, .message-history:last-of-type {
+    .message-item {
+        display: flex;
+    }
+
+    .message-author {
+        font-weight: 500;
+        max-width: 3em;
+        flex: 0 0 3em;
+    }
+
+    .message-text {
+        flex: 1;
+    }
+
+    .kommentar-autotext,
+    .message-history:last-of-type {
         margin-bottom: 0.5em;
     }
 }
