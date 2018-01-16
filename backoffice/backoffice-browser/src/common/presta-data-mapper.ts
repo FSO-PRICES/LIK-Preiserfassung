@@ -389,7 +389,7 @@ function parseLanguageCode(s: string) {
     return LanguageMap[s];
 }
 
-function validatePreiserheber(id: string, mapper: Function) {
+function validatePreiserheber(id: string, mapper: () => any) {
     const requiredFields = [
         'Erhebungsmonat',
         'Preissubsystem',
@@ -403,7 +403,7 @@ function validatePreiserheber(id: string, mapper: Function) {
     return _validate(id, mapper, requiredFields, `Fehler beim export von dem Preiserheber "${id}"`);
 }
 
-function validatePreismeldestelle(id: string, mapper: Function) {
+function validatePreismeldestelle(id: string, mapper: () => any) {
     const requiredFields = [
         'Erhebungsmonat',
         'Preissubsystem',
@@ -417,7 +417,7 @@ function validatePreismeldestelle(id: string, mapper: Function) {
     return _validate(id, mapper, requiredFields, `Fehler beim export von der PMS "${id}"`);
 }
 
-function validatePreismeldung(id: string, mapper: Function) {
+function validatePreismeldung(id: string, mapper: () => any) {
     const requiredFields = [
         'Erhebungsmonat',
         'Preissubsystem',
@@ -434,7 +434,8 @@ function validatePreismeldung(id: string, mapper: Function) {
     return _validate(id, mapper, requiredFields, `Fehler beim export von der PM "${id}"`);
 }
 
-function _validate(id: string, mapper: Function, requiredFields: string[], errorMessage: string) {
+type ValidationResult<T> = { isValid: true; entity: T } | { isValid: false; error: string };
+function _validate<T>(id: string, mapper: () => any, requiredFields: string[], errorMessage: string) {
     try {
         const entity = mapper();
 
@@ -442,8 +443,8 @@ function _validate(id: string, mapper: Function, requiredFields: string[], error
         const missingFields = requiredFields.filter(f => entity[f] == null || entity[f] === '');
         if (missingFields.length > 0)
             throw new Error(`Folgende Werte sind nicht gesetzt:\n${missingFields.join(', ')}`);
-        return entity;
+        return { isValid: true, entity };
     } catch (error) {
-        throw new Error(`${errorMessage}: ${error.message}`);
+        return { isValid: false, error: `${errorMessage}: ${error.message}` };
     }
 }

@@ -82,7 +82,19 @@ export class ExporterEffects {
                                         erhebungsmonat => erhebungsmonat
                                     )
                                 )
-                                .flatMap(erhebungsmonat => {
+                                .map(erhebungsmonat => {
+                                    const validations = preparePmForExport(
+                                        filteredPreismeldungBags,
+                                        erhebungsmonat.monthAsString
+                                    );
+                                    if (!validations.every(x => x.isValid))
+                                        throw new function() {
+                                            this.validations = validations.filter(x => !x.isValid);
+                                        }();
+                                    const content = toCsv(validations.map((x: any) => x.entity)) + '\n';
+                                    return { erhebungsmonat, content };
+                                })
+                                .flatMap(({ erhebungsmonat, content }) => {
                                     const messageId = createMesageId();
                                     return getDatabaseAsObservable(dbNames.exports)
                                         .flatMap(db => {
@@ -94,17 +106,10 @@ export class ExporterEffects {
                                                 preismeldungIds: filteredPreismeldungBags.map(x => x.pm._id),
                                             });
                                         })
-                                        .map(() => ({ erhebungsmonat, messageId }));
+                                        .map(() => ({ erhebungsmonat, messageId, content }));
                                 })
-                                .flatMap(({ erhebungsmonat, messageId }) =>
+                                .flatMap(({ erhebungsmonat, messageId, content }) =>
                                     doAsyncAsObservable(() => {
-                                        const content =
-                                            toCsv(
-                                                preparePmForExport(
-                                                    filteredPreismeldungBags,
-                                                    erhebungsmonat.monthAsString
-                                                )
-                                            ) + '\n';
                                         const count = filteredPreismeldungBags.length;
                                         const envelope = createEnvelope(MessageTypes.Preismeldungen, messageId);
 
@@ -124,7 +129,7 @@ export class ExporterEffects {
                         .catch(error =>
                             Observable.of({
                                 type: 'EXPORT_PREISMELDUNGEN_FAILURE',
-                                payload: error.message,
+                                payload: error,
                             } as exporter.Action)
                         )
                 )
@@ -152,14 +157,22 @@ export class ExporterEffects {
                                 )
                             )
                         )
-                        .flatMap(({ updatedPreismeldestellen, erhebungsmonat }) =>
+                        .map(({ updatedPreismeldestellen, erhebungsmonat }) => {
+                            const validations = preparePmsForExport(
+                                updatedPreismeldestellen,
+                                erhebungsmonat.monthAsString
+                            );
+                            if (!validations.every(x => x.isValid))
+                                throw new function() {
+                                    this.validations = validations.filter(x => !x.isValid);
+                                }();
+                            const content = toCsv(validations.map((x: any) => x.entity)) + '\n';
+                            return { erhebungsmonat, content, updatedPreismeldestellen };
+                        })
+                        .flatMap(({ content, erhebungsmonat, updatedPreismeldestellen }) =>
                             resetAndContinueWith(
                                 { type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
-                                    const content =
-                                        toCsv(
-                                            preparePmsForExport(updatedPreismeldestellen, erhebungsmonat.monthAsString)
-                                        ) + '\n';
                                     const count = updatedPreismeldestellen.length;
                                     const envelope = createEnvelope(MessageTypes.Preismeldestellen);
 
@@ -180,7 +193,7 @@ export class ExporterEffects {
                 .catch(error =>
                     Observable.of({
                         type: 'EXPORT_PREISMELDESTELLEN_FAILURE',
-                        payload: error.message,
+                        payload: error,
                     } as exporter.Action)
                 )
         );
@@ -204,18 +217,23 @@ export class ExporterEffects {
                         .flatMap(x =>
                             getPePreiszuweisungen(preiserheber).map(peZuweisungen => assign(x, { peZuweisungen }))
                         )
-                        .flatMap(({ peZuweisungen, erhebungsmonat, erhebungsorgannummer }) =>
+                        .map(({ peZuweisungen, erhebungsmonat, erhebungsorgannummer }) => {
+                            const validations = preparePreiserheberForExport(
+                                peZuweisungen,
+                                erhebungsmonat.monthAsString,
+                                erhebungsorgannummer
+                            );
+                            if (!validations.every(x => x.isValid))
+                                throw new function() {
+                                    this.validations = validations.filter(x => !x.isValid);
+                                }();
+                            const content = toCsv(validations.map((x: any) => x.entity)) + '\n';
+                            return { peZuweisungen, content };
+                        })
+                        .flatMap(({ peZuweisungen, content }) =>
                             resetAndContinueWith(
                                 { type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
-                                    const content =
-                                        toCsv(
-                                            preparePreiserheberForExport(
-                                                peZuweisungen,
-                                                erhebungsmonat.monthAsString,
-                                                erhebungsorgannummer
-                                            )
-                                        ) + '\n';
                                     const count = peZuweisungen.length;
                                     const envelope = createEnvelope(MessageTypes.Preiserheber);
 
@@ -234,7 +252,7 @@ export class ExporterEffects {
                         );
                 })
                 .catch(error =>
-                    Observable.of({ type: 'EXPORT_PREISERHEBER_FAILURE', payload: error.message } as exporter.Action)
+                    Observable.of({ type: 'EXPORT_PREISERHEBER_FAILURE', payload: error } as exporter.Action)
                 )
         );
 }
