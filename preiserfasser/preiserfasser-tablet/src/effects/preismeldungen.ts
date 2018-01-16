@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import * as docuri from 'docuri';
 import { format, startOfMonth } from 'date-fns';
 import { assign, cloneDeep, flatMap, isEqual } from 'lodash';
 import { Observable } from 'rxjs/Observable';
@@ -31,7 +30,9 @@ import {
 export class PreismeldungenEffects {
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung);
 
-    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {
+        console.log('PreismeldungEffects ctor');
+    }
 
     @Effect()
     loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_FOR_PMS').flatMap(({ payload: pmsNummer }) =>
@@ -94,9 +95,7 @@ export class PreismeldungenEffects {
                     ),
                 };
             })
-            .do(x => console.log('am here a', x))
             .flatMap(async x => ({ ...x, pms: await x.db.get(preismeldestelleId(pmsNummer)) }))
-            .do(x => console.log('am here b', x))
             .combineLatest(
                 this.store
                     .select(fromRoot.getWarenkorb)
@@ -111,7 +110,6 @@ export class PreismeldungenEffects {
                     pmsPreismeldungenSort: x.pmsPreismeldungenSort,
                 })
             )
-            .do(x => console.log('am here c', x))
             .map(payload => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload }))
     );
 
@@ -122,15 +120,17 @@ export class PreismeldungenEffects {
             payload: action.payload,
         }))
         .map(({ currentPreismeldung, payload }) => ({
-            currentPreismeldung: assign({}, currentPreismeldung, {
-                preismeldung: assign(
-                    {},
-                    currentPreismeldung.preismeldung,
-                    createVorReduktionProperties(currentPreismeldung)
-                ),
-            }),
+            currentPreismeldung: {
+                ...currentPreismeldung,
+                preismeldung: {
+                    ...currentPreismeldung.preismeldung,
+                    ...createVorReduktionProperties(currentPreismeldung),
+                },
+            },
             payload,
-        }));
+        }))
+        .publishReplay(1)
+        .refCount();
 
     @Effect()
     savePreismeldung$ = this.savePreismeldungPrice$

@@ -2,44 +2,54 @@ import { cloneDeep } from 'lodash';
 import { format, startOfMonth } from 'date-fns';
 import * as P from '../models';
 
-export function createVorReduktionProperties(bag: P.PreismeldungBag): { preisVorReduktion: string; mengeVorReduktion: string; datumVorReduktion: string } {
-    let preisVorReduktion, mengeVorReduktion, datumVorReduktion;
+export function createVorReduktionProperties(
+    bag: P.PreismeldungBag
+): { preisVorReduktion: string; mengeVorReduktion: string; datumVorReduktion: string } {
     const today = format(new Date(), 'DD.MM.YYYY');
     const firstDayOfMonth = format(startOfMonth(new Date()), 'DD.MM.YYYY');
 
-    if (!bag.preismeldung.aktion) {
-        preisVorReduktion = bag.preismeldung.preis;
-        mengeVorReduktion = bag.preismeldung.menge;
-        datumVorReduktion = today;
+    const preisMengeDatumVorReduktionVP = () => ({
+        preisVorReduktion: `${bag.refPreismeldung.preisVorReduktion}`,
+        mengeVorReduktion: `${bag.refPreismeldung.mengeVorReduktion}`,
+        datumVorReduktion: `${bag.refPreismeldung.datumVorReduktion}`,
+    });
+
+    const rsZero: P.Models.Bearbeitungscode[] = [101, 44, 0]; // 'R', 'S', '0'
+    if (rsZero.some(x => x === bag.preismeldung.bearbeitungscode)) {
+        return preisMengeDatumVorReduktionVP();
     } else {
-        switch (bag.preismeldung.bearbeitungscode) {
-            case 99: {
-                preisVorReduktion = `${bag.refPreismeldung.preisVorReduktion}`
-                mengeVorReduktion = `${bag.refPreismeldung.mengeVorReduktion}`;
-                datumVorReduktion = `${bag.refPreismeldung.datumVorReduktion}`;
-                break;
-            }
-            case 2:
-            case 7: {
-                preisVorReduktion = bag.preismeldung.preisVPK;
-                mengeVorReduktion = bag.preismeldung.mengeVPK;
-                datumVorReduktion = firstDayOfMonth;
-                break;
-            }
-            case 1: {
-                preisVorReduktion = bag.preismeldung.preisVorReduktion;
-                mengeVorReduktion = bag.preismeldung.mengeVorReduktion;
-                datumVorReduktion = today;
-                break;
+        if (!bag.preismeldung.aktion) {
+            return {
+                preisVorReduktion: bag.preismeldung.preis,
+                mengeVorReduktion: bag.preismeldung.menge,
+                datumVorReduktion: today,
+            };
+        } else {
+            switch (bag.preismeldung.bearbeitungscode) {
+                case 99:
+                    return preisMengeDatumVorReduktionVP();
+                case 2:
+                case 7:
+                    return {
+                        preisVorReduktion: bag.preismeldung.preisVPK,
+                        mengeVorReduktion: bag.preismeldung.mengeVPK,
+                        datumVorReduktion: firstDayOfMonth,
+                    };
+                case 1:
+                    return {
+                        preisVorReduktion: bag.preismeldung.preisVorReduktion,
+                        mengeVorReduktion: bag.preismeldung.mengeVorReduktion,
+                        datumVorReduktion: today,
+                    };
             }
         }
     }
 
-    return {
-        preisVorReduktion,
-        mengeVorReduktion,
-        datumVorReduktion
-    };
+    throw new Error(
+        `Error in createVorReduktionProperties. Action: ${bag.preismeldung.aktion}, Bearbeitungscode: ${
+            bag.preismeldung.bearbeitungscode
+        }`
+    );
 }
 
 export function propertiesFromCurrentPreismeldung(bag: P.CurrentPreismeldungBag) {
@@ -66,15 +76,21 @@ export function propertiesFromCurrentPreismeldung(bag: P.CurrentPreismeldungBag)
         preisVPK: bag.preismeldung.preisVPK,
         preisVorReduktion: bag.preismeldung.preisVorReduktion,
         fehlendePreiseR: bag.preismeldung.fehlendePreiseR,
-        datumVorReduktion: bag.preismeldung.datumVorReduktion
+        datumVorReduktion: bag.preismeldung.datumVorReduktion,
     };
 }
 
 export function messagesFromCurrentPreismeldung(bag: P.CurrentPreismeldungBag) {
     return {
         notiz: bag.messages.notiz,
-        kommentar: bag.messages.kommentarAutotext.join(',') + (bag.messages.kommentarAutotext.length > 0 ? '\\n' : '') + bag.messages.kommentar,
-        bemerkungen: bag.messages.bemerkungenHistory + (!!bag.messages.bemerkungenHistory ? '\\n' : '') + (!!bag.messages.bemerkungen ? (!bag.messages.isAdminApp ? 'PE:' : 'BFS:') + bag.messages.bemerkungen : ''),
+        kommentar:
+            bag.messages.kommentarAutotext.join(',') +
+            (bag.messages.kommentarAutotext.length > 0 ? '\\n' : '') +
+            bag.messages.kommentar,
+        bemerkungen:
+            bag.messages.bemerkungenHistory +
+            (!!bag.messages.bemerkungenHistory ? '\\n' : '') +
+            (!!bag.messages.bemerkungen ? (!bag.messages.isAdminApp ? 'PE:' : 'BFS:') + bag.messages.bemerkungen : ''),
         modifiedAt: format(new Date()),
     };
 }
@@ -82,6 +98,6 @@ export function messagesFromCurrentPreismeldung(bag: P.CurrentPreismeldungBag) {
 export function productMerkmaleFromCurrentPreismeldung(bag: P.CurrentPreismeldungBag) {
     return {
         productMerkmale: cloneDeep(bag.attributes),
-        modifiedAt: format(new Date())
+        modifiedAt: format(new Date()),
     };
 }

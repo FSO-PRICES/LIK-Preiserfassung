@@ -38,11 +38,17 @@ export class OnOfflineEffects {
 const onOfflineStatusDocName = 'onoffline_status';
 async function getOnOfflineStatus() {
     const db = await getDatabase(dbNames.onoffline);
+    let onOfflineStatus;
     try {
-        return await db.get<P.OnOfflineStatus>(onOfflineStatusDocName);
+        onOfflineStatus = await db.get<P.OnOfflineStatus>(onOfflineStatusDocName);
     } catch (err) {
-        return { updatedAt: null, isOffline: false, _id: onOfflineStatusDocName };
+        // document does not exist, ignore and handle below
     }
+    if (!onOfflineStatus) {
+        await db.put({ _id: onOfflineStatusDocName, isOffline: false, updatedAt: new Date() });
+        onOfflineStatus = await db.get<P.OnOfflineStatus>(onOfflineStatusDocName);
+    }
+    return onOfflineStatus;
 }
 
 async function toggleOnOfflineStatus() {
