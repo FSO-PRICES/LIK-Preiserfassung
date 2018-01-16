@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { assign, groupBy, flattenDeep } from 'lodash';
+import { assign, groupBy, flattenDeep, flatten } from 'lodash';
 import { Observable } from 'rxjs';
 import * as moment from 'moment';
 
@@ -15,6 +15,7 @@ import {
     getAllDocumentsForPrefixFromDbName,
     listUserDatabases,
     dbNames,
+    getDatabase,
     getDatabaseAsObservable,
     getAllDocumentsForPrefixFromDb,
     getAllDocumentsFromDbName,
@@ -48,50 +49,19 @@ export class ControllingEffects {
         .ofType(controlling.RUN_CONTROLLING)
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .withLatestFrom(this.store.select(fromRoot.getControllingRawCachedData), (action, rawCachedData) => ({
-            action,
+            controllingType: action.payload,
             rawCachedData,
         }))
-        .flatMap(({ action, rawCachedData }) =>
+        .flatMap(({ controllingType, rawCachedData }) =>
             Observable.concat(
                 Observable.of(controlling.createRunControllingExecutingAction()),
                 Observable.if(
                     () => !!rawCachedData,
-                    Observable.of({ controllingType: action.payload, data: rawCachedData }).delay(500),
-                    getAllDocumentsForPrefixFromDbName<P.PreismeldungReference>(
-                        dbNames.preismeldung,
-                        preismeldungRefId()
-                    )
-                        .map(refPreismeldungen => ({ controllingType: action.payload, data: { refPreismeldungen } }))
-                        .flatMap(({ controllingType, data }) =>
-                            getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).map(
-                                preismeldungen => ({
-                                    controllingType,
-                                    data: { ...data, preismeldungen },
-                                })
-                            )
-                        )
-                        .flatMap(({ controllingType, data }) =>
-                            loadAllPreismeldestellen().map(preismeldestellen => ({
-                                controllingType,
-                                data: { ...data, preismeldestellen },
-                            }))
-                        )
-                        .flatMap(({ controllingType, data }) =>
-                            loadAllPreiserheber().map(preiserheber => ({
-                                controllingType,
-                                data: { ...data, preiserheber },
-                            }))
-                        )
-                        .flatMap(({ controllingType, data }) =>
-                            getDatabaseAsObservable(dbNames.warenkorb)
-                                .flatMap(db => db.get<P.WarenkorbDocument>('warenkorb'))
-                                .map(warenkorb => ({ controllingType, data: { ...data, warenkorb } }))
-                        )
-                        .flatMap(({ controllingType, data }) =>
-                            getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisung).map(
-                                preiszuweisungen => ({ controllingType, data: { ...data, preiszuweisungen } })
-                            )
-                        )
+                    Observable.of({ controllingType, data: rawCachedData }).delay(500),
+                    Observable.fromPromise(loadDataForControlling()).map(data => ({
+                        controllingType,
+                        data,
+                    }))
                 ).map(x => controlling.createRunControllingDataReadyAction(x.controllingType, x.data))
             )
         );
@@ -178,4 +148,32 @@ function updateStichtage() {
                       ).map(() => bags)
         )
         .map(bags => bags.map(b => b.preismeldung));
+}
+
+async function loadDataForControlling() {
+    const alreadyExported = await getAllDocumentsFromDbName<any>(dbNames.exports)
+        .map(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
+        .toPromise();
+
+    const refPreismeldungen = (await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
+        await getDatabase(dbNames.preismeldung),
+        preismeldungRefId()
+    )).filter(x => !alreadyExported.some(id => x.pmId === id));
+
+    const preismeldungen = await getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId())
+        .map(pms => pms.filter(x => !alreadyExported.some(id => x._id === id)))
+        .toPromise();
+    const preismeldestellen = await loadAllPreismeldestellen().toPromise();
+    const preiserheber = await loadAllPreiserheber().toPromise();
+    const warenkorb = await (await getDatabase(dbNames.warenkorb)).get<P.WarenkorbDocument>('warenkorb');
+    const preiszuweisungen = await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisung).toPromise();
+
+    return {
+        refPreismeldungen,
+        preismeldungen,
+        preismeldestellen,
+        preiserheber,
+        warenkorb,
+        preiszuweisungen,
+    };
 }
