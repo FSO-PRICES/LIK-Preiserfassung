@@ -3,8 +3,10 @@ import { compose } from '@ngrx/core/compose';
 import { combineReducers, ActionReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from 'ngrx-store-logger';
+import { isBefore } from 'date-fns';
 
 import { environment } from '../environments/environment';
+import * as P from 'lik-shared';
 
 import * as fromAppConfig from './app-config';
 import * as fromDatabase from './database';
@@ -64,13 +66,19 @@ export const getIsDesktop = createSelector(getAppConfigState, fromAppConfig.getI
 
 export const getPreismeldestellenState = (state: AppState) => state.preismeldestellen;
 export const getPreismeldestellen = createSelector(getPreismeldestellenState, fromPreismeldestellen.getAll);
-export const getCurrentPreismeldestelle = createSelector(getPreismeldestellenState, fromPreismeldestellen.getCurrentPreismeldestelle);
+export const getCurrentPreismeldestelle = createSelector(
+    getPreismeldestellenState,
+    fromPreismeldestellen.getCurrentPreismeldestelle
+);
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);
-export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
+const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
 export const getPriceCountStatuses = createSelector(getPreismeldungenState, fromPreismeldungen.getPriceCountStatuses);
-export const getPreismeldungenCurrentPmsNummer = createSelector(getPreismeldungenState, fromPreismeldungen.getPreismeldungenCurrentPmsNummer);
+export const getPreismeldungenCurrentPmsNummer = createSelector(
+    getPreismeldungenState,
+    fromPreismeldungen.getPreismeldungenCurrentPmsNummer
+);
 
 export const getTimeState = (state: AppState) => state.time;
 export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTime);
@@ -92,7 +100,10 @@ export const getPreiserheber = createSelector(getPreiserheberState, fromPreiserh
 export const getCurrentPreiserheber = createSelector(getPreiserheberState, fromPreiserheber.getCurrentPreiserheber);
 
 export const getStatisticsState = (state: AppState) => state.statistics;
-export const getPreismeldungenStatistics = createSelector(getStatisticsState, fromStatistics.getPreismeldungenStatistics);
+export const getPreismeldungenStatistics = createSelector(
+    getStatisticsState,
+    fromStatistics.getPreismeldungenStatistics
+);
 export const getErhebungsmonat = createSelector(getStatisticsState, fromStatistics.getErhebungsmonat);
 
 export const getLoginState = (state: AppState) => state.login;
@@ -100,3 +111,26 @@ export const getIsLoggedIn = createSelector(getLoginState, fromLogin.getIsLogged
 export const getLoggedInUser = createSelector(getLoginState, fromLogin.getLoggedInUser);
 
 export const getErhebungsInfo = (state: AppState) => state.erhebungsInfo;
+
+export const getCurrentPreismeldungViewBag = createSelector(
+    getCurrentPreismeldung,
+    getCurrentTime,
+    (currentPreismeldungBag, currentTime): P.CurrentPreismeldungViewBag => {
+        function isReadonly() {
+            if (!currentPreismeldungBag) return false;
+            if (!!currentPreismeldungBag.preismeldung.uploadRequestedAt) return true;
+            if (!currentPreismeldungBag.refPreismeldung) return false;
+            const dateRegex = /(\d+)\.(\d+)\.(\d+)/;
+            const parsed = dateRegex.exec(currentPreismeldungBag.refPreismeldung.erhebungsAnfangsDatum);
+            if (!parsed) return false;
+            const erhebungsAnfangsDatum = new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
+            return isBefore(currentTime, erhebungsAnfangsDatum) ? true : false;
+        }
+        return !currentPreismeldungBag
+            ? null
+            : {
+                  ...currentPreismeldungBag,
+                  isReadonly: isReadonly(),
+              };
+    }
+);

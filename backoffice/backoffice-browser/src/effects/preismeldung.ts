@@ -32,7 +32,7 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class PreismeldungEffects {
-    currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung);
+    currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
     isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}

@@ -40,7 +40,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         .publishReplay(1)
         .refCount();
     currentPreismeldung$ = this.store
-        .select(fromRoot.getCurrentPreismeldung)
+        .select(fromRoot.getCurrentPreismeldungViewBag)
         .publishReplay(1)
         .refCount();
     currentLanguage$ = this.store
@@ -70,7 +70,9 @@ export class PmsPriceEntryPage implements OnDestroy {
     ionViewDidLoad$ = new EventEmitter();
     resetPreismeldung$ = new EventEmitter();
     requestSelectNextPreismeldung$ = new EventEmitter<{}>();
+    selectNextPreismeldungRequested$: Observable<{}>;
     requestThrowChanges$ = new EventEmitter<{}>();
+    isSave$ = new EventEmitter<boolean>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -96,6 +98,8 @@ export class PmsPriceEntryPage implements OnDestroy {
         const cancelEditDialog$ = Observable.defer(() =>
             pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data)
         );
+
+        this.isSave$.subscribe(x => console.log('xxxx', x));
 
         this.selectedTab$ = this.selectTab$
             .merge(
@@ -320,6 +324,13 @@ export class PmsPriceEntryPage implements OnDestroy {
                     payload: this.navParams.get('pmsNummer'),
                 });
             });
+
+        this.selectNextPreismeldungRequested$ = this.toolbarButtonClicked$
+            .filter(x => x === 'REQUEST_SELECT_NEXT_PREISMELDUNG')
+            .map(() => ({}))
+            .merge(this.requestSelectNextPreismeldung$)
+            .publishReplay(1)
+            .refCount();
     }
 
     ionViewDidLoad() {

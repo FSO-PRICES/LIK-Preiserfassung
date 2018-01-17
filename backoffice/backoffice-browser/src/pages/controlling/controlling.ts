@@ -24,7 +24,7 @@ export class ControllingPage implements OnDestroy {
     public runControllingReport$ = new EventEmitter<controlling.CONTROLLING_TYPE>();
     public controllingReportData$ = this.store.select(fromRoot.getControllingReportData);
     public controllingReportExecuting$ = this.store.select(fromRoot.getControllingReportExecuting);
-    public currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung);
+    public currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
     public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
 
     public editPreismeldungId$ = new EventEmitter<string>();

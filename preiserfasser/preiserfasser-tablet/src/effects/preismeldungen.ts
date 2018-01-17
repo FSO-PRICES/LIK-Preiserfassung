@@ -28,7 +28,7 @@ import {
 
 @Injectable()
 export class PreismeldungenEffects {
-    currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung);
+    currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {
         console.log('PreismeldungEffects ctor');

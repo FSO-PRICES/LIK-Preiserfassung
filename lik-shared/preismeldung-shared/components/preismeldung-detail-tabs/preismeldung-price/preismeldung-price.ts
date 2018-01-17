@@ -154,14 +154,14 @@ import * as P from '../../../models';
                                         <ion-label class="currency-label">{{ 'text_chf' | translate }}</ion-label>
                                         <ion-input #preis type="number" min="0.00" step="0.01" pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
                                             [class.ng-invalid]="createInvalidObservableFor('preis') | async" [readonly]="preisAndMengeDisabled$ | async"
-                                            [class.readonly]="preisAndMengeDisabled$ | async" (blur)="preisChanged$.emit(preis.value)" (keydown)="nonFormKeyDown$.emit()"
+                                            [class.readonly]="preisAndMengeDisabled$ | async" (blur)="preisChanged$.emit(preis.value)" (input)="preisInput$.emit($event.target.value)"
                                             [value]="(preisCurrentValue$ | async)?.value"></ion-input>
                                     </ion-item>
                                     <div class="unit-item-wrapper">
                                         <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('menge') | async">
                                             <ion-input #menge type="number" step="any" pef-disable-input-number-behaviour pef-disable-input-negative-number [class.ng-invalid]="createInvalidObservableFor('menge') | async"
-                                                [readonly]="preisAndMengeDisabled$ | async" [class.readonly]="preisAndMengeDisabled$ | async" (keydown)="nonFormKeyDown$.emit()"
-                                                (blur)="mengeChanged$.emit(menge.value)" [value]="form.value.menge"></ion-input>
+                                                [readonly]="preisAndMengeDisabled$ | async" [class.readonly]="preisAndMengeDisabled$ | async"
+                                                (blur)="mengeChanged$.emit(menge.value)" [value]="form.value.menge" (input)="mengeInput$.emit($event.target.value)"></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
                                             <button class="unit-button" ion-button color="mercury" (click)="applyUnitQuickEqual$.emit()" [disabled]="preisAndMengeDisabled$ | async">{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}</button>
@@ -173,13 +173,13 @@ import * as P from '../../../models';
                                         <ion-label class="currency-label">{{ 'text_chf' | translate }}</ion-label>
                                         <ion-input #preisVorReduktion type="number" min="0.00" step="0.01" pef-highlight-on-focus pef-disable-input-number-behaviour
                                             pef-disable-input-negative-number [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async"
-                                            (blur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)" (keydown)="nonFormKeyDown$.emit()" [readonly]="isReadonly$ | async"
+                                            (blur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)" (input)="preisVorReduktionInput$.emit($event.target.value)" [readonly]="isReadonly$ | async"
                                             [class.readonly]="isReadonly$ | async" [value]="form.value.preisVorReduktion"></ion-input>
                                     </ion-item>
                                     <div class="unit-item-wrapper">
                                         <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async">
                                             <ion-input #mengeVorReduktion type="number" step="any" pef-highlight-on-focus pef-disable-input-number-behaviour pef-disable-input-negative-number
-                                                [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async" (blur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)" (keydown)="nonFormKeyDown$.emit()"
+                                                [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async" (blur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)" (input)="mengeVorReduktionInput$.emit($event.target.value)"
                                                 [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async" [value]="form.value.mengeVorReduktion"></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
@@ -270,8 +270,7 @@ import * as P from '../../../models';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungPriceComponent extends ReactiveComponent implements OnChanges, OnDestroy {
-    @Input() currentTime: Date;
-    @Input() preismeldung: P.CurrentPreismeldungBag;
+    @Input() preismeldung: P.CurrentPreismeldungViewBag;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() isAdminApp: boolean;
     @Input() requestPreismeldungSave: P.SavePreismeldungPriceSaveAction;
@@ -282,9 +281,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
     @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
     @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
+    @Output('isSaveLookDisabled') public isSaveLookDisabled$: Observable<boolean>;
 
-    public preismeldung$: Observable<P.CurrentPreismeldungBag>;
-    public distinctPreismeldung$: Observable<P.CurrentPreismeldungBag>;
+    public isReadonly$: Observable<boolean>;
+
+    public preismeldung$: Observable<P.CurrentPreismeldungViewBag>;
+    public distinctPreismeldung$: Observable<P.CurrentPreismeldungViewBag>;
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     public requestPreismeldungQuickEqual$: Observable<string>;
     public codeListType$: Observable<string>;
@@ -321,20 +323,18 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public arrowRight$: Observable<P.Models.PercentageWithWarning>;
 
     public currentPeriodHeading$: Observable<string>;
-    public isReadonly$: Observable<boolean>;
     public isSaveDisabled$: Observable<boolean>;
-    public isSaveLookDisabled$: Observable<boolean>;
 
     public isInternet$: Observable<boolean>;
 
-    public nonFormKeyDown$ = new EventEmitter();
+    public preisInput$ = new EventEmitter<string>();
+    public mengeInput$ = new EventEmitter<string>();
+    public preisVorReduktionInput$ = new EventEmitter<string>();
+    public mengeVorReduktionInput$ = new EventEmitter<string>();
 
     priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     isDesktop$ = this.observePropertyCurrentValue<boolean>('isDesktop');
-    currentTime$ = this.observePropertyCurrentValue<Date>('currentTime')
-        .publishReplay(1)
-        .refCount();
     isAdminApp$ = this.observePropertyCurrentValue<boolean>('isAdminApp')
         .publishReplay(1)
         .refCount();
@@ -416,7 +416,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             { validator: this.formLevelValidationFactory() }
         );
 
-        this.preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');
+        this.preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung')
+            .publishReplay(1)
+            .refCount();
         this.requestPreismeldungSave$ = this.observePropertyCurrentValue<P.SavePreismeldungPriceSaveAction>(
             'requestPreismeldungSave'
         ).filter(x => !!x);
@@ -427,7 +429,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.distinctPreismeldung$ = this.preismeldung$
             .filter(x => !!x)
             .distinctUntilChanged((x, y) => x.pmId === y.pmId && x.resetEvent === y.resetEvent)
-            .do(x => console.log('new distinct', x.pmId, x.resetEvent))
             .publishReplay(1)
             .refCount();
 
@@ -597,43 +598,48 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         }));
 
         this.isReadonly$ = this.distinctPreismeldung$
-            .combineLatest(this.currentTime$, this.isAdminApp$, (bag, currentTime, isAdminApp) => {
-                if (!bag) return false;
-                if (isAdminApp) return !bag.preismeldung.uploadRequestedAt;
-                if (!!bag.preismeldung.uploadRequestedAt) return true;
-                if (!bag.refPreismeldung) return false;
-                const dateRegex = /(\d+)\.(\d+)\.(\d+)/;
-                const parsed = dateRegex.exec(bag.refPreismeldung.erhebungsAnfangsDatum);
-                if (!parsed) return false;
-                const erhebungsAnfangsDatum = new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
-                return isBefore(currentTime, erhebungsAnfangsDatum) ? true : false;
-            })
+            .map(x => x.isReadonly)
             .publishReplay(1)
             .refCount();
 
         this.isSaveDisabled$ = this.preismeldung$
             .filter(x => !!x)
             .combineLatest(this.isReadonly$, (bag, isReadonly) => !bag.isModified || isReadonly)
+            .distinctUntilChanged()
             .publishReplay(1)
             .refCount();
 
-        const FIELD_MODIFIED = 'FIELD_MODIFIED';
-        const IS_SAVE_DISABLED = 'IS_SAVE_DISABLED';
-        type LookValueType = { type: 'FIELD_MODIFIED' } | { type: 'IS_SAVE_DISABLED'; value: boolean };
-        this.isSaveLookDisabled$ = this.nonFormKeyDown$
-            .merge(
-                this.preisChanged$,
-                this.mengeChanged$,
-                this.preisVorReduktionChanged$,
-                this.mengeVorReduktionChanged$
+        const hasChanged = (
+            input$: Observable<string>,
+            changed$: Observable<string>,
+            selector: (bag: P.CurrentPreismeldungViewBag) => string
+        ) =>
+            input$.withLatestFrom(
+                changed$.merge(this.preismeldung$.filter(x => !!x).map(selector)),
+                (i, c) => +i === +c
+            );
+
+        this.isSaveLookDisabled$ = this.distinctPreismeldung$
+            .combineLatest(
+                hasChanged(this.preisInput$, this.preisChanged$, bag => bag.preismeldung.preis)
+                    .merge(
+                        hasChanged(this.mengeInput$, this.mengeChanged$, bag => bag.preismeldung.menge),
+                        hasChanged(
+                            this.preisVorReduktionInput$,
+                            this.preisVorReduktionChanged$,
+                            bag => bag.preismeldung.preisVorReduktion
+                        ),
+                        hasChanged(
+                            this.mengeVorReduktionInput$,
+                            this.mengeVorReduktionChanged$,
+                            bag => bag.preismeldung.mengeVorReduktion
+                        )
+                    )
+                    .startWith(true)
+                    .distinctUntilChanged(),
+                (bag, changed) => (!bag || bag.isReadonly ? true : changed)
             )
-            .mapTo({ type: 'FIELD_MODIFIED' })
-            .merge(this.isSaveDisabled$.map(isSavedDisabled => ({ type: 'IS_SAVE_DISABLED', value: isSavedDisabled })))
-            .scan((agg, v: LookValueType) => {
-                if (v.type === 'FIELD_MODIFIED') return false;
-                return v.value;
-            }, true)
-            .startWith(true)
+            .distinctUntilChanged()
             .publishReplay(1)
             .refCount();
 
@@ -1160,6 +1166,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     ngOnDestroy() {
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
+    }
+
+    foobar(e) {
+        console.log('asdfasdf', e);
     }
 
     formLevelValidationFactory() {

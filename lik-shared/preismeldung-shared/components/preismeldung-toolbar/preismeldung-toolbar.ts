@@ -1,5 +1,14 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnChanges, SimpleChange, OnDestroy } from '@angular/core';
-import { Observable } from 'rxjs';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    ChangeDetectionStrategy,
+    OnChanges,
+    SimpleChange,
+    OnDestroy,
+} from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
 import { ReactiveComponent } from '../../../';
 
@@ -8,7 +17,7 @@ import * as P from '../../models';
 @Component({
     selector: 'preismeldung-toolbar',
     template: `
-    <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only class="pef-tab-button" (click)="buttonClicked$.emit('HOME')">
+    <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only class="pef-tab-button" (click)="otherButtonClicked$.emit('HOME')">
             <pef-icon name="home"></pef-icon>
         </button>
         <div class="preismeldung-buttons" *ngIf="!!preismeldung">
@@ -41,46 +50,64 @@ import * as P from '../../models';
                     <pef-icon class="warning-icon" [name]="'warning'" *ngIf="(preismeldung$ | async).hasPriceWarning"></pef-icon>
                 </div>
             </button>
-            <button ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')" [class.hidden]="((selectedTab$ | async) != 'PREISMELDUNG') || (requestPreismeldungQuickEqualDisabled$ | async)">
+            <button ion-button icon-only class="pef-toolbar-button" (click)="otherButtonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')" [class.hidden]="((selectedTab$ | async) != 'PREISMELDUNG') || (requestPreismeldungQuickEqualDisabled$ | async)" [disabled]="(preismeldung$ | async)?.isReadonly">
                 <div class="pef-inner">
                     <pef-icon name="equal"></pef-icon>
                 </div>
             </button>
-            <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only class="pef-toolbar-button" (click)="buttonClicked$.emit('PREISMELDUNG_SAVE')"
+            <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only class="pef-toolbar-button" (click)="saveButtonClicked$.emit()"
                 [class.hidden]="(selectedTab$ | async) != 'PREISMELDUNG'">
                 <div class="pef-inner">
-                    <pef-icon name="save"></pef-icon>
+                    <pef-icon [name]="(isSave$ | async) ? 'arrow_right' : 'save'"></pef-icon>
                 </div>
             </button>
         </div>`,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungToolbarComponent extends ReactiveComponent implements OnChanges, OnDestroy {
-    @Input() preismeldung: P.Models.Preismeldung;
+    @Input() preismeldung: P.CurrentPreismeldungViewBag;
     @Input() selectedTab: string;
     @Input() isAdminApp: boolean;
+    @Input() isSave: boolean;
     @Output('selectTab') selectTab$ = new EventEmitter<string>();
-    @Output('buttonClicked') buttonClicked$ = new EventEmitter<string>();
+    @Output('buttonClicked') buttonClicked$: Observable<string>;
+    otherButtonClicked$ = new EventEmitter<string>();
+    saveButtonClicked$ = new EventEmitter();
 
-    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
+    private onDestroy$ = new Subject();
+
+    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung');
+    public isSave$ = this.observePropertyCurrentValue<boolean>('isSave')
+        .publishReplay(1)
+        .refCount();
     public selectedTab$ = this.observePropertyCurrentValue<string>('selectedTab')
-        .publishReplay(1).refCount();
+        .publishReplay(1)
+        .refCount();
     public isAdminApp$ = this.observePropertyCurrentValue<boolean>('isAdminApp')
-        .publishReplay(1).refCount();
+        .publishReplay(1)
+        .refCount();
     public hasAttributes$: Observable<boolean>;
     public requestPreismeldungQuickEqualDisabled$: Observable<boolean>;
-
-    private subscriptions = [];
 
     constructor() {
         super();
 
-        this.subscriptions.push(this.selectedTab$.subscribe());
+        this.selectedTab$.takeUntil(this.onDestroy$).subscribe();
 
-        this.hasAttributes$ = this.preismeldung$
-            .map(p => !!p && !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length); // TODO: remove null check
+        this.hasAttributes$ = this.preismeldung$.map(
+            p => !!p && !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length
+        );
 
-        this.requestPreismeldungQuickEqualDisabled$ = this.preismeldung$.map(x => !!x && [2, 3, 7].some(y => y === x.preismeldung.bearbeitungscode)).startWith(false);
+        this.requestPreismeldungQuickEqualDisabled$ = this.preismeldung$
+            .map(x => !!x && [2, 3, 7].some(y => y === x.preismeldung.bearbeitungscode))
+            .startWith(false);
+
+        this.buttonClicked$ = this.otherButtonClicked$.merge(
+            this.saveButtonClicked$.withLatestFrom(
+                this.isSave$,
+                (_, isSave) => (isSave ? 'PREISMELDUNG_SAVE' : 'REQUEST_SELECT_NEXT_PREISMELDUNG')
+            )
+        );
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -88,8 +115,6 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     }
 
     ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.onDestroy$.next();
     }
 }

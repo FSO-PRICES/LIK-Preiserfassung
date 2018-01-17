@@ -1,6 +1,6 @@
 <div class="pms-price-entry-content">
     <preismeldung-toolbar [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async" (selectTab)="selectTab$.emit($event)"
-        (buttonClicked)="toolbarButtonClicked$.emit($event)">
+        [isSave]="isSave$ | async" (buttonClicked)="toolbarButtonClicked$.emit($event)">
     </preismeldung-toolbar>
     <div class="work-area">
         <div class="preismeldung-details-container">
@@ -18,11 +18,10 @@
                     [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
                     [isDesktop]="isDesktop$ | async" (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"></preismeldung-messages>
                 <preismeldung-price [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'" [preismeldung]="currentPreismeldung$ | async"
-                    [isDesktop]="isDesktop$ | async" [currentTime]="currentTime$ | async" [preismeldestelle]="preismeldestelle$ | async"
-                    [requestPreismeldungSave]="requestPreismeldungSave$ | async" [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
-                    (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)" (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
-                    (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})" (requestThrowChanges)="requestThrowChanges$.emit({})"
-                    [isAdminApp]="false" (save)="save$.emit($event)"></preismeldung-price>
+                    [isDesktop]="isDesktop$ | async" [preismeldestelle]="preismeldestelle$ | async" [requestPreismeldungSave]="requestPreismeldungSave$ | async"
+                    [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async" (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
+                    (duplicatePreismeldung)="duplicatePreismeldung$.emit()" (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
+                    (requestThrowChanges)="requestThrowChanges$.emit({})" [isAdminApp]="false" (save)="save$.emit($event)" (isSaveLookDisabled)="isSave$.emit($event)"></preismeldung-price>
             </div>
             <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
                 {{ 'label_no_preismeldung-selected' | translate }}
@@ -32,7 +31,7 @@
             <preismeldung-list [preismeldungen]="preismeldungen$ | async" [currentTime]="currentTime$ | async" [preismeldestelle]="preismeldestelle$ | async"
                 [currentPreismeldung]="currentPreismeldung$ | async" (selectPreismeldung)="selectPreismeldung$.emit($event)"
                 (addNewPreisreihe)="addNewPreisreihe$.emit()" (sortPreismeldungen)="navigateToPmsSort$.emit()" [currentLanguage]="currentLanguage$ | async"
-                [requestSelectNextPreismeldung]="requestSelectNextPreismeldung$ | async" [isDesktop]="isDesktop$ | async"></preismeldung-list>
+                [requestSelectNextPreismeldung]="selectNextPreismeldungRequested$ | async" [isDesktop]="isDesktop$ | async"></preismeldung-list>
         </div>
     </div>
 </div>

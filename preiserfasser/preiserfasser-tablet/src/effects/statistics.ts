@@ -12,7 +12,7 @@ import { PreismeldestelleStatisticsMap } from '../reducers/statistics';
 
 @Injectable()
 export class StatisticsEffects {
-    currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldung);
+    currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 

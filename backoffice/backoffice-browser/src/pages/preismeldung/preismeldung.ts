@@ -38,7 +38,7 @@ export class PreismeldungPage {
     public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
     public status$ = this.store.select(fromRoot.getPreismeldungenStatus);
     public currentPreismeldung$ = this.store
-        .select(fromRoot.getCurrentPreismeldung)
+        .select(fromRoot.getCurrentPreismeldungViewBag)
         .publishReplay(1)
         .refCount();
 

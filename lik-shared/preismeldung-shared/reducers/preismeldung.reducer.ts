@@ -150,7 +150,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 
-            // debugDifference(state.currentPreismeldung.preismeldung, payload, ['preis', 'menge', 'preisVorReduktion', 'mengeVorReduktion', 'preisVPK', 'mengeVPK', 'aktion', 'bearbeitungscode', 'artikelnummer', 'internetLink', 'artikeltext']);
+            // debugDifference(state.currentPreismeldung.preismeldung, payload, [ 'preis', 'menge', 'preisVorReduktion', 'mengeVorReduktion', 'preisVPK', 'mengeVPK', 'aktion', 'bearbeitungscode', 'artikelnummer', 'internetLink', 'artikeltext', ]);
 
             if (
                 state.currentPreismeldung.preismeldung.preis === payload.preis &&
@@ -592,17 +592,19 @@ function createCurrentPreismeldungBag(
     entity: P.PreismeldungBag,
     priceCountStatuses: PriceCountStatusMap,
     isAdminApp: boolean
-) {
+): CurrentPreismeldungBag {
     const messages = parsePreismeldungMessages(entity.preismeldung, isAdminApp);
     const attributes = cloneDeep(entity.preismeldung.productMerkmale);
     const warningAndTextzeile = calcWarningAndTextzeile(entity);
-    return assign({}, cloneDeep(entity), {
+    return {
+        ...cloneDeep(entity),
         priceCountStatus: priceCountStatuses[entity.preismeldung.epNummer],
         isModified: false,
         isMessagesModified: false,
         isAttributesModified: false,
         isNew: false,
         originalBearbeitungscode: entity.preismeldung.bearbeitungscode,
+        lastSaveAction: null,
         messages,
         attributes,
         hasMessageToCheck: calcHasMessageToCheck(messages),
@@ -610,7 +612,7 @@ function createCurrentPreismeldungBag(
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
         resetEvent: new Date().getTime(),
         textzeile: warningAndTextzeile.textzeile,
-    }) as P.CurrentPreismeldungBag;
+    };
 }
 
 function createStartingPercentageWithWarning(percentage: number): P.Models.PercentageWithWarning {
@@ -1036,6 +1038,7 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung, isAdminA
     };
 }
 
+// ??? because of getting rid of assign, brackets missing
 const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) =>
     messages.notiz !== '' || (messages.bemerkungenHistory !== '' && messages.bemerkungen === '');
 

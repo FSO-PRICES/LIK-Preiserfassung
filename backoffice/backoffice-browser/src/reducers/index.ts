@@ -4,7 +4,9 @@ import { combineReducers, ActionReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from 'ngrx-store-logger';
 
+import * as P from 'lik-shared';
 import { environment } from '../environments/environment';
+
 import * as fromCockpit from './cockpit';
 import * as fromControlling from './controlling';
 import * as fromError from './error';
@@ -104,7 +106,7 @@ export const getCurrentSettings = createSelector(getSettingState, fromSetting.ge
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);
-export const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
+const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
 export const getPreismeldungenStatus = createSelector(
     getPreismeldungenState,
     fromPreismeldungen.getPreismeldungenStatus
@@ -169,3 +171,19 @@ export const getWarenkorbState = (state: AppState) => state.warenkorb;
 
 export const getOnOfflineState = (state: AppState) => state.onoffline;
 export const getIsOffline = createSelector(getOnOfflineState, fromOnOffline.getIsOffline);
+
+export const getCurrentPreismeldungViewBag = createSelector(
+    getCurrentPreismeldung,
+    (currentPreismeldungBag): P.CurrentPreismeldungViewBag => {
+        function isReadonly() {
+            if (!currentPreismeldungBag) return false;
+            return !currentPreismeldungBag.preismeldung.uploadRequestedAt;
+        }
+        return !currentPreismeldungBag
+            ? null
+            : {
+                  ...currentPreismeldungBag,
+                  isReadonly: isReadonly(),
+              };
+    }
+);
