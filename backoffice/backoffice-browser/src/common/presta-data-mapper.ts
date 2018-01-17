@@ -373,7 +373,7 @@ function escapeNewlinesInText(s: string) {
 
 function escapeProductMerkmale(merkmale: string[]) {
     if (!merkmale || merkmale.length === 0) return ';'; // At least 1 semicolon is required for the PRESTA system
-    const combined = toCsv([keyBy(merkmale)], false);
+    const combined = toCsv([merkmale.reduce((a, v, i) => ({ ...a, [i]: v }), {})], false);
     return toCsv([{ merkmale: combined }], false).replace(/(^"|"$)/g, '');
 }
 
