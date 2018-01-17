@@ -30,9 +30,7 @@ import {
 export class PreismeldungenEffects {
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
 
-    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {
-        console.log('PreismeldungEffects ctor');
-    }
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_FOR_PMS').flatMap(({ payload: pmsNummer }) =>

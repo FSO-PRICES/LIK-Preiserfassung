@@ -58,7 +58,7 @@ import * as P from '../../models';
             <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only class="pef-toolbar-button" (click)="saveButtonClicked$.emit()"
                 [class.hidden]="(selectedTab$ | async) != 'PREISMELDUNG'">
                 <div class="pef-inner">
-                    <pef-icon [name]="(isSave$ | async) ? 'arrow_right' : 'save'"></pef-icon>
+                    <pef-icon [name]="(isNotSave$ | async) ? 'arrow_right' : 'save'"></pef-icon>
                 </div>
             </button>
         </div>`,
@@ -68,7 +68,7 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     @Input() preismeldung: P.CurrentPreismeldungViewBag;
     @Input() selectedTab: string;
     @Input() isAdminApp: boolean;
-    @Input() isSave: boolean;
+    @Input() isNotSave: boolean;
     @Output('selectTab') selectTab$ = new EventEmitter<string>();
     @Output('buttonClicked') buttonClicked$: Observable<string>;
     otherButtonClicked$ = new EventEmitter<string>();
@@ -77,7 +77,7 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     private onDestroy$ = new Subject();
 
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung');
-    public isSave$ = this.observePropertyCurrentValue<boolean>('isSave')
+    public isNotSave$ = this.observePropertyCurrentValue<boolean>('isNotSave')
         .publishReplay(1)
         .refCount();
     public selectedTab$ = this.observePropertyCurrentValue<string>('selectedTab')
@@ -104,8 +104,8 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
 
         this.buttonClicked$ = this.otherButtonClicked$.merge(
             this.saveButtonClicked$.withLatestFrom(
-                this.isSave$,
-                (_, isSave) => (isSave ? 'PREISMELDUNG_SAVE' : 'REQUEST_SELECT_NEXT_PREISMELDUNG')
+                this.isNotSave$,
+                (_, isNotSave) => (isNotSave ? 'REQUEST_SELECT_NEXT_PREISMELDUNG' : 'PREISMELDUNG_SAVE')
             )
         );
     }

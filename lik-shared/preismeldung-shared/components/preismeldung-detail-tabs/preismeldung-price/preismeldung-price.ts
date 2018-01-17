@@ -633,7 +633,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             this.mengeVorReduktionInput$,
                             this.mengeVorReduktionChanged$,
                             bag => bag.preismeldung.mengeVorReduktion
-                        )
+                        ),
+                        this.preismeldung$
+                            .filter(x => !!x)
+                            .map(x => x.isModified)
+                            .distinctUntilChanged()
+                            .map(x => !x)
                     )
                     .startWith(true)
                     .distinctUntilChanged(),

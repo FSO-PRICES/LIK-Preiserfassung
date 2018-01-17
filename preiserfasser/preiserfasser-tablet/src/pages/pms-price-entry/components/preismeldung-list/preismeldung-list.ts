@@ -163,7 +163,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         ).filter(x => !!x);
 
         const selectNext$ = this.selectNextPreismeldung$
-            .merge(requestSelectNextPreismeldung$.do(x => console.log('here')))
+            .merge(requestSelectNextPreismeldung$)
             .withLatestFrom(
                 this.currentPreismeldung$,
                 this.filteredPreismeldungen$,

@@ -72,7 +72,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     requestSelectNextPreismeldung$ = new EventEmitter<{}>();
     selectNextPreismeldungRequested$: Observable<{}>;
     requestThrowChanges$ = new EventEmitter<{}>();
-    isSave$ = new EventEmitter<boolean>();
+    isNotSave$ = new EventEmitter<boolean>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -98,8 +98,6 @@ export class PmsPriceEntryPage implements OnDestroy {
         const cancelEditDialog$ = Observable.defer(() =>
             pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data)
         );
-
-        this.isSave$.subscribe(x => console.log('xxxx', x));
 
         this.selectedTab$ = this.selectTab$
             .merge(
