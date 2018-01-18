@@ -174,7 +174,7 @@ export class ExporterEffects {
                                 { type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
                                     const count = updatedPreismeldestellen.length;
-                                    const envelope = createEnvelope(MessageTypes.Preismeldestellen);
+                                    const envelope = createEnvelope(MessageTypes.Preismeldestellen, createMesageId());
 
                                     FileSaver.saveAs(
                                         new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
@@ -235,7 +235,7 @@ export class ExporterEffects {
                                 { type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
                                     const count = peZuweisungen.length;
-                                    const envelope = createEnvelope(MessageTypes.Preiserheber);
+                                    const envelope = createEnvelope(MessageTypes.Preiserheber, createMesageId());
 
                                     FileSaver.saveAs(
                                         new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),

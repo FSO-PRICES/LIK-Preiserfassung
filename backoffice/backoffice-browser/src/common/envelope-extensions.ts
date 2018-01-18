@@ -8,8 +8,7 @@ export const MessageTypes = {
 
 export const createMesageId = () => `${new Date().getTime()}${Math.ceil(Math.random() * 10)}`;
 
-export function createEnvelope(messageType: string = '1025', messageId?: string) {
-    const _messageId = messageId || createMesageId();
+export function createEnvelope(messageType: string = '1025', messageId: string) {
     const date = moment().format('YYYY-MM-DDThh:mm:ss');
     return {
         content: `<?xml version="1.0" encoding="UTF-8"?>
@@ -22,6 +21,6 @@ export function createEnvelope(messageType: string = '1025', messageId?: string)
 <eCH-0090:eventDate>${date}</eCH-0090:eventDate>
 <eCH-0090:messageDate>${date}</eCH-0090:messageDate>
 </eCH-0090:envelope>`,
-        fileSuffix: _messageId,
+        fileSuffix: messageId,
     };
 }
