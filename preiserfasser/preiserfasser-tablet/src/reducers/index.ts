@@ -19,6 +19,7 @@ import { fromWarenkorb, fromPreismeldungen } from 'lik-shared';
 import * as fromSettings from './setting';
 import * as fromStatistics from './statistics';
 import * as fromTime from './time';
+import * as fromPdf from './pdf';
 
 export interface AppState {
     appConfig: fromAppConfig.State;
@@ -33,6 +34,7 @@ export interface AppState {
     statistics: fromStatistics.State;
     time: fromTime.State;
     warenkorb: fromWarenkorb.State;
+    pdf: fromPdf.State;
 }
 
 const reducers = {
@@ -48,6 +50,7 @@ const reducers = {
     statistics: fromStatistics.reducer,
     time: fromTime.reducer,
     warenkorb: fromWarenkorb.reducer,
+    pdf: fromPdf.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -129,8 +132,11 @@ export const getCurrentPreismeldungViewBag = createSelector(
         return !currentPreismeldungBag
             ? null
             : {
-                  ...currentPreismeldungBag,
-                  isReadonly: isReadonly(),
-              };
+                ...currentPreismeldungBag,
+                isReadonly: isReadonly(),
+            };
     }
 );
+
+export const getPdfState = (state: AppState) => state.pdf;
+export const getCreatedPmsPdf = createSelector(getPdfState, fromPdf.getCreatedPmsPdf);

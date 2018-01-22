@@ -5,10 +5,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription, Observable } from 'rxjs';
 import assign from 'lodash/assign';
 
-import { pefSearch, PefDialogService, Models as P, parseErhebungsartForForm } from 'lik-shared';
+import { pefSearch, PefDialogService, PefMessageDialogService, Models as P, parseErhebungsartForForm, PreismeldungAction } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 
+import { Action as PdfAction } from '../../actions/pdf';
 import { Action as StatisticsAction } from '../../actions/statistics';
 import { Actions as DatabaseAction } from '../../actions/database';
 import { Action as LoginAction } from '../../actions/login';
@@ -57,13 +58,13 @@ export class DashboardPage implements OnDestroy {
     public navigateToPreiserheber$ = new EventEmitter();
     public navigateToSettings$ = new EventEmitter();
     public navigateToDetails$ = new EventEmitter<P.Preismeldestelle>();
-    public openPrint$ = new EventEmitter<P.Preismeldestelle>();
-    public isPrintingPmsNummer$: Observable<string>;
+    public createPmsPdf$ = new EventEmitter<P.Preismeldestelle>();
     public finishedPrinting$ = new EventEmitter();
 
     constructor(
         private navCtrl: NavController,
         private pefDialogService: PefDialogService,
+        private pefMessageDialogService: PefMessageDialogService,
         private translateService: TranslateService,
         private store: Store<fromRoot.AppState>
     ) {
@@ -97,11 +98,6 @@ export class DashboardPage implements OnDestroy {
         this.canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase)
             .filter(x => x !== null)
             .startWith(false)
-            .publishReplay(1).refCount();
-
-        this.isPrintingPmsNummer$ = this.openPrint$
-            .map(pms => pms.pmsNummer)
-            .merge(this.finishedPrinting$.map(() => null))
             .publishReplay(1).refCount();
 
         this.subscriptions = [
@@ -169,7 +165,30 @@ export class DashboardPage implements OnDestroy {
             canConnectToDatabase$.skip(1)
                 .withLatestFrom(this.isSyncing$, (canConnect, isSyncing) => ({ canConnect, isSyncing }))
                 .filter(({ canConnect, isSyncing }) => canConnect && !isSyncing)
-                .subscribe(() => this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction))
+                .subscribe(() => this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction)),
+
+            this.createPmsPdf$
+                .withLatestFrom(this.erhebungsmonat$)
+                .flatMap(data => pefDialogService.displayLoading(translateService.instant('dialogText_pdf-preparing-data'), this.store.select(fromRoot.getCreatedPmsPdf).skip(1).filter(x => !!x).do(x => console.log('in dialog dispose', x))).map(() => data))
+                .subscribe(([preismeldestelle, erhebungsmonat]) => {
+                    this.store.dispatch({ type: 'CREATE_PMS_PDF', payload: { preismeldestelle, erhebungsmonat } } as PdfAction);
+                    this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: preismeldestelle.pmsNummer } as PreismeldungAction);
+                }),
+
+            this.store.select(fromRoot.getCreatedPmsPdf)
+                .skip(1)
+                .filter(x => !!x && !!x.message)
+                .flatMap(({ message: location }) => this.pefMessageDialogService
+                    .displayDialogOneButton('btn_ok', location == 'DOCUMENT_LOCATION' ? 'dialogText_pdf-saved-at-documents' : 'dialogText_pdf-saved-at-application')
+                    .map(res => {
+                        switch (res.data) {
+                            case 'CLOSE':
+                                console.log('ok pressed', location);
+                                return location;
+                        }
+                    })
+                )
+                .subscribe()
         ];
     }
 

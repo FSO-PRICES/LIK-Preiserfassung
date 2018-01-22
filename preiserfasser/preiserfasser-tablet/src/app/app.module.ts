@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
+import { File } from '@ionic-native/file';
 
 import 'rxjs';
 
@@ -48,6 +49,7 @@ import { BrowserModule } from '@angular/platform-browser';
         StatusBar,
         SplashScreen,
         ScreenOrientation,
+        File,
         PefLanguageService,
         { provide: PefLanguageService, useClass: PreiserfasserTabletPefLanguageService },
         { provide: 'windowObject', useValue: window }

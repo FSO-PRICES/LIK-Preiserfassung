@@ -10,6 +10,7 @@ import { SettingEffects } from './setting';
 import { StatisticsEffects } from './statistics';
 import { TimeEffects } from './time';
 import { WarenkorbEffects } from './warenkorb';
+import { CreatePdfEffects } from './create-pdf';
 
 export const PEF_EFFECTS = [
     EffectsModule.run(DatabaseEffects),
@@ -21,5 +22,6 @@ export const PEF_EFFECTS = [
     EffectsModule.run(SettingEffects),
     EffectsModule.run(StatisticsEffects),
     EffectsModule.run(TimeEffects),
-    EffectsModule.run(WarenkorbEffects)
+    EffectsModule.run(WarenkorbEffects),
+    EffectsModule.run(CreatePdfEffects)
 ];
