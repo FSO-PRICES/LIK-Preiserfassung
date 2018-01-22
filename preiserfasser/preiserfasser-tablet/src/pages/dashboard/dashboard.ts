@@ -169,7 +169,7 @@ export class DashboardPage implements OnDestroy {
 
             this.createPmsPdf$
                 .withLatestFrom(this.erhebungsmonat$)
-                .flatMap(data => pefDialogService.displayLoading(translateService.instant('dialogText_pdf-preparing-data'), this.store.select(fromRoot.getCreatedPmsPdf).skip(1).filter(x => !!x).do(x => console.log('in dialog dispose', x))).map(() => data))
+                .flatMap(data => pefDialogService.displayLoading(translateService.instant('dialogText_pdf-preparing-data'), this.store.select(fromRoot.getCreatedPmsPdf).skip(1).filter(x => !!x)).map(() => data))
                 .subscribe(([preismeldestelle, erhebungsmonat]) => {
                     this.store.dispatch({ type: 'CREATE_PMS_PDF', payload: { preismeldestelle, erhebungsmonat } } as PdfAction);
                     this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: preismeldestelle.pmsNummer } as PreismeldungAction);
@@ -183,7 +183,6 @@ export class DashboardPage implements OnDestroy {
                     .map(res => {
                         switch (res.data) {
                             case 'CLOSE':
-                                console.log('ok pressed', location);
                                 return location;
                         }
                     })

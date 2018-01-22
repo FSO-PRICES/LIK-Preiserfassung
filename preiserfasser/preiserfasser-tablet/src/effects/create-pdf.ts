@@ -389,8 +389,7 @@ function toPdf(data, file: File, preismeldestelle: P.Models.Preismeldestelle, pl
         doc.line(settings.page.margin.left, settings.page.header.hr, doc.internal.pageSize.width - settings.page.margin.right, settings.page.header.hr);
     }
 
-
-    if (platform.is('cordova')) {
+    if (platform.is('mobile')) {
         let pdfOutput = doc.output();
         let buffer = new ArrayBuffer(pdfOutput.length);
         let array = new Uint8Array(buffer);
@@ -406,6 +405,6 @@ function toPdf(data, file: File, preismeldestelle: P.Models.Preismeldestelle, pl
     }
     else {
         doc.save(`PDF_${pmsNummer}_${+new Date()}.pdf`)
-        return Promise.resolve('DOCUMENT_LOCATION');
+        return Promise.resolve(null);
     }
 }
