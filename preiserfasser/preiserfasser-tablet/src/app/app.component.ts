@@ -81,11 +81,21 @@ export class PefApp implements OnInit {
     public ngOnInit() {
         this.store.dispatch({ type: 'LOAD_SETTINGS' });
         this.store.dispatch({ type: 'CHECK_DATABASE_LAST_UPLOADED_AT' });
+        this.navCtrl.viewDidEnter
+            .filter(event => event.name != 'SettingsPage')
+            .flatMap((event) => this.store.select(fromRoot.getSettings).take(1), (event, settings) => ({ event, settings }))
+            .subscribe(({ event, settings }) => {
+                if (!!settings && settings.isDefault) {
+                    this.navCtrl.setRoot('SettingsPage');
+                }
+            });
         this.store.select(fromRoot.getSettings)
-            .filter(setting => !!setting)
-            .map(setting => !setting.isDefault)
+            .filter(setting => !!setting && setting.isDefault)
             .take(1)
-            .flatMap(areSettingsDefined => !areSettingsDefined ? this.navCtrl.setRoot('SettingsPage') : Promise.resolve())
-            .subscribe();
+            .subscribe(setting => {
+                if (setting.isDefault) {
+                    this.rootPage = 'SettingsPage';
+                }
+            });
     }
 }
