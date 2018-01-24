@@ -45,7 +45,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                     <ion-item class="pef-textarea-item">
                         <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="erledigtDisabled$ | async" [readonly]="erledigtDisabled$ | async"></ion-textarea>
                     </ion-item>
-                    <button ion-button color="java" [disabled]="erledigtDisabled$ | async" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
+                    <button ion-button color="java" [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
                 </div>
             </form>
         </ion-content>`,
@@ -76,6 +76,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     public notizClear$ = new EventEmitter();
     public kommentarClear$ = new EventEmitter();
     public erledigtDisabled$: Observable<boolean>;
+    public erledigtButtonDisabled$: Observable<boolean>;
     public erledigt$ = new EventEmitter();
     private onDestroy$ = new Subject();
 
@@ -94,9 +95,9 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .filter(x => !!x)
             .distinctUntilKeyChanged('pmId')
             .merge(
-                this.isActive$
-                    .filter(x => x)
-                    .flatMap(() => Observable.defer(() => this.preismeldung$.filter(x => !!x).take(1)))
+            this.isActive$
+                .filter(x => x)
+                .flatMap(() => Observable.defer(() => this.preismeldung$.filter(x => !!x).take(1)))
             )
             .publishReplay(1)
             .refCount();
@@ -143,12 +144,15 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
         const buttonActionDone$ = Observable.merge(notizClearDone$, kommentarClearDone$, erledigtDone$);
 
         this.erledigtDisabled$ = this.form.valueChanges.map(x => x.bemerkungen.endsWith('@OK')).startWith(false);
+        this.erledigtButtonDisabled$ = this.form.valueChanges.map(x => !x.bemerkungen)
+            .merge(distinctPreismeldung$.map(x => !x.messages.bemerkungen))
+            .startWith(true);
 
         this.preismeldungMessagesPayload$ = this.onBlur$
             .merge(buttonActionDone$)
             .withLatestFrom(
-                this.form.valueChanges.startWith({ notiz: '', kommentar: '', bemerkungen: '' }),
-                (_, formValue) => formValue
+            this.form.valueChanges.startWith({ notiz: '', kommentar: '', bemerkungen: '' }),
+            (_, formValue) => formValue
             )
             .debounceTime(100)
             .withLatestFrom(this.isAdminApp$.startWith(false), (x, isAdminApp) => assign(x, { isAdminApp }))
