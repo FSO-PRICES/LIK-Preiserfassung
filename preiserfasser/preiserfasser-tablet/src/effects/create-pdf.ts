@@ -45,7 +45,7 @@ function parseCode(code: number) {
 }
 
 function mapData(preismeldungen: P.PreismeldungBag[], priceCountStatuses: { [pmsNummer: string]: P.PriceCountStatus }, warenkorb: P.WarenkorbInfo[], currentLanguage: string, translateFn: (key: string) => string) {
-    const test = preismeldungen.map(bag => [
+    return preismeldungen.map(bag => [
         {
             col1: [translateFn('label_print_pos'), `${bag.warenkorbPosition.gliederungspositionsnummer}/${bag.preismeldung.laufnummer}`],
             col2: [translateFn('label_print_positionsbezeichnung'), bag.warenkorbPosition.positionsbezeichnung[currentLanguage]],
