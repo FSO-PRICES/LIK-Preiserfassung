@@ -1,6 +1,6 @@
 import { assign } from 'lodash';
 
-import * as database from '../actions/pdf';
+import * as pdf from '../actions/pdf';
 
 export interface State {
     createdPmsPdf: { message: string } | null;
@@ -10,7 +10,7 @@ const initialState: State = {
     createdPmsPdf: null
 };
 
-export function reducer(state = initialState, action: database.Action): State {
+export function reducer(state = initialState, action: pdf.Action): State {
     switch (action.type) {
         case 'PDF_RESET_PMS':
             return assign({}, state, { createdPmsPdf: null });
