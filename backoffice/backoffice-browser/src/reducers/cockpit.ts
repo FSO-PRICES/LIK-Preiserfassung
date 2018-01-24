@@ -129,8 +129,8 @@ function createCockpitPreismeldungenSummary(todo: P.PreismeldungReference[], tod
 
 function createCockpitPmsPreismeldungenSummary(preismeldestellen: P.Preismeldestelle[], refPreismeldungen: P.PreismeldungReference[], preismeldungenSynced: P.Preismeldung[]): CockpitPmsPreismeldungSummary[] {
     return preismeldestellen.map(pms => {
-        const pmsTodo = refPreismeldungen.filter(r => r.pmsNummer === pms.pmsNummer);
-        const pmsPreismeldungenSynced = preismeldungenSynced.filter(r => r.pmsNummer === pms.pmsNummer);
+        const pmsTodo = pms ? refPreismeldungen.filter(r => r.pmsNummer === pms.pmsNummer) : [];
+        const pmsPreismeldungenSynced = pms ? preismeldungenSynced.filter(r => r.pmsNummer === pms.pmsNummer) : [];
         return {
             pms,
             summary: createStichtagGroupedCockpitPreismeldungSummary(pmsTodo, pmsPreismeldungenSynced)

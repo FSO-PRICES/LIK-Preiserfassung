@@ -16,8 +16,8 @@
         [enabled]="true" [scrollToTop]="(preiserheber$ | async).pmsPreismeldungSummary">
         <div class="pms-summary-row" *ngFor="let pmsSummary of pmsSummaryList ">
             <div class="name">
-                <div class="pms-name">{{ pmsSummary.pms.name }}</div>
-                <div>{{ pmsSummary.pms.erhebungsregion }}</div>
+                <div class="pms-name">{{ pmsSummary.pms?.name || 'Nicht in diesem erhebungsmonat' }}</div>
+                <div>{{ pmsSummary.pms?.erhebungsregion }}</div>
             </div>
             <div class="todo">
                 <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].todo == pmsSummary.summary[erhebungsZeitpunktKey].todoSynced">{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}</span>
