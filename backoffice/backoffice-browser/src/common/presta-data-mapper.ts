@@ -238,7 +238,7 @@ export function preparePmForExport(
             Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
             Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
             Datum_vor_Reduktion: pm.datumVorReduktion,
-            Produktmerkmale: toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale'),
+            Produktmerkmale: toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale', false),
         }))
     );
 }
@@ -347,11 +347,11 @@ function toDecimal(value: any, maxLength: number, maxDigits: number, propertyNam
     return parseFloat(value).toFixed(maxDigits);
 }
 
-function toText(value: string, maxLength: number, propertyName: string) {
+function toText(value: string, maxLength: number, propertyName: string, replaceDelimiters = true) {
     const resultLength = !!value ? value.toString().length : 0;
     if (resultLength > maxLength)
         throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`);
-    return value;
+    return !!value && replaceDelimiters ? value.replace(/;/g, ',').replace(/"/g, '\'\'') : value;
 }
 
 function parseNumber(s: string, propertyName: string) {
