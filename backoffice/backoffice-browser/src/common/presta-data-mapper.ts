@@ -238,7 +238,7 @@ export function preparePmForExport(
             Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
             Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
             Datum_vor_Reduktion: pm.datumVorReduktion,
-            Produktmerkmale: toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale', false),
+            Produktmerkmale: `"${toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale', false)}"`,
         }))
     );
 }
