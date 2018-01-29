@@ -29,7 +29,10 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                     <ion-item class="pef-textarea-item">
                         <ion-textarea formControlName="notiz" (blur)="onBlur$.emit()"></ion-textarea>
                     </ion-item>
-                    <button ion-button color="java" (click)="notizClear$.emit()">{{ 'btn_leeren' | translate }}</button>
+                    <div class="actions">
+                        <button ion-button color="java" type="button">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" (click)="notizClear$.emit()">{{ 'btn_leeren' | translate }}</button>
+                    </div>
                     <h3>{{ 'heading_kommentar-zum-aktuellen-monat' | translate }}</h3>
                     <div class="kommentar-autotext">
                         <span *ngFor="let text of (preismeldung$ | async)?.messages.kommentarAutotext">{{ (text | translate) + '\u0020' }}</span>
@@ -37,15 +40,21 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                     <ion-item class="pef-textarea-item">
                         <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()"></ion-textarea>
                     </ion-item>
-                    <button ion-button color="java" (click)="kommentarClear$.emit()">{{ 'btn_leeren' | translate }}</button>
+                    <div class="actions">
+                        <button ion-button color="java" type="button">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" (click)="kommentarClear$.emit()">{{ 'btn_leeren' | translate }}</button>
+                    </div>
                     <h3>{{ 'heading_kommunikation' | translate }}</h3>
-                    <div class="message-history" *ngIf="(bemerkungenHistory$ | async)?.length > 0">
-                        <div *ngFor="let h of (bemerkungenHistory$ | async)" class="message-item"><span class="message-author" *ngIf="!!h.author">{{h.author}}:</span><span class="message-text" [innerHtml]="h.text"></span></div>
+                    <div class="message-history" *ngIf="(bemerkungenHistory$ | async)">
+                        <div class="message-item"><span class="message-text" [innerHtml]="(bemerkungenHistory$ | async)"></span></div>
                     </div>
                     <ion-item class="pef-textarea-item">
                         <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="erledigtDisabled$ | async" [readonly]="erledigtDisabled$ | async"></ion-textarea>
                     </ion-item>
-                    <button ion-button color="java" [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
+                    <div class="actions">
+                        <button ion-button color="java" type="button">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
+                    </div>
                 </div>
             </form>
         </ion-content>`,
@@ -70,7 +79,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
     public isAdminApp$ = this.observePropertyCurrentValue<boolean>('isAdminApp');
 
-    public bemerkungenHistory$: Observable<{ author: string; text: string }[]>;
+    public bemerkungenHistory$: Observable<string>;
 
     public onBlur$ = new EventEmitter();
     public notizClear$ = new EventEmitter();
@@ -103,22 +112,15 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .refCount();
 
         this.bemerkungenHistory$ = distinctPreismeldung$
-            .map(x => {
-                const splitted = x.messages.bemerkungenHistory.split('\\n').map(y => {
-                    if (y.startsWith('PE:')) return { author: 'PE', text: y.substring(3).replace('¶', '<br/>') };
-                    if (y.startsWith('BFS:')) return { author: 'BFS', text: y.substring(4).replace('¶', '<br/>') };
-                    return { author: null, text: y };
-                });
-                return splitted.length === 1 && !x.messages.bemerkungenHistory ? null : splitted;
-            })
+            .map(x => x.refPreismeldung.bemerkungen.replace(/\\n/g, '<br/>'))
             .publishReplay(1)
             .refCount();
 
         distinctPreismeldung$.takeUntil(this.onDestroy$).subscribe(bag => {
             this.form.reset({
-                notiz: bag.messages.notiz.replace('¶', '\n'),
-                kommentar: bag.messages.kommentar.replace('¶', '\n'),
-                bemerkungen: bag.messages.bemerkungen.replace('¶', '\n'),
+                notiz: bag.messages.notiz.replace(/\\n/g, '\n'),
+                kommentar: bag.messages.kommentar.replace(/\\n/g, '\n'),
+                bemerkungen: bag.messages.bemerkungen.replace(/\\n/g, '\n'),
             });
         });
 
@@ -157,9 +159,9 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .debounceTime(100)
             .withLatestFrom(this.isAdminApp$.startWith(false), (x, isAdminApp) => assign(x, { isAdminApp }))
             .map(x => ({
-                notiz: x.notiz.replace(/(?:\r\n|\r|\n)/g, '¶'),
-                kommentar: x.kommentar.replace(/(?:\r\n|\r|\n)/g, '¶'),
-                bemerkungen: x.bemerkungen.replace(/(?:\r\n|\r|\n)/g, '¶'),
+                notiz: x.notiz.replace(/(?:\r\n|\r|\n)/g, '\\n'),
+                kommentar: x.kommentar.replace(/(?:\r\n|\r|\n)/g, '\\n'),
+                bemerkungen: x.bemerkungen.replace(/(?:\r\n|\r|\n)/g, '\\n'),
                 isAdminApp: x.isAdminApp,
             }));
     }

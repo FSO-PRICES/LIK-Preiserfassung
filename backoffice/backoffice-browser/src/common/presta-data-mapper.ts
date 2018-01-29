@@ -221,14 +221,14 @@ export function preparePmForExport(
                 24,
                 'Fehlende_Preise'
             ),
-            PE_Notiz: toText((pm.notiz || '').replace(/(?:\r\n|\r|\n)/g, '¶').substr(0, 4000), 4000, 'PE_Notiz'),
+            PE_Notiz: toText((pm.notiz || '').substr(0, 4000), 4000, 'PE_Notiz'),
             PE_Kommentar: toText(
-                (pm.kommentar || '').replace(/(?:\r\n|\r|\n)/g, '¶').substr(0, 4000),
+                (pm.kommentar || '').substr(0, 4000),
                 4000,
                 'PE_Kommentar'
             ),
             Bemerkungen: toText(
-                (pm.bemerkungen || '').replace(/(?:\r\n|\r|\n)/g, '¶').substr(0, 4000),
+                (pm.bemerkungen || '').substr(0, 4000),
                 4000,
                 'Bemerkungen'
             ),

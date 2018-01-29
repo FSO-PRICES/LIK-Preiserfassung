@@ -18,7 +18,6 @@ export interface CurrentPreismeldungBagMessages {
     notiz: string;
     kommentarAutotext: string[];
     kommentar: string;
-    bemerkungenHistory: string;
     bemerkungen: string;
 }
 
@@ -257,7 +256,10 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const currentPreismeldung = assign({}, state.currentPreismeldung, {
                 messages,
                 isMessagesModified: true,
-                hasMessageToCheck: calcHasMessageToCheck(messages),
+                hasMessageToCheck: calcHasMessageToCheck(
+                    state.currentPreismeldung.refPreismeldung.bemerkungen,
+                    messages
+                ),
             });
 
             return assign({}, state, { currentPreismeldung });
@@ -607,7 +609,7 @@ function createCurrentPreismeldungBag(
         lastSaveAction: null,
         messages,
         attributes,
-        hasMessageToCheck: calcHasMessageToCheck(messages),
+        hasMessageToCheck: calcHasMessageToCheck(entity.refPreismeldung.bemerkungen, messages),
         hasPriceWarning: warningAndTextzeile.hasPriceWarning,
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
         resetEvent: new Date().getTime(),
@@ -1019,28 +1021,19 @@ function calculatePercentageChange(price1: number, quantity1: number, price2: nu
 
 function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung, isAdminApp: boolean) {
     const { kommentar, bemerkungen, notiz } = preismeldung;
-    const kommentarResult = (kommentar || '').split('\\n');
-    const bemerkungenResult = (bemerkungen || '').split('\\n');
-    const prefix = !isAdminApp ? 'PE:' : 'BFS:';
+    const kommentarResult = (kommentar || '').split('¶');
     return {
         isAdminApp,
         notiz,
         kommentarAutotext: kommentarResult.length === 2 ? kommentarResult[0].split(',') : [],
         kommentar: kommentarResult.length === 2 ? kommentarResult[1] : kommentar,
-        bemerkungenHistory:
-            !bemerkungen || !last(bemerkungenResult).startsWith(prefix)
-                ? bemerkungen || ''
-                : initial(bemerkungenResult).join('\\n'),
-        bemerkungen:
-            !bemerkungen || !last(bemerkungenResult).startsWith(prefix)
-                ? ''
-                : last(bemerkungenResult).substring(prefix.length),
+        bemerkungen: bemerkungen,
     };
 }
 
 // ??? because of getting rid of assign, brackets missing
-const calcHasMessageToCheck = (messages: CurrentPreismeldungBagMessages) =>
-    messages.notiz !== '' || (messages.bemerkungenHistory !== '' && messages.bemerkungen === '');
+const calcHasMessageToCheck = (refBemerkungen: string, messages: CurrentPreismeldungBagMessages) =>
+    messages.notiz !== '' || (refBemerkungen !== '' && messages.bemerkungen === '');
 
 const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenkorb) => {
     return !!productMerkmaleFromWarenkorb ? !productMerkmaleFromWarenkorb.every((x, i) => !!attributes[i]) : false;

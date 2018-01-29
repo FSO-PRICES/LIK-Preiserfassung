@@ -348,7 +348,7 @@ export class PreismeldungenEffects {
             aktion: false,
             artikelnummer: rpm.artikelnummer,
             artikeltext: rpm.artikeltext,
-            bemerkungen: rpm.bemerkungen,
+            bemerkungen: '',
             notiz: rpm.notiz,
             erhebungsZeitpunkt: rpm.erhebungsZeitpunkt,
             kommentar: '',

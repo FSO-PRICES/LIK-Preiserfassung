@@ -85,12 +85,9 @@ export function messagesFromCurrentPreismeldung(bag: P.CurrentPreismeldungBag) {
         notiz: bag.messages.notiz,
         kommentar:
             bag.messages.kommentarAutotext.join(',') +
-            (bag.messages.kommentarAutotext.length > 0 ? '\\n' : '') +
+            (bag.messages.kommentarAutotext.length > 0 ? '¶' : '') +
             bag.messages.kommentar,
-        bemerkungen:
-            bag.messages.bemerkungenHistory +
-            (!!bag.messages.bemerkungenHistory ? '\\n' : '') +
-            (!!bag.messages.bemerkungen ? (!bag.messages.isAdminApp ? 'PE:' : 'BFS:') + bag.messages.bemerkungen : ''),
+        bemerkungen: bag.messages.bemerkungen,
         modifiedAt: format(new Date()),
     };
 }
