@@ -167,7 +167,7 @@ function createPmsDocsBasedOnZuweisung(
             )
             .map(x => {
                 const pmsToCreate = toCreate
-                    .map(y => x.preismeldestellen.find(z => z.pmsNummer === y))
+                    .map(y => x.preismeldestellen.filter(z => !!z).find(z => z.pmsNummer === y))
                     .map(pms => clearRev<P.CouchProperties>(pms));
                 const pmsToRemove = toRemove
                     .map(y => x.existingPmsRecords.find(z => z._id === preismeldestelleId(y)))
