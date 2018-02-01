@@ -104,15 +104,20 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .filter(x => !!x)
             .distinctUntilKeyChanged('pmId')
             .merge(
-            this.isActive$
-                .filter(x => x)
-                .flatMap(() => Observable.defer(() => this.preismeldung$.filter(x => !!x).take(1)))
+                this.isActive$
+                    .filter(x => x)
+                    .flatMap(() => Observable.defer(() => this.preismeldung$.filter(x => !!x).take(1)))
             )
             .publishReplay(1)
             .refCount();
 
         this.bemerkungenHistory$ = distinctPreismeldung$
-            .map(x => x.refPreismeldung.bemerkungen.replace(/\\n/g, '<br/>'))
+            .map(
+                x =>
+                    !!x.refPreismeldung
+                        ? !!x.refPreismeldung.bemerkungen ? x.refPreismeldung.bemerkungen.replace(/\\n/g, '<br/>') : ''
+                        : ''
+            )
             .publishReplay(1)
             .refCount();
 
@@ -146,15 +151,16 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
         const buttonActionDone$ = Observable.merge(notizClearDone$, kommentarClearDone$, erledigtDone$);
 
         this.erledigtDisabled$ = this.form.valueChanges.map(x => x.bemerkungen.endsWith('@OK')).startWith(false);
-        this.erledigtButtonDisabled$ = this.form.valueChanges.map(x => !x.bemerkungen)
+        this.erledigtButtonDisabled$ = this.form.valueChanges
+            .map(x => !x.bemerkungen)
             .merge(distinctPreismeldung$.map(x => !x.messages.bemerkungen))
             .startWith(true);
 
         this.preismeldungMessagesPayload$ = this.onBlur$
             .merge(buttonActionDone$)
             .withLatestFrom(
-            this.form.valueChanges.startWith({ notiz: '', kommentar: '', bemerkungen: '' }),
-            (_, formValue) => formValue
+                this.form.valueChanges.startWith({ notiz: '', kommentar: '', bemerkungen: '' }),
+                (_, formValue) => formValue
             )
             .debounceTime(100)
             .withLatestFrom(this.isAdminApp$.startWith(false), (x, isAdminApp) => assign(x, { isAdminApp }))

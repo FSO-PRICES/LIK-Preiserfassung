@@ -739,7 +739,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 }[] = [
                     {
                         condition: () =>
-                            !isAdminApp && !!bag.refPreismeldung.bemerkungen && bag.messages.bemerkungen === '',
+                            !isAdminApp &&
+                            !!bag.refPreismeldung &&
+                            !!bag.refPreismeldung.bemerkungen &&
+                            bag.messages.bemerkungen === '',
                         observable: () =>
                             pefDialogService
                                 .displayDialog(

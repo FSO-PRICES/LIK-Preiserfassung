@@ -257,7 +257,9 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 messages,
                 isMessagesModified: true,
                 hasMessageToCheck: calcHasMessageToCheck(
-                    state.currentPreismeldung.refPreismeldung.bemerkungen,
+                    !!state.currentPreismeldung.refPreismeldung
+                        ? state.currentPreismeldung.refPreismeldung.bemerkungen
+                        : '',
                     messages
                 ),
             });
@@ -609,7 +611,10 @@ function createCurrentPreismeldungBag(
         lastSaveAction: null,
         messages,
         attributes,
-        hasMessageToCheck: calcHasMessageToCheck(entity.refPreismeldung.bemerkungen, messages),
+        hasMessageToCheck: calcHasMessageToCheck(
+            !!entity.refPreismeldung ? entity.refPreismeldung.bemerkungen : '',
+            messages
+        ),
         hasPriceWarning: warningAndTextzeile.hasPriceWarning,
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
         resetEvent: new Date().getTime(),
@@ -1031,7 +1036,6 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung, isAdminA
     };
 }
 
-// ??? because of getting rid of assign, brackets missing
 const calcHasMessageToCheck = (refBemerkungen: string, messages: CurrentPreismeldungBagMessages) =>
     messages.notiz !== '' || (refBemerkungen !== '' && messages.bemerkungen === '');
 
