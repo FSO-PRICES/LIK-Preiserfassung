@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
 
 @Directive({
     selector: '[pefZoomable]',
