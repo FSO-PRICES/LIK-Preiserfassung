@@ -27,7 +27,9 @@ export function loadAllPreismeldestellen() {
     );
 }
 
-export function loadAllPreismeldungenForExport(pmsNummer: string = ''): Observable<P.Preismeldung[]> {
+export function loadAllPreismeldungenForExport(
+    pmsNummer: string = ''
+): Observable<(P.Preismeldung & P.PreismeldungSortProperties)[]> {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).map(preismeldungen => {
         let sortierungsnummer: number;
         let lastPmsNummer: string = null;
