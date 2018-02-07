@@ -267,29 +267,32 @@ function filterErhebungsPositionen(
             const warenkorbItem = data.warenkorb.products.find(
                 p => p.gliederungspositionsnummer === epNummer
             ) as P.WarenkorbLeaf;
-            return {
-                preismeldung,
-                refPreismeldung,
-                preismeldestelle: data.preismeldestellen.find(pms => pms.pmsNummer === pmsNummer),
-                warenkorbItem,
-                preiserheber: fwith(
-                    data.preiszuweisungen.find(z => z.preismeldestellenNummern.some(n => n === pmsNummer)),
-                    z => (!!z ? data.preiserheber.find(e => e.username === z.preiserheberId) : null)
-                ),
-                warenkorbIndex: warenkorbIndexes[warenkorbItem.gliederungspositionsnummer],
-                numEpForThisPms: !preismeldung
-                    ? 0
-                    : preismeldungen.filter(
-                          x =>
-                              !!x.preismeldung &&
-                              x.preismeldung.pmsNummer === preismeldung.pmsNummer &&
-                              x.preismeldung.epNummer === preismeldung.epNummer &&
-                              x.preismeldung.bearbeitungscode !== 0
-                      ).length,
-            };
+            return !warenkorbItem
+                ? null
+                : {
+                      preismeldung,
+                      refPreismeldung,
+                      preismeldestelle: data.preismeldestellen.find(pms => pms.pmsNummer === pmsNummer),
+                      warenkorbItem,
+                      preiserheber: fwith(
+                          data.preiszuweisungen.find(z => z.preismeldestellenNummern.some(n => n === pmsNummer)),
+                          z => (!!z ? data.preiserheber.find(e => e.username === z.preiserheberId) : null)
+                      ),
+                      warenkorbIndex: warenkorbIndexes[warenkorbItem.gliederungspositionsnummer],
+                      numEpForThisPms: !preismeldung
+                          ? 0
+                          : preismeldungen.filter(
+                                x =>
+                                    !!x.preismeldung &&
+                                    x.preismeldung.pmsNummer === preismeldung.pmsNummer &&
+                                    x.preismeldung.epNummer === preismeldung.epNummer &&
+                                    x.preismeldung.bearbeitungscode !== 0
+                            ).length,
+                  };
         })
         .filter(
             x =>
+                !!x &&
                 warenkorbItems.some(i => i.gliederungspositionsnummer === x.warenkorbItem.gliederungspositionsnummer) &&
                 (!controllingConfig.erherbungsPositionFilter || controllingConfig.erherbungsPositionFilter(x))
         );
