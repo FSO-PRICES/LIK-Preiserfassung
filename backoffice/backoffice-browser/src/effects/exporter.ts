@@ -54,8 +54,8 @@ export class ExporterEffects {
                                     // code for re-exporting an existing export
                                     // const xxx = (x.rows as any[]).find(row => row.id === '1515069593977').doc
                                     //     .preismeldungIds;
-                                    // const preismeldungenToExport = preismeldungBags.filter(
-                                    //     bag => bag.istAbgebucht && xxx.some(y => y === bag._id)
+                                    // const preismeldungenToExport = preismeldungen.filter(
+                                    //     pm => pm.istAbgebucht && xxx.some(y => y === pm._id)
                                     // );
                                     // comment out the following line when re-exporting
                                     const preismeldungenToExport = preismeldungen.filter(
