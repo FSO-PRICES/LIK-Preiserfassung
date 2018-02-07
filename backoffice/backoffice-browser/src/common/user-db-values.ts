@@ -28,27 +28,23 @@ export function loadAllPreismeldestellen() {
 }
 
 export function loadAllPreismeldungenForExport(pmsNummer: string = '') {
-    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer))
-        .flatMap(preismeldungen =>
-            getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).map(
-                preismeldungenSorts => ({
-                    preismeldungenSorts,
-                    preismeldungen,
-                })
-            )
-        )
-        .map(({ preismeldungenSorts, preismeldungen }) => {
-            const preismeldungenSortsKeyed = keyBy(preismeldungenSorts, preismeldungenSort =>
-                preismeldungenSort._id.substr(9)
-            );
-            return preismeldungen.map(pm => ({
-                pm,
-                sortOrder: (() => {
-                    const sortOrder = preismeldungenSortsKeyed[pm.pmsNummer].sortOrder.find(x => x.pmId === pm._id);
-                    return !!sortOrder ? sortOrder.sortierungsnummer : Number.MAX_SAFE_INTEGER;
-                })(),
-            }));
-        });
+    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).map(preismeldungen => {
+        let sortierungsnummer: number;
+        let lastPmsNummer: string = null;
+        return sortBy(preismeldungen.filter(pm => pm.istAbgebucht), [pm => pm.pmsNummer, pm => pm.erfasstAt]).map(
+            pm => {
+                if (lastPmsNummer !== pm.pmsNummer) {
+                    sortierungsnummer = 0;
+                    lastPmsNummer = pm.pmsNummer;
+                }
+                sortierungsnummer++;
+                if (!!pm.erfasstAt) {
+                    return { ...pm, sortierungsnummer };
+                }
+                return pm;
+            }
+        );
+    });
 }
 
 export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {

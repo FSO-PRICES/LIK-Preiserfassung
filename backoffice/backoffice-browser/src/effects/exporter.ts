@@ -41,7 +41,7 @@ export class ExporterEffects {
         .flatMap(() =>
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
-                loadAllPreismeldungenForExport().flatMap(preismeldungBags =>
+                loadAllPreismeldungenForExport().flatMap(preismeldungen =>
                     getDatabaseAsObservable(dbNames.warenkorb)
                         .flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>)
                         .flatMap(warenkorbDoc => {
@@ -55,23 +55,21 @@ export class ExporterEffects {
                                     // const xxx = (x.rows as any[]).find(row => row.id === '1515069593977').doc
                                     //     .preismeldungIds;
                                     // const preismeldungenToExport = preismeldungBags.filter(
-                                    //     bag => bag.pm.istAbgebucht && xxx.some(y => y === bag.pm._id)
+                                    //     bag => bag.istAbgebucht && xxx.some(y => y === bag._id)
                                     // );
                                     // comment out the following line when re-exporting
-                                    const preismeldungenToExport = preismeldungBags.filter(
-                                        bag =>
-                                            bag.pm.istAbgebucht &&
-                                            !alreadyExportedPreismeldungIds.some(y => y === bag.pm._id)
+                                    const preismeldungenToExport = preismeldungen.filter(
+                                        pm => !alreadyExportedPreismeldungIds.some(y => y === pm._id)
                                     );
                                     if (preismeldungenToExport.length === 0)
                                         throw new Error('Keine neue abgebuchte Preismeldungen vorhanden.');
                                     return orderBy(preismeldungenToExport, [
-                                        bag =>
+                                        pm =>
                                             warenkorbDoc.products.findIndex(
-                                                p => bag.pm.epNummer === p.gliederungspositionsnummer
+                                                p => pm.epNummer === p.gliederungspositionsnummer
                                             ),
-                                        bag => +bag.pm.pmsNummer,
-                                        bag => +bag.pm.laufnummer,
+                                        pm => +pm.pmsNummer,
+                                        pm => +pm.laufnummer,
                                     ]);
                                 });
                         })
@@ -103,7 +101,7 @@ export class ExporterEffects {
                                                 _id: now.toString(),
                                                 ts: new Date(now),
                                                 messageId,
-                                                preismeldungIds: filteredPreismeldungBags.map(x => x.pm._id),
+                                                preismeldungIds: filteredPreismeldungBags.map(x => x._id),
                                             });
                                         })
                                         .map(() => ({ erhebungsmonat, messageId, content }));
