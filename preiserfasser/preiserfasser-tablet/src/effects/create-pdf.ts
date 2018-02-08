@@ -112,7 +112,7 @@ function mapData(
                 bag.warenkorbPosition.positionsbezeichnung[currentLanguage],
             ],
             col5: [
-                translateFn('label_print_pm-id'),
+                translateFn('label_print_preiszahl'),
                 `${
                     (priceCountStatuses[bag.warenkorbPosition.gliederungspositionsnummer] || ({} as any))
                         .numActivePrices
