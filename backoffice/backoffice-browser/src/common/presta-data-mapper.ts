@@ -222,16 +222,8 @@ export function preparePmForExport(
                 'Fehlende_Preise'
             ),
             PE_Notiz: toText((pm.notiz || '').substr(0, 4000), 4000, 'PE_Notiz'),
-            PE_Kommentar: toText(
-                (pm.kommentar || '').substr(0, 4000),
-                4000,
-                'PE_Kommentar'
-            ),
-            Bemerkungen: toText(
-                (pm.bemerkungen || '').substr(0, 4000),
-                4000,
-                'Bemerkungen'
-            ),
+            PE_Kommentar: toText((pm.kommentar || '').substr(0, 4000), 4000, 'PE_Kommentar'),
+            Bemerkungen: toText((pm.bemerkungen || '').substr(0, 4000), 4000, 'Bemerkungen'),
             Internet_Link: toText((pm.internetLink || '').substr(0, 2000), 2000, 'Internet_Link'),
             Erhebungszeitpunkt: toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
             Sortiernummer: toNumber(sortOrder, 5, 'Sortiernummer'),
@@ -351,7 +343,7 @@ function toText(value: string, maxLength: number, propertyName: string, replaceD
     const resultLength = !!value ? value.toString().length : 0;
     if (resultLength > maxLength)
         throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`);
-    return !!value && replaceDelimiters ? value.replace(/;/g, ',').replace(/"/g, '\'\'') : value;
+    return !!value && replaceDelimiters ? value.replace(/;/g, ',').replace(/"/g, "''") : value;
 }
 
 function parseNumber(s: string, propertyName: string) {
