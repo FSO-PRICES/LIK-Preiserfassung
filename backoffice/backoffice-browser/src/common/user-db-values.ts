@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable';
-import { sortBy, keyBy, assign } from 'lodash';
+import { groupBy, sortBy, flatten, keyBy, assign } from 'lodash';
 
 import { Models as P, preismeldungId, preismeldungRefId, preismeldestelleId, pmsSortId } from 'lik-shared';
 
@@ -29,22 +29,20 @@ export function loadAllPreismeldestellen() {
 
 export function loadAllPreismeldungenForExport(
     pmsNummer: string = ''
-): Observable<(P.Preismeldung & P.PreismeldungSortProperties)[]> {
+): Observable<{ pm: P.Preismeldung; sortierungsnummer: number }[]> {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).map(preismeldungen => {
-        let sortierungsnummer: number;
-        let lastPmsNummer: string = null;
-        return sortBy(preismeldungen.filter(pm => pm.istAbgebucht), [pm => pm.pmsNummer, pm => pm.erfasstAt]).map(
-            pm => {
-                if (lastPmsNummer !== pm.pmsNummer) {
-                    sortierungsnummer = 0;
-                    lastPmsNummer = pm.pmsNummer;
-                }
-                sortierungsnummer++;
-                if (!!pm.erfasstAt) {
-                    return { ...pm, sortierungsnummer };
-                }
-                return pm;
-            }
+        const grouped = groupBy(preismeldungen.filter(pm => pm.istAbgebucht), pm => pm.pmsNummer);
+        return flatten(
+            Object.keys(grouped).reduce(
+                (acc, pms) => [
+                    ...acc,
+                    sortBy(grouped[pms], [pm => pm.pmsNummer, pm => pm.erfasstAt]).map((pm, i) => ({
+                        pm,
+                        sortierungsnummer: i + 1,
+                    })),
+                ],
+                []
+            )
         );
     });
 }

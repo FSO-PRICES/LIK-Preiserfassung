@@ -41,7 +41,7 @@ export class ExporterEffects {
         .flatMap(() =>
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
-                loadAllPreismeldungenForExport().flatMap(preismeldungen =>
+                loadAllPreismeldungenForExport().flatMap(preismeldungBags =>
                     getDatabaseAsObservable(dbNames.warenkorb)
                         .flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>)
                         .flatMap(warenkorbDoc => {
@@ -58,18 +58,18 @@ export class ExporterEffects {
                                     //     pm => pm.istAbgebucht && xxx.some(y => y === pm._id)
                                     // );
                                     // comment out the following line when re-exporting
-                                    const preismeldungenToExport = preismeldungen.filter(
-                                        pm => !alreadyExportedPreismeldungIds.some(y => y === pm._id)
+                                    const preismeldungenToExport = preismeldungBags.filter(
+                                        bag => !alreadyExportedPreismeldungIds.some(y => y === bag.pm._id)
                                     );
                                     if (preismeldungenToExport.length === 0)
                                         throw new Error('Keine neue abgebuchte Preismeldungen vorhanden.');
                                     return orderBy(preismeldungenToExport, [
-                                        pm =>
+                                        bag =>
                                             warenkorbDoc.products.findIndex(
-                                                p => pm.epNummer === p.gliederungspositionsnummer
+                                                p => bag.pm.epNummer === p.gliederungspositionsnummer
                                             ),
-                                        pm => +pm.pmsNummer,
-                                        pm => +pm.laufnummer,
+                                        bag => +bag.pm.pmsNummer,
+                                        bag => +bag.pm.laufnummer,
                                     ]);
                                 });
                         })
@@ -101,7 +101,7 @@ export class ExporterEffects {
                                                 _id: now.toString(),
                                                 ts: new Date(now),
                                                 messageId,
-                                                preismeldungIds: filteredPreismeldungBags.map(x => x._id),
+                                                preismeldungIds: filteredPreismeldungBags.map(x => x.pm._id),
                                             });
                                         })
                                         .map(() => ({ erhebungsmonat, messageId, content }));

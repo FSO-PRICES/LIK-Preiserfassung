@@ -197,10 +197,10 @@ export function preparePm(
 }
 
 export function preparePmForExport(
-    preismeldungBags: (P.Models.Preismeldung & P.Models.PreismeldungSortProperties)[],
+    preismeldungBags: { pm: P.Models.Preismeldung; sortierungsnummer: number }[],
     erhebungsmonat: string
 ) {
-    return preismeldungBags.map(pm =>
+    return preismeldungBags.map(({ pm, sortierungsnummer }) =>
         validatePreismeldung(`${pm.pmsNummer}/${pm.epNummer}/${pm.laufnummer}`, () => ({
             Erhebungsmonat: erhebungsmonat,
             Preissubsystem: 2, // Preissubsystem is always 2 as defined by Serge
@@ -226,7 +226,7 @@ export function preparePmForExport(
             Bemerkungen: toText((pm.bemerkungen || '').substr(0, 4000), 4000, 'Bemerkungen'),
             Internet_Link: toText((pm.internetLink || '').substr(0, 2000), 2000, 'Internet_Link'),
             Erhebungszeitpunkt: toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
-            Sortiernummer: toNumber(pm.sortierungsnummer, 5, 'Sortiernummer'),
+            Sortiernummer: toNumber(sortierungsnummer, 5, 'Sortiernummer'),
             Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
             Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
             Datum_vor_Reduktion: pm.datumVorReduktion,
