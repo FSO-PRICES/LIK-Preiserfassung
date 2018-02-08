@@ -14,8 +14,8 @@ export class PefZoomComponent {
 
     constructor() {
         this.zoomLevel$ = this.setZoom$
+            .scan((acc, value, i) => +(acc + value).toPrecision(1), 1)
             .startWith(1)
-            .scan((acc, value, i) => acc + value)
             .publishReplay(1)
             .refCount();
     }
