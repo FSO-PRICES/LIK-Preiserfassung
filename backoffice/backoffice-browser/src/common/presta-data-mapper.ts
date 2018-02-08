@@ -197,10 +197,14 @@ export function preparePm(
 }
 
 export function preparePmForExport(
-    preismeldungBags: ({ pm: P.Models.Preismeldung; sortOrder: number })[],
+    preismeldungBags: ({
+        pm: P.Models.Preismeldung;
+        refPreismeldung: P.Models.PreismeldungReference;
+        sortOrder: number;
+    })[],
     erhebungsmonat: string
 ) {
-    return preismeldungBags.map(({ pm, sortOrder }) =>
+    return preismeldungBags.map(({ pm, refPreismeldung, sortOrder }) =>
         validatePreismeldung(`${pm.pmsNummer}/${pm.epNummer}/${pm.laufnummer}`, () => ({
             Erhebungsmonat: erhebungsmonat,
             Preissubsystem: 2, // Preissubsystem is always 2 as defined by Serge
@@ -223,7 +227,11 @@ export function preparePmForExport(
             ),
             PE_Notiz: toText((pm.notiz || '').substr(0, 4000), 4000, 'PE_Notiz'),
             PE_Kommentar: toText((pm.kommentar || '').substr(0, 4000), 4000, 'PE_Kommentar'),
-            Bemerkungen: toText((pm.bemerkungen || '').substr(0, 4000), 4000, 'Bemerkungen'),
+            Bemerkungen: toText(
+                formatBemerkungen(pm.bemerkungen, refPreismeldung.bemerkungen).substr(0, 4000),
+                4000,
+                'Bemerkungen'
+            ),
             Internet_Link: toText((pm.internetLink || '').substr(0, 2000), 2000, 'Internet_Link'),
             Erhebungszeitpunkt: toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
             Sortiernummer: toNumber(sortOrder, 5, 'Sortiernummer'),
@@ -314,6 +322,10 @@ export function preparePreiserheberForExport(
 
 const excludeBearbeitungscode = (bearbeitungscode: number) =>
     [99, 101, 44].some(x => x === bearbeitungscode) ? null : bearbeitungscode;
+
+function formatBemerkungen(pmBemerkungen: string, pmRefBemerkungen: string) {
+    return (pmRefBemerkungen ? `${pmRefBemerkungen}\\n` : '') + (pmBemerkungen || '');
+}
 
 function toNumber(value: any, maxLength: number, propertyName: string) {
     // The simple comparison is being used to compare against undefined too.

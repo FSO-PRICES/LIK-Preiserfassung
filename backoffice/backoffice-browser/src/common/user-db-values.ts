@@ -37,12 +37,20 @@ export function loadAllPreismeldungenForExport(pmsNummer: string = '') {
                 })
             )
         )
-        .map(({ preismeldungenSorts, preismeldungen }) => {
+        .flatMap(data =>
+            getDatabaseAsObservable(dbNames.preismeldung).flatMap(db =>
+                getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer)).then(
+                    refPreismeldungen => ({ refPreismeldungen, ...data })
+                )
+            )
+        )
+        .map(({ refPreismeldungen, preismeldungenSorts, preismeldungen }) => {
             const preismeldungenSortsKeyed = keyBy(preismeldungenSorts, preismeldungenSort =>
                 preismeldungenSort._id.substr(9)
             );
             return preismeldungen.map(pm => ({
                 pm,
+                refPreismeldung: refPreismeldungen.find(rpm => rpm.pmId === pm._id),
                 sortOrder: (() => {
                     const sortOrder = preismeldungenSortsKeyed[pm.pmsNummer].sortOrder.find(x => x.pmId === pm._id);
                     return !!sortOrder ? sortOrder.sortierungsnummer : Number.MAX_SAFE_INTEGER;
