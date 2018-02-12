@@ -4,7 +4,13 @@ import { Observable, Subject } from 'rxjs';
 import { orderBy } from 'lodash';
 import * as moment from 'moment';
 
-import { PefDialogService, DialogCancelEditComponent, PreismeldungAction, preismeldestelleId } from 'lik-shared';
+import {
+    PefDialogService,
+    DialogCancelEditComponent,
+    PreismeldungAction,
+    preismeldestelleId,
+    PreismeldungIdentifierPayload,
+} from 'lik-shared';
 import * as P from '../../common-models';
 
 import * as fromRoot from '../../reducers';
@@ -48,6 +54,7 @@ export class PreismeldungPage {
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
 
     public selectPreismeldestelleNummer$ = new EventEmitter<string>();
+    public globalFilterTextChanged$ = new EventEmitter<PreismeldungIdentifierPayload>();
 
     public preismeldestelle$ = this.store
         .select(fromRoot.getPreismeldungenCurrentPmsNummer)
@@ -109,11 +116,27 @@ export class PreismeldungPage {
             .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload }));
 
         this.selectPreismeldestelleNummer$
+            .merge(this.globalFilterTextChanged$)
+            .filter(x => !x)
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(x => {
+                this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
+            });
+
+        this.selectPreismeldestelleNummer$
+            .filter(x => !!x)
             .delay(200)
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(pmsNummer => {
                 this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: pmsNummer } as PreismeldungAction);
             });
+
+        this.globalFilterTextChanged$
+            .filter(x => !!x)
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(x =>
+                this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_ID', payload: x } as PreismeldungAction)
+            );
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$.withLatestFrom(
             this.currentPreismeldung$.startWith(null),

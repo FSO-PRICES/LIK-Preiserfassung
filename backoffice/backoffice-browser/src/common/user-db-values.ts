@@ -51,7 +51,7 @@ export function loadAllPreismeldungenForExport(pmsNummer: string = '') {
         });
 }
 
-export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
+export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string, epNummer?: string, laufNummer?: string) {
     return getDatabaseAsObservable(dbNames.preiszuweisung)
         .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))
         .flatMap(preiszuweisungen => {
@@ -59,12 +59,13 @@ export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
             if (!!preiszuweisung) {
                 return getDatabaseAsObservable(`user_${preiszuweisung.preiserheberId}`)
                     .flatMap(db =>
-                        getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, preismeldungId(pmsNummer)).then(
-                            preismeldungen => ({
-                                db,
-                                preismeldungen,
-                            })
-                        )
+                        getAllDocumentsForPrefixFromDb<P.Preismeldung>(
+                            db,
+                            preismeldungId(pmsNummer, epNummer, laufNummer)
+                        ).then(preismeldungen => ({
+                            db,
+                            preismeldungen,
+                        }))
                     )
                     .flatMap(({ db, preismeldungen }) =>
                         db
