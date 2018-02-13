@@ -52,12 +52,17 @@
             <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
                 <div class="pms-table" [virtualScroll]="filteredPreismeldestellen$ | async" approxItemHeight="56px">
                     <div class="pms-row" *virtualItem="let preismeldestelle">
-                        <div class="pms-cell pms-name">
+                        <div class="pms-cell pms-nummer">
                             <div class="pms-cell-content">
                                 <a ion-button clear class="pms-detail-link" (click)="navigateToDetails$.emit(preismeldestelle)">
                                     <pef-icon name="shop"></pef-icon>
                                     <pef-floating-icon [icon-name]="'warning'" [bottom-right]="true" *ngIf="preismeldestelle.keinErhebungsart"></pef-floating-icon>
                                 </a>
+                                {{ preismeldestelle.pmsNummer }}
+                            </div>
+                        </div>
+                        <div class="pms-cell pms-name">
+                            <div class="pms-cell-content">
                                 <div class="pms-name-text"> {{ preismeldestelle.name }} </div>
                             </div>
                         </div>
