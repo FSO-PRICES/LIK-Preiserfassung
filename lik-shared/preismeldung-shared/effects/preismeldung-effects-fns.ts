@@ -64,6 +64,7 @@ export function propertiesFromCurrentPreismeldung(bag: P.CurrentPreismeldungBag)
         menge: bag.preismeldung.menge,
         mengeVPK: bag.preismeldung.mengeVPK,
         mengeVorReduktion: bag.preismeldung.mengeVorReduktion,
+        erfasstAt: bag.preismeldung.erfasstAt,
         modifiedAt: format(new Date()),
         d_DPToVP: bag.preismeldung.d_DPToVP,
         d_DPToVPVorReduktion: bag.preismeldung.d_DPToVPVorReduktion,

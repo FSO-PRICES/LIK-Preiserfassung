@@ -177,7 +177,7 @@ export const getCurrentPreismeldungViewBag = createSelector(
     (currentPreismeldungBag): P.CurrentPreismeldungViewBag => {
         function isReadonly() {
             if (!currentPreismeldungBag) return false;
-            return !currentPreismeldungBag.preismeldung.uploadRequestedAt;
+            return !currentPreismeldungBag.preismeldung.uploadRequestedAt || currentPreismeldungBag.exported;
         }
         return !currentPreismeldungBag
             ? null
