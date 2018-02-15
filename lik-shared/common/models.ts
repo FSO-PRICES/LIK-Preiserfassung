@@ -39,7 +39,11 @@ export interface PreismeldestelleProperties {
 }
 
 export interface PmsPreismeldungenSortProperties {
-    sortOrder: { pmId: string; sortierungsnummer: number }[];
+    sortOrder: ({ pmId: string } & PreismeldungSortProperties)[];
+}
+
+export interface PreismeldungSortProperties {
+    sortierungsnummer: number;
 }
 
 export interface KontaktPerson {
@@ -151,6 +155,7 @@ interface __PreismeldungProperties {
 
     productMerkmale: string[];
 
+    erfasstAt: number;
     modifiedAt: string;
     bearbeitungscode: Bearbeitungscode;
 

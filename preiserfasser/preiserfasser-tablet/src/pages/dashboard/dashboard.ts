@@ -5,7 +5,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription, Observable } from 'rxjs';
 import assign from 'lodash/assign';
 
-import { pefSearch, PefDialogService, PefMessageDialogService, Models as P, parseErhebungsartForForm, PreismeldungAction } from 'lik-shared';
+import {
+    pefSearch,
+    PefDialogService,
+    PefMessageDialogService,
+    Models as P,
+    parseErhebungsartForForm,
+    PreismeldungAction,
+} from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 
@@ -24,11 +31,13 @@ type DashboardPms = P.Preismeldestelle & {
 @Component({
     selector: 'dashboard',
     templateUrl: 'dashboard.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage implements OnDestroy {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
-    private preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen).map(preismeldestellen => preismeldestellen.map(this.toDashboardPms));
+    private preismeldestellen$ = this.store
+        .select(fromRoot.getPreismeldestellen)
+        .map(preismeldestellen => preismeldestellen.map(this.toDashboardPms));
     public currentTime$ = this.store.select(fromRoot.getCurrentTime);
 
     public filterTextValueChanges = new EventEmitter<string>();
@@ -41,7 +50,11 @@ export class DashboardPage implements OnDestroy {
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$
         .combineLatest(this.filterTextValueChanges.startWith(''), (preismeldestellen, filterText) =>
             pefSearch(filterText, preismeldestellen, [pms => pms.name])
-        );
+        )
+        // .do(x => console.log('am here', x))
+        .publishReplay(1)
+        .refCount();
+
     public viewPortItems: P.Preismeldestelle[];
 
     private subscriptions: Subscription[];
@@ -61,6 +74,21 @@ export class DashboardPage implements OnDestroy {
     public createPmsPdf$ = new EventEmitter<P.Preismeldestelle>();
     public finishedPrinting$ = new EventEmitter();
 
+    public filteredPreismeldestellenWithStatistics$ = this.filteredPreismeldestellen$
+        .combineLatest(this.preismeldungenStatistics$, (preismeldestellen, statistics) => ({
+            preismeldestellen,
+            statistics,
+        }))
+        .map(x =>
+            x.preismeldestellen.map(preismeldestelle => ({
+                preismeldestelle,
+                statistics: !x.statistics ? {} : x.statistics[preismeldestelle.pmsNummer],
+            }))
+        )
+        .debounceTime(300)
+        .startWith([]);
+    // .subscribe(x => console.log('XXX', x));
+
     constructor(
         private navCtrl: NavController,
         private pefDialogService: PefDialogService,
@@ -70,35 +98,58 @@ export class DashboardPage implements OnDestroy {
     ) {
         const settings$ = this.store.select(fromRoot.getSettings);
 
-        const databaseHasBeenUploaded$ = this.store.select(x => x.database.lastUploadedAt)
-            .distinctUntilChanged();
+        const databaseHasBeenUploaded$ = this.store.select(x => x.database.lastUploadedAt).distinctUntilChanged();
 
-        const databaseExists$ = this.store.select(x => x.database.databaseExists)
+        const databaseExists$ = this.store
+            .select(x => x.database.databaseExists)
             .distinctUntilChanged()
             .filter(exists => exists !== null)
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         const loggedInUser$ = this.store.select(fromRoot.getLoggedInUser);
         const canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase);
-        const isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn).skip(1)
+        const isLoggedIn$ = this.store
+            .select(fromRoot.getIsLoggedIn)
+            .skip(1)
             .combineLatest(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect }));
 
         const loginDialogDismissed$ = this.loginClicked$
             .flatMap(() => pefDialogService.displayModal('LoginModal'))
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
-        this.showLogin$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null).map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect).startWith(false);
-        this.canSync$ = isLoggedIn$.filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null).map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect).startWith(false);
+        this.showLogin$ = isLoggedIn$
+            .filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null)
+            .map(({ isLoggedIn, canConnect }) => !isLoggedIn && !!canConnect)
+            .startWith(false);
+        this.canSync$ = isLoggedIn$
+            .filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null)
+            .map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect)
+            .startWith(false);
 
         const dismissSyncLoading$ = this.isSyncing$.skip(1).filter(x => x === false);
-        const dismissLoginLoading$ = this.isSyncing$.skip(1).filter(x => x === false)
-            .merge(this.store.select(fromRoot.getIsLoggedIn).skip(1).filter(x => x !== null));
+        const dismissLoginLoading$ = this.isSyncing$
+            .skip(1)
+            .filter(x => x === false)
+            .merge(
+                this.store
+                    .select(fromRoot.getIsLoggedIn)
+                    .skip(1)
+                    .filter(x => x !== null)
+            );
 
-        this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$.filter(x => !!x).map(statistics => !!statistics.total ? statistics.total.openSavedCount > 0 : false).startWith(false);
-        this.canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase)
+        this.hasOpenSavedPreismeldungen$ = this.preismeldungenStatistics$
+            .filter(x => !!x)
+            .map(statistics => (!!statistics.total ? statistics.total.openSavedCount > 0 : false))
+            .startWith(false);
+
+        this.canConnectToDatabase$ = this.store
+            .select(x => x.database.canConnectToDatabase)
             .filter(x => x !== null)
             .startWith(false)
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         this.subscriptions = [
             databaseExists$
@@ -113,21 +164,40 @@ export class DashboardPage implements OnDestroy {
             this.canSync$
                 .filter(canSync => canSync)
                 .take(1) // Only sync the database once each time the dashboard is being visited
-                .merge(this.synchronizeClicked$.asObservable()
-                    .flatMap(() => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissSyncLoading$))
+                .merge(
+                    this.synchronizeClicked$
+                        .asObservable()
+                        .flatMap(() =>
+                            pefDialogService.displayLoading(
+                                translateService.instant('text_synchronizing-data'),
+                                dismissSyncLoading$
+                            )
+                        )
                 )
-                .withLatestFrom(settings$, loggedInUser$, (_, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
+                .withLatestFrom(settings$, loggedInUser$, (_, settings, user) =>
+                    assign({}, { url: settings.serverConnection.url, username: user.username })
+                )
                 .subscribe(payload => this.store.dispatch({ type: 'SYNC_DATABASE', payload } as DatabaseAction)),
 
             this.uploadPreismeldungenClicked$
-                .withLatestFrom(settings$, loggedInUser$, (x, settings, user) => assign({}, { url: settings.serverConnection.url, username: user.username }))
-                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissSyncLoading$).map(() => payload))
+                .withLatestFrom(settings$, loggedInUser$, (x, settings, user) =>
+                    assign({}, { url: settings.serverConnection.url, username: user.username })
+                )
+                .flatMap(payload =>
+                    pefDialogService
+                        .displayLoading(translateService.instant('text_synchronizing-data'), dismissSyncLoading$)
+                        .map(() => payload)
+                )
                 .subscribe(payload => this.store.dispatch({ type: 'UPLOAD_DATABASE', payload } as DatabaseAction)),
 
             loginDialogDismissed$ // In case of login data entered
                 .filter(x => x.data.username !== null)
                 .withLatestFrom(settings$, (x, settings) => assign({}, x.data, { url: settings.serverConnection.url }))
-                .flatMap(payload => pefDialogService.displayLoading(translateService.instant('text_synchronizing-data'), dismissLoginLoading$).map(() => payload))
+                .flatMap(payload =>
+                    pefDialogService
+                        .displayLoading(translateService.instant('text_synchronizing-data'), dismissLoginLoading$)
+                        .map(() => payload)
+                )
                 .subscribe(payload => this.store.dispatch({ type: 'LOGIN', payload } as LoginAction)),
 
             loginDialogDismissed$ // In case of navigate to was set
@@ -138,22 +208,20 @@ export class DashboardPage implements OnDestroy {
                 .delay(100)
                 .subscribe(pms => this.navCtrl.setRoot('PmsPriceEntryPage', { pmsNummer: pms.pmsNummer })),
 
-            this.navigateToPreiserheber$
-                .delay(100)
-                .subscribe(() => this.navCtrl.setRoot('PreiserheberPage')),
+            this.navigateToPreiserheber$.delay(100).subscribe(() => this.navCtrl.setRoot('PreiserheberPage')),
 
-            this.navigateToSettings$
-                .delay(100)
-                .subscribe(() => this.navCtrl.setRoot('SettingsPage')),
+            this.navigateToSettings$.delay(100).subscribe(() => this.navCtrl.setRoot('SettingsPage')),
 
             this.navigateToDetails$
                 .delay(100)
                 .subscribe(pms => this.navCtrl.setRoot('PmsDetailsPage', { pmsNummer: pms.pmsNummer })),
 
-            Observable.interval(10000).startWith(0)
+            Observable.interval(10000)
+                .startWith(0)
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)),
 
-            this.isSyncing$.skip(1)
+            this.isSyncing$
+                .skip(1)
                 .filter(isSyncing => !isSyncing)
                 .subscribe(() => {
                     this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
@@ -162,48 +230,71 @@ export class DashboardPage implements OnDestroy {
                     this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction);
                 }),
 
-            canConnectToDatabase$.skip(1)
+            canConnectToDatabase$
+                .skip(1)
                 .withLatestFrom(this.isSyncing$, (canConnect, isSyncing) => ({ canConnect, isSyncing }))
                 .filter(({ canConnect, isSyncing }) => canConnect && !isSyncing)
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction)),
 
             this.createPmsPdf$
                 .withLatestFrom(this.erhebungsmonat$)
-                .flatMap(data => pefDialogService.displayLoading(translateService.instant('dialogText_pdf-preparing-data'), this.store.select(fromRoot.getCreatedPmsPdf).skip(1).filter(x => !!x)).map(() => data))
+                .flatMap(data =>
+                    pefDialogService
+                        .displayLoading(
+                            translateService.instant('dialogText_pdf-preparing-data'),
+                            this.store
+                                .select(fromRoot.getCreatedPmsPdf)
+                                .skip(1)
+                                .filter(x => !!x)
+                        )
+                        .map(() => data)
+                )
                 .subscribe(([preismeldestelle, erhebungsmonat]) => {
-                    this.store.dispatch({ type: 'CREATE_PMS_PDF', payload: { preismeldestelle, erhebungsmonat } } as PdfAction);
-                    this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: preismeldestelle.pmsNummer } as PreismeldungAction);
+                    this.store.dispatch({
+                        type: 'CREATE_PMS_PDF',
+                        payload: { preismeldestelle, erhebungsmonat },
+                    } as PdfAction);
+                    this.store.dispatch({
+                        type: 'PREISMELDUNGEN_LOAD_FOR_PMS',
+                        payload: preismeldestelle.pmsNummer,
+                    } as PreismeldungAction);
                 }),
 
-            this.store.select(fromRoot.getCreatedPmsPdf)
+            this.store
+                .select(fromRoot.getCreatedPmsPdf)
                 .skip(1)
                 .filter(x => !!x && !!x.message)
-                .flatMap(({ message: location }) => this.pefMessageDialogService
-                    .displayDialogOneButton('btn_ok', location == 'DOCUMENT_LOCATION' ? 'dialogText_pdf-saved-at-documents' : 'dialogText_pdf-saved-at-application')
-                    .map(res => {
-                        switch (res.data) {
-                            case 'CLOSE':
-                                return location;
-                        }
-                    })
+                .flatMap(({ message: location }) =>
+                    this.pefMessageDialogService
+                        .displayDialogOneButton(
+                            'btn_ok',
+                            location == 'DOCUMENT_LOCATION'
+                                ? 'dialogText_pdf-saved-at-documents'
+                                : 'dialogText_pdf-saved-at-application'
+                        )
+                        .map(res => {
+                            switch (res.data) {
+                                case 'CLOSE':
+                                    return location;
+                            }
+                        })
                 )
-                .subscribe()
+                .subscribe(),
         ];
     }
 
     public ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
     toDashboardPms(pms: P.Preismeldestelle) {
         const _erhebungsart = parseErhebungsartForForm(pms.erhebungsart);
         return assign({}, pms, {
             keinErhebungsart: !pms.erhebungsart || (!!pms.erhebungsart && pms.erhebungsart === '000000'),
-            isPdf: _erhebungsart.erhebungsart_papierlisteVorOrt || _erhebungsart.erhebungsart_papierlisteAbgegeben
+            isPdf: _erhebungsart.erhebungsart_papierlisteVorOrt || _erhebungsart.erhebungsart_papierlisteAbgegeben,
         });
     }
 
-    public isPreismeldestelleCompleted = (preismeldestelleStatistics: PreismeldestelleStatistics) => preismeldestelleStatistics.uploadedCount >= preismeldestelleStatistics.totalCount;
+    public isPreismeldestelleCompleted = (preismeldestelleStatistics: PreismeldestelleStatistics) =>
+        preismeldestelleStatistics.uploadedCount >= preismeldestelleStatistics.totalCount;
 }

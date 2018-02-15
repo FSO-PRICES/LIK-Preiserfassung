@@ -11,6 +11,7 @@ export interface PreismeldungBag {
     sortierungsnummer: number;
     preismeldung: P.Models.Preismeldung;
     warenkorbPosition: P.Models.WarenkorbLeaf;
+    exported?: boolean;
 }
 
 export interface CurrentPreismeldungBagMessages {
@@ -87,6 +88,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                                   .sortierungsnummer
                             : null,
                         warenkorbPosition,
+                        exported: payload.alreadyExported.some(id => id === preismeldung._id),
                     }
                 );
             });
@@ -494,7 +496,9 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             );
             const sortierungsnummer =
                 preismeldungen.length === 0
-                    ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
+                    ? allPreismeldungen.length !== 0
+                      ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
+                      : 1
                     : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
             const priceCountStatus =
                 state.priceCountStatuses[action.payload.warenkorbPosition.gliederungspositionsnummer];
@@ -585,6 +589,7 @@ const createFreshPreismeldung = (
     d_DPVorReduktionToVPVorReduktion: createInitialPercentageWithWarning(),
     d_DPVorReduktionToVP: createInitialPercentageWithWarning(),
     productMerkmale: [],
+    erfasstAt: null,
     modifiedAt: null,
     bearbeitungscode,
     erhebungsZeitpunkt,
