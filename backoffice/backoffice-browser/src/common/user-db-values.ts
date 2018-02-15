@@ -58,7 +58,7 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: stri
     );
     const preiszuweisung = preiszuweisungen.find(x => x.preismeldestellenNummern.some(n => n === pmsNummer));
     if (!preiszuweisung) {
-        return { refPreismeldungen: [], preismeldungen: [], pms: null };
+        return { refPreismeldungen: [], preismeldungen: [], pms: null as P.Preismeldestelle, alreadyExported: [] };
     }
 
     const userDb = await getDatabase(`user_${preiszuweisung.preiserheberId}`);

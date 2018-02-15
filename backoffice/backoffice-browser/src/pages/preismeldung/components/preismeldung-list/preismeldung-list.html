@@ -10,7 +10,6 @@
             <ion-item class="pef-advanced-item" *virtualItem="let bag" (click)="selectPreismeldung$.emit(bag)" [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
                 tappable>
                 <div class="pef-item-title">
-                    <span *ngIf="bag.exported">*</span>
                     {{ bag.preismeldung.epNummer }}
                     <br/>&nbsp;
                 </div>

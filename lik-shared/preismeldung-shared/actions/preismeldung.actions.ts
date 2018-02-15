@@ -82,7 +82,7 @@ export type PreismeldungAction =
               preismeldungen: P.Models.Preismeldung[];
               pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort;
               pms: P.Models.Preismeldestelle;
-              alreadyExported?: string[];
+              alreadyExported: string[];
           };
       }
     | { type: 'PREISMELDUNGEN_RESET'; payload: null }

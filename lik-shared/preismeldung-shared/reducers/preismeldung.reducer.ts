@@ -88,10 +88,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                                   .sortierungsnummer
                             : null,
                         warenkorbPosition,
-                    },
-                    payload.alreadyExported != null
-                        ? { exported: payload.alreadyExported.some(id => id === preismeldung._id) }
-                        : {}
+                        exported: payload.alreadyExported.some(id => id === preismeldung._id),
+                    }
                 );
             });
 
