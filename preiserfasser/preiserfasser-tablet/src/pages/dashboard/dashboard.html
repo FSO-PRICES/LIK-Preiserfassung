@@ -49,48 +49,46 @@
                     </div>
                 </div>
             </div>
-            <ion-content pef-perfect-virtualscroll-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
-                <div class="pms-table" [virtualScroll]="filteredPreismeldestellen$ | async" approxItemHeight="56px">
-                    <div class="pms-row" *virtualItem="let preismeldestelle">
+            <ion-content pef-perfect-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
+                <div class="pms-table">
+                    <div class="pms-row" *ngFor="let bag of filteredPreismeldestellenWithStatistics$ | async">
                         <div class="pms-cell pms-nummer">
                             <div class="pms-cell-content">
-                                <a ion-button clear class="pms-detail-link" (click)="navigateToDetails$.emit(preismeldestelle)">
+                                <a ion-button clear class="pms-detail-link" (click)="navigateToDetails$.emit(bag.preismeldestelle)">
                                     <pef-icon name="shop"></pef-icon>
-                                    <pef-floating-icon [icon-name]="'warning'" [bottom-right]="true" *ngIf="preismeldestelle.keinErhebungsart"></pef-floating-icon>
+                                    <pef-floating-icon [icon-name]="'warning'" [bottom-right]="true" *ngIf="bag.preismeldestelle.keinErhebungsart"></pef-floating-icon>
                                 </a>
-                                {{ preismeldestelle.pmsNummer }}
+                                {{ bag.preismeldestelle.pmsNummer }}
                             </div>
                         </div>
                         <div class="pms-cell pms-name">
                             <div class="pms-cell-content">
-                                <div class="pms-name-text"> {{ preismeldestelle.name }} </div>
+                                <div class="pms-name-text"> {{ bag.preismeldestelle.name }} </div>
                             </div>
                         </div>
                         <div class="pms-cell pms-flag">
                             <div class="pms-cell-content"></div>
                         </div>
                         <div class="pms-cell pms-open-unsaved">
-                            <div class="pms-cell-content">{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.openUnsavedCount
-                                }}
+                            <div class="pms-cell-content">{{ bag.statistics.openUnsavedCount }}
                             </div>
                         </div>
                         <div class="pms-cell pms-open-saved">
-                            <div class="pms-cell-content">{{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.openSavedCount }}</div>
+                            <div class="pms-cell-content">{{ bag.statistics.openSavedCount }} </div>
                         </div>
                         <div class="pms-cell pms-uploaded">
-                            <div class="pms-cell-content" [class.completed-pms]="isPreismeldestelleCompleted(preismeldestelle)">
-                                {{ ((preismeldungenStatistics$ | async) || {})[preismeldestelle.pmsNummer]?.uploadedCount }}/{{ ((preismeldungenStatistics$
-                                | async) || {})[preismeldestelle.pmsNummer]?.totalCount }}
+                            <div class="pms-cell-content" [class.completed-pms]="isPreismeldestelleCompleted(bag.preismeldestelle)">
+                                {{ bag.statistics.uploadedCount }}/{{ bag.statistics.totalCount }}
                             </div>
                         </div>
                         <div class="pms-cell pms-actions">
                             <div class="pms-cell-content">
-                                <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="!preismeldestelle.isPdf || preismeldestelle.keinErhebungsart"
-                                    href="javascript:" (click)="createPmsPdf$.emit(preismeldestelle)">
+                                <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="!bag.preismeldestelle.isPdf || bag.preismeldestelle.keinErhebungsart"
+                                    href="javascript:" (click)="createPmsPdf$.emit(bag.preismeldestelle)">
                                     <pef-icon name="pdf"></pef-icon>
                                 </a>
-                                <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="preismeldestelle.keinErhebungsart" href="javascript:"
-                                    (click)="navigateToPriceEntry$.emit(preismeldestelle)">
+                                <a ion-button icon-only class="price-entry-button" [class.visibility-hidden]="bag.preismeldestelle.keinErhebungsart" href="javascript:void(0)"
+                                    (click)="navigateToPriceEntry$.emit(bag.preismeldestelle)">
                                     <pef-icon name="todo"></pef-icon>
                                 </a>
                             </div>

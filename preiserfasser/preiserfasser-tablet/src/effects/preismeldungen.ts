@@ -24,6 +24,7 @@ import {
     productMerkmaleFromCurrentPreismeldung,
     preismeldungId,
     preismeldestelleId,
+    PreismeldungAction,
 } from 'lik-shared';
 
 @Injectable()
@@ -93,7 +94,10 @@ export class PreismeldungenEffects {
                     ),
                 };
             })
-            .flatMap(async x => ({ ...x, pms: await x.db.get(preismeldestelleId(pmsNummer)) }))
+            .flatMap(async x => ({
+                ...x,
+                pms: await x.db.get<P.Models.Preismeldestelle>(preismeldestelleId(pmsNummer)),
+            }))
             .combineLatest(
                 this.store
                     .select(fromRoot.getWarenkorb)
@@ -106,9 +110,10 @@ export class PreismeldungenEffects {
                     refPreismeldungen: x.refPreismeldungen,
                     preismeldungen: x.preismeldungen,
                     pmsPreismeldungenSort: x.pmsPreismeldungenSort,
+                    alreadyExported: [],
                 })
             )
-            .map(payload => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload }))
+            .map(payload => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload } as PreismeldungAction))
     );
 
     savePreismeldungPrice$ = this.actions$
@@ -123,6 +128,7 @@ export class PreismeldungenEffects {
                 preismeldung: {
                     ...currentPreismeldung.preismeldung,
                     ...createVorReduktionProperties(currentPreismeldung),
+                    erfasstAt: +new Date(),
                 },
             },
             payload,

@@ -10,7 +10,8 @@
             <ion-item class="pef-advanced-item" *virtualItem="let bag" (click)="selectPreismeldung$.emit(bag)" [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
                 tappable>
                 <div class="pef-item-title">
-                    {{ bag.preismeldung.epNummer }}<br/>&nbsp;
+                    {{ bag.preismeldung.epNummer }}
+                    <br/>&nbsp;
                 </div>
                 <div class="pef-item-description">
                     <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung.de }}</span>
