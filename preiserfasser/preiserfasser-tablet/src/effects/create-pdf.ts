@@ -112,7 +112,7 @@ function mapData(
                 bag.warenkorbPosition.positionsbezeichnung[currentLanguage],
             ],
             col5: [
-                translateFn('label_print_pm-id'),
+                translateFn('label_print_preiszahl'),
                 `${
                     (priceCountStatuses[bag.warenkorbPosition.gliederungspositionsnummer] || ({} as any))
                         .numActivePrices
@@ -134,11 +134,11 @@ function mapData(
         },
         {
             col1: translateFn('label_print_vorperiode'),
-            col2: [translateFn('label_print_preis'), preisFormatFn(bag.refPreismeldung.preis)],
+            col2: [translateFn('label_print_preis'), preisFormatFn(bag.preismeldung.preisVorReduktion)],
             col3: [translateFn('label_print_aktion'), bag.refPreismeldung.aktion ? 'Ja' : 'Nein'],
             col4: [
                 translateFn('label_print_menge'),
-                `${mengeFormatFn(bag.refPreismeldung.menge)} ${bag.warenkorbPosition.standardeinheit.de}`,
+                `${mengeFormatFn(bag.preismeldung.mengeVorReduktion)} ${bag.warenkorbPosition.standardeinheit.de}`,
             ],
             col5: [translateFn('label_print_code'), parseCode(bag.preismeldung.bearbeitungscode)],
         },
