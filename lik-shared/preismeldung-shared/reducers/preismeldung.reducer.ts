@@ -11,6 +11,7 @@ export interface PreismeldungBag {
     sortierungsnummer: number;
     preismeldung: P.Models.Preismeldung;
     warenkorbPosition: P.Models.WarenkorbLeaf;
+    exported?: boolean;
 }
 
 export interface CurrentPreismeldungBagMessages {
@@ -87,6 +88,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                                   .sortierungsnummer
                             : null,
                         warenkorbPosition,
+                        exported: payload.alreadyExported.some(id => id === preismeldung._id),
                     }
                 );
             });
