@@ -54,14 +54,12 @@ export class ExporterEffects {
                                     // code for re-exporting an existing export
                                     // const xxx = (x.rows as any[]).find(row => row.id === '1515069593977').doc
                                     //     .preismeldungIds;
-                                    // const preismeldungenToExport = preismeldungBags.filter(
-                                    //     bag => bag.pm.istAbgebucht && xxx.some(y => y === bag.pm._id)
+                                    // const preismeldungenToExport = preismeldungen.filter(
+                                    //     pm => pm.istAbgebucht && xxx.some(y => y === pm._id)
                                     // );
                                     // comment out the following line when re-exporting
                                     const preismeldungenToExport = preismeldungBags.filter(
-                                        bag =>
-                                            bag.pm.istAbgebucht &&
-                                            !alreadyExportedPreismeldungIds.some(y => y === bag.pm._id)
+                                        bag => !alreadyExportedPreismeldungIds.some(y => y === bag.pm._id)
                                     );
                                     if (preismeldungenToExport.length === 0)
                                         throw new Error('Keine neue abgebuchte Preismeldungen vorhanden.');

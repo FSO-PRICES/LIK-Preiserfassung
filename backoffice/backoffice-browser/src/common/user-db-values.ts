@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable';
-import { sortBy, keyBy, assign } from 'lodash';
+import { groupBy, sortBy, flatten, keyBy, assign } from 'lodash';
 
 import { Models as P, preismeldungId, preismeldungRefId, preismeldestelleId, pmsSortId } from 'lik-shared';
 
@@ -27,28 +27,24 @@ export function loadAllPreismeldestellen() {
     );
 }
 
-export function loadAllPreismeldungenForExport(pmsNummer: string = '') {
-    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer))
-        .flatMap(preismeldungen =>
-            getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).map(
-                preismeldungenSorts => ({
-                    preismeldungenSorts,
-                    preismeldungen,
-                })
+export function loadAllPreismeldungenForExport(
+    pmsNummer: string = ''
+): Observable<{ pm: P.Preismeldung; sortierungsnummer: number }[]> {
+    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).map(preismeldungen => {
+        const grouped = groupBy(preismeldungen.filter(pm => pm.istAbgebucht), pm => pm.pmsNummer);
+        return flatten(
+            Object.keys(grouped).reduce(
+                (acc, pms) => [
+                    ...acc,
+                    sortBy(grouped[pms], [pm => pm.pmsNummer, pm => pm.erfasstAt]).map((pm, i) => ({
+                        pm,
+                        sortierungsnummer: i + 1,
+                    })),
+                ],
+                []
             )
-        )
-        .map(({ preismeldungenSorts, preismeldungen }) => {
-            const preismeldungenSortsKeyed = keyBy(preismeldungenSorts, preismeldungenSort =>
-                preismeldungenSort._id.substr(9)
-            );
-            return preismeldungen.map(pm => ({
-                pm,
-                sortOrder: (() => {
-                    const sortOrder = preismeldungenSortsKeyed[pm.pmsNummer].sortOrder.find(x => x.pmId === pm._id);
-                    return !!sortOrder ? sortOrder.sortierungsnummer : Number.MAX_SAFE_INTEGER;
-                })(),
-            }));
-        });
+        );
+    });
 }
 
 export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
