@@ -52,12 +52,17 @@
             <ion-content pef-perfect-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
                 <div class="pms-table">
                     <div class="pms-row" *ngFor="let bag of filteredPreismeldestellenWithStatistics$ | async">
-                        <div class="pms-cell pms-name">
+                        <div class="pms-cell pms-nummer">
                             <div class="pms-cell-content">
                                 <a ion-button clear class="pms-detail-link" (click)="navigateToDetails$.emit(bag.preismeldestelle)">
                                     <pef-icon name="shop"></pef-icon>
                                     <pef-floating-icon [icon-name]="'warning'" [bottom-right]="true" *ngIf="bag.preismeldestelle.keinErhebungsart"></pef-floating-icon>
                                 </a>
+                                {{ bag.preismeldestelle.pmsNummer }}
+                            </div>
+                        </div>
+                        <div class="pms-cell pms-name">
+                            <div class="pms-cell-content">
                                 <div class="pms-name-text"> {{ bag.preismeldestelle.name }} </div>
                             </div>
                         </div>
