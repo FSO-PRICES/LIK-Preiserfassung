@@ -3,7 +3,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, groupBy, mapValues } from 'lodash';
 
-import { Models as P, preismeldungId } from 'lik-shared';
+import { Models as P, preismeldungId, preismeldestelleId } from 'lik-shared';
 
 import { getDatabase, getAllDocumentsForPrefixFromDb } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
@@ -21,15 +21,7 @@ export class StatisticsEffects {
         .ofType('PREISMELDUNG_STATISTICS_LOAD')
         .flatMap(() => getDatabase())
         .flatMap(db =>
-            getAllDocumentsForPrefixFromDb(db, 'pm-ref').then((refPreismeldungen: P.PreismeldungReference[]) => {
-                const pmsRefPreismeldungen = groupBy(refPreismeldungen, p => p.pmsNummer);
-                return {
-                    db,
-                    pmsRefPreismeldungenTotals: mapValues(pmsRefPreismeldungen, value => ({
-                        downloadedCount: value.length,
-                    })) as { [pmsNummer: number]: { downloadedCount: number } },
-                };
-            })
+            loadAllPreismeldungRefs(db).then(pmsRefPreismeldungenTotals => ({ db, pmsRefPreismeldungenTotals }))
         )
         .flatMap(({ db, pmsRefPreismeldungenTotals }) =>
             getAllDocumentsForPrefixFromDb(db, preismeldungId())
@@ -75,4 +67,16 @@ export class StatisticsEffects {
             preismeldungenData =>
                 ({ type: 'PREISMELDUNG_STATISTICS_LOAD_SUCCESS', payload: preismeldungenData } as StatisticsAction)
         );
+}
+
+async function loadAllPreismeldungRefs(db): Promise<{ [pmsNummer: number]: { downloadedCount: number } }> {
+    const assignedPms = await getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId());
+    const pmRefs = await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, 'pm-ref');
+
+    return assignedPms.reduce((acc, pms) => {
+        return {
+            ...acc,
+            [pms.pmsNummer]: { downloadedCount: pmRefs.filter(pm => pm.pmsNummer == pms.pmsNummer).length },
+        };
+    }, {});
 }
