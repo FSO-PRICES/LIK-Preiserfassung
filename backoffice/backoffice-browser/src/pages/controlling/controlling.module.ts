@@ -8,20 +8,16 @@ import { EditPreismeldungComponent } from './edit-preismeldung/edit-preismeldung
 import { PefComponentsModule, PreismeldungSharedModule } from 'lik-shared';
 
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
+import { PefZoomModule } from '../../components/pef-zoom';
 
 @NgModule({
-    declarations: [
-        ControllingPage,
-        StichtageComponent,
-        ControllingReportComponent,
-        EditPreismeldungComponent
-    ],
+    declarations: [ControllingPage, StichtageComponent, ControllingReportComponent, EditPreismeldungComponent],
     imports: [
         IonicPageModule.forChild(ControllingPage),
         PefComponentsModule,
         PreismeldungSharedModule,
-        PefMenuModule
+        PefMenuModule,
+        PefZoomModule,
     ],
 })
-export class ControllingModule {
-}
+export class ControllingModule {}

@@ -23,7 +23,9 @@ export class PefMenuComponent implements OnDestroy {
 
     public dangerZone$: Observable<boolean>;
     public onOffLineClicked$ = new EventEmitter();
+    public toggleFullscreenClicked$ = new EventEmitter();
     public isOffline$: Observable<boolean>;
+    public isFullscreen$: Observable<boolean>;
 
     private onDestroy$ = new Subject();
 
@@ -35,9 +37,14 @@ export class PefMenuComponent implements OnDestroy {
             .startWith(false);
 
         this.isOffline$ = store.select(fromRoot.getIsOffline);
+        this.isFullscreen$ = store.select(fromRoot.getIsFullscreen);
 
         this.onOffLineClicked$.takeUntil(this.onDestroy$).subscribe(() => {
             store.dispatch({ type: 'TOGGLE_ONOFFLINE' });
+        });
+
+        this.toggleFullscreenClicked$.takeUntil(this.onDestroy$).subscribe(() => {
+            store.dispatch({ type: 'TOGGLE_FULLSCREEN' });
         });
     }
 

@@ -1,4 +1,4 @@
-@import "../../../theme/imports.scss";
+@import '../../../theme/imports.scss';
 
 controlling-report {
     flex: 1;
@@ -10,7 +10,8 @@ controlling-report {
         flex: 0 0 auto;
     }
 
-    .btn-execute {
+    .btn-execute,
+    pef-zoom {
         margin: 0 0 0 20px;
     }
 
