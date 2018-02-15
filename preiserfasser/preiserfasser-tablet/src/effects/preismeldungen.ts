@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { format, startOfMonth } from 'date-fns';
+import { startOfMonth } from 'date-fns';
 import { assign, cloneDeep, flatMap, isEqual } from 'lodash';
 import { Observable } from 'rxjs/Observable';
 
@@ -25,6 +25,7 @@ import {
     preismeldungId,
     preismeldestelleId,
     PreismeldungAction,
+    copyPreismeldungPropertiesFromRefPreismeldung,
 } from 'lik-shared';
 
 @Injectable()
@@ -59,7 +60,7 @@ export class PreismeldungenEffects {
                     .map(rpm => ({
                         _id: P.preismeldungId(rpm.pmsNummer, rpm.epNummer, rpm.laufnummer),
                         _rev: undefined,
-                        ...this.copyPreismeldungPropertiesFromRefPreismeldung(rpm),
+                        ...copyPreismeldungPropertiesFromRefPreismeldung(rpm),
                     }));
 
                 const pmsPreismeldungenSort = x.pmsPreismeldungenSort || {
@@ -263,7 +264,7 @@ export class PreismeldungenEffects {
         .filter(x => !!x.refPreismeldung)
         .flatMap(currentPreismeldung =>
             this.savePreismeldung(currentPreismeldung, [
-                bag => this.copyPreismeldungPropertiesFromRefPreismeldung(bag.refPreismeldung),
+                bag => copyPreismeldungPropertiesFromRefPreismeldung(bag.refPreismeldung),
             ])
         )
         .map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload }));
@@ -327,50 +328,10 @@ export class PreismeldungenEffects {
         return this.savePreismeldung(currentPreismeldungBag, [bag => productMerkmaleFromCurrentPreismeldung(bag)]);
     }
 
-    createInitialPercentageWithWarning(): P.Models.PercentageWithWarning {
-        return { percentage: null, warning: false, limitType: null, textzeil: null };
-    }
-
     savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
         return this.savePreismeldung(currentPreismeldungBag, [
             bag => propertiesFromCurrentPreismeldung(bag),
             bag => messagesFromCurrentPreismeldung(bag),
         ]);
-    }
-
-    copyPreismeldungPropertiesFromRefPreismeldung(rpm: P.Models.PreismeldungReference) {
-        return {
-            pmsNummer: rpm.pmsNummer,
-            epNummer: rpm.epNummer,
-            laufnummer: rpm.laufnummer,
-            preis: '',
-            menge: '',
-            preisVPK: '',
-            mengeVPK: '',
-            fehlendePreiseR: '',
-            preisVorReduktion: '',
-            mengeVorReduktion: '',
-            datumVorReduktion: '',
-            aktion: false,
-            artikelnummer: rpm.artikelnummer,
-            artikeltext: rpm.artikeltext,
-            bemerkungen: '',
-            notiz: rpm.notiz,
-            erhebungsZeitpunkt: rpm.erhebungsZeitpunkt,
-            kommentar: '',
-            productMerkmale: rpm.productMerkmale,
-            modifiedAt: format(new Date()),
-            bearbeitungscode: 99,
-            uploadRequestedAt: null,
-            istAbgebucht: false,
-            d_DPToVP: this.createInitialPercentageWithWarning(),
-            d_DPToVPVorReduktion: this.createInitialPercentageWithWarning(),
-            d_DPToVPK: this.createInitialPercentageWithWarning(),
-            d_VPKToVPAlterArtikel: this.createInitialPercentageWithWarning(),
-            d_VPKToVPVorReduktion: this.createInitialPercentageWithWarning(),
-            d_DPVorReduktionToVPVorReduktion: this.createInitialPercentageWithWarning(),
-            d_DPVorReduktionToVP: this.createInitialPercentageWithWarning(),
-            internetLink: rpm.internetLink,
-        };
     }
 }

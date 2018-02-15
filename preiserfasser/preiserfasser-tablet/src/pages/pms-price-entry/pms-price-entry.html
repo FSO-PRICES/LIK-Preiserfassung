@@ -10,7 +10,7 @@
                     [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
                 <preismeldung-info [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'" [isDesktop]="isDesktop$ | async"
                     [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
-                    (resetClicked)="resetPreismeldung$.emit()"></preismeldung-info>
+                    (resetClicked)="resetPreismeldung$.emit()" [isAdminApp]="false"></preismeldung-info>
                 <preismeldung-attributes [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'" [preismeldung]="currentPreismeldung$ | async"
                     [isDesktop]="isDesktop$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
                     (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"></preismeldung-attributes>

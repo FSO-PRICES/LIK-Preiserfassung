@@ -46,6 +46,7 @@ export class PreismeldungPage {
     public selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     public updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
+    public resetPreismeldung$ = new EventEmitter();
 
     public selectPreismeldestelleNummer$ = new EventEmitter<string>();
 
@@ -186,6 +187,10 @@ export class PreismeldungPage {
         this.updatePreismeldungMessages$
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload }));
+
+        this.resetPreismeldung$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(() => this.store.dispatch({ type: 'RESET_PREISMELDUNG' }));
     }
 
     public ionViewDidEnter() {

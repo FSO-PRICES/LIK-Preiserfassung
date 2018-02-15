@@ -14,6 +14,8 @@ import {
     SavePreismeldungPriceSaveActionSave,
     SavePreismeldungPriceSaveActionCommentsType,
     SavePreismeldungPriceSaveActionAktionType,
+    copyPreismeldungPropertiesFromRefPreismeldung,
+    pmsSortId,
 } from 'lik-shared';
 
 import {
@@ -117,10 +119,64 @@ export class PreismeldungEffects {
         .flatMap(currentPreismeldung => this.savePreismeldungAttributes(currentPreismeldung))
         .map(payload => ({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS', payload }));
 
+    @Effect()
+    resetPreismeldung$ = this.actions$
+        .ofType('RESET_PREISMELDUNG')
+        .withLatestFrom(
+            this.currentPreismeldung$,
+            (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung
+        )
+        .filter(x => !!x.refPreismeldung)
+        .flatMap(currentPreismeldung =>
+            this.savePreismeldung(currentPreismeldung, [
+                bag => copyPreismeldungPropertiesFromRefPreismeldung(bag.refPreismeldung),
+            ])
+        )
+        .map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload }));
+
+    @Effect()
+    deletePreismeldung$ = this.actions$
+        .ofType('RESET_PREISMELDUNG')
+        .withLatestFrom(
+            this.currentPreismeldung$,
+            (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung
+        )
+        .filter(x => !x.refPreismeldung)
+        .flatMap(bag =>
+            this.getUserDb(bag).flatMap(userDb =>
+                userDb
+                    .get(bag.preismeldung._id)
+                    .then(doc => ({ userDb, doc }))
+                    .then(x => x.userDb.remove(x.doc._id, x.doc._rev))
+                    .then(() =>
+                        userDb
+                            .get(pmsSortId(bag.preismeldung.pmsNummer))
+                            .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
+                                const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
+                                    sortOrder: pmsPreismeldungenSort.sortOrder.filter(x => x.pmId !== bag.pmId),
+                                });
+                                return userDb.put(newPmsPreismeldungsSort);
+                            })
+                            .then(() => bag.preismeldung._id)
+                    )
+            )
+        )
+        .map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload }));
+
     savePreismeldung(
         currentPreismeldungBag: P.CurrentPreismeldungBag,
         copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]
     ) {
+        return this.getUserDb(currentPreismeldungBag)
+            .flatMap(db => db.get(currentPreismeldungBag.preismeldung._id).then(doc => ({ db, doc })))
+            .flatMap(({ db, doc }) => {
+                const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
+                return db.put(assign({}, doc, ...copyObjects)).then(() => db);
+            })
+            .flatMap(db => db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
+    }
+
+    getUserDb(currentPreismeldungBag: P.CurrentPreismeldungBag) {
         return getDatabaseAsObservable(dbNames.preiszuweisung)
             .flatMap(db => getAllDocumentsFromDb<P.Models.Preiszuweisung>(db))
             .flatMap(preiszuweisungen => {
@@ -128,13 +184,7 @@ export class PreismeldungEffects {
                     x.preismeldestellenNummern.some(n => n === currentPreismeldungBag.preismeldung.pmsNummer)
                 );
                 return getDatabaseAsObservable(`user_${preiszuweisung.preiserheberId}`);
-            })
-            .flatMap(db => db.get(currentPreismeldungBag.preismeldung._id).then(doc => ({ db, doc })))
-            .flatMap(({ db, doc }) => {
-                const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
-                return db.put(assign({}, doc, ...copyObjects)).then(() => db);
-            })
-            .flatMap(db => db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
+            });
     }
 
     savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
