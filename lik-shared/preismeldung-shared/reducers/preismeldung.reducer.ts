@@ -587,6 +587,7 @@ const createFreshPreismeldung = (
     d_DPVorReduktionToVPVorReduktion: createInitialPercentageWithWarning(),
     d_DPVorReduktionToVP: createInitialPercentageWithWarning(),
     productMerkmale: [],
+    erfasstAt: null,
     modifiedAt: null,
     bearbeitungscode,
     erhebungsZeitpunkt,
