@@ -6,6 +6,9 @@
         <a ion-button clear href="javascript:" (click)="navigateToPage('SettingsPage')" [class.active]="isCurrentPage('SettingsPage')">
             <pef-icon name="settings"></pef-icon>
         </a>
+        <a ion-button clear href="javascript:" color="white" (click)="toggleFullscreenClicked$.emit()">
+            <pef-icon [name]="(isFullscreen$ | async) ? 'expand' : 'collapse'"></pef-icon>
+        </a>
     </ion-buttons>
 
     <ion-title>

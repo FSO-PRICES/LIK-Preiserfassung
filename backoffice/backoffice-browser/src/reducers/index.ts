@@ -103,6 +103,7 @@ export const getCurrentPreiszuweisung = createSelector(
 export const getSettingState = (state: AppState) => state.settings;
 export const getSettings = createSelector(getSettingState, fromSetting.getSettings);
 export const getCurrentSettings = createSelector(getSettingState, fromSetting.getCurrentSettings);
+export const getIsFullscreen = createSelector(getSettingState, fromSetting.getIsFullscreen);
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);

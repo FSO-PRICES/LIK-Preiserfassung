@@ -16,6 +16,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class Backoffice implements OnInit {
     @HostBinding('class') classes = 'app-root pef-desktop';
+    @HostBinding('class.fullscreen') fullscreen = false;
     @ViewChild('nav') navCtrl: NavController;
 
     public rootPage = 'PreiserheberPage';
@@ -51,6 +52,10 @@ export class Backoffice implements OnInit {
             // Here you can do any higher level native things you might need.
             statusBar.hide();
             splashScreen.hide();
+        });
+
+        store.select(fromRoot.getIsFullscreen).subscribe(isFullscreen => {
+            this.fullscreen = isFullscreen;
         });
 
         settings$

@@ -1,4 +1,4 @@
-@import "../../theme/imports.scss";
+@import '../../theme/imports.scss';
 
 dashboard {
     .pef-toolbar {
@@ -61,7 +61,7 @@ dashboard {
     .settings-buttons-container {
         display: flex;
         flex-direction: column;
-        @include set-padding-bottom(1.5)
+        @include set-padding-bottom(1.5);
     }
 
     .button-md.pef-toolbar-button {
@@ -139,8 +139,11 @@ dashboard {
         @include set-padding-bottom(0.25);
         position: relative;
 
+        &.pms-nummer {
+            width: 7.5em;
+        }
         &.pms-name {
-            width: calc(100% - (3 * 3.5em + 6em + 6.25em));
+            width: calc(100% - (3 * 7.5em + 3.5em + 6em + 6.25em));
             .pms-header-cell-content {
                 @include set-padding-left(1);
             }
@@ -206,10 +209,16 @@ dashboard {
         height: 100%;
         position: relative;
 
+        &.pms-nummer {
+            flex: 0 1 7.5em;
+            .pms-cell-content {
+                @include set-padding-left(1);
+                font-weight: 500;
+            }
+        }
         &.pms-name {
             flex: 1;
             .pms-cell-content {
-                @include set-padding-left(1);
                 font-weight: 500;
             }
         }

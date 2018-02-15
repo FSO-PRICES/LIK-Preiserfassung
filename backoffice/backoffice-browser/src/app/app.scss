@@ -1,3 +1,7 @@
-@import "../../../../lik-shared/styles/app.scss";
-@import "../theme/pages.scss";
-@import "../theme/forms.scss";
+@import '../../../../lik-shared/styles/app.scss';
+@import '../theme/pages.scss';
+@import '../theme/forms.scss';
+
+.app-root.pef-desktop.fullscreen {
+    max-width: none;
+}

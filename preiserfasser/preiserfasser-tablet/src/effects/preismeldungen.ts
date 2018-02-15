@@ -199,8 +199,11 @@ export class PreismeldungenEffects {
                         .then(() => db)
                 )
                 .then(db =>
-                    db
-                        .get(P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer))
+                    getDocumentWithFallback<P.Models.PmsPreismeldungenSort>(
+                        db,
+                        P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer),
+                        { _id: P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer), _rev: null, sortOrder: [] }
+                    )
                         .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
                             const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
                                 sortOrder: [

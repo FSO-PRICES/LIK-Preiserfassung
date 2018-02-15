@@ -32,7 +32,10 @@ export function loadAllPreismeldungenForExport(
     pmsNummer: string = ''
 ): Observable<{ pm: P.Preismeldung; sortierungsnummer: number }[]> {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).map(preismeldungen => {
-        const grouped = groupBy(preismeldungen.filter(pm => pm.istAbgebucht), pm => pm.pmsNummer);
+        const grouped = groupBy(
+            preismeldungen.filter(pm => pm.istAbgebucht && !!pm.uploadRequestedAt),
+            pm => pm.pmsNummer
+        );
         return flatten(
             Object.keys(grouped).reduce(
                 (acc, pms) => [

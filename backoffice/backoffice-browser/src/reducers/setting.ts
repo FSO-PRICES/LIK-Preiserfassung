@@ -13,11 +13,13 @@ export type CurrentSetting = P.Setting & {
 export interface State {
     settings: CurrentSetting;
     currentSettings: CurrentSetting;
-};
+    isFullscreen: boolean;
+}
 
 const initialState: State = {
     settings: undefined,
-    currentSettings: undefined
+    currentSettings: undefined,
+    isFullscreen: false,
 };
 
 export function reducer(state = initialState, action: setting.Action): State {
@@ -35,7 +37,7 @@ export function reducer(state = initialState, action: setting.Action): State {
                 version: null,
                 isModified: false,
                 isSaved: false,
-                isDefault: true
+                isDefault: true,
             };
             return assign({}, state, { settings, currentSettings: settings });
         }
@@ -45,14 +47,10 @@ export function reducer(state = initialState, action: setting.Action): State {
 
             const valuesFromPayload = {
                 serverConnection: payload.serverConnection,
-                general: payload.general
+                general: payload.general,
             };
 
-            const currentSettings = assign({},
-                state.settings,
-                valuesFromPayload,
-                { isModified: true }
-            );
+            const currentSettings = assign({}, state.settings, valuesFromPayload, { isModified: true });
 
             return Object.assign({}, state, { currentSettings });
         }
@@ -62,6 +60,10 @@ export function reducer(state = initialState, action: setting.Action): State {
             return assign({}, state, { settings, currentSettings: settings });
         }
 
+        case 'TOGGLE_FULLSCREEN': {
+            return assign({}, state, { isFullscreen: !state.isFullscreen });
+        }
+
         default:
             return state;
     }
@@ -69,3 +71,5 @@ export function reducer(state = initialState, action: setting.Action): State {
 
 export const getSettings = (state: State) => state.settings;
 export const getCurrentSettings = (state: State) => state.currentSettings;
+
+export const getIsFullscreen = (state: State) => state.isFullscreen;

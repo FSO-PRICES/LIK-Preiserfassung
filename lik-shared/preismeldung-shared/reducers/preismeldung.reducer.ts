@@ -496,7 +496,9 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             );
             const sortierungsnummer =
                 preismeldungen.length === 0
-                    ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
+                    ? allPreismeldungen.length !== 0
+                      ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
+                      : 1
                     : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
             const priceCountStatus =
                 state.priceCountStatuses[action.payload.warenkorbPosition.gliederungspositionsnummer];
