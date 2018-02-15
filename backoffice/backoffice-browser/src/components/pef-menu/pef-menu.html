@@ -7,7 +7,7 @@
             <pef-icon name="settings"></pef-icon>
         </a>
         <a ion-button clear href="javascript:" color="white" (click)="toggleFullscreenClicked$.emit()">
-            <pef-icon [name]="(isFullscreen$ | async) ? 'arrow_left' : 'arrow_right'"></pef-icon>
+            <pef-icon [name]="(isFullscreen$ | async) ? 'expand' : 'collapse'"></pef-icon>
         </a>
     </ion-buttons>
 

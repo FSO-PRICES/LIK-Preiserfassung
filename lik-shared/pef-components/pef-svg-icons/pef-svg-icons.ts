@@ -324,6 +324,24 @@ import { Component } from '@angular/core';
                     <path d="M18,15 C18,15.553 17.553,16 17,16 C16.447,16 16,15.553 16,15 C16,14.448 16.447,14 17,14 C17.553,14 18,14.448 18,15"/>
                 </g>
             </symbol>
-        </svg>`
+            <symbol class="icon-expand" id="expand" viewBox="0 0 64 64">
+                <g stroke="inherit" fill="none" stroke-miterlimit="10" stroke-width="2" stroke-linecap="round">
+                    <path data-name="layer1" d="M18 62H2V46"/>
+                    <path data-name="layer2" d="M62 46v16H46"/>
+                    <path data-name="layer1" d="M46 2h16v16"/>
+                    <path data-name="layer2" d="M2 18V2h16m24 40l20 20M2 2l20 19.998"/>
+                    <path data-name="layer1" d="M22 42.006L2 62M62 2L42 22"/>
+                </g>
+            </symbol>
+            <symbol class="icon-collapse" id="collapse" viewBox="0 0 64 64">
+                <g stroke="inherit" fill="none" stroke-miterlimit="10" stroke-width="2" stroke-linecap="round">
+                    <path data-name="layer1" d="M10 40.006h13.994L24 54"/>
+                    <path data-name="layer2" d="M40 54V40h14"/>
+                    <path data-name="layer1" d="M54 24.006H39.994v-14"/>
+                    <path data-name="layer2" d="M24 10v13.996H10M62 62L40 40M24 23.996L2 2"/>
+                    <path data-name="layer1" d="M2 62l21.994-21.994m16-16L62 2"/>
+                </g>
+            </symbol>
+        </svg>`,
 })
-export class PefSvgIcons { }
+export class PefSvgIcons {}
