@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable';
-import { sortBy, keyBy, assign } from 'lodash';
+import { groupBy, sortBy, keyBy, assign, flatten } from 'lodash';
 
 import { Models as P, preismeldungId, preismeldungRefId, preismeldestelleId, pmsSortId } from 'lik-shared';
 
@@ -11,6 +11,7 @@ import {
     getAllDocumentsFromDb,
     getDocumentByKeyFromDb,
     getUserDatabaseName,
+    getDatabase,
 } from '../effects/pouchdb-utils';
 
 export function loadAllPreismeldestellen() {
@@ -27,61 +28,49 @@ export function loadAllPreismeldestellen() {
     );
 }
 
-export function loadAllPreismeldungenForExport(pmsNummer: string = '') {
-    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer))
-        .flatMap(preismeldungen =>
-            getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).map(
-                preismeldungenSorts => ({
-                    preismeldungenSorts,
-                    preismeldungen,
-                })
+export function loadAllPreismeldungenForExport(
+    pmsNummer: string = ''
+): Observable<{ pm: P.Preismeldung; sortierungsnummer: number }[]> {
+    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).map(preismeldungen => {
+        const grouped = groupBy(
+            preismeldungen.filter(pm => pm.istAbgebucht && !!pm.uploadRequestedAt),
+            pm => pm.pmsNummer
+        );
+        return flatten(
+            Object.keys(grouped).reduce(
+                (acc, pms) => [
+                    ...acc,
+                    sortBy(grouped[pms], [pm => pm.pmsNummer, pm => pm.erfasstAt]).map((pm, i) => ({
+                        pm,
+                        sortierungsnummer: i + 1,
+                    })),
+                ],
+                []
             )
-        )
-        .map(({ preismeldungenSorts, preismeldungen }) => {
-            const preismeldungenSortsKeyed = keyBy(preismeldungenSorts, preismeldungenSort =>
-                preismeldungenSort._id.substr(9)
-            );
-            return preismeldungen.map(pm => ({
-                pm,
-                sortOrder: (() => {
-                    const sortOrder = preismeldungenSortsKeyed[pm.pmsNummer].sortOrder.find(x => x.pmId === pm._id);
-                    return !!sortOrder ? sortOrder.sortierungsnummer : Number.MAX_SAFE_INTEGER;
-                })(),
-            }));
-        });
+        );
+    });
 }
 
-export function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
-    return getDatabaseAsObservable(dbNames.preiszuweisung)
-        .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))
-        .flatMap(preiszuweisungen => {
-            const preiszuweisung = preiszuweisungen.find(x => x.preismeldestellenNummern.some(n => n === pmsNummer));
-            if (!!preiszuweisung) {
-                return getDatabaseAsObservable(`user_${preiszuweisung.preiserheberId}`)
-                    .flatMap(db =>
-                        getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, preismeldungId(pmsNummer)).then(
-                            preismeldungen => ({
-                                db,
-                                preismeldungen,
-                            })
-                        )
-                    )
-                    .flatMap(({ db, preismeldungen }) =>
-                        db
-                            .get(preismeldestelleId(pmsNummer))
-                            .then((pms: P.Preismeldestelle) => ({ preismeldungen, pms }))
-                    )
-                    .flatMap(({ preismeldungen, pms }) =>
-                        getDatabaseAsObservable(dbNames.preismeldung).map(db => ({ db, preismeldungen, pms }))
-                    )
-                    .flatMap(({ db, preismeldungen, pms }) =>
-                        getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer)).then(
-                            refPreismeldungen => ({ refPreismeldungen, preismeldungen, pms })
-                        )
-                    );
-            }
-            return Observable.of({ refPreismeldungen: [], preismeldungen: [], pms: null });
-        });
+export async function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
+    const preiszuweisungen = await getDatabase(dbNames.preiszuweisung).then(db =>
+        getAllDocumentsFromDb<P.Preiszuweisung>(db)
+    );
+    const preiszuweisung = preiszuweisungen.find(x => x.preismeldestellenNummern.some(n => n === pmsNummer));
+    if (!preiszuweisung) {
+        return { refPreismeldungen: [], preismeldungen: [], pms: null as P.Preismeldestelle, alreadyExported: [] };
+    }
+
+    const userDb = await getDatabase(`user_${preiszuweisung.preiserheberId}`);
+    const preismeldungen = await getAllDocumentsForPrefixFromDb<P.Preismeldung>(userDb, preismeldungId(pmsNummer));
+    const pms = await userDb.get(preismeldestelleId(pmsNummer));
+    const refPreismeldungen = await getDatabase(dbNames.preismeldung).then(db =>
+        getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer))
+    );
+    const alreadyExported = await getDatabase(dbNames.exports).then(db =>
+        getAllDocumentsFromDb<any>(db).then(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
+    );
+
+    return { refPreismeldungen, preismeldungen, pms, alreadyExported };
 }
 
 export function loadAllPreiserheber() {

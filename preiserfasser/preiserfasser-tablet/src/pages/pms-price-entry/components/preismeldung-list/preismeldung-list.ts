@@ -54,7 +54,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public filterTodoSelected$: Observable<boolean>;
     public filterCompletedSelected$: Observable<boolean>;
 
-    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle')
+        .publishReplay(1)
+        .refCount();
     public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung')
         .publishReplay(1)
