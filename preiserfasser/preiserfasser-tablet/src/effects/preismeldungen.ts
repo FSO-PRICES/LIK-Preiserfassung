@@ -123,6 +123,7 @@ export class PreismeldungenEffects {
                 preismeldung: {
                     ...currentPreismeldung.preismeldung,
                     ...createVorReduktionProperties(currentPreismeldung),
+                    erfasstAt: +new Date(),
                 },
             },
             payload,
