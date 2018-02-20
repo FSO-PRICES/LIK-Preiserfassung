@@ -32,16 +32,20 @@
 <div class="table-wrapper" *ngIf="!!(reportData$ | async)">
     <table class="report-table" [pefZoomable]="zoomLevel$ | async">
         <thead>
-            <th></th>
-            <th *ngFor="let column of (reportData$ | async)?.columns">{{ column }}</th>
+            <tr>
+                <th></th>
+                <th *ngFor="let column of (reportData$ | async)?.columns">{{ column }}</th>
+            </tr>
         </thead>
-        <tr *ngFor="let row of (reportData$ | async)?.rows">
-            <td>
-                <button [class.visibility-hidden]="!row.canView" ion-button class="edit-pm" (click)="editPreismeldungId$.emit(row.pmId)">
-                    <pef-icon name="todo"></pef-icon>
-                </button>
-            </td>
-            <td *ngFor="let value of row.values">{{ value }}</td>
-        </tr>
+        <tbody>
+            <tr *ngFor="let row of (reportData$ | async)?.rows">
+                <td>
+                    <button [class.visibility-hidden]="!row.canView" ion-button class="edit-pm" (click)="editPreismeldungId$.emit(row.pmId)">
+                        <pef-icon name="todo"></pef-icon>
+                    </button>
+                </td>
+                <td *ngFor="let value of row.values">{{ value }}</td>
+            </tr>
+        </tbody>
     </table>
 </div>

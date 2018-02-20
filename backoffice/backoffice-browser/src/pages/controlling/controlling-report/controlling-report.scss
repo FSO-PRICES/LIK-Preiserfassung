@@ -33,6 +33,9 @@ controlling-report {
             background-color: darken($alto, 3%);
         }
         th {
+            background-color: $alto;
+            position: sticky;
+            top: 0;
             white-space: nowrap;
             text-align: left;
             padding-right: 10px;
