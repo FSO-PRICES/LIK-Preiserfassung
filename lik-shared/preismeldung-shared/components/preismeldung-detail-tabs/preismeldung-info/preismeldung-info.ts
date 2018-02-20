@@ -1,8 +1,17 @@
-import { Component, Input, Output, OnChanges, SimpleChange, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    OnChanges,
+    SimpleChange,
+    EventEmitter,
+    ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { ReactiveComponent } from '../../../../';
 
 import * as P from '../../../models';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'preismeldung-info',
@@ -107,10 +116,10 @@ import * as P from '../../../models';
                         </div>
                     </div>
                 </div>
-                <button *ngIf="!(isAdminApp$ | async)" ion-button class="reset-button" (click)="resetClicked$.emit()" [disabled]="!!(preismeldung$ | async)?.preismeldung.uploadRequestedAt">{{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate}}</button>
+                <button ion-button class="reset-button" (click)="resetClicked$.emit()" [disabled]="!(canReset$ | async)">{{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate}}</button>
             </div>
         </ion-content>`,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungInfoComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
@@ -125,11 +134,22 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
     public isAdminApp$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isAdminApp');
+    public canReset$: Observable<boolean>;
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
 
     constructor() {
         super();
+
+        this.canReset$ = this.preismeldung$
+            .withLatestFrom(this.isAdminApp$)
+            .filter(([pm]) => !!pm)
+            .map(
+                ([pm, isAdminApp]) =>
+                    !isAdminApp
+                        ? !pm.preismeldung.uploadRequestedAt
+                        : !!pm.preismeldung.uploadRequestedAt && !pm.exported
+            );
     }
 
     formatPreismeldungId(bag: P.PreismeldungBag) {
@@ -138,7 +158,7 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
 
     formatInternetLink(link: string) {
         if (!link) return link;
-        return (!link.startsWith('http://') || !link.startsWith('https://')) ? `http://${link}` : link;
+        return !link.startsWith('http://') || !link.startsWith('https://') ? `http://${link}` : link;
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
