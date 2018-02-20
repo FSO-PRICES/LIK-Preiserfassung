@@ -191,7 +191,7 @@ import * as P from '../../../models';
                                     <ion-list radio-group class="reduction-radio-group-list" [class.visibility-hidden]="infoPopoverRightActive$ | async">
                                         <ion-item>
                                             <ion-label>{{ 'text_aktion' | translate }}</ion-label>
-                                            <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit(!form.value.aktion)" [disabled]="preisAndMengeDisabled$ | async"></ion-radio>
+                                            <ion-radio [checked]="form.value.aktion" (click)="toggleAktion$.emit(!form.value.aktion)" [disabled]="aktionDisabled$ | async"></ion-radio>
                                         </ion-item>
                                     </ion-list>
                                     <div class="aktion-percent-container" [class.visibility-hidden]="!form.value.aktion || !(preismeldung$ | async)?.refPreismeldung || (infoPopoverRightActive$ | async) || (isReadonly$ | async)">
@@ -293,6 +293,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     public changeBearbeitungscode$ = new EventEmitter<P.Models.Bearbeitungscode>();
     public preisAndMengeDisabled$: Observable<boolean>;
+    public aktionDisabled$: Observable<boolean>;
     public showVPArtikelNeu$: Observable<boolean>;
     public selectedProcessingCode$ = new EventEmitter<any>();
 
@@ -657,6 +658,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .publishReplay(1)
             .refCount();
 
+        this.aktionDisabled$ = bearbeitungscodeChanged$
+            .map(x => this.calcPreisAndMengeDisabled(x) || x === 3)
+            .combineLatest(
+                this.isReadonly$,
+                (disabledBasedOnBearbeitungsCode, isReadonly) => disabledBasedOnBearbeitungsCode || isReadonly
+            )
+            .publishReplay(1)
+            .refCount();
+
         this.showVPArtikelNeu$ = bearbeitungscodeChanged$
             .map(x => x === 7 || x === 2)
             .publishReplay(1)
@@ -684,7 +694,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         menge: `${refPreismeldung.menge}`,
                         aktion: refPreismeldung.aktion,
                     });
-                })
+                }),
+            this.aktionDisabled$.filter(x => x && this.form.dirty).subscribe(refPreismeldung => {
+                this.form.patchValue({
+                    aktion: false,
+                });
+            })
         );
 
         this.subscriptions.push(
