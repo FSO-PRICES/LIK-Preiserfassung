@@ -54,6 +54,24 @@ export class PreismeldungEffects {
         );
 
     @Effect()
+    loadPreismeldungenForId$ = this.actions$
+        .ofType('PREISMELDUNGEN_LOAD_FOR_ID')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(({ payload: { pmsNummer, epNummer, laufNummer } }) =>
+            loadPreismeldungenAndRefPreismeldungForPms(pmsNummer, epNummer, laufNummer)
+        )
+        .withLatestFrom(this.store.select(fromRoot.getWarenkorbState), (x, warenkorb) =>
+            assign({ ...x, warenkorb, pmsPreismeldungenSort: null })
+        )
+        .map(
+            docs =>
+                ({
+                    type: 'PREISMELDUNGEN_LOAD_SUCCESS',
+                    payload: { ...docs, isAdminApp: true },
+                } as PreismeldungAction)
+        );
+
+    @Effect()
     savePreismeldungPrice$ = this.actions$
         .ofType('SAVE_PREISMELDUNG_PRICE')
         .withLatestFrom(this.currentPreismeldung$, (action, currentPreismeldung: P.CurrentPreismeldungBag) => ({

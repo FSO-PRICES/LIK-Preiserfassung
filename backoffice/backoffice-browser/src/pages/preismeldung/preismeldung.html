@@ -6,7 +6,7 @@
                 <h1 class="large">Preismeldungen</h1>
             </div>
             <preismeldung-list [preismeldungen]="preismeldungen$ | async" [preismeldestellen]="preismeldestellen$ | async" (selectPmsNummer)="selectPreismeldestelleNummer$.emit($event)"
-                (selectPreismeldung)="selectPreismeldung$.emit($event)" (buttonClicked)="toolbarButtonClicked$.emit($event)"
+                (selectPreismeldung)="selectPreismeldung$.emit($event)" (globalFilterTextChanged)="globalFilterTextChanged$.emit($event)"
                 [status]="status$ | async" [currentPreismeldung]="currentPreismeldung$ | async"></preismeldung-list>
         </div>
         <div class="preismeldung-detail-container container">

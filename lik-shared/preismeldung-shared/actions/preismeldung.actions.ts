@@ -21,6 +21,12 @@ export interface PreismeldungMessagesPayload {
     bemerkungen: string;
 }
 
+export interface PreismeldungIdentifierPayload {
+    pmsNummer: string;
+    epNummer: string;
+    laufNummer?: string;
+}
+
 export type SavePreismeldungPriceSaveActionCommentsType = { type: 'COMMENT'; comments: string[] };
 export type SavePreismeldungPriceSaveActionAktionType = { type: 'AKTION'; value: boolean };
 export type SavePreismeldungPriceSaveActionWithDataType =
@@ -73,6 +79,7 @@ export const isSavePreismeldungPriceSaveActionSave = (x: SavePreismeldungPriceSa
 
 export type PreismeldungAction =
     | { type: 'PREISMELDUNGEN_LOAD_FOR_PMS'; payload: string }
+    | { type: 'PREISMELDUNGEN_LOAD_FOR_ID'; payload: PreismeldungIdentifierPayload }
     | {
           type: 'PREISMELDUNGEN_LOAD_SUCCESS';
           payload: {

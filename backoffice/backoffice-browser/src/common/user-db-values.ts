@@ -60,7 +60,11 @@ export function loadAllPreismeldungenForExport(
         });
 }
 
-export async function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
+export async function loadPreismeldungenAndRefPreismeldungForPms(
+    pmsNummer: string,
+    epNummer?: string,
+    laufNummer?: string
+) {
     const preiszuweisungen = await getDatabase(dbNames.preiszuweisung).then(db =>
         getAllDocumentsFromDb<P.Preiszuweisung>(db)
     );
@@ -70,7 +74,10 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: stri
     }
 
     const userDb = await getDatabase(`user_${preiszuweisung.preiserheberId}`);
-    const preismeldungen = await getAllDocumentsForPrefixFromDb<P.Preismeldung>(userDb, preismeldungId(pmsNummer));
+    const preismeldungen = await getAllDocumentsForPrefixFromDb<P.Preismeldung>(
+        userDb,
+        preismeldungId(pmsNummer, epNummer, laufNummer)
+    );
     const pms = await userDb.get(preismeldestelleId(pmsNummer));
     const refPreismeldungen = await getDatabase(dbNames.preismeldung).then(db =>
         getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer))
