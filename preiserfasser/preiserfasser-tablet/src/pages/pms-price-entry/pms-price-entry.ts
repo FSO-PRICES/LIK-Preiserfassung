@@ -308,20 +308,13 @@ export class PmsPriceEntryPage implements OnDestroy {
 
         this.navigateToPmsSort$.takeUntil(this.onDestroy$).subscribe(() => this.navigateToPmsSort());
 
-        this.ionViewDidLoad$
-            .take(1)
-            .withLatestFrom(
-                this.preismeldungenCurrentPmsNummer$,
-                (_, preismeldungenCurrentPmsNummer) => preismeldungenCurrentPmsNummer
-            )
-            .filter(x => x !== this.navParams.get('pmsNummer'))
-            .subscribe(() => {
-                this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
-                this.store.dispatch({
-                    type: 'PREISMELDUNGEN_LOAD_FOR_PMS',
-                    payload: this.navParams.get('pmsNummer'),
-                });
+        this.ionViewDidLoad$.take(1).subscribe(() => {
+            this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
+            this.store.dispatch({
+                type: 'PREISMELDUNGEN_LOAD_FOR_PMS',
+                payload: this.navParams.get('pmsNummer'),
             });
+        });
 
         this.selectNextPreismeldungRequested$ = this.toolbarButtonClicked$
             .filter(x => x === 'REQUEST_SELECT_NEXT_PREISMELDUNG')
