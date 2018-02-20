@@ -30,25 +30,34 @@ export function loadAllPreismeldestellen() {
 
 export function loadAllPreismeldungenForExport(
     pmsNummer: string = ''
-): Observable<{ pm: P.Preismeldung; sortierungsnummer: number }[]> {
-    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).map(preismeldungen => {
-        const grouped = groupBy(
-            preismeldungen.filter(pm => pm.istAbgebucht && !!pm.uploadRequestedAt),
-            pm => pm.pmsNummer
-        );
-        return flatten(
-            Object.keys(grouped).reduce(
-                (acc, pms) => [
-                    ...acc,
-                    sortBy(grouped[pms], [pm => pm.pmsNummer, pm => pm.erfasstAt]).map((pm, i) => ({
-                        pm,
-                        sortierungsnummer: i + 1,
-                    })),
-                ],
-                []
+): Observable<{ pm: P.Preismeldung; refPreismeldung: P.PreismeldungReference; sortierungsnummer: number }[]> {
+    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer))
+        .flatMap(preismeldungen =>
+            getDatabaseAsObservable(dbNames.preismeldung).flatMap(db =>
+                getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer)).then(
+                    refPreismeldungen => ({ refPreismeldungen, preismeldungen })
+                )
             )
-        );
-    });
+        )
+        .map(({ preismeldungen, refPreismeldungen }) => {
+            const grouped = groupBy(
+                preismeldungen.filter(pm => pm.istAbgebucht && !!pm.uploadRequestedAt),
+                pm => pm.pmsNummer
+            );
+            return flatten(
+                Object.keys(grouped).reduce(
+                    (acc, pms) => [
+                        ...acc,
+                        sortBy(grouped[pms], [pm => pm.pmsNummer, pm => pm.erfasstAt]).map((pm, i) => ({
+                            pm,
+                            refPreismeldung: refPreismeldungen.find(rpm => rpm.pmId === pm._id) || {},
+                            sortierungsnummer: i + 1,
+                        })),
+                    ],
+                    []
+                )
+            );
+        });
 }
 
 export async function loadPreismeldungenAndRefPreismeldungForPms(pmsNummer: string) {
