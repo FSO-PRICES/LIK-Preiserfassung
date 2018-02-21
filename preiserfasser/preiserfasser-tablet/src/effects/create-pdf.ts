@@ -337,7 +337,7 @@ function toPdf(
         {
             col1: [translateFn('label_print_pos'), ''],
             col2: [translateFn('label_print_positionsbezeichnung'), ''],
-            col5: [translateFn('label_print_pm-id'), ''],
+            col5: [translateFn('label_print_preiszahl'), ''],
         },
         {
             col1: [translateFn('label_print_artikelnummer'), ''],
