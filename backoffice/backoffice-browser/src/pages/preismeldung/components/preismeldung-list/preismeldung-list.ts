@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges, OnDestroy } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 
@@ -10,7 +10,7 @@ import * as P from '../../../../common-models';
     selector: 'preismeldung-list',
     templateUrl: 'preismeldung-list.html',
 })
-export class PreismeldungListComponent extends ReactiveComponent implements OnChanges {
+export class PreismeldungListComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() preismeldestellen: P.Models.Preismeldestelle[];
     @Input() currentPreismeldung: P.PreismeldungBag;
@@ -26,8 +26,11 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     public filterTextValueChanges$ = new EventEmitter<string>();
 
+    public resetSelectedPreismeldestelle$: Observable<boolean>;
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public viewPortItems: P.PreismeldungBag[];
+
+    private onDestroy$ = new EventEmitter();
 
     constructor(private formBuilder: FormBuilder) {
         super();
@@ -40,9 +43,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.globalFilterTextValueChanged$ = this.filterTextValueChanges$
             .debounceTime(300)
+            .map(filter => matchesIdSearch(filter))
             .withLatestFrom(selectedPreismeldestelleNummer$)
-            .filter(([_, pmsNummer]) => !pmsNummer)
-            .map(([filter]) => matchesIdSearch(filter))
+            .filter(([filter, selectedPms]) => !selectedPms || (!!selectedPms && !!filter))
+            .map(([filter, _]) => filter)
             .merge(selectedPreismeldestelleNummer$.filter(x => !!x).mapTo(null));
 
         this.filteredPreismeldungen$ = this.preismeldungen$
@@ -62,10 +66,29 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             )
             .debounceTime(300)
             .startWith([]);
+
+        this.resetSelectedPreismeldestelle$ = this.globalFilterTextValueChanged$
+            .filter(x => !!x)
+            .withLatestFrom(selectedPreismeldestelleNummer$)
+            .filter(([_, selectedPms]) => !!selectedPms)
+            // Emit objects to bypass distincUntilChanged which seem to be used in "| async" or "[selected]"
+            .map(x => ({}))
+            .startWith({})
+            .publishReplay(1)
+            .refCount();
+
+        // The change of directly selecting the default option is not being catched by "(change)", setting it with [value] also doesn't trigger the change
+        this.resetSelectedPreismeldestelle$
+            .takeUntil(this.onDestroy$)
+            .subscribe(x => this.preismeldestelleNummerSelected$.emit(''));
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    public ngOnDestroy() {
+        this.onDestroy$.next();
     }
 
     formatPercentageChange = (preismeldung: P.Models.Preismeldung) => {
