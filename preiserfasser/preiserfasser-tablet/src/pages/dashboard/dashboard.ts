@@ -206,7 +206,9 @@ export class DashboardPage implements OnDestroy {
 
             this.navigateToPriceEntry$
                 .delay(100)
-                .subscribe(pms => this.navCtrl.setRoot('PmsPriceEntryPage', { pmsNummer: pms.pmsNummer })),
+                .subscribe(pms =>
+                    this.navCtrl.setRoot('PmsPriceEntryPage', { pmsNummer: pms.pmsNummer, reload: true })
+                ),
 
             this.navigateToPreiserheber$.delay(100).subscribe(() => this.navCtrl.setRoot('PreiserheberPage')),
 

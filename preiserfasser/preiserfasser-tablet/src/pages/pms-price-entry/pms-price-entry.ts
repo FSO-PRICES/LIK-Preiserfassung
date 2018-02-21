@@ -314,7 +314,7 @@ export class PmsPriceEntryPage implements OnDestroy {
                 this.preismeldungenCurrentPmsNummer$,
                 (_, preismeldungenCurrentPmsNummer) => preismeldungenCurrentPmsNummer
             )
-            .filter(x => x !== this.navParams.get('pmsNummer'))
+            .filter(x => x !== this.navParams.get('pmsNummer') || !!this.navParams.get('reload'))
             .subscribe(() => {
                 this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
                 this.store.dispatch({
