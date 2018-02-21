@@ -55,6 +55,7 @@ export function reducer(state = initialState, action: controlling.ControllingAct
             };
         }
 
+        case controlling.RESET_PREISMELDUNG_SUCCESS:
         case controlling.SAVE_PREISMELDUNG_PRICE_SUCCESS:
         case controlling.SAVE_PREISMELDUNG_MESSAGES_SUCCESS:
         case controlling.SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS: {

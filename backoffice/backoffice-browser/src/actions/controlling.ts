@@ -8,6 +8,7 @@ export const RUN_CONTROLLING_EXECUTING = 'RUN_CONTROLLING_EXECUTING';
 export const RUN_CONTROLLING_DATA_READY = 'RUN_CONTROLLING_DATA_READY';
 export const SELECT_CONTROLLING_PM = 'SELECT_CONTROLLING_PM';
 export const SELECT_CONTROLLING_PM_WITH_BAG = 'SELECT_CONTROLLING_PM_WITH_BAG';
+export const RESET_PREISMELDUNG_SUCCESS = 'RESET_PREISMELDUNG_SUCCESS';
 export const SAVE_PREISMELDUNG_PRICE_SUCCESS = 'SAVE_PREISMELDUNG_PRICE_SUCCESS';
 export const SAVE_PREISMELDUNG_MESSAGES_SUCCESS = 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS';
 export const SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS = 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS';
@@ -69,28 +70,44 @@ export interface ControllingData {
     warenkorb: P.WarenkorbDocument;
     preismeldestellen: P.Preismeldestelle[];
     preiserheber: P.Erheber[];
-    preiszuweisungen: P.Preiszuweisung[]
-};
+    preiszuweisungen: P.Preiszuweisung[];
+}
 
 export type ControllingAction =
     | { type: typeof UPDATE_STICHTAGE }
-    | { type: typeof UPDATE_STICHTAGE_SUCCESS; payload: P.Preismeldung[]; }
-    | { type: typeof RUN_CONTROLLING; payload: CONTROLLING_TYPE; }
+    | { type: typeof UPDATE_STICHTAGE_SUCCESS; payload: P.Preismeldung[] }
+    | { type: typeof RUN_CONTROLLING; payload: CONTROLLING_TYPE }
     | { type: typeof CLEAR_CONTROLLING }
     | { type: typeof RUN_CONTROLLING_EXECUTING }
-    | { type: typeof RUN_CONTROLLING_DATA_READY; payload: { controllingType: CONTROLLING_TYPE, data: ControllingData } }
-    | { type: typeof SELECT_CONTROLLING_PM; payload: string; }
-    | { type: typeof SELECT_CONTROLLING_PM_WITH_BAG; payload: PreismeldungBag; }
-    | { type: typeof SAVE_PREISMELDUNG_PRICE_SUCCESS; payload: { preismeldung: P.Preismeldung; } }
-    | { type: typeof SAVE_PREISMELDUNG_MESSAGES_SUCCESS; payload: P.Preismeldung; }
-    | { type: typeof SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS; payload: P.Preismeldung; };
+    | { type: typeof RUN_CONTROLLING_DATA_READY; payload: { controllingType: CONTROLLING_TYPE; data: ControllingData } }
+    | { type: typeof SELECT_CONTROLLING_PM; payload: string }
+    | { type: typeof SELECT_CONTROLLING_PM_WITH_BAG; payload: PreismeldungBag }
+    | { type: typeof RESET_PREISMELDUNG_SUCCESS; payload: P.Preismeldung }
+    | { type: typeof SAVE_PREISMELDUNG_PRICE_SUCCESS; payload: { preismeldung: P.Preismeldung } }
+    | { type: typeof SAVE_PREISMELDUNG_MESSAGES_SUCCESS; payload: P.Preismeldung }
+    | { type: typeof SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS; payload: P.Preismeldung };
 
 export const createUpdateStichtageAction = (): ControllingAction => ({ type: UPDATE_STICHTAGE });
-export const createUpdateStichtageSuccessAction = (preismeldungen: P.Preismeldung[]): ControllingAction => ({ type: UPDATE_STICHTAGE_SUCCESS, payload: preismeldungen });
+export const createUpdateStichtageSuccessAction = (preismeldungen: P.Preismeldung[]): ControllingAction => ({
+    type: UPDATE_STICHTAGE_SUCCESS,
+    payload: preismeldungen,
+});
 
-export const createRunControllingAction = (controllingType: CONTROLLING_TYPE): ControllingAction => ({ type: RUN_CONTROLLING, payload: (controllingType as CONTROLLING_TYPE) });
+export const createRunControllingAction = (controllingType: CONTROLLING_TYPE): ControllingAction => ({
+    type: RUN_CONTROLLING,
+    payload: controllingType as CONTROLLING_TYPE,
+});
 export const createClearControllingAction = (): ControllingAction => ({ type: CLEAR_CONTROLLING });
 export const createRunControllingExecutingAction = (): ControllingAction => ({ type: RUN_CONTROLLING_EXECUTING });
-export const createRunControllingDataReadyAction = (controllingType: CONTROLLING_TYPE, data: ControllingData): ControllingAction => ({ type: RUN_CONTROLLING_DATA_READY, payload: { controllingType, data } });
-export const createSelectControllingPmAction = (pmId: string): ControllingAction => ({ type: SELECT_CONTROLLING_PM, payload: pmId });
-export const createSelectControllingPmWithBagAction = (bag: PreismeldungBag): ControllingAction => ({ type: SELECT_CONTROLLING_PM_WITH_BAG, payload: bag });
+export const createRunControllingDataReadyAction = (
+    controllingType: CONTROLLING_TYPE,
+    data: ControllingData
+): ControllingAction => ({ type: RUN_CONTROLLING_DATA_READY, payload: { controllingType, data } });
+export const createSelectControllingPmAction = (pmId: string): ControllingAction => ({
+    type: SELECT_CONTROLLING_PM,
+    payload: pmId,
+});
+export const createSelectControllingPmWithBagAction = (bag: PreismeldungBag): ControllingAction => ({
+    type: SELECT_CONTROLLING_PM_WITH_BAG,
+    payload: bag,
+});

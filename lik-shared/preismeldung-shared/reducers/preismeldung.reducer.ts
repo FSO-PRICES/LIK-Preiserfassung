@@ -141,7 +141,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 currentPreismeldung: !!entity
                     ? createCurrentPreismeldungBag(entity, state.priceCountStatuses, true)
                     : null,
-                entities: {},
+                entities: !!entity ? { [entity.pmId]: entity } : {},
                 preismeldungIds: [],
                 pmsNummer: null,
                 priceCountStatuses: {},
