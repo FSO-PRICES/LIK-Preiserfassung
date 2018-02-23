@@ -129,16 +129,16 @@ function mapData(
                 translateFn('label_print_stichtag'),
                 `${
                     bag.refPreismeldung.erhebungsAnfangsDatum ? bag.refPreismeldung.erhebungsAnfangsDatum + ' ' : ''
-                }[${bag.preismeldung.erhebungsZeitpunkt || '–'}]`,
+                }[${bag.refPreismeldung.erhebungsZeitpunkt || '–'}]`,
             ],
         },
         {
             col1: translateFn('label_print_vorperiode'),
-            col2: [translateFn('label_print_preis'), preisFormatFn(bag.preismeldung.preisVorReduktion)],
+            col2: [translateFn('label_print_preis'), preisFormatFn(bag.refPreismeldung.preis)],
             col3: [translateFn('label_print_aktion'), bag.refPreismeldung.aktion ? 'Ja' : 'Nein'],
             col4: [
                 translateFn('label_print_menge'),
-                `${mengeFormatFn(bag.preismeldung.mengeVorReduktion)} ${bag.warenkorbPosition.standardeinheit.de}`,
+                `${mengeFormatFn(bag.refPreismeldung.menge)} ${bag.warenkorbPosition.standardeinheit.de}`,
             ],
             col5: [translateFn('label_print_code'), parseCode(bag.preismeldung.bearbeitungscode)],
         },
@@ -168,8 +168,10 @@ function mapData(
         {
             col1:
                 `${translateFn('label_print_preis-vor-reduktion')}: ${preisFormatFn(
-                    bag.refPreismeldung.basisPreis
-                )} / ${translateFn('label_print_menge-vor-reduktion')}: ${mengeFormatFn(bag.refPreismeldung.menge)} ` +
+                    bag.refPreismeldung.preisVorReduktion
+                )} / ${translateFn('label_print_menge-vor-reduktion')}: ${mengeFormatFn(
+                    bag.refPreismeldung.mengeVorReduktion
+                )} ` +
                 ` / ${translateFn('label_print_anzahl-code-r')}: ${
                     bag.refPreismeldung.fehlendePreiseR.length
                 } / ${translateFn('label_print_standardmenge')}: ${mengeFormatFn(bag.warenkorbPosition.standardmenge)}`,
