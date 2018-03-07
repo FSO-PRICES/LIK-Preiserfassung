@@ -694,12 +694,18 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         menge: `${refPreismeldung.menge}`,
                         aktion: refPreismeldung.aktion,
                     });
-                }),
-            this.aktionDisabled$.filter(x => x && this.form.dirty).subscribe(refPreismeldung => {
-                this.form.patchValue({
-                    aktion: false,
-                });
-            })
+                })
+        );
+
+        this.subscriptions.push(
+            bearbeitungscodeChanged$
+                .map(x => x === 3)
+                .filter(x => x)
+                .subscribe(() => {
+                    this.form.patchValue({
+                        aktion: false,
+                    });
+                })
         );
 
         this.subscriptions.push(
@@ -849,21 +855,21 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                         res.data === 'EDIT'
                                             ? { type: 'CANCEL' }
                                             : res.data === 'YES'
-                                              ? {
-                                                    type: saveAction.type,
-                                                    saveWithData: [
-                                                        {
-                                                            type: 'COMMENT',
-                                                            comments: [
-                                                                'kommentar-autotext_steigender-aktionspreis-bestaetigt',
-                                                            ],
-                                                        },
-                                                    ],
-                                                }
-                                              : {
-                                                    type: saveAction.type,
-                                                    saveWithData: [{ type: 'AKTION', value: false }],
-                                                }
+                                                ? {
+                                                      type: saveAction.type,
+                                                      saveWithData: [
+                                                          {
+                                                              type: 'COMMENT',
+                                                              comments: [
+                                                                  'kommentar-autotext_steigender-aktionspreis-bestaetigt',
+                                                              ],
+                                                          },
+                                                      ],
+                                                  }
+                                                : {
+                                                      type: saveAction.type,
+                                                      saveWithData: [{ type: 'AKTION', value: false }],
+                                                  }
                                 ),
                     },
                     {
@@ -888,21 +894,21 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                         res.data === 'EDIT'
                                             ? { type: 'CANCEL' }
                                             : res.data === 'YES'
-                                              ? {
-                                                    type: saveAction.type,
-                                                    saveWithData: [{ type: 'AKTION', value: true }],
-                                                }
-                                              : {
-                                                    type: saveAction.type,
-                                                    saveWithData: [
-                                                        {
-                                                            type: 'COMMENT',
-                                                            comments: [
-                                                                'kommentar-autotext_aktueller-normalpreis-billiger-aktionspreis_vp',
-                                                            ],
-                                                        },
-                                                    ],
-                                                }
+                                                ? {
+                                                      type: saveAction.type,
+                                                      saveWithData: [{ type: 'AKTION', value: true }],
+                                                  }
+                                                : {
+                                                      type: saveAction.type,
+                                                      saveWithData: [
+                                                          {
+                                                              type: 'COMMENT',
+                                                              comments: [
+                                                                  'kommentar-autotext_aktueller-normalpreis-billiger-aktionspreis_vp',
+                                                              ],
+                                                          },
+                                                      ],
+                                                  }
                                 ),
                     },
                     {
@@ -932,22 +938,22 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                         res.data === 'EDIT'
                                             ? { type: 'CANCEL' }
                                             : res.data === 'YES'
-                                              ? {
-                                                    type: saveAction.type,
-                                                    saveWithData: [
-                                                        {
-                                                            type: 'COMMENT',
-                                                            comments: [
-                                                                'kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp',
-                                                            ],
-                                                        },
-                                                    ],
-                                                }
-                                              : {
-                                                    type: 'SAVE_AND_NAVIGATE_TAB',
-                                                    saveWithData: [{ type: 'COMMENT', comments: [] }],
-                                                    tabName: 'MESSAGES',
-                                                }
+                                                ? {
+                                                      type: saveAction.type,
+                                                      saveWithData: [
+                                                          {
+                                                              type: 'COMMENT',
+                                                              comments: [
+                                                                  'kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp',
+                                                              ],
+                                                          },
+                                                      ],
+                                                  }
+                                                : {
+                                                      type: 'SAVE_AND_NAVIGATE_TAB',
+                                                      saveWithData: [{ type: 'COMMENT', comments: [] }],
+                                                      tabName: 'MESSAGES',
+                                                  }
                                 ),
                     },
                     {
@@ -975,22 +981,22 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                         res.data === 'EDIT'
                                             ? { type: 'CANCEL' }
                                             : res.data === 'YES'
-                                              ? {
-                                                    type: saveAction.type,
-                                                    saveWithData: [
-                                                        {
-                                                            type: 'COMMENT',
-                                                            comments: [
-                                                                'kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp',
-                                                            ],
-                                                        },
-                                                    ],
-                                                }
-                                              : {
-                                                    type: 'SAVE_AND_NAVIGATE_TAB',
-                                                    saveWithData: [{ type: 'COMMENT', comments: [] }],
-                                                    tabName: 'MESSAGES',
-                                                }
+                                                ? {
+                                                      type: saveAction.type,
+                                                      saveWithData: [
+                                                          {
+                                                              type: 'COMMENT',
+                                                              comments: [
+                                                                  'kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp',
+                                                              ],
+                                                          },
+                                                      ],
+                                                  }
+                                                : {
+                                                      type: 'SAVE_AND_NAVIGATE_TAB',
+                                                      saveWithData: [{ type: 'COMMENT', comments: [] }],
+                                                      tabName: 'MESSAGES',
+                                                  }
                                 ),
                     },
                     {
