@@ -27,22 +27,22 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                 <div class="detail-tab-bottom-part">
                     <h3>{{ 'heading_meine-notiz' | translate }}</h3>
                     <ion-item class="pef-textarea-item">
-                        <ion-textarea formControlName="notiz" (blur)="onBlur$.emit()"></ion-textarea>
+                        <ion-textarea formControlName="notiz" (blur)="onBlur$.emit()" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button">{{ 'btn_ok' | translate }}</button>
-                        <button ion-button color="java" (click)="notizClear$.emit()">{{ 'btn_leeren' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" (click)="notizClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
                     </div>
                     <h3>{{ 'heading_kommentar-zum-aktuellen-monat' | translate }}</h3>
                     <div class="kommentar-autotext">
                         <span *ngFor="let text of (preismeldung$ | async)?.messages.kommentarAutotext">{{ (text | translate) + '\u0020' }}</span>
                     </div>
                     <ion-item class="pef-textarea-item">
-                        <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()"></ion-textarea>
+                        <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button">{{ 'btn_ok' | translate }}</button>
-                        <button ion-button color="java" (click)="kommentarClear$.emit()">{{ 'btn_leeren' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" (click)="kommentarClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
                     </div>
                     <h3>{{ 'heading_kommunikation' | translate }}</h3>
                     <div class="message-history" *ngIf="(bemerkungenHistory$ | async)">
@@ -52,7 +52,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                         <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="erledigtDisabled$ | async" [readonly]="erledigtDisabled$ | async"></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
                         <button ion-button color="java" [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
                     </div>
                 </div>
@@ -62,7 +62,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
 })
 export class PreismeldungMessagesComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() isActive: boolean;
-    @Input() preismeldung: P.CurrentPreismeldungBag;
+    @Input() preismeldung: P.CurrentPreismeldungViewBag;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() isDesktop: boolean;
@@ -71,7 +71,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     @Output('kommentarClearClicked') kommentarClearClicked$: Observable<{}>;
 
     public isActive$ = this.observePropertyCurrentValue<boolean>('isActive');
-    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung')
+    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung')
         .publishReplay(1)
         .refCount();
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
@@ -79,6 +79,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
     public isAdminApp$ = this.observePropertyCurrentValue<boolean>('isAdminApp');
 
+    public isReadonly$: Observable<boolean>;
     public bemerkungenHistory$: Observable<string>;
 
     public onBlur$ = new EventEmitter();
@@ -108,6 +109,11 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
                     .filter(x => x)
                     .flatMap(() => Observable.defer(() => this.preismeldung$.filter(x => !!x).take(1)))
             )
+            .publishReplay(1)
+            .refCount();
+
+        this.isReadonly$ = distinctPreismeldung$
+            .map(x => x.isReadonly)
             .publishReplay(1)
             .refCount();
 
@@ -150,7 +156,10 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
 
         const buttonActionDone$ = Observable.merge(notizClearDone$, kommentarClearDone$, erledigtDone$);
 
-        this.erledigtDisabled$ = this.form.valueChanges.map(x => x.bemerkungen.endsWith('@OK')).startWith(false);
+        this.erledigtDisabled$ = this.form.valueChanges
+            .map(x => x.bemerkungen.endsWith('@OK'))
+            .startWith(false)
+            .withLatestFrom(this.isReadonly$, (disabled, readonly) => disabled || readonly);
         this.erledigtButtonDisabled$ = this.form.valueChanges
             .map(x => !x.bemerkungen)
             .merge(distinctPreismeldung$.map(x => !x.messages.bemerkungen))
