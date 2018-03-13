@@ -385,7 +385,7 @@ function toPdf(
             fillColor: 200,
             lightFillColor: 100,
             textColor: 0,
-            placeholderTextColor: 200,
+            placeholderTextColor: 140,
             startAt: 14,
             marginBottom: 2,
             padding: {
