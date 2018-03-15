@@ -133,7 +133,7 @@ function mapData(
             ],
         },
         {
-            col1: translateFn('label_print_vorperiode'),
+            col1: [`${translateFn('label_print_vorperiode')} / ${translateFn('label_print_aktuell')}`, ''],
             col2: [translateFn('label_print_preis'), preisFormatFn(bag.refPreismeldung.preis)],
             col3: [translateFn('label_print_aktion'), bag.refPreismeldung.aktion ? 'Ja' : 'Nein'],
             col4: [
@@ -141,13 +141,6 @@ function mapData(
                 `${mengeFormatFn(bag.refPreismeldung.menge)} ${bag.warenkorbPosition.standardeinheit.de}`,
             ],
             col5: [translateFn('label_print_code'), parseCode(bag.preismeldung.bearbeitungscode)],
-        },
-        {
-            col1: translateFn('label_print_aktuell'),
-            col2: '',
-            col3: '',
-            col4: '',
-            col5: '',
         },
         {
             col1: [
@@ -201,6 +194,7 @@ interface TableSettings {
         placeholderTextColor: number;
         startAt: number;
         marginBottom: number;
+        commentRowIndex: number;
         border: {
             inner: number;
             outer: number;
@@ -264,7 +258,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                     doc.setDrawColor(settings.colors.innerBorder);
                     doc.line(cell.x, cell.y, cell.x + cell.width, cell.y);
                 }
-                if (data.row.index >= 4) {
+                if (data.row.index >= settings.table.commentRowIndex) {
                     doc.setDrawColor(settings.colors.innerBorder);
                     doc.line(cell.x, cell.y, cell.x + cell.width, cell.y);
                 }
@@ -278,7 +272,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                         valign: 'top',
                     });
                     cell.text = [''];
-                } else if (data.row.index < 4 && data.column.index == 0) {
+                } else if (data.row.index < settings.table.commentRowIndex && data.column.index == 0) {
                     doc.setFontSize(8);
                     doc.setTextColor(settings.table.placeholderTextColor);
                     docA.autoTableText(cell.raw, cell.textPos.x, cell.textPos.y + settings.data.spacingY, {
@@ -313,7 +307,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                 if (
                     (opts.row.index == 0 && opts.column.index >= 1 && opts.column.index < 4) ||
                     (opts.row.index == 1 && opts.column.index >= 1 && opts.column.index < 4) ||
-                    opts.row.index > 3
+                    opts.row.index > settings.table.commentRowIndex - 1
                 ) {
                     cell.styles.lineWidth = 0;
                 }
@@ -347,18 +341,11 @@ function toPdf(
             col5: [translateFn('label_print_stichtag'), ''],
         },
         {
-            col1: translateFn('label_print_vorperiode'),
+            col1: [`${translateFn('label_print_vorperiode')} / ${translateFn('label_print_aktuell')}`, ''],
             col2: [translateFn('label_print_preis'), ''],
             col3: [translateFn('label_print_aktion'), ''],
             col4: [translateFn('label_print_menge'), ''],
             col5: [translateFn('label_print_code'), ''],
-        },
-        {
-            col1: translateFn('label_print_aktuell'),
-            col2: '',
-            col3: '',
-            col4: '',
-            col5: '',
         },
         {
             col1: [translateFn('label_print_bemerkungen'), ''],
@@ -388,6 +375,7 @@ function toPdf(
             placeholderTextColor: 140,
             startAt: 14,
             marginBottom: 2,
+            commentRowIndex: 3,
             padding: {
                 bottom: 5,
             },
@@ -414,7 +402,7 @@ function toPdf(
     }
     doc.addPage();
     lastPos = null;
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
         lastPos = createTable(doc, settings, placeholderData, lastPos, true);
     }
 
