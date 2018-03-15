@@ -658,11 +658,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .publishReplay(1)
             .refCount();
 
-        this.aktionDisabled$ = bearbeitungscodeChanged$
-            .map(x => this.calcPreisAndMengeDisabled(x) || x === 3)
+        this.aktionDisabled$ = this.preisAndMengeDisabled$
             .combineLatest(
-                this.isReadonly$,
-                (disabledBasedOnBearbeitungsCode, isReadonly) => disabledBasedOnBearbeitungsCode || isReadonly
+                bearbeitungscodeChanged$,
+                (preisAndMengeDisabled, bearbeitungsCode) => preisAndMengeDisabled || bearbeitungsCode === 3
             )
             .publishReplay(1)
             .refCount();
