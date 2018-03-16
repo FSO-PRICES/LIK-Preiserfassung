@@ -14,20 +14,22 @@
     </div>
     <pef-virtual-scroll [items]="(preiserheber$ | async).pmsPreismeldungSummary" (update)="pmsSummaryList = $event" pef-perfect-scrollbar
         [enabled]="true" [scrollToTop]="(preiserheber$ | async).pmsPreismeldungSummary">
-        <div class="pms-summary-row" *ngFor="let pmsSummary of pmsSummaryList ">
-            <div class="name">
-                <div class="pms-name">{{pmsSummary.pms?.pmsNummer}} {{ pmsSummary.pms?.name || 'Nicht in diesem erhebungsmonat' }}</div>
-                <div>{{ pmsSummary.pms?.erhebungsregion }}</div>
-            </div>
-            <div class="todo">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].todo == pmsSummary.summary[erhebungsZeitpunktKey].todoSynced">{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}</span>
-            </div>
-            <div class="done">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].done }}</span>
-            </div>
-            <div class="new-preismeldungen">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}</span>
-            </div>
+        <div class="pms-summary-row" *ngFor="let pmsSummary of pmsSummaryList">
+            <ng-container *ngIf="pmsSummary.pms != null">
+                <div class="name">
+                    <div class="pms-name">{{pmsSummary.pms.pmsNummer}} {{ pmsSummary.pms.name }}</div>
+                    <div>{{ pmsSummary.pms.erhebungsregion }}</div>
+                </div>
+                <div class="todo">
+                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].todo == pmsSummary.summary[erhebungsZeitpunktKey].todoSynced">{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}</span>
+                </div>
+                <div class="done">
+                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].done }}</span>
+                </div>
+                <div class="new-preismeldungen">
+                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}</span>
+                </div>
+            </ng-container>
         </div>
     </pef-virtual-scroll>
 </div>

@@ -189,7 +189,7 @@ function createCockpitPmsPreismeldungenSummary(
                 summary: createStichtagGroupedCockpitPreismeldungSummary(pmsTodo, pmsPreismeldungenSynced),
             };
         }),
-        data => data.pms.name.toLowerCase()
+        data => (data.pms ? data.pms.name.toLowerCase() : '')
     );
 }
 
