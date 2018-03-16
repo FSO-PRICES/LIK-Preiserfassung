@@ -37,3 +37,11 @@ export const preismeldungId = (pmsNummer?: string, epNummer?: string, laufNummer
 
 export const preismeldungRefId = (pmsNummer?: string, epNummer?: string, laufNummer?: string) =>
     _preismeldungId('pm-ref', pmsNummer, epNummer, laufNummer);
+
+export const sortBySelector = <T>(list: T[], selector: (element: T) => any) => {
+    return list.sort((a, b) => {
+        const valueA = selector(a);
+        const valueB = selector(b);
+        return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+    });
+};

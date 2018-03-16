@@ -12,6 +12,7 @@ import {
     Models as P,
     parseErhebungsartForForm,
     PreismeldungAction,
+    sortBySelector,
 } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
@@ -49,7 +50,7 @@ export class DashboardPage implements OnDestroy {
     public canSync$: Observable<boolean>;
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$
         .combineLatest(this.filterTextValueChanges.startWith(''), (preismeldestellen, filterText) =>
-            pefSearch(filterText, preismeldestellen, [pms => pms.name])
+            sortBySelector(pefSearch(filterText, preismeldestellen, [pms => pms.name]), pms => pms.name.toLowerCase())
         )
         // .do(x => console.log('am here', x))
         .publishReplay(1)
