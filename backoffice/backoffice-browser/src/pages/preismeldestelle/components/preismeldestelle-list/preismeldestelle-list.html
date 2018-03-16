@@ -1,19 +1,16 @@
 <div class="pef-advanced-item-flex-container">
     <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
-    <ion-content pef-perfect-virtualscroll-scrollbar  enabled="true">
+    <ion-content pef-perfect-virtualscroll-scrollbar enabled="true">
         <ion-list [virtualScroll]="filteredPreismeldestellen$ | async" approxItemHeight="50px" [class.hidden]="(filteredPreismeldestellen$ | async).length === 0">
-            <ion-item
-                class="pef-advanced-item"
-                *virtualItem="let preismeldestelle"
-                (click)="selectPreismeldestelle$.emit(preismeldestelle._id)"
-                [class.selected]="preismeldestelle._id == (current$ | async)?._id"
-                tappable>
+            <ion-item class="pef-advanced-item" *virtualItem="let preismeldestelle" (click)="selectPreismeldestelle$.emit(preismeldestelle._id)"
+                [class.selected]="preismeldestelle._id == (current$ | async)?._id" tappable>
                 <div class="pef-item-title">
-                    {{ preismeldestelle.pmsNummer }}<br>&nbsp;
+                    {{ preismeldestelle.pmsNummer }}
+                    <br>&nbsp;
                 </div>
                 <div class="pef-item-description">
                     <span class="text">{{ preismeldestelle.name }}</span>
-                    <span class="artikel-text">{{preismeldestelle.postcode}}&nbsp;{{preismeldestelle.town}}&nbsp;{{preismeldestelle.erhebungsregion}}</span>
+                    <span class="artikel-text">{{preismeldestelle.postcode}}&nbsp;{{preismeldestelle.town}}&nbsp;[{{preismeldestelle.erhebungsregion}}]</span>
                 </div>
             </ion-item>
         </ion-list>
