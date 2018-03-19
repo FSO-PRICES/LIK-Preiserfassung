@@ -2,17 +2,16 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from 
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent, Models as P, pefSearch } from 'lik-shared';
+import { ReactiveComponent, Models as P, pefSearch, sortBySelector } from 'lik-shared';
 
 @Component({
     selector: 'preiserheber-list',
-    templateUrl: 'preiserheber-list.html'
+    templateUrl: 'preiserheber-list.html',
 })
 export class PreiserheberListComponent extends ReactiveComponent implements OnChanges {
     @Input() list: P.Erheber[];
     @Input() current: P.Erheber;
-    @Output('selected')
-    public selectPreiserheber$ = new EventEmitter<P.Erheber>();
+    @Output('selected') public selectPreiserheber$ = new EventEmitter<P.Erheber>();
 
     public preiserhebers$: Observable<P.Erheber[]>;
     public current$: Observable<P.Erheber>;
@@ -25,11 +24,23 @@ export class PreiserheberListComponent extends ReactiveComponent implements OnCh
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preiserhebers$ = this.observePropertyCurrentValue<P.Erheber[]>('list').publishReplay(1).refCount();
-        this.filteredPreiserhebers$ = this.preiserhebers$
-            .combineLatest(this.filterTextValueChanges.startWith(null), (preiserhebers, filterText) =>
-                !filterText ? preiserhebers : pefSearch(filterText, preiserhebers, [x => x.firstName, x => x.surname, x => x.erhebungsregion])
-            );
+        this.preiserhebers$ = this.observePropertyCurrentValue<P.Erheber[]>('list')
+            .publishReplay(1)
+            .refCount();
+        this.filteredPreiserhebers$ = this.preiserhebers$.combineLatest(
+            this.filterTextValueChanges.startWith(null),
+            (preiserhebers, filterText) =>
+                sortBySelector(
+                    !filterText
+                        ? preiserhebers
+                        : pefSearch(filterText, preiserhebers, [
+                              x => x.firstName,
+                              x => x.surname,
+                              x => x.erhebungsregion,
+                          ]),
+                    pe => pe.surname
+                )
+        );
 
         this.current$ = this.observePropertyCurrentValue<P.Erheber>('current');
     }

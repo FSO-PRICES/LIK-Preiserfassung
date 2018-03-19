@@ -15,7 +15,7 @@ preiserheber-preiszuweisung {
         }
     }
 
-    .spacer-col  {
+    .spacer-col {
         max-width: 61.5px;
     }
 
@@ -30,6 +30,12 @@ preiserheber-preiszuweisung {
         display: flex;
         flex: 1;
         flex-direction: row;
+
+        h2 {
+            display: flex;
+            justify-content: space-between;
+        }
+
         .pef-advanced-item-flex-container {
             flex: 1 1 0;
         }

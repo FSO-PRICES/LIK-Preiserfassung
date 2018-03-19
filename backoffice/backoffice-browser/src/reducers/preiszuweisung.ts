@@ -13,7 +13,7 @@ export interface State {
     preiszuweisungIds: string[];
     entities: { [id: string]: P.Preiszuweisung };
     currentPreiszuweisung: CurrentPreiszuweisung;
-};
+}
 
 const initialState: State = {
     preiszuweisungIds: [],
@@ -27,37 +27,47 @@ export function reducer(state = initialState, action: Action): State {
             const { payload } = action;
             const preiszuweisungen = payload.map<P.Preiszuweisung>(preiszuweisung => Object.assign({}, preiszuweisung));
             const preiszuweisungIds = preiszuweisungen.map(p => p._id);
-            const entities = preiszuweisungen.reduce((agg: { [_id: string]: P.Preiszuweisung }, preiszuweisung: P.Preiszuweisung) => {
-                return Object.assign(agg, { [preiszuweisung._id]: preiszuweisung });
-            }, {});
+            const entities = preiszuweisungen.reduce(
+                (agg: { [_id: string]: P.Preiszuweisung }, preiszuweisung: P.Preiszuweisung) => {
+                    return Object.assign(agg, { [preiszuweisung._id]: preiszuweisung });
+                },
+                {}
+            );
             return assign({}, state, { preiszuweisungIds, entities, currentPreiszuweisung: undefined });
         }
 
         case 'SELECT_OR_CREATE_PREISZUWEISUNG': {
             const { payload: preiserheberId } = action;
             const newPreiszuweisung = {
-                _id: (+ new Date()).toString(),
+                _id: (+new Date()).toString(),
                 _rev: undefined,
                 isNew: true,
                 isModified: false,
                 isSaved: false,
                 preiserheberId: preiserheberId,
-                preismeldestellenNummern: []
+                preismeldestellenNummern: [],
             };
-            const currentPreiszuweisung: CurrentPreiszuweisung = preiserheberId == null || !state.entities[preiserheberId] ? newPreiszuweisung : Object.assign({}, cloneDeep(state.entities[preiserheberId]), { isModified: false, isNew: false, isSaved: false });
+            const currentPreiszuweisung: CurrentPreiszuweisung =
+                preiserheberId == null || !state.entities[preiserheberId]
+                    ? newPreiszuweisung
+                    : Object.assign({}, cloneDeep(state.entities[preiserheberId]), {
+                          isModified: false,
+                          isNew: false,
+                          isSaved: false,
+                      });
 
             return assign({}, state, { currentPreiszuweisung: currentPreiszuweisung });
         }
 
         case 'CREATE_PREISZUWEISUNG': {
             const newPreiszuweisung = <CurrentPreiszuweisung>{
-                _id: (+ new Date()).toString(),
+                _id: (+new Date()).toString(),
                 _rev: undefined,
                 isNew: true,
                 isModified: false,
                 isSaved: false,
                 preiserheberId: null,
-                preismeldestellenNummern: []
+                preismeldestellenNummern: [],
             };
             return assign({}, state, { currentPreiszuweisung: newPreiszuweisung });
         }
@@ -68,36 +78,55 @@ export function reducer(state = initialState, action: Action): State {
             const valuesFromPayload = {
                 _id: payload._id,
                 preiserheberId: payload.preiserheberId,
-                preismeldestellen: payload.preismeldestellenNummern
+                preismeldestellen: payload.preismeldestellenNummern,
             };
 
-            const currentPreiszuweisung = assign({},
-                state.currentPreiszuweisung,
-                valuesFromPayload,
-                { isModified: true }
-            );
+            const currentPreiszuweisung = assign({}, state.currentPreiszuweisung, valuesFromPayload, {
+                isModified: true,
+            });
 
             return Object.assign({}, state, { currentPreiszuweisung });
         }
 
         case 'ASSIGN_TO_CURRENT_PREISZUWEISUNG': {
-            const { payload } = action;
-            const currentPreiszuweisung = Object.assign({}, cloneDeep(state.currentPreiszuweisung), { isModified: true });
-            currentPreiszuweisung.preismeldestellenNummern.push(payload.pmsNummer);
-            return assign({}, state, { currentPreiszuweisung });
+            const pmsNummern = action.payload.map(x => x.pmsNummer);
+            const currentPmsNummern = state.currentPreiszuweisung.preismeldestellenNummern;
+            return assign({}, state, {
+                currentPreiszuweisung: {
+                    ...state.currentPreiszuweisung,
+                    preismeldestellenNummern: [
+                        ...currentPmsNummern,
+                        ...pmsNummern.filter(x => !currentPmsNummern.some(y => x === y)),
+                    ],
+                },
+            });
         }
 
         case 'UNASSIGN_FROM_CURRENT_PREISZUWEISUNG': {
-            const { payload } = action;
-            const currentPreiszuweisung = Object.assign({}, cloneDeep(state.currentPreiszuweisung), { isModified: true });
-            remove(currentPreiszuweisung.preismeldestellenNummern, pmsNummer => pmsNummer === payload.pmsNummer);
-            return assign({}, state, { currentPreiszuweisung });
+            const pmsNummern = action.payload.map(x => x.pmsNummer);
+            return assign({}, state, {
+                currentPreiszuweisung: {
+                    ...state.currentPreiszuweisung,
+                    preismeldestellenNummern: state.currentPreiszuweisung.preismeldestellenNummern.filter(
+                        x => !pmsNummern.some(y => x === y)
+                    ),
+                },
+            });
         }
 
         case 'SAVE_PREISZUWEISUNG_SUCCESS': {
-            const currentPreiszuweisung = Object.assign({}, state.currentPreiszuweisung, action.payload, { isModified: false, isSaved: true });
-            const preiszuweisungIds = !!state.preiszuweisungIds.find(x => x === currentPreiszuweisung._id) ? state.preiszuweisungIds : [...state.preiszuweisungIds, currentPreiszuweisung._id];
-            return assign({}, state, { currentPreiszuweisung, preiszuweisungIds, entities: assign({}, state.entities, { [currentPreiszuweisung._id]: currentPreiszuweisung }) });
+            const currentPreiszuweisung = Object.assign({}, state.currentPreiszuweisung, action.payload, {
+                isModified: false,
+                isSaved: true,
+            });
+            const preiszuweisungIds = !!state.preiszuweisungIds.find(x => x === currentPreiszuweisung._id)
+                ? state.preiszuweisungIds
+                : [...state.preiszuweisungIds, currentPreiszuweisung._id];
+            return assign({}, state, {
+                currentPreiszuweisung,
+                preiszuweisungIds,
+                entities: assign({}, state.entities, { [currentPreiszuweisung._id]: currentPreiszuweisung }),
+            });
         }
 
         case 'DELETE_PREISZUWEISUNG_SUCCESS': {
@@ -119,4 +148,6 @@ export const getEntities = (state: State) => state.entities;
 export const getPreiszuweisungIds = (state: State) => state.preiszuweisungIds;
 export const getCurrentPreiszuweisung = (state: State) => state.currentPreiszuweisung;
 
-export const getAll = createSelector(getEntities, getPreiszuweisungIds, (entities, preiszuweisungIds) => preiszuweisungIds.map(x => entities[x]));
+export const getAll = createSelector(getEntities, getPreiszuweisungIds, (entities, preiszuweisungIds) =>
+    preiszuweisungIds.map(x => entities[x])
+);

@@ -1,7 +1,22 @@
-.preiserheber-list-container {
+.preiserheber-list-container.container {
     flex: 1 1;
     display: flex;
     flex-direction: column;
+    .header {
+        display: block;
+        margin-bottom: 3px;
+        h1 {
+            margin-bottom: 0.5em;
+        }
+        .actions {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            .count {
+                align-self: flex-end;
+            }
+        }
+    }
     @include set-margin(0, 0.5, 0, 0);
     @include set-padding(1, 1, 1, 1);
 }
