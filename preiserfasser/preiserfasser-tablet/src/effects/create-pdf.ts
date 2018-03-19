@@ -134,7 +134,7 @@ function mapData(
         },
         {
             col1: [`${translateFn('label_print_vorperiode')} / ${translateFn('label_print_aktuell')}`, ''],
-            col2: [translateFn('label_print_preis'), preisFormatFn(bag.refPreismeldung.preis)],
+            col2: [translateFn('label_print_preis'), formatPrice(bag.refPreismeldung.preis)],
             col3: [translateFn('label_print_aktion'), bag.refPreismeldung.aktion ? 'Ja' : 'Nein'],
             col4: [
                 translateFn('label_print_menge'),
@@ -161,7 +161,7 @@ function mapData(
         {
             col1:
                 `${translateFn('label_print_preis-vor-reduktion')}: ${preisFormatFn(
-                    bag.refPreismeldung.preisVorReduktion
+                    formatPrice(bag.refPreismeldung.preisVorReduktion)
                 )} / ${translateFn('label_print_menge-vor-reduktion')}: ${mengeFormatFn(
                     bag.refPreismeldung.mengeVorReduktion
                 )} ` +
@@ -212,6 +212,14 @@ interface TableSettings {
     data: {
         spacingY: number;
     };
+}
+
+function formatPrice(price: number) {
+    return price.toLocaleString('de-CH', {
+        minimumIntegerDigits: 1,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
 }
 
 function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: number, isPlaceholder: boolean = false) {
