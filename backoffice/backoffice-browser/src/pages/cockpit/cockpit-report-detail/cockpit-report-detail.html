@@ -17,7 +17,7 @@
         <div class="pms-summary-row" *ngFor="let pmsSummary of pmsSummaryList">
             <ng-container *ngIf="pmsSummary.pms != null">
                 <div class="name">
-                    <div class="pms-name">{{pmsSummary.pms.pmsNummer}} {{ pmsSummary.pms.name }}</div>
+                    <div class="pms-name">[{{pmsSummary.pms.pmsNummer}}] {{ pmsSummary.pms.name }}</div>
                     <div>{{ pmsSummary.pms.erhebungsregion }}</div>
                 </div>
                 <div class="todo">
