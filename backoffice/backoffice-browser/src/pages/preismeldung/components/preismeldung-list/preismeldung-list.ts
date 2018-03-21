@@ -15,10 +15,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() preismeldestellen: P.Models.Preismeldestelle[];
     @Input() currentPreismeldung: P.PreismeldungBag;
     @Input() status: string;
+    @Input() initialPmsNummer: string | null;
     @Output('selectPmsNummer') public preismeldestelleNummerSelected$ = new EventEmitter<string>();
     @Output('selectPreismeldung') public selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     @Output('globalFilterTextChanged') public globalFilterTextValueChanged$: Observable<PreismeldungIdentifierPayload>;
 
+    public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer');
     public preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
     public preismeldestellen$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle[]>('preismeldestellen');
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('currentPreismeldung');
@@ -26,6 +28,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     public filterTextValueChanges$ = new EventEmitter<string>();
 
+    public selectedPreismeldestelleNummer$: Observable<string>;
     public resetSelectedPreismeldestelle$: Observable<boolean>;
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public viewPortItems: P.PreismeldungBag[];
@@ -35,7 +38,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        const selectedPreismeldestelleNummer$ = this.preismeldestelleNummerSelected$
+        this.selectedPreismeldestelleNummer$ = this.preismeldestelleNummerSelected$
             .asObservable()
             .startWith(null)
             .publishReplay(1)
@@ -44,10 +47,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.globalFilterTextValueChanged$ = this.filterTextValueChanges$
             .debounceTime(300)
             .map(filter => matchesIdSearch(filter))
-            .withLatestFrom(selectedPreismeldestelleNummer$)
+            .withLatestFrom(this.selectedPreismeldestelleNummer$)
             .filter(([filter, selectedPms]) => !selectedPms || (!!selectedPms && !!filter))
             .map(([filter, _]) => filter)
-            .merge(selectedPreismeldestelleNummer$.filter(x => !!x).mapTo(null));
+            .merge(this.selectedPreismeldestelleNummer$.filter(x => !!x).mapTo(null));
 
         this.filteredPreismeldungen$ = this.preismeldungen$
             .withLatestFrom(this.globalFilterTextValueChanged$.startWith(null))
@@ -69,7 +72,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.resetSelectedPreismeldestelle$ = this.globalFilterTextValueChanged$
             .filter(x => !!x)
-            .withLatestFrom(selectedPreismeldestelleNummer$)
+            .withLatestFrom(this.selectedPreismeldestelleNummer$)
             .filter(([_, selectedPms]) => !!selectedPms)
             // Emit objects to bypass distincUntilChanged which seem to be used in "| async" or "[selected]"
             .map(x => ({}))
@@ -81,6 +84,11 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.resetSelectedPreismeldestelle$
             .takeUntil(this.onDestroy$)
             .subscribe(x => this.preismeldestelleNummerSelected$.emit(''));
+
+        this.initialPmsNummer$
+            .filter(x => !!x)
+            .takeUntil(this.onDestroy$)
+            .subscribe(x => this.preismeldestelleNummerSelected$.emit(x));
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

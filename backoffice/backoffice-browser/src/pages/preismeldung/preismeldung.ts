@@ -1,5 +1,6 @@
-import { Component, OnDestroy, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { IonicPage, NavParams } from 'ionic-angular';
 import { Observable, Subject } from 'rxjs';
 import { orderBy } from 'lodash';
 import * as moment from 'moment';
@@ -15,8 +16,6 @@ import * as P from '../../common-models';
 
 import * as fromRoot from '../../reducers';
 import * as preismeldestelle from '../../actions/preismeldestelle';
-
-import { IonicPage } from 'ionic-angular';
 
 @IonicPage({
     segment: 'pm',
@@ -77,13 +76,21 @@ export class PreismeldungPage {
 
     public selectTab$ = new EventEmitter<string>();
     public selectedTab$: Observable<string>;
+    public initialPmsNummer: string;
 
     private ionViewDidLeave$ = new Subject();
 
-    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
+    constructor(
+        private store: Store<fromRoot.AppState>,
+        private pefDialogService: PefDialogService,
+        private navParams: NavParams
+    ) {
         const cancelEditDialog$ = Observable.defer(() =>
             pefDialogService.displayDialog(DialogCancelEditComponent, {}).map(x => x.data)
         );
+
+        this.initialPmsNummer = this.navParams.get('pmsNummer');
+        console.log('initial', this.initialPmsNummer);
 
         this.selectedTab$ = this.selectTab$
             .merge(

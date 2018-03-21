@@ -17,7 +17,7 @@ import { ExportToPrestaModule } from '../pages/export-to-presta';
 import { ImportModule } from '../pages/import';
 import { PreiserheberModule } from '../pages/preiserheber';
 import { PreismeldestelleModule } from '../pages/preismeldestelle';
-import { PreismeldungModule } from '../pages/preismeldung';
+import { PreismeldungPagesModule } from '../pages/preismeldung';
 import { SettingsModule } from '../pages/settings';
 
 import { PouchService } from '../services/PouchService';
@@ -27,9 +27,7 @@ import { reducer } from '../reducers';
 import { PefMessageDialogService, PefLanguageService } from 'lik-shared';
 
 @NgModule({
-    declarations: [
-        Backoffice
-    ],
+    declarations: [Backoffice],
     imports: [
         BrowserModule,
         ExportToPrestaModule,
@@ -40,18 +38,15 @@ import { PefMessageDialogService, PefLanguageService } from 'lik-shared';
         PefMenuModule,
         PreiserheberModule,
         PreismeldestelleModule,
-        PreismeldungModule,
+        PreismeldungPagesModule,
         SettingsModule,
         CockpitModule,
         StoreModule.provideStore(reducer),
         TranslateModule.forRoot(),
-        ...BO_EFFECTS
+        ...BO_EFFECTS,
     ],
     bootstrap: [IonicApp],
-    entryComponents: [
-        Backoffice,
-        PefDialogLoginComponent
-    ],
+    entryComponents: [Backoffice, PefDialogLoginComponent],
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         { provide: LOCALE_ID, useValue: 'de-CH' },
@@ -61,7 +56,7 @@ import { PefMessageDialogService, PefLanguageService } from 'lik-shared';
         PouchService,
         StatusBar,
         SplashScreen,
-        { provide: 'windowObject', useValue: window }
-    ]
+        { provide: 'windowObject', useValue: window },
+    ],
 })
-export class AppModule { }
+export class AppModule {}

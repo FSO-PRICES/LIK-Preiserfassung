@@ -1,7 +1,8 @@
 <div class="pef-advanced-item-flex-container">
     <select (change)="preismeldestelleNummerSelected$.emit($event.target.value)" class="item-md">
         <option [selected]="!!(resetSelectedPreismeldestelle$ | async)" value="">Preismeldestelle auswählen</option>
-        <option *ngFor="let preismeldestelle of preismeldestellen$ | async" [value]="preismeldestelle.pmsNummer">{{preismeldestelle.pmsNummer}}&nbsp;&nbsp;&nbsp;{{preismeldestelle.name}}</option>
+        <option *ngFor="let preismeldestelle of preismeldestellen$ | async" [selected]="(selectedPreismeldestelleNummer$ | async) === preismeldestelle.pmsNummer"
+            [value]="preismeldestelle.pmsNummer">{{preismeldestelle.pmsNummer}}&nbsp;&nbsp;&nbsp;{{preismeldestelle.name}}</option>
     </select>
     <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
     <div *ngIf="!!(status$ | async)">{{ status$ | async }}</div>
