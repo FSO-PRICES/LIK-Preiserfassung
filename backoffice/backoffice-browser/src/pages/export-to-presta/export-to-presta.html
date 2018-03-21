@@ -38,7 +38,7 @@
                     <ion-row wrap>
                         <ion-col>
                             Preismeldestellen Export
-                            <div [hidden]="!(exportErrorPreismeldestellen$ | async)" ion-text color="primary">
+                            <div [hidden]="!(exportedPreismeldestellen$ | async)" ion-text color="primary">
                                 {{exportedPreismeldestellen$ | async}} Preismeldestellen wurden exportiert
                             </div>
                             <div [hidden]="!(exportErrorPreismeldestellen$ | async)" ion-text color="danger" class="error-messages">
