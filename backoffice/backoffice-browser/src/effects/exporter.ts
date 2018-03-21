@@ -31,6 +31,7 @@ import { Observable } from 'rxjs/Observable';
 @Injectable()
 export class ExporterEffects {
     isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
+    settings$ = this.store.select(fromRoot.getSettings);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
@@ -106,10 +107,19 @@ export class ExporterEffects {
                                         })
                                         .map(() => ({ erhebungsmonat, messageId, content }));
                                 })
-                                .flatMap(({ erhebungsmonat, messageId, content }) =>
+                                .withLatestFrom(this.settings$, (data, settings) => ({
+                                    ...data,
+                                    ...settings.transportRequestSettings,
+                                }))
+                                .flatMap(({ erhebungsmonat, messageId, senderId, recipientId, content }) =>
                                     doAsyncAsObservable(() => {
                                         const count = filteredPreismeldungBags.length;
-                                        const envelope = createEnvelope(MessageTypes.Preismeldungen, messageId);
+                                        const envelope = createEnvelope(
+                                            MessageTypes.Preismeldungen,
+                                            messageId,
+                                            senderId,
+                                            recipientId
+                                        );
 
                                         FileSaver.saveAs(
                                             new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
@@ -167,12 +177,21 @@ export class ExporterEffects {
                             const content = toCsv(validations.map((x: any) => x.entity)) + '\n';
                             return { erhebungsmonat, content, updatedPreismeldestellen };
                         })
-                        .flatMap(({ content, erhebungsmonat, updatedPreismeldestellen }) =>
+                        .withLatestFrom(this.settings$, (data, settings) => ({
+                            ...data,
+                            ...settings.transportRequestSettings,
+                        }))
+                        .flatMap(({ content, erhebungsmonat, senderId, recipientId, updatedPreismeldestellen }) =>
                             resetAndContinueWith(
                                 { type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
                                     const count = updatedPreismeldestellen.length;
-                                    const envelope = createEnvelope(MessageTypes.Preismeldestellen, createMesageId());
+                                    const envelope = createEnvelope(
+                                        MessageTypes.Preismeldestellen,
+                                        createMesageId(),
+                                        senderId,
+                                        recipientId
+                                    );
 
                                     FileSaver.saveAs(
                                         new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),
@@ -228,12 +247,21 @@ export class ExporterEffects {
                             const content = toCsv(validations.map((x: any) => x.entity)) + '\n';
                             return { peZuweisungen, content };
                         })
-                        .flatMap(({ peZuweisungen, content }) =>
+                        .withLatestFrom(this.settings$, (data, settings) => ({
+                            ...data,
+                            ...settings.transportRequestSettings,
+                        }))
+                        .flatMap(({ peZuweisungen, content, senderId, recipientId }) =>
                             resetAndContinueWith(
                                 { type: 'EXPORT_PREISERHEBER_RESET' } as exporter.Action,
                                 doAsyncAsObservable(() => {
                                     const count = peZuweisungen.length;
-                                    const envelope = createEnvelope(MessageTypes.Preiserheber, createMesageId());
+                                    const envelope = createEnvelope(
+                                        MessageTypes.Preiserheber,
+                                        createMesageId(),
+                                        senderId,
+                                        recipientId
+                                    );
 
                                     FileSaver.saveAs(
                                         new Blob([envelope.content], { type: 'application/xml;charset=utf-8' }),

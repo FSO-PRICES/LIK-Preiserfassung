@@ -312,6 +312,10 @@ export interface SettingProperties {
     general: {
         erhebungsorgannummer: string;
     };
+    transportRequestSettings: {
+        senderId: string;
+        recipientId: string;
+    };
 }
 
 export type Setting = SettingProperties & CouchProperties;

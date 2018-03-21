@@ -8,10 +8,10 @@ import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
 
 @IonicPage({
-    segment: 'settings'
+    segment: 'settings',
 })
 @Component({
-    templateUrl: 'settings.html'
+    templateUrl: 'settings.html',
 })
 export class SettingsPage implements OnDestroy {
     public currentSettings$ = this.store.select(fromRoot.getCurrentSettings);
@@ -25,7 +25,11 @@ export class SettingsPage implements OnDestroy {
     private subscriptions: Subscription[] = [];
     private loader: Loading;
 
-    constructor(private store: Store<fromRoot.AppState>, private loadingCtrl: LoadingController, private formBuilder: FormBuilder) {
+    constructor(
+        private store: Store<fromRoot.AppState>,
+        private loadingCtrl: LoadingController,
+        private formBuilder: FormBuilder
+    ) {
         this.form = formBuilder.group({
             _id: [null],
             serverConnection: formBuilder.group({
@@ -33,26 +37,35 @@ export class SettingsPage implements OnDestroy {
             }),
             general: formBuilder.group({
                 erhebungsorgannummer: null,
-            })
+            }),
+            transportRequestSettings: formBuilder.group({
+                senderId: null,
+                recipientId: null,
+            }),
         });
 
-        const update$ = this.form.valueChanges
-            .map(() => this.form.value);
+        const update$ = this.form.valueChanges.map(() => this.form.value);
 
         const distinctSetting$ = this.currentSettings$
             .filter(x => !!x)
             .distinctUntilKeyChanged('isModified')
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         const canSave$ = this.saveClicked$
             .map(x => ({ isValid: this.form.valid }))
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
-        const save$ = canSave$.filter(x => x.isValid)
-            .publishReplay(1).refCount()
+        const save$ = canSave$
+            .filter(x => x.isValid)
+            .publishReplay(1)
+            .refCount()
             .withLatestFrom(this.saveClicked$);
 
-        this.showValidationHints$ = canSave$.distinctUntilChanged().mapTo(true)
+        this.showValidationHints$ = canSave$
+            .distinctUntilChanged()
+            .mapTo(true)
             .merge(distinctSetting$.mapTo(false));
 
         this.subscriptions = [
@@ -65,20 +78,21 @@ export class SettingsPage implements OnDestroy {
                 store.dispatch({ type: 'SAVE_SETTING' });
             }),
 
-            this.currentSettings$
-                .filter(pe => pe != null && pe.isSaved)
-                .subscribe(() => this.dismissLoadingScreen()),
+            this.currentSettings$.filter(pe => pe != null && pe.isSaved).subscribe(() => this.dismissLoadingScreen()),
 
-            distinctSetting$
-                .subscribe((settings: CurrentSetting) => {
-                    this.form.markAsUntouched();
-                    this.form.markAsPristine();
-                    this.form.patchValue({
+            distinctSetting$.subscribe((settings: CurrentSetting) => {
+                this.form.markAsUntouched();
+                this.form.markAsPristine();
+                this.form.patchValue(
+                    {
                         _id: settings._id,
                         serverConnection: settings.serverConnection,
-                        general: settings.general || {}
-                    }, { emitEvent: false });
-                })
+                        general: settings.general || {},
+                        transportRequestSettings: settings.transportRequestSettings || {},
+                    },
+                    { emitEvent: false }
+                );
+            }),
         ];
     }
 
@@ -94,16 +108,14 @@ export class SettingsPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
     private presentLoadingScreen() {
         this.dismissLoadingScreen();
 
         this.loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...'
+            content: 'Datensynchronisierung. Bitte warten...',
         });
 
         this.loader.present();

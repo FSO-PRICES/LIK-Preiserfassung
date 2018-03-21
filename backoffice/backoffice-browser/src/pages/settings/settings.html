@@ -12,19 +12,27 @@
                     <h1 class="large">
                         <div>Serververbindung</div>
                     </h1>
-                    <ion-list formGroupName="serverConnection" no-lines>
-                        <ion-item class="pef-item">
+                    <ion-list no-lines>
+                        <ion-item class="pef-item" formGroupName="serverConnection">
                             <ion-label stacked>URL</ion-label>
                             <ion-input type="text" formControlName="url"></ion-input>
                         </ion-item>
-                    </ion-list>
-                    <h1 class="large">
-                        <div>Allgemeine Einstellungen</div>
-                    </h1>
-                    <ion-list formGroupName="general" no-lines>
-                        <ion-item class="pef-item">
+                        <ion-item class="pef-item" formGroupName="general">
                             <ion-label stacked>Erhebungsorgannummer</ion-label>
                             <ion-input type="text" formControlName="erhebungsorgannummer"></ion-input>
+                        </ion-item>
+                    </ion-list>
+                    <h1 class="large">
+                        <div>Transfereinstellungen (Sedex)</div>
+                    </h1>
+                    <ion-list formGroupName="transportRequestSettings" no-lines>
+                        <ion-item class="pef-item">
+                            <ion-label stacked>Sender ID</ion-label>
+                            <ion-input type="text" formControlName="senderId"></ion-input>
+                        </ion-item>
+                        <ion-item class="pef-item">
+                            <ion-label stacked>Recipient ID</ion-label>
+                            <ion-input type="text" formControlName="recipientId"></ion-input>
                         </ion-item>
                     </ion-list>
                     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
