@@ -13,7 +13,7 @@
                             <div [hidden]="!(exportedPreismeldungen$ | async)" ion-text color="primary">
                                 {{exportedPreismeldungen$ | async}} Preismeldungen wurden exportiert
                             </div>
-                            <div [hidden]="!(exportErrorPreismeldungen$ | async)" ion-text color="danger" style="padding-top: 20px;">
+                            <div [hidden]="!(exportErrorPreismeldungen$ | async)" ion-text color="danger" class="error-messages">
                                 <div *ngIf="!!(exportErrorPreismeldungen$ | async)?.validations">
                                     <div *ngFor="let validation of (exportErrorPreismeldungen$ | async).validations">
                                         {{ validation.error }}
@@ -41,7 +41,7 @@
                             <div [hidden]="!(exportErrorPreismeldestellen$ | async)" ion-text color="primary">
                                 {{exportedPreismeldestellen$ | async}} Preismeldestellen wurden exportiert
                             </div>
-                            <div [hidden]="!(exportErrorPreismeldestellen$ | async)" ion-text color="danger" style="padding-top: 20px;">
+                            <div [hidden]="!(exportErrorPreismeldestellen$ | async)" ion-text color="danger" class="error-messages">
                                 <div *ngIf="!!(exportErrorPreismeldestellen$ | async)?.validations">
                                     <div *ngFor="let validation of (exportErrorPreismeldestellen$ | async).validations">
                                         {{ validation.error }}
@@ -72,7 +72,7 @@
                             <div [hidden]="isErhebungsorgannummerSet$ | async" ion-text color="danger">
                                 Es ist noch keine Erhebungsorgannummer bei den Einstellungen gesetzt worden.
                             </div>
-                            <div [hidden]="!(exportErrorPreiserheber$ | async)" ion-text color="danger" style="padding-top: 20px;">
+                            <div [hidden]="!(exportErrorPreiserheber$ | async)" ion-text color="danger" class="error-messages">
                                 <div *ngIf="!!(exportErrorPreiserheber$ | async)?.validations">
                                     <div *ngFor="let validation of (exportErrorPreiserheber$ | async).validations">
                                         {{ validation.error }}

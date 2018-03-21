@@ -9,3 +9,11 @@ ion-content.content-md {
 .container {
     padding: 0.2em;
 }
+
+.error-messages {
+    margin-top: 20px;
+    user-select: text;
+    max-height: 110px;
+    overflow-y: auto;
+    margin-bottom: -25px;
+}
