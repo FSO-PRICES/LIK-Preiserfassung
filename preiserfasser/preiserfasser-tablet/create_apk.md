@@ -20,5 +20,5 @@ If not already done: `./node_modules/.bin/ionic cordova platforms add android`
 
 ### Use Key to sign
 
-`"%JAVA_HOME%\bin\jarsigner" -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.keystore android-armv7-release-unsigned.apk "Preiserfassung LIK"`  
+`"%JAVA_HOME%\bin\jarsigner" -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystorebfs_apk_release_key.keystore android-armv7-release-unsigned.apk "Preiserfassung LIK"`  
 `"%LOCALAPPDATA%\Android\sdk\build-tools\23.0.3\zipalign" -v 4 android-armv7-release-unsigned.apk android-armv7-release.apk`
