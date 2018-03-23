@@ -8,12 +8,14 @@
         h1 {
             margin-bottom: 0.5em;
         }
-        .actions {
+        .title {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
             .count {
                 align-self: flex-end;
+                margin-bottom: 0.5em;
+                line-height: 1.9em;
             }
         }
     }

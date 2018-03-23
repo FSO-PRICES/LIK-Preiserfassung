@@ -3,15 +3,15 @@
     <div class="page-content">
         <div class="preiserheber-list-container container">
             <div class="header">
-                <h1 class="large">
-                    Preiserheber
-                </h1>
-                <div class="actions">
-                    <div class="buttons">
-                        <button type="button" ion-button class="danger" (click)="deleteClicked$.emit($event)" [disabled]="!(isEditing$ | async)">Löschen</button>
-                        <button ion-button type="button" end (click)="createPreiserheber$.emit($event)" [disabled]="(isEditing$ | async)">Erstellen</button>
-                    </div>
+                <div class="title">
+                    <h1 class="large">
+                        Preiserheber
+                    </h1>
                     <div class="count">({{(preiserhebers$ | async)?.length || 0}})</div>
+                </div>
+                <div class="buttons">
+                    <button type="button" ion-button class="danger" (click)="deleteClicked$.emit($event)" [disabled]="!(isEditing$ | async)">Löschen</button>
+                    <button ion-button type="button" end (click)="createPreiserheber$.emit($event)" [disabled]="(isEditing$ | async)">Erstellen</button>
                 </div>
             </div>
             <preiserheber-list [list]="preiserhebers$ | async" [current]="currentPreiserheber$ | async" (selected)="selectPreiserheber$.emit($event)"></preiserheber-list>
