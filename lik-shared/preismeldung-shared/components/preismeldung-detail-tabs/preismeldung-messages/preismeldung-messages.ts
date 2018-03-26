@@ -53,6 +53,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                     </ion-item>
                     <div class="actions">
                         <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" (click)="bemerkungenClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
                         <button ion-button color="java" [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
                     </div>
                 </div>
@@ -85,6 +86,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     public onBlur$ = new EventEmitter();
     public notizClear$ = new EventEmitter();
     public kommentarClear$ = new EventEmitter();
+    public bemerkungenClear$ = new EventEmitter();
     public erledigtDisabled$: Observable<boolean>;
     public erledigtButtonDisabled$: Observable<boolean>;
     public erledigt$ = new EventEmitter();
@@ -146,6 +148,10 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .share();
 
         this.kommentarClearClicked$ = kommentarClearDone$;
+
+        this.bemerkungenClear$.subscribe(() => {
+            this.form.patchValue({ bemerkungen: '' });
+        });
 
         const erledigtDone$ = this.erledigt$.do(() => {
             let bemerkungen = this.form.value['bemerkungen'];
