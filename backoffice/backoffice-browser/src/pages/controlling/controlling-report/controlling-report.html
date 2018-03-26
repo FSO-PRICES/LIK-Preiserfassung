@@ -33,8 +33,9 @@
     <table class="report-table" [pefZoomable]="zoomLevel$ | async">
         <thead>
             <tr>
-                <th></th>
-                <th *ngFor="let column of (reportData$ | async)?.columns">{{ column }}</th>
+                <th class="align-right">&nbsp;</th>
+                <th *ngFor="let column of (reportData$ | async)?.columns; let i = index" (click)="toggleColumn$.emit(i)" class="collapsable"
+                    [class.collapsed]="(hiddenColumns$ | async)[i]">{{ column }}</th>
             </tr>
         </thead>
         <tbody>
@@ -44,8 +45,9 @@
                         <pef-icon name="todo"></pef-icon>
                     </button>
                 </td>
-                <td *ngFor="let value of row.values">{{ value }}</td>
+                <td *ngFor="let value of row.values; let i = index" [class.collapsed]="(hiddenColumns$ | async)[i]">{{ value }}</td>
             </tr>
         </tbody>
     </table>
+    <span>&nbsp;</span>
 </div>

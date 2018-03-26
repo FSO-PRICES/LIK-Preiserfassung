@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../common-models';
@@ -17,9 +18,24 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         .refCount();
 
     public zoomLevel$ = new EventEmitter<number>();
+    public toggleColumn$ = new EventEmitter<number>();
+    public hiddenColumns$: Observable<boolean[]>;
 
     constructor() {
         super();
+
+        this.hiddenColumns$ = this.toggleColumn$
+            .asObservable()
+            .scan(
+                (columns, i) => {
+                    columns[i] = !columns[i];
+                    return columns;
+                },
+                [] as boolean[]
+            )
+            .startWith([])
+            .publishReplay(1)
+            .refCount();
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

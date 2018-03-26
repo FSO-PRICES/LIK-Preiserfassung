@@ -23,11 +23,15 @@ controlling-report {
         margin-top: 20px;
         overflow: auto;
         flex: 1;
+        user-select: text;
     }
 
     .report-table {
         min-width: 100%;
-        user-select: auto;
+
+        .align-right {
+            text-align: right;
+        }
 
         tr:nth-child(odd) {
             background-color: darken($alto, 3%);
@@ -40,11 +44,29 @@ controlling-report {
             text-align: left;
             padding-right: 10px;
             padding-bottom: 8px;
+            &.collapsable {
+                cursor: pointer;
+            }
         }
 
         td {
             white-space: nowrap;
             padding-right: 10px;
+        }
+
+        .collapsed {
+            min-width: 15px;
+            padding: 0;
+            font-size: 0;
+            border: 0px solid $trout;
+            border-left-width: 1px;
+            border-right-width: 1px;
+            background-color: lighten($trout, 50%);
+
+            & + td,
+            & + th {
+                padding-left: 10px;
+            }
         }
     }
 
