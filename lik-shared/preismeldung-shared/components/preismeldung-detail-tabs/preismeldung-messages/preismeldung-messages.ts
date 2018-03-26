@@ -147,11 +147,13 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             })
             .share();
 
-        this.kommentarClearClicked$ = kommentarClearDone$;
+        const bemerkungenClearDone$ = this.bemerkungenClear$
+            .do(() => {
+                this.form.patchValue({ bemerkungen: '' });
+            })
+            .share();
 
-        this.bemerkungenClear$.subscribe(() => {
-            this.form.patchValue({ bemerkungen: '' });
-        });
+        this.kommentarClearClicked$ = kommentarClearDone$.merge(bemerkungenClearDone$);
 
         const erledigtDone$ = this.erledigt$.do(() => {
             let bemerkungen = this.form.value['bemerkungen'];
@@ -160,7 +162,12 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             this.form.patchValue({ bemerkungen });
         });
 
-        const buttonActionDone$ = Observable.merge(notizClearDone$, kommentarClearDone$, erledigtDone$);
+        const buttonActionDone$ = Observable.merge(
+            notizClearDone$,
+            kommentarClearDone$,
+            bemerkungenClearDone$,
+            erledigtDone$
+        );
 
         this.erledigtDisabled$ = this.form.valueChanges
             .map(x => x.bemerkungen.endsWith('@OK'))
