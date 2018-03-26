@@ -1,17 +1,16 @@
 import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ReactiveComponent, Models as P, pefSearch } from 'lik-shared';
+import { ReactiveComponent, Models as P, pefSearch, sortBySelector } from 'lik-shared';
 
 @Component({
     selector: 'preismeldestelle-list',
-    templateUrl: 'preismeldestelle-list.html'
+    templateUrl: 'preismeldestelle-list.html',
 })
 export class PreismeldestelleListComponent extends ReactiveComponent implements OnChanges {
     @Input() list: P.Preismeldestelle[];
     @Input() current: P.Preismeldestelle;
-    @Output('selected')
-    public selectPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
+    @Output('selected') public selectPreismeldestelle$ = new EventEmitter<P.Preismeldestelle>();
 
     public preismeldestellen$: Observable<P.Preismeldestelle[]>;
     public current$: Observable<P.Preismeldestelle>;
@@ -24,11 +23,26 @@ export class PreismeldestelleListComponent extends ReactiveComponent implements 
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('list').publishReplay(1).refCount();
+        this.preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('list')
+            .publishReplay(1)
+            .refCount();
         this.filteredPreismeldestellen$ = this.preismeldestellen$
             .combineLatest(this.filterTextValueChanges.startWith(null), (preismeldestellen, filterText) =>
-                !filterText ? preismeldestellen : pefSearch(filterText, preismeldestellen, [x => x.name, x => x.pmsNummer, x => x.town, x => x.postcode, x => x.erhebungsregion])
-            ).publishReplay(1).refCount();
+                sortBySelector(
+                    !filterText
+                        ? preismeldestellen
+                        : pefSearch(filterText, preismeldestellen, [
+                              x => x.name,
+                              x => x.pmsNummer,
+                              x => x.town,
+                              x => x.postcode,
+                              x => x.erhebungsregion,
+                          ]),
+                    pms => pms.name
+                )
+            )
+            .publishReplay(1)
+            .refCount();
 
         this.current$ = this.observePropertyCurrentValue<P.Preismeldestelle>('current');
     }

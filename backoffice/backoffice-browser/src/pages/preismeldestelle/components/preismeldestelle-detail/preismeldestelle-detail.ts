@@ -30,6 +30,7 @@ import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldestelle: P.Preismeldestelle;
     @Input() languages: P.Language[];
+    @Input() preiserheber: P.Erheber;
     @Output('save') public save$: Observable<{ isValid: boolean }>;
     @Output('cancel') public cancelClicked$ = new EventEmitter<Event>();
     @Output('update') public update$: Observable<P.Preismeldestelle>;
@@ -61,6 +62,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                 town: [null, Validators.required],
                 telephone: [null],
                 email: [null],
+                internetLink: [null],
                 languageCode: [null, Validators.required],
                 erhebungsregion: [null],
                 erhebungsart_tablet: [false],
@@ -120,6 +122,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         town: preismeldestelle.town,
                         telephone: preismeldestelle.telephone,
                         email: preismeldestelle.email,
+                        internetLink: preismeldestelle.internetLink,
                         languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                         erhebungsregion: preismeldestelle.erhebungsregion,
                         ...parseErhebungsartForForm(preismeldestelle.erhebungsart),

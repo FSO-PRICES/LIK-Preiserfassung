@@ -5,20 +5,30 @@ import { Observable, Subscription } from 'rxjs';
 import { Models as P, PefDialogService } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
+import { Action as PreiserheberAction } from '../../actions/preiserheber';
 import { Action as PreismeldestelleAction } from '../../actions/preismeldestelle';
+import { Action as PreiszuweisungAction } from '../../actions/preiszuweisung';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
 import { IonicPage } from 'ionic-angular';
 
 @IonicPage({
-    segment: 'pms'
+    segment: 'pms',
 })
 @Component({
     selector: 'preismeldestelle',
-    templateUrl: 'preismeldestelle.html'
+    templateUrl: 'preismeldestelle.html',
 })
 export class PreismeldestellePage implements OnDestroy {
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
-    public currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle).publishReplay(1).refCount();
+    public preiserheber$ = this.store.select(fromRoot.getPreiserhebers);
+    public preiszuweisungen$ = this.store
+        .select(fromRoot.getPreiszuweisungen)
+        .publishReplay(1)
+        .refCount();
+    public currentPreismeldestelle$ = this.store
+        .select(fromRoot.getCurrentPreismeldestelle)
+        .publishReplay(1)
+        .refCount();
     public languages$ = this.store.select(fromRoot.getLanguagesList);
     public selectPreismeldestelle$ = new EventEmitter<string>();
     public cancelPreismeldestelle$ = new EventEmitter();
@@ -28,69 +38,106 @@ export class PreismeldestellePage implements OnDestroy {
     public isEditing$: Observable<boolean>;
     public isCurrentModified$: Observable<boolean>;
     public cancelEditDialog$: Observable<any>;
+    public preiserheberMap$: Observable<{ [pmsNummer: string]: P.Erheber }>;
 
     private subscriptions: Subscription[] = [];
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
-        this.cancelEditDialog$ = Observable.defer(() => pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data));
+        this.cancelEditDialog$ = Observable.defer(() =>
+            pefDialogService.displayDialog(PefDialogCancelEditComponent, {}).map(x => x.data)
+        );
 
         this.isEditing$ = this.currentPreismeldestelle$
             .map(x => !!x && !!x._id)
             .distinctUntilChanged()
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
 
         this.isCurrentModified$ = this.currentPreismeldestelle$
             .map(currentPreismeldestelle => !!currentPreismeldestelle && currentPreismeldestelle.isModified)
             .startWith(null)
-            .publishReplay(1).refCount();
+            .publishReplay(1)
+            .refCount();
+
+        this.preiserheberMap$ = this.preiszuweisungen$.withLatestFrom(this.preiserheber$).map(([pzs, pes]) => {
+            const peMap: { [pmsNummer: string]: P.Erheber } = {};
+            pzs.map(pz => {
+                return pz.preismeldestellenNummern.forEach(
+                    pmsNummer => (peMap[pmsNummer] = pes.find(pe => pe._id === pz.preiserheberId))
+                );
+            });
+            return peMap;
+        });
 
         const requestSelectPreismeldestelle$ = this.selectPreismeldestelle$
-            .withLatestFrom(this.isCurrentModified$, (selectedPreismeldestelle: string, isCurrentModified: boolean) => ({
-                selectedPreismeldestelle,
-                isCurrentModified
-            }))
-            .publishReplay(1).refCount();
+            .withLatestFrom(
+                this.isCurrentModified$,
+                (selectedPreismeldestelle: string, isCurrentModified: boolean) => ({
+                    selectedPreismeldestelle,
+                    isCurrentModified,
+                })
+            )
+            .publishReplay(1)
+            .refCount();
 
         this.subscriptions = [
             requestSelectPreismeldestelle$
                 .filter(x => !x.isCurrentModified)
-                .merge(requestSelectPreismeldestelle$
-                    .filter(x => x.isCurrentModified)
-                    .flatMap(x => this.cancelEditDialog$.map(y => ({ selectedPreismeldestelle: x.selectedPreismeldestelle, dialogCode: y })))
-                    .filter(x => x.dialogCode === 'THROW_CHANGES'))
+                .merge(
+                    requestSelectPreismeldestelle$
+                        .filter(x => x.isCurrentModified)
+                        .flatMap(x =>
+                            this.cancelEditDialog$.map(y => ({
+                                selectedPreismeldestelle: x.selectedPreismeldestelle,
+                                dialogCode: y,
+                            }))
+                        )
+                        .filter(x => x.dialogCode === 'THROW_CHANGES')
+                )
                 .subscribe(x => {
                     store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: x.selectedPreismeldestelle });
                 }),
 
-            this.cancelPreismeldestelle$
-                .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: null } as PreismeldestelleAction)),
+            this.cancelPreismeldestelle$.subscribe(x =>
+                this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: null } as PreismeldestelleAction)
+            ),
 
-            this.updatePreismeldestelle$
-                .subscribe(x => store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload: x } as PreismeldestelleAction)),
+            this.updatePreismeldestelle$.subscribe(x =>
+                store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload: x } as PreismeldestelleAction)
+            ),
 
             this.savePreismeldestelle$
-                .flatMap(() => this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', this.currentPreismeldestelle$.skip(1).filter(pms => pms != null && pms.isSaved)))
-                .subscribe(x => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as PreismeldestelleAction))
+                .flatMap(() =>
+                    this.pefDialogService.displayLoading(
+                        'Daten werden gespeichert, bitte warten...',
+                        this.currentPreismeldestelle$.skip(1).filter(pms => pms != null && pms.isSaved)
+                    )
+                )
+                .subscribe(x => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as PreismeldestelleAction)),
         ];
     }
 
     public ionViewCanLeave(): Promise<boolean> {
         return Observable.merge(
             this.isCurrentModified$.filter(modified => modified === false).map(() => true),
-            this.isCurrentModified$.filter(modified => modified === true)
-                .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode).map(dialogCode => dialogCode === 'THROW_CHANGES')
-        ).take(1).toPromise();
+            this.isCurrentModified$
+                .filter(modified => modified === true)
+                .combineLatest(this.cancelEditDialog$, (modified, dialogCode) => dialogCode)
+                .map(dialogCode => dialogCode === 'THROW_CHANGES')
+        )
+            .take(1)
+            .toPromise();
     }
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as PreismeldestelleAction);
+        this.store.dispatch({ type: 'PREISERHEBER_LOAD' } as PreiserheberAction);
+        this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' } as PreiszuweisungAction);
     }
 
     ngOnDestroy() {
         this.store.dispatch({ type: 'SELECT_PREISMELDESTELLE', payload: null } as PreismeldestelleAction);
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 }

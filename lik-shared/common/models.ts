@@ -25,11 +25,13 @@ export interface PreismeldestelleProperties {
     name: string;
     supplement: string;
     zusatzInformationen: string;
+    pmsTop: boolean;
     street: string;
     postcode: string;
     town: string;
     telephone: string;
     email: string;
+    internetLink: string;
     languageCode: string;
     kontaktpersons: KontaktPerson[];
     erhebungsregion: string;

@@ -1,27 +1,22 @@
 <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
-    <h1 class="large">Editieren</h1>
+    <h1 class="large">Angaben zur Preismeldestelle</h1>
     <div class="actions">
         <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(preismeldestelle$ | async).isModified">Speichern</button>
         <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
     </div>
-    <ion-row>
-        <ion-col>
-            <h5>Preismeldestellenummer</h5>
-            <div class="readonly-text">{{(preismeldestelle$ | async).pmsNummer}}</div>
-        </ion-col>
-        <ion-col></ion-col>
-    </ion-row>
-    <ion-row>
+    <!-- <ion-row>
         <ion-col>
             <h5>Region</h5>
             <div class="readonly-text" [innerHTML]="(preismeldestelle$ | async).erhebungsregion || '&ndash;'"></div>
         </ion-col>
-        <ion-col></ion-col>
-    </ion-row>
+    </ion-row> -->
     <ion-row>
         <ion-col>
-            <h5>Adresse</h5>
             <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label stacked>PMSno</ion-label>
+                    <ion-input readonly type="text" [value]="(preismeldestelle$ | async).pmsNummer"></ion-input>
+                </ion-item>
                 <ion-item class="pef-item">
                     <ion-label stacked>Name</ion-label>
                     <ion-input type="text" formControlName="name"></ion-input>
@@ -42,29 +37,38 @@
                     <ion-label stacked>Ort</ion-label>
                     <ion-input type="text" formControlName="town"></ion-input>
                 </ion-item>
-                <ion-item class="pef-item">
-                    <ion-label stacked>Telefon</ion-label>
-                    <ion-input type="text" formControlName="telephone"></ion-input>
-                </ion-item>
-                <ion-item class="pef-item">
-                    <ion-label stacked>E-Mail</ion-label>
-                    <ion-input type="text" formControlName="email"></ion-input>
-                </ion-item>
-                <div class="pef-item item item-block item-md item-label-stacked item-input">
-                    <div class="item-inner">
-                        <div class="input-wrapper">
-                            <ion-label stacked [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
-                            <div class="input input-md pef-select">
-                                <select formControlName="languageCode">
-                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
-                                </select>
-                            </div>
+            </ion-list>
+        </ion-col>
+        <ion-col>
+            <ion-item class="pef-item">
+                <ion-label stacked>PMS erhoben durch</ion-label>
+                <ion-input readonly type="text" formControlName="supplement" value="{{preiserheber?.firstName}} {{preiserheber?.surname}}"></ion-input>
+            </ion-item>
+            <ion-item class="pef-item">
+                <ion-label stacked>Telefon</ion-label>
+                <ion-input type="text" formControlName="telephone"></ion-input>
+            </ion-item>
+            <ion-item class="pef-item">
+                <ion-label stacked>E-Mail</ion-label>
+                <ion-input type="text" formControlName="email"></ion-input>
+            </ion-item>
+            <ion-item class="pef-item">
+                <ion-label stacked>Interner-Link</ion-label>
+                <ion-input type="text" formControlName="internetLink"></ion-input>
+            </ion-item>
+            <div class="pef-item item item-block item-md item-label-stacked item-input">
+                <div class="item-inner">
+                    <div class="input-wrapper">
+                        <ion-label stacked [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
+                        <div class="input input-md pef-select">
+                            <select formControlName="languageCode">
+                                <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-            </ion-list>
+            </div>
         </ion-col>
-        <ion-col></ion-col>
     </ion-row>
     <ion-row formArrayName="kontaktpersons">
         <ion-col [formGroupName]="0">

@@ -5,4 +5,8 @@ preismeldestelle-detail {
     h5 {
         margin-top: 0.5em;
     }
+    .item-md.pef-item ion-input[readonly] {
+        border: none;
+        margin-bottom: 2px;
+    }
 }
