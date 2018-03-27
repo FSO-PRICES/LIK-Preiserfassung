@@ -147,15 +147,16 @@ export class PmsPriceEntryPage implements OnDestroy {
         this.currentTime$.takeUntil(this.onDestroy$).subscribe();
 
         createTabLeaveObservable('MESSAGES')
-            .takeUntil(this.onDestroy$)
+            .delay(50)
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
             .filter(currentPreismeldung => !currentPreismeldung.isNew && currentPreismeldung.isMessagesModified)
+            .takeUntil(this.onDestroy$)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_MESSAGES' }));
 
         createTabLeaveObservable('PRODUCT_ATTRIBUTES')
-            .takeUntil(this.onDestroy$)
             .withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung)
             .filter(currentPreismeldung => !currentPreismeldung.isNew && currentPreismeldung.isAttributesModified)
+            .takeUntil(this.onDestroy$)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES' }));
 
         requestNavigateHome$
