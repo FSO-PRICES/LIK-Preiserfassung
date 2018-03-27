@@ -49,7 +49,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                         <div class="message-item"><span class="message-text" [innerHtml]="(bemerkungenHistory$ | async)"></span></div>
                     </div>
                     <ion-item class="pef-textarea-item">
-                        <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="erledigtDisabled$ | async" [readonly]="erledigtDisabled$ | async"></ion-textarea>
+                        <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="isReadonly$ | async" [readonly]="isReadonly$ | async"></ion-textarea>
                     </ion-item>
                     <div class="actions">
                         <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
