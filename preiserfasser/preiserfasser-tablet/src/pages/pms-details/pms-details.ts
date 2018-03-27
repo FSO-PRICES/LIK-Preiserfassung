@@ -48,6 +48,7 @@ export class PmsDetailsPage implements OnDestroy {
                 town: [null, Validators.required],
                 telephone: [null],
                 email: [null],
+                internetLink: [null],
                 languageCode: [null, Validators.required],
                 erhebungsart_tablet: [false],
                 erhebungsart_telefon: [false],
@@ -58,6 +59,7 @@ export class PmsDetailsPage implements OnDestroy {
                 pmsGeschlossen: [0],
                 erhebungsartComment: [null],
                 zusatzInformationen: [null],
+                pmsTop: [null],
             },
             { validator: this.formLevelValidationFactory() }
         );
@@ -102,11 +104,13 @@ export class PmsDetailsPage implements OnDestroy {
                         town: preismeldestelle.town,
                         telephone: preismeldestelle.telephone,
                         email: preismeldestelle.email,
+                        internetLink: preismeldestelle.internetLink,
                         languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                         ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
                         zusatzInformationen: preismeldestelle.zusatzInformationen,
+                        pmsTop: preismeldestelle.pmsTop,
                     },
                     { onlySelf: true, emitEvent: false }
                 );

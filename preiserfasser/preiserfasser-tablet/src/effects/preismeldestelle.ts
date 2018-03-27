@@ -52,12 +52,14 @@ export class PreismeldestelleEffects {
             town: currentPreismeldestelle.town,
             telephone: currentPreismeldestelle.telephone,
             email: currentPreismeldestelle.email,
+            internetLink: currentPreismeldestelle.internetLink,
             languageCode: currentPreismeldestelle.languageCode,
             erhebungsregion: currentPreismeldestelle.erhebungsregion,
             erhebungsart: currentPreismeldestelle.erhebungsart,
             pmsGeschlossen: currentPreismeldestelle.pmsGeschlossen,
             erhebungsartComment: currentPreismeldestelle.erhebungsartComment,
             zusatzInformationen: currentPreismeldestelle.zusatzInformationen,
+            pmsTop: currentPreismeldestelle.pmsTop,
             kontaktpersons: currentPreismeldestelle.kontaktpersons,
         };
     }

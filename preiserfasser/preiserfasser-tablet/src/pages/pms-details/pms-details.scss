@@ -1,4 +1,4 @@
-@import "../../theme/imports.scss";
+@import '../../theme/imports.scss';
 
 pms-details.ion-page {
     background-color: $trout;
@@ -29,7 +29,8 @@ pms-details.ion-page {
             flex: 1;
             margin: 0;
         }
-        .button, a[ion-button].button:hover {
+        .button,
+        a[ion-button].button:hover {
             color: $white;
             fill: $white;
         }
@@ -122,6 +123,27 @@ pms-details.ion-page {
                 border-left: 2px solid $flamingo;
             }
         }
+    }
+
+    .pef-checkbox {
+        flex-wrap: wrap;
+        ion-label.pef-checkbox-label {
+            display: block;
+            flex: 1 100%;
+            margin-bottom: 0;
+        }
+        ion-checkbox {
+            margin-top: 0;
+        }
+        .input-wrapper ion-label {
+            margin-top: 4px;
+            margin-bottom: 5px;
+        }
+    }
+
+    .item-md.pef-item ion-input[readonly] {
+        border: none;
+        margin-bottom: 2px;
     }
 
     ion-textarea > textarea {

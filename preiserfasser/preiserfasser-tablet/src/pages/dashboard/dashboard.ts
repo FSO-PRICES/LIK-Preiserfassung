@@ -50,7 +50,10 @@ export class DashboardPage implements OnDestroy {
     public canSync$: Observable<boolean>;
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$
         .combineLatest(this.filterTextValueChanges.startWith(''), (preismeldestellen, filterText) =>
-            sortBySelector(pefSearch(filterText, preismeldestellen, [pms => pms.name]), pms => pms.name.toLowerCase())
+            sortBySelector(
+                pefSearch(filterText, preismeldestellen, [pms => pms.name]),
+                pms => `${pms.pmsTop ? 'A' : 'Z'}_${pms.name.toLowerCase()}`
+            )
         )
         // .do(x => console.log('am here', x))
         .publishReplay(1)

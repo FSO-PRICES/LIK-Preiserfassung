@@ -11,25 +11,13 @@
             <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
                 <div class="pef-scroll-container" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
                     <div class="pms-scroll-content">
-                        <h4 class="large">{{ form.value.name }}</h4>
                         <div class="row">
                             <div class="column">
-                                <h5>{{ 'label_pms_preismeldestellenummer' | translate }}</h5>
-                                <div class="readonly-text">{{(pms$ | async)?.pmsNummer}}</div>
-                            </div>
-                            <div class="column"></div>
-                        </div>
-                        <div class="row">
-                            <div class="column">
-                                <h5>{{ 'label_pms_erhebungsregion' | translate }}</h5>
-                                <div class="readonly-text" [innerHTML]="(pms$ | async)?.erhebungsregion || '&ndash;'"></div>
-                            </div>
-                            <div class="column"></div>
-                        </div>
-                        <div class="row">
-                            <div class="column">
-                                <h5>{{ 'label_pms_adresse' | translate }}</h5>
                                 <ion-list no-lines>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>{{ 'label_pms_preismeldestellenummer' | translate }}</ion-label>
+                                        <ion-input readonly type="text" [value]="(pms$ | async)?.pmsNummer"></ion-input>
+                                    </ion-item>
                                     <ion-item class="pef-item">
                                         <ion-label stacked>{{ 'label_pms_name' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="name"></ion-input>
@@ -50,6 +38,19 @@
                                         <ion-label stacked>{{ 'label_pms_town' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="town"></ion-input>
                                     </ion-item>
+                                </ion-list>
+                            </div>
+                            <div class="column">
+                                <ion-list no-lines>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>{{ 'label_pms_erhebungsregion' | translate }}</ion-label>
+                                        <ion-input readonly type="text" [value]="(pms$ | async)?.erhebungsregion || '&ndash;'"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item pef-checkbox">
+                                        <ion-label item-left class="pef-checkbox-label">{{ 'label_pms_anzeige-in-pms-liste' | translate}}</ion-label>
+                                        <ion-label>{{ 'label_pms_pmsTop' | translate}}</ion-label>
+                                        <ion-checkbox formControlName="pmsTop"></ion-checkbox>
+                                    </ion-item>
                                     <ion-item class="pef-item">
                                         <ion-label stacked>{{ 'label_pms_telephone' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="telephone"></ion-input>
@@ -57,6 +58,10 @@
                                     <ion-item class="pef-item">
                                         <ion-label stacked>{{ 'label_pms_email' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="email"></ion-input>
+                                    </ion-item>
+                                    <ion-item class="pef-item">
+                                        <ion-label stacked>{{ 'label_pms_internetLink' | translate }}</ion-label>
+                                        <ion-input type="text" formControlName="internetLink"></ion-input>
                                     </ion-item>
                                     <div class="pef-item item item-block item-md item-label-stacked item-input">
                                         <div class="item-inner">
@@ -72,7 +77,6 @@
                                     </div>
                                 </ion-list>
                             </div>
-                            <div class="column"></div>
                         </div>
                         <div class="row" formArrayName="kontaktpersons">
                             <div class="column" [formGroupName]="0">
