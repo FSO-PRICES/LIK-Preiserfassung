@@ -4,12 +4,6 @@
         <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(preismeldestelle$ | async).isModified">Speichern</button>
         <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
     </div>
-    <!-- <ion-row>
-        <ion-col>
-            <h5>Region</h5>
-            <div class="readonly-text" [innerHTML]="(preismeldestelle$ | async).erhebungsregion || '&ndash;'"></div>
-        </ion-col>
-    </ion-row> -->
     <ion-row>
         <ion-col>
             <ion-list no-lines>
@@ -63,6 +57,18 @@
                         <div class="input input-md pef-select">
                             <select formControlName="languageCode">
                                 <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pef-item item item-block item-md item-label-stacked item-input">
+                <div class="item-inner">
+                    <div class="input-wrapper">
+                        <ion-label stacked [class.target-ng-invalid]="form.controls.erhebungsregion.invalid">Region</ion-label>
+                        <div class="input input-md pef-select">
+                            <select formControlName="erhebungsregion">
+                                <option *ngFor="let erhebungsregion of erhebungsregionen$ | async" [value]="erhebungsregion">{{erhebungsregion}}</option>
                             </select>
                         </div>
                     </div>

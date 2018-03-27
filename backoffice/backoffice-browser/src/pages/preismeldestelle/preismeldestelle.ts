@@ -30,6 +30,10 @@ export class PreismeldestellePage implements OnDestroy {
         .publishReplay(1)
         .refCount();
     public languages$ = this.store.select(fromRoot.getLanguagesList);
+    public erhebungsregionen$ = this.store
+        .select(fromRoot.getErhebungsregionen)
+        .publishReplay(1)
+        .refCount();
     public selectPreismeldestelle$ = new EventEmitter<string>();
     public cancelPreismeldestelle$ = new EventEmitter();
     public savePreismeldestelle$ = new EventEmitter();

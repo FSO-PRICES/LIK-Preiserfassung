@@ -29,6 +29,7 @@ import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 })
 export class PreismeldestelleDetailComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldestelle: P.Preismeldestelle;
+    @Input() erhebungsregionen: string[];
     @Input() languages: P.Language[];
     @Input() preiserheber: P.Erheber;
     @Output('save') public save$: Observable<{ isValid: boolean }>;
@@ -39,6 +40,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     public languages$: Observable<P.Language[]>;
     public saveClicked$ = new EventEmitter<Event>();
     public pmsGeschlossenClicked$ = new EventEmitter();
+    public erhebungsregionen$: Observable<string[]>;
 
     public showValidationHints$: Observable<boolean>;
 
@@ -51,6 +53,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
         this.preismeldestelle$ = this.observePropertyCurrentValue<P.Preismeldestelle>('preismeldestelle');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
+        this.erhebungsregionen$ = this.observePropertyCurrentValue<string[]>('erhebungsregionen');
 
         this.form = formBuilder.group(
             {

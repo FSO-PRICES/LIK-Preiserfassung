@@ -86,6 +86,7 @@ export function reducer(state = initialState, action: preismeldestelleActions.Ac
                 isEqual(payload.languageCode, state.currentPreismeldestelle.languageCode) &&
                 isEqual(payload.erhebungsart, state.currentPreismeldestelle.erhebungsart) &&
                 isEqual(payload.pmsGeschlossen, state.currentPreismeldestelle.pmsGeschlossen) &&
+                isEqual(payload.erhebungsregion, state.currentPreismeldestelle.erhebungsregion) &&
                 isEqual(payload.erhebungsartComment, state.currentPreismeldestelle.erhebungsartComment) &&
                 isEqual(payload.zusatzInformationen, state.currentPreismeldestelle.zusatzInformationen) &&
                 isKontaktPersonSame(payload.kontaktpersons[0], state.currentPreismeldestelle.kontaktpersons[0]) &&
@@ -107,6 +108,7 @@ export function reducer(state = initialState, action: preismeldestelleActions.Ac
                 languageCode: payload.languageCode,
                 erhebungsart: payload.erhebungsart,
                 pmsGeschlossen: payload.pmsGeschlossen,
+                erhebungsregion: payload.erhebungsregion,
                 erhebungsartComment: payload.erhebungsartComment,
                 zusatzInformationen: payload.zusatzInformationen,
                 kontaktpersons: cloneDeep(payload.kontaktpersons),
