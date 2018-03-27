@@ -574,7 +574,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     const currentPreis = parseFloat(this.form.value.preis);
                     if (isNaN(currentPreis)) return;
                     this.form.patchValue({
-                        preis: `${preisFormatFn(currentPreis - currentPreis * (percentage / 100))}`,
+                        preis: `${(currentPreis - currentPreis * (percentage / 100)).toFixed(2)}`,
                     });
                 })
         );
