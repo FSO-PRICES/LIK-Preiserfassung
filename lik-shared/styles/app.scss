@@ -1,6 +1,5 @@
 // http://ionicframework.com/docs/v2/theming/
 
-
 // App Global Sass
 // --------------------------------------------------
 // Put style rules here that you want to apply globally. These
@@ -16,11 +15,11 @@
 // automatically applied to the <body> element in the app.
 
 // @import "../../node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.css";
-@import "./variables.scss";
-@import "./mixins.scss";
+@import './variables.scss';
+@import './mixins.scss';
 
-@import "./buttons.scss";
-@import "./dialog.scss";
+@import './buttons.scss';
+@import './dialog.scss';
 
 // .gu-mirror{position:fixed!important;margin:0!important;z-index:9999!important;opacity:.8;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";filter:alpha(opacity=80)}.gu-hide{display:none!important}.gu-unselectable{-webkit-user-select:none!important;-moz-user-select:none!important;-ms-user-select:none!important;user-select:none!important}.gu-transit{opacity:.2;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";filter:alpha(opacity=20)}
 
@@ -29,7 +28,8 @@
     font-style: normal;
     font-weight: 400;
     src: local('Roboto'), local('Roboto-Regular'), url(../assets/fonts/roboto-regular.ttf) format('truetype');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+    unicode-range: U + 0000-00ff, U + 0131, U + 0152-0153, U + 02c6, U + 02da, U + 02dc, U + 2000-206f, U + 2074,
+        U + 20ac, U + 2212, U + 2215, U + E0FF, U + EFFD, U + F000;
 }
 
 @font-face {
@@ -37,7 +37,8 @@
     font-style: normal;
     font-weight: 500;
     src: local('Roboto Medium'), local('Roboto-Medium'), url(../assets/fonts/roboto-medium.ttf) format('truetype');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+    unicode-range: U + 0000-00ff, U + 0131, U + 0152-0153, U + 02c6, U + 02da, U + 02dc, U + 2000-206f, U + 2074,
+        U + 20ac, U + 2212, U + 2215, U + E0FF, U + EFFD, U + F000;
 }
 
 @font-face {
@@ -45,16 +46,23 @@
     font-style: normal;
     font-weight: 700;
     src: local('Roboto Bold'), local('Roboto-Bold'), url(../assets/fonts/roboto-bold.ttf) format('truetype');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+    unicode-range: U + 0000-00ff, U + 0131, U + 0152-0153, U + 02c6, U + 02da, U + 02dc, U + 2000-206f, U + 2074,
+        U + 20ac, U + 2212, U + 2215, U + E0FF, U + EFFD, U + F000;
 }
 
-html, ion-app.md {
+html,
+ion-app.md {
     font-family: 'Roboto', sans-serif !important;
     background-color: $outer-space;
     background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-size: 1em;
     line-height: 1.25em;
     font-weight: 500;
@@ -84,7 +92,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ion-content.content-md {
-    color: $outer-space
+    color: $outer-space;
 }
 
 .pef-scroll-container {
@@ -98,7 +106,9 @@ ion-content.content-md {
 
 form.form-show-validation-hints {
     .item-md.pef-item.ng-invalid {
-        ion-input, ion-textarea, select {
+        ion-input,
+        ion-textarea,
+        select {
             border-bottom-color: $alizarin-crimson;
         }
     }
@@ -136,10 +146,12 @@ form.stacked-form {
         color: $oslo-gray;
         line-height: 1.75em;
     }
-    &.item-label-stacked .text-input-md, .text-input-md {
+    &.item-label-stacked .text-input-md,
+    .text-input-md {
         margin: 6px 0;
     }
-    ion-input, ion-textarea {
+    ion-input,
+    ion-textarea {
         background-color: white;
         border-bottom: 2px solid $hit-gray;
         padding-left: 8px;
@@ -153,7 +165,8 @@ form.stacked-form {
         }
     }
     &.input-has-focus {
-        ion-input, ion-textarea {
+        ion-input,
+        ion-textarea {
             border-bottom-color: $blue-chill;
         }
         .item-inner {
@@ -167,7 +180,8 @@ form.stacked-form {
         ion-label {
             color: $bright-sun;
         }
-        ion-input, ion-textarea {
+        ion-input,
+        ion-textarea {
             border-bottom-color: $bright-sun;
         }
     }
@@ -224,7 +238,8 @@ ion-list[radio-group] {
     }
 }
 
-.item-md .radio-md, .item.item-md .checkbox-md {
+.item-md .radio-md,
+.item.item-md .checkbox-md {
     @include set-margin(0.5625, 0.625, 0.5625, 0);
 }
 
@@ -232,7 +247,8 @@ ion-list[radio-group] {
     font-size: 1em;
 }
 
-.radio-md.radio-disabled, .item-md.item-radio-disabled ion-label {
+.radio-md.radio-disabled,
+.item-md.item-radio-disabled ion-label {
     color: $trout;
 }
 
@@ -269,7 +285,7 @@ ion-list {
         }
     }
     .item-checkbox {
-        ion-label.label-md {
+        ion-label.label-md:not(.pef-checkbox-label) {
             font-size: 1em;
             font-weight: 500;
             margin-top: 5px;
@@ -290,7 +306,7 @@ ion-list {
             }
         }
     }
-};
+}
 
 ion-list.checkboxes-as-radios {
     .item-checkbox {
@@ -333,8 +349,8 @@ ion-list.checkboxes-as-radios {
     }
 }
 
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
@@ -378,11 +394,14 @@ ion-popover.popover-md {
         position: static;
         overflow: visible;
     }
-    ion-app, ion-nav, .ion-page {
+    ion-app,
+    ion-nav,
+    .ion-page {
         contain: none;
         height: initial;
     }
-    .app-root, .app-root.pef-desktop {
+    .app-root,
+    .app-root.pef-desktop {
         position: static;
         contain: none;
     }
