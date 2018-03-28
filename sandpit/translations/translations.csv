@@ -44,6 +44,9 @@ dialogText_aktion-message-preis-hoeher,Artikel teurer als in Vorperiode. Ist der
 dialogText_aktueller-aktionspreis-gleich-groesser-vp-normalpreis,Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?,Today's reduced price is greater than or equal to the normal price of previous period. Is price correct?,Le prix actuel en action est supérieur/égal au prix normal de la période précédente. Le prix enregistré est-il correct ?,Prezzo scontato attuale più uguale o più elevato rispetto al periodo precedente. È corretto il prezzo rilevato?
 dialogText_aufforderung-ersatzsuche,In der EP sind nur {{numActivePrices}}/{{anzahlPreiseProPMS}} Artikel erfasst. Wollen Sie ein neues Produkt erfassen?,Only {{numActivePrices}}/{{anzahlPreiseProPMS}} items recorded in this position. Would you like to record a new item?,Seuls {{numActivePrices}}/{{anzahlPreiseProPMS}} articles sont enregistrés dans cette EP. Voulez-vous relever un nouvel article ?,Nella varietà sono rilevati solo {{numActivePrices}}/{{anzahlPreiseProPMS}} articoli. Vuole aggiungere un articolo?
 dialogText_ausreichend-artikel,Es sind bereits ausreichend Artikel in der EP erfasst. Wollen Sie dennoch ein neues Produkt erfassen?,Already enough items of this type recorded. Would you like to add a new item nevertheless?,Le nombre d'articles dans cette EP est suffisant. Voulez-vous vraiment relever un article supplémentaire ?,Nella varietà sono già rilevati abbastanza prodotti. Vuole comunque rilevare un articolo in più?
+dialogText_pdf-preparing-data,PDF wird vorbereitet.,PDF being created.,PDF en préparation.,PDF in preparazione.
+dialogText_pdf-saved-at-application,PDF wurde unter Applikationsdokumenten abgelegt: Eigene Dateien -> Interner Speicher > Android > data > io.ionic.starter.,"PDF successfully saved in Application folder, Files -> Internal > Android > data > io.ionic.starter.",PDF enregistré sous documents de l'application: Documents -> Internal > Android > data > io.ionic.starter.,PDF registrato nella cartella Documenti dell'applicazione:
+dialogText_pdf-saved-at-documents,PDF wurde unter Dokumente abgelegt.,PDF successfully saved in Documents.,PDF enregistré sous documents.,PDF registrato in Documenti.
 dialogText_rrr-message-mit-aufforderung-zu-produktersatz,Dieser Artikel fehlt schon länger. Gibt es ein vergleichbares Ersatzprodukt?,Item missing for a while. Is there a similar product to replace it?,Cet article manque depuis longtemps. Y a-t-il un article semblable disponible pour un remplacement ?,Questo articolo manca da qualche mese. Esiste un articolo paragonabile per sostituirlo?
 dialogText_unveraendert-pm-text,Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?,Are new item's name and number really unchanged to former item?,Description/numéro d'article : vraiment identique au mois précédent ?,La descrizione dell'articolo/il numero dell'articolo sono effettivamente gli stessi rispetto al prodotto precedente?
 dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis,Aktionspreis der VP war gleich oder grösser als aktueller Normalpreis. Ist der aktuelle Preis ein Aktionspreis?,Reduced price of previous period equal to or higher than current normal price. Is product still on sale?,Le prix en action de la période précédente est supérieur/égal au prix normal actuel. Le prix actuel est-il en action ?,Il prezzo scontato del periodo precedente era lo stesso o più elevato rispetto al prezzo attuale.  Il prezzo attuale è scontato?
@@ -79,7 +82,7 @@ installed-software-version,Installierte Software-Version,Installed software vers
 kommentar-autotext_abnormale-preisentwicklung-bestaetigt,Abnormale Preisentwicklung bestätigt.,Abnormal price change confirmed.,Variation de prix anormale confirmée.,Variazione del prezzo anomale confirmata.
 kommentar-autotext_aktueller-aktionspreis-teuerer-normalpreis-vp,Aktueller Aktionspreis teuerer als Normalpreis VP bestätigt.,Current reduced price higher than normal price of previous period confirmed.,Prix actuel en action supérieur au prix normal de la période précédente confirmé,Prezzo scontato attuale più elevato rispetto al prezzo normale del periodo precedente confermato.
 kommentar-autotext_aktueller-normalpreis-billiger-aktionspreis_vp,Aktueller Normalpreis billiger als/gleich Aktionspreis VP bestätigt.,Current normal price cheaper/equal to reduced price of previous period confirmed.,Prix normal actuel inférieur/égal au prix en action de la période précédente confirmé,Prezzo attuale non scontato più vantaggioso o uguale al prezzo scontato del periodo precedente confermato.
-kommentar-autotext_artikeltext-unveraendert-bestaetigt,Artikeltext unverändert bestätigt.,Unchanged item name confirmed.,Description de l'article identique confirmé/e,Descrizione identica dell'articolo confermata.
+kommentar-autotext_artikeltext-unveraendert-bestaetigt,Artikeltext unverändert bestätigt.,Unchanged item name confirmed.,Description de l'article identique confirmée,Descrizione identica dell'articolo confermata.
 kommentar-autotext_keine-ersatzprodukte,Keine Ersatzprodukte in Sortiment vorhanden.,No replacement items in range.,Pas d'article de remplacement dans l'assortiment,Non ci sono articoli di sostituzione nell'assortimento.
 kommentar-autotext_keine-produkte,Keine Produkte in Sortiment vorhanden.,No items in range.,Pas d'article disponible dans l'assortiment,Non ci sono articoli nell'assortimento.
 kommentar-autotext_presta-setzt-normalpreis,PRESTA beendet Preisreihe mit Normalpreis.,PRESTA ends price series on normal level.,PRESTA interrompt la série de prix avec un retour au prix normal. ,PRESTA interrompe la serie di prezzo con il prezzo non scontato.
@@ -145,6 +148,9 @@ label_pms_street,Strasse,Street,Rue,Via
 label_pms_telephone,Telefon,Telephone,Téléphone,Telefono
 label_pms_town,Ort,City,Ville,Città
 label_pms_zusatzinformationen,Zusatzinformationen zur Preismeldestelle,Complementary information about store,Information complémentaire sur le point de vente,Informazioni complementari sul punto vendita
+label_pms_anzeige-in-pms-liste,Anzeige in PMS-Liste,Listing,Positionnement dans la liste,Posizione in lista
+label_pms_pms-liste-top,prioritär,top,prioritaire,prioritario
+label_pms_pms-liste-normal,normal,normal,normal,normale
 label_pms_zusatzname,Zusatzname,Complementary name,Nom complémentaire,Nome complementare
 label_preis-gefuehrt-seit,Preisreihe seit,In survey since,Relevé depuis,Rilevato da
 label_preis-vor-reduktion,Preis vor Reduktion,Price before reduction,Prix avant réduction,Prezzo prima dello sconto
@@ -163,18 +169,28 @@ label_preiserheber_webseite,Webseite,Website,Site internet,Sito Internet
 label_preismeldung-id,Preis-ID,Price-ID,ID-Prix,ID-Prezzo
 label_preismeldungen,Preismeldungen,Prices,Prix,Prezzi
 label_print_aktion,Aktion,Sale,Action,Azione
+label_print_aktuell,aktuell,Actual period,Période actuelle,Periodo attuale
 label_print_anzahl-code-r,Anzahl Code R,Number of code R,Nombre de code R,Numero di codici R
-label_print_ausverkauf,Ausverkauf,Clearance sale,Solde,Saldi
+label_print_artikelnummer,Artikelnummer,Item number,Numéro d'article,Numero dell'articolo
+label_print_artikeltext,Artikeltext,Item name,Description de l'article,Descrizione dell'articolo
+label_print_bemerkungen,Bemerkungen,Remarks,Remarques,Commenti
 label_print_chf,CHF,CHF,CHF,CHF
 label_print_code,Code,Code,Code,Codice
+label_print_information,Info,Info,Info,Info
 label_print_menge-vor-reduktion,Menge vor Reduktion,Quantity before reduction,Quantité avant réduction,Quantità prima dello sconto
 label_print_menge,Menge,Quantity,Quantité,Quantità
 label_print_pm-id,Preis-ID,Price-ID,ID-Prix,ID-Prezzo
-label_print_pos,Pos.,Pos.,Pos.,Pos.
+label_print_pos,EPno/Lfno,EPno/Lfno,EPno/Lfno,EPno/Lfno
+label_print_positionsbezeichnung,Erhebungsposition,Variety,Position,Varietà
 label_print_preis-vor-reduktion,Preis vor Reduktion,Price before reduction,Prix avant réduction,Prezzo prima dello sconto
+label_print_preiszahl,# Preise,# Prices,# Prix,# Prezzi
 label_print_preis,Preis,Price,Prix,Prezzo
+label_print_produktmale,Produkteigenschaften,Item features,Caractéristiques du produit,Caratteristiche del prodotto
+label_print_seite,Seite,Page,Page,Pagine
 label_print_shop,Shop,Store,Point de vente,Punto vendita
 label_print_standardmenge,Standardmenge,Standard quantity,Quantité standard,Quantità standard
+label_print_stichtag,Erhebungsdatum,Date of survey,Date de relevé,Data di rilevazione
+label_print_vorperiode,Vorperiode,Previous period,Période précédente,Periodo precedente
 server-connection-url,URL des Datenbank-Servers,URL of the database-server,URL du serveur de la base de données,URL del server della banca dati
 text_aktion,Aktion,Sale,Action,Azione
 text_chf,CHF,CHF,CHF,CHF
@@ -211,4 +227,3 @@ validation_produktMerkmale_erfassen,Bitte Produktmerkmale erfassen.,Please speci
 validation_street_required,Bitte erfassen Sie die Strasse der Preismeldestelle.,Please specify the street of the store.,Veuillez saisir l'adresse du point de vente,Per favore indicare la via del punto vendita.
 validation_surname_required,Bitte erfassen Sie den Name der 1. Kontaktperson.,Please specify the surname of contact 1.,Veuillez saisir le nom de la personne de contact 1,Per favore indicare il nome della persona di contatto 1.
 validation_town_required,Bitte erfassen Sie den Ort der Preismeldestelle.,Please specify the city of the store.,Veuillez saisir la localité du point de vente,Per favore indicare la città del punto vendita.
-NEW (#163),Eine neue Preisreihe sollte nicht in Aktion gestartet werden. Bitte wählen Sie ein anderes Produkt aus.,New price series should not start with reduced price. Please choose a normal priced item for replacement.,Une nouvelle série de prix ne doit pas commencer par un prix en action. Veuillez choisir un autre article. ,Una nuova serie di prezzo non deve iniziare con un prezzo in azione. Pregasi scegliere un'altro articolo.

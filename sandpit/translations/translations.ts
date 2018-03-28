@@ -48,7 +48,7 @@ export const de = {
     'dialogText_rrr-message-mit-aufforderung-zu-produktersatz': 'Dieser Artikel fehlt schon länger. Gibt es ein vergleichbares Ersatzprodukt?',
     'dialogText_unveraendert-pm-text': 'Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?',
     'dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis': 'Aktionspreis der VP war gleich oder grösser als aktueller Normalpreis. Ist der aktuelle Preis ein Aktionspreis?',
-    'dialogText_pdf-preparing-data': 'PDF wird vorbereitet',
+    'dialogText_pdf-preparing-data': 'PDF wird vorbereitet.',
     'dialogText_pdf-saved-at-documents': 'PDF wurde unter Dokumente abgelegt.',
     'dialogText_pdf-saved-at-application': 'PDF wurde unter Applikationsdokumenten abgelegt: Eigene Dateien -> Interner Speicher > Android > data > io.ionic.starter.',
     'error_user-db-id-mismatch': 'Datenbank ID\'s stimmen nicht überein. Bitte Admin kontaktieren.',
@@ -149,6 +149,9 @@ export const de = {
     'label_pms_telephone': 'Telefon',
     'label_pms_town': 'Ort',
     'label_pms_zusatzinformationen': 'Zusatzinformationen zur Preismeldestelle',
+    'label_pms_anzeige-in-pms-liste': 'Anzeige in PMS-Liste',
+    'label_pms_pms-liste-top': 'prioritär',
+    'label_pms_pms-liste-normal': 'normal',
     'label_pms_zusatzname': 'Zusatzname',
     'label_preis-gefuehrt-seit': 'Preisreihe seit',
     'label_preis-vor-reduktion': 'Preis vor Reduktion',
@@ -168,13 +171,12 @@ export const de = {
     'label_preismeldungen': 'Preismeldungen',
     'label_print_aktion': 'Aktion',
     'label_print_anzahl-code-r': 'Anzahl Code R',
-    'label_print_ausverkauf': 'Ausverkauf',
     'label_print_chf': 'CHF',
     'label_print_code': 'Code',
     'label_print_menge-vor-reduktion': 'Menge vor Reduktion',
     'label_print_menge': 'Menge',
     'label_print_pm-id': 'Preis-ID',
-    'label_print_pos': 'Pos.',
+    'label_print_pos': 'EPno/Lfno',
     'label_print_preis-vor-reduktion': 'Preis vor Reduktion',
     'label_print_preis': 'Preis',
     'label_print_shop': 'Shop',
@@ -226,7 +228,6 @@ export const de = {
     'validation_street_required': 'Bitte erfassen Sie die Strasse der Preismeldestelle.',
     'validation_surname_required': 'Bitte erfassen Sie den Name der 1. Kontaktperson.',
     'validation_town_required': 'Bitte erfassen Sie den Ort der Preismeldestelle.',
-    'NEW (#163)': 'Eine neue Preisreihe sollte nicht in Aktion gestartet werden. Bitte wählen Sie ein anderes Produkt aus.'
 };
 
 export const en = {
@@ -279,7 +280,7 @@ export const en = {
     'dialogText_rrr-message-mit-aufforderung-zu-produktersatz': 'dialogText_rrr-message-mit-aufforderung-zu-produktersatz',
     'dialogText_unveraendert-pm-text': 'dialogText_unveraendert-pm-text',
     'dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis': 'dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis',
-    'dialogText_pdf-preparing-data': 'PDF being created',
+    'dialogText_pdf-preparing-data': 'PDF being created.',
     'dialogText_pdf-saved-at-documents': 'PDF successfully saved in Documents.',
     'dialogText_pdf-saved-at-application': 'PDF successfully saved in Application folder, Files -> Internal > Android > data > io.ionic.starter.',
     'error_user-db-id-mismatch': 'error_user-db-id-mismatch',
@@ -380,6 +381,9 @@ export const en = {
     'label_pms_telephone': 'label_pms_telephone',
     'label_pms_town': 'label_pms_town',
     'label_pms_zusatzinformationen': 'label_pms_zusatzinformationen',
+    'label_pms_anzeige-in-pms-liste': 'label_pms_anzeige-in-pms-liste',
+    'label_pms_pms-liste-top': 'label_pms_pms-liste-top',
+    'label_pms_pms-liste-normal': 'label_pms_pms-liste-normal',
     'label_pms_zusatzname': 'label_pms_zusatzname',
     'label_preis-gefuehrt-seit': 'label_preis-gefuehrt-seit',
     'label_preis-vor-reduktion': 'label_preis-vor-reduktion',
@@ -399,7 +403,6 @@ export const en = {
     'label_preismeldungen': 'label_preismeldungen',
     'label_print_aktion': 'label_print_aktion',
     'label_print_anzahl-code-r': 'label_print_anzahl-code-r',
-    'label_print_ausverkauf': 'label_print_ausverkauf',
     'label_print_chf': 'label_print_chf',
     'label_print_code': 'label_print_code',
     'label_print_menge-vor-reduktion': 'label_print_menge-vor-reduktion',
@@ -457,7 +460,6 @@ export const en = {
     'validation_street_required': 'validation_street_required',
     'validation_surname_required': 'validation_surname_required',
     'validation_town_required': 'validation_town_required',
-    'NEW (#163)': 'NEW (#163)'
 };
 
 export const fr = {
@@ -611,6 +613,9 @@ export const fr = {
     'label_pms_telephone': 'Téléphone',
     'label_pms_town': 'Ville',
     'label_pms_zusatzinformationen': 'Information complémentaire sur le point de vente',
+    'label_pms_anzeige-in-pms-liste': 'Positionnement dans la liste',
+    'label_pms_pms-liste-top': 'prioritaire',
+    'label_pms_pms-liste-normal': 'normal',
     'label_pms_zusatzname': 'Nom complémentaire',
     'label_preis-gefuehrt-seit': 'Relevé depuis',
     'label_preis-vor-reduktion': 'Prix avant réduction',
@@ -630,13 +635,12 @@ export const fr = {
     'label_preismeldungen': 'Prix',
     'label_print_aktion': 'Action',
     'label_print_anzahl-code-r': 'Nombre de code R',
-    'label_print_ausverkauf': 'Solde',
     'label_print_chf': 'CHF',
     'label_print_code': 'Code',
     'label_print_menge-vor-reduktion': 'Quantité avant réduction',
     'label_print_menge': 'Quantité',
     'label_print_pm-id': 'ID-Prix',
-    'label_print_pos': 'Pos.',
+    'label_print_pos': 'EPno/Lfno',
     'label_print_preis-vor-reduktion': 'Prix avant réduction',
     'label_print_preis': 'Prix',
     'label_print_shop': 'Point de vente',
@@ -688,7 +692,6 @@ export const fr = {
     'validation_street_required': 'Veuillez saisir l\'adresse du point de vente',
     'validation_surname_required': 'Veuillez saisir le nom de la personne de contact 1',
     'validation_town_required': 'Veuillez saisir la localité du point de vente',
-    'NEW (#163)': 'Une nouvelle série de prix ne doit pas commencer par un prix en action. Veuillez choisir un autre article. '
 };
 
 export const it = {
@@ -842,6 +845,9 @@ export const it = {
     'label_pms_telephone': 'Telefono',
     'label_pms_town': 'Città',
     'label_pms_zusatzinformationen': 'Informazioni complementari sul punto vendita',
+    'label_pms_anzeige-in-pms-liste': 'Posizione in lista',
+    'label_pms_pms-liste-top': 'prioritario',
+    'label_pms_pms-liste-normal': 'normale',
     'label_pms_zusatzname': 'Nome complementare',
     'label_preis-gefuehrt-seit': 'Rilevato da',
     'label_preis-vor-reduktion': 'Prezzo prima dello sconto',
@@ -861,13 +867,12 @@ export const it = {
     'label_preismeldungen': 'Prezzi',
     'label_print_aktion': 'Azione',
     'label_print_anzahl-code-r': 'Numero di codici R',
-    'label_print_ausverkauf': 'Saldi',
     'label_print_chf': 'CHF',
     'label_print_code': 'Codice',
     'label_print_menge-vor-reduktion': 'Quantità prima dello sconto',
     'label_print_menge': 'Quantità',
     'label_print_pm-id': 'ID-Prezzo',
-    'label_print_pos': 'Pos.',
+    'label_print_pos': 'EPno/Lfno',
     'label_print_preis-vor-reduktion': 'Prezzo prima dello sconto',
     'label_print_preis': 'Prezzo',
     'label_print_shop': 'Punto vendita',
@@ -919,5 +924,4 @@ export const it = {
     'validation_street_required': 'Per favore indicare la via del punto vendita.',
     'validation_surname_required': 'Per favore indicare il nome della persona di contatto 1.',
     'validation_town_required': 'Per favore indicare la città del punto vendita.',
-    'NEW (#163)': 'Una nuova serie di prezzo non deve iniziare con un prezzo in azione. Pregasi scegliere un\'altro articolo.'
 };
