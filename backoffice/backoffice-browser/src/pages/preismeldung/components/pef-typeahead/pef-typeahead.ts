@@ -1,5 +1,5 @@
 import { Component, Input, EventEmitter, OnChanges, SimpleChange, Output } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { ReactiveComponent, pefSearch } from 'lik-shared';
 
@@ -21,7 +21,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     @Input() reset: any;
     @Output('selected') selectedSuggestions$: Observable<TypeaheadData[]>;
 
-    form: FormGroup;
+    filterText = new FormControl();
     filteredSuggestions$: Observable<TypeaheadData[]>;
     selectedIndex$: Observable<number>;
 
@@ -31,7 +31,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     selectSuggestion$ = new EventEmitter<TypeaheadData>();
     removeSuggestion$ = new EventEmitter<TypeaheadData>();
 
-    constructor(private formBuilder: FormBuilder) {
+    constructor() {
         super();
         const arrowKeyNavigation = { 38: -1, 40: 1 };
         const applyKey = 13;
@@ -44,18 +44,14 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
             x => !!x && !!x.length
         );
 
-        this.form = formBuilder.group({
-            typeahead: '',
-        });
-
-        this.selectSuggestion$.merge(reset$).subscribe(x => this.form.patchValue({ typeahead: '' }));
+        this.selectSuggestion$.merge(reset$).subscribe(x => this.filterText.patchValue(''));
 
         const keyDown$ = this.keydown$.publishReplay(1).refCount();
         const keyNavigation$ = keyDown$
             .filter(x => !!arrowKeyNavigation[x.keyCode])
             .do(x => x.preventDefault())
             .map(x => arrowKeyNavigation[x.keyCode] as number);
-        const keyApply$ = keyDown$.filter(x => x.keyCode === applyKey).do(x => x.preventDefault());
+        const keyApply$ = keyDown$.filter(x => x.keyCode === applyKey);
 
         this.selectedSuggestions$ = this.selectSuggestion$
             .map(x => ({ add: true, data: x, reset: false }))
@@ -80,8 +76,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
             .publishReplay(1)
             .refCount();
 
-        this.filteredSuggestions$ = this.form.valueChanges
-            .map(x => x.typeahead)
+        this.filteredSuggestions$ = this.filterText.valueChanges
             .combineLatest(suggestions$, this.selectedSuggestions$)
             .map(([filter, suggestions, selectedSuggestions]) => {
                 return !filter || filter.length < 2
@@ -110,7 +105,12 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
 
         keyApply$
             .withLatestFrom(this.selectedIndex$, this.filteredSuggestions$)
-            .map(([_, i, suggestions]) => suggestions[i])
+            .map(([$event, i, suggestions]) => {
+                if (!!suggestions.length) {
+                    $event.preventDefault();
+                }
+                return suggestions[i];
+            })
             .filter(x => !!x)
             .subscribe(x => this.selectSuggestion$.emit(x));
     }

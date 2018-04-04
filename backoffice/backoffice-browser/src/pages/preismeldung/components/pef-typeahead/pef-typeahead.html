@@ -1,7 +1,7 @@
 <ion-item class="pef-label" *ngIf="!!label">
     <ion-label>{{label}}</ion-label>
 </ion-item>
-<ion-item [formGroup]="form" class="pef-search">
+<ion-item class="pef-search">
     <ion-label item-left>
         <pef-icon name="search"></pef-icon>
     </ion-label>
@@ -9,7 +9,7 @@
         <div class="tags">
             <span *ngFor="let suggestion of selectedSuggestions$ | async" (click)="removeSuggestion$.emit(suggestion)">{{suggestion.shortLabel || suggestion.label}}</span>
         </div>
-        <ion-input item-left type="text" clearInput formControlName="typeahead" (keydown)="keydown$.emit($event)" (focus)="inputFocus$.emit(true)"></ion-input>
+        <ion-input item-left type="text" clearInput [formControl]="filterText" (keydown)="keydown$.emit($event)" (focus)="inputFocus$.emit(true)"></ion-input>
     </div>
     <ion-label item-right>▼</ion-label>
 </ion-item>
