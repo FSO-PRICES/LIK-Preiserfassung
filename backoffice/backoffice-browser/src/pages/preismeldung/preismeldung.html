@@ -1,14 +1,9 @@
 <header pef-menu></header>
 <div class="page-wrapper">
     <div class="page-content">
-        <div class="preismeldung-list-container container">
-            <div class="header">
-                <h1 class="large">Preismeldungen</h1>
-            </div>
-            <preismeldung-list [preismeldungen]="preismeldungen$ | async" [preismeldestellen]="preismeldestellen$ | async" (selectPmsNummer)="selectPreismeldestelleNummer$.emit($event)"
-                (selectPreismeldung)="selectPreismeldung$.emit($event)" (globalFilterTextChanged)="globalFilterTextChanged$.emit($event)"
-                [initialPmsNummer]="initialPmsNummer" [status]="status$ | async" [currentPreismeldung]="currentPreismeldung$ | async"></preismeldung-list>
-        </div>
+        <preismeldung-list [preismeldungen]="preismeldungen$ | async" [preismeldestellen]="preismeldestellen$ | async" [preiserhebers]="preiserhebers$ | async"
+            [erhebungspositions]="erhebungspositions$ | async" [currentPreismeldung]="currentPreismeldung$ | async" [initialFilter]="initialFilter$ | async"
+            [initialPmsNummer]="initialPmsNummer" (filterChanged)="pmsFilterChanged$.emit($event)" (selectPreismeldung)="selectPreismeldung$.emit($event)"></preismeldung-list>
         <div class="preismeldung-detail-container container">
             <preismeldung-toolbar *ngIf="!!(currentPreismeldung$ | async)" [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async"
                 (selectTab)="selectTab$.emit($event)" [isAdminApp]="true" (buttonClicked)="toolbarButtonClicked$.emit($event)">

@@ -20,6 +20,7 @@ import * as fromPreismeldestelle from './preismeldestelle';
 import { fromWarenkorb, fromPreismeldungen } from 'lik-shared';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
+import * as fromFilterOptions from './filter-options';
 
 export interface AppState {
     cockpit: fromCockpit.State;
@@ -36,6 +37,7 @@ export interface AppState {
     preiszuweisungen: fromPreiszuweisung.State;
     settings: fromSetting.State;
     warenkorb: fromWarenkorb.State;
+    filterOptions: fromFilterOptions.State;
 }
 
 const reducers = {
@@ -53,6 +55,7 @@ const reducers = {
     preiszuweisungen: fromPreiszuweisung.reducer,
     settings: fromSetting.reducer,
     warenkorb: fromWarenkorb.reducer,
+    filterOptions: fromFilterOptions.reducer,
 };
 
 const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
@@ -187,4 +190,10 @@ export const getCurrentPreismeldungViewBag = createSelector(
                   isReadonly: isReadonly(),
               };
     }
+);
+
+export const getFilterOptionsState = (state: AppState) => state.filterOptions;
+export const getCurrentPreismeldungListFilter = createSelector(
+    getFilterOptionsState,
+    fromFilterOptions.getCurrentPreismeldungListFilter
 );

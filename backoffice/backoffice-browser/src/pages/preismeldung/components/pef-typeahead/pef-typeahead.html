@@ -1,0 +1,30 @@
+<ion-item class="pef-label" *ngIf="!!label">
+    <ion-label>{{label}}</ion-label>
+</ion-item>
+<ion-item [formGroup]="form" class="pef-search">
+    <ion-label item-left>
+        <pef-icon name="search"></pef-icon>
+    </ion-label>
+    <div item-left class="filter">
+        <div class="tags">
+            <span *ngFor="let suggestion of selectedSuggestions$ | async" (click)="removeSuggestion$.emit(suggestion)">{{suggestion.shortLabel || suggestion.label}}</span>
+        </div>
+        <ion-input item-left type="text" clearInput formControlName="typeahead" (keydown)="keydown$.emit($event)" (focus)="inputFocus$.emit(true)"></ion-input>
+    </div>
+    <ion-label item-right>▼</ion-label>
+</ion-item>
+<div class="dropdown-container">
+    <ion-content pef-perfect-virtualscroll-scrollbar enabled="true" class="suggestions" [class.hidden]="(filteredSuggestions$ | async).length === 0">
+        <ion-list [virtualScroll]="filteredSuggestions$ | async" approxItemHeight="32px">
+            <!-- <ion-item *virtualItem="let suggestion" class="pef-advanced-item">
+            {{suggestion}}
+        </ion-item> -->
+            <ion-item class="pef-advanced-item" *virtualItem="let suggestion; let i = index" (click)="selectSuggestion$.emit(suggestion)"
+                tappable [class.selected]="(selectedIndex$ | async) === i">
+                <div class="pef-item-title">
+                    {{ suggestion.label }}
+                </div>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</div>

@@ -43,7 +43,7 @@ export class PreismeldungEffects {
     loadPreismeldungenForPms$ = this.actions$
         .ofType('PREISMELDUNGEN_LOAD_FOR_PMS')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(({ payload: pmsNummer }) => loadPreismeldungenAndRefPreismeldungForPms(pmsNummer))
+        .flatMap(({ payload: pmsNummer }) => loadPreismeldungenAndRefPreismeldungForPms({ pmsNummers: [pmsNummer] }))
         .withLatestFrom(this.store.select(fromRoot.getWarenkorbState), (x, warenkorb) =>
             assign({ ...x, warenkorb, pmsPreismeldungenSort: null })
         )
@@ -57,11 +57,9 @@ export class PreismeldungEffects {
 
     @Effect()
     loadPreismeldungenForId$ = this.actions$
-        .ofType('PREISMELDUNGEN_LOAD_FOR_ID')
+        .ofType('PREISMELDUNGEN_LOAD_BY_FILTER')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(({ payload: { pmsNummer, epNummer, laufNummer } }) =>
-            loadPreismeldungenAndRefPreismeldungForPms(pmsNummer, epNummer, laufNummer)
-        )
+        .flatMap(({ payload }) => loadPreismeldungenAndRefPreismeldungForPms(payload))
         .withLatestFrom(this.store.select(fromRoot.getWarenkorbState), (x, warenkorb) =>
             assign({ ...x, warenkorb, pmsPreismeldungenSort: null })
         )

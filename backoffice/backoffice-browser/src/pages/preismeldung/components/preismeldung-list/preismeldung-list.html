@@ -1,28 +1,73 @@
-<div class="pef-advanced-item-flex-container">
-    <select (change)="preismeldestelleNummerSelected$.emit($event.target.value)" class="item-md">
-        <option [selected]="!!(resetSelectedPreismeldestelle$ | async)" value="">Preismeldestelle auswählen</option>
-        <option *ngFor="let preismeldestelle of preismeldestellen$ | async" [selected]="(selectedPreismeldestelleNummer$ | async) === preismeldestelle.pmsNummer"
-            [value]="preismeldestelle.pmsNummer">{{preismeldestelle.pmsNummer}}&nbsp;&nbsp;&nbsp;{{preismeldestelle.name}}</option>
-    </select>
-    <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
-    <div *ngIf="!!(status$ | async)">{{ status$ | async }}</div>
-    <ion-content pef-perfect-virtualscroll-scrollbar enabled="true">
-        <ion-list [virtualScroll]="filteredPreismeldungen$ | async" approxItemHeight="50px" [class.hidden]="(filteredPreismeldungen$ | async).length === 0">
-            <ion-item class="pef-advanced-item" *virtualItem="let bag" (click)="selectPreismeldung$.emit(bag)" [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
-                tappable>
-                <div class="pef-item-title">
-                    {{ bag.preismeldung.epNummer }}
-                    <br/>&nbsp;
+<div class="preismeldung-list-container container filter">
+    <div class="header">
+        <h1 class="large">Auswahlkriterien</h1>
+    </div>
+    <div class="pef-advanced-item-flex-container">
+        <form class="stacked-form" (submit)="pmIdSearchApply$.emit()">
+            <h2>Direktsuche (ungefiltert)</h2>
+            <pef-search-input class="pms-search" label="PreisID" [reset]="resetPmIdSearch$ | async" [value]="(initialFilter$ | async).pmIdSearch"
+                (valueChanges)="pmIdSearchChanged$.emit($event)"></pef-search-input>
+        </form>
+
+        <form class="stacked-form">
+            <h2>Filter</h2>
+            <ion-list no-lines>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label stacked>Preisstatus</ion-label>
+                            <div class="input input-md pef-select">
+                                <select class="item-md">
+                                    <option value=""></option>
+                                    <option value="">in Erhebung</option>
+                                    <option value="">in Prüfung</option>
+                                    <option value="">Exportiert</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="pef-item-description">
-                    <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung.de }}</span>
-                    <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
-                </div>
-                <div class="preismeldung-status-done" *ngIf="bag.preismeldung.istAbgebucht">
-                    <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)"></div>
-                    <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
-                </div>
-            </ion-item>
-        </ion-list>
-    </ion-content>
+                <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.preiserheberIds" label="Preiserheber/in"
+                    [suggestions]="suggestionsPreiserheberIds$ | async" (selected)="preiserheberIdsFilter$.emit($event)" [multi]="true"></pef-typeahead>
+                <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.pmsNummers" label="PMS" [suggestions]="suggestionsPmsNummers$ | async"
+                    (selected)="pmsNummerFilter$.emit($event)"></pef-typeahead>
+                <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.epNummers" label="Erhebungsposition"
+                    [suggestions]="suggestionsEpNummers$ | async" (selected)="epNummersFilter$.emit($event)" [multi]="true"></pef-typeahead>
+                <button type="submit" ion-button (click)="applyClicked$.emit()" [disabled]="!(canSearch$ | async)">anwenden</button>
+                <button ion-button (click)="resetFilterClicked$.emit($event)">zurücksetzen</button>
+            </ion-list>
+            <h2>Suche in Auswahl (gefiltert)</h2>
+            <pef-search-input label="Volltext" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
+        </form>
+    </div>
+</div>
+<div class="preismeldung-list-container container" *ngIf="filteredPreismeldungen$ | async">
+    <div class="header">
+        <h1 class="large">
+            <span>Preismeldungen</span>
+            <span>({{(filteredPreismeldungen$ | async).length}})</span>
+        </h1>
+    </div>
+    <div class="pef-advanced-item-flex-container">
+        <div *ngIf="!!(status$ | async)">{{ status$ | async }}</div>
+        <ion-content pef-perfect-virtualscroll-scrollbar enabled="true">
+            <ion-list [virtualScroll]="filteredPreismeldungen$ | async" approxItemHeight="50px" [class.hidden]="(filteredPreismeldungen$ | async).length === 0">
+                <ion-item class="pef-advanced-item" *virtualItem="let bag" (click)="selectPreismeldung$.emit(bag)" [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
+                    tappable>
+                    <div class="pef-item-title">
+                        {{ bag.preismeldung.epNummer }}
+                        <br/>&nbsp;
+                    </div>
+                    <div class="pef-item-description">
+                        <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung.de }}</span>
+                        <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
+                    </div>
+                    <div class="preismeldung-status-done" *ngIf="bag.preismeldung.istAbgebucht">
+                        <div class="code" [innerHTML]="bag.preismeldung.bearbeitungscode == 99 ? '&nbsp;' : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)"></div>
+                        <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
+                    </div>
+                </ion-item>
+            </ion-list>
+        </ion-content>
+    </div>
 </div>

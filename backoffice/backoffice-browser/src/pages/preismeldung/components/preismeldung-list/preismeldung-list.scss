@@ -1,4 +1,38 @@
 .ion-page preismeldung-list {
+    .preismeldung-list-container {
+        flex: 1 1;
+        display: flex;
+        flex-direction: column;
+        @include set-margin(0, 0.5, 0, 0);
+        @include set-padding(1, 1, 1, 1);
+
+        .header h1 {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            span + span {
+                flex: 0 1;
+            }
+        }
+
+        h2 {
+            margin: 0;
+            margin-top: 8px;
+        }
+        h2:first {
+            margin-top: 0;
+        }
+
+        .stacked-form {
+            select {
+                box-shadow: none;
+            }
+            ion-input {
+                padding: 0;
+                border-bottom: none;
+            }
+        }
+    }
     select.item-md {
         width: 100%;
         @include set-margin-bottom(1.25);

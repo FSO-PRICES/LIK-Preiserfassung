@@ -1,59 +1,121 @@
-import { Component, EventEmitter, Output, SimpleChange, Input, OnChanges, OnDestroy } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Output,
+    SimpleChange,
+    Input,
+    OnChanges,
+    OnDestroy,
+    ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { ReactiveComponent, pefSearch, formatPercentageChange, PreismeldungIdentifierPayload } from 'lik-shared';
+import { first } from 'lodash';
+
+import { ReactiveComponent, pefSearch, PmsFilter, formatPercentageChange } from 'lik-shared';
 
 import * as P from '../../../../common-models';
+import { TypeaheadData } from '../pef-typeahead/pef-typeahead';
 
 @Component({
     selector: 'preismeldung-list',
     templateUrl: 'preismeldung-list.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldungen: P.PreismeldungBag[];
+    @Input() preiserhebers: P.Models.Erheber[];
     @Input() preismeldestellen: P.Models.Preismeldestelle[];
+    @Input() erhebungspositions: any[];
     @Input() currentPreismeldung: P.PreismeldungBag;
-    @Input() status: string;
-    @Input() initialPmsNummer: string | null;
-    @Output('selectPmsNummer') public preismeldestelleNummerSelected$ = new EventEmitter<string>();
+    @Input() initialPmsNummer: string;
+    @Input() initialFilter: PmsFilter;
+    @Output('filterChanged') public filterChanged$: Observable<PmsFilter>;
+    @Output('applyFilter') public applyFilter$: Observable<PmsFilter>;
     @Output('selectPreismeldung') public selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
-    @Output('globalFilterTextChanged') public globalFilterTextValueChanged$: Observable<PreismeldungIdentifierPayload>;
 
-    public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer');
+    public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer').filter(x => !!x);
+    public initialFilter$: Observable<{ [p in keyof PmsFilter]: string[] }> = this.observePropertyCurrentValue<
+        PmsFilter
+    >('initialFilter')
+        .map(x => (this.initialPmsNummer ? { pmsNummers: [this.initialPmsNummer] } : x))
+        .publishReplay(1)
+        .refCount();
     public preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
+    public preiserhebers$ = this.observePropertyCurrentValue<P.Models.Erheber[]>('preiserhebers');
     public preismeldestellen$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle[]>('preismeldestellen');
+    public erhebungspositions$ = this.observePropertyCurrentValue<P.Models.WarenkorbLeaf[]>('erhebungspositions');
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('currentPreismeldung');
-    public status$ = this.observePropertyCurrentValue<string>('status');
 
+    public applyClicked$ = new EventEmitter();
+    public resetFilterClicked$ = new EventEmitter();
+    public resetFilter$: Observable<any>;
+    public resetPmIdSearch$: Observable<any>;
+
+    public pmIdSearchChanged$ = new EventEmitter<string>();
+    public pmIdSearchApply$ = new EventEmitter<string>();
     public filterTextValueChanges$ = new EventEmitter<string>();
+    public preiserheberIdsFilter$ = new EventEmitter<TypeaheadData[]>();
+    public pmsNummerFilter$ = new EventEmitter<TypeaheadData[]>();
+    public epNummersFilter$ = new EventEmitter<TypeaheadData[]>();
 
-    public selectedPreismeldestelleNummer$: Observable<string>;
-    public resetSelectedPreismeldestelle$: Observable<boolean>;
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public viewPortItems: P.PreismeldungBag[];
+    public canSearch$: Observable<boolean>;
+    public suggestionsEpNummers$: Observable<TypeaheadData[]>;
+    public suggestionsPmsNummers$: Observable<TypeaheadData[]>;
+    public suggestionsPreiserheberIds$: Observable<TypeaheadData[]>;
 
     private onDestroy$ = new EventEmitter();
 
     constructor(private formBuilder: FormBuilder) {
         super();
 
-        this.selectedPreismeldestelleNummer$ = this.preismeldestelleNummerSelected$
-            .asObservable()
-            .startWith(null)
+        const currentFilter$: Observable<PmsFilter> = this.preiserheberIdsFilter$
+            .map(p => p.map(x => x.value))
+            .combineLatest(
+                this.epNummersFilter$.map(e => e.map(x => x.value)),
+                this.pmsNummerFilter$.map(x => first(x.map(p => p.value))),
+                (preiserheberIds, epNummers, pmsNummer) => ({ preiserheberIds, epNummers, pmsNummer })
+            )
+            .startWith({})
             .publishReplay(1)
             .refCount();
 
-        this.globalFilterTextValueChanged$ = this.filterTextValueChanges$
-            .debounceTime(300)
-            .map(filter => matchesIdSearch(filter))
-            .withLatestFrom(this.selectedPreismeldestelleNummer$)
-            .filter(([filter, selectedPms]) => !selectedPms || (!!selectedPms && !!filter))
-            .map(([filter, _]) => filter)
-            .merge(this.selectedPreismeldestelleNummer$.filter(x => !!x).mapTo(null));
+        const pmIdSearchChanged$ = this.pmIdSearchChanged$.publishReplay(1).refCount();
+        const pmIdSearch$ = this.pmIdSearchApply$
+            .asObservable()
+            .withLatestFrom(pmIdSearchChanged$, (_, pmIdSearch) => pmIdSearch);
+
+        const filter$: Observable<Partial<PmsFilter>> = pmIdSearch$
+            .map(pmIdSearch => ({ pmIdSearch }))
+            .merge(currentFilter$)
+            .publishReplay(1)
+            .refCount();
+
+        this.canSearch$ = filter$
+            .map(
+                x =>
+                    (x.preiserheberIds && !!x.preiserheberIds.length) ||
+                    (x.epNummers && !!x.epNummers.length) ||
+                    (x.pmsNummers && !!x.pmsNummers.length)
+            )
+            .startWith(false)
+            .publishReplay(1)
+            .refCount();
+
+        this.filterChanged$ = this.applyClicked$
+            .merge(pmIdSearch$)
+            .withLatestFrom(filter$, (_, filter) => filter)
+            .merge(this.initialPmsNummer$.map(x => ({ pmsNummers: [x] })), this.initialFilter$)
+            .publishReplay(1)
+            .refCount();
+        this.resetFilter$ = this.resetFilterClicked$.merge(pmIdSearch$).map(() => ({}));
+        this.resetPmIdSearch$ = this.resetFilterClicked$.merge(this.applyClicked$).map(() => ({}));
 
         this.filteredPreismeldungen$ = this.preismeldungen$
-            .withLatestFrom(this.globalFilterTextValueChanged$.startWith(null))
+            .withLatestFrom(this.filterTextValueChanges$.startWith(null))
             .combineLatest(
                 this.filterTextValueChanges$.startWith(null),
                 ([preismeldungen, globalFilterText], filterText) => {
@@ -70,25 +132,40 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .debounceTime(300)
             .startWith([]);
 
-        this.resetSelectedPreismeldestelle$ = this.globalFilterTextValueChanged$
+        this.suggestionsPreiserheberIds$ = this.preiserhebers$
             .filter(x => !!x)
-            .withLatestFrom(this.selectedPreismeldestelleNummer$)
-            .filter(([_, selectedPms]) => !!selectedPms)
-            // Emit objects to bypass distincUntilChanged which seem to be used in "| async" or "[selected]"
-            .map(x => ({}))
-            .startWith({})
+            .map(x =>
+                x.map(p => ({
+                    shortLabel: `${p.surname.substr(1, 1)}. ${p.firstName}`,
+                    label: `${p.surname} ${p.firstName}`,
+                    value: p._id,
+                }))
+            )
             .publishReplay(1)
             .refCount();
 
-        // The change of directly selecting the default option is not being catched by "(change)", setting it with [value] also doesn't trigger the change
-        this.resetSelectedPreismeldestelle$
-            .takeUntil(this.onDestroy$)
-            .subscribe(x => this.preismeldestelleNummerSelected$.emit(''));
-
-        this.initialPmsNummer$
+        this.suggestionsPmsNummers$ = this.preismeldestellen$
             .filter(x => !!x)
-            .takeUntil(this.onDestroy$)
-            .subscribe(x => this.preismeldestelleNummerSelected$.emit(x));
+            .map(x =>
+                x.map(pms => ({
+                    label: `${pms.pmsNummer} ${pms.name}`,
+                    value: pms.pmsNummer,
+                }))
+            )
+            .publishReplay(1)
+            .refCount();
+
+        this.suggestionsEpNummers$ = this.erhebungspositions$
+            .filter(x => !!x)
+            .map(x =>
+                x.map(ep => ({
+                    shortLabel: ep.gliederungspositionsnummer,
+                    label: `${ep.gliederungspositionsnummer} ${ep.positionsbezeichnung.de}`,
+                    value: ep.gliederungspositionsnummer,
+                }))
+            )
+            .publishReplay(1)
+            .refCount();
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -110,13 +187,4 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     getBearbeitungscodeDescription(bearbeitungscode: P.Models.Bearbeitungscode) {
         return P.Models.bearbeitungscodeDescriptions[bearbeitungscode];
     }
-}
-
-function matchesIdSearch(filterText: string): PreismeldungIdentifierPayload {
-    const idsRegex = /^([0-9]+?)\/(([0-9]*?)(\/([0-9]*?))?)$/;
-    if (!idsRegex.test(filterText)) {
-        return null;
-    }
-    const [, pmsNummer, , epNummer, , laufNummer] = filterText.match(idsRegex);
-    return { pmsNummer, epNummer, laufNummer };
 }

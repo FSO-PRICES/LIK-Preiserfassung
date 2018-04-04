@@ -1,16 +1,32 @@
 pef-search-input {
-    ion-item.item-md {
-        height: 3em;
-        border-radius: 2px;
-        box-shadow: 0 0 2px 0 rgba(0,0,0,0.12), 0 2px 2px 0 rgba(0,0,0,0.24);
+    .pef-label {
+        background-color: transparent;
+        padding-left: 8px;
+        min-height: auto;
+        ion-label {
+            font-weight: 500;
+            color: $oslo-gray;
+            line-height: 1.75em;
+            margin-bottom: 0;
+        }
     }
-    .item-md.item-block .item-inner {
-        border-bottom-width: 0;
-    }
-    .item-md.item-input.input-has-focus .item-inner {
-        box-shadow: none;
-    }
-    pef-icon {
-        width: 2em;
+    .pef-search {
+        &ion-item.item-md {
+            height: 3em;
+            border-radius: 2px;
+            box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.24);
+        }
+        &.item-md.item-block .item-inner {
+            border-bottom-width: 0;
+        }
+        &.item-md.item-input.input-has-focus .item-inner {
+            box-shadow: none;
+        }
+        button {
+            background-color: transparent;
+        }
+        & pef-icon {
+            width: 2em;
+        }
     }
 }

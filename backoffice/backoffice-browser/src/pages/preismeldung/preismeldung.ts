@@ -10,12 +10,13 @@ import {
     DialogCancelEditComponent,
     PreismeldungAction,
     preismeldestelleId,
-    PreismeldungIdentifierPayload,
+    PmsFilter,
 } from 'lik-shared';
 import * as P from '../../common-models';
 
 import * as fromRoot from '../../reducers';
 import * as preismeldestelle from '../../actions/preismeldestelle';
+import * as filterOptions from '../../actions/filter-options';
 
 @IonicPage({
     segment: 'pm',
@@ -39,7 +40,11 @@ export class PreismeldungPage {
                 ['desc', 'asc', 'asc']
             )
         );
+    public preiserhebers$ = this.store.select(fromRoot.getPreiserhebers);
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
+    public erhebungspositions$ = this.store
+        .select(fromRoot.getWarenkorbState)
+        .map(x => x.filter(w => w.warenkorbItem.type === 'LEAF').map(w => w.warenkorbItem as P.Models.WarenkorbLeaf));
     public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
     public status$ = this.store.select(fromRoot.getPreismeldungenStatus);
     public currentPreismeldung$ = this.store
@@ -53,8 +58,7 @@ export class PreismeldungPage {
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     public resetPreismeldung$ = new EventEmitter();
 
-    public selectPreismeldestelleNummer$ = new EventEmitter<string>();
-    public globalFilterTextChanged$ = new EventEmitter<PreismeldungIdentifierPayload>();
+    public globalFilterTextChanged$ = new EventEmitter<PmsFilter>();
 
     public preismeldestelle$ = this.store
         .select(fromRoot.getPreismeldungenCurrentPmsNummer)
@@ -66,6 +70,7 @@ export class PreismeldungPage {
         .refCount();
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
 
+    public pmsFilterChanged$ = new EventEmitter<PmsFilter>();
     public duplicatePreismeldung$ = new EventEmitter();
     public requestSelectNextPreismeldung$ = new EventEmitter();
     public requestThrowChanges$ = new EventEmitter();
@@ -74,9 +79,10 @@ export class PreismeldungPage {
     public requestPreismeldungQuickEqual$: Observable<{}>;
     public kommentarClearClicked$ = new EventEmitter<{}>();
 
+    public initialPmsNummer: string;
     public selectTab$ = new EventEmitter<string>();
     public selectedTab$: Observable<string>;
-    public initialPmsNummer: string;
+    public initialFilter$: Observable<PmsFilter>;
 
     private ionViewDidLeave$ = new Subject();
 
@@ -90,7 +96,8 @@ export class PreismeldungPage {
         );
 
         this.initialPmsNummer = this.navParams.get('pmsNummer');
-        console.log('initial', this.initialPmsNummer);
+
+        this.initialFilter$ = this.store.select(fromRoot.getCurrentPreismeldungListFilter).take(1);
 
         this.selectedTab$ = this.selectTab$
             .merge(
@@ -108,12 +115,13 @@ export class PreismeldungPage {
             .refCount();
 
         const createTabLeaveObservable = (tabName: string) =>
-            tabPair$.filter(x => x.from === tabName).merge(
-                this.selectPreismeldung$
-                    .merge(this.selectPreismeldestelleNummer$)
-                    .withLatestFrom(tabPair$, (_, tabPair) => tabPair)
-                    .filter(x => x.to === tabName)
-            );
+            tabPair$
+                .filter(x => x.from === tabName)
+                .merge(
+                    this.selectPreismeldung$
+                        .withLatestFrom(tabPair$, (_, tabPair) => tabPair)
+                        .filter(x => x.to === tabName)
+                );
 
         this.requestPreismeldungQuickEqual$ = this.toolbarButtonClicked$
             .filter(x => x === 'PREISMELDUNG_QUICK_EQUAL')
@@ -123,28 +131,19 @@ export class PreismeldungPage {
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_PRICE', payload }));
 
-        this.selectPreismeldestelleNummer$
-            .merge(this.globalFilterTextChanged$)
-            .filter(x => !x)
+        this.pmsFilterChanged$
+            .filter(x => !!x)
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(x => {
-                this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
+                this.store.dispatch({ type: 'UPDATE_PREISMELDUNG_LIST_FILTER', payload: x } as filterOptions.Action);
             });
 
-        this.selectPreismeldestelleNummer$
+        this.pmsFilterChanged$
             .filter(x => !!x)
-            .delay(200)
             .takeUntil(this.ionViewDidLeave$)
-            .subscribe(pmsNummer => {
-                this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_PMS', payload: pmsNummer } as PreismeldungAction);
+            .subscribe(x => {
+                this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_BY_FILTER', payload: x } as PreismeldungAction);
             });
-
-        this.globalFilterTextChanged$
-            .filter(x => !!x)
-            .takeUntil(this.ionViewDidLeave$)
-            .subscribe(x =>
-                this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_FOR_ID', payload: x } as PreismeldungAction)
-            );
 
         const requestSelectPreismeldung$ = this.selectPreismeldung$.withLatestFrom(
             this.currentPreismeldung$.startWith(null),
@@ -226,6 +225,8 @@ export class PreismeldungPage {
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as preismeldestelle.Action);
+        this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
+        this.store.dispatch({ type: 'LOAD_WARENKORB' });
     }
 
     public ionViewDidLeave() {

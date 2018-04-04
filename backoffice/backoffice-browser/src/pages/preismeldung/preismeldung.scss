@@ -18,23 +18,9 @@ preismeldung-by-pms {
         }
     }
 
-    .preismeldung-list-container {
-        flex: 1 1;
-        display: flex;
-        flex-direction: column;
-        @include set-margin(0, 0.5, 0, 0);
-        @include set-padding(1, 1, 1, 1);
-    }
-
     preismeldung-list {
         display: flex;
-        flex: 1 0 0;
-        ion-grid {
-            padding: 0;
-        }
-        ion-row:last-child .item {
-            padding-bottom: 10px;
-        }
+        flex: 2 0 0;
     }
 
     preismeldung-toolbar {
