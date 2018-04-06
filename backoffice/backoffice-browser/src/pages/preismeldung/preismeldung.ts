@@ -2,7 +2,7 @@ import { Component, EventEmitter, ChangeDetectionStrategy } from '@angular/core'
 import { Store } from '@ngrx/store';
 import { IonicPage, NavParams } from 'ionic-angular';
 import { Observable, Subject } from 'rxjs';
-import { orderBy } from 'lodash';
+import { first, orderBy } from 'lodash';
 import * as moment from 'moment';
 
 import {
@@ -40,6 +40,7 @@ export class PreismeldungPage {
                 ['desc', 'asc', 'asc']
             )
         );
+    public preiszuweisungen$ = this.store.select(fromRoot.getPreiszuweisungen);
     public preiserhebers$ = this.store.select(fromRoot.getPreiserhebers);
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
     public erhebungspositions$ = this.store
@@ -62,14 +63,32 @@ export class PreismeldungPage {
 
     public globalFilterTextChanged$ = new EventEmitter<PmsFilter>();
 
-    public preismeldestelle$ = this.store
-        .select(fromRoot.getPreismeldungenCurrentPmsNummer)
+    public preismeldestelle$ = this.currentPreismeldung$
+        .filter(x => !!x.preismeldung)
         .withLatestFrom(
             this.store.select(fromRoot.getPreismeldestelleState),
-            (pmsNummer, state) => state.entities[preismeldestelleId(pmsNummer)]
+            (bag, state) => state.entities[preismeldestelleId(bag.preismeldung.pmsNummer)]
         )
         .publishReplay(1)
         .refCount();
+    public preiserheber$ = this.currentPreismeldung$
+        .filter(x => !!x.preismeldung)
+        .withLatestFrom(this.preiserhebers$, this.preiszuweisungen$)
+        .map(([pm, preiserhebers, preiszuweisungen]) =>
+            first(
+                preiserhebers.filter(pe =>
+                    preiszuweisungen
+                        .filter(x =>
+                            x.preismeldestellenNummern.some(pmsNummer => pmsNummer === pm.preismeldung.pmsNummer)
+                        )
+                        .map(x => x.preiserheberId)
+                        .some(peId => peId === pe._id)
+                )
+            )
+        )
+        .publishReplay(1)
+        .refCount();
+
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
 
     public pmsFilterChanged$ = new EventEmitter<PmsFilter>();
@@ -228,6 +247,7 @@ export class PreismeldungPage {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' } as preismeldestelle.Action);
         this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
+        this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' });
         this.store.dispatch({ type: 'LOAD_WARENKORB' });
     }
 

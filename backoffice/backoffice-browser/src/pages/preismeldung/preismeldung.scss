@@ -10,11 +10,17 @@ preismeldung-by-pms {
 
     .tab-container {
         flex: 1;
+        flex-direction: column;
         margin-left: 20px;
         display: flex;
         background-color: $mercury;
         > * {
             flex: 1;
+        }
+        .pe-details {
+            flex: 0 0;
+            align-self: flex-end;
+            @include set-padding(0, 1, 1, 0);
         }
     }
 

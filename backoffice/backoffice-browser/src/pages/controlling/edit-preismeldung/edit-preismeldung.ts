@@ -11,6 +11,8 @@ import * as P from '../../../common-models';
 export class EditPreismeldungComponent extends ReactiveComponent implements OnChanges {
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
     @Input() warenkorb: P.fromWarenkorb.WarenkorbInfo[];
+    @Input() preismeldestelle: P.Models.Preismeldestelle;
+    @Input() preiserheber: P.Models.Erheber;
     @Output('updatePreismeldungPreis') updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     @Output('updatePreismeldungMessages')
     updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();

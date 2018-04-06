@@ -97,8 +97,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const status = !action.payload.pms
                 ? 'Preismeldestelle nicht zugewiesen.'
                 : !action.payload.preismeldungen.length
-                  ? 'Preismeldungen noch nicht von der Preiserheber App synchronsiert.'
-                  : null;
+                    ? 'Preismeldungen noch nicht von der Preiserheber App synchronsiert.'
+                    : null;
 
             const preismeldungIds = !!payload.pmsPreismeldungenSort
                 ? sortBy(preismeldungBags, x => x.sortierungsnummer).map(x => x.pmId)
@@ -144,8 +144,40 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 entities: !!entity ? { [entity.pmId]: entity } : {},
                 preismeldungIds: [],
                 pmsNummer: null,
-                priceCountStatuses: {},
             };
+        }
+
+        case 'UPDATE_PRICE_COUNT_STATUSES': {
+            const { payload } = action;
+
+            const preismeldungBags = payload.preismeldungen.map<P.PreismeldungBag>(preismeldung => {
+                const warenkorbPosition = payload.warenkorb.find(
+                    p => p.warenkorbItem.gliederungspositionsnummer === preismeldung.epNummer
+                ).warenkorbItem as P.Models.WarenkorbLeaf;
+                return assign(
+                    {},
+                    {
+                        pmId: preismeldung._id,
+                        preismeldung,
+                        refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
+                        sortierungsnummer: !!payload.pmsPreismeldungenSort
+                            ? payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
+                                  .sortierungsnummer
+                            : null,
+                        warenkorbPosition,
+                        exported: payload.alreadyExported.some(id => id === preismeldung._id),
+                    }
+                );
+            });
+            const entities = preismeldungBags.reduce(
+                (agg: { [_id: string]: P.PreismeldungBag }, preismeldungBag: P.PreismeldungBag) =>
+                    assign(agg, { [preismeldungBag.pmId]: preismeldungBag }),
+                {}
+            );
+            const priceCountStatuses = createPriceCountStatuses(entities);
+            return assign({}, state, {
+                priceCountStatuses,
+            });
         }
 
         case 'UPDATE_PREISMELDUNG_PRICE': {
@@ -497,8 +529,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const sortierungsnummer =
                 preismeldungen.length === 0
                     ? allPreismeldungen.length !== 0
-                      ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
-                      : 1
+                        ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
+                        : 1
                     : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
             const priceCountStatus =
                 state.priceCountStatuses[action.payload.warenkorbPosition.gliederungspositionsnummer];

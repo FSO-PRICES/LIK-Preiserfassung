@@ -24,7 +24,7 @@ import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import * as fromRoot from '../reducers';
 
-import { Models as P, PreismeldungBag, preismeldungRefId, preismeldungId } from 'lik-shared';
+import { Models as P, PreismeldungBag, preismeldungRefId, preismeldungId, PreismeldungAction } from 'lik-shared';
 
 @Injectable()
 export class ControllingEffects {
@@ -48,11 +48,16 @@ export class ControllingEffects {
     runControlling$ = this.actions$
         .ofType(controlling.RUN_CONTROLLING)
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .withLatestFrom(this.store.select(fromRoot.getControllingRawCachedData), (action, rawCachedData) => ({
-            controllingType: action.payload,
-            rawCachedData,
-        }))
-        .flatMap(({ controllingType, rawCachedData }) =>
+        .withLatestFrom(
+            this.store.select(fromRoot.getControllingRawCachedData),
+            this.store.select(fromRoot.getWarenkorbState),
+            (action, rawCachedData, warenkorb) => ({
+                controllingType: action.payload,
+                rawCachedData,
+                warenkorb,
+            })
+        )
+        .flatMap(({ controllingType, rawCachedData, warenkorb }) =>
             Observable.concat(
                 Observable.of(controlling.createRunControllingExecutingAction()),
                 Observable.if(
@@ -62,7 +67,10 @@ export class ControllingEffects {
                         controllingType,
                         data,
                     }))
-                ).map(x => controlling.createRunControllingDataReadyAction(x.controllingType, x.data))
+                ).concatMap(x => [
+                    { type: 'UPDATE_PRICE_COUNT_STATUSES', payload: { ...x.data, warenkorb } } as PreismeldungAction,
+                    controlling.createRunControllingDataReadyAction(x.controllingType, x.data),
+                ])
             )
         );
 
@@ -174,6 +182,7 @@ async function loadDataForControlling() {
         preismeldestellen,
         preiserheber,
         warenkorb,
+        alreadyExported,
         preiszuweisungen,
     };
 }

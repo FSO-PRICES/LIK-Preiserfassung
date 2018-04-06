@@ -21,6 +21,16 @@ export interface PreismeldungMessagesPayload {
     bemerkungen: string;
 }
 
+export interface PreismeldungenLoadPayload {
+    isAdminApp?: boolean;
+    warenkorb: P.WarenkorbInfo[];
+    refPreismeldungen: P.Models.PreismeldungReference[];
+    preismeldungen: P.Models.Preismeldung[];
+    pmsPreismeldungenSort?: P.Models.PmsPreismeldungenSort;
+    pms?: P.Models.Preismeldestelle;
+    alreadyExported: string[];
+}
+
 export interface PmsFilter {
     pmsNummers: string[];
     preiserheberIds: string[];
@@ -83,17 +93,10 @@ export type PreismeldungAction =
     | { type: 'PREISMELDUNGEN_LOAD_BY_FILTER'; payload: PmsFilter }
     | {
           type: 'PREISMELDUNGEN_LOAD_SUCCESS';
-          payload: {
-              isAdminApp: boolean;
-              warenkorb: P.WarenkorbInfo[];
-              refPreismeldungen: P.Models.PreismeldungReference[];
-              preismeldungen: P.Models.Preismeldung[];
-              pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort;
-              pms: P.Models.Preismeldestelle;
-              alreadyExported: string[];
-          };
+          payload: PreismeldungenLoadPayload;
       }
     | { type: 'PREISMELDUNGEN_RESET'; payload: null }
+    | { type: 'UPDATE_PRICE_COUNT_STATUSES'; payload: PreismeldungenLoadPayload }
     | { type: 'SELECT_PREISMELDUNG'; payload: string }
     | { type: 'UPDATE_PREISMELDUNG_PRICE'; payload: PreismeldungPricePayload }
     | { type: 'UPDATE_PREISMELDUNG_MESSAGES'; payload: PreismeldungMessagesPayload }

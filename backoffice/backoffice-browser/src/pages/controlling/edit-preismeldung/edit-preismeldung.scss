@@ -1,4 +1,4 @@
-@import "../../../theme/imports.scss";
+@import '../../../theme/imports.scss';
 
 edit-preismeldung {
     display: flex;
@@ -21,7 +21,6 @@ edit-preismeldung {
     .edit-wrapper {
         flex: 1;
         display: flex;
-
     }
 
     preismeldung-toolbar {
@@ -38,6 +37,11 @@ edit-preismeldung {
 
         > * {
             flex: 1;
+        }
+        .pe-details {
+            flex: 0 0;
+            align-self: flex-end;
+            @include set-padding(0, 1, 1, 0);
         }
     }
 

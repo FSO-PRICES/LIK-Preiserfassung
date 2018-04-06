@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
+import { first } from 'lodash';
 
 import * as P from 'lik-shared';
 
@@ -24,10 +25,41 @@ export class ControllingPage implements OnDestroy {
     public runControllingReport$ = new EventEmitter<controlling.CONTROLLING_TYPE>();
     public controllingReportData$ = this.store.select(fromRoot.getControllingReportData);
     public controllingReportExecuting$ = this.store.select(fromRoot.getControllingReportExecuting);
-    public currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
+    public currentPreismeldung$ = this.store
+        .select(fromRoot.getCurrentPreismeldungViewBag)
+        .publishReplay(1)
+        .refCount();
     public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
+    public preiszuweisungen$ = this.store.select(fromRoot.getPreiszuweisungen);
+    public preiserhebers$ = this.store.select(fromRoot.getPreiserhebers);
 
     public editPreismeldungId$ = new EventEmitter<string>();
+
+    public preismeldestelle$ = this.currentPreismeldung$
+        .filter(x => !!x)
+        .withLatestFrom(
+            this.store.select(fromRoot.getPreismeldestelleState),
+            (bag, state) => state.entities[P.preismeldestelleId(bag.preismeldung.pmsNummer)]
+        )
+        .publishReplay(1)
+        .refCount();
+    public preiserheber$ = this.currentPreismeldung$
+        .filter(x => !!x)
+        .withLatestFrom(this.preiserhebers$, this.preiszuweisungen$)
+        .map(([pm, preiserhebers, preiszuweisungen]) =>
+            first(
+                preiserhebers.filter(pe =>
+                    preiszuweisungen
+                        .filter(x =>
+                            x.preismeldestellenNummern.some(pmsNummer => pmsNummer === pm.preismeldung.pmsNummer)
+                        )
+                        .map(x => x.preiserheberId)
+                        .some(peId => peId === pe._id)
+                )
+            )
+        )
+        .publishReplay(1)
+        .refCount();
 
     public updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
@@ -131,6 +163,9 @@ export class ControllingPage implements OnDestroy {
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'RUN_PRE-CONTROLLING_TASKS' });
+        this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
+        this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
+        this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' });
         this.store.dispatch(controlling.createClearControllingAction());
     }
 

@@ -1,4 +1,4 @@
-@import "../../../../styles/imports.scss";
+@import '../../../../styles/imports.scss';
 
 preismeldung-price {
     display: flex;
@@ -27,6 +27,10 @@ preismeldung-price {
         align-items: center;
     }
 
+    .pms-heading {
+        font-size: 1.25em;
+    }
+    .pms-heading,
     .product-heading {
         white-space: wrap;
         line-height: 1.25em;
@@ -66,18 +70,20 @@ preismeldung-price {
     .duplicate {
         .background-plus {
             fill: $scooter;
-         }
-         .foreground-plus {
-             fill: $blue-chill;
-         }
-         &:hover:not(.disable-hover) {
-             .foreground-plus, .background-plus {
-                 fill: white;
-             }
-         }
+        }
+        .foreground-plus {
+            fill: $blue-chill;
+        }
+        &:hover:not(.disable-hover) {
+            .foreground-plus,
+            .background-plus {
+                fill: white;
+            }
+        }
     }
 
-    ion-input[type="text"], ion-input[type="number"] {
+    ion-input[type='text'],
+    ion-input[type='number'] {
         font-size: 1.25em;
         font-weight: 500;
     }
@@ -102,7 +108,8 @@ preismeldung-price {
             display: flex;
         }
 
-        h4, h5 {
+        h4,
+        h5 {
             margin-bottom: 0.5em;
         }
     }
@@ -233,7 +240,8 @@ preismeldung-price {
                 }
             }
 
-            .code-button-list, bearbeitungs-type {
+            .code-button-list,
+            bearbeitungs-type {
                 @include set-padding-top(0.5);
             }
 
@@ -263,7 +271,6 @@ preismeldung-price {
                     margin-left: 0.7em;
                     margin-right: 0;
                 }
-
             }
         }
 
@@ -279,7 +286,8 @@ preismeldung-price {
 
     .last-period {
         z-index: 1;
-        .last-period-price, .last-period-quantity {
+        .last-period-price,
+        .last-period-quantity {
             display: flex;
             justify-content: flex-end;
             font-weight: 500;
@@ -317,7 +325,6 @@ preismeldung-price {
         .box-container {
             flex-direction: column;
         }
-
     }
 
     .product-detail-row.row-3 {
@@ -355,7 +362,8 @@ preismeldung-price {
             line-height: 3.6rem;
             padding-right: 2em;
         }
-        .save-button, .next-button {
+        .save-button,
+        .next-button {
             margin-top: 0;
         }
     }
