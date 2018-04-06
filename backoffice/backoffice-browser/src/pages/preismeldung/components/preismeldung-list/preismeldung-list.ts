@@ -46,7 +46,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public preiserhebers$ = this.observePropertyCurrentValue<P.Models.Erheber[]>('preiserhebers');
     public preismeldestellen$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle[]>('preismeldestellen');
     public erhebungspositions$ = this.observePropertyCurrentValue<P.Models.WarenkorbLeaf[]>('erhebungspositions');
-    public currentPreismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('currentPreismeldung');
+    public currentPreismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('currentPreismeldung')
+        .publishReplay(1)
+        .refCount();
 
     public applyClicked$ = new EventEmitter();
     public resetFilterClicked$ = new EventEmitter();
@@ -108,13 +110,15 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.filterChanged$ = this.applyClicked$
             .merge(pmIdSearch$)
             .withLatestFrom(filter$, (_, filter) => filter)
-            .merge(this.initialPmsNummer$.map(x => ({ pmsNummers: [x] })), this.initialFilter$)
+            .merge(this.initialPmsNummer$.map(x => ({ pmsNummers: [x] })))
             .publishReplay(1)
             .refCount();
         this.resetFilter$ = this.resetFilterClicked$.merge(pmIdSearch$).map(() => ({}));
         this.resetPmIdSearch$ = this.resetFilterClicked$.merge(this.applyClicked$).map(() => ({}));
 
         this.filteredPreismeldungen$ = this.preismeldungen$
+            // Wait for the latest value of currentPreismeldung (null | x) otherwise the ngFor renders with outdated data and does not refresh.
+            .flatMap(x => this.currentPreismeldung$.take(1).mapTo(x))
             .withLatestFrom(this.filterTextValueChanges$.startWith(null))
             .combineLatest(
                 this.filterTextValueChanges$.startWith(null),

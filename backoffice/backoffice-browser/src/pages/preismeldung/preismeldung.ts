@@ -49,6 +49,8 @@ export class PreismeldungPage {
     public status$ = this.store.select(fromRoot.getPreismeldungenStatus);
     public currentPreismeldung$ = this.store
         .select(fromRoot.getCurrentPreismeldungViewBag)
+        // Emit new object instead of null to update the async pipes
+        .map(x => x || ({} as P.CurrentPreismeldungBag))
         .publishReplay(1)
         .refCount();
 
@@ -87,7 +89,7 @@ export class PreismeldungPage {
     private ionViewDidLeave$ = new Subject();
 
     constructor(
-        private store: Store<fromRoot.AppState>,
+        protected store: Store<fromRoot.AppState>,
         private pefDialogService: PefDialogService,
         private navParams: NavParams
     ) {
@@ -230,8 +232,6 @@ export class PreismeldungPage {
     }
 
     public ionViewDidLeave() {
-        this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null } as PreismeldungAction);
-        this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction);
         this.ionViewDidLeave$.next();
     }
 }

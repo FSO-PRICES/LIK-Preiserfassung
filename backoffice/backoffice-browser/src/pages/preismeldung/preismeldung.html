@@ -5,10 +5,10 @@
             [erhebungspositions]="erhebungspositions$ | async" [currentPreismeldung]="currentPreismeldung$ | async" [initialFilter]="initialFilter$ | async"
             [initialPmsNummer]="initialPmsNummer" (filterChanged)="pmsFilterChanged$.emit($event)" (selectPreismeldung)="selectPreismeldung$.emit($event)"></preismeldung-list>
         <div class="preismeldung-detail-container container">
-            <preismeldung-toolbar *ngIf="!!(currentPreismeldung$ | async)" [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async"
+            <preismeldung-toolbar *ngIf="!!(currentPreismeldung$ | async)?.pmId" [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async"
                 (selectTab)="selectTab$.emit($event)" [isAdminApp]="true" (buttonClicked)="toolbarButtonClicked$.emit($event)">
             </preismeldung-toolbar>
-            <div class="tab-container" *ngIf="!!(currentPreismeldung$ | async)">
+            <div class="tab-container" *ngIf="!!(currentPreismeldung$ | async)?.pmId">
                 <preismeldung-info-warenkorb [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'" [isDesktop]="true" [preismeldung]="currentPreismeldung$ | async"
                     [preismeldestelle]="preismeldestelle$ | async" [warenkorb]="warenkorb$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
                     [isAdminApp]="true"></preismeldung-info-warenkorb>
