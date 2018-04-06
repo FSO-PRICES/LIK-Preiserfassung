@@ -282,8 +282,19 @@ export class PreismeldungenEffects {
         .filter(x => !x.refPreismeldung)
         .flatMap(bag =>
             getDatabase()
-                .then(db => db.get(bag.preismeldung._id).then(doc => ({ db, doc })))
-                .then(x => x.db.remove(x.doc._id, x.doc._rev).then(() => x.db))
+                .then(db =>
+                    // Try to delete from local db, when none matching preismeldung was found, continue
+                    db
+                        .get(bag.preismeldung._id)
+                        .then(doc => ({ db, doc }))
+                        .then(x => x.db.remove(x.doc._id, x.doc._rev).then(() => x.db))
+                        .catch(error => {
+                            if (error.status !== 404) {
+                                throw error;
+                            }
+                            return db;
+                        })
+                )
                 .then(db =>
                     db
                         .get(P.pmsSortId(bag.preismeldung.pmsNummer))
