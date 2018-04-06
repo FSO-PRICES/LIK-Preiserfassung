@@ -76,8 +76,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .map(p => p.map(x => x.value))
             .combineLatest(
                 this.epNummersFilter$.map(e => e.map(x => x.value)),
-                this.pmsNummerFilter$.map(x => first(x.map(p => p.value))),
-                (preiserheberIds, epNummers, pmsNummer) => ({ preiserheberIds, epNummers, pmsNummer })
+                this.pmsNummerFilter$.map(p => p.map(x => x.value)),
+                (preiserheberIds, epNummers, pmsNummers) => ({ preiserheberIds, epNummers, pmsNummers })
             )
             .startWith({})
             .publishReplay(1)
