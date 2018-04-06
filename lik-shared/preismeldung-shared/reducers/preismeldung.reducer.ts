@@ -30,6 +30,7 @@ export type CurrentPreismeldungBag = PreismeldungBag & {
     priceCountStatus: PriceCountStatus;
     originalBearbeitungscode: P.Models.Bearbeitungscode;
     lastSaveAction: P.SavePreismeldungPriceSaveAction;
+    hasMessageNotiz: boolean;
     hasMessageToCheck: boolean;
     hasPriceWarning: boolean;
     textzeile: string[];
@@ -290,7 +291,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const currentPreismeldung = assign({}, state.currentPreismeldung, {
                 messages,
                 isMessagesModified: true,
-                hasMessageToCheck: calcHasMessageToCheck(
+                ...calcHasMessageToCheck(
                     !!state.currentPreismeldung.refPreismeldung
                         ? state.currentPreismeldung.refPreismeldung.bemerkungen
                         : '',
@@ -648,10 +649,7 @@ function createCurrentPreismeldungBag(
         lastSaveAction: null,
         messages,
         attributes,
-        hasMessageToCheck: calcHasMessageToCheck(
-            !!entity.refPreismeldung ? entity.refPreismeldung.bemerkungen : '',
-            messages
-        ),
+        ...calcHasMessageToCheck(!!entity.refPreismeldung ? entity.refPreismeldung.bemerkungen : '', messages),
         hasPriceWarning: warningAndTextzeile.hasPriceWarning,
         hasAttributeWarning: calcHasAttributeWarning(attributes, entity.warenkorbPosition.productMerkmale),
         resetEvent: new Date().getTime(),
@@ -1073,8 +1071,10 @@ function parsePreismeldungMessages(preismeldung: P.Models.Preismeldung, isAdminA
     };
 }
 
-const calcHasMessageToCheck = (refBemerkungen: string, messages: CurrentPreismeldungBagMessages) =>
-    messages.notiz !== '' || (refBemerkungen !== '' && messages.bemerkungen === '');
+const calcHasMessageToCheck = (refBemerkungen: string, messages: CurrentPreismeldungBagMessages) => ({
+    hasMessageNotiz: messages.notiz !== '',
+    hasMessageToCheck: refBemerkungen !== '' && messages.bemerkungen === '',
+});
 
 const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenkorb) => {
     return !!productMerkmaleFromWarenkorb ? !productMerkmaleFromWarenkorb.every((x, i) => !!attributes[i]) : false;

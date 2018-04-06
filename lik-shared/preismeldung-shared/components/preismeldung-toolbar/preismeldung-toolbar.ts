@@ -40,6 +40,7 @@ import * as P from '../../models';
                 (click)="selectTab$.emit('MESSAGES')">
                 <div class="tab-icon-with-warning">
                     <pef-icon name="produkteigenschaften"></pef-icon>
+                    <pef-icon class="info-icon" [name]="'info'" *ngIf=" (preismeldung$ | async).hasMessageNotiz"></pef-icon>
                     <pef-icon class="warning-icon" [name]="'warning'" *ngIf="(preismeldung$ | async).hasMessageToCheck"></pef-icon>
                 </div>
             </button>

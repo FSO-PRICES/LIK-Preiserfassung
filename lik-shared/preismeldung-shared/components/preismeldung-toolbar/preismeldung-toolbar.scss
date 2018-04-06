@@ -1,4 +1,4 @@
-@import "../../../styles/imports.scss";
+@import '../../../styles/imports.scss';
 
 preismeldung-toolbar {
     display: flex;
@@ -23,7 +23,7 @@ preismeldung-toolbar {
         padding: 16px 0;
         &[disabled] {
             opacity: 1;
-            background-color: #73CCD9;
+            background-color: #73ccd9;
             fill: $mercury;
             &.selected {
                 background-color: $surfie-green;
@@ -33,7 +33,7 @@ preismeldung-toolbar {
             opacity: 1;
             background-color: $blue-chill;
         }
-   }
+    }
 
     button[icon-only].pef-toolbar-button {
         height: 64px;
@@ -46,7 +46,8 @@ preismeldung-toolbar {
             background-color: $scooter;
             width: 36px;
             height: 36px;
-            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12);
             justify-content: center;
             align-items: center;
         }
@@ -63,9 +64,15 @@ preismeldung-toolbar {
 
     .tab-icon-with-warning {
         position: relative;
+        .info-icon,
         .warning-icon {
             position: absolute;
             top: -1em;
+        }
+        .info-icon {
+            left: -1em;
+        }
+        .warning-icon {
             right: -1em;
         }
     }
