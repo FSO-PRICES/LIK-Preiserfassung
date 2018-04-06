@@ -3,6 +3,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../common-models';
+import { ShortColumnNames } from '../../../reducers/controlling';
 
 @Component({
     selector: 'controlling-report',
@@ -20,6 +21,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public zoomLevel$ = new EventEmitter<number>();
     public toggleColumn$ = new EventEmitter<number>();
     public hiddenColumns$: Observable<boolean[]>;
+    public shortColumnNames = ShortColumnNames;
 
     constructor() {
         super();

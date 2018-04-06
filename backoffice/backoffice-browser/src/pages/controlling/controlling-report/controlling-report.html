@@ -35,7 +35,7 @@
             <tr>
                 <th class="align-right">&nbsp;</th>
                 <th *ngFor="let column of (reportData$ | async)?.columns; let i = index" (click)="toggleColumn$.emit(i)" class="collapsable"
-                    [class.collapsed]="(hiddenColumns$ | async)[i]">{{ column }}</th>
+                    [class.collapsed]="(hiddenColumns$ | async)[i]" [title]="column">{{ shortColumnNames[column] || column }}</th>
             </tr>
         </thead>
         <tbody>

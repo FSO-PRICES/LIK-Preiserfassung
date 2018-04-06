@@ -174,6 +174,47 @@ const columnPmsGeschlossen = 'PMS_geschlossen';
 const columnWarenkorbIndex = '[Internal] WarenkorbIndex';
 const columnAnzahlPreiseProPMS = 'anzahlPreiseProPMS';
 
+export const ShortColumnNames = {
+    '# Preise pro EP': 'ist/soll',
+    Actionscode_T: 'A_T',
+    Actionscode_VP: 'A_VP',
+    Bearbeitungscode: 'BC',
+    Bemerkungen_T: 'Bem_T',
+    Einheit_T: 'Unit',
+    EP_Nummer: 'EPno',
+    Erhebungsenddatum: 'bis',
+    ErhebungsZeitpunkt: 'von',
+    'Fehlende_Preise T (R, S)': 'R, S',
+    Kommentar_T: 'Kom_T',
+    Laufnummer: 'LFno',
+    Menge_T: 'Qty_T',
+    'Menge_vor_Reduktion T': 'NormQty_T',
+    'Menge_vor_Reduktion VP': 'NormQty_VP',
+    Menge_VP: 'Qty_VP',
+    Merkmale_T: 'Specs_T',
+    Merkmale_VP: 'Specs_VP',
+    'ORDER_ID (Hierarchie)': 'Order',
+    PE_Name: 'PEname',
+    PE_Nummer: 'PEno',
+    PMS_Erhebungsregion: 'Region',
+    PMS_geschlossen: 'closed',
+    PMS_Name: 'PMSname',
+    PMS_Nummer: 'PMSno',
+    PMS_Zusatzinformation: 'PMSinfo',
+    Positionsbezeichnung: 'EPname',
+    'Preis_ID ': 'Preis_ID',
+    Preis_T: 'Price_T',
+    'Preis_vor_Reduktion T': 'NormPrice_T',
+    'Preis_vor_Reduktion VP': 'NormPrice_VP',
+    Preis_VP: 'Price_VP',
+    Preisbezeichnung_T: 'Text',
+    Sort_ID: 'ID',
+    Standardeinheit: 'StdUnit',
+    Standardmenge: 'StdQty',
+    'Veränderung vor Reduktion': 'NormVar_%',
+    Veränderung: 'Var_%',
+};
+
 type ColumnType =
     | typeof columnErhebungsZeitpunkt
     | typeof columnPreisId
