@@ -754,9 +754,9 @@ function createPercentages(
     if (!!bag.refPreismeldung) {
         switch (bag.preismeldung.bearbeitungscode) {
             case 99: {
-                if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
+                if (!bag.preismeldung.aktion) {
                     d_DPToVP.limitType = exceedsLimit(
-                        d_DPToVP.percentage,
+                        !bag.refPreismeldung.aktion ? d_DPToVP.percentage : d_DPToVPVorReduktion.percentage,
                         P.Models.limitNegativeLimite,
                         bag.warenkorbPosition.negativeLimite,
                         P.Models.limitPositiveLimite,
