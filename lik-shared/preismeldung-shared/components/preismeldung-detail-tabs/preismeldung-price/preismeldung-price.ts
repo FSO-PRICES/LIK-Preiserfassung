@@ -93,7 +93,7 @@ import * as P from '../../../models';
                         <div class="current-period" id="row-1-current-period">
                             <h5 class="large">{{ 'heading_aktuelle_periode' | translate }}</h5>
                             <preismeldung-info-popover-right [class.hidden]="(preismeldung$ | async)?.preismeldung.bearbeitungscode != 1 || !(preismeldung$ | async)?.preismeldung.aktion"
-                                [preismeldung]="preismeldung$ | async" [forceClose]="distinctPreismeldung$ | async" [popoverLeft]="window.document.getElementById('row-1-middle-section').offsetWidth + 'px + ' + window.document.getElementById('row-1-current-period').offsetWidth + 'px'"
+                                [preismeldung]="preismeldung$ | async" [forceClose]="closePopoverRight$ | async" [popoverLeft]="window.document.getElementById('row-1-middle-section').offsetWidth + 'px + ' + window.document.getElementById('row-1-current-period').offsetWidth + 'px'"
                                 [width]="window.document.getElementById('row-1-current-period').offsetWidth + 'px'" [height]="'0px'"
                                 (popoverActive)="infoPopoverRightActive$.emit($event)"></preismeldung-info-popover-right>
                         </div>
@@ -320,6 +320,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public chooseReductionPercentage$ = new EventEmitter();
     public infoPopoverLeftActive$ = new EventEmitter<boolean>();
     public infoPopoverRightActive$ = new EventEmitter<boolean>();
+    public closePopoverRight$: Observable<any>;
     public preisNumberFormattingOptions = preisNumberFormattingOptions;
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
@@ -448,6 +449,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .map(() => this.form.value.preisVPK)
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPK))
             .map(x => ({ value: `${preisFormatFn(x)}` }));
+
+        this.closePopoverRight$ = this.distinctPreismeldung$
+            .merge(this.preismeldung$.filter(x => !!x && !x.preismeldung.aktion).map(() => ({})));
 
         this.subscriptions.push(
             this.distinctPreismeldung$.subscribe(bag => {
