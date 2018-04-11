@@ -35,9 +35,17 @@
                             <ion-input type="text" formControlName="recipientId"></ion-input>
                         </ion-item>
                     </ion-list>
-                    <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
                     <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)">Speichern</button>
+                    <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
                 </form>
+            </div>
+            <div class="about-app">
+                <div class="about-box">
+                    <h2>LIK PreisAdmin {{version}}</h2>
+                    <span>Autor:
+                        <a href="https://lambda-it.ch/">Lambda IT GmbH</a>
+                    </span>
+                </div>
             </div>
         </div>
     </div>

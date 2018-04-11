@@ -1,13 +1,32 @@
+@import '../../theme/imports.scss';
+
 .settings-container {
     flex: 1;
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     @include set-margin(0, 0.5, 0, 0);
     @include set-padding(1, 1, 1, 1);
 
     .subcontent {
-        flex: 0 1 33%;
+        flex: 0 1 ($pef-app-max-width / 3);
         display: flex;
         flex-direction: column;
+    }
+
+    .about-app {
+        flex: 0 0 auto;
+        .about-box {
+            background-color: white;
+            padding: 1em;
+        }
+    }
+    form {
+        h1 {
+            margin: 3em 0 0 0;
+        }
+        h1:first-child {
+            margin-top: 1.5em;
+        }
     }
 }

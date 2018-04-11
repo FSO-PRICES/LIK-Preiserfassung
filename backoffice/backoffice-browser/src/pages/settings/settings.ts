@@ -6,6 +6,7 @@ import { Observable, Subscription } from 'rxjs';
 
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
+import { environment } from '../../environments/environment';
 
 @IonicPage({
     segment: 'settings',
@@ -24,6 +25,8 @@ export class SettingsPage implements OnDestroy {
     public form: FormGroup;
     private subscriptions: Subscription[] = [];
     private loader: Loading;
+
+    public version = environment.version;
 
     constructor(
         private store: Store<fromRoot.AppState>,
