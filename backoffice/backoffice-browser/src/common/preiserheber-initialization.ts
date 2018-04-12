@@ -117,6 +117,9 @@ function _createUserDb({ preiserheber, warenkorb, erhebungsmonat, erhebungsorgan
                 db.bulkDocs({ docs: data } as any)
             )
         )
+        .flatMap(() =>
+            putUserToDatabase(getUserDatabaseName(preiserheber._id), { members: { names: [preiserheber._id] } })
+        )
         .mapTo(<string>null)
         .catch(error => Observable.of(getErrorMessage(error)));
 }
