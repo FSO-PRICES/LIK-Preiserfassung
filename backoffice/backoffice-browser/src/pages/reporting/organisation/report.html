@@ -1,0 +1,72 @@
+<div class="container-wrapper" *ngIf="reportData">
+    <div class="container">
+        <div *ngIf="reportData" class="monthly-report">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>LIK-Monatsbericht</th>
+                        <th>Regionale Preiserhebung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Erhebungsmonat</td>
+                        <td>{{reportData.zeitpunkt.erhebungsmonat}}</td>
+                    </tr>
+                    <tr>
+                        <td>Erstellungsdatum</td>
+                        <td>{{reportData.zeitpunkt.erstellungsdatum}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Erhebungsregionen</th>
+                        <th>#Preise</th>
+                        <th>#PMS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let region of iterateValues(reportData.erhebungsregionen)">
+                        <td>{{region.key}}</td>
+                        <td>{{region.value.pm}}</td>
+                        <td>{{region.value.pms}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Preiserheber</th>
+                        <th>#Preise</th>
+                        <th>#PMS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let preiserheber of iterateValues(reportData.preiserheber)">
+                        <td>{{preiserheber.key}}</td>
+                        <td>{{preiserheber.value.pm}}</td>
+                        <td>{{preiserheber.value.pms}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Preismeldungen pro PMS</th>
+                        <th>#Preise</th>
+                        <th>#PEname</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let preismeldung of iterateValues(reportData.preismeldungen)">
+                        <td>{{preismeldung.key}}</td>
+                        <td>{{preismeldung.value.pm}}</td>
+                        <td>{{preismeldung.value.peName}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -10,7 +10,7 @@ import {
     PefDialogService,
     PefMessageDialogService,
     Models as P,
-    parseErhebungsartForForm,
+    parseErhebungsarten,
     PreismeldungAction,
     sortBySelector,
 } from 'lik-shared';
@@ -294,10 +294,10 @@ export class DashboardPage implements OnDestroy {
     }
 
     toDashboardPms(pms: P.Preismeldestelle) {
-        const _erhebungsart = parseErhebungsartForForm(pms.erhebungsart);
+        const _erhebungsart = parseErhebungsarten(pms.erhebungsart);
         return assign({}, pms, {
             keinErhebungsart: !pms.erhebungsart || (!!pms.erhebungsart && pms.erhebungsart === '000000'),
-            isPdf: _erhebungsart.erhebungsart_papierlisteVorOrt || _erhebungsart.erhebungsart_papierlisteAbgegeben,
+            isPdf: _erhebungsart.papierlisteVorOrt || _erhebungsart.papierlisteAbgegeben,
         });
     }
 

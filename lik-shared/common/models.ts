@@ -19,6 +19,15 @@ export interface PmsId {
     pmsNummer: string;
 }
 
+export interface Erhebungsarten {
+    email: boolean;
+    internet: boolean;
+    papierlisteAbgegeben: boolean;
+    papierlisteVorOrt: boolean;
+    tablet: boolean;
+    telefon: boolean;
+}
+
 export interface PreismeldestelleProperties {
     pmsNummer: string;
     preissubsystem: number; // LIK = 2
@@ -365,15 +374,6 @@ export interface User {
 export interface Preissubsystem {
     id: number;
     name: string;
-}
-
-export interface Erhebungsart {
-    erhebungsart_tablet: boolean;
-    erhebungsart_telefon: boolean;
-    erhebungsart_email: boolean;
-    erhebungsart_internet: boolean;
-    erhebungsart_papierlisteVorOrt: boolean;
-    erhebungsart_papierlisteAbgegeben: boolean;
 }
 
 export interface LastImportAtProperties {

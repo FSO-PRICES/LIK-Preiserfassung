@@ -1,22 +1,24 @@
-import { Erhebungsart } from './models';
+import { Erhebungsarten } from './models';
 
-export function parseErhebungsartForForm(erhebungsart: string): Erhebungsart {
+export function parseErhebungsarten(erhebungsart: string): Erhebungsarten {
     const _erhebungsart = erhebungsart || '';
     return {
-        erhebungsart_tablet: (_erhebungsart[0] || '0') === '1',
-        erhebungsart_telefon: (_erhebungsart[1] || '0') === '1',
-        erhebungsart_email: (_erhebungsart[2] || '0') === '1',
-        erhebungsart_internet: (_erhebungsart[3] || '0') === '1',
-        erhebungsart_papierlisteVorOrt:  (_erhebungsart[4] || '0') === '1',
-        erhebungsart_papierlisteAbgegeben:  (_erhebungsart[5] || '0') === '1'
+        tablet: (_erhebungsart[0] || '0') === '1',
+        telefon: (_erhebungsart[1] || '0') === '1',
+        email: (_erhebungsart[2] || '0') === '1',
+        internet: (_erhebungsart[3] || '0') === '1',
+        papierlisteVorOrt: (_erhebungsart[4] || '0') === '1',
+        papierlisteAbgegeben: (_erhebungsart[5] || '0') === '1',
     };
 }
 
-export function encodeErhebungsartFromForm(erhebungsart: Erhebungsart): string {
-    return (erhebungsart.erhebungsart_tablet ? '1' : '0')
-        + (erhebungsart.erhebungsart_telefon ? '1' : '0')
-        + (erhebungsart.erhebungsart_email ? '1' : '0')
-        + (erhebungsart.erhebungsart_internet ? '1' : '0')
-        + (erhebungsart.erhebungsart_papierlisteVorOrt ? '1' : '0')
-        + (erhebungsart.erhebungsart_papierlisteAbgegeben ? '1' : '0');
+export function encodeErhebungsartFromForm(erhebungsart: Erhebungsarten): string {
+    return (
+        (erhebungsart.tablet ? '1' : '0') +
+        (erhebungsart.telefon ? '1' : '0') +
+        (erhebungsart.email ? '1' : '0') +
+        (erhebungsart.internet ? '1' : '0') +
+        (erhebungsart.papierlisteVorOrt ? '1' : '0') +
+        (erhebungsart.papierlisteAbgegeben ? '1' : '0')
+    );
 }

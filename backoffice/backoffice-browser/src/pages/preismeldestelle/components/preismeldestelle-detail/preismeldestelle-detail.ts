@@ -16,7 +16,7 @@ import {
     ReactiveComponent,
     Models as P,
     encodeErhebungsartFromForm,
-    parseErhebungsartForForm,
+    parseErhebungsarten,
     preismeldestelleId,
 } from 'lik-shared';
 
@@ -128,7 +128,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         internetLink: preismeldestelle.internetLink,
                         languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                         erhebungsregion: preismeldestelle.erhebungsregion,
-                        ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
+                        ...parseErhebungsarten(preismeldestelle.erhebungsart),
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
                         zusatzInformationen: preismeldestelle.zusatzInformationen,

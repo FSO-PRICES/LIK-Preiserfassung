@@ -1,0 +1,186 @@
+<div class="container-wrapper" *ngIf="reportData">
+    <div class="container">
+        <div *ngIf="reportData" class="monthly-report">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>LIK-Monatsbericht</th>
+                        <th>Regionale Preiserhebung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Erhebungsmonat</td>
+                        <td>{{reportData.zeitpunkt.erhebungsmonat}}</td>
+                    </tr>
+                    <tr>
+                        <td>Erstellungsdatum</td>
+                        <td>{{reportData.zeitpunkt.erstellungsdatum}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Preismeldungen insgesamt</th>
+                        <th>#Preise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Total erhalten</td>
+                        <td>{{reportData.preismeldungen.total}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total erfasst</td>
+                        <td>{{reportData.preismeldungen.erfasst}}</td>
+                    </tr>
+                    <tr>
+                        <td>Neue Preisreihen</td>
+                        <td>{{reportData.preismeldungen.new}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Erhebungsart Offline/Online</th>
+                        <th>#Preise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Offline</td>
+                        <td>{{reportData.erhebungsart.online}}</td>
+                    </tr>
+                    <tr>
+                        <td>Online</td>
+                        <td>{{reportData.erhebungsart.offline}}</td>
+                    </tr>
+                    <tr>
+                        <td>Nicht angegeben</td>
+                        <td>{{reportData.erhebungsart.na}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Bearbeitungscode</th>
+                        <th>#Preise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Standardbuchung</td>
+                        <td>{{reportData.bearbeitungsCode['99']}}</td>
+                    </tr>
+                    <tr>
+                        <td>1 - Direktersatz</td>
+                        <td>{{reportData.bearbeitungsCode['1']}}</td>
+                    </tr>
+                    <tr>
+                        <td>2 - Neuer Preis mit VP</td>
+                        <td>{{reportData.bearbeitungsCode['2']}}</td>
+                    </tr>
+                    <tr>
+                        <td>3 - Neuer Preis ohne VP</td>
+                        <td>{{reportData.bearbeitungsCode['3']}}</td>
+                    </tr>
+                    <tr>
+                        <td>7 - Ersatz mit VP</td>
+                        <td>{{reportData.bearbeitungsCode['7']}}</td>
+                    </tr>
+                    <tr>
+                        <td>R - fehlender Artikel</td>
+                        <td>{{reportData.bearbeitungsCode['101']}}</td>
+                    </tr>
+                    <tr>
+                        <td>S - fehlender Saisonartikel</td>
+                        <td>{{reportData.bearbeitungsCode['44']}}</td>
+                    </tr>
+                    <tr>
+                        <td>A - Aktionspreis</td>
+                        <td>{{reportData.bearbeitungsCode['Aktion']}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Preisentwicklungen</th>
+                        <th>#Preise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>(=) stabile Preise</td>
+                        <td>{{reportData.preisentwicklungen.stabil}}</td>
+                    </tr>
+                    <tr>
+                        <td>(+) gestiegene Preise</td>
+                        <td>{{reportData.preisentwicklungen.gestiegen}}</td>
+                    </tr>
+                    <tr>
+                        <td>(+) Aktionsende</td>
+                        <td>{{reportData.preisentwicklungen.aktionsende}}</td>
+                    </tr>
+                    <tr>
+                        <td>(-) gesunkene Preise</td>
+                        <td>{{reportData.preisentwicklungen.gesunken}}</td>
+                    </tr>
+                    <tr>
+                        <td>(-) Aktion/Ausverkauf</td>
+                        <td>{{reportData.preisentwicklungen.aktionAusverkauf}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Erhebungsart</th>
+                        <th>#Preise</th>
+                        <th>#PMS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tablet vor Ort</td>
+                        <td>{{reportData.erhebungsartDetailPm.tablet}}</td>
+                        <td>{{reportData.erhebungsartDetailPms.tablet}}</td>
+                    </tr>
+                    <tr>
+                        <td>Telefon</td>
+                        <td>{{reportData.erhebungsartDetailPm.telefon}}</td>
+                        <td>{{reportData.erhebungsartDetailPms.telefon}}</td>
+                    </tr>
+                    <tr>
+                        <td>eMail</td>
+                        <td>{{reportData.erhebungsartDetailPm.email}}</td>
+                        <td>{{reportData.erhebungsartDetailPms.email}}</td>
+                    </tr>
+                    <tr>
+                        <td>Papierformular vor Ort</td>
+                        <td>{{reportData.erhebungsartDetailPm.papierlisteVorOrt}}</td>
+                        <td>{{reportData.erhebungsartDetailPms.papierlisteVorOrt}}</td>
+                    </tr>
+                    <tr>
+                        <td>Papierformular durch PMS</td>
+                        <td>{{reportData.erhebungsartDetailPm.papierlisteAbgegeben}}</td>
+                        <td>{{reportData.erhebungsartDetailPms.papierlisteAbgegeben}}</td>
+                    </tr>
+                    <tr>
+                        <td>Internet</td>
+                        <td>{{reportData.erhebungsartDetailPm.internet}}</td>
+                        <td>{{reportData.erhebungsartDetailPms.internet}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>{{reportData.erhebungsartDetailPm.total}}</td>
+                        <td>{{reportData.erhebungsartDetailPms.total}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

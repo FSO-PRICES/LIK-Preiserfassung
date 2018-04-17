@@ -186,30 +186,30 @@
                         <div class="row">
                             <div class="column">
                                 <h5>{{ 'label_pms_erhebungsart' | translate}}</h5>
-                                <ion-list>
+                                <ion-list formGroupName="erhebungsarten">
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_vor-ort-app' | translate}}</ion-label>
-                                        <ion-checkbox formControlName="erhebungsart_tablet"></ion-checkbox>
+                                        <ion-checkbox formControlName="tablet"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_telephone' | translate}}</ion-label>
-                                        <ion-checkbox formControlName="erhebungsart_telefon"></ion-checkbox>
+                                        <ion-checkbox formControlName="telefon"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_email' | translate}}</ion-label>
-                                        <ion-checkbox formControlName="erhebungsart_email"></ion-checkbox>
+                                        <ion-checkbox formControlName="email"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_internet' | translate}}</ion-label>
-                                        <ion-checkbox formControlName="erhebungsart_internet"></ion-checkbox>
+                                        <ion-checkbox formControlName="internet"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_persoenlich' | translate}}</ion-label>
-                                        <ion-checkbox formControlName="erhebungsart_papierlisteVorOrt"></ion-checkbox>
+                                        <ion-checkbox formControlName="papierlisteVorOrt"></ion-checkbox>
                                     </ion-item>
                                     <ion-item>
                                         <ion-label>{{ 'label_pms_erhebungsart_abgegeben' | translate}}</ion-label>
-                                        <ion-checkbox formControlName="erhebungsart_papierlisteAbgegeben"></ion-checkbox>
+                                        <ion-checkbox formControlName="papierlisteAbgegeben"></ion-checkbox>
                                     </ion-item>
                                 </ion-list>
                             </div>

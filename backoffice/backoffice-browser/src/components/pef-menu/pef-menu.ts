@@ -17,7 +17,7 @@ export class PefMenuComponent implements OnDestroy {
         { page: 'PreiserheberPage', name: 'Preiserheber' },
         { page: 'PreismeldungPage', name: 'Preise' },
         { page: 'ControllingPage', name: 'Controlling' },
-        { page: null, name: 'Reporting' },
+        { page: 'ReportingPage', name: 'Reporting' },
         { page: 'ExportToPrestaPage', name: 'Export' },
     ];
 

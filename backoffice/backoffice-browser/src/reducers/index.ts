@@ -17,6 +17,7 @@ import * as fromLogin from './login';
 import * as fromOnOffline from './onoffline';
 import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestelle from './preismeldestelle';
+import * as fromReport from './report';
 import { fromWarenkorb, fromPreismeldungen } from 'lik-shared';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
@@ -35,6 +36,7 @@ export interface AppState {
     preismeldestellen: fromPreismeldestelle.State;
     preismeldungen: fromPreismeldungen.State;
     preiszuweisungen: fromPreiszuweisung.State;
+    report: fromReport.State;
     settings: fromSetting.State;
     warenkorb: fromWarenkorb.State;
     filterOptions: fromFilterOptions.State;
@@ -53,6 +55,7 @@ const reducers = {
     preismeldestellen: fromPreismeldestelle.reducer,
     preismeldungen: fromPreismeldungen.reducer,
     preiszuweisungen: fromPreiszuweisung.reducer,
+    report: fromReport.reducer,
     settings: fromSetting.reducer,
     warenkorb: fromWarenkorb.reducer,
     filterOptions: fromFilterOptions.reducer,
@@ -170,6 +173,12 @@ export const getExportedPreiserheber = createSelector(getExporterState, fromExpo
 export const getCockpitState = (state: AppState) => state.cockpit;
 export const getCockpitReportData = createSelector(getCockpitState, fromCockpit.getCockpitReportData);
 export const getCockpitIsExecuting = createSelector(getCockpitState, fromCockpit.getCockpitIsExecuting);
+
+export const getReportState = (state: AppState) => state.report;
+export const getReportData = createSelector(getReportState, fromReport.getReportData);
+export const getMonthlyReportData = createSelector(getReportState, fromReport.getMonthlyReportData);
+export const getOrganisationReportData = createSelector(getReportState, fromReport.getOrganisationReportData);
+export const getReportIsExecuting = createSelector(getReportState, fromReport.getReportIsExecuting);
 
 export const getWarenkorbState = (state: AppState) => state.warenkorb;
 

@@ -10,6 +10,7 @@ import { PreiserheberEffects } from './preiserheber';
 import { PreismeldestelleEffects } from './preismeldestelle';
 import { PreismeldungEffects } from './preismeldung';
 import { PreiszuweisungEffects } from './preiszuweisung';
+import { ReportingEffects } from './reporting';
 import { SettingEffects } from './setting';
 import { WarenkorbEffects } from './warenkorb';
 
@@ -24,6 +25,7 @@ export const BO_EFFECTS = [
     EffectsModule.run(PreismeldestelleEffects),
     EffectsModule.run(PreismeldungEffects),
     EffectsModule.run(PreiszuweisungEffects),
+    EffectsModule.run(ReportingEffects),
     EffectsModule.run(SettingEffects),
     EffectsModule.run(WarenkorbEffects),
 ];

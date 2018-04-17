@@ -5,7 +5,7 @@ import { NavParams, NavController, IonicPage } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
 import { range, mapValues, values, assign } from 'lodash';
 
-import { Models as P, parseErhebungsartForForm, encodeErhebungsartFromForm } from 'lik-shared';
+import { Models as P, parseErhebungsarten, encodeErhebungsartFromForm } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
@@ -50,12 +50,14 @@ export class PmsDetailsPage implements OnDestroy {
                 email: [null],
                 internetLink: [null],
                 languageCode: [null, Validators.required],
-                erhebungsart_tablet: [false],
-                erhebungsart_telefon: [false],
-                erhebungsart_email: [false],
-                erhebungsart_internet: [false],
-                erhebungsart_papierlisteVorOrt: [false],
-                erhebungsart_papierlisteAbgegeben: [false],
+                erhebungsarten: formBuilder.group({
+                    tablet: [false],
+                    telefon: [false],
+                    email: [false],
+                    internet: [false],
+                    papierlisteVorOrt: [false],
+                    papierlisteAbgegeben: [false],
+                }),
                 pmsGeschlossen: [0],
                 erhebungsartComment: [null],
                 zusatzInformationen: [null],
@@ -106,7 +108,7 @@ export class PmsDetailsPage implements OnDestroy {
                         email: preismeldestelle.email,
                         internetLink: preismeldestelle.internetLink,
                         languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
-                        ...parseErhebungsartForForm(preismeldestelle.erhebungsart),
+                        erhebungsarten: parseErhebungsarten(preismeldestelle.erhebungsart),
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
                         zusatzInformationen: preismeldestelle.zusatzInformationen,
@@ -126,7 +128,11 @@ export class PmsDetailsPage implements OnDestroy {
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
             this.form.valueChanges
-                .map(() => assign({}, this.form.value, { erhebungsart: encodeErhebungsartFromForm(this.form.value) }))
+                .map(() =>
+                    assign({}, this.form.value, {
+                        erhebungsart: encodeErhebungsartFromForm(this.form.value.erhebungsarten),
+                    })
+                )
                 .subscribe(payload =>
                     store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction)
                 ),

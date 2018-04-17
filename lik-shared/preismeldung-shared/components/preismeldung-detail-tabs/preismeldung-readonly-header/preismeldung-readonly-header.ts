@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChange, Inject, EventEmitter, OnDestroy } from '@angular/core';
 
-import { ReactiveComponent, parseErhebungsartForForm } from '../../../../';
+import { ReactiveComponent, parseErhebungsarten } from '../../../../';
 
 import * as P from '../../../models';
 import { Observable } from 'rxjs/Observable';
@@ -35,7 +35,7 @@ import { Observable } from 'rxjs/Observable';
                 <ion-input type="text" [readonly]="true" [class.readonly]="true" [value]="(preismeldung$ | async)?.preismeldung.artikeltext"></ion-input>
             </ion-item>
             <div class="right-column"></div>
-        </div>`
+        </div>`,
 })
 export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.PreismeldungBag;
@@ -45,18 +45,21 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
     public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
     public isAdminApp$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isAdminApp');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
-    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle').publishReplay(1).refCount();
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle')
+        .publishReplay(1)
+        .refCount();
 
     public isInternet$: Observable<boolean>;
     public navigateToInternetLink$ = new EventEmitter();
 
     private subscriptions = [];
 
-    constructor( @Inject('windowObject') public window: any) {
+    constructor(@Inject('windowObject') public window: any) {
         super();
 
         this.subscriptions.push(
-            this.navigateToInternetLink$.withLatestFrom(this.preismeldestelle$, this.preismeldung$, (_, __, bag) => bag)
+            this.navigateToInternetLink$
+                .withLatestFrom(this.preismeldestelle$, this.preismeldung$, (_, __, bag) => bag)
                 .map(bag => bag.preismeldung.internetLink)
                 .subscribe(internetLink => {
                     if (!internetLink) return;
@@ -66,13 +69,12 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
                 })
         );
 
-        this.isInternet$ = this.preismeldestelle$
-            .map(p => !!p && this.isInternet(p.erhebungsart));
+        this.isInternet$ = this.preismeldestelle$.map(p => !!p && this.isInternet(p.erhebungsart));
     }
 
     isInternet(erhebungsart: string) {
-        const _erhebungsart = parseErhebungsartForForm(erhebungsart);
-        return _erhebungsart.erhebungsart_internet;
+        const _erhebungsart = parseErhebungsarten(erhebungsart);
+        return _erhebungsart.internet;
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -80,8 +82,6 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
     }
 
     ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 }

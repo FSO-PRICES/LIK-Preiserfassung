@@ -25,7 +25,7 @@ import {
     preisFormatFn,
     mengeNumberFormattingOptions,
     mengeFormatFn,
-    parseErhebungsartForForm,
+    parseErhebungsarten,
     PefDialogValidationErrorsComponent,
 } from '../../../../';
 import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
@@ -450,8 +450,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPK))
             .map(x => ({ value: `${preisFormatFn(x)}` }));
 
-        this.closePopoverRight$ = this.distinctPreismeldung$
-            .merge(this.preismeldung$.filter(x => !!x && !x.preismeldung.aktion).map(() => ({})));
+        this.closePopoverRight$ = this.distinctPreismeldung$.merge(
+            this.preismeldung$.filter(x => !!x && !x.preismeldung.aktion).map(() => ({}))
+        );
 
         this.subscriptions.push(
             this.distinctPreismeldung$.subscribe(bag => {
@@ -1191,8 +1192,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     }
 
     isInternet(erhebungsart: string) {
-        const _erhebungsart = parseErhebungsartForForm(erhebungsart);
-        return _erhebungsart.erhebungsart_internet;
+        const _erhebungsart = parseErhebungsarten(erhebungsart);
+        return _erhebungsart.internet;
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
