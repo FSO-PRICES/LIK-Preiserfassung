@@ -33,6 +33,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() initialFilter: PmsFilter;
     @Output('filterChanged') public filterChanged$: Observable<PmsFilter>;
     @Output('applyFilter') public applyFilter$: Observable<PmsFilter>;
+    @Output('resetPreismeldungen') public resetPreismeldungen$ = new EventEmitter();
     @Output('selectPreismeldung') public selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
 
     public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer').filter(x => !!x);
@@ -140,7 +141,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .filter(x => !!x)
             .map(x =>
                 x.map(p => ({
-                    shortLabel: `${p.surname.substr(1, 1)}. ${p.firstName}`,
                     label: `${p.surname} ${p.firstName}`,
                     value: p._id,
                 }))
@@ -163,7 +163,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .filter(x => !!x)
             .map(x =>
                 x.map(ep => ({
-                    shortLabel: ep.gliederungspositionsnummer,
                     label: `${ep.gliederungspositionsnummer} ${ep.positionsbezeichnung.de}`,
                     value: ep.gliederungspositionsnummer,
                 }))

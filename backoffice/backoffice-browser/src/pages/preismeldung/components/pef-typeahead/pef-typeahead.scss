@@ -15,23 +15,23 @@ pef-typeahead {
     }
 
     .pef-search {
-        &ion-item.item-md {
-            height: 3em;
-            border-radius: 2px;
-            box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.24);
-        }
-        &.item-md.item-block .item-inner {
+        height: 3em;
+        border-radius: 2px;
+        .item-inner {
             border-bottom-width: 0;
-        }
-        &.item-md.item-input.input-has-focus .item-inner {
             box-shadow: none;
         }
         & > .item-inner {
             flex: 0 1 auto;
         }
+        button.button-clear {
+            background-color: transparent;
+        }
 
         .filter {
             flex: 1;
+            min-width: 0;
+            margin-right: 0;
 
             .tags span {
                 background-color: $blue-chill;
@@ -44,6 +44,62 @@ pef-typeahead {
                 input {
                     margin: 0;
                     margin-top: 2px;
+                }
+            }
+        }
+    }
+
+    .single-tag {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        .tag-label {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .text-input-clear-icon {
+            position: relative;
+            flex: 0 0 auto;
+            display: block;
+            padding: 0;
+            width: 3em;
+            background-position-x: 0.8em;
+            background-position-y: 1px;
+        }
+    }
+
+    .tags {
+        ion-item {
+            padding: 0;
+            height: auto;
+            min-height: auto;
+            background-color: transparent;
+            margin: 0.25em 0;
+            &:first-child {
+                margin-top: 0.5em;
+            }
+
+            ion-label {
+                margin: 0;
+                font-size: 1em;
+                height: 100%;
+
+                .tag {
+                    height: 100%;
+                    border-radius: 2px;
+                    font-size: 0.75em;
+                    padding: 8px 0;
+                    background-color: $oslo-gray;
+                    color: $white;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+                .remove {
+                    padding-left: 0.5em;
+                    cursor: pointer;
                 }
             }
         }
@@ -62,10 +118,18 @@ pef-typeahead {
             ion-list {
                 background-color: $white;
 
+                ion-item {
+                    margin: 0;
+                }
+
                 .pef-advanced-item {
                     min-height: 2em;
                     height: 2em;
                     color: $black;
+
+                    ion-label .pef-item-title {
+                        font-weight: 400;
+                    }
                 }
             }
         }

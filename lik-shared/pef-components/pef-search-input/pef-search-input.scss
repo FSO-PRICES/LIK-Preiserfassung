@@ -22,7 +22,7 @@ pef-search-input {
         &.item-md.item-input.input-has-focus .item-inner {
             box-shadow: none;
         }
-        button {
+        button.button-clear {
             background-color: transparent;
         }
         & pef-icon {

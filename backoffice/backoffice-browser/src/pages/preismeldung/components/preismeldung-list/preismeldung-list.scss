@@ -1,6 +1,6 @@
 .ion-page preismeldung-list {
     .preismeldung-list-container {
-        flex: 1 1;
+        flex: 0 1 calc(50% - 8px);
         display: flex;
         flex-direction: column;
         @include set-margin(0, 0.5, 0, 0);
@@ -10,14 +10,17 @@
             flex: 1;
             display: flex;
             justify-content: space-between;
-            span + span {
-                flex: 0 1;
+            div {
+                flex: 0 1 auto;
+                .close {
+                    cursor: pointer;
+                }
             }
         }
 
         h2 {
             margin: 0;
-            margin-top: 8px;
+            margin-top: 16px;
         }
         h2:first {
             margin-top: 0;
@@ -31,6 +34,16 @@
                 padding: 0;
                 border-bottom: none;
             }
+            ion-list > {
+                .pef-item,
+                pef-typeahead {
+                    display: block;
+                    margin-bottom: 8px;
+                }
+            }
+        }
+        .item-md.item-block .item-inner {
+            padding-right: 0;
         }
     }
     select.item-md {
@@ -69,5 +82,8 @@
                 color: $white;
             }
         }
+    }
+    pef-search-input .pef-search .item-inner {
+        padding-right: 0;
     }
 }

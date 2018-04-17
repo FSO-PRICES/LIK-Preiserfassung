@@ -36,16 +36,19 @@
                 <button type="submit" ion-button (click)="applyClicked$.emit()" [disabled]="!(canSearch$ | async)">anwenden</button>
                 <button ion-button (click)="resetFilterClicked$.emit($event)">zurücksetzen</button>
             </ion-list>
-            <h2>Suche in Auswahl (gefiltert)</h2>
-            <pef-search-input label="Volltext" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
         </form>
+        <h2>Suche in Auswahl (gefiltert)</h2>
+        <pef-search-input label="Volltext" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
     </div>
 </div>
-<div class="preismeldung-list-container container" *ngIf="filteredPreismeldungen$ | async">
+<div class="preismeldung-list-container container" *ngIf="filteredPreismeldungen$ | async" [class.hidden]="!(filteredPreismeldungen$ | async)?.length">
     <div class="header">
         <h1 class="large">
             <span>Preismeldungen</span>
-            <span>({{(filteredPreismeldungen$ | async).length}})</span>
+            <div>
+                <span>({{(filteredPreismeldungen$ | async).length}})</span>
+                <span class="close" (click)="resetPreismeldungen$.emit()">✖</span>
+            </div>
         </h1>
     </div>
     <div class="pef-advanced-item-flex-container">

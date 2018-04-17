@@ -60,6 +60,7 @@ export class PreismeldungPage {
     public updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     public resetPreismeldung$ = new EventEmitter();
+    public resetPreismeldungen$ = new EventEmitter();
 
     public globalFilterTextChanged$ = new EventEmitter<PmsFilter>();
 
@@ -241,6 +242,10 @@ export class PreismeldungPage {
         this.resetPreismeldung$
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(() => this.store.dispatch({ type: 'RESET_PREISMELDUNG' }));
+
+        this.resetPreismeldungen$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' }));
     }
 
     public ionViewDidEnter() {

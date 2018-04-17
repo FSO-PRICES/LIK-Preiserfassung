@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, OnChanges, SimpleChange, Output } from '@angular/core';
+import { Component, Input, EventEmitter, OnChanges, SimpleChange, Output, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { ReactiveComponent, pefSearch } from 'lik-shared';
@@ -13,7 +13,7 @@ export interface TypeaheadData {
     selector: 'pef-typeahead',
     templateUrl: 'pef-typeahead.html',
 })
-export class PefTypeaheadComponent extends ReactiveComponent implements OnChanges {
+export class PefTypeaheadComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() initialValues: any[];
     @Input() multi = false;
     @Input() label: string;
@@ -24,17 +24,24 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     filterText = new FormControl();
     filteredSuggestions$: Observable<TypeaheadData[]>;
     selectedIndex$: Observable<number>;
+    private onDestroy$ = new EventEmitter();
 
     keyup$ = new EventEmitter<{ event: KeyboardEvent; input: string }>();
     keydown$ = new EventEmitter<KeyboardEvent>();
     inputFocus$ = new EventEmitter<boolean>();
     selectSuggestion$ = new EventEmitter<TypeaheadData>();
     removeSuggestion$ = new EventEmitter<TypeaheadData>();
+    setFocus$ = this.removeSuggestion$
+        .asObservable()
+        .mapTo(true)
+        .publishReplay(1)
+        .refCount();
 
     constructor() {
         super();
         const arrowKeyNavigation = { 38: -1, 40: 1 };
         const applyKey = 13;
+        this.setFocus$.takeUntil(this.onDestroy$).subscribe();
 
         const initialValues$ = this.observePropertyCurrentValue<any[]>('initialValues').filter(x => !!x && !!x.length);
         const reset$ = this.observePropertyCurrentValue<any>('reset')
@@ -44,7 +51,10 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
             x => !!x && !!x.length
         );
 
-        this.selectSuggestion$.merge(reset$).subscribe(x => this.filterText.patchValue(''));
+        this.selectSuggestion$
+            .merge(reset$)
+            .takeUntil(this.onDestroy$)
+            .subscribe(x => this.filterText.patchValue(''));
 
         const keyDown$ = this.keydown$.publishReplay(1).refCount();
         const keyNavigation$ = keyDown$
@@ -77,13 +87,13 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
             .refCount();
 
         this.filteredSuggestions$ = this.filterText.valueChanges
+            .startWith(null)
             .combineLatest(suggestions$, this.selectedSuggestions$)
             .map(([filter, suggestions, selectedSuggestions]) => {
-                return !filter || filter.length < 2
+                return (!filter || filter.length < 2
                     ? []
-                    : pefSearch(filter, suggestions, [x => x.value, x => x.label]).filter(
-                          x => !selectedSuggestions.find(s => s === x)
-                      );
+                    : pefSearch(filter, suggestions, [x => x.value, x => x.label])
+                ).filter(x => !selectedSuggestions.find(s => s === x));
             })
             .startWith([])
             .publishReplay(1)
@@ -112,10 +122,15 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
                 return suggestions[i];
             })
             .filter(x => !!x)
+            .takeUntil(this.onDestroy$)
             .subscribe(x => this.selectSuggestion$.emit(x));
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    public ngOnDestroy() {
+        this.onDestroy$.next();
     }
 }

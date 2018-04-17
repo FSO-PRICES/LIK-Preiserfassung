@@ -3,7 +3,8 @@
     <div class="page-content">
         <preismeldung-list [preismeldungen]="preismeldungen$ | async" [preismeldestellen]="preismeldestellen$ | async" [preiserhebers]="preiserhebers$ | async"
             [erhebungspositions]="erhebungspositions$ | async" [currentPreismeldung]="currentPreismeldung$ | async" [initialFilter]="initialFilter$ | async"
-            [initialPmsNummer]="initialPmsNummer" (filterChanged)="pmsFilterChanged$.emit($event)" (selectPreismeldung)="selectPreismeldung$.emit($event)"></preismeldung-list>
+            [initialPmsNummer]="initialPmsNummer" (filterChanged)="pmsFilterChanged$.emit($event)" (selectPreismeldung)="selectPreismeldung$.emit($event)"
+            (resetPreismeldungen)="resetPreismeldungen$.emit()"></preismeldung-list>
         <div class="preismeldung-detail-container container">
             <preismeldung-toolbar *ngIf="!!(currentPreismeldung$ | async)?.pmId" [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async"
                 (selectTab)="selectTab$.emit($event)" [isAdminApp]="true" (buttonClicked)="toolbarButtonClicked$.emit($event)">
