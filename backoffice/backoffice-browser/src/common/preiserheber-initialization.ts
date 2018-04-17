@@ -71,7 +71,7 @@ function backupAndDeleteAllMonthDatabases() {
                     ? Observable.of({})
                     : Observable.forkJoin(
                           dbs.map(dbName =>
-                              backupAndDeleteDatabase(dbName, `backup_${dbName}_${moment().format('YYYYMMDDhhmmss')}`)
+                              backupAndDeleteDatabase(dbName, `backup_${dbName}_${moment().format('YYYYMMDDHHmmss')}`)
                           )
                       )
         );

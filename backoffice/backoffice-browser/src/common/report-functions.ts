@@ -241,7 +241,7 @@ const mapPmsToOnAndOffline = (
 
 const getZeitpunktData = erhebungsmonat => {
     return {
-        erstellungsdatum: moment().format('DD.MM.YYYY hh:mm'),
+        erstellungsdatum: moment().format('DD.MM.YYYY HH:mm'),
         erhebungsmonat: erhebungsmonat,
     };
 };

@@ -9,7 +9,7 @@ export const MessageTypes = {
 export const createMesageId = () => `${new Date().getTime()}${Math.ceil(Math.random() * 10)}`;
 
 export function createEnvelope(messageType: string = '1025', messageId: string, senderId: string, recipientId: string) {
-    const date = moment().format('YYYY-MM-DDThh:mm:ss');
+    const date = moment().format('YYYY-MM-DDTHH:mm:ss');
     return {
         content: `<?xml version="1.0" encoding="UTF-8"?>
 <eCH-0090:envelope version="1.0" xmlns:eCH-0090="http://www.ech.ch/xmlns/eCH-0090/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0090/1 http://www.ech.ch/xmlns/eCH-0090/1/eCH-0090-1-0.xsd">
