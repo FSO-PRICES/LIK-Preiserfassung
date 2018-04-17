@@ -40,46 +40,71 @@ export class ReportingEffects {
         .flatMap(action =>
             Observable.concat(
                 [{ type: 'LOAD_REPORT_DATA_EXECUTING' }],
-                loadDataForReport(action.payload).then(
-                    payload => ({ type: 'LOAD_REPORT_DATA_SUCCESS', payload } as report.Action)
-                )
+                loadDataForReport(action.payload)
+                    .then(payload => ({ type: 'LOAD_REPORT_DATA_SUCCESS', payload } as report.Action))
+                    .then(x => {
+                        return x;
+                    })
             )
         );
 }
 
-async function loadDataForReport(reportType: report.ReportTypes) {
-    const alreadyExported = await getAllDocumentsFromDbName<any>(dbNames.exports)
-        .map(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
-        .toPromise();
-
-    const refPreismeldungen = await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
-        await getDatabase(dbNames.preismeldung),
-        preismeldungRefId()
-    );
-
-    const preismeldungen = await getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).toPromise();
+async function loadDataForReport(reportType: report.ReportTypes): Promise<report.LoadReportSuccess> {
+    const erhebungsmonat = (await (await getDatabase(dbNames.preismeldung)).get<P.Erhebungsmonat>('erhebungsmonat'))
+        .monthAsString;
     const preismeldestellen = await loadAllPreismeldestellen().toPromise();
-    const preiserheber = await loadAllPreiserheber().toPromise();
-    const warenkorb = await (await getDatabase(dbNames.warenkorb)).get<P.WarenkorbDocument>('warenkorb');
-    const preiszuweisungen = await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisung).toPromise();
-    const erhebungsmonat = await (await getDatabase(dbNames.preismeldung)).get<P.Erhebungsmonat>('erhebungsmonat');
 
-    return {
-        reportType,
-        refPreismeldungen,
-        preismeldungen: preismeldungen.map(pm => ({
-            pmId: pm._id,
-            preismeldung: pm,
-            refPreismeldung: refPreismeldungen.find(rpm => rpm.pmId === pm._id) || {},
-        })) as PreismeldungBag[],
-        preismeldestellen: preismeldestellen.map(pms => ({
-            pms,
-            erhebungsarten: parseErhebungsarten(pms.erhebungsart),
-        })),
-        preiserheber,
-        warenkorb,
-        alreadyExported,
-        preiszuweisungen,
-        erhebungsmonat: erhebungsmonat.monthAsString,
-    } as report.LoadReportSuccess;
+    const loadRefPreismeldungen = async () =>
+        await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
+            await getDatabase(dbNames.preismeldung),
+            preismeldungRefId()
+        );
+    const loadPreismeldungen = async (refPreismeldungen: P.PreismeldungReference[]) =>
+        await getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).toPromise();
+    const loadPreiserheber = async () => await loadAllPreiserheber().toPromise();
+    const loadWarenkorb = async () =>
+        await (await getDatabase(dbNames.warenkorb)).get<P.WarenkorbDocument>('warenkorb');
+    const loadPreiszuweisungen = async () =>
+        await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisung).toPromise();
+
+    switch (reportType) {
+        case 'monthly': {
+            const refPreismeldungen = await loadRefPreismeldungen();
+            return {
+                reportType,
+                preismeldestellen: preismeldestellen.map(pms => ({
+                    pms,
+                    erhebungsarten: parseErhebungsarten(pms.erhebungsart),
+                })),
+                preismeldungen: (await loadPreismeldungen(refPreismeldungen)).map(pm => ({
+                    pmId: pm._id,
+                    preismeldung: pm,
+                    refPreismeldung: refPreismeldungen.find(rpm => rpm.pmId === pm._id) || {},
+                })) as PreismeldungBag[],
+                erhebungsmonat,
+                refPreismeldungen,
+            };
+        }
+        case 'organisation': {
+            const refPreismeldungen = await loadRefPreismeldungen();
+            return {
+                reportType,
+                preismeldestellen,
+                preismeldungen: await loadPreismeldungen(refPreismeldungen),
+                preiszuweisungen: await loadPreiszuweisungen(),
+                preiserheber: await loadPreiserheber(),
+                erhebungsmonat,
+            };
+        }
+        case 'pmsProblems': {
+            const refPreismeldungen = await loadRefPreismeldungen();
+            return {
+                reportType,
+                preismeldestellen,
+                erhebungsmonat,
+            };
+        }
+        default:
+            throw Error('Not known reporType');
+    }
 }

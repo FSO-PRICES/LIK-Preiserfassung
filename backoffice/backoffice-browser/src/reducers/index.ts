@@ -178,6 +178,7 @@ export const getReportState = (state: AppState) => state.report;
 export const getReportData = createSelector(getReportState, fromReport.getReportData);
 export const getMonthlyReportData = createSelector(getReportState, fromReport.getMonthlyReportData);
 export const getOrganisationReportData = createSelector(getReportState, fromReport.getOrganisationReportData);
+export const getPmsProblemeReportData = createSelector(getReportState, fromReport.getPmsProblemeReportData);
 export const getReportIsExecuting = createSelector(getReportState, fromReport.getReportIsExecuting);
 
 export const getWarenkorbState = (state: AppState) => state.warenkorb;

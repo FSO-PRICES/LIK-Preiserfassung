@@ -6,6 +6,8 @@ reporting-page {
 
         .report-table {
             margin-bottom: 1.5em;
+            user-select: text;
+
             .align-right {
                 text-align: right;
             }
@@ -21,8 +23,10 @@ reporting-page {
             }
 
             td {
-                white-space: nowrap;
                 padding-right: 10px;
+            }
+            td:not(.no-wrap) {
+                white-space: nowrap;
             }
         }
     }

@@ -17,6 +17,7 @@ export class ReportingPage implements OnDestroy {
     public reportExecuting$ = this.store.select(fromRoot.getReportIsExecuting);
     public monthlyReportData$ = this.store.select(fromRoot.getMonthlyReportData);
     public organisationReportData$ = this.store.select(fromRoot.getOrganisationReportData);
+    public pmsProblemeReportData$ = this.store.select(fromRoot.getPmsProblemeReportData);
 
     public loadData$ = new EventEmitter<ReportTypes>();
     private onDestroy$ = new EventEmitter();

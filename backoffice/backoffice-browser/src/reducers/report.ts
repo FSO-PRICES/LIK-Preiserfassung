@@ -2,7 +2,7 @@ import * as report from '../actions/report';
 
 import { groupBy } from 'lodash';
 import { Models as P } from 'lik-shared';
-import { prepareMonthlyData, prepareOrganisationData } from '../common/report-functions';
+import { prepareMonthlyData, prepareOrganisationData, preparePmsProblemeData } from '../common/report-functions';
 
 export type MonthlyReport = {
     zeitpunkt: {
@@ -75,11 +75,24 @@ export type OrganisationReport = {
     };
 };
 
+export type PmsProblemeReport = {
+    zeitpunkt: {
+        erhebungsmonat: string;
+        erstellungsdatum: string;
+    };
+
+    pmsGeschlossen: {
+        name: string;
+        grund: string;
+        zusatzinfo: string;
+    }[];
+};
+
 export interface State {
     isExecuting: boolean;
     monthly: MonthlyReport;
     organisation: OrganisationReport;
-    pmsProblems: {};
+    pmsProblems: PmsProblemeReport;
 }
 
 const initialState: State = {
@@ -101,7 +114,7 @@ export function reducer(state = initialState, action: report.Action): State {
             const reportHandlers: { [Type in report.ReportTypes]: (payload: report.LoadReportSuccess) => any } = {
                 monthly: prepareMonthlyData,
                 organisation: prepareOrganisationData,
-                pmsProblems: prepareMonthlyData,
+                pmsProblems: preparePmsProblemeData,
             };
             const reportType = action.payload.reportType;
             return {
@@ -119,4 +132,4 @@ export const getReportData = (state: State) => state;
 export const getReportIsExecuting = (state: State) => state.isExecuting;
 export const getMonthlyReportData = (state: State) => state.monthly;
 export const getOrganisationReportData = (state: State) => state.organisation;
-export const getPmsProblemsReportData = (state: State) => state.pmsProblems;
+export const getPmsProblemeReportData = (state: State) => state.pmsProblems;

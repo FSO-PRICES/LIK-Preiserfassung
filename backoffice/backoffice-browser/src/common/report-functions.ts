@@ -2,20 +2,18 @@ import * as moment from 'moment';
 import { uniq } from 'lodash';
 
 import * as report from '../actions/report';
-import { MonthlyReport, OrganisationReport } from '../reducers/report';
+import { MonthlyReport, OrganisationReport, PmsProblemeReport } from '../reducers/report';
 import { Models as P, PreismeldungBag } from 'lik-shared';
+import { PmsGeschlossen } from './pms-geschlossen';
 
 export function prepareMonthlyData({
     preismeldestellen,
     preismeldungen,
     refPreismeldungen,
     erhebungsmonat,
-}: report.LoadReportSuccess) {
+}: report.MonthlyReportData) {
     const map: MonthlyReport = {
-        zeitpunkt: {
-            erstellungsdatum: moment().format('DD.MM.YYYY hh:mm'),
-            erhebungsmonat: erhebungsmonat,
-        },
+        zeitpunkt: getZeitpunktData(erhebungsmonat),
 
         preismeldungen: {
             total: refPreismeldungen.length,
@@ -81,10 +79,9 @@ export function prepareMonthlyData({
         }),
         {} as { [pmsNummer: string]: (keyof P.Erhebungsarten)[] }
     );
-    const alreadyExported: string[] = [];
 
     preismeldungen.forEach(bag => {
-        if (!alreadyExported.some(pmId => pmId === bag.preismeldung._id)) {
+        if (!!bag.preismeldung.uploadRequestedAt) {
             map.preismeldungen.erfasst++;
         }
         if (bag.preismeldung.bearbeitungscode === 2 || bag.preismeldung.bearbeitungscode === 3) {
@@ -136,14 +133,10 @@ export function prepareOrganisationData({
     preismeldestellen,
     preiszuweisungen,
     preismeldungen,
-    refPreismeldungen,
     erhebungsmonat,
-}: report.LoadReportSuccess) {
+}: report.OrganisationReportData) {
     const map: OrganisationReport = {
-        zeitpunkt: {
-            erstellungsdatum: moment().format('DD.MM.YYYY hh:mm'),
-            erhebungsmonat: erhebungsmonat,
-        },
+        zeitpunkt: getZeitpunktData(erhebungsmonat),
 
         erhebungsregionen: { 'N/A': { pm: 0, pms: 0 } },
         preiserheber: { 'N/A': { pm: 0, pms: 0 } },
@@ -154,19 +147,19 @@ export function prepareOrganisationData({
         {} as { [peId: string]: string }
     );
     const preismeldestellenNamesById = preismeldestellen.reduce(
-        (acc, { pms }) => ({ ...acc, [pms.pmsNummer]: `${pms.pmsNummer} ${pms.name}` }),
+        (acc, pms) => ({ ...acc, [pms.pmsNummer]: `${pms.pmsNummer} ${pms.name}` }),
         {} as { [peId: string]: string }
     );
     const regionenByPms = preismeldestellen.reduce(
-        (regionenMap, { pms }) => ({ ...regionenMap, [pms.pmsNummer]: pms.erhebungsregion }),
+        (regionenMap, pms) => ({ ...regionenMap, [pms.pmsNummer]: pms.erhebungsregion }),
         {} as { [pmsNummer: string]: string }
     );
     const preisereheberByPms = preismeldestellen
-        .filter(({ pms }) =>
+        .filter(pms =>
             preiszuweisungen.some(pz => pz.preismeldestellenNummern.some(pmsNummer => pmsNummer === pms.pmsNummer))
         )
         .reduce(
-            (peMap, { pms }) => ({
+            (peMap, pms) => ({
                 ...peMap,
                 [pms.pmsNummer]:
                     preiserheberNamesById[
@@ -189,7 +182,7 @@ export function prepareOrganisationData({
         });
     });
 
-    preismeldestellen.forEach(({ pms }) => {
+    preismeldestellen.forEach(pms => {
         if (!map.erhebungsregionen[pms.erhebungsregion || 'N/A']) {
             map.erhebungsregionen[pms.erhebungsregion || 'N/A'] = { pm: 0, pms: 0 };
         }
@@ -200,13 +193,27 @@ export function prepareOrganisationData({
         map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].pms++;
     });
 
-    preismeldungen.forEach(pmBag => {
-        const region = regionenByPms[pmBag.preismeldung.pmsNummer] || 'N/A';
+    preismeldungen.forEach(pm => {
+        const region = regionenByPms[pm.pmsNummer] || 'N/A';
         map.erhebungsregionen[region].pm++;
-        map.preiserheber[preisereheberByPms[pmBag.preismeldung.pmsNummer] || 'N/A'].pm++;
-        map.preismeldungen[preismeldestellenNamesById[pmBag.preismeldung.pmsNummer]].pm++;
+        map.preiserheber[preisereheberByPms[pm.pmsNummer] || 'N/A'].pm++;
+        map.preismeldungen[preismeldestellenNamesById[pm.pmsNummer]].pm++;
     });
     return map;
+}
+
+export function preparePmsProblemeData({
+    preismeldestellen,
+    erhebungsmonat,
+}: report.PmsProblemeReportData): PmsProblemeReport {
+    return {
+        zeitpunkt: getZeitpunktData(erhebungsmonat),
+        pmsGeschlossen: preismeldestellen.filter(pms => pms.pmsGeschlossen > 0).map(pms => ({
+            name: `${pms.pmsNummer} ${pms.name}`,
+            grund: PmsGeschlossen[pms.pmsGeschlossen],
+            zusatzinfo: pms.zusatzInformationen,
+        })),
+    };
 }
 
 const mapPmsToOnAndOffline = (
@@ -230,4 +237,11 @@ const mapPmsToOnAndOffline = (
         }),
         {}
     );
+};
+
+const getZeitpunktData = erhebungsmonat => {
+    return {
+        erstellungsdatum: moment().format('DD.MM.YYYY hh:mm'),
+        erhebungsmonat: erhebungsmonat,
+    };
 };

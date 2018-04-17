@@ -6,16 +6,32 @@ export const LOAD_REPORT_DATA_SUCCESS = 'LOAD_REPORT_DATA_SUCCESS';
 
 export type ReportTypes = 'monthly' | 'organisation' | 'pmsProblems';
 
-export interface LoadReportSuccess {
-    reportType: 'monthly' | 'organisation' | 'pmsProblems';
-    refPreismeldungen: P.PreismeldungReference[];
-    preismeldungen: PreismeldungBag[];
+export type MonthlyReportData = {
+    reportType: 'monthly';
     preismeldestellen: { pms: P.Preismeldestelle; erhebungsarten: P.Erhebungsarten }[];
-    preiserheber: P.Erheber[];
-    preiszuweisungen: P.Preiszuweisung[];
-    alreadyExported: string[];
+    preismeldungen: PreismeldungBag[];
+    refPreismeldungen: P.PreismeldungReference[];
     erhebungsmonat: string;
-}
+};
+
+export type OrganisationReportData = {
+    reportType: 'organisation';
+    preiserheber: P.Erheber[];
+    preismeldestellen: P.Preismeldestelle[];
+    preismeldungen: P.Preismeldung[];
+    preiszuweisungen: P.Preiszuweisung[];
+    erhebungsmonat: string;
+};
+
+export type PmsProblemeReportData = {
+    reportType: 'pmsProblems';
+    preismeldestellen: P.Preismeldestelle[];
+    erhebungsmonat: string;
+};
+
+export type LoadReportSuccess = {
+    reportType: ReportTypes;
+} & (MonthlyReportData | OrganisationReportData | PmsProblemeReportData);
 
 export type Action =
     | { type: typeof LOAD_REPORT_DATA }

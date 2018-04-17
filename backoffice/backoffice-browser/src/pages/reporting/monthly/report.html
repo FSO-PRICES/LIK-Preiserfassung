@@ -1,6 +1,6 @@
 <div class="container-wrapper" *ngIf="reportData">
     <div class="container">
-        <div *ngIf="reportData" class="monthly-report">
+        <div *ngIf="reportData">
             <table class="report-table">
                 <thead>
                     <tr>
@@ -59,7 +59,7 @@
                     </tr>
                     <tr>
                         <td>Nicht angegeben</td>
-                        <td>{{reportData.erhebungsart.na}}</td>
+                        <td>{{reportData.erhebungsart['N/A']}}</td>
                     </tr>
                 </tbody>
             </table>
