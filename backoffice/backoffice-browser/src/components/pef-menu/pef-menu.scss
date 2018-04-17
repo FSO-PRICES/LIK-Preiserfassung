@@ -50,6 +50,14 @@ header {
             }
         }
     }
+
+    .fullscreen {
+        pef-icon {
+            width: 1.7em;
+            height: 1.7em;
+        }
+    }
+
     pef-icon {
         stroke: $white;
     }
