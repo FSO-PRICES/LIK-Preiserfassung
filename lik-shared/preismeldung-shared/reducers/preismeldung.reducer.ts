@@ -461,15 +461,15 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         }
 
         case 'DUPLICATE_PREISMELDUNG': {
+            const currentPreismeldung = action.payload.preismeldungToDuplicate;
             const preismeldungen = getAll(state).filter(
                 x =>
                     x.warenkorbPosition.gliederungspositionsnummer ===
-                    state.currentPreismeldung.warenkorbPosition.gliederungspositionsnummer
+                    currentPreismeldung.warenkorbPosition.gliederungspositionsnummer
             );
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[
                 preismeldungen.length - 1
             ] + 1}`;
-            const currentPreismeldung = state.currentPreismeldung;
             const newPmId = preismeldungId(
                 currentPreismeldung.preismeldung.pmsNummer,
                 currentPreismeldung.preismeldung.epNummer,
@@ -480,7 +480,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 currentPreismeldung.preismeldung.pmsNummer,
                 currentPreismeldung.preismeldung.epNummer,
                 nextLaufnummer,
-                action.payload,
+                action.payload.bearbeitungscode,
                 currentPreismeldung.preismeldung.erhebungsZeitpunkt
             );
             const newCurrentPreismeldung = assign(

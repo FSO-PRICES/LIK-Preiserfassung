@@ -268,20 +268,31 @@ export class PmsPriceEntryPage implements OnDestroy {
             .withLatestFrom(
                 this.currentPreismeldung$,
                 this.priceCountStatuses$,
-                (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) =>
-                    priceCountStatuses[currentPreismeldung.preismeldung.epNummer]
+                (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) => ({
+                    priceCountStatus: priceCountStatuses[currentPreismeldung.preismeldung.epNummer],
+                    currentPreismeldung,
+                })
             )
             .flatMap(
-                priceCountStatus => (priceCountStatus.enough ? dialogSufficientPreismeldungen$ : Observable.of('YES'))
+                ({ priceCountStatus, currentPreismeldung }) =>
+                    priceCountStatus.enough
+                        ? dialogSufficientPreismeldungen$.map((response: string) => ({ response, currentPreismeldung }))
+                        : Observable.of({ response: 'YES', currentPreismeldung })
             )
-            .filter(x => x === 'YES')
-            .map(() => 'FROM_BUTTON')
-            .merge(this.save$.filter(x => x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG').map(x => 'FROM_CODE_0'))
-            .flatMap(source =>
+            .filter(x => x.response === 'YES')
+            .map(({ currentPreismeldung }) => ({ source: 'FROM_BUTTON', currentPreismeldung }))
+            .merge(
+                this.save$
+                    .filter(x => x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG')
+                    .withLatestFrom(this.currentPreismeldung$)
+                    .map(([_, currentPreismeldung]) => ({ source: 'FROM_CODE_0', currentPreismeldung }))
+            )
+            .flatMap(({ source, currentPreismeldung }) =>
                 dialogNewPmbearbeitungsCode$.map(({ action, bearbeitungscode }) => ({
                     action,
                     source,
                     bearbeitungscode,
+                    currentPreismeldung,
                 }))
             )
             .publishReplay(1)
@@ -290,7 +301,12 @@ export class PmsPriceEntryPage implements OnDestroy {
         duplicatePreismeldung$
             .takeUntil(this.onDestroy$)
             .filter(x => x.action === 'OK')
-            .subscribe(x => this.store.dispatch({ type: 'DUPLICATE_PREISMELDUNG', payload: x.bearbeitungscode }));
+            .subscribe(({ bearbeitungscode, currentPreismeldung }) =>
+                this.store.dispatch({
+                    type: 'DUPLICATE_PREISMELDUNG',
+                    payload: { bearbeitungscode, preismeldungToDuplicate: currentPreismeldung },
+                })
+            );
 
         duplicatePreismeldung$
             .takeUntil(this.onDestroy$)

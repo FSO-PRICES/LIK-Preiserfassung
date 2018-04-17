@@ -113,7 +113,10 @@ export type PreismeldungAction =
     | { type: 'DELETE_PREISMELDUNG_SUCCESS'; payload: string }
     | { type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS'; payload: P.Models.Preismeldung }
     | { type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS'; payload: P.Models.Preismeldung }
-    | { type: 'DUPLICATE_PREISMELDUNG'; payload: 2 | 3 }
+    | {
+          type: 'DUPLICATE_PREISMELDUNG';
+          payload: { bearbeitungscode: 2 | 3; preismeldungToDuplicate: P.CurrentPreismeldungBag };
+      }
     | {
           type: 'NEW_PREISMELDUNG';
           payload: {
