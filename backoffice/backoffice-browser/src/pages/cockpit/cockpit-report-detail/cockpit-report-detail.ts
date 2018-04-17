@@ -13,6 +13,9 @@ export class CockpitReportDetailComponent extends ReactiveComponent implements O
     @Input() erhebungsZeitpunktKey: string;
 
     public preiserheber$ = this.observePropertyCurrentValue<P.CockpitPreiserheberSummary>('preiserheber');
+    public pmsSummaryList$ = this.preiserheber$.map(preiserheber =>
+        preiserheber.pmsPreismeldungSummary.filter(summary => !!summary.pms)
+    );
 
     constructor(private navController: NavController) {
         super();

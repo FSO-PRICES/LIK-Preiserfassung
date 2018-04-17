@@ -12,25 +12,23 @@
         <div class="done">done</div>
         <div class="new-preismeldungen">neu</div>
     </div>
-    <pef-virtual-scroll [items]="(preiserheber$ | async).pmsPreismeldungSummary" (update)="pmsSummaryList = $event" pef-perfect-scrollbar
-        [enabled]="true" [scrollToTop]="(preiserheber$ | async).pmsPreismeldungSummary">
+    <pef-virtual-scroll [items]="(pmsSummaryList$ | async)" (update)="pmsSummaryList = $event" pef-perfect-scrollbar [enabled]="true"
+        [scrollToTop]="(pmsSummaryList$ | async)">
         <ion-item class="pef-advanced-item pms-summary-row" *ngFor="let pmsSummary of pmsSummaryList" (click)="navigateToPmsEdit(pmsSummary.pms.pmsNummer)"
             tappable>
-            <ng-container *ngIf="pmsSummary.pms != null">
-                <div class="pef-item-description name">
-                    <div class="text pms-name">[{{pmsSummary.pms.pmsNummer}}] {{ pmsSummary.pms.name }}</div>
-                    <div class="artikel-text">{{ pmsSummary.pms.erhebungsregion }}</div>
-                </div>
-                <div class="todo">
-                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].todo == pmsSummary.summary[erhebungsZeitpunktKey].todoSynced">{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}</span>
-                </div>
-                <div class="done">
-                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].done }}</span>
-                </div>
-                <div class="new-preismeldungen">
-                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}</span>
-                </div>
-            </ng-container>
+            <div class="pef-item-description name">
+                <div class="text pms-name">[{{pmsSummary.pms.pmsNummer}}] {{ pmsSummary.pms.name }}</div>
+                <div class="artikel-text">{{ pmsSummary.pms.erhebungsregion }}</div>
+            </div>
+            <div class="todo">
+                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].todo == pmsSummary.summary[erhebungsZeitpunktKey].todoSynced">{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}</span>
+            </div>
+            <div class="done">
+                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].done }}</span>
+            </div>
+            <div class="new-preismeldungen">
+                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].doneUploaded == pmsSummary.summary[erhebungsZeitpunktKey].todo">{{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}</span>
+            </div>
         </ion-item>
     </pef-virtual-scroll>
 </div>
