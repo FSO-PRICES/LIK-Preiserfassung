@@ -197,9 +197,8 @@ export class PmsDetailsPage implements OnDestroy {
 
     formLevelValidationFactory() {
         return (group: FormGroup) => {
-            return Object.keys(group.controls)
-                .filter(x => x.startsWith('erhebungsart_'))
-                .every(k => !group.get(k).value)
+            const erhebungsarten = group.get('erhebungsarten') as FormGroup;
+            return Object.keys(erhebungsarten.controls).every(k => !erhebungsarten.get(k).value)
                 ? { erhebungsart_required: true }
                 : null;
         };
