@@ -24,7 +24,7 @@ import {
     getAllDocumentsFromDb,
     dbNames,
     getAllDocumentsForPrefix,
-} from './pouchdb-utils';
+} from '../common/pouchdb-utils';
 import { loadPreismeldungenAndRefPreismeldungForPms } from '../common/user-db-values';
 import { Action } from '../actions/preismeldung';
 import * as fromRoot from '../reducers';

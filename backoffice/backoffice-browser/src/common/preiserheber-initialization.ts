@@ -27,7 +27,7 @@ import {
     getAllDocumentsFromDb,
     getAllIdRevsForPrefixFromDb,
     listAllDatabases,
-} from '../effects/pouchdb-utils';
+} from '../common/pouchdb-utils';
 
 export interface UserDbStructure {
     preiserheber: P.Erheber;

@@ -13,7 +13,7 @@ import {
     getDocumentByKeyFromDb,
     getUserDatabaseName,
     getDatabase,
-} from '../effects/pouchdb-utils';
+} from '../common/pouchdb-utils';
 
 export function loadAllPreismeldestellen() {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldestelle>(preismeldestelleId()).flatMap(

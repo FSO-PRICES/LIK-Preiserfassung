@@ -180,11 +180,6 @@ export class PouchService {
         );
     }
 
-    public isLoginExpired(expirationTime: number) {
-        const lastLoginTime = localStorage.getItem('couchdb_lastLoginTime');
-        return true || !lastLoginTime || +new Date() > parseInt(lastLoginTime, 10) + expirationTime;
-    }
-
     private setCouchLoginTime(timestamp: number) {
         return localStorage.setItem('couchdb_lastLoginTime', timestamp.toString());
     }

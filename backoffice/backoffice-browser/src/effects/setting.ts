@@ -6,7 +6,7 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as setting from '../actions/setting';
-import { getLocalDatabase, dbNames, getSettings } from './pouchdb-utils';
+import { getLocalDatabase, dbNames, getSettings } from '../common/pouchdb-utils';
 import { CurrentSetting } from '../reducers/setting';
 
 @Injectable()

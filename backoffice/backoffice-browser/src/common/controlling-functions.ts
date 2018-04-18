@@ -1,13 +1,21 @@
 import { Observable } from 'rxjs';
 import { assign, isEqual } from 'lodash';
 
-import { listUserDatabases, getDatabaseAsObservable, dbNames, getAllDocumentsFromDb } from '../effects/pouchdb-utils';
+import { listUserDatabases, getDatabaseAsObservable, dbNames, getAllDocumentsFromDb } from '../common/pouchdb-utils';
 import { Models as P, allPropertiesExeceptIdAndRev } from 'lik-shared';
 
 export function copyUserDbErheberDetailsToPreiserheberDb() {
     return listUserDatabases()
-        .flatMap(dbs => Observable.forkJoin(dbs.map(dbName => getDatabaseAsObservable(dbName).flatMap(db => db.get<P.Erheber>('preiserheber')))))
-        .flatMap(userPreiserhebers => getDatabaseAsObservable(dbNames.preiserheber).flatMap(db => getAllDocumentsFromDb<P.Erheber>(db)).map(erhebers => ({ erhebers, userPreiserhebers })))
+        .flatMap(dbs =>
+            Observable.forkJoin(
+                dbs.map(dbName => getDatabaseAsObservable(dbName).flatMap(db => db.get<P.Erheber>('preiserheber')))
+            )
+        )
+        .flatMap(userPreiserhebers =>
+            getDatabaseAsObservable(dbNames.preiserheber)
+                .flatMap(db => getAllDocumentsFromDb<P.Erheber>(db))
+                .map(erhebers => ({ erhebers, userPreiserhebers }))
+        )
         .map(({ erhebers, userPreiserhebers }) =>
             erhebers
                 .map(erheber => {

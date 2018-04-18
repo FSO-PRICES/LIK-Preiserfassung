@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../reducers';
 import * as login from '../actions/login';
-import { dbNames, getDatabase, loginToDatabase, checkServerConnection } from './pouchdb-utils';
+import { dbNames, getDatabase, loginToDatabase, checkServerConnection } from '../common/pouchdb-utils';
 import { Action } from '../common/effects-extensions';
 import { getCurrentLoggedInUser, setCurrentLoggedInUser, resetCurrentLoggedInUser } from '../common/login-extensions';
 import { Observable } from 'rxjs/Observable';

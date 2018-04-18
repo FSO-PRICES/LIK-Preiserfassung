@@ -8,7 +8,7 @@ import { Models as P } from 'lik-shared';
 import * as fromRoot from '../reducers';
 import * as preiszuweisung from '../actions/preiszuweisung';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
-import { getDatabase, dbNames } from './pouchdb-utils';
+import { getDatabase, dbNames } from '../common/pouchdb-utils';
 import { CurrentPreiszuweisung } from '../reducers/preiszuweisung';
 
 @Injectable()

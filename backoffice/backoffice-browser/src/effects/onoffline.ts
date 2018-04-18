@@ -9,7 +9,7 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as onoffline from '../actions/onoffline';
-import { dbNames, getSettings, getDatabase, getDatabaseAsObservable } from './pouchdb-utils';
+import { dbNames, getSettings, getDatabase, getDatabaseAsObservable } from '../common/pouchdb-utils';
 import { CurrentSetting } from '../reducers/setting';
 
 @Injectable()

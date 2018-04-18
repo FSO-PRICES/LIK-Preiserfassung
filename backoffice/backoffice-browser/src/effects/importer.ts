@@ -19,7 +19,7 @@ import {
     getDatabaseAsObservable,
     getAllDocumentsFromDb,
     getDocumentByKeyFromDb,
-} from './pouchdb-utils';
+} from '../common/pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
 import { continueEffectOnlyIfTrue, doAsyncAsObservable } from '../common/effects-extensions';
 import { parseCsvAsObservable } from '../common/file-extensions';

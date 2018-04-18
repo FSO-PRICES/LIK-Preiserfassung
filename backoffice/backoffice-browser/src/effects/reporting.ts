@@ -16,7 +16,7 @@ import {
     getAllDocumentsFromDbName,
     getAllDocumentsForPrefixFromDb,
     getDatabase,
-} from './pouchdb-utils';
+} from '../common/pouchdb-utils';
 import {
     getAllDocumentsForPrefixFromUserDbs,
     loadAllPreismeldestellen,

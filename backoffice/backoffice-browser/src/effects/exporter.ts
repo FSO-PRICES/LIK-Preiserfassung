@@ -15,7 +15,7 @@ import {
     getDocumentByKeyFromDb,
     getAllDocumentsFromDb,
     getDatabase,
-} from './pouchdb-utils';
+} from '../common/pouchdb-utils';
 import { toCsv } from '../common/file-extensions';
 import { preparePmsForExport, preparePreiserheberForExport, preparePmForExport } from '../common/presta-data-mapper';
 import { continueEffectOnlyIfTrue, resetAndContinueWith, doAsyncAsObservable } from '../common/effects-extensions';

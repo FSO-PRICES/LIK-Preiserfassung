@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import * as fromRoot from '../reducers';
-import { dbNames, getDatabaseAsObservable } from './pouchdb-utils';
+import { dbNames, getDatabaseAsObservable } from '../common/pouchdb-utils';
 
 @Injectable()
 export class WarenkorbEffects {

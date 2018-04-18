@@ -19,7 +19,7 @@ import {
     getDatabaseAsObservable,
     getAllDocumentsForPrefixFromDb,
     getAllDocumentsFromDbName,
-} from './pouchdb-utils';
+} from '../common/pouchdb-utils';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import * as fromRoot from '../reducers';

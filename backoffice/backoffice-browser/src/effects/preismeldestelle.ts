@@ -15,7 +15,7 @@ import {
     getDatabase,
     getDatabaseAsObservable,
     getUserDatabaseName,
-} from './pouchdb-utils';
+} from '../common/pouchdb-utils';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
 import { loadAllPreismeldestellen } from '../common/user-db-values';
 

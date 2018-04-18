@@ -18,7 +18,7 @@ import {
     dbNames,
     getUserDatabaseName,
     deleteUser,
-} from './pouchdb-utils';
+} from '../common/pouchdb-utils';
 import { Models as P, CurrentPreiserheber } from '../common-models';
 import { createUserDb, updateUserAndZuweisungDb } from '../common/preiserheber-initialization';
 import { loadAllPreiserheber, loadPreiserheber, updatePreiserheber } from '../common/user-db-values';
