@@ -22,6 +22,20 @@ export const dbNames = {
     onoffline: 'onoffline',
 };
 
+export const systemDbs: Partial<typeof dbNames> = {
+    warenkorb: 'warenkorb',
+    preiserheber: 'preiserheber',
+    preismeldestelle: 'preismeldestellen',
+    region: 'regionen',
+    preiszuweisung: 'preiszuweisungen',
+    orphaned_erfasste_preismeldungen: 'orphaned_erfasste_preismeldungen',
+    preismeldung: 'preismeldungen',
+    setting: 'settings',
+    import: 'imports',
+    exports: 'exports',
+    onoffline: 'onoffline',
+};
+
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
 // PouchDB.debug.enable('pouchdb:api');
@@ -37,6 +51,28 @@ export const getDatabaseAsObservable = (dbName: string) => Observable.fromPromis
 
 export function getLocalDatabase(dbName) {
     return getLocalCouchDb(dbName);
+}
+
+export async function downloadDatabaseAsync(dbName: string) {
+    return _syncDatabaseAsync(dbName, { push: false, pull: true });
+}
+
+export async function uploadDatabaseAsync(dbName: string) {
+    return _syncDatabaseAsync(dbName, { push: true, pull: false });
+}
+
+export async function syncDatabaseAsync(dbName: string) {
+    return _syncDatabaseAsync(dbName, { push: true, pull: true });
+}
+
+async function _syncDatabaseAsync(dbName: string, params: { push: boolean; pull: boolean }, batchSize: number = 1000) {
+    const pouchDb = await getLocalCouchDb(dbName);
+    const couchDb = await getCouchDb(dbName);
+    const sync = pouchDb.sync(couchDb, { ...params, batch_size: batchSize });
+    return new Promise((resolve, reject) => {
+        sync.on('complete', info => resolve(info));
+        sync.on('error', error => reject(error));
+    });
 }
 
 export function dropLocalDatabase(dbName) {
@@ -91,10 +127,7 @@ export function getSettings() {
 
 function getCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
     return getSettings()
-        .then(settings => {
-            const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
-            return Promise.resolve(couch);
-        })
+        .then(settings => new PouchDB(`${settings.serverConnection.url}/${dbName}`))
         .catch(err => new PouchDB(dbNames.emptyDb));
 }
 
