@@ -10,6 +10,7 @@ import {
     PefMessageDialogService,
     DialogCancelEditComponent,
     SavePreismeldungPriceSaveActionSaveNavigateTab,
+    priceCountIdByPm,
 } from 'lik-shared';
 
 import * as fromRoot from '../../reducers';
@@ -269,7 +270,7 @@ export class PmsPriceEntryPage implements OnDestroy {
                 this.currentPreismeldung$,
                 this.priceCountStatuses$,
                 (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) => ({
-                    priceCountStatus: priceCountStatuses[currentPreismeldung.preismeldung.epNummer],
+                    priceCountStatus: priceCountStatuses[priceCountIdByPm(currentPreismeldung.preismeldung)],
                     currentPreismeldung,
                 })
             )

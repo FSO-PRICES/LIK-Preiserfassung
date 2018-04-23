@@ -45,3 +45,11 @@ export const sortBySelector = <T>(list: T[], selector: (element: T) => any) => {
         return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
     });
 };
+
+export function priceCountIdByPm({ pmsNummer, epNummer }) {
+    return preismeldungId(pmsNummer, epNummer);
+}
+
+export function priceCountId(pmsNummer, epNummer) {
+    return priceCountIdByPm({ pmsNummer, epNummer });
+}
