@@ -14,54 +14,66 @@ export class LoginEffects {
     currentLogin$ = this.store.select(fromRoot.getIsLoggedIn);
     settings$ = this.store.select(fromRoot.getSettings);
 
-    constructor(
-        private actions$: Actions,
-        private store: Store<fromRoot.AppState>) {
-    }
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    checkIsLoggedIn$ = this.actions$.ofType('CHECK_IS_LOGGED_IN')
-        .flatMap(() => Observable
-            .of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action)
-            .merge(this.settings$.filter(settings => !!settings).take(1)
+    checkIsLoggedIn$ = this.actions$.ofType('CHECK_IS_LOGGED_IN').flatMap(() =>
+        Observable.of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action).concat(
+            this.settings$
+                .filter(settings => !!settings)
+                .take(1)
                 .flatMap(settings => {
+                    const loggedInUser = getCurrentLoggedInUser();
                     if (!!settings && !settings.isDefault) {
                         return checkServerConnection()
                             .flatMap(() =>
                                 getDatabase(dbNames.users)
                                     .then(db => db.allDocs())
-                                    .then(resp => true)
+                                    .then(resp => loggedInUser)
                             )
                             .catch(() => {
                                 resetCurrentLoggedInUser();
-                                return Observable.of(false);
-                            })
+                                return Observable.of(null);
+                            });
                     }
-                    return Observable.of(false);
+                    return Observable.of(null);
                 })
-                .map(isLoggedIn => (!isLoggedIn ?
-                    { type: 'SET_IS_LOGGED_OUT' } as login.Action :
-                    { type: 'SET_IS_LOGGED_IN', payload: getCurrentLoggedInUser() } as login.Action)
+                .map(
+                    loggedInUser =>
+                        !loggedInUser
+                            ? ({ type: 'SET_IS_LOGGED_OUT' } as login.Action)
+                            : ({
+                                  type: 'SET_IS_LOGGED_IN',
+                                  payload: loggedInUser,
+                              } as login.Action)
                 )
-            )
-        );
+        )
+    );
 
     @Effect()
-    login$ = this.actions$.ofType('LOGIN')
-        .flatMap(({ payload }) => loginToDatabase(payload)
-            .then(() => {
-                setCurrentLoggedInUser(payload.username);
-                return { username: payload.username };
-            })
-            .then(user => getDatabase(dbNames.users)
-                .then(db => db.allDocs())
-                .then(() => ({ user, error: null }))
-                .catch(reason => {
-                    resetCurrentLoggedInUser();
-                    return { user: null, error: 'Unzureichende Berechtigung.' };
+    login$ = this.actions$
+        .ofType('LOGIN')
+        .flatMap(({ payload }) =>
+            loginToDatabase(payload)
+                .then(() => {
+                    setCurrentLoggedInUser(payload.username);
+                    return { username: payload.username };
                 })
-            )
-            .catch(() => ({ user: null, error: 'Benutzername oder Password stimmen nicht überein.' }))
+                .then(user =>
+                    getDatabase(dbNames.users)
+                        .then(db => db.allDocs())
+                        .then(() => ({ user, error: null }))
+                        .catch(reason => {
+                            resetCurrentLoggedInUser();
+                            return { user: null, error: 'Unzureichende Berechtigung.' };
+                        })
+                )
+                .catch(() => ({ user: null, error: 'Benutzername oder Password stimmen nicht überein.' }))
         )
-        .map(({ user, error }) => (!error ? { type: 'LOGIN_SUCCESS', payload: user } as login.Action : { type: 'LOGIN_FAIL', payload: error } as login.Action));
+        .map(
+            ({ user, error }) =>
+                !error
+                    ? ({ type: 'LOGIN_SUCCESS', payload: user } as login.Action)
+                    : ({ type: 'LOGIN_FAIL', payload: error } as login.Action)
+        );
 }
