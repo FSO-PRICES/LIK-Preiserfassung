@@ -1,4 +1,14 @@
-import { Component, Input, EventEmitter, OnChanges, SimpleChange, Output, OnDestroy } from '@angular/core';
+import {
+    Component,
+    Input,
+    EventEmitter,
+    OnChanges,
+    SimpleChange,
+    Output,
+    OnDestroy,
+    ViewChild,
+    ElementRef,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { ReactiveComponent, pefSearch } from 'lik-shared';
@@ -20,6 +30,8 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     @Input() suggestions: TypeaheadData[];
     @Input() reset: any;
     @Output('selected') selectedSuggestions$: Observable<TypeaheadData[]>;
+    @Output('triggerSubmit') triggerSubmit$: Observable<any>;
+    @ViewChild('singleTag') singleTag: ElementRef;
 
     filterText = new FormControl();
     filteredSuggestions$: Observable<TypeaheadData[]>;
@@ -31,6 +43,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     inputFocus$ = new EventEmitter<boolean>();
     selectSuggestion$ = new EventEmitter<TypeaheadData>();
     removeSuggestion$ = new EventEmitter<TypeaheadData>();
+    submitSingleTag$ = new EventEmitter<KeyboardEvent>();
     setFocus$ = this.removeSuggestion$
         .asObservable()
         .mapTo(true)
@@ -42,6 +55,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
         const arrowKeyNavigation = { 38: -1, 40: 1 };
         const applyKey = 13;
         this.setFocus$.takeUntil(this.onDestroy$).subscribe();
+        this.triggerSubmit$ = this.submitSingleTag$.filter(x => x.keyCode === applyKey);
 
         const initialValues$ = this.observePropertyCurrentValue<any[]>('initialValues').filter(x => !!x && !!x.length);
         const reset$ = this.observePropertyCurrentValue<any>('reset')
@@ -86,6 +100,15 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
             .publishReplay(1)
             .refCount();
 
+        this.selectedSuggestions$
+            .delay(0)
+            .filter(x => !!x && x.length === 1)
+            .subscribe(x => {
+                if (!!this.singleTag) {
+                    this.singleTag.nativeElement.focus();
+                }
+            });
+
         this.filteredSuggestions$ = this.filterText.valueChanges
             .startWith(null)
             .combineLatest(suggestions$, this.selectedSuggestions$)
@@ -105,7 +128,9 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
                 (acc, [direction, count]) =>
                     (acc || 0) + direction > count - 1
                         ? count - 1
-                        : (acc || 0) + direction < 0 ? 0 : (acc || 0) + direction,
+                        : (acc || 0) + direction < 0
+                            ? 0
+                            : (acc || 0) + direction,
                 -1
             )
             .map(x => (x === -1 ? null : x))

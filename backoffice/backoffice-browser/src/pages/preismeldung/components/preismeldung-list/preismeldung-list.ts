@@ -7,8 +7,9 @@ import {
     OnChanges,
     OnDestroy,
     ChangeDetectionStrategy,
+    ViewChild,
 } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { NgForm } from '@angular/forms';
 import { Observable } from 'rxjs';
 
 import { first } from 'lodash';
@@ -37,6 +38,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('resetPreismeldungen') public resetPreismeldungen$ = new EventEmitter();
     @Output('selectPreismeldung') public selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
 
+    @ViewChild('form') form: NgForm;
+
     public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer').filter(x => !!x);
     public initialFilter$: Observable<{ [p in keyof PmsFilter]: string[] }> = this.observePropertyCurrentValue<
         PmsFilter
@@ -64,6 +67,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public pmsNummerFilter$ = new EventEmitter<TypeaheadData[]>();
     public epNummersFilter$ = new EventEmitter<TypeaheadData[]>();
     public statusFilterChanged$ = new EventEmitter<string>();
+    public triggerSubmit$ = new EventEmitter();
 
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public viewPortItems: P.PreismeldungBag[];
@@ -74,7 +78,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     private onDestroy$ = new EventEmitter();
 
-    constructor(private formBuilder: FormBuilder) {
+    constructor() {
         super();
 
         const statusFilter$ = this.statusFilterChanged$
@@ -121,6 +125,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .startWith(false)
             .publishReplay(1)
             .refCount();
+
+        this.triggerSubmit$.takeUntil(this.onDestroy$).subscribe(() => this.form.ngSubmit.emit());
 
         this.filterChanged$ = this.applyClicked$
             .merge(pmIdSearch$)

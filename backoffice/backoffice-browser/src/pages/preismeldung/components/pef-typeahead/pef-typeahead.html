@@ -7,7 +7,7 @@
             [formControl]="filterText" (keydown)="keydown$.emit($event)" (focus)="inputFocus$.emit(true)"></ion-input>
         <ng-container *ngIf="!multi">
             <div class="single-tag input-md" *ngFor="let suggestion of selectedSuggestions$ | async">
-                <div class="tag-label">{{suggestion.shortLabel || suggestion.label}}</div>
+                <div class="tag-label" tabindex="0" #singleTag (keydown)="submitSingleTag$.emit($event)">{{suggestion.shortLabel || suggestion.label}}</div>
                 <button class="text-input-clear-icon" clear ion-button type="button" (click)="removeSuggestion$.emit(suggestion)"></button>
             </div>
         </ng-container>
@@ -16,9 +16,6 @@
 <div class="dropdown-container">
     <ion-content pef-perfect-virtualscroll-scrollbar enabled="true" class="suggestions" [class.hidden]="(filteredSuggestions$ | async).length === 0">
         <ion-list [virtualScroll]="filteredSuggestions$ | async" approxItemHeight="32px">
-            <!-- <ion-item *virtualItem="let suggestion" class="pef-advanced-item">
-            {{suggestion}}
-        </ion-item> -->
             <ion-item class="pef-advanced-item" *virtualItem="let suggestion; let i = index" (click)="selectSuggestion$.emit(suggestion)"
                 tappable [class.selected]="(selectedIndex$ | async) === i">
                 <div class="pef-item-title">

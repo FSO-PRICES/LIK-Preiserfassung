@@ -9,7 +9,7 @@
                 (valueChanges)="pmIdSearchChanged$.emit($event)"></pef-search-input>
         </form>
 
-        <form class="stacked-form">
+        <form class="stacked-form" #form="ngForm" (ngSubmit)="applyClicked$.emit()">
             <h2>Filter</h2>
             <ion-list no-lines>
                 <div class="pef-item item item-block item-md item-label-stacked item-input">
@@ -28,12 +28,14 @@
                     </div>
                 </div>
                 <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.preiserheberIds" label="Preiserheber/in"
-                    [suggestions]="suggestionsPreiserheberIds$ | async" (selected)="preiserheberIdsFilter$.emit($event)" [multi]="true"></pef-typeahead>
+                    [suggestions]="suggestionsPreiserheberIds$ | async" (selected)="preiserheberIdsFilter$.emit($event)" (triggerSubmit)="triggerSubmit$.emit()"
+                    [multi]="true"></pef-typeahead>
                 <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.pmsNummers" label="PMS" [suggestions]="suggestionsPmsNummers$ | async"
-                    (selected)="pmsNummerFilter$.emit($event)"></pef-typeahead>
+                    (selected)="pmsNummerFilter$.emit($event)" (triggerSubmit)="triggerSubmit$.emit()"></pef-typeahead>
                 <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.epNummers" label="Erhebungsposition"
-                    [suggestions]="suggestionsEpNummers$ | async" (selected)="epNummersFilter$.emit($event)" [multi]="true"></pef-typeahead>
-                <button type="submit" ion-button (click)="applyClicked$.emit()" [disabled]="!(canSearch$ | async)">anwenden</button>
+                    [suggestions]="suggestionsEpNummers$ | async" (selected)="epNummersFilter$.emit($event)" (triggerSubmit)="triggerSubmit$.emit()"
+                    [multi]="true"></pef-typeahead>
+                <button type="submit" ion-button [disabled]="!(canSearch$ | async)">anwenden</button>
                 <button ion-button (click)="resetFilterClicked$.emit($event)">zurücksetzen</button>
             </ion-list>
         </form>
