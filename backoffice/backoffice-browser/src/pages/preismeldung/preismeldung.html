@@ -3,9 +3,9 @@
     <div class="page-content">
         <preismeldung-list [preismeldungen]="preismeldungen$ | async" [preismeldestellen]="preismeldestellen$ | async" [preiserhebers]="preiserhebers$ | async"
             [erhebungspositions]="erhebungspositions$ | async" [currentPreismeldung]="currentPreismeldung$ | async" [initialFilter]="initialFilter$ | async"
-            [initialPmsNummer]="initialPmsNummer" (filterChanged)="pmsFilterChanged$.emit($event)" (selectPreismeldung)="selectPreismeldung$.emit($event)"
-            (resetPreismeldungen)="resetPreismeldungen$.emit()"></preismeldung-list>
-        <div class="preismeldung-detail-container container">
+            [initialPmsNummer]="initialPmsNummer" [preismeldungenStatus]="preismeldungenStatus$ | async" (filterChanged)="pmsFilterChanged$.emit($event)"
+            (selectPreismeldung)="selectPreismeldung$.emit($event)" (resetPreismeldungen)="resetPreismeldungen$.emit()"></preismeldung-list>
+        <div class="preismeldung-detail-container container" *ngIf="currentPreismeldung$ | async; let currentPreismeldung">
             <preismeldung-toolbar *ngIf="!!(currentPreismeldung$ | async)?.pmId" [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async"
                 (selectTab)="selectTab$.emit($event)" [isAdminApp]="true" (buttonClicked)="toolbarButtonClicked$.emit($event)">
             </preismeldung-toolbar>
@@ -27,7 +27,12 @@
                     [isDesktop]="true" [preismeldestelle]="preismeldestelle$ | async" [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async" (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()" (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
-                    (requestThrowChanges)="requestThrowChanges$.emit({})" [isAdminApp]="true" (save)="save$.emit($event)"></preismeldung-price>
+                    (requestThrowChanges)="requestThrowChanges$.emit({})" [isAdminApp]="true" (save)="save$.emit($event)">
+                    <div class="additional-actions" *ngIf="!!currentPreismeldung.preismeldung.uploadRequestedAt">
+                        <pef-pm-status [disabled]="currentPreismeldung.exported" [preismeldungStatus]="(preismeldungenStatus$ | async)[currentPreismeldung.pmId]"
+                            (setPreismeldungStatus)="setPreismeldungStatus$.emit({ pmId: currentPreismeldung.pmId, status: $event })"></pef-pm-status>
+                    </div>
+                </preismeldung-price>
                 <div class="pe-details">{{(preiserheber$ | async)?.firstName}} {{(preiserheber$ | async)?.surname}}</div>
             </div>
         </div>

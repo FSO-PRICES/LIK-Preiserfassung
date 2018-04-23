@@ -1,7 +1,11 @@
 import { Observable } from 'rxjs/Observable';
 import * as bluebird from 'bluebird';
+import PouchDB from 'pouchdb';
 
-import { getLocalDatabase, getSettings, dbNames } from './database';
+import { Models as P, preismeldungId } from 'lik-shared';
+
+import { getLocalDatabase, getSettings, dbNames, downloadDatabaseAsync, uploadDatabaseAsync } from './database';
+import { getDocumentByKeyFromDb } from './documents';
 
 function setCouchLoginTime(timestamp: number) {
     return localStorage.setItem('couchdb_lastLoginTime', timestamp.toString());
@@ -27,4 +31,44 @@ export function checkServerConnection() {
             crossDomain: true,
         })
     );
+}
+
+export async function getAllPreismeldungenStatus() {
+    await downloadDatabaseAsync(dbNames.preismeldungen_status);
+    const db = await getLocalDatabase(dbNames.preismeldungen_status);
+    const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
+        db,
+        'preismeldungen_status'
+    );
+    return currentPreismeldungenStatus.statusMap;
+}
+
+export async function updateMissingPreismeldungenStatus(
+    preismeldungen: P.Preismeldung[],
+    refPreismeldungen: P.PreismeldungReference[]
+) {
+    await downloadDatabaseAsync(dbNames.preismeldungen_status);
+    const db = await getLocalDatabase(dbNames.preismeldungen_status);
+    const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
+        db,
+        'preismeldungen_status'
+    );
+    let hasNew = false;
+    refPreismeldungen.forEach(pmRef => {
+        if (!currentPreismeldungenStatus.statusMap[pmRef.pmId]) {
+            hasNew = true;
+            currentPreismeldungenStatus.statusMap[pmRef.pmId] = P.PreismeldungStatus['ungeprüft'];
+        }
+    });
+    preismeldungen.forEach(pm => {
+        if (!currentPreismeldungenStatus.statusMap[pm._id]) {
+            hasNew = true;
+            currentPreismeldungenStatus.statusMap[pm._id] = P.PreismeldungStatus['ungeprüft'];
+        }
+    });
+    if (hasNew) {
+        await db.put(currentPreismeldungenStatus);
+        await uploadDatabaseAsync(dbNames.preismeldungen_status);
+    }
+    return currentPreismeldungenStatus;
 }

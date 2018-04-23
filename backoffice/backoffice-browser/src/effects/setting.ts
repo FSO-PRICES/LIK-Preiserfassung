@@ -31,7 +31,7 @@ export class SettingEffects {
         .ofType('SAVE_SETTING')
         .withLatestFrom(this.currentSetting$, (action, currentSetting: CurrentSetting) => ({ currentSetting }))
         .flatMap(({ currentSetting }) =>
-            getLocalDatabase(dbNames.setting)
+            getLocalDatabase(dbNames.settings)
                 .then(db => {
                     // Only check if the document exists if a revision already exists
                     if (!!currentSetting._rev) {

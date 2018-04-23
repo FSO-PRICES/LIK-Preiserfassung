@@ -75,7 +75,7 @@ export class ExporterEffects {
                                 });
                         })
                         .flatMap(filteredPreismeldungBags => {
-                            return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
+                            return getDatabaseAsObservable(dbNames.preismeldungen) // Load erhebungsmonat from preismeldungen db
                                 .flatMap(db =>
                                     getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(
                                         erhebungsmonat => erhebungsmonat
@@ -152,11 +152,11 @@ export class ExporterEffects {
             loadAllPreismeldestellen()
                 .flatMap(preismeldestellen => {
                     if (preismeldestellen.length === 0) throw new Error('Keine preismeldestellen vorhanden.');
-                    return getDatabaseAsObservable(dbNames.preismeldestelle)
+                    return getDatabaseAsObservable(dbNames.preismeldestellen)
                         .flatMap(db => db.bulkDocs(preismeldestellen, { new_edits: false })) // new_edits: false -> enables the insertion of foreign docs
                         .flatMap(() =>
                             // retrieve all pms documents from 'master' preismeldestelle db with the assigned erhebungsmonat
-                            getDatabaseAsObservable(dbNames.preismeldestelle).flatMap(db =>
+                            getDatabaseAsObservable(dbNames.preismeldestellen).flatMap(db =>
                                 getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId()).then(
                                     updatedPreismeldestellen =>
                                         getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(
@@ -224,7 +224,7 @@ export class ExporterEffects {
             loadAllPreiserheber()
                 .flatMap(preiserheber => {
                     if (preiserheber.length === 0) throw new Error('Keine preiserheber erfasst.');
-                    return getDatabaseAsObservable(dbNames.preismeldung) // Load erhebungsmonat from preismeldungen db
+                    return getDatabaseAsObservable(dbNames.preismeldungen) // Load erhebungsmonat from preismeldungen db
                         .flatMap(db =>
                             getDocumentByKeyFromDb<P.Erhebungsmonat>(db, 'erhebungsmonat').then(erhebungsmonat => ({
                                 erhebungsorgannummer: payload,
@@ -284,7 +284,7 @@ export class ExporterEffects {
 }
 
 function getPePreiszuweisungen(preiserheber: P.Erheber[]) {
-    return getDatabaseAsObservable(dbNames.preiszuweisung).flatMap(db =>
+    return getDatabaseAsObservable(dbNames.preiszuweisungen).flatMap(db =>
         getAllDocumentsFromDb<P.Preiszuweisung>(db).then(preiszuweisungen => {
             const zuweisungsMap = keyBy(preiszuweisungen, pz => pz.preiserheberId);
             return preiserheber.map(pe =>

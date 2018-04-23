@@ -48,7 +48,7 @@ export class PreismeldestelleEffects {
         )
         .flatMap(({ currentPreismeldestelle, userDbName }) =>
             Observable.fromPromise(
-                getDatabase(userDbName || dbNames.preismeldestelle)
+                getDatabase(userDbName || dbNames.preismeldestellen)
                     .then(db => db.get(currentPreismeldestelle._id).then(doc => ({ db, doc })))
                     .then(({ db, doc }) =>
                         db
@@ -84,7 +84,7 @@ export class PreismeldestelleEffects {
 }
 
 function findUserDbNameContainingPms(pmsNummerToFind: string) {
-    return getDatabaseAsObservable(dbNames.preiszuweisung)
+    return getDatabaseAsObservable(dbNames.preiszuweisungen)
         .flatMap(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))
         .map(preiszuweisungen => {
             const preiszuweisung = find(preiszuweisungen, p =>

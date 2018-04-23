@@ -1,6 +1,8 @@
 import * as controlling from '../actions/controlling';
+import { orderBy } from 'lodash';
+
 import { Models as P, formatPercentageChange } from 'lik-shared';
-import { flatten, orderBy, groupBy } from 'lodash';
+import { createMapOf, createCountMapOf } from 'lik-shared/common/map-functions';
 
 const fwith = <T>(o: T, fn: (o: T) => any) => fn(o);
 
@@ -8,6 +10,7 @@ export interface ControllingReportData {
     controllingType: controlling.CONTROLLING_TYPE;
     columns: string[];
     rows: {
+        exported: boolean;
         pmId: string;
         canView: boolean;
         values: (string | number)[];
@@ -112,6 +115,7 @@ function runReport(data: controlling.ControllingData, controllingType: controlli
             }),
             {}
         ),
+        exported: x.alreadyExported,
     }));
     const orderedResults = orderBy(results, controllingConfig.sortBy.map((_, i) => `sort${i}`));
     return {
@@ -120,6 +124,7 @@ function runReport(data: controlling.ControllingData, controllingType: controlli
             pmId: r.pmId,
             canView: r.canView,
             values: r.values,
+            exported: r.exported,
         })),
     };
 }
@@ -133,6 +138,7 @@ const REPORT_INCLUDE_EP = 'REPORT_INCLUDE_EP';
 const REPORT_EXCLUDE_EP = 'REPORT_EXCLUDE_EP';
 
 interface ControllingErhebungsPosition {
+    alreadyExported: boolean;
     preismeldung: P.Preismeldung;
     refPreismeldung: P.PreismeldungReference;
     warenkorbItem: P.WarenkorbLeaf;
@@ -287,55 +293,58 @@ function filterErhebungsPositionen(
 
     const uploadedPreismeldungen = data.preismeldungen.filter(p => !!p.uploadRequestedAt);
 
+    const alreadyExportedById = createMapOf(data.alreadyExported, true);
+    const refPreismeldungByPmId = createMapOf(data.refPreismeldungen, pmRef => pmRef.pmId);
+    const uploadedPreismeldungenById = createMapOf(uploadedPreismeldungen, pm => pm._id);
+    const warenkorbProductsByEpNummer = createMapOf(data.warenkorb.products, p => p.gliederungspositionsnummer);
+    const pmsByPmsNummer = createMapOf(data.preismeldestellen, pms => pms.pmsNummer);
+    const preiserheberByUsername = createMapOf(data.preiserheber, pe => pe.username);
+    const warenkorbItemsByEpNummer = createMapOf(warenkorbItems, item => item.gliederungspositionsnummer);
+
     const preismeldungen = data.refPreismeldungen
         .map(refPreismeldung => ({
             epNummer: refPreismeldung.epNummer,
             refPreismeldung,
-            preismeldung: uploadedPreismeldungen.find(pm => pm._id === refPreismeldung.pmId),
+            preismeldung: uploadedPreismeldungenById[refPreismeldung.pmId],
         }))
         .concat(
-            uploadedPreismeldungen
-                .filter(pm => !data.refPreismeldungen.find(rpm => rpm.pmId === pm._id))
-                .map(preismeldung => ({
-                    epNummer: preismeldung.epNummer,
-                    preismeldung,
-                    refPreismeldung: null,
-                }))
+            uploadedPreismeldungen.filter(pm => !refPreismeldungByPmId[pm._id]).map(preismeldung => ({
+                epNummer: preismeldung.epNummer,
+                preismeldung,
+                refPreismeldung: null,
+            }))
         );
+
+    const getPmsEpId = (pm: P.Preismeldung) => `${pm.pmsNummer}_${pm.epNummer}`;
+    const preismeldungenByPmsAndEp = createCountMapOf(
+        preismeldungen.filter(x => !!x.preismeldung && x.preismeldung.bearbeitungscode !== 0),
+        pm => getPmsEpId(pm.preismeldung)
+    );
 
     return preismeldungen
         .map(({ preismeldung, refPreismeldung, epNummer }) => {
             const pmsNummer = (preismeldung || refPreismeldung).pmsNummer;
-            const warenkorbItem = data.warenkorb.products.find(
-                p => p.gliederungspositionsnummer === epNummer
-            ) as P.WarenkorbLeaf;
+            const warenkorbItem = warenkorbProductsByEpNummer[epNummer] as P.WarenkorbLeaf;
             return !warenkorbItem
                 ? null
                 : {
+                      alreadyExported: !!preismeldung && alreadyExportedById[preismeldung._id],
                       preismeldung,
                       refPreismeldung,
-                      preismeldestelle: data.preismeldestellen.find(pms => pms.pmsNummer === pmsNummer),
+                      preismeldestelle: pmsByPmsNummer[pmsNummer],
                       warenkorbItem,
                       preiserheber: fwith(
                           data.preiszuweisungen.find(z => z.preismeldestellenNummern.some(n => n === pmsNummer)),
-                          z => (!!z ? data.preiserheber.find(e => e.username === z.preiserheberId) : null)
+                          z => (!!z ? preiserheberByUsername[z.preiserheberId] : null)
                       ),
                       warenkorbIndex: warenkorbIndexes[warenkorbItem.gliederungspositionsnummer],
-                      numEpForThisPms: !preismeldung
-                          ? 0
-                          : preismeldungen.filter(
-                                x =>
-                                    !!x.preismeldung &&
-                                    x.preismeldung.pmsNummer === preismeldung.pmsNummer &&
-                                    x.preismeldung.epNummer === preismeldung.epNummer &&
-                                    x.preismeldung.bearbeitungscode !== 0
-                            ).length,
+                      numEpForThisPms: !preismeldung ? 0 : preismeldungenByPmsAndEp[getPmsEpId(preismeldung)],
                   };
         })
         .filter(
             x =>
                 !!x &&
-                warenkorbItems.some(i => i.gliederungspositionsnummer === x.warenkorbItem.gliederungspositionsnummer) &&
+                !!warenkorbItemsByEpNummer[x.warenkorbItem.gliederungspositionsnummer] &&
                 (!controllingConfig.erherbungsPositionFilter || controllingConfig.erherbungsPositionFilter(x))
         );
 }

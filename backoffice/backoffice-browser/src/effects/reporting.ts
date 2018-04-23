@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
-import { PouchService } from '../services/PouchService';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -8,11 +7,8 @@ import { Observable } from 'rxjs';
 import * as fromRoot from '../reducers';
 import * as report from '../actions/report';
 import { Models as P, preismeldungRefId, preismeldungId, PreismeldungBag, parseErhebungsarten } from 'lik-shared';
-import { assign, flatten } from 'lodash';
 import {
-    getDatabaseAsObservable,
     dbNames,
-    getDocumentByKeyFromDb,
     getAllDocumentsFromDbName,
     getAllDocumentsForPrefixFromDb,
     getDatabase,
@@ -27,11 +23,7 @@ import {
 export class ReportingEffects {
     isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
-    constructor(
-        private actions$: Actions,
-        private pouchService: PouchService,
-        private store: Store<fromRoot.AppState>
-    ) {}
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadReportData$ = this.actions$
@@ -50,13 +42,13 @@ export class ReportingEffects {
 }
 
 async function loadDataForReport(reportType: report.ReportTypes): Promise<report.LoadReportSuccess> {
-    const erhebungsmonat = (await (await getDatabase(dbNames.preismeldung)).get<P.Erhebungsmonat>('erhebungsmonat'))
+    const erhebungsmonat = (await (await getDatabase(dbNames.preismeldungen)).get<P.Erhebungsmonat>('erhebungsmonat'))
         .monthAsString;
     const preismeldestellen = await loadAllPreismeldestellen().toPromise();
 
     const loadRefPreismeldungen = async () =>
         await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
-            await getDatabase(dbNames.preismeldung),
+            await getDatabase(dbNames.preismeldungen),
             preismeldungRefId()
         );
     const loadPreismeldungen = async (refPreismeldungen: P.PreismeldungReference[]) =>
@@ -65,7 +57,7 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
     const loadWarenkorb = async () =>
         await (await getDatabase(dbNames.warenkorb)).get<P.WarenkorbDocument>('warenkorb');
     const loadPreiszuweisungen = async () =>
-        await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisung).toPromise();
+        await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisungen).toPromise();
 
     switch (reportType) {
         case 'monthly': {

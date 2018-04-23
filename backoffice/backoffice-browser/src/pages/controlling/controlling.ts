@@ -32,6 +32,7 @@ export class ControllingPage implements OnDestroy {
     public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
     public preiszuweisungen$ = this.store.select(fromRoot.getPreiszuweisungen);
     public preiserhebers$ = this.store.select(fromRoot.getPreiserhebers);
+    public preismeldungenStatus$ = this.store.select(fromRoot.getPreismeldungenStatusMap);
 
     public editPreismeldungId$ = new EventEmitter<string>();
 
@@ -61,12 +62,15 @@ export class ControllingPage implements OnDestroy {
         .publishReplay(1)
         .refCount();
 
+    public completeAllPreismeldungenStatus$ = new EventEmitter<string[]>();
     public updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     public updatePreismeldungAttributes$ = new EventEmitter<string[]>();
     public savePreismeldungPrice$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     public savePreismeldungMessages$ = new EventEmitter();
     public savePreismeldungAttributes$ = new EventEmitter();
+    public setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
+    public setPreismeldungStatusBuffered$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
     public resetPreismeldung$ = new EventEmitter();
     public kommentarClearClicked$ = new EventEmitter<{}>();
     public closeClicked$ = new EventEmitter();
@@ -147,6 +151,22 @@ export class ControllingPage implements OnDestroy {
             .takeUntil(this.onDestroy$)
             .subscribe(() => this.store.dispatch({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES' }));
 
+        this.setPreismeldungStatus$
+            .takeUntil(this.onDestroy$)
+            .subscribe(payload => this.store.dispatch({ type: 'SET_PREISMELDUNGEN_STATUS', payload }));
+
+        this.setPreismeldungStatusBuffered$
+            .takeUntil(this.onDestroy$)
+            .bufferWhen(() => this.setPreismeldungStatusBuffered$.debounceTime(500))
+            .subscribe(payload => this.store.dispatch({ type: 'SET_PREISMELDUNGEN_STATUS_BULK', payload }));
+
+        this.completeAllPreismeldungenStatus$.takeUntil(this.onDestroy$).subscribe(pmIds =>
+            this.store.dispatch({
+                type: 'SET_PREISMELDUNGEN_STATUS_BULK',
+                payload: pmIds.map(pmId => ({ pmId, status: P.Models.PreismeldungStatus.geprüft })),
+            })
+        );
+
         this.kommentarClearClicked$
             .takeUntil(this.onDestroy$)
             .subscribe(() => store.dispatch({ type: 'CLEAR_AUTOTEXTS' } as P.PreismeldungAction));
@@ -166,6 +186,7 @@ export class ControllingPage implements OnDestroy {
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
         this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
         this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' });
+        this.store.dispatch({ type: 'LOAD_PREISMELDUNGEN_STATUS' });
         this.store.dispatch(controlling.createClearControllingAction());
     }
 

@@ -193,7 +193,7 @@ export class PreismeldungEffects {
     }
 
     getUserDb(currentPreismeldungBag: P.CurrentPreismeldungBag) {
-        return getDatabaseAsObservable(dbNames.preiszuweisung)
+        return getDatabaseAsObservable(dbNames.preiszuweisungen)
             .flatMap(db => getAllDocumentsFromDb<P.Models.Preiszuweisung>(db))
             .flatMap(preiszuweisungen => {
                 const preiszuweisung = preiszuweisungen.find(x =>

@@ -27,6 +27,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() preiserhebers: P.Models.Erheber[];
     @Input() preismeldestellen: P.Models.Preismeldestelle[];
+    @Input() preismeldungenStatus: { [pmId: string]: P.Models.PreismeldungStatus };
     @Input() erhebungspositions: any[];
     @Input() currentPreismeldung: P.PreismeldungBag;
     @Input() initialPmsNummer: string;
@@ -62,6 +63,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public preiserheberIdsFilter$ = new EventEmitter<TypeaheadData[]>();
     public pmsNummerFilter$ = new EventEmitter<TypeaheadData[]>();
     public epNummersFilter$ = new EventEmitter<TypeaheadData[]>();
+    public statusFilterChanged$ = new EventEmitter<string>();
 
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public viewPortItems: P.PreismeldungBag[];
@@ -75,12 +77,24 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     constructor(private formBuilder: FormBuilder) {
         super();
 
+        const statusFilter$ = this.statusFilterChanged$
+            .asObservable()
+            .startWith('')
+            .publishReplay(1)
+            .refCount();
+
         const currentFilter$: Observable<PmsFilter> = this.preiserheberIdsFilter$
             .map(p => p.map(x => x.value))
             .combineLatest(
+                statusFilter$,
                 this.epNummersFilter$.map(e => e.map(x => x.value)),
                 this.pmsNummerFilter$.map(p => p.map(x => x.value)),
-                (preiserheberIds, epNummers, pmsNummers) => ({ preiserheberIds, epNummers, pmsNummers })
+                (preiserheberIds, statusFilter, epNummers, pmsNummers) => ({
+                    preiserheberIds,
+                    epNummers,
+                    pmsNummers,
+                    statusFilter,
+                })
             )
             .startWith({})
             .publishReplay(1)

@@ -40,6 +40,10 @@ export function putAdminUserToDatabase(dbName, username: string) {
     return putUserToDatabase(dbName, { members: { names: [username] } });
 }
 
+export async function putAdminUserToDatabaseAsync(dbName, username: string) {
+    return putUserToDatabaseAsync(dbName, { members: { names: [username] } });
+}
+
 export function putUserToDatabase(dbName, users: P.CouchSecurity) {
     return Observable.fromPromise(
         getSettings().then(settings =>
@@ -56,10 +60,50 @@ export function putUserToDatabase(dbName, users: P.CouchSecurity) {
     ).flatMap(x => x);
 }
 
+export async function putUserToDatabaseAsync(dbName, users: P.CouchSecurity) {
+    return await createRequestAsync(`${dbName}/_security`, 'PUT', users);
+}
+
+export async function getAuthorizedUsersAsync(dbName) {
+    return await createRequestAsync(`${dbName}/_security`, 'GET');
+}
+
 export function getUserDatabaseName(preiserheberId: string) {
     return `user_${preiserheberId}`;
 }
 
 export function listUserDatabases() {
     return listAllDatabases().map((dbs: string[]) => dbs.filter(n => n.startsWith('user_')));
+}
+
+async function createRequestAsync(path: string, method: 'GET' | 'POST' | 'PUT', body?: any) {
+    return getSettings().then(settings => {
+        return new Promise<P.CouchSecurity>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.withCredentials = true;
+            xhr.open(method, `${settings.serverConnection.url}/${path}`, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    resolve(JSON.parse(xhr.response));
+                } else {
+                    reject({
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                    });
+                }
+            };
+            xhr.onerror = () => {
+                reject({
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                });
+            };
+            if (!!body) {
+                xhr.send(JSON.stringify(body));
+            } else {
+                xhr.send();
+            }
+        });
+    });
 }

@@ -24,7 +24,7 @@ export class PreiszuweisungEffects {
     @Effect()
     loadPreiszuweisung$ = this.actions$.ofType('PREISZUWEISUNG_LOAD')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(() => getDatabase(dbNames.preiszuweisung).then(db => ({ db })))
+        .flatMap(() => getDatabase(dbNames.preiszuweisungen).then(db => ({ db })))
         .filter(({ db }) => db != null)
         .flatMap(x => x.db.allDocs(Object.assign({}, { include_docs: true })).then(res => res.rows.map(y => y.doc) as P.Preiszuweisung[]))
         .map(docs => ({ type: 'PREISZUWEISUNG_LOAD_SUCCESS', payload: docs } as preiszuweisung.Action));

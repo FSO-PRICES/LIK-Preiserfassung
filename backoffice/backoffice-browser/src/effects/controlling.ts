@@ -19,6 +19,7 @@ import {
     getDatabaseAsObservable,
     getAllDocumentsForPrefixFromDb,
     getAllDocumentsFromDbName,
+    updateMissingPreismeldungenStatus,
 } from '../common/pouchdb-utils';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
@@ -67,10 +68,22 @@ export class ControllingEffects {
                         controllingType,
                         data,
                     }))
-                ).concatMap(x => [
-                    { type: 'UPDATE_PRICE_COUNT_STATUSES', payload: { ...x.data, warenkorb } } as PreismeldungAction,
-                    controlling.createRunControllingDataReadyAction(x.controllingType, x.data),
-                ])
+                )
+                    .flatMap(x =>
+                        updateMissingPreismeldungenStatus(x.data.preismeldungen, x.data.refPreismeldungen).then(
+                            preismeldungenStatus => ({
+                                ...x,
+                                preismeldungenStatus,
+                            })
+                        )
+                    )
+                    .concatMap(x => [
+                        {
+                            type: 'UPDATE_PRICE_COUNT_STATUSES',
+                            payload: { ...x.data, warenkorb },
+                        } as PreismeldungAction,
+                        controlling.createRunControllingDataReadyAction(x.controllingType, x.data),
+                    ])
             )
         );
 
@@ -94,6 +107,7 @@ export class ControllingEffects {
                 warenkorbPosition: controllingRawCachedData.warenkorb.products.find(
                     x => x.gliederungspositionsnummer === epNummer
                 ) as P.WarenkorbLeaf,
+                exported: controllingRawCachedData.alreadyExported.some(id => id === preismeldung._id),
             });
         });
 }
@@ -115,9 +129,10 @@ function updateStichtage() {
             )
         )
         .flatMap(bags =>
-            getAllDocumentsForPrefixFromDbName<P.PreismeldungReference>(dbNames.preismeldung, preismeldungRefId()).map(
-                refPreismeldungen => ({ refPreismeldungen, bags })
-            )
+            getAllDocumentsForPrefixFromDbName<P.PreismeldungReference>(
+                dbNames.preismeldungen,
+                preismeldungRefId()
+            ).map(refPreismeldungen => ({ refPreismeldungen, bags }))
         )
         .map(({ refPreismeldungen, bags }) => {
             const stichtagPreismeldungen = bags.filter(
@@ -163,18 +178,16 @@ async function loadDataForControlling() {
         .map(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
         .toPromise();
 
-    const refPreismeldungen = (await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
-        await getDatabase(dbNames.preismeldung),
+    const refPreismeldungen = await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
+        await getDatabase(dbNames.preismeldungen),
         preismeldungRefId()
-    )).filter(x => !alreadyExported.some(id => x.pmId === id));
+    );
 
-    const preismeldungen = await getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId())
-        .map(pms => pms.filter(x => !alreadyExported.some(id => x._id === id)))
-        .toPromise();
+    const preismeldungen = await getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).toPromise();
     const preismeldestellen = await loadAllPreismeldestellen().toPromise();
     const preiserheber = await loadAllPreiserheber().toPromise();
     const warenkorb = await (await getDatabase(dbNames.warenkorb)).get<P.WarenkorbDocument>('warenkorb');
-    const preiszuweisungen = await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisung).toPromise();
+    const preiszuweisungen = await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisungen).toPromise();
 
     return {
         refPreismeldungen,

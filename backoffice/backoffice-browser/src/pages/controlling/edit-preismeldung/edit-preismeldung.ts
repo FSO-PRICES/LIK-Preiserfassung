@@ -13,6 +13,7 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
     @Input() warenkorb: P.fromWarenkorb.WarenkorbInfo[];
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() preiserheber: P.Models.Erheber;
+    @Input() preismeldungenStatus: { [pmId: string]: P.Models.PreismeldungStatus };
     @Output('updatePreismeldungPreis') updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     @Output('updatePreismeldungMessages')
     updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
@@ -23,6 +24,8 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
     @Output('savePreismeldungPrice') savePreismeldungPrice$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     @Output('kommentarClearClicked') kommentarClearClicked$ = new EventEmitter<{}>();
     @Output('resetPreismeldung') resetPreismeldung$ = new EventEmitter();
+    @Output('setPreismeldungStatus')
+    setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
 
     public selectTab$ = new EventEmitter<string>();
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung');

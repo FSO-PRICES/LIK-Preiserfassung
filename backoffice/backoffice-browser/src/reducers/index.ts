@@ -19,6 +19,7 @@ import * as fromPreiserheber from './preiserheber';
 import * as fromPreismeldestelle from './preismeldestelle';
 import * as fromReport from './report';
 import { fromWarenkorb, fromPreismeldungen } from 'lik-shared';
+import * as fromPreismeldungenStatus from './preismeldungen-status';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromSetting from './setting';
 import * as fromFilterOptions from './filter-options';
@@ -35,6 +36,7 @@ export interface AppState {
     preiserhebers: fromPreiserheber.State;
     preismeldestellen: fromPreismeldestelle.State;
     preismeldungen: fromPreismeldungen.State;
+    preismeldungenStatus: fromPreismeldungenStatus.State;
     preiszuweisungen: fromPreiszuweisung.State;
     report: fromReport.State;
     settings: fromSetting.State;
@@ -54,6 +56,7 @@ const reducers = {
     preiserhebers: fromPreiserheber.reducer,
     preismeldestellen: fromPreismeldestelle.reducer,
     preismeldungen: fromPreismeldungen.reducer,
+    preismeldungenStatus: fromPreismeldungenStatus.reducer,
     preiszuweisungen: fromPreiszuweisung.reducer,
     report: fromReport.reducer,
     settings: fromSetting.reducer,
@@ -121,6 +124,12 @@ export const getPreismeldungenStatus = createSelector(
 export const getPreismeldungenCurrentPmsNummer = createSelector(
     getPreismeldungenState,
     fromPreismeldungen.getPreismeldungenCurrentPmsNummer
+);
+
+export const getPreismeldungenStatusState = (state: AppState) => state.preismeldungenStatus;
+export const getPreismeldungenStatusMap = createSelector(
+    getPreismeldungenStatusState,
+    fromPreismeldungenStatus.getPreismeldungenStatusMap
 );
 
 export const getLoginState = (state: AppState) => state.login;

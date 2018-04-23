@@ -1,0 +1,2 @@
+<input type="range" min="0" max="2" [disabled]="disabled" [value]="preismeldungStatus" [attr.value]="preismeldungStatus"
+    (change)="inputChanged$.emit($event.target.value)">

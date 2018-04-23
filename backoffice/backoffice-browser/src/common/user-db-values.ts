@@ -13,12 +13,13 @@ import {
     getDocumentByKeyFromDb,
     getUserDatabaseName,
     getDatabase,
+    getAllPreismeldungenStatus,
 } from '../common/pouchdb-utils';
 
 export function loadAllPreismeldestellen() {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldestelle>(preismeldestelleId()).flatMap(
         (preismeldestellen: any[]) =>
-            getDatabaseAsObservable(dbNames.preismeldestelle)
+            getDatabaseAsObservable(dbNames.preismeldestellen)
                 .flatMap(db => getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId()))
                 .map(unassignedPms => {
                     const remainingPms = unassignedPms.filter(
@@ -34,15 +35,21 @@ export function loadAllPreismeldungenForExport(
 ): Observable<{ pm: P.Preismeldung; refPreismeldung: P.PreismeldungReference; sortierungsnummer: number }[]> {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer))
         .flatMap(preismeldungen =>
-            getDatabaseAsObservable(dbNames.preismeldung).flatMap(db =>
+            getDatabaseAsObservable(dbNames.preismeldungen).flatMap(db =>
                 getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer)).then(
                     refPreismeldungen => ({ refPreismeldungen, preismeldungen })
                 )
             )
         )
-        .map(({ preismeldungen, refPreismeldungen }) => {
+        .withLatestFrom(getAllPreismeldungenStatus())
+        .map(([{ preismeldungen, refPreismeldungen }, preismeldungenStatus]) => {
             const grouped = groupBy(
-                preismeldungen.filter(pm => pm.istAbgebucht && !!pm.uploadRequestedAt),
+                preismeldungen.filter(
+                    pm =>
+                        pm.istAbgebucht &&
+                        !!pm.uploadRequestedAt &&
+                        (preismeldungenStatus[pm._id] || 0) >= P.PreismeldungStatus['geprüft']
+                ),
                 pm => pm.pmsNummer
             );
             return flatten(
@@ -112,7 +119,7 @@ const parseIdSearchParams = (filterText: string) => {
 export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial<PmsFilter>) {
     const filterParams: Partial<PmsFilter> & { laufNummer?: string } = parseIdSearchParams(filter.pmIdSearch) || filter;
     const pmsNummer = first(filterParams.pmsNummers);
-    const preiszuweisungen = (await getDatabase(dbNames.preiszuweisung).then(db =>
+    const preiszuweisungen = (await getDatabase(dbNames.preiszuweisungen).then(db =>
         getAllDocumentsFromDb<P.Preiszuweisung>(db)
     )).filter(x => !!x.preismeldestellenNummern.length);
     const byPreiserheberIds =
@@ -131,20 +138,31 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial
             ? intersection(byPreiserheberIds, byPmsNummer)
             : byPmsNummer || byPreiserheberIds) || [];
 
-    const refPreismeldungen = await getDatabase(dbNames.preismeldung).then(db =>
+    const refPreismeldungen = await getDatabase(dbNames.preismeldungen).then(db =>
         getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer))
     );
     const alreadyExported = await getDatabase(dbNames.exports).then(db =>
         getAllDocumentsFromDb<any>(db).then(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
     );
+    const alreadyExportedById = alreadyExported.reduce((acc, id) => {
+        acc[id] = true;
+        return acc;
+    }, {});
+    const preismeldungenStatus = await getAllPreismeldungenStatus();
 
     if (!!filterParams.epNummers && filterParams.epNummers.length >= 1) {
+        const preismeldungenByEpNummer = await loadByEpNumbers(
+            preiserheberIds.length > 0 ? preiserheberIds : preiszuweisungen.map(x => x.preiserheberId),
+            filterParams
+        );
         return {
             refPreismeldungen,
             alreadyExported,
-            preismeldungen: await loadByEpNumbers(
-                preiserheberIds.length > 0 ? preiserheberIds : preiszuweisungen.map(x => x.preiserheberId),
-                filterParams
+            preismeldungen: filterPreismeldungenByStatus(
+                preismeldungenByEpNummer,
+                preismeldungenStatus,
+                alreadyExportedById,
+                filter
             ),
             pms: null,
         };
@@ -164,7 +182,12 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial
     });
     const preismeldungen = await bluebird.reduce(allPreismeldungen, (acc, x) => [...acc, ...x], [] as P.Preismeldung[]);
 
-    return { refPreismeldungen, preismeldungen, alreadyExported, pms: null };
+    return {
+        refPreismeldungen,
+        preismeldungen: filterPreismeldungenByStatus(preismeldungen, preismeldungenStatus, alreadyExportedById, filter),
+        alreadyExported,
+        pms: null,
+    };
 }
 
 export function loadAllPreiserheber() {
@@ -215,4 +238,28 @@ export function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>
             .flatMap(db => getAllDocumentsForPrefixFromDb<T>(db, prefix))
             .reduce((acc, docs) => [...acc, ...docs], [])
     );
+}
+
+function filterPreismeldungenByStatus(
+    preismeldungen: P.Preismeldung[],
+    preismeldungenStatus: { [pmId: string]: P.PreismeldungStatus },
+    alreadyExportedById: { [pmId: string]: true },
+    filter: Partial<PmsFilter>
+) {
+    return preismeldungen.filter(pm => {
+        switch (filter.statusFilter) {
+            case 'erhebung':
+                return !pm.uploadRequestedAt;
+            case 'exportiert':
+                return !!alreadyExportedById[pm._id];
+            case 'prüfung':
+                return (
+                    preismeldungenStatus[pm._id] < P.PreismeldungStatus.geprüft &&
+                    !alreadyExportedById[pm._id] &&
+                    !!pm.uploadRequestedAt
+                );
+            default:
+                return true;
+        }
+    });
 }

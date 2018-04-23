@@ -130,7 +130,7 @@ function _fetchStandardUserDbData() {
             warenkorbDb.get('warenkorb').then(doc => ({ warenkorb: clearRev<P.WarenkorbDocument>(doc) }))
         )
         .flatMap(data =>
-            getDatabase(dbNames.preismeldung).then(preismeldungDb =>
+            getDatabase(dbNames.preismeldungen).then(preismeldungDb =>
                 preismeldungDb
                     .get('erhebungsmonat')
                     .then(doc => assign(data, { erhebungsmonat: clearRev<P.Erhebungsmonat>(doc) }))
@@ -158,7 +158,7 @@ function createPmsDocsBasedOnZuweisung(
         .refCount();
 
     return (
-        getDatabaseAsObservable(dbNames.preismeldestelle)
+        getDatabaseAsObservable(dbNames.preismeldestellen)
             // 'pms_' records to be created or deleted from user db
             .flatMap(db =>
                 getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, toCreate.map(x => preismeldestelleId(x)))
@@ -178,7 +178,7 @@ function createPmsDocsBasedOnZuweisung(
                 return [...pmsToCreate, ...pmsToRemove];
             })
             // 'pm-ref_' records to be created in user db
-            .flatMap(docs => getDatabaseAsObservable(dbNames.preismeldung).map(db => ({ docs, db })))
+            .flatMap(docs => getDatabaseAsObservable(dbNames.preismeldungen).map(db => ({ docs, db })))
             .flatMap(
                 x =>
                     !toCreate.length
@@ -315,7 +315,7 @@ export function updateUserAndZuweisungDb(preiserheber: P.Erheber, currentPrieszu
 }
 
 function updateZuweisung(preiserheberId: string, preismeldestellenNummern: string[]) {
-    return getDatabaseAsObservable(dbNames.preiszuweisung)
+    return getDatabaseAsObservable(dbNames.preiszuweisungen)
         .flatMap(db =>
             db
                 .get(preiserheberId)
@@ -330,13 +330,13 @@ function getErrorMessage(error: { name: string; message: string; stack: string }
 }
 
 function getPreismeldestellen(pmsNummers: string[]) {
-    return getDatabaseAsObservable(dbNames.preismeldestelle)
+    return getDatabaseAsObservable(dbNames.preismeldestellen)
         .flatMap(db => getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, pmsNummers.map(x => preismeldestelleId(x))))
         .map(preismeldestellen => preismeldestellen.map(pm => clearRev<P.Preismeldestelle>(pm)));
 }
 
 function getPreismeldungen(pmsNummers: string[]) {
-    return getDatabaseAsObservable(dbNames.preismeldung)
+    return getDatabaseAsObservable(dbNames.preismeldungen)
         .flatMap(
             db =>
                 !pmsNummers.length
@@ -353,7 +353,7 @@ function getPreismeldungen(pmsNummers: string[]) {
 }
 
 function getPmsNummers(preiserheberId: string) {
-    return getDatabaseAsObservable(dbNames.preiszuweisung)
+    return getDatabaseAsObservable(dbNames.preiszuweisungen)
         .flatMap(preiszuweisungDb =>
             getDocumentByKeyFromDb<P.Preiszuweisung>(preiszuweisungDb, preiserheberId).catch(() => ({
                 preismeldestellenNummern: <string[]>[],

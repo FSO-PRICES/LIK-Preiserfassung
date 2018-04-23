@@ -43,6 +43,7 @@ export class PreismeldungPage {
     public preiszuweisungen$ = this.store.select(fromRoot.getPreiszuweisungen);
     public preiserhebers$ = this.store.select(fromRoot.getPreiserhebers);
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
+    public preismeldungenStatus$ = this.store.select(fromRoot.getPreismeldungenStatusMap);
     public erhebungspositions$ = this.store
         .select(fromRoot.getWarenkorbState)
         .map(x => x.filter(w => w.warenkorbItem.type === 'LEAF').map(w => w.warenkorbItem as P.Models.WarenkorbLeaf));
@@ -61,6 +62,7 @@ export class PreismeldungPage {
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     public resetPreismeldung$ = new EventEmitter();
     public resetPreismeldungen$ = new EventEmitter();
+    public setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
 
     public globalFilterTextChanged$ = new EventEmitter<PmsFilter>();
 
@@ -246,6 +248,10 @@ export class PreismeldungPage {
         this.resetPreismeldungen$
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' }));
+
+        this.setPreismeldungStatus$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(payload => this.store.dispatch({ type: 'SET_PREISMELDUNGEN_STATUS', payload }));
     }
 
     public ionViewDidEnter() {
@@ -254,6 +260,7 @@ export class PreismeldungPage {
         this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
         this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' });
         this.store.dispatch({ type: 'LOAD_WARENKORB' });
+        this.store.dispatch({ type: 'LOAD_PREISMELDUNGEN_STATUS' });
     }
 
     public ionViewDidLeave() {

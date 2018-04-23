@@ -119,6 +119,22 @@ interface _PreismeldungReferenceProperties {
 
 export type PreismeldungReferenceProperties = PreismeldungId & _PreismeldungReferenceProperties;
 
+export enum PreismeldungStatus {
+    'ungeprüft' = 0,
+    'blockiert' = 1,
+    'geprüft' = 2,
+}
+
+export enum PreismeldungStatusFilter {
+    'unbestätigt' = 1,
+    'alle' = 2,
+    'exportiert' = 3,
+}
+
+export interface PreismeldungenStatusProperties {
+    statusMap: { [pmId: string]: PreismeldungStatus };
+}
+
 export type Bearbeitungscode = 0 | 1 | 2 | 3 | 7 | 44 | 99 | 101;
 export const bearbeitungscodeDescriptions = {
     0: '0',
@@ -225,6 +241,7 @@ export type PmsPreismeldungenSort = PmsPreismeldungenSortProperties & CouchPrope
 export type Erheber = ErheberProperties & CouchProperties;
 export type PreismeldungReference = PreismeldungReferenceProperties & CouchProperties;
 export type Preismeldung = PreismeldungProperties & CouchProperties;
+export type PreismeldungenStatus = PreismeldungenStatusProperties & CouchProperties;
 
 export type PmsToPeMap = { erheber: Erheber; preismeldestellen: Preismeldestelle[] }[];
 

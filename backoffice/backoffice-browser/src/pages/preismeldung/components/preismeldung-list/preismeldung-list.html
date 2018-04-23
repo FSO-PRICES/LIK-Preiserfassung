@@ -17,11 +17,11 @@
                         <div class="input-wrapper">
                             <ion-label stacked>Preisstatus</ion-label>
                             <div class="input input-md pef-select">
-                                <select class="item-md">
+                                <select class="item-md" (change)="statusFilterChanged$.emit($event.target.value)">
                                     <option value=""></option>
-                                    <option value="">in Erhebung</option>
-                                    <option value="">in Prüfung</option>
-                                    <option value="">Exportiert</option>
+                                    <option value="erhebung">in Erhebung</option>
+                                    <option value="prüfung">in Prüfung</option>
+                                    <option value="exportiert">Exportiert</option>
                                 </select>
                             </div>
                         </div>
@@ -59,7 +59,8 @@
                     tappable>
                     <div class="pef-item-title">
                         {{ bag.preismeldung.epNummer }}
-                        <br/>&nbsp;
+                        <br/>
+                        <span class="pef-item-status" *ngIf="!!preismeldungenStatus">{{ preismeldungenStatus[bag.pmId] === 1 ? '✗' : preismeldungenStatus[bag.pmId] === 2 ? '✓' : '&nbsp;'}}</span>
                     </div>
                     <div class="pef-item-description">
                         <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung.de }}</span>

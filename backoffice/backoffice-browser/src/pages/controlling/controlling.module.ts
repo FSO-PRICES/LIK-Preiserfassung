@@ -9,6 +9,7 @@ import { PefComponentsModule, PreismeldungSharedModule } from 'lik-shared';
 
 import { PefMenuModule } from '../../components/pef-menu/pef-menu.module';
 import { PefZoomModule } from '../../components/pef-zoom';
+import { PefPmStatusModule } from '../../components/pef-pm-status/pef-pm-status.module';
 
 @NgModule({
     declarations: [ControllingPage, StichtageComponent, ControllingReportComponent, EditPreismeldungComponent],
@@ -18,6 +19,7 @@ import { PefZoomModule } from '../../components/pef-zoom';
         PreismeldungSharedModule,
         PefMenuModule,
         PefZoomModule,
+        PefPmStatusModule,
     ],
 })
 export class ControllingModule {}

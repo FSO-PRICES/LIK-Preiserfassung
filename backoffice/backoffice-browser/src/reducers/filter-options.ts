@@ -17,6 +17,7 @@ const initialState: State = {
             preiserheberIds: [],
             epNummers: [],
             pmIdSearch: null,
+            statusFilter: null,
         },
     },
 };

@@ -151,7 +151,7 @@ export class PreiserheberEffects {
             loadPreiserheber(result.preiserheber._id).map(preiserheber => assign(result, { preiserheber }))
         )
         .flatMap(result =>
-            getDatabaseAsObservable(dbNames.preiszuweisung)
+            getDatabaseAsObservable(dbNames.preiszuweisungen)
                 .flatMap(db => db.get(result.preiserheber._id))
                 .map(preiszuweisung => assign(result, { preiszuweisung }))
         )
@@ -188,7 +188,7 @@ function deletePreiserheber(preiserheber: P.Erheber): Promise<boolean> {
             .then(success => deleteUser(preiserheber._id).then(deleted => success && deleted))
             // Delete preiszuweisungen
             .then(success =>
-                getDatabase(dbNames.preiszuweisung).then(preiszuweisungDb =>
+                getDatabase(dbNames.preiszuweisungen).then(preiszuweisungDb =>
                     preiszuweisungDb
                         .get(preiserheber._id)
                         .then((doc: P.CouchProperties) =>

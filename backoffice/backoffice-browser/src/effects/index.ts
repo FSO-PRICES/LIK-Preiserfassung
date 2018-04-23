@@ -9,6 +9,7 @@ import { OnOfflineEffects } from './onoffline';
 import { PreiserheberEffects } from './preiserheber';
 import { PreismeldestelleEffects } from './preismeldestelle';
 import { PreismeldungEffects } from './preismeldung';
+import { PreismeldungenStatusEffects } from './preismeldungen-status';
 import { PreiszuweisungEffects } from './preiszuweisung';
 import { ReportingEffects } from './reporting';
 import { SettingEffects } from './setting';
@@ -24,6 +25,7 @@ export const BO_EFFECTS = [
     EffectsModule.run(PreiserheberEffects),
     EffectsModule.run(PreismeldestelleEffects),
     EffectsModule.run(PreismeldungEffects),
+    EffectsModule.run(PreismeldungenStatusEffects),
     EffectsModule.run(PreiszuweisungEffects),
     EffectsModule.run(ReportingEffects),
     EffectsModule.run(SettingEffects),

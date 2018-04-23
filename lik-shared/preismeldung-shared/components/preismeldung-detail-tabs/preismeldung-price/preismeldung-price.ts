@@ -77,6 +77,7 @@ import * as P from '../../../models';
                                 </g>
                             </svg>
                         </button>
+                        <ng-content select=".additional-actions"></ng-content>
                     </div>
                 </div>
             </div>

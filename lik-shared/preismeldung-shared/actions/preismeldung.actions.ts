@@ -32,6 +32,7 @@ export interface PreismeldungenLoadPayload {
 }
 
 export interface PmsFilter {
+    statusFilter: 'erhebung' | 'prüfung' | 'exportiert';
     pmsNummers: string[];
     preiserheberIds: string[];
     epNummers: string[];

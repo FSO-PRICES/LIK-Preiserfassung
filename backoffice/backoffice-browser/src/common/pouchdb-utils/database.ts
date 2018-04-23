@@ -1,8 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { first } from 'lodash';
 import PouchDB from 'pouchdb';
-import * as PouchDBAllDbs from 'pouchdb-all-dbs';
-import * as pouchDbAuthentication from 'pouchdb-authentication';
 
 import { Models as P } from 'lik-shared';
 
@@ -11,35 +9,30 @@ export const dbNames = {
     users: '_users',
     warenkorb: 'warenkorb',
     preiserheber: 'preiserheber',
-    preismeldestelle: 'preismeldestellen',
-    region: 'regionen',
-    preiszuweisung: 'preiszuweisungen',
+    preismeldestellen: 'preismeldestellen',
+    regionen: 'regionen',
+    preiszuweisungen: 'preiszuweisungen',
     orphaned_erfasste_preismeldungen: 'orphaned_erfasste_preismeldungen',
-    preismeldung: 'preismeldungen',
-    setting: 'settings',
-    import: 'imports',
+    preismeldungen: 'preismeldungen',
+    preismeldungen_status: 'preismeldungen_status',
+    settings: 'settings',
+    imports: 'imports',
     exports: 'exports',
     onoffline: 'onoffline',
 };
 
-export const systemDbs: Partial<typeof dbNames> = {
-    warenkorb: 'warenkorb',
-    preiserheber: 'preiserheber',
-    preismeldestelle: 'preismeldestellen',
-    region: 'regionen',
-    preiszuweisung: 'preiszuweisungen',
-    orphaned_erfasste_preismeldungen: 'orphaned_erfasste_preismeldungen',
-    preismeldung: 'preismeldungen',
-    setting: 'settings',
-    import: 'imports',
-    exports: 'exports',
-    onoffline: 'onoffline',
-};
-
-PouchDBAllDbs(PouchDB);
-PouchDB.plugin(pouchDbAuthentication);
-// PouchDB.debug.enable('pouchdb:api');
-PouchDB.debug.enable('pouchdb:http');
+export const systemDbNames: [keyof typeof dbNames] = [
+    'warenkorb',
+    'preiserheber',
+    'preismeldestellen',
+    'preiszuweisungen',
+    'orphaned_erfasste_preismeldungen',
+    'preismeldungen',
+    'preismeldungen_status',
+    'imports',
+    'exports',
+    'onoffline',
+];
 
 export const checkIfDatabaseExists = dbName => _checkIfDatabaseExists(dbName);
 
@@ -120,7 +113,7 @@ export function listAllDatabases() {
 }
 
 export function getSettings() {
-    return getLocalDatabase(dbNames.setting).then(db =>
+    return getLocalDatabase(dbNames.settings).then(db =>
         db.allDocs(Object.assign({}, { include_docs: true })).then(res => first(res.rows.map(y => y.doc)) as P.Setting)
     );
 }

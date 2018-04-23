@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { chunk, assign } from 'lodash';
+import { chunk } from 'lodash';
+import * as bluebird from 'bluebird';
 
 import { Models as P } from 'lik-shared';
 
@@ -10,6 +11,7 @@ import * as fromRoot from '../reducers';
 import * as importer from '../actions/importer';
 import {
     dbNames,
+    systemDbNames,
     dropRemoteCouchDatabase,
     getDatabase,
     putAdminUserToDatabase,
@@ -19,6 +21,8 @@ import {
     getDatabaseAsObservable,
     getAllDocumentsFromDb,
     getDocumentByKeyFromDb,
+    getAuthorizedUsersAsync,
+    putAdminUserToDatabaseAsync,
 } from '../common/pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
 import { continueEffectOnlyIfTrue, doAsyncAsObservable } from '../common/effects-extensions';
@@ -95,29 +99,32 @@ export class ImporterEffects {
             Observable.concat(
                 [{ type: 'IMPORT_STARTED' }],
                 Observable.from(dropRemoteCouchDatabase(dbNames.exports))
-                    .flatMap(() => this.importPreismeldungen(parsedPreismeldungen))
-                    .do(x => console.log('1. IMPORTPREISMELDESTELLEN'))
+                    .do(x => console.log('1. CHECKSYSTEMDATABASES'))
+                    .flatMap(() => this.checkSystemDatabases())
+                    .do(x => console.log('2. IMPORTPREISMELDUNGEN'))
+                    .flatMap(() => this.importPreismeldungenAsync(parsedPreismeldungen))
+                    .do(x => console.log('3. IMPORTPREISMELDESTELLEN'))
                     .flatMap(importPreismeldungAction =>
                         this.importPreismeldestellen(parsedPreismeldestellen).map(importPreismeldestellenAction => [
                             importPreismeldungAction,
                             importPreismeldestellenAction,
                         ])
                     )
-                    .do(x => console.log('2. IMPORTWARENKORB'))
+                    .do(x => console.log('4. IMPORTWARENKORB'))
                     .flatMap(actions =>
                         this.importWarenkorb(parsedWarenkorb).map(importWarenkorbAction => [
                             ...actions,
                             importWarenkorbAction,
                         ])
                     )
-                    .do(x => console.log('3. DROPANDRECREATEALLUSERDBS'))
+                    .do(x => console.log('5. DROPANDRECREATEALLUSERDBS'))
                     .flatMap(actions => this.dropAndRecreateAllUserDbs().map(action => [action, ...actions]))
-                    .do(x => console.log('4. UPDATEIMPORTMETADATA'))
+                    .do(x => console.log('6. UPDATEIMPORTMETADATA'))
                     .flatMap(actions => this.updateImportMetadata(null, importer.Type.all_data).map(() => actions))
-                    .do(x => console.log('5. LOADLATESTIMPORTEDAT'))
+                    .do(x => console.log('7. LOADLATESTIMPORTEDAT'))
                     .flatMap(actions => this.loadLatestImportedAt().map(action => [action, ...actions]))
                     .flatMap(actions => loaderhebungsMonateAction().then(action => [action, ...actions]))
-                    .do(x => console.log('6. ACTIONS', x))
+                    .do(x => console.log('8. ACTIONS', x))
                     .flatMap(actions => actions)
             )
         );
@@ -134,12 +141,32 @@ export class ImporterEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => loaderhebungsMonateAction());
 
+    private async checkSystemDatabases(): Promise<void> {
+        const adminUser = await this.loggedInUser$.take(1).toPromise();
+        if (!adminUser) {
+            throw Error('not logged in');
+        }
+        const dbChecks = systemDbNames.map(async dbName => {
+            const hasUser = await getDatabase(dbName)
+                .then(db => db.info()) // Check if exists, pouch creates the database if not
+                .then(() =>
+                    getAuthorizedUsersAsync(dbName).then(
+                        x => !!x && !!x.members && x.members.names.some(name => name === adminUser.username)
+                    )
+                );
+            if (!hasUser) {
+                await putAdminUserToDatabaseAsync(dbName, adminUser.username);
+            }
+        });
+        return bluebird.all(dbChecks).then(() => {});
+    }
+
     private updateImportMetadata(dbName: string, importerType: string) {
         return this.loggedInUser$
             .take(1)
             .flatMap(user => (dbName === null ? Observable.of(null) : putAdminUserToDatabase(dbName, user.username)))
             .flatMap(() =>
-                getDatabase(dbNames.import).then(db =>
+                getDatabase(dbNames.imports).then(db =>
                     db
                         .get(importerType)
                         .then(doc => doc._rev)
@@ -149,45 +176,36 @@ export class ImporterEffects {
             );
     }
 
-    private importPreismeldungen(parsedPreismeldungen: string[][]) {
-        return Observable.fromPromise(dropLocalDatabase(dbNames.preismeldung))
-            .do(x => console.log('DEBUG: DROPPED LOCAL PREISMELDUNG DB'))
-            .flatMap(() => getLocalDatabase(dbNames.preismeldung))
-            .do(x => console.log('DEBUG: CREATED LOCAL PREISMELDUNG DB'))
-            .flatMap(db => {
-                const pmInfo = preparePm(parsedPreismeldungen);
-                console.log('DEBUG: PREPARED PREISMELDUNGEN');
-                return Observable.from(
-                    chunk(pmInfo.preismeldungen, 6000).map(preismeldungenBatch =>
-                        db
-                            .bulkDocs(preismeldungenBatch)
-                            .then(_ => preismeldungenBatch.length)
-                            .catch(err => console.log('error is', err))
-                    )
-                )
-                    .combineAll()
-                    .do(x => console.log('DEBUG: OUTPUT FROM CHUNKING', x))
-                    .map(() => ({ pmInfo, db }));
-            })
-            .do(x => console.log('DEBUG: AFTER WRITING PREISMELDUNGEN TO LOCAL DB'))
-            .flatMap(({ pmInfo, db }) =>
-                db
-                    .put({ _id: 'erhebungsmonat', monthAsString: pmInfo.erhebungsmonat })
-                    .then(() => pmInfo.preismeldungen)
+    private async importPreismeldungenAsync(parsedPreismeldungen: string[][]) {
+        await dropLocalDatabase(dbNames.preismeldungen);
+        await dropLocalDatabase(dbNames.preismeldungen_status);
+        const localPreismeldungenDb = await getLocalDatabase(dbNames.preismeldungen);
+        const localPreismeldungenStatusDb = await getLocalDatabase(dbNames.preismeldungen_status);
+
+        const pmInfo = preparePm(parsedPreismeldungen);
+
+        const writeAll = await bluebird.all(
+            chunk(pmInfo.preismeldungen, 6000).map(preismeldungenBatch =>
+                localPreismeldungenDb
+                    .bulkDocs(preismeldungenBatch)
+                    .then(_ => preismeldungenBatch.length)
+                    .catch(err => console.log('error is', err) || 0)
             )
-            .do(x => console.log('DEBUG: AFTER WRITING ERHEBUNGSMONAT TO LOCAL DB, ABOUT TO SYNC'))
-            .flatMap(preismeldungen =>
-                dropRemoteCouchDatabaseAndSyncLocalToRemote('preismeldungen').then(() => preismeldungen)
-            )
-            .do(x => console.log('DEBUG: AFTER SYNC'))
-            .flatMap(preismeldungen =>
-                this.updateImportMetadata(dbNames.preismeldung, importer.Type.preismeldungen).map(() => preismeldungen)
-            )
-            .do(x => console.log('DEBUG: AFTER UPDATING METADATA'))
-            .map(
-                preismeldungen =>
-                    ({ type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: preismeldungen } as importer.Action)
-            );
+        );
+        await localPreismeldungenDb.put({ _id: 'erhebungsmonat', monthAsString: pmInfo.erhebungsmonat });
+        await dropRemoteCouchDatabaseAndSyncLocalToRemote(dbNames.preismeldungen);
+        await this.updateImportMetadata(dbNames.preismeldungen, importer.Type.preismeldungen);
+
+        await localPreismeldungenStatusDb.put({
+            _id: 'preismeldungen_status',
+            _rev: undefined,
+            statusMap: pmInfo.preismeldungen.reduce((acc, pmRef) => ({ ...acc, [pmRef.pmId]: 0 }), {}),
+        } as P.PreismeldungenStatus);
+        await dropRemoteCouchDatabaseAndSyncLocalToRemote(dbNames.preismeldungen_status);
+        const adminUser = await this.loggedInUser$.take(1).toPromise();
+        await putAdminUserToDatabaseAsync(dbNames.preismeldungen_status, adminUser.username);
+
+        return { type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: pmInfo.preismeldungen } as importer.Action;
     }
 
     private importWarenkorb(parsedWarenkorb: { de: string[][]; fr: string[][]; it: string[][] }) {
@@ -210,8 +228,8 @@ export class ImporterEffects {
     }
 
     private importPreismeldestellen(parsedPreismeldestellen: string[][]) {
-        return Observable.fromPromise(dropRemoteCouchDatabase(dbNames.preismeldestelle).catch(_ => null))
-            .flatMap(() => getDatabase(dbNames.preismeldestelle))
+        return Observable.fromPromise(dropRemoteCouchDatabase(dbNames.preismeldestellen).catch(_ => null))
+            .flatMap(() => getDatabase(dbNames.preismeldestellen))
             .flatMap(db =>
                 doAsyncAsObservable(() => preparePms(parsedPreismeldestellen)).map(pmsInfo => ({ pmsInfo, db }))
             )
@@ -222,7 +240,7 @@ export class ImporterEffects {
                     .then(() => pmsInfo.preismeldestellen)
             )
             .flatMap(preismeldestellen =>
-                this.updateImportMetadata(dbNames.preismeldestelle, importer.Type.preismeldestellen).map(
+                this.updateImportMetadata(dbNames.preismeldestellen, importer.Type.preismeldestellen).map(
                     () => preismeldestellen
                 )
             )
@@ -250,7 +268,7 @@ export class ImporterEffects {
     }
 
     private loadLatestImportedAt() {
-        return getDatabaseAsObservable(dbNames.import)
+        return getDatabaseAsObservable(dbNames.imports)
             .flatMap(db =>
                 db.allDocs({ include_docs: true }).then(result => result.rows.map(row => row.doc as P.LastImportAt))
             )
@@ -270,10 +288,10 @@ async function loaderhebungsMonate() {
     const warenkorbDb = await getDatabase(dbNames.warenkorb);
     const warenkorbErhebungsmonat = await getErhebungsmonatDocument(warenkorbDb);
 
-    const preismeldestelleDb = await getDatabase(dbNames.preismeldestelle);
+    const preismeldestelleDb = await getDatabase(dbNames.preismeldestellen);
     const preismeldestellenErhebungsmonat = await getErhebungsmonatDocument(preismeldestelleDb);
 
-    const preismeldungDb = await getDatabase(dbNames.preismeldung);
+    const preismeldungDb = await getDatabase(dbNames.preismeldungen);
     const preismeldungenErhebungsmonat = await getErhebungsmonatDocument(preismeldungDb);
 
     return {

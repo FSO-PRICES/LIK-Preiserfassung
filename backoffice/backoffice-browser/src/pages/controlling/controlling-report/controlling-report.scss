@@ -8,6 +8,32 @@ controlling-report {
     .top-section {
         display: flex;
         flex: 0 0 auto;
+
+        .filter {
+            display: flex;
+            align-self: flex-start;
+            flex-direction: column;
+
+            .status {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                ion-list {
+                    display: flex;
+                    ion-item {
+                        width: auto;
+                    }
+                }
+            }
+            .controlling {
+                align-self: flex-start;
+            }
+        }
+        .actions {
+            display: flex;
+            align-self: flex-end;
+        }
     }
 
     .btn-execute,

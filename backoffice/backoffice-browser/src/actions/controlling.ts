@@ -65,6 +65,7 @@ export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0700;
 
 export interface ControllingData {
+    alreadyExported: string[];
     preismeldungen: P.Preismeldung[];
     refPreismeldungen: P.PreismeldungReference[];
     warenkorb: P.WarenkorbDocument;
