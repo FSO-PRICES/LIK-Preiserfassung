@@ -134,20 +134,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.filteredPreismeldungen$ = this.preismeldungen$
             // Wait for the latest value of currentPreismeldung (null | x) otherwise the ngFor renders with outdated data and does not refresh.
             .flatMap(x => this.currentPreismeldung$.take(1).mapTo(x))
-            .withLatestFrom(this.filterTextValueChanges$.startWith(null))
-            .combineLatest(
-                this.filterTextValueChanges$.startWith(null),
-                ([preismeldungen, globalFilterText], filterText) => {
-                    if (!filterText || !!globalFilterText) {
-                        return preismeldungen;
-                    }
-                    return pefSearch(filterText, preismeldungen, [
-                        pm => pm.warenkorbPosition.gliederungspositionsnummer,
-                        pm => pm.warenkorbPosition.positionsbezeichnung.de,
-                        pm => pm.preismeldung.artikeltext,
-                    ]);
+            .combineLatest(this.filterTextValueChanges$.startWith(null), (preismeldungen, filterText) => {
+                if (!filterText) {
+                    return preismeldungen;
                 }
-            )
+                return pefSearch(filterText, preismeldungen, [
+                    pm => pm.warenkorbPosition.gliederungspositionsnummer,
+                    pm => pm.warenkorbPosition.positionsbezeichnung.de,
+                    pm => pm.preismeldung.artikeltext,
+                ]);
+            })
             .debounceTime(300)
             .startWith([]);
 
