@@ -23,6 +23,9 @@ import {
     getDocumentByKeyFromDb,
     getAuthorizedUsersAsync,
     putAdminUserToDatabaseAsync,
+    putRoleToDatabaseAsync,
+    dbRoles,
+    erheberDbs,
 } from '../common/pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
 import { continueEffectOnlyIfTrue, doAsyncAsObservable } from '../common/effects-extensions';
@@ -151,14 +154,34 @@ export class ImporterEffects {
                 .then(db => db.info()) // Check if exists, pouch creates the database if not
                 .then(() =>
                     getAuthorizedUsersAsync(dbName).then(
-                        x => !!x && !!x.members && x.members.names.some(name => name === adminUser.username)
+                        x =>
+                            !!x &&
+                            !!x.members &&
+                            !!x.members.names &&
+                            x.members.names.some(name => name === adminUser.username)
                     )
                 );
             if (!hasUser) {
                 await putAdminUserToDatabaseAsync(dbName, adminUser.username);
             }
         });
-        return bluebird.all(dbChecks).then(() => {});
+        const erheberDbsChecks = erheberDbs.map(async dbName => {
+            const hasErheberRole = await getDatabase(dbName)
+                .then(db => db.info()) // Check if exists, pouch creates the database if not
+                .then(() =>
+                    getAuthorizedUsersAsync(dbName).then(
+                        x =>
+                            !!x &&
+                            !!x.members &&
+                            !!x.members.roles &&
+                            x.members.roles.some(name => name === dbRoles.erheber)
+                    )
+                );
+            if (!hasErheberRole) {
+                await putRoleToDatabaseAsync(dbName, dbRoles.erheber);
+            }
+        });
+        return bluebird.all([...dbChecks, ...erheberDbsChecks]).then(() => {});
     }
 
     private updateImportMetadata(dbName: string, importerType: string) {

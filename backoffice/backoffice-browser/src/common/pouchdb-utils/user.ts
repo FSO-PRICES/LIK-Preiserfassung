@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { Models as P } from 'lik-shared';
 
-import { getDatabaseAsObservable, getDatabase, getSettings, listAllDatabases } from './database';
+import { getDatabaseAsObservable, getDatabase, getSettings, listAllDatabases, dbRoles } from './database';
 
 export function createOrUpdateUser(erheber: P.Erheber, password: string) {
     return getDatabaseAsObservable('_users')
@@ -17,7 +17,11 @@ export function createOrUpdateUser(erheber: P.Erheber, password: string) {
 }
 
 function createUser(erheber: P.Erheber, password: string) {
-    return getDatabase('_users').then((db: any) => db.signUp(erheber._id, password));
+    return getDatabase('_users').then((db: any) =>
+        db.signUp(erheber._id, password, {
+            roles: [dbRoles.erheber],
+        })
+    );
 }
 
 export function updateUser(erheber: P.Erheber, password: string) {
@@ -42,6 +46,10 @@ export function putAdminUserToDatabase(dbName, username: string) {
 
 export async function putAdminUserToDatabaseAsync(dbName, username: string) {
     return putUserToDatabaseAsync(dbName, { members: { names: [username] } });
+}
+
+export async function putRoleToDatabaseAsync(dbName, role: string) {
+    return putUserToDatabaseAsync(dbName, { members: { roles: [role] } });
 }
 
 export function putUserToDatabase(dbName, users: P.CouchSecurity) {
