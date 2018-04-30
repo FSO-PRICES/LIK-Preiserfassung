@@ -164,6 +164,17 @@ export class PreismeldungPage {
 
         this.pmsFilterChanged$
             .filter(x => !!x)
+            .flatMap(x =>
+                this.pefDialogService
+                    .displayLoading(
+                        'Daten werden zusammengefasst, bitte warten...',
+                        this.preismeldungen$
+                            .skip(1)
+                            .filter(x => !!x)
+                            .take(1)
+                    )
+                    .mapTo(x)
+            )
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(x => {
                 this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_BY_FILTER', payload: x } as PreismeldungAction);
