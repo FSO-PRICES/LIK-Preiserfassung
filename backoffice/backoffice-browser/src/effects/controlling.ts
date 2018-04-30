@@ -36,6 +36,7 @@ export class ControllingEffects {
     @Effect()
     preControllingTasks$ = this.actions$
         .ofType('RUN_PRE-CONTROLLING_TASKS')
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(() => copyUserDbErheberDetailsToPreiserheberDb())
         .map(() => ({ type: 'RUN_PRE-CONTROLLING_TASKS_SUCCESS' }));
 
