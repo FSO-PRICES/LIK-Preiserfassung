@@ -253,7 +253,7 @@ type ColumnType =
     | typeof columnWarenkorbIndex;
 
 interface ErherbungsPositionFilterFn {
-    (x: ControllingErhebungsPosition): boolean;
+    (x: ControllingErhebungsPosition, preismeldungenStatus?: P.PreismeldungenStatus): boolean;
 }
 
 interface GliederungspositionnummerRangeType {
@@ -345,7 +345,8 @@ function filterErhebungsPositionen(
             x =>
                 !!x &&
                 !!warenkorbItemsByEpNummer[x.warenkorbItem.gliederungspositionsnummer] &&
-                (!controllingConfig.erherbungsPositionFilter || controllingConfig.erherbungsPositionFilter(x))
+                (!controllingConfig.erherbungsPositionFilter ||
+                    controllingConfig.erherbungsPositionFilter(x, data.preismeldungenStatus))
         );
 }
 
@@ -727,6 +728,21 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     },
     [controlling.CONTROLLING_0600]: report_0600_config,
     [controlling.CONTROLLING_0700]: report_0700_config,
+    [controlling.CONTROLLING_0810]: {
+        ...base_0300_0310_0320_config,
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
+            !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.ungeprüft,
+    },
+    [controlling.CONTROLLING_0820]: {
+        ...base_0300_0310_0320_config,
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
+            !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.blockiert,
+    },
+    [controlling.CONTROLLING_0830]: {
+        ...base_0300_0310_0320_config,
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
+            !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.geprüft,
+    },
 };
 
 const preismeldungOrRefPreimeldung = (p: ControllingErhebungsPosition) => p.preismeldung || p.refPreismeldung;

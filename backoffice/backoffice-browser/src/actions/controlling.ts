@@ -37,6 +37,9 @@ export const CONTROLLING_0530 = 'CONTROLLING_0530';
 export const CONTROLLING_0540 = 'CONTROLLING_0540';
 export const CONTROLLING_0600 = 'CONTROLLING_0600';
 export const CONTROLLING_0700 = 'CONTROLLING_0700';
+export const CONTROLLING_0810 = 'CONTROLLING_0810';
+export const CONTROLLING_0820 = 'CONTROLLING_0820';
+export const CONTROLLING_0830 = 'CONTROLLING_0830';
 
 export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0100
@@ -62,7 +65,10 @@ export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0530
     | typeof CONTROLLING_0540
     | typeof CONTROLLING_0600
-    | typeof CONTROLLING_0700;
+    | typeof CONTROLLING_0700
+    | typeof CONTROLLING_0810
+    | typeof CONTROLLING_0820
+    | typeof CONTROLLING_0830;
 
 export interface ControllingData {
     alreadyExported: string[];
@@ -72,6 +78,7 @@ export interface ControllingData {
     preismeldestellen: P.Preismeldestelle[];
     preiserheber: P.Erheber[];
     preiszuweisungen: P.Preiszuweisung[];
+    preismeldungenStatus: P.PreismeldungenStatus;
 }
 
 export type ControllingAction =

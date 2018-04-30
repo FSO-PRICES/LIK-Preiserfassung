@@ -65,7 +65,7 @@ export class ControllingEffects {
                 Observable.if(
                     () => !!rawCachedData,
                     Observable.of({ controllingType, data: rawCachedData }).delay(500),
-                    Observable.fromPromise(loadDataForControlling()).map(data => ({
+                    Observable.defer(() => Observable.fromPromise(loadDataForControlling())).map(data => ({
                         controllingType,
                         data,
                     }))
@@ -74,7 +74,10 @@ export class ControllingEffects {
                         updateMissingPreismeldungenStatus(x.data.preismeldungen, x.data.refPreismeldungen).then(
                             preismeldungenStatus => ({
                                 ...x,
-                                preismeldungenStatus,
+                                data: {
+                                    ...x.data,
+                                    preismeldungenStatus,
+                                },
                             })
                         )
                     )
