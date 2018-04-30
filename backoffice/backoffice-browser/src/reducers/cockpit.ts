@@ -17,6 +17,8 @@ export interface CockpitPreismeldungSummary {
     doneUploaded: number;
     newPreismeldungen: number;
     newPreismeldungenUploaded: number;
+    doneAll: boolean;
+    uploadedAll: boolean;
 }
 
 export interface CockpitPmsPreismeldungSummary {
@@ -157,11 +159,14 @@ function createCockpitPreismeldungenSummary(
     newPreismeldungen: P.Preismeldung[],
     newPreismeldungenUploaded: P.Preismeldung[],
     erhebungsZeitpunkt?: number
-) {
+): CockpitPreismeldungSummary {
+    const todoSynced_ = todoSynced.filter(
+        x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)
+    );
+    const todo_ = todo.filter(x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt));
     return {
-        todo: todo.filter(x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)).length,
-        todoSynced: todoSynced.filter(x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt))
-            .length,
+        todo: todo_.length,
+        todoSynced: todoSynced_.length,
         done: done.filter(x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)).length,
         doneUploaded: doneUploaded.filter(
             x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)
@@ -172,6 +177,8 @@ function createCockpitPreismeldungenSummary(
         newPreismeldungenUploaded: newPreismeldungenUploaded.filter(
             x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)
         ).length,
+        doneAll: todoSynced_.every(x => x.istAbgebucht),
+        uploadedAll: todoSynced_.every(x => !!x.uploadRequestedAt),
     };
 }
 

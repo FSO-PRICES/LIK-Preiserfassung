@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild, OnInit } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { sortBy } from 'lodash';
 
 import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../common-models';
@@ -16,7 +17,9 @@ export class CockpitReportDetailComponent extends ReactiveComponent implements O
         x => !!x
     );
     public pmsSummaryList$ = this.preiserheber$.map(preiserheber =>
-        preiserheber.pmsPreismeldungSummary.filter(summary => !!summary.pms)
+        sortBy(preiserheber.pmsPreismeldungSummary.filter(summary => !!summary.pms), sum =>
+            sum.pms.name.toLocaleLowerCase()
+        )
     );
 
     constructor(private navController: NavController) {

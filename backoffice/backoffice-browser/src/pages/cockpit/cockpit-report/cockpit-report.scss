@@ -46,10 +46,21 @@ cockpit-report {
             padding-bottom: 0.5em;
             display: flex;
         }
-        .name { flex: 0 0 50%; }
-        .todo { flex: 0 0 16.6%; }
-        .done { flex: 0 0 16.6%; }
-        .new-preismeldungen { flex: 0 0 16.6%; }
+        .name {
+            flex: 0 0 40%;
+        }
+        .heruntergeladene {
+            flex: 0 0 15%;
+        }
+        .offen-nicht-erfasst {
+            flex: 0 0 15%;
+        }
+        .offen-erfasst {
+            flex: 0 0 15%;
+        }
+        .hochgeladene {
+            flex: 0 0 15%;
+        }
     }
 
     .status-number {
@@ -68,7 +79,7 @@ cockpit-report {
     ion-item.pef-advanced-item ion-label.label.label-md {
         display: flex;
         .pef-item-description {
-            flex: 1;
+            flex: 0 0 40%;
         }
         .preiserheber-summary {
             flex: 1;
@@ -77,9 +88,18 @@ cockpit-report {
     }
 
     .preiserheber-summary {
-        .todo { width: 33.3%; }
-        .done { width: 33.3%; }
-        .new-preismeldungen { width: 33.3%; }
+        .heruntergeladene {
+            flex: 0 0 25%;
+        }
+        .offen-nicht-erfasst {
+            flex: 0 0 25%;
+        }
+        .offen-erfasst {
+            flex: 0 0 25%;
+        }
+        .hochgeladene {
+            flex: 0 0 25%;
+        }
     }
 
     ion-item.pef-advanced-item.cockpit-preiserheber:first-of-type {

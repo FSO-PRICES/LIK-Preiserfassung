@@ -27,20 +27,32 @@
         <div class="list-header">
             <div class="labels">
                 <div class="name"></div>
-                <div class="todo">todo</div>
-                <div class="done">done</div>
-                <div class="new-preismeldungen">neu</div>
+                <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
+                    <pef-icon name="download"></pef-icon>
+                </div>
+                <div class="offen-nicht-erfasst" title="#Preise auf Tablet zu erfassen">
+                    <pef-icon name="todo"></pef-icon>
+                </div>
+                <div class="offen-erfasst" title="#Prerise auf Tablet erfasst aber nicht hochgeladen">
+                    <pef-icon name="checkmark"></pef-icon>
+                </div>
+                <div class="hochgeladene" title="#Preise von Tablet hochgeladen">
+                    <pef-icon name="upload"></pef-icon>
+                </div>
             </div>
             <div class="summary">
                 <div class="name"></div>
-                <div class="todo">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).todo == (filteredSummary$ | async).todoSynced">{{ (filteredSummary$ | async).todo }}</span>
+                <div class="heruntergeladene">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).todoSynced > 0">{{ (filteredSummary$ | async).todo }} / {{ (filteredSummary$ | async).newPreismeldungen }}</span>
                 </div>
-                <div class="done">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).doneUploaded == (filteredSummary$ | async).todo">{{ (filteredSummary$ | async).done }}</span>
+                <div class="offen-nicht-erfasst">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).doneAll">{{ (filteredSummary$ | async).todoSynced }}</span>
                 </div>
-                <div class="new-preismeldungen">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).newPreismeldungen == (filteredSummary$ | async).newPreismeldungenUploaded">{{ (filteredSummary$ | async).newPreismeldungen }}</span>
+                <div class="offen-erfasst">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).uploadedAll">{{ (filteredSummary$ | async).done }}</span>
+                </div>
+                <div class="hochgeladene">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).uploadedAll">{{ (filteredSummary$ | async).doneUploaded }}</span>
                 </div>
             </div>
         </div>
@@ -52,14 +64,20 @@
                     <span class="artikel-text">{{ preiserheber.erheber.erhebungsregion }}</span>
                 </div>
                 <div class="preiserheber-summary">
-                    <div class="todo">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].todo == preiserheber.summary[form.value.erhebungsZeitpunkt].todoSynced">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}</span>
+                    <div class="heruntergeladene">
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].todoSynced > 0">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }} / {{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen
+                            }}
+                        </span>
                     </div>
-                    <div class="done">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].doneUploaded == preiserheber.summary[form.value.erhebungsZeitpunkt].todo">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].done }}</span>
+                    <div class="offen-nicht-erfasst">
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].doneAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todoSynced }}
+                        </span>
                     </div>
-                    <div class="new-preismeldungen">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].doneUploaded == preiserheber.summary[form.value.erhebungsZeitpunkt].todo">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen }}</span>
+                    <div class="offen-erfasst">
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].done }}</span>
+                    </div>
+                    <div class="hochgeladene">
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneUploaded }}</span>
                     </div>
                 </div>
             </ion-item>

@@ -15,17 +15,27 @@ cockpit-report-detail {
         flex-direction: column;
     }
 
-    .pms-summary-header, .pms-summary-row {
+    .pms-summary-header,
+    .pms-summary-row {
         display: flex;
         .name {
-            flex: 0 0 55%;
+            flex: 0 0 40%;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
         }
-        .todo { flex: 0 0 15%; }
-        .done { flex: 0 0 15%; }
-        .new-preismeldungen { flex: 0 0 15%; }
+        .heruntergeladene {
+            flex: 0 0 15%;
+        }
+        .offen-nicht-erfasst {
+            flex: 0 0 15%;
+        }
+        .offen-erfasst {
+            flex: 0 0 15%;
+        }
+        .hochgeladene {
+            flex: 0 0 15%;
+        }
     }
 
     .pms-summary-header {
@@ -46,7 +56,6 @@ cockpit-report-detail {
             display: flex;
             align-items: center;
         }
-
     }
 
     .pms-name {
