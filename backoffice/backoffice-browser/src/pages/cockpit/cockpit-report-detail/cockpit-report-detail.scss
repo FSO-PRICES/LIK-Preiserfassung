@@ -23,6 +23,13 @@ cockpit-report-detail {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            min-width: 0;
+            .pms-name {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+            }
         }
         .heruntergeladene {
             flex: 0 0 15%;

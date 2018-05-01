@@ -26,7 +26,7 @@
         <ion-item class="pef-advanced-item pms-summary-row" *ngFor="let pmsSummary of pmsSummaryList" (click)="navigateToPmsEdit(pmsSummary.pms.pmsNummer)"
             tappable>
             <div class="pef-item-description name">
-                <div class="text pms-name">[{{pmsSummary.pms.pmsNummer}}] {{ pmsSummary.pms.name }}</div>
+                <div class="text pms-name" title="[{{pmsSummary.pms.pmsNummer}}] {{ pmsSummary.pms.name }}">[{{pmsSummary.pms.pmsNummer}}] {{ pmsSummary.pms.name }}</div>
                 <div class="artikel-text">{{ pmsSummary.pms.erhebungsregion }}</div>
             </div>
             <div class="heruntergeladene">
