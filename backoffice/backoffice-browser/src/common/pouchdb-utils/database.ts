@@ -21,10 +21,6 @@ export const dbNames = {
     onoffline: 'onoffline',
 };
 
-export const dbRoles = {
-    erheber: 'erheber',
-};
-
 export const systemDbNames: [keyof typeof dbNames] = [
     'warenkorb',
     'preiserheber',
@@ -35,10 +31,7 @@ export const systemDbNames: [keyof typeof dbNames] = [
     'preismeldungen_status',
     'imports',
     'exports',
-    'onoffline',
 ];
-
-export const erheberDbs: [keyof typeof dbNames] = ['orphaned_erfasste_preismeldungen', 'onoffline'];
 
 export const checkIfDatabaseExists = dbName => _checkIfDatabaseExists(dbName);
 

@@ -28,8 +28,6 @@ import {
     getAllIdRevsForPrefixFromDb,
     listAllDatabases,
 } from '../common/pouchdb-utils';
-import { putRoleToDatabaseAsync } from './pouchdb-utils/user';
-import { dbRoles } from './pouchdb-utils/database';
 
 export interface UserDbStructure {
     preiserheber: P.Erheber;
@@ -311,9 +309,6 @@ export function updateUserAndZuweisungDb(preiserheber: P.Erheber, currentPrieszu
             getDatabaseAsObservable(dbNames.orphaned_erfasste_preismeldungen).flatMap(db =>
                 db.bulkDocs(docsForBackupDb)
             )
-        )
-        .flatMap(latestDocs =>
-            putRoleToDatabaseAsync(dbNames.orphaned_erfasste_preismeldungen, dbRoles.erheber).then(() => latestDocs)
         )
         .mapTo(<string>null)
         .catch(error => Observable.of(getErrorMessage(error)));

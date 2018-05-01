@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { Models as P } from 'lik-shared';
 
-import { getDatabaseAsObservable, getDatabase, getSettings, listAllDatabases, dbRoles } from './database';
+import { getDatabaseAsObservable, getDatabase, getSettings, listAllDatabases } from './database';
 
 export function createOrUpdateUser(erheber: P.Erheber, password: string) {
     return getDatabaseAsObservable('_users')
@@ -17,11 +17,7 @@ export function createOrUpdateUser(erheber: P.Erheber, password: string) {
 }
 
 function createUser(erheber: P.Erheber, password: string) {
-    return getDatabase('_users').then((db: any) =>
-        db.signUp(erheber._id, password, {
-            roles: [dbRoles.erheber],
-        })
-    );
+    return getDatabase('_users').then((db: any) => db.signUp(erheber._id, password));
 }
 
 export function updateUser(erheber: P.Erheber, password: string) {
@@ -48,8 +44,20 @@ export async function putAdminUserToDatabaseAsync(dbName, username: string) {
     return putUserToDatabaseAsync(dbName, { members: { names: [username] } });
 }
 
-export async function putRoleToDatabaseAsync(dbName, role: string) {
-    return putUserToDatabaseAsync(dbName, { members: { roles: [role] } });
+export async function makeDbReadonly(dbName: string) {
+    const doc = {
+        _id: '_design/auth',
+        language: 'javascript',
+        validate_doc_update:
+            "function(newDoc, oldDoc, userCtx) {\r\n  if (userCtx.roles.indexOf('_admin') !== -1) {\r\n    return;\r\n  } else {\r\n    throw({forbidden: 'Readonly'});\r\n  }\r\n}",
+    };
+    await getDatabase(dbName).then(db =>
+        db
+            .get(doc._id)
+            .then(() => true)
+            .catch(() => false)
+            .then(exists => (!!exists ? null : db.put(doc)))
+    );
 }
 
 export function putUserToDatabase(dbName, users: P.CouchSecurity) {

@@ -23,9 +23,7 @@ import {
     getDocumentByKeyFromDb,
     getAuthorizedUsersAsync,
     putAdminUserToDatabaseAsync,
-    putRoleToDatabaseAsync,
-    dbRoles,
-    erheberDbs,
+    makeDbReadonly,
 } from '../common/pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
 import { continueEffectOnlyIfTrue, doAsyncAsObservable } from '../common/effects-extensions';
@@ -165,23 +163,8 @@ export class ImporterEffects {
                 await putAdminUserToDatabaseAsync(dbName, adminUser.username);
             }
         });
-        const erheberDbsChecks = erheberDbs.map(async dbName => {
-            const hasErheberRole = await getDatabase(dbName)
-                .then(db => db.info()) // Check if exists, pouch creates the database if not
-                .then(() =>
-                    getAuthorizedUsersAsync(dbName).then(
-                        x =>
-                            !!x &&
-                            !!x.members &&
-                            !!x.members.roles &&
-                            x.members.roles.some(name => name === dbRoles.erheber)
-                    )
-                );
-            if (!hasErheberRole) {
-                await putRoleToDatabaseAsync(dbName, dbRoles.erheber);
-            }
-        });
-        return bluebird.all([...dbChecks, ...erheberDbsChecks]).then(() => {});
+        await makeDbReadonly(dbNames.onoffline);
+        return bluebird.all(dbChecks).then(() => {});
     }
 
     private updateImportMetadata(dbName: string, importerType: string) {
