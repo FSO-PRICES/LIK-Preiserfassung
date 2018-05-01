@@ -28,6 +28,11 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public reportData$ = this.observePropertyCurrentValue<P.ControllingReportData>('reportData')
         .publishReplay(1)
         .refCount();
+    public preismeldungenStatus$ = this.observePropertyCurrentValue<{ [pmId: string]: P.Models.PreismeldungStatus }>(
+        'preismeldungenStatus'
+    )
+        .publishReplay(1)
+        .refCount();
 
     public preismeldungen$ = this.reportData$
         .combineLatest(
@@ -35,15 +40,16 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                 .asObservable()
                 .startWith(P.Models.PreismeldungStatusFilter['unbestätigt'])
                 .publishReplay(1)
-                .refCount()
+                .refCount(),
+            this.preismeldungenStatus$
         )
         .filter(([x]) => !!x && !!x.rows)
-        .map(([x, statusFilter]) =>
+        .map(([x, statusFilter, preismeldungenStatus]) =>
             x.rows.filter(r => {
                 if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
                     return true;
                 }
-                return !r.exported && (this.preismeldungenStatus[r.pmId] as number) <= statusFilter;
+                return !r.exported && (preismeldungenStatus[r.pmId] || 0) <= statusFilter;
             })
         );
 
