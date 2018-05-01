@@ -72,7 +72,7 @@ export function checkConnectivity(url) {
         responseType: 'json',
         method: 'GET',
         timeout: 1000,
-    }).map(resp => resp.response['version'] === '1.6.1');
+    }).map(resp => resp.response['version'] === '1.6.1' || resp.response['version'] === '2.1.1');
 }
 
 export function dropDatabase() {
