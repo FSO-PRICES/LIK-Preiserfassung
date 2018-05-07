@@ -1,4 +1,4 @@
-@import "../../../../styles/imports.scss";
+@import '../../../../styles/imports.scss';
 
 preismeldung-readonly-header {
     flex: 0 0 auto;
@@ -16,7 +16,12 @@ preismeldung-readonly-header {
         align-items: center;
     }
 
-    .product-heading {
+    .pms-heading {
+        font-size: 1.25em;
+    }
+
+    .product-heading,
+    .pms-heading {
         white-space: wrap;
         line-height: 1.25em;
         max-height: 2.5em;

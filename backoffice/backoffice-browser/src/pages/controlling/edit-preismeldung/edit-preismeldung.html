@@ -9,16 +9,16 @@
         </preismeldung-toolbar>
         <div class="tab-container" *ngIf="!!(currentPreismeldung$ | async)">
             <preismeldung-info-warenkorb [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'" [isDesktop]="true" [preismeldung]="currentPreismeldung$ | async"
-                [preismeldestelle]="preismeldestelle$ | async" [warenkorb]="warenkorb$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
+                [preismeldestelle]="preismeldestelle" [warenkorb]="warenkorb$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
                 [isAdminApp]="true"></preismeldung-info-warenkorb>
             <preismeldung-info [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'" [isDesktop]="true" [preismeldung]="currentPreismeldung$ | async"
-                [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async" (resetClicked)="resetPreismeldung$.emit()"
+                [preismeldestelle]="preismeldestelle" [priceCountStatus]="currentPriceCountStatus$ | async" (resetClicked)="resetPreismeldung$.emit()"
                 [isAdminApp]="true"></preismeldung-info>
             <preismeldung-attributes [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'" [preismeldung]="currentPreismeldung$ | async"
-                [isDesktop]="true" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
+                [isDesktop]="true" [preismeldestelle]="preismeldestelle" [priceCountStatus]="currentPriceCountStatus$ | async"
                 (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)" [isAdminApp]="true"></preismeldung-attributes>
             <preismeldung-messages [class.display-none]="(selectedTab$ | async) != 'MESSAGES'" [isActive]="(selectedTab$ | async) == 'MESSAGES'"
-                [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [priceCountStatus]="currentPriceCountStatus$ | async"
+                [preismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle" [priceCountStatus]="currentPriceCountStatus$ | async"
                 [isDesktop]="true" (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)" (kommentarClearClicked)="kommentarClearClicked$.emit()"
                 [isAdminApp]="true"></preismeldung-messages>
             <preismeldung-price [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'" [preismeldung]="currentPreismeldung$ | async"

@@ -76,7 +76,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
         .publishReplay(1)
         .refCount();
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
-    public preismeldestelle$ = this.observePropertyCurrentValue<P.PriceCountStatus>('preismeldestelle');
+    public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
     public isAdminApp$ = this.observePropertyCurrentValue<boolean>('isAdminApp');
 
@@ -123,7 +123,9 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             .map(
                 x =>
                     !!x.refPreismeldung
-                        ? !!x.refPreismeldung.bemerkungen ? x.refPreismeldung.bemerkungen.replace(/\\n/g, '<br/>') : ''
+                        ? !!x.refPreismeldung.bemerkungen
+                            ? x.refPreismeldung.bemerkungen.replace(/\\n/g, '<br/>')
+                            : ''
                         : ''
             )
             .publishReplay(1)

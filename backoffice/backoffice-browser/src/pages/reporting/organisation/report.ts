@@ -25,6 +25,7 @@ import { ReportTypes } from '../../../actions/report';
 export class OrganisationReportComponent extends ReactiveComponent implements OnChanges {
     @Input('report-data') reportData: OrganisationReport;
 
+    numberFormatOptions = { integerSeparator: "'" };
     public reportData$ = this.observePropertyCurrentValue<OrganisationReport>('reportData');
 
     constructor() {

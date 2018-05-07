@@ -8,6 +8,9 @@ import { Observable } from 'rxjs/Observable';
 @Component({
     selector: 'preismeldung-readonly-header',
     template: `
+        <div class="pms-heading" *ngIf="isAdminApp$ | async">
+            {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }}
+        </div>
         <div class="header-line" *ngIf="!!(preismeldung$ | async)">
             <div class="product-heading">
                 {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ | async).warenkorbPosition.positionsbezeichnung
@@ -26,7 +29,7 @@ import { Observable } from 'rxjs/Observable';
                 <pef-icon name="server_url"></pef-icon>
             </button>
             <div class="right-column price-count-status" [ngClass]="{ 'ok': (preismeldung$ | async)?.priceCountStatus?.ok, 'not-ok': !(preismeldung$ | async)?.priceCountStatus?.ok }">
-                <span *ngIf="!(isAdminApp$ | async)">{{ (preismeldung$ | async).priceCountStatus.numActivePrices }}/{{ (preismeldung$ | async).priceCountStatus.anzahlPreiseProPMS }}</span>
+                <span>{{ (preismeldung$ | async).priceCountStatus.numActivePrices }}/{{ (preismeldung$ | async).priceCountStatus.anzahlPreiseProPMS }}</span>
             </div>
         </div>
         <div class="header-line" *ngIf="!!(preismeldung$ | async)">
