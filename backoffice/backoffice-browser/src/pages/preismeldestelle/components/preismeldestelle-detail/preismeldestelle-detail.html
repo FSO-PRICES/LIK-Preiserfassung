@@ -47,7 +47,7 @@
                 <ion-input type="text" formControlName="email"></ion-input>
             </ion-item>
             <ion-item class="pef-item">
-                <ion-label stacked>Interner-Link</ion-label>
+                <ion-label stacked>Internet-Link</ion-label>
                 <ion-input type="text" formControlName="internetLink"></ion-input>
             </ion-item>
             <div class="pef-item item item-block item-md item-label-stacked item-input">
@@ -184,30 +184,30 @@
     <ion-row>
         <ion-col>
             <h5 [class.label-validation-error]="this.form.errors && this.form.errors['erhebungsart_required']">Erhebungsart</h5>
-            <ion-list class="padding-to-header">
+            <ion-list class="padding-to-header" formGroupName="erhebungsart">
                 <ion-item>
                     <ion-label>Tablet vor Ort</ion-label>
-                    <ion-checkbox formControlName="erhebungsart_tablet"></ion-checkbox>
+                    <ion-checkbox formControlName="tablet"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label>Telefon</ion-label>
-                    <ion-checkbox formControlName="erhebungsart_telefon"></ion-checkbox>
+                    <ion-checkbox formControlName="telefon"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label>eMail</ion-label>
-                    <ion-checkbox formControlName="erhebungsart_email"></ion-checkbox>
+                    <ion-checkbox formControlName="email"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label>Internet</ion-label>
-                    <ion-checkbox formControlName="erhebungsart_internet"></ion-checkbox>
+                    <ion-checkbox formControlName="internet"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label>Papierliste vor Ort</ion-label>
-                    <ion-checkbox formControlName="erhebungsart_papierlisteVorOrt"></ion-checkbox>
+                    <ion-checkbox formControlName="papierlisteVorOrt"></ion-checkbox>
                 </ion-item>
                 <ion-item>
                     <ion-label>Papierliste durch PMS ausgefüllt</ion-label>
-                    <ion-checkbox formControlName="erhebungsart_papierlisteAbgegeben"></ion-checkbox>
+                    <ion-checkbox formControlName="papierlisteAbgegeben"></ion-checkbox>
                 </ion-item>
             </ion-list>
         </ion-col>

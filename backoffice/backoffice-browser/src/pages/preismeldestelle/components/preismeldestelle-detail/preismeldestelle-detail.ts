@@ -68,12 +68,14 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                 internetLink: [null],
                 languageCode: [null, Validators.required],
                 erhebungsregion: [null],
-                erhebungsart_tablet: [false],
-                erhebungsart_telefon: [false],
-                erhebungsart_email: [false],
-                erhebungsart_internet: [false],
-                erhebungsart_papierlisteVorOrt: [false],
-                erhebungsart_papierlisteAbgegeben: [false],
+                erhebungsart: formBuilder.group({
+                    tablet: [false],
+                    telefon: [false],
+                    email: [false],
+                    internet: [false],
+                    papierlisteVorOrt: [false],
+                    papierlisteAbgegeben: [false],
+                }),
                 pmsGeschlossen: [null],
                 erhebungsartComment: [null],
                 zusatzInformationen: [null],
@@ -89,7 +91,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                     {},
                     formValue,
                     { _id: preismeldestelleId(preismeldestelle.pmsNummer) },
-                    { erhebungsart: encodeErhebungsartFromForm(this.form.value) }
+                    { erhebungsart: encodeErhebungsartFromForm(this.form.value.erhebungsart) }
                 );
             });
 
@@ -128,7 +130,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         internetLink: preismeldestelle.internetLink,
                         languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                         erhebungsregion: preismeldestelle.erhebungsregion,
-                        ...parseErhebungsarten(preismeldestelle.erhebungsart),
+                        erhebungsart: parseErhebungsarten(preismeldestelle.erhebungsart),
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
                         zusatzInformationen: preismeldestelle.zusatzInformationen,
@@ -191,13 +193,14 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
     private formLevelValidationFactory() {
         return (group: FormGroup) => {
+            const erhebungsart = group.get('erhebungsart') as FormGroup;
             if (
-                !group.get('erhebungsart_tablet').value &&
-                !group.get('erhebungsart_telefon').value &&
-                !group.get('erhebungsart_email').value &&
-                !group.get('erhebungsart_internet').value &&
-                !group.get('erhebungsart_papierlisteVorOrt').value &&
-                !group.get('erhebungsart_papierlisteAbgegeben').value
+                !erhebungsart.get('tablet').value &&
+                !erhebungsart.get('telefon').value &&
+                !erhebungsart.get('email').value &&
+                !erhebungsart.get('internet').value &&
+                !erhebungsart.get('papierlisteVorOrt').value &&
+                !erhebungsart.get('papierlisteAbgegeben').value
             ) {
                 return { erhebungsart_required: true };
             }
