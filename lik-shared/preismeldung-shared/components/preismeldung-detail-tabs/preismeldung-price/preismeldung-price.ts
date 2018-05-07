@@ -64,8 +64,8 @@ import * as P from '../../../models';
                 <div class="header-line">
                     <ion-item class="pef-item on-dark">
                         <ion-label>{{ 'label_artikeltext' | translate }}&nbsp;*</ion-label>
-                        <ion-input type="text" formControlName="artikeltext" [class.validation-error]="true" [readonly]="isReadonly$ | async"
-                            [class.readonly]="isReadonly$ | async"></ion-input>
+                        <ion-textarea rows="2" type="text" formControlName="artikeltext" [class.validation-error]="true" [readonly]="isReadonly$ | async"
+                            [class.readonly]="isReadonly$ | async"></ion-textarea>
                     </ion-item>
                     <div class="right-column">
                         <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only class="pef-icon-secondary duplicate" (click)="duplicatePreismeldung$.emit()"
