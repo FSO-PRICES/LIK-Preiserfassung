@@ -2,9 +2,9 @@
 <div class="page-wrapper">
     <div class="page-content">
         <div class="load-report-data">
-            <button type="button" class="load-data" ion-button (click)="loadData$.emit('monthly')" [disabled]="reportExecuting$ | async">Monatsbericht laden</button>
-            <button type="button" class="load-data" ion-button (click)="loadData$.emit('organisation')" [disabled]="reportExecuting$ | async">Organasitionsbericht laden</button>
-            <button type="button" class="load-data" ion-button (click)="loadData$.emit('pmsProblems')" [disabled]="reportExecuting$ | async">PMS Probleme Bericht laden</button>
+            <button type="button" class="load-data" ion-button (click)="loadData$.emit('monthly')" [disabled]="reportExecuting$ | async">Preiserhebung</button>
+            <button type="button" class="load-data" ion-button (click)="loadData$.emit('organisation')" [disabled]="reportExecuting$ | async">Organisation</button>
+            <button type="button" class="load-data" ion-button (click)="loadData$.emit('pmsProblems')" [disabled]="reportExecuting$ | async">PMS-Probleme</button>
         </div>
         <div class="reports">
             <monthly-report [report-data]="monthlyReportData$ | async"></monthly-report>

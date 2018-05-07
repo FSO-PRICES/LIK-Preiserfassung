@@ -29,15 +29,15 @@
                 <tbody>
                     <tr>
                         <td>Total erhalten</td>
-                        <td>{{reportData.preismeldungen.total}}</td>
+                        <td class="number">{{reportData.preismeldungen.total | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Total erfasst</td>
-                        <td>{{reportData.preismeldungen.erfasst}}</td>
+                        <td class="number">{{reportData.preismeldungen.erfasst | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Neue Preisreihen</td>
-                        <td>{{reportData.preismeldungen.new}}</td>
+                        <td class="number">{{reportData.preismeldungen.new | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -51,15 +51,15 @@
                 <tbody>
                     <tr>
                         <td>Offline</td>
-                        <td>{{reportData.erhebungsart.online}}</td>
+                        <td class="number">{{reportData.erhebungsart.online | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Online</td>
-                        <td>{{reportData.erhebungsart.offline}}</td>
+                        <td class="number">{{reportData.erhebungsart.offline | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Nicht angegeben</td>
-                        <td>{{reportData.erhebungsart['N/A']}}</td>
+                        <td class="number">{{reportData.erhebungsart['N/A'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -73,35 +73,35 @@
                 <tbody>
                     <tr>
                         <td>Standardbuchung</td>
-                        <td>{{reportData.bearbeitungsCode['99']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['99'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>1 - Direktersatz</td>
-                        <td>{{reportData.bearbeitungsCode['1']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['1'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>2 - Neuer Preis mit VP</td>
-                        <td>{{reportData.bearbeitungsCode['2']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['2'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>3 - Neuer Preis ohne VP</td>
-                        <td>{{reportData.bearbeitungsCode['3']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['3'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>7 - Ersatz mit VP</td>
-                        <td>{{reportData.bearbeitungsCode['7']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['7'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>R - fehlender Artikel</td>
-                        <td>{{reportData.bearbeitungsCode['101']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['101'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>S - fehlender Saisonartikel</td>
-                        <td>{{reportData.bearbeitungsCode['44']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['44'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>A - Aktionspreis</td>
-                        <td>{{reportData.bearbeitungsCode['Aktion']}}</td>
+                        <td class="number">{{reportData.bearbeitungsCode['Aktion'] | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -115,23 +115,23 @@
                 <tbody>
                     <tr>
                         <td>(=) stabile Preise</td>
-                        <td>{{reportData.preisentwicklungen.stabil}}</td>
+                        <td class="number">{{reportData.preisentwicklungen.stabil | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>(+) gestiegene Preise</td>
-                        <td>{{reportData.preisentwicklungen.gestiegen}}</td>
+                        <td class="number">{{reportData.preisentwicklungen.gestiegen | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>(+) Aktionsende</td>
-                        <td>{{reportData.preisentwicklungen.aktionsende}}</td>
+                        <td class="number">{{reportData.preisentwicklungen.aktionsende | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>(-) gesunkene Preise</td>
-                        <td>{{reportData.preisentwicklungen.gesunken}}</td>
+                        <td class="number">{{reportData.preisentwicklungen.gesunken | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>(-) Aktion/Ausverkauf</td>
-                        <td>{{reportData.preisentwicklungen.aktionAusverkauf}}</td>
+                        <td class="number">{{reportData.preisentwicklungen.aktionAusverkauf | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -146,38 +146,38 @@
                 <tbody>
                     <tr>
                         <td>Tablet vor Ort</td>
-                        <td>{{reportData.erhebungsartDetailPm.tablet}}</td>
-                        <td>{{reportData.erhebungsartDetailPms.tablet}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPm.tablet | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPms.tablet | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Telefon</td>
-                        <td>{{reportData.erhebungsartDetailPm.telefon}}</td>
-                        <td>{{reportData.erhebungsartDetailPms.telefon}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPm.telefon | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPms.telefon | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>eMail</td>
-                        <td>{{reportData.erhebungsartDetailPm.email}}</td>
-                        <td>{{reportData.erhebungsartDetailPms.email}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPm.email | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPms.email | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Papierformular vor Ort</td>
-                        <td>{{reportData.erhebungsartDetailPm.papierlisteVorOrt}}</td>
-                        <td>{{reportData.erhebungsartDetailPms.papierlisteVorOrt}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPm.papierlisteVorOrt | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPms.papierlisteVorOrt | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Papierformular durch PMS</td>
-                        <td>{{reportData.erhebungsartDetailPm.papierlisteAbgegeben}}</td>
-                        <td>{{reportData.erhebungsartDetailPms.papierlisteAbgegeben}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPm.papierlisteAbgegeben | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPms.papierlisteAbgegeben | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Internet</td>
-                        <td>{{reportData.erhebungsartDetailPm.internet}}</td>
-                        <td>{{reportData.erhebungsartDetailPms.internet}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPm.internet | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPms.internet | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
                         <td>Total</td>
-                        <td>{{reportData.erhebungsartDetailPm.total}}</td>
-                        <td>{{reportData.erhebungsartDetailPms.total}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPm.total | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{reportData.erhebungsartDetailPms.total | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>

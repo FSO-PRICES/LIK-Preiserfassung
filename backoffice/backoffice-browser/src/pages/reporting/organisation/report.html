@@ -30,8 +30,8 @@
                 <tbody>
                     <tr *ngFor="let region of iterateValues(reportData.erhebungsregionen)">
                         <td>{{region.key}}</td>
-                        <td>{{region.value.pm}}</td>
-                        <td>{{region.value.pms}}</td>
+                        <td class="number">{{region.value.pm | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{region.value.pms | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -46,8 +46,8 @@
                 <tbody>
                     <tr *ngFor="let preiserheber of iterateValues(reportData.preiserheber)">
                         <td>{{preiserheber.key}}</td>
-                        <td>{{preiserheber.value.pm}}</td>
-                        <td>{{preiserheber.value.pms}}</td>
+                        <td class="number">{{preiserheber.value.pm | pefFormatNumber:numberFormatOptions}}</td>
+                        <td class="number">{{preiserheber.value.pms | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -56,13 +56,13 @@
                     <tr>
                         <th>Preismeldungen pro PMS</th>
                         <th>#Preise</th>
-                        <th>#PEname</th>
+                        <th>PEname</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let preismeldung of iterateValues(reportData.preismeldungen)">
                         <td>{{preismeldung.key}}</td>
-                        <td>{{preismeldung.value.pm}}</td>
+                        <td class="number">{{preismeldung.value.pm | pefFormatNumber:numberFormatOptions}}</td>
                         <td>{{preismeldung.value.peName}}</td>
                     </tr>
                 </tbody>
