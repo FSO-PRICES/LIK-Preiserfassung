@@ -34,46 +34,48 @@
             </ion-list>
         </ion-col>
         <ion-col>
-            <ion-item class="pef-item">
-                <ion-label stacked>PMS erhoben durch</ion-label>
-                <ion-input readonly type="text" formControlName="supplement" value="{{preiserheber?.firstName}} {{preiserheber?.surname}}"></ion-input>
-            </ion-item>
-            <ion-item class="pef-item">
-                <ion-label stacked>Telefon</ion-label>
-                <ion-input type="text" formControlName="telephone"></ion-input>
-            </ion-item>
-            <ion-item class="pef-item">
-                <ion-label stacked>E-Mail</ion-label>
-                <ion-input type="text" formControlName="email"></ion-input>
-            </ion-item>
-            <ion-item class="pef-item">
-                <ion-label stacked>Internet-Link</ion-label>
-                <ion-input type="text" formControlName="internetLink"></ion-input>
-            </ion-item>
-            <div class="pef-item item item-block item-md item-label-stacked item-input">
-                <div class="item-inner">
-                    <div class="input-wrapper">
-                        <ion-label stacked [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
-                        <div class="input input-md pef-select">
-                            <select formControlName="languageCode">
-                                <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
-                            </select>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label stacked>PMS erhoben durch</ion-label>
+                    <ion-input readonly type="text" formControlName="supplement" value="{{preiserheber?.firstName}} {{preiserheber?.surname}}"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Telefon</ion-label>
+                    <ion-input type="text" formControlName="telephone"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>E-Mail</ion-label>
+                    <ion-input type="text" formControlName="email"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label stacked>Internet-Link</ion-label>
+                    <ion-input type="text" formControlName="internetLink"></ion-input>
+                </ion-item>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label stacked [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="languageCode">
+                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="pef-item item item-block item-md item-label-stacked item-input">
-                <div class="item-inner">
-                    <div class="input-wrapper">
-                        <ion-label stacked [class.target-ng-invalid]="form.controls.erhebungsregion.invalid">Region</ion-label>
-                        <div class="input input-md pef-select">
-                            <select formControlName="erhebungsregion">
-                                <option *ngFor="let erhebungsregion of erhebungsregionen$ | async" [value]="erhebungsregion">{{erhebungsregion}}</option>
-                            </select>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label stacked [class.target-ng-invalid]="form.controls.erhebungsregion.invalid">Region</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="erhebungsregion">
+                                    <option *ngFor="let erhebungsregion of erhebungsregionen$ | async" [value]="erhebungsregion">{{erhebungsregion}}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </ion-list>
         </ion-col>
     </ion-row>
     <ion-row formArrayName="kontaktpersons">
