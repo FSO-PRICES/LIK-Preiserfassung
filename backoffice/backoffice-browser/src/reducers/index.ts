@@ -182,6 +182,7 @@ export const getExportedPreiserheber = createSelector(getExporterState, fromExpo
 export const getCockpitState = (state: AppState) => state.cockpit;
 export const getCockpitReportData = createSelector(getCockpitState, fromCockpit.getCockpitReportData);
 export const getCockpitIsExecuting = createSelector(getCockpitState, fromCockpit.getCockpitIsExecuting);
+export const getCockpitSelectedPreiserheber = createSelector(getCockpitState, fromCockpit.getSelectedPreiserheber);
 
 export const getReportState = (state: AppState) => state.report;
 export const getReportData = createSelector(getReportState, fromReport.getReportData);

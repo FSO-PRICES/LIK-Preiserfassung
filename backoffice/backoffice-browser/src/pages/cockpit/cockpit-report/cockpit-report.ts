@@ -16,11 +16,14 @@ import { CockpitPreismeldungSummary } from '../../../common-models';
 export class CockpitReportComponent extends ReactiveComponent implements OnChanges, OnInit {
     @Input('report-executing') reportExecuting: boolean;
     @Input('cockpit-report-data') cockpitReportData: P.CockpitReportData;
+    @Input('selectedPreiserheber') selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;
     @Output('load-data') loadData$ = new EventEmitter();
+    @Output('preiserheberSelected') preiserheberSelected$: Observable<P.CockpitPreiserheberSummary>;
 
     public selectPreiserheber$ = new EventEmitter<P.CockpitPreiserheberSummary>();
-    public selectedPreiserheber$: Observable<P.CockpitPreiserheberSummary>;
-
+    public selectedPreiserheber$ = this.observePropertyCurrentValue<P.CockpitPreiserheberSummary>(
+        'selectedPreiserheber'
+    );
     public reportExecuting$ = this.observePropertyCurrentValue<boolean>('reportExecuting');
     public cockpitReportData$ = this.observePropertyCurrentValue<P.CockpitReportData>('cockpitReportData');
     public hasExecutedOnce$: Observable<boolean>;
@@ -74,7 +77,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                     ]);
                 }
             })
-            // .map(x => sortBy(x, pe => pe.erheber.surname.toLocaleLowerCase()))
+            .map(x => sortBy(x, pe => pe.erheber.surname.toLocaleLowerCase()))
             .startWith([])
             .publishReplay(1)
             .refCount();
@@ -84,38 +87,35 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                 preiserheber.reduce(
                     (agg, v) =>
                         ({
-                            todo: agg.todo + v.summary[this.form.value.erhebungsZeitpunkt].todo,
-                            todoSynced: agg.todoSynced + v.summary[this.form.value.erhebungsZeitpunkt].todoSynced,
-                            done: agg.done + v.summary[this.form.value.erhebungsZeitpunkt].done,
-                            doneUploaded: agg.doneUploaded + v.summary[this.form.value.erhebungsZeitpunkt].doneUploaded,
+                            total: agg.total + v.summary[this.form.value.erhebungsZeitpunkt].total,
                             newPreismeldungen:
                                 agg.newPreismeldungen + v.summary[this.form.value.erhebungsZeitpunkt].newPreismeldungen,
-                            newPreismeldungenUploaded:
-                                agg.newPreismeldungenUploaded +
-                                v.summary[this.form.value.erhebungsZeitpunkt].newPreismeldungenUploaded,
-                            doneAll: agg.doneAll && v.summary[this.form.value.erhebungsZeitpunkt].doneAll,
-                            uploadedAll: agg.uploadedAll && v.summary[this.form.value.erhebungsZeitpunkt].uploadedAll,
+                            synced: agg.synced && v.summary[this.form.value.erhebungsZeitpunkt].synced,
+                            todo: agg.todo + v.summary[this.form.value.erhebungsZeitpunkt].todo,
+                            doneButNotUploaded:
+                                agg.doneButNotUploaded +
+                                v.summary[this.form.value.erhebungsZeitpunkt].doneButNotUploaded,
+                            uploaded: agg.uploaded + v.summary[this.form.value.erhebungsZeitpunkt].uploaded,
+                            uploadedAll: agg.uploadedAll && v.summary[this.form.value.erhebungsZeitpunkt].doneAll,
                         } as CockpitPreismeldungSummary),
                     {
-                        todo: 0,
-                        todoSynced: 0,
-                        done: 0,
-                        doneUploaded: 0,
+                        total: 0,
                         newPreismeldungen: 0,
-                        newPreismeldungenUploaded: 0,
-                        doneAll: true,
+                        synced: true,
+                        todo: 0,
+                        doneButNotUploaded: 0,
+                        uploaded: 0,
                         uploadedAll: true,
                     } as CockpitPreismeldungSummary
                 )
             )
             .shareReplay();
 
-        this.selectedPreiserheber$ = this.selectPreiserheber$
+        this.preiserheberSelected$ = this.selectPreiserheber$
             .combineLatest(this.filteredPreiserheber$, (clickedPreiserheber, filteredPreiserheber) => {
                 if (!filteredPreiserheber.some(y => y.username === clickedPreiserheber.username)) return null;
                 return clickedPreiserheber;
             })
-            .startWith(null)
             .publishReplay(1)
             .refCount();
 

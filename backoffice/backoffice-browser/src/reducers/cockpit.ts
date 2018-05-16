@@ -1,6 +1,7 @@
 import * as cockpit from '../actions/cockpit';
 import { Models as P, sortBySelector } from 'lik-shared';
 import { flatten, uniq } from 'lodash';
+import { createMapOf } from 'lik-shared/common/map-functions';
 
 export interface StichtagGroupedCockpitPreismeldungSummary {
     stichtag1: CockpitPreismeldungSummary;
@@ -11,13 +12,12 @@ export interface StichtagGroupedCockpitPreismeldungSummary {
 }
 
 export interface CockpitPreismeldungSummary {
-    todo: number;
-    todoSynced: number;
-    done: number;
-    doneUploaded: number;
+    total: number;
     newPreismeldungen: number;
-    newPreismeldungenUploaded: number;
-    doneAll: boolean;
+    synced: boolean;
+    todo: number;
+    doneButNotUploaded: number;
+    uploaded: number;
     uploadedAll: boolean;
 }
 
@@ -45,11 +45,13 @@ export interface CockpitReportData {
 export interface State {
     isExecuting: boolean;
     cockpitReportData: CockpitReportData;
+    selectedPreiserheber: CockpitPreiserheberSummary;
 }
 
 const initialState: State = {
     isExecuting: false,
     cockpitReportData: null,
+    selectedPreiserheber: null,
 };
 
 export function reducer(state = initialState, action: cockpit.Action): State {
@@ -58,6 +60,7 @@ export function reducer(state = initialState, action: cockpit.Action): State {
             return {
                 isExecuting: true,
                 cockpitReportData: null,
+                selectedPreiserheber: null,
             };
         }
 
@@ -114,8 +117,17 @@ export function reducer(state = initialState, action: cockpit.Action): State {
                         pmsPreismeldungSummary: unassignedPmsPreismeldungSummary,
                     },
                 },
+                selectedPreiserheber: null,
             };
         }
+
+        case cockpit.COCKPIT_PREISERHEBER_SELECTED: {
+            return {
+                ...state,
+                selectedPreiserheber: action.payload,
+            };
+        }
+
         default:
             return state;
     }
@@ -126,19 +138,17 @@ function createStichtagGroupedCockpitPreismeldungSummary(
     preismeldungenSynced: P.Preismeldung[]
 ): StichtagGroupedCockpitPreismeldungSummary {
     const todoSynced = preismeldungenSynced.filter(pm => refPreismeldungen.some(r => r.pmId === pm._id));
-    const done = todoSynced.filter(pm => pm.istAbgebucht);
-    const doneUploaded = todoSynced.filter(pm => !!pm.uploadRequestedAt);
+    const done = preismeldungenSynced.filter(pm => pm.istAbgebucht);
     const newPreismeldungen = preismeldungenSynced.filter(pm => !refPreismeldungen.some(r => r.pmId === pm._id));
-    const newPreismeldungenUploaded = newPreismeldungen.filter(pm => !!pm.uploadRequestedAt);
+    const doneById = createMapOf(done, pm => pm._id);
 
     const createCockpitPreismeldungenSummaryFn = (erhebungsZeitpunkt?: number) =>
         createCockpitPreismeldungenSummary(
             refPreismeldungen,
             todoSynced,
             done,
-            doneUploaded,
+            doneById,
             newPreismeldungen,
-            newPreismeldungenUploaded,
             erhebungsZeitpunkt
         );
 
@@ -155,30 +165,23 @@ function createCockpitPreismeldungenSummary(
     todo: P.PreismeldungReference[],
     todoSynced: P.Preismeldung[],
     done: P.Preismeldung[],
-    doneUploaded: P.Preismeldung[],
+    doneById: { [pmId: string]: P.Preismeldung },
     newPreismeldungen: P.Preismeldung[],
-    newPreismeldungenUploaded: P.Preismeldung[],
     erhebungsZeitpunkt?: number
 ): CockpitPreismeldungSummary {
-    const todoSynced_ = todoSynced.filter(
-        x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)
-    );
-    const todo_ = todo.filter(x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt));
+    const inErhebungszeitpunkt = (pm: P.Preismeldung | P.PreismeldungReference) =>
+        !erhebungsZeitpunkt ? true : pm.erhebungsZeitpunkt === erhebungsZeitpunkt;
+    const todo_ = todo.filter(x => inErhebungszeitpunkt(x));
     return {
-        todo: todo_.length,
-        todoSynced: todoSynced_.length,
-        done: done.filter(x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)).length,
-        doneUploaded: doneUploaded.filter(
-            x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)
-        ).length,
-        newPreismeldungen: newPreismeldungen.filter(
-            x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)
-        ).length,
-        newPreismeldungenUploaded: newPreismeldungenUploaded.filter(
-            x => (!erhebungsZeitpunkt ? true : x.erhebungsZeitpunkt === erhebungsZeitpunkt)
-        ).length,
-        doneAll: todoSynced_.every(x => x.istAbgebucht),
-        uploadedAll: todoSynced_.every(x => !!x.uploadRequestedAt),
+        total: todo_.length,
+        synced: todoSynced.length > 0 || todo_.length === 0,
+        newPreismeldungen: newPreismeldungen.filter(x => inErhebungszeitpunkt(x)).length,
+        todo: todo_.filter(x => !doneById[x.pmId]).length,
+        doneButNotUploaded: done.filter(x => !x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
+        uploaded: done.filter(x => !!x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
+        uploadedAll: todo.every(
+            x => inErhebungszeitpunkt(x) && !!doneById[x.pmId] && !!doneById[x.pmId].uploadRequestedAt
+        ),
     };
 }
 
@@ -202,3 +205,4 @@ function createCockpitPmsPreismeldungenSummary(
 
 export const getCockpitIsExecuting = (state: State) => state.isExecuting;
 export const getCockpitReportData = (state: State) => state.cockpitReportData;
+export const getSelectedPreiserheber = (state: State) => state.selectedPreiserheber;

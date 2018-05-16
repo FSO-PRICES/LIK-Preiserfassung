@@ -11,14 +11,14 @@ import * as fromRoot from '../../reducers';
 })
 export class PefMenuComponent implements OnDestroy {
     public pages = [
-        { page: 'CockpitPage', name: 'Status' },
-        { page: 'ImportPage', name: 'Import' },
-        { page: 'PreismeldestellePage', name: 'PMS' },
-        { page: 'PreiserheberPage', name: 'Preiserheber' },
-        { page: 'PreismeldungPage', name: 'Preise' },
-        { page: 'ControllingPage', name: 'Controlling' },
-        { page: 'ReportingPage', name: 'Reporting' },
-        { page: 'ExportToPrestaPage', name: 'Export' },
+        { page: 'CockpitPage', pageAliases: ['CockpitPage'], name: 'Status' },
+        { page: 'ImportPage', pageAliases: ['ImportPage'], name: 'Import' },
+        { page: 'PreismeldestellePage', pageAliases: ['PreismeldestellePage'], name: 'PMS' },
+        { page: 'PreiserheberPage', pageAliases: ['PreiserheberPage'], name: 'Preiserheber' },
+        { page: 'PreismeldungPage', pageAliases: ['PreismeldungPage', 'PreismeldungByPmsPage'], name: 'Preise' },
+        { page: 'ControllingPage', pageAliases: ['ControllingPage'], name: 'Controlling' },
+        { page: 'ReportingPage', pageAliases: ['ReportingPage'], name: 'Reporting' },
+        { page: 'ExportToPrestaPage', pageAliases: ['ExportToPrestaPage'], name: 'Export' },
     ];
 
     public dangerZone$: Observable<boolean>;
@@ -56,8 +56,8 @@ export class PefMenuComponent implements OnDestroy {
         });
     }
 
-    isCurrentPage(pageName) {
-        return this.navCtrl.getActive().name === pageName;
+    isCurrentPage(pageNames: string[]) {
+        return pageNames.some(pageName => this.navCtrl.getActive().name === pageName);
     }
 
     ngOnDestroy(): void {

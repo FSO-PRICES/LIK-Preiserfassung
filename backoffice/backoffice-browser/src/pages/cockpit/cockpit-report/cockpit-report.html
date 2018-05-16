@@ -43,16 +43,16 @@
             <div class="summary">
                 <div class="name"></div>
                 <div class="heruntergeladene">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).todoSynced > 0">{{ (filteredSummary$ | async).todo }} / {{ (filteredSummary$ | async).newPreismeldungen }}</span>
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).synced">{{ (filteredSummary$ | async).total }} / {{ (filteredSummary$ | async).newPreismeldungen }}</span>
                 </div>
                 <div class="offen-nicht-erfasst">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).doneAll">{{ (filteredSummary$ | async).todoSynced }}</span>
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).todo === 0">{{ (filteredSummary$ | async).todo }}</span>
                 </div>
                 <div class="offen-erfasst">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).uploadedAll">{{ (filteredSummary$ | async).done }}</span>
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).doneButNotUploaded === 0">{{ (filteredSummary$ | async).doneButNotUploaded }}</span>
                 </div>
                 <div class="hochgeladene">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).uploadedAll">{{ (filteredSummary$ | async).doneUploaded }}</span>
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).uploadedAll">{{ (filteredSummary$ | async).uploaded }}</span>
                 </div>
             </div>
         </div>
@@ -65,19 +65,19 @@
                 </div>
                 <div class="preiserheber-summary">
                     <div class="heruntergeladene">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].todoSynced > 0">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }} / {{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].synced">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].total }} / {{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen
                             }}
                         </span>
                     </div>
                     <div class="offen-nicht-erfasst">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].doneAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todoSynced }}
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].todo === 0">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}
                         </span>
                     </div>
                     <div class="offen-erfasst">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].done }}</span>
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded === 0">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded }}</span>
                     </div>
                     <div class="hochgeladene">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneUploaded }}</span>
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].uploaded }}</span>
                     </div>
                 </div>
             </ion-item>
