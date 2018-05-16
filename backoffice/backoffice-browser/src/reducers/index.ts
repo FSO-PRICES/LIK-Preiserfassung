@@ -131,6 +131,10 @@ export const getPreismeldungenStatusMap = createSelector(
     getPreismeldungenStatusState,
     fromPreismeldungenStatus.getPreismeldungenStatusMap
 );
+export const getArePreismeldungenStatusInitializing = createSelector(
+    getPreismeldungenStatusState,
+    fromPreismeldungenStatus.getAreStatusInitializing
+);
 
 export const getLoginState = (state: AppState) => state.login;
 export const getIsLoggedIn = createSelector(getLoginState, fromLogin.getIsLoggedIn);

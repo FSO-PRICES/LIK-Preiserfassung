@@ -4,8 +4,10 @@
         <cockpit-report
             [report-executing]="reportExecuting$ | async"
             [cockpit-report-data]="cockpitReportData$ | async"
-            [selectedPreiserheber]="cockpitSelectedPreiserheber$ | async"
+            [selected-preiserheber]="cockpitSelectedPreiserheber$ | async"
+            [initializing-preismeldungen-status]="initializingPreismeldungenStatus$ | async"
             (load-data)="loadData$.next()"
+            (init-preismeldungen-status)="initPreismeldungenStatus$.emit()"
             (preiserheberSelected)="preiserheberSelected$.emit($event)"></cockpit-report>
     </div>
 </div>

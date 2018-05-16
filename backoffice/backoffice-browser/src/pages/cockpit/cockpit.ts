@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 
 import * as P from '../../common-models';
 import * as fromRoot from '../../reducers';
+import * as preismeldungenStatusActions from '../../actions/preismeldungen-status';
 
 @IonicPage({
     segment: 'cockpit',
@@ -17,8 +18,10 @@ export class CockpitPage {
     public reportExecuting$ = this.store.select(fromRoot.getCockpitIsExecuting);
     public cockpitReportData$ = this.store.select(fromRoot.getCockpitReportData);
     public cockpitSelectedPreiserheber$ = this.store.select(fromRoot.getCockpitSelectedPreiserheber);
+    public initializingPreismeldungenStatus$ = this.store.select(fromRoot.getArePreismeldungenStatusInitializing);
 
     public loadData$ = new EventEmitter();
+    public initPreismeldungenStatus$ = new EventEmitter();
     public preiserheberSelected$ = new EventEmitter<P.CockpitPreiserheberSummary>();
 
     private ionViewDidLeave$ = new Subject();
@@ -30,6 +33,11 @@ export class CockpitPage {
         this.preiserheberSelected$
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(pe => this.store.dispatch({ type: 'COCKPIT_PREISERHEBER_SELECTED', payload: pe }));
+        this.initPreismeldungenStatus$
+            .takeUntil(this.ionViewDidLeave$)
+            .subscribe(() =>
+                this.store.dispatch(preismeldungenStatusActions.createInitializePreismeldungenStatusAction())
+            );
     }
 
     public ionViewDidEnter() {

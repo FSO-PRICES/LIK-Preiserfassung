@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 import * as fromRoot from '../reducers';
 import * as preismeldungenStatus from '../actions/preismeldungen-status';
-import { Models as P } from 'lik-shared';
+import { Models as P, preismeldungId } from 'lik-shared';
 import {
     dbNames,
     getDocumentByKeyFromDb,
@@ -14,7 +14,9 @@ import {
     getLocalDatabase,
     uploadDatabaseAsync,
     getAllPreismeldungenStatus,
+    updateMissingPreismeldungenStatus,
 } from '../common/pouchdb-utils';
+import { getAllDocumentsForPrefixFromUserDbs } from '../common/user-db-values';
 
 @Injectable()
 export class PreismeldungenStatusEffects {
@@ -22,9 +24,23 @@ export class PreismeldungenStatusEffects {
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
+    setPreismeldungStatus$ = this.actions$
+        .ofType(preismeldungenStatus.SET_PREISMELDUNGEN_STATUS)
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(action => setPreismeldungStatus(action.payload))
+        .publishReplay(1)
+        .refCount();
+
+    setPreismeldungStatusBulk$ = this.actions$
+        .ofType(preismeldungenStatus.SET_PREISMELDUNGEN_STATUS_BULK)
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(action => setPreismeldungStatusBulk(action.payload))
+        .publishReplay(1)
+        .refCount();
+
     @Effect()
     loadPreismeldungenStatusData$ = this.actions$
-        .ofType('LOAD_PREISMELDUNGEN_STATUS')
+        .ofType(preismeldungenStatus.LOAD_PREISMELDUNGEN_STATUS)
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action =>
             getAllPreismeldungenStatus().then(payload =>
@@ -32,24 +48,24 @@ export class PreismeldungenStatusEffects {
             )
         );
 
-    setPreismeldungStatus$ = this.actions$
-        .ofType('SET_PREISMELDUNGEN_STATUS')
-        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(action => setPreismeldungStatus(action.payload))
-        .publishReplay(1)
-        .refCount();
-
-    setPreismeldungStatusBulk$ = this.actions$
-        .ofType('SET_PREISMELDUNGEN_STATUS_BULK')
-        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(action => setPreismeldungStatusBulk(action.payload))
-        .publishReplay(1)
-        .refCount();
-
     @Effect()
     setPreismeldungStatusSuccess$ = this.setPreismeldungStatus$
         .merge(this.setPreismeldungStatusBulk$)
         .map(status => preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(status.statusMap));
+
+    @Effect()
+    setPreismeldungenStatusInitializing$ = this.actions$
+        .ofType(preismeldungenStatus.INITIALIZE_PREISMELDUNGEN_STATUS)
+        .flatMap(() =>
+            Observable.concat(
+                [preismeldungenStatus.createSetPreismeldungenStatusAreInitializingAction()],
+                getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
+                    updateMissingPreismeldungenStatus(preismeldungen, []).then(status =>
+                        preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(status.statusMap)
+                    )
+                )
+            )
+        );
 
     @Effect()
     syncStatuses$ = this.setPreismeldungStatus$

@@ -15,9 +15,11 @@ import { CockpitPreismeldungSummary } from '../../../common-models';
 })
 export class CockpitReportComponent extends ReactiveComponent implements OnChanges, OnInit {
     @Input('report-executing') reportExecuting: boolean;
+    @Input('initializing-preismeldungen-status') initializingPreismeldungenStatus: boolean;
     @Input('cockpit-report-data') cockpitReportData: P.CockpitReportData;
-    @Input('selectedPreiserheber') selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;
+    @Input('selected-preiserheber') selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;
     @Output('load-data') loadData$ = new EventEmitter();
+    @Output('init-preismeldungen-status') initPreismeldungenStatus$ = new EventEmitter();
     @Output('preiserheberSelected') preiserheberSelected$: Observable<P.CockpitPreiserheberSummary>;
 
     public selectPreiserheber$ = new EventEmitter<P.CockpitPreiserheberSummary>();
@@ -25,6 +27,9 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
         'selectedPreiserheber'
     );
     public reportExecuting$ = this.observePropertyCurrentValue<boolean>('reportExecuting');
+    public initializingPreismeldungenStatus$ = this.observePropertyCurrentValue<boolean>(
+        'initializingPreismeldungenStatus'
+    );
     public cockpitReportData$ = this.observePropertyCurrentValue<P.CockpitReportData>('cockpitReportData');
     public hasExecutedOnce$: Observable<boolean>;
     public filteredPreiserheber$: Observable<P.CockpitPreiserheberSummary[]>;

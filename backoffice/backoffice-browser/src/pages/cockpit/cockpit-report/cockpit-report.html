@@ -1,4 +1,7 @@
-<button type="button" class="load-data" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</button>
+<div class="cockpit-actions">
+    <button type="button" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</button>
+    <button type="button" ion-button (click)="initPreismeldungenStatus$.emit()" [disabled]="initializingPreismeldungenStatus$ | async">Prüfstatus zuweisen</button>
+</div>
 
 <div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)">
     <div class="container">
@@ -58,7 +61,8 @@
         </div>
         <pef-virtual-scroll [items]="filteredPreiserheber$ | async" (update)="updateScrollList($event)" pef-perfect-scrollbar [enabled]="true">
             <ion-item class="pef-advanced-item cockpit-preiserheber" *ngFor="let preiserheber of scrollList" (click)="selectPreiserheber$.emit(preiserheber)"
-                [class.selected]="(selectedPreiserheber$ | async)?.username == preiserheber.username" tappable>
+                [class.selected]="(selectedPreiserheber$ | async)?.username == preiserheber.username" tappable
+                [class.unassigned]="preiserheber.username === 'unassigned'">
                 <div class="pef-item-description">
                     <span class="text">{{ preiserheber.erheber.firstName }} {{preiserheber.erheber.surname}}</span>
                     <span class="artikel-text">{{ preiserheber.erheber.erhebungsregion }}</span>

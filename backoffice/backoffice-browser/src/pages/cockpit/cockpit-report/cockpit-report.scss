@@ -2,7 +2,7 @@ cockpit-report {
     display: flex;
     flex-direction: column;
 
-    .load-data {
+    .cockpit-actions {
         align-self: flex-start;
         margin-bottom: 1em;
     }
@@ -102,7 +102,7 @@ cockpit-report {
         }
     }
 
-    ion-item.pef-advanced-item.cockpit-preiserheber:first-of-type {
+    ion-item.pef-advanced-item.cockpit-preiserheber.unassigned {
         margin-bottom: 1.5em;
     }
 
