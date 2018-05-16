@@ -28,27 +28,36 @@ export class PreismeldungenStatusEffects {
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action =>
             getAllPreismeldungenStatus().then(payload =>
-                preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(payload)
+                preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(payload.statusMap)
             )
         );
 
-    @Effect()
     setPreismeldungStatus$ = this.actions$
         .ofType('SET_PREISMELDUNGEN_STATUS')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .switchMap(action =>
-            setPreismeldungStatus(action.payload).then(payload =>
-                preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(payload)
-            )
-        );
+        .flatMap(action => setPreismeldungStatus(action.payload))
+        .publishReplay(1)
+        .refCount();
 
-    @Effect()
     setPreismeldungStatusBulk$ = this.actions$
         .ofType('SET_PREISMELDUNGEN_STATUS_BULK')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .flatMap(action =>
-            setPreismeldungStatusBulk(action.payload).then(payload =>
-                preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(payload)
+        .flatMap(action => setPreismeldungStatusBulk(action.payload))
+        .publishReplay(1)
+        .refCount();
+
+    @Effect()
+    setPreismeldungStatusSuccess$ = this.setPreismeldungStatus$
+        .merge(this.setPreismeldungStatusBulk$)
+        .map(status => preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(status.statusMap));
+
+    @Effect()
+    syncStatuses$ = this.setPreismeldungStatus$
+        .merge(this.setPreismeldungStatusBulk$)
+        .debounceTime(1000)
+        .flatMap(() =>
+            uploadPreismeldungStatuses().then(() =>
+                preismeldungenStatus.createSyncedPreismeldungenStatusSuccessAction()
             )
         );
 }
@@ -64,6 +73,9 @@ async function setPreismeldungStatusBulk(data: { pmId: string; status: P.Preisme
         pmStatus.statusMap[pmId] = status;
     });
     await db.put(pmStatus);
-    await uploadDatabaseAsync(dbNames.preismeldungen_status);
-    return pmStatus.statusMap;
+    return pmStatus;
+}
+
+function uploadPreismeldungStatuses() {
+    return uploadDatabaseAsync(dbNames.preismeldungen_status);
 }

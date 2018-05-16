@@ -2,7 +2,7 @@
 <div class="page-wrapper">
     <stichtage (runReport)="runStichtageReport$.next()" [reportExecuting]="stichtagReportExecuting$ | async"></stichtage>
     <controlling-report [preismeldungenStatus]="preismeldungenStatus$ | async" (runReport)="runControllingReport$.next($event)"
-        [reportData]="controllingReportData$ | async" (editPreismeldungId)="editPreismeldungId$.emit($event)" (setPreismeldungStatus)="setPreismeldungStatusBuffered$.emit($event)"
+        [reportData]="controllingReportData$ | async" (editPreismeldungId)="editPreismeldungId$.emit($event)" (setPreismeldungStatus)="setPreismeldungStatus$.emit($event)"
         (completeAllPreismeldungenStatus)="completeAllPreismeldungenStatus$.emit($event)">
     </controlling-report>
     <edit-preismeldung *ngIf="!!(currentPreismeldung$ | async)" [currentPreismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async"

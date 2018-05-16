@@ -40,7 +40,7 @@ export async function getAllPreismeldungenStatus() {
         db,
         'preismeldungen_status'
     );
-    return currentPreismeldungenStatus.statusMap;
+    return currentPreismeldungenStatus;
 }
 
 export async function updateMissingPreismeldungenStatus(

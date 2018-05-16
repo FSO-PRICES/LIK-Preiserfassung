@@ -19,7 +19,7 @@ import {
     getDatabaseAsObservable,
     getAllDocumentsForPrefixFromDb,
     getAllDocumentsFromDbName,
-    updateMissingPreismeldungenStatus,
+    getAllPreismeldungenStatus,
 } from '../common/pouchdb-utils';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
@@ -71,15 +71,13 @@ export class ControllingEffects {
                     }))
                 )
                     .flatMap(x =>
-                        updateMissingPreismeldungenStatus(x.data.preismeldungen, x.data.refPreismeldungen).then(
-                            preismeldungenStatus => ({
-                                ...x,
-                                data: {
-                                    ...x.data,
-                                    preismeldungenStatus,
-                                },
-                            })
-                        )
+                        getAllPreismeldungenStatus().then(preismeldungenStatus => ({
+                            ...x,
+                            data: {
+                                ...x.data,
+                                preismeldungenStatus,
+                            },
+                        }))
                     )
                     .concatMap(x => [
                         {

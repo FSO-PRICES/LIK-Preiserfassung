@@ -155,11 +155,6 @@ export class ControllingPage implements OnDestroy {
             .takeUntil(this.onDestroy$)
             .subscribe(payload => this.store.dispatch({ type: 'SET_PREISMELDUNGEN_STATUS', payload }));
 
-        this.setPreismeldungStatusBuffered$
-            .takeUntil(this.onDestroy$)
-            .bufferWhen(() => this.setPreismeldungStatusBuffered$.debounceTime(500))
-            .subscribe(payload => this.store.dispatch({ type: 'SET_PREISMELDUNGEN_STATUS_BULK', payload }));
-
         this.completeAllPreismeldungenStatus$.takeUntil(this.onDestroy$).subscribe(pmIds =>
             this.store.dispatch({
                 type: 'SET_PREISMELDUNGEN_STATUS_BULK',

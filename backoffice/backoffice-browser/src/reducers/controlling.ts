@@ -565,6 +565,30 @@ const base_0500_0510_0520_0530_0540_config = {
     sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
 };
 
+const base_0800_config: ControllingConfig = {
+    gliederungspositionnummerRange: {
+        type: REPORT_EXCLUDE_EP,
+        range: [],
+    },
+    columns: [
+        columnPmsErhebungsregion,
+        columnPmsNummer,
+        columnPmsName,
+        columnEpNummer,
+        columnPositionsbezeichnung,
+        columnPreisT,
+        columnMengeT,
+        columnNumPreiseProEP,
+        columnPeNummer,
+        columnPeName,
+    ] as ColumnType[],
+    sortBy: [
+        { column: columnPeNummer, convertToNumber: true },
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+    ] as SortByType[],
+};
+
 const report_0600_config: ControllingConfig = {
     gliederungspositionnummerRange: {
         type: REPORT_EXCLUDE_EP,
@@ -729,17 +753,17 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0600]: report_0600_config,
     [controlling.CONTROLLING_0700]: report_0700_config,
     [controlling.CONTROLLING_0810]: {
-        ...base_0300_0310_0320_config,
+        ...base_0800_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
             !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.ungeprüft,
     },
     [controlling.CONTROLLING_0820]: {
-        ...base_0300_0310_0320_config,
+        ...base_0800_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
             !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.blockiert,
     },
     [controlling.CONTROLLING_0830]: {
-        ...base_0300_0310_0320_config,
+        ...base_0800_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
             !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.geprüft,
     },

@@ -48,7 +48,7 @@ export function loadAllPreismeldungenForExport(
                     pm =>
                         pm.istAbgebucht &&
                         !!pm.uploadRequestedAt &&
-                        (preismeldungenStatus[pm._id] || 0) >= P.PreismeldungStatus['geprüft']
+                        (preismeldungenStatus.statusMap[pm._id] || 0) >= P.PreismeldungStatus['geprüft']
                 ),
                 pm => pm.pmsNummer
             );
@@ -160,7 +160,7 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial
             alreadyExported,
             preismeldungen: filterPreismeldungenByStatus(
                 preismeldungenByEpNummer,
-                preismeldungenStatus,
+                preismeldungenStatus.statusMap,
                 alreadyExportedById,
                 filter
             ),
@@ -184,7 +184,12 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial
 
     return {
         refPreismeldungen,
-        preismeldungen: filterPreismeldungenByStatus(preismeldungen, preismeldungenStatus, alreadyExportedById, filter),
+        preismeldungen: filterPreismeldungenByStatus(
+            preismeldungen,
+            preismeldungenStatus.statusMap,
+            alreadyExportedById,
+            filter
+        ),
         alreadyExported,
         pms: null,
     };
