@@ -4,21 +4,21 @@
             <ion-list radio-group>
                 <ion-item>
                     <ion-label>In Prüfung (unbestätigt)</ion-label>
-                    <ion-radio value="1" [checked]="true" (click)="setPreismeldungStatusFilter$.emit(1)"></ion-radio>
+                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="1" [checked]="true" (click)="setPreismeldungStatusFilter$.emit(1)"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>In Prüfung (alle)</ion-label>
-                    <ion-radio value="2" (click)="setPreismeldungStatusFilter$.emit(2)"></ion-radio>
+                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="2" (click)="setPreismeldungStatusFilter$.emit(2)"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>Alle Preise</ion-label>
-                    <ion-radio value="3" (click)="setPreismeldungStatusFilter$.emit(3)"></ion-radio>
+                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="3" (click)="setPreismeldungStatusFilter$.emit(3)"></ion-radio>
                 </ion-item>
             </ion-list>
             <h2>({{(preismeldungen$ | async)?.length || 0}})</h2>
         </div>
         <div class="controlling">
-            <select #controllingSelect class="controlling-selected">
+            <select #controllingSelect class="controlling-selected" (change)="controllingTypeSelected$.emit($event.target.value)">
                 <option value="CONTROLLING_0100">0100: Heizöl, Treibstoffe (Stichtag 1): Vollständigkeit</option>
                 <option value="CONTROLLING_0110">0110: Heizöl, Treibstoffe (Stichtag 1): Preistrend</option>
                 <option value="CONTROLLING_0120">0120: Heizöl, Treibstoffe (Stichtag 1): Niveauvergleich nach EP</option>

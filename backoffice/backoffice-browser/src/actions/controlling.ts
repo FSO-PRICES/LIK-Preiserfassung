@@ -43,7 +43,6 @@ export const CONTROLLING_0830 = 'CONTROLLING_0830';
 
 export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0100
-    | typeof CONTROLLING_0100
     | typeof CONTROLLING_0110
     | typeof CONTROLLING_0210
     | typeof CONTROLLING_0120
@@ -69,6 +68,8 @@ export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0810
     | typeof CONTROLLING_0820
     | typeof CONTROLLING_0830;
+
+export const ControllingTypesWithoutPmStatus = [CONTROLLING_0100, CONTROLLING_0200, CONTROLLING_0230, CONTROLLING_0240];
 
 export interface ControllingData {
     alreadyExported: string[];

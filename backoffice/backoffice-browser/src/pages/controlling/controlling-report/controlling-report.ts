@@ -3,6 +3,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../common-models';
+import { ControllingTypesWithoutPmStatus, CONTROLLING_TYPE } from '../../../actions/controlling';
 import { ShortColumnNames } from '../../../reducers/controlling';
 
 @Component({
@@ -20,9 +21,11 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
 
     public completeAllPreismeldungenStatusClicked$ = new EventEmitter();
     public setPreismeldungStatusFilter$ = new EventEmitter<number>();
+    public controllingTypeSelected$ = new EventEmitter<CONTROLLING_TYPE>();
     public zoomLevel$ = new EventEmitter<number>();
     public toggleColumn$ = new EventEmitter<number>();
     public hiddenColumns$: Observable<boolean[]>;
+    public hasStatusInputDisabled$: Observable<boolean>;
     public shortColumnNames = ShortColumnNames;
 
     public reportData$ = this.observePropertyCurrentValue<P.ControllingReportData>('reportData')
@@ -46,10 +49,15 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         .filter(([x]) => !!x && !!x.rows)
         .map(([x, statusFilter, preismeldungenStatus]) =>
             x.rows.filter(r => {
-                if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
-                    return true;
+                if (ControllingTypesWithoutPmStatus.some(t => t === x.controllingType)) {
+                    return !r.exported;
                 }
-                return !r.exported && (preismeldungenStatus[r.pmId] || 0) <= statusFilter;
+                if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
+                    return r.exported || preismeldungenStatus[r.pmId] != null;
+                }
+                return (
+                    !r.exported && preismeldungenStatus[r.pmId] != null && preismeldungenStatus[r.pmId] <= statusFilter
+                );
             })
         );
 
@@ -69,6 +77,12 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                 [] as boolean[]
             )
             .startWith([])
+            .publishReplay(1)
+            .refCount();
+
+        this.hasStatusInputDisabled$ = this.controllingTypeSelected$
+            .startWith('CONTROLLING_0100')
+            .map(type => ControllingTypesWithoutPmStatus.some(x => x === type))
             .publishReplay(1)
             .refCount();
     }
