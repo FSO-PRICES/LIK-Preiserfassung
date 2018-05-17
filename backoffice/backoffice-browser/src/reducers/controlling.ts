@@ -736,7 +736,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
-            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
+            [1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
             isPositiveNegative(x.preismeldung) &&
             isUG2OrOG2(x.preismeldung) &&
             ((!!x.refPreismeldung && x.refPreismeldung.aktion) || (!!x.preismeldung && x.preismeldung.aktion)),
@@ -749,6 +749,15 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             isPositiveNegative(x.preismeldung) &&
             isUG2OrOG2(x.preismeldung) &&
             !((!!x.refPreismeldung && x.refPreismeldung.aktion) || (!!x.preismeldung && x.preismeldung.aktion)),
+    },
+    [controlling.CONTROLLING_0540]: {
+        ...base_0500_0510_0520_0530_0540_config,
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+            !!x.preismeldung &&
+            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
+            isPositiveNegative(x.preismeldung) &&
+            isUG2OrOG2(x.preismeldung) &&
+            !x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0600]: report_0600_config,
     [controlling.CONTROLLING_0700]: report_0700_config,
