@@ -69,6 +69,7 @@ export class ControllingPage implements OnDestroy {
     public savePreismeldungPrice$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
     public savePreismeldungMessages$ = new EventEmitter();
     public savePreismeldungAttributes$ = new EventEmitter();
+    public clearControlling$ = new EventEmitter();
     public setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
     public setPreismeldungStatusBuffered$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
     public resetPreismeldung$ = new EventEmitter();
@@ -173,6 +174,10 @@ export class ControllingPage implements OnDestroy {
         this.resetPreismeldung$
             .takeUntil(this.onDestroy$)
             .subscribe(() => this.store.dispatch({ type: 'RESET_PREISMELDUNG' }));
+
+        this.clearControlling$
+            .takeUntil(this.onDestroy$)
+            .subscribe(() => this.store.dispatch(controlling.createClearControllingAction()));
     }
 
     public ionViewDidEnter() {

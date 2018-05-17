@@ -51,8 +51,10 @@
     </div>
     <div class="actions">
         <button type="button" ion-button class="btn-execute" (click)="runReport$.emit(controllingSelect.value)">ausführen</button>
+        <ng-content *ngIf="!(reportData$ | async)" select=".additional-actions"></ng-content>
         <button *ngIf="!!(reportData$ | async)" type="button" ion-button class="btn-execute" (click)="completeAllPreismeldungenStatusClicked$.emit()">Alle angezeigten Preismeldungen als geprüft markieren</button>
         <pef-zoom *ngIf="!!(reportData$ | async)" (zoomLevel)="zoomLevel$.emit($event)"></pef-zoom>
+        <button *ngIf="!!(reportData$ | async)" type="button" ion-button class="btn-execute" (click)="clearControlling$.emit()">Leeren</button>
     </div>
 </div>
 

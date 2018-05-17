@@ -16,6 +16,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     @Output('setPreismeldungStatus')
     setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
     @Output('runReport') runReport$ = new EventEmitter<string>();
+    @Output('clearControlling') clearControlling$ = new EventEmitter();
     @Output('editPreismeldungId') editPreismeldungId$ = new EventEmitter<string>();
     @Output('completeAllPreismeldungenStatus') completeAllPreismeldungenStatus$: Observable<string[]>;
 
