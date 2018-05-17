@@ -58,6 +58,10 @@ export interface State {
     currentPreismeldung: CurrentPreismeldungBag;
     priceCountStatuses: PriceCountStatusMap;
     status: string;
+    currentStateSlot: string;
+    stateSlots: {
+        [index: string]: Partial<State>;
+    };
 }
 
 const initialState: State = {
@@ -68,6 +72,8 @@ const initialState: State = {
     currentPreismeldung: null,
     priceCountStatuses: {},
     status: null,
+    currentStateSlot: '__original',
+    stateSlots: {},
 };
 
 export function reducer(state = initialState, action: PreismeldungAction): State {
@@ -124,6 +130,26 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
         case 'PREISMELDUNGEN_RESET':
             return assign({}, initialState);
+
+        case 'SWITCH_TO_PREISMELDUNG_SLOT': {
+            const { pmsNummer, preismeldungIds, entities, currentPreismeldung, priceCountStatuses, status } = state;
+            return {
+                ...state,
+                stateSlots: {
+                    ...state.stateSlots,
+                    [state.currentStateSlot]: {
+                        pmsNummer,
+                        preismeldungIds,
+                        entities,
+                        currentPreismeldung,
+                        priceCountStatuses,
+                        status,
+                    },
+                },
+                ...state.stateSlots[action.payload],
+                currentStateSlot: action.payload,
+            };
+        }
 
         case 'SELECT_PREISMELDUNG': {
             const entity = state.entities[action.payload];

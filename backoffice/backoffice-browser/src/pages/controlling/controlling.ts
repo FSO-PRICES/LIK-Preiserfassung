@@ -176,17 +176,17 @@ export class ControllingPage implements OnDestroy {
     }
 
     public ionViewDidEnter() {
+        this.store.dispatch({ type: 'SWITCH_TO_PREISMELDUNG_SLOT', payload: 'controlling' });
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'RUN_PRE-CONTROLLING_TASKS' });
         this.store.dispatch({ type: 'PREISMELDESTELLE_LOAD' });
         this.store.dispatch({ type: 'PREISERHEBER_LOAD' });
         this.store.dispatch({ type: 'PREISZUWEISUNG_LOAD' });
         this.store.dispatch({ type: 'LOAD_PREISMELDUNGEN_STATUS' });
-        this.store.dispatch(controlling.createClearControllingAction());
     }
 
     public ionViewDidLeave() {
-        this.store.dispatch({ type: controlling.CLEAR_CONTROLLING });
+        this.store.dispatch({ type: 'SWITCH_TO_PREISMELDUNG_SLOT', payload: '__original' });
     }
 
     ngOnDestroy() {

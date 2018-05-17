@@ -127,4 +127,5 @@ export type PreismeldungAction =
           };
       }
     | { type: 'SELECT_CONTROLLING_PM_WITH_BAG'; payload: P.PreismeldungBag }
-    | { type: 'CLEAR_AUTOTEXTS' };
+    | { type: 'CLEAR_AUTOTEXTS' }
+    | { type: 'SWITCH_TO_PREISMELDUNG_SLOT'; payload: string };
