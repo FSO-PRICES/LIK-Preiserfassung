@@ -38,6 +38,7 @@ export class PmsDetailsPage implements OnDestroy {
         private store: Store<fromRoot.AppState>,
         private formBuilder: FormBuilder
     ) {
+        store.dispatch({ type: 'RESET_SELECTED_PREISMELDESTELLE' } as preismeldestellenAction);
         this.form = formBuilder.group(
             {
                 kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),

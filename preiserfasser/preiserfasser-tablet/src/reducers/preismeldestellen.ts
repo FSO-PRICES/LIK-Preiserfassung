@@ -37,6 +37,10 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
         case 'PREISMELDUNGEN_LOAD_SUCCESS':
             return { ...state, currentPreismeldestelle: { ...action.payload.pms, isModified: false } };
 
+        case 'RESET_SELECTED_PREISMELDESTELLE': {
+            return { ...state, currentPreismeldestelle: null };
+        }
+
         case 'PREISMELDESTELLE_SELECT':
             return {
                 ...state,
