@@ -143,8 +143,6 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 currentPreismeldung: !!entity
                     ? createCurrentPreismeldungBag(entity, state.priceCountStatuses, true)
                     : null,
-                entities: !!entity ? { [entity.pmId]: entity } : {},
-                preismeldungIds: [],
                 pmsNummer: null,
             };
         }
@@ -186,6 +184,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const priceCountStatuses = createPriceCountStatuses(entities);
             return assign({}, state, {
                 priceCountStatuses,
+                entities,
+                preismeldungIds: sortBy(preismeldungBags, x => x.pmId).map(x => x.pmId),
             });
         }
 
@@ -1008,12 +1008,11 @@ function createPriceCountStatuses(entities: { [pmsNummer: string]: PreismeldungB
     const activePricesPerPmsAndEp = createCountMapOf(preismeldungBags, pmBag => getPreisId(pmBag));
     return preismeldungBags.reduce((agg, preismeldungBag) => {
         const numActivePrices = activePricesPerPmsAndEp[getPreisId(preismeldungBag)];
-        return assign(agg, {
-            [priceCountIdByPm(preismeldungBag.preismeldung)]: createPriceCountStatus(
-                numActivePrices,
-                preismeldungBag.warenkorbPosition.anzahlPreiseProPMS
-            ),
-        });
+        agg[priceCountIdByPm(preismeldungBag.preismeldung)] = createPriceCountStatus(
+            numActivePrices,
+            preismeldungBag.warenkorbPosition.anzahlPreiseProPMS
+        );
+        return agg;
     }, {});
 }
 
