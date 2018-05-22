@@ -113,15 +113,21 @@ const parseIdSearchParams = (filterText: string) => {
         return null;
     }
     const [, pmsNummer, , epNummer, , laufNummer] = filterText.match(idsRegex);
-    return { pmsNummer, epNummers: [epNummer], laufNummer, preiserheberIds: [] as string[] };
+    return { pmsNummers: [pmsNummer], epNummers: [epNummer], laufNummer, preiserheberIds: [] as string[] };
 };
 
-export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial<PmsFilter>) {
-    const filterParams: Partial<PmsFilter> & { laufNummer?: string } = parseIdSearchParams(filter.pmIdSearch) || filter;
-    const pmsNummers = filterParams.pmsNummers;
+export async function loadPreismeldungenAndRefPreismeldungForPms(filterParams: Partial<PmsFilter>) {
     const preiszuweisungen = (await getDatabase(dbNames.preiszuweisungen).then(db =>
         getAllDocumentsFromDb<P.Preiszuweisung>(db)
     )).filter(x => !!x.preismeldestellenNummern.length);
+
+    const alreadyExported = await getDatabase(dbNames.exports).then(db =>
+        getAllDocumentsFromDb<any>(db).then(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
+    );
+    if (!!filterParams.pmIdSearch) {
+        return loadByExactSearch(filterParams.pmIdSearch, preiszuweisungen, alreadyExported);
+    }
+    const pmsNummers = filterParams.pmsNummers;
     const byPreiserheberIds =
         !filterParams.preiserheberIds || filterParams.preiserheberIds.length === 0
             ? null
@@ -134,15 +140,11 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial
               .filter(x => x.preismeldestellenNummern.some(p => pmsNummers.some(y => y === p)))
               .map(x => x.preiserheberId);
     const preiserheberIds =
-        (!!byPreiserheberIds && !!byPmsNummer
+        (!!byPreiserheberIds && byPreiserheberIds.length > 0 && !!byPmsNummer && byPmsNummer.length > 0
             ? intersection(byPreiserheberIds, byPmsNummer)
             : byPreiserheberIds || byPmsNummer) || [];
 
-    const refPreismeldungen = await getRefPreismeldungenByPmsNummers(pmsNummers);
-
-    const alreadyExported = await getDatabase(dbNames.exports).then(db =>
-        getAllDocumentsFromDb<any>(db).then(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
-    );
+    const refPreismeldungen = await getRefPreismeldungenByPmsNummers(filterParams);
     const alreadyExportedById = alreadyExported.reduce((acc, id) => {
         acc[id] = true;
         return acc;
@@ -161,7 +163,7 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial
                 preismeldungenByEpNummer,
                 preismeldungenStatus.statusMap,
                 alreadyExportedById,
-                filter
+                filterParams
             ),
             pms: null,
         };
@@ -178,7 +180,7 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filter: Partial
             preismeldungen,
             preismeldungenStatus.statusMap,
             alreadyExportedById,
-            filter
+            filterParams
         ),
         alreadyExported,
         pms: null,
@@ -260,7 +262,9 @@ function filterPreismeldungenByStatus(
     });
 }
 
-async function getRefPreismeldungenByPmsNummers(pmsNummers: string[]) {
+async function getRefPreismeldungenByPmsNummers(filterParams: Partial<PmsFilter & { laufNummer: string }>) {
+    const pmsNummers =
+        !filterParams.pmsNummers || filterParams.pmsNummers.length === 0 ? [null] : filterParams.pmsNummers;
     const pmDb = await getDatabase(dbNames.preismeldungen);
     return bluebird.reduce(
         pmsNummers.map(pmsNummer =>
@@ -276,8 +280,10 @@ async function getPreismeldungenByPmsNummers(
     preiserheberIds: string[]
 ) {
     const userDbs = await loadUserDbs(preiserheberIds);
+    const pmsNummers =
+        !filterParams.pmsNummers || filterParams.pmsNummers.length === 0 ? [null] : filterParams.pmsNummers;
 
-    const preismeldungenLookups: Promise<P.Preismeldung[]>[] = filterParams.pmsNummers.reduce(
+    const preismeldungenLookups: Promise<P.Preismeldung[]>[] = pmsNummers.reduce(
         (acc, pmsNummer) => [
             ...acc,
             ...userDbs.map(userDb =>
@@ -290,4 +296,32 @@ async function getPreismeldungenByPmsNummers(
         [] as Promise<P.Preismeldung[]>[]
     );
     return bluebird.reduce(preismeldungenLookups, (acc, x) => [...acc, ...x], [] as P.Preismeldung[]);
+}
+
+async function loadByExactSearch(
+    idSearchParams: string,
+    preiszuweisungen: P.Preiszuweisung[],
+    alreadyExported: string[]
+) {
+    const filter = parseIdSearchParams(idSearchParams);
+    const preiserheberId = first(
+        preiszuweisungen
+            .filter(pz => pz.preismeldestellenNummern.some(p => p === first(filter.pmsNummers)))
+            .map(pz => pz.preiserheberId)
+    );
+    if (!preiserheberId) {
+        return { refPreismeldungen: [], preismeldungen: [], pms: null, alreadyExported: [] };
+    }
+
+    const refPreismeldungen = await getRefPreismeldungenByPmsNummers(filter);
+    const preismeldungen = await getPreismeldungenByPmsNummers(filter, [preiserheberId]);
+    return {
+        refPreismeldungen,
+        alreadyExported,
+        preismeldungen: preismeldungen,
+        // priorizedPreismeldungen: filter.laufNummer
+        //     ? preismeldungen.filter(pm => pm.laufnummer !== filter.laufNummer).map(pm => pm._id)
+        //     : null,
+        pms: null,
+    };
 }

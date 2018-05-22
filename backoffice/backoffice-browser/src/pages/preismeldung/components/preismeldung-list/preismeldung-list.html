@@ -18,7 +18,7 @@
                             <ion-label stacked>Preisstatus</ion-label>
                             <div class="input input-md pef-select">
                                 <select class="item-md" (change)="statusFilterChanged$.emit($event.target.value)">
-                                    <option value=""></option>
+                                    <option value="" [selected]="resetFilter$ | async"></option>
                                     <option value="erhebung">in Erhebung</option>
                                     <option value="prüfung">in Prüfung</option>
                                     <option value="exportiert">Exportiert</option>

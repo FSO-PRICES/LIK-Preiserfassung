@@ -81,8 +81,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     constructor() {
         super();
 
+        const pmIdSearchChanged$ = this.pmIdSearchChanged$.publishReplay(1).refCount();
+        const pmIdSearch$ = this.pmIdSearchApply$
+            .asObservable()
+            .withLatestFrom(pmIdSearchChanged$, (_, pmIdSearch) => pmIdSearch);
+
+        this.resetFilter$ = this.resetFilterClicked$.merge(pmIdSearch$).map(() => ({}));
+
         const statusFilter$ = this.statusFilterChanged$
             .asObservable()
+            .merge(this.resetFilter$.mapTo(''))
             .startWith('')
             .publishReplay(1)
             .refCount();
@@ -103,11 +111,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             .startWith({})
             .publishReplay(1)
             .refCount();
-
-        const pmIdSearchChanged$ = this.pmIdSearchChanged$.publishReplay(1).refCount();
-        const pmIdSearch$ = this.pmIdSearchApply$
-            .asObservable()
-            .withLatestFrom(pmIdSearchChanged$, (_, pmIdSearch) => pmIdSearch);
 
         const filter$: Observable<Partial<PmsFilter>> = pmIdSearch$
             .map(pmIdSearch => ({ pmIdSearch }))
@@ -130,12 +133,11 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.triggerSubmit$.takeUntil(this.onDestroy$).subscribe(() => this.form.ngSubmit.emit());
 
         this.filterChanged$ = this.applyClicked$
-            .merge(pmIdSearch$)
-            .withLatestFrom(filter$, (_, filter) => filter)
+            .withLatestFrom(currentFilter$, (_, filter) => filter)
+            .merge(pmIdSearch$.map(pmIdSearch => ({ pmIdSearch })))
             .merge(this.initialPmsNummer$.map(x => ({ pmsNummers: [x] })))
             .publishReplay(1)
             .refCount();
-        this.resetFilter$ = this.resetFilterClicked$.merge(pmIdSearch$).map(() => ({}));
         this.resetPmIdSearch$ = this.resetFilterClicked$.merge(this.applyClicked$).map(() => ({}));
 
         this.filteredPreismeldungen$ = this.preismeldungen$
