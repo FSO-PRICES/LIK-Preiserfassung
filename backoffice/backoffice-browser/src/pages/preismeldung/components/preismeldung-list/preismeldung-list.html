@@ -31,7 +31,7 @@
                     [suggestions]="suggestionsPreiserheberIds$ | async" (selected)="preiserheberIdsFilter$.emit($event)" (triggerSubmit)="triggerSubmit$.emit()"
                     [multi]="true"></pef-typeahead>
                 <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.pmsNummers" label="PMS" [suggestions]="suggestionsPmsNummers$ | async"
-                    (selected)="pmsNummerFilter$.emit($event)" (triggerSubmit)="triggerSubmit$.emit()"></pef-typeahead>
+                    [multi]="true" (selected)="pmsNummerFilter$.emit($event)" (triggerSubmit)="triggerSubmit$.emit()"></pef-typeahead>
                 <pef-typeahead [reset]="resetFilter$ | async" [initialValues]="(initialFilter$ | async)?.epNummers" label="Erhebungsposition"
                     [suggestions]="suggestionsEpNummers$ | async" (selected)="epNummersFilter$.emit($event)" (triggerSubmit)="triggerSubmit$.emit()"
                     [multi]="true"></pef-typeahead>

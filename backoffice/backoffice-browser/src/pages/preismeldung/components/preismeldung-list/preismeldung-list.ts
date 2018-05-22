@@ -120,7 +120,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 x =>
                     (x.preiserheberIds && !!x.preiserheberIds.length) ||
                     (x.epNummers && !!x.epNummers.length) ||
-                    (x.pmsNummers && !!x.pmsNummers.length)
+                    (x.pmsNummers && !!x.pmsNummers.length) ||
+                    !!x.statusFilter
             )
             .startWith(false)
             .publishReplay(1)
