@@ -4,48 +4,22 @@
             <ion-list radio-group>
                 <ion-item>
                     <ion-label>In Prüfung (unbestätigt)</ion-label>
-                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="1" [checked]="true" (click)="setPreismeldungStatusFilter$.emit(1)"></ion-radio>
+                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="1" [checked]="!(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 1" (ionSelect)="setPreismeldungStatusFilter$.emit(1)"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>In Prüfung (alle)</ion-label>
-                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="2" (click)="setPreismeldungStatusFilter$.emit(2)"></ion-radio>
+                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="2" [checked]="!(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 2" (ionSelect)="setPreismeldungStatusFilter$.emit(2)"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>Alle Preise</ion-label>
-                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="3" (click)="setPreismeldungStatusFilter$.emit(3)"></ion-radio>
+                    <ion-radio [disabled]="hasStatusInputDisabled$ | async" value="3" [checked]="!(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 3" (ionSelect)="setPreismeldungStatusFilter$.emit(3)"></ion-radio>
                 </ion-item>
             </ion-list>
             <h2>({{(preismeldungen$ | async)?.length || 0}})</h2>
         </div>
         <div class="controlling">
             <select #controllingSelect class="controlling-selected" (change)="controllingTypeSelected$.emit($event.target.value)">
-                <option value="CONTROLLING_0100">0100: Heizöl, Treibstoffe (Stichtag 1): Vollständigkeit</option>
-                <option value="CONTROLLING_0110">0110: Heizöl, Treibstoffe (Stichtag 1): Preistrend</option>
-                <option value="CONTROLLING_0120">0120: Heizöl, Treibstoffe (Stichtag 1): Niveauvergleich nach EP</option>
-                <option value="CONTROLLING_0200">0200: Heizöl, Treibstoffe (Stichtag 2): Vollständigkeit</option>
-                <option value="CONTROLLING_0210">0210: Heizöl, Treibstoffe (Stichtag 2): Preistrend</option>
-                <option value="CONTROLLING_0220">0220: Heizöl, Treibstoffe (Stichtag 2): Niveauvergleich nach EP</option>
-                <option value="CONTROLLING_0230">0230: Früchte, Gemüse (Woche 1): Vollständigkeit</option>
-                <option value="CONTROLLING_0240">0240: Früchte, Gemüse (Woche 2): Vollständigkeit</option>
-                <option value="CONTROLLING_0250">0250: Früchte, Gemüse: Codefehler (0, R, S)</option>
-                <option value="CONTROLLING_0300">0300: Bekleidung, Schuhe: Codefehler (7, R, S)</option>
-                <option value="CONTROLLING_0310">0310: Bekleidung, Schuhe: gelöschte Preise (Code 0)</option>
-                <option value="CONTROLLING_0320">0320: Bekleidung, Schuhe: Ersatz im Ausverkauf (Code 1+A)</option>
-                <option value="CONTROLLING_0400">0400: Gelöschte Preise (Code 0, ohne Bekleidung, Früchte, Gemüse)</option>
-                <option value="CONTROLLING_0410">0410: Direktersatz mit Aktion (Code 1+A, ohne Bekleidung, Früchte, Gemüse)</option>
-                <option value="CONTROLLING_0420">0420: Qualität Ersterfassung: Ersatz (Code 1, 7)</option>
-                <option value="CONTROLLING_0430">0430: Qualität Ersterfassung: Neue Artikel (Code 2, 3)</option>
-                <option value="CONTROLLING_0440">0440: Neue Artikel: Qualität Ersterfassung (Code 2, 3)</option>
-                <option value="CONTROLLING_0500">0500: Ausreisser (-75%/+250%)</option>
-                <option value="CONTROLLING_0510">0510: Preisentwicklung auffällig: alle</option>
-                <option value="CONTROLLING_0520">0520: Preisentwicklung auffällig: Ersatz (Code 1, 7)</option>
-                <option value="CONTROLLING_0530">0530: Preisentwicklung auffällig: Aktionen (A)</option>
-                <option value="CONTROLLING_0540">0540: Preisentwicklung auffällig: ohne Aktionen</option>
-                <option value="CONTROLLING_0600">0600: Bemerkungen ans BFS</option>
-                <option value="CONTROLLING_0700">0700: Preise/EP: Abweichung von Vorgabe (gemäss ES)</option>
-                <option value="CONTROLLING_0810">0810: Ungeprüfte Preismeldungen</option>
-                <option value="CONTROLLING_0820">0820: Blockierte Preismeldungen</option>
-                <option value="CONTROLLING_0830">0830: Geprüfte Preismeldungen</option>
+                <option *ngFor="let controlling of controllings" [value]="controlling.name" [selected]="reportData?.controllingType === controlling.name">{{controlling.label}}</option>
             </select>
         </div>
     </div>
