@@ -24,6 +24,7 @@ import {
     getAuthorizedUsersAsync,
     putAdminUserToDatabaseAsync,
     makeDbReadonly,
+    dropMonthlyDatabases,
 } from '../common/pouchdb-utils';
 import { createUserDbs } from '../common/preiserheber-initialization';
 import { continueEffectOnlyIfTrue, doAsyncAsObservable } from '../common/effects-extensions';
@@ -99,7 +100,7 @@ export class ImporterEffects {
         .flatMap(({ parsedPreismeldungen, parsedPreismeldestellen, parsedWarenkorb }) =>
             Observable.concat(
                 [{ type: 'IMPORT_STARTED' }],
-                Observable.from(dropRemoteCouchDatabase(dbNames.exports))
+                Observable.fromPromise(dropMonthlyDatabases())
                     .do(x => console.log('1. CHECKSYSTEMDATABASES'))
                     .flatMap(() => this.checkSystemDatabases())
                     .do(x => console.log('2. IMPORTPREISMELDUNGEN'))
@@ -205,7 +206,7 @@ export class ImporterEffects {
         await localPreismeldungenStatusDb.put({
             _id: 'preismeldungen_status',
             _rev: undefined,
-            statusMap: pmInfo.preismeldungen.reduce((acc, pmRef) => ({ ...acc, [pmRef.pmId]: 0 }), {}),
+            statusMap: {},
         } as P.PreismeldungenStatus);
         await dropRemoteCouchDatabaseAndSyncLocalToRemote(dbNames.preismeldungen_status);
         const adminUser = await this.loggedInUser$.take(1).toPromise();

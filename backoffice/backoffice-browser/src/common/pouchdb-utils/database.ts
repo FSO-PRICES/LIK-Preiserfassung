@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs/Observable';
 import { first } from 'lodash';
 import PouchDB from 'pouchdb';
+import * as bluebird from 'bluebird';
 
 import { Models as P } from 'lik-shared';
 
@@ -32,6 +33,8 @@ export const systemDbNames: [keyof typeof dbNames] = [
     'imports',
     'exports',
 ];
+
+export const monthlyDbs: [keyof typeof dbNames] = ['preismeldungen_status', 'exports'];
 
 export const checkIfDatabaseExists = dbName => _checkIfDatabaseExists(dbName);
 
@@ -82,6 +85,13 @@ export function dropRemoteCouchDatabase(dbName) {
             .destroy()
             .then(() => true)
             .catch(() => false)
+    );
+}
+
+export async function dropMonthlyDatabases() {
+    return bluebird.map(
+        [getLocalCouchDb(dbNames.preismeldungen_status)].concat(monthlyDbs.map(dbName => getCouchDb(dbName))),
+        db => db.destroy()
     );
 }
 
