@@ -86,7 +86,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         super();
         this.preismeldungStatusFilter$ = this.setPreismeldungStatusFilter$
             .asObservable()
-            .startWith(P.Models.PreismeldungStatusFilter['unbestätigt'])
+            .startWith(P.Models.PreismeldungStatusFilter.exportiert)
             .publishReplay(1)
             .refCount();
         this.preismeldungen$ = this.reportData$
