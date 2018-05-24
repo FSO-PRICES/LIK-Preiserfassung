@@ -7,8 +7,9 @@ import { Observable } from 'rxjs';
 
 import * as fromRoot from '../reducers';
 import * as cockpit from '../actions/cockpit';
-import { Models as P, preismeldungRefId, preismeldungId } from 'lik-shared';
+import { Models as P, preismeldungRefId } from 'lik-shared';
 import { assign } from 'lodash';
+import { getAllAssignedPreismeldungen } from '../common/user-db-values';
 
 @Injectable()
 export class CockpitEffects {
@@ -33,9 +34,7 @@ export class CockpitEffects {
                         preismeldungRefId()
                     )
                     .flatMap(refPreismeldungen =>
-                        this.pouchService
-                            .getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId())
-                            .map(preismeldungen => ({ refPreismeldungen, preismeldungen }))
+                        getAllAssignedPreismeldungen().then(preismeldungen => ({ refPreismeldungen, preismeldungen }))
                     )
                     .flatMap(x =>
                         this.pouchService

@@ -73,7 +73,7 @@ const loadUserDbs = async (preiserheberIds: string[]) => {
         return [];
     }
     return await bluebird.reduce(
-        preiserheberIds.map(async preiserheberId => await getDatabase(`user_${preiserheberId}`)),
+        preiserheberIds.map(async preiserheberId => await getDatabase(getUserDatabaseName(preiserheberId))),
         (acc, x) => [...acc, x],
         [] as PouchDB.Database<{}>[]
     );
@@ -116,10 +116,14 @@ const parseIdSearchParams = (filterText: string) => {
     return { pmsNummers: [pmsNummer], epNummers: [epNummer], laufNummer, preiserheberIds: [] as string[] };
 };
 
+async function loadPreiszuweisungen() {
+    return (await getDatabase(dbNames.preiszuweisungen).then(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))).filter(
+        x => !!x.preismeldestellenNummern.length
+    );
+}
+
 export async function loadPreismeldungenAndRefPreismeldungForPms(filterParams: Partial<PmsFilter>) {
-    const preiszuweisungen = (await getDatabase(dbNames.preiszuweisungen).then(db =>
-        getAllDocumentsFromDb<P.Preiszuweisung>(db)
-    )).filter(x => !!x.preismeldestellenNummern.length);
+    const preiszuweisungen = await loadPreiszuweisungen();
 
     const alreadyExported = await getDatabase(dbNames.exports).then(db =>
         getAllDocumentsFromDb<any>(db).then(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
@@ -235,6 +239,18 @@ export function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>
             .flatMap(db => getAllDocumentsForPrefixFromDb<T>(db, prefix))
             .reduce((acc, docs) => [...acc, ...docs], [])
     );
+}
+
+export async function getAllAssignedPreismeldungen() {
+    const preiszuweisungen = await loadPreiszuweisungen();
+    const preismeldungenByPe = preiszuweisungen.map(async pz => {
+        const db = await getDatabase(getUserDatabaseName(pz.preiserheberId));
+        const preismeldungen = await getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, preismeldungId());
+        return preismeldungen.filter(pm => pz.preismeldestellenNummern.some(pmsNummer => pmsNummer === pm.pmsNummer));
+    });
+    return await bluebird
+        .all(preismeldungenByPe)
+        .then(x => x.reduce((list, lookup) => [...list, ...lookup], [] as P.Preismeldung[]));
 }
 
 function filterPreismeldungenByStatus(
