@@ -12,7 +12,7 @@ import { getDatabase, getAllDocumentsForPrefixFromDb } from './pouchdb-utils';
 import * as fromRoot from '../reducers';
 import * as P from '../common-models';
 
-import { mengeFormatFn, preisFormatFn, PefLanguageService, formatDate } from 'lik-shared';
+import { mengeFormatFn, preisFormatFn, PefLanguageService, formatDate, priceCountId } from 'lik-shared';
 import { PropertyTranslation } from 'lik-shared/common/models';
 
 @Injectable()
@@ -67,6 +67,7 @@ export class CreatePdfEffects {
                             }) => {
                                 const translateFn = key => this.translateService.instant(key);
                                 const data = mapData(
+                                    preismeldestelle,
                                     preismeldungen,
                                     priceCountStatuses,
                                     warenkorb,
@@ -95,6 +96,7 @@ function parseCode(code: number) {
 }
 
 function mapData(
+    preismeldestelle: P.Models.Preismeldestelle,
     preismeldungen: P.PreismeldungBag[],
     priceCountStatuses: { [pmsNummer: string]: P.PriceCountStatus },
     warenkorb: P.WarenkorbInfo[],
@@ -113,13 +115,15 @@ function mapData(
             ],
             col5: [
                 translateFn('label_print_preiszahl'),
-                `${
-                    (priceCountStatuses[bag.warenkorbPosition.gliederungspositionsnummer] || ({} as any))
-                        .numActivePrices
-                }/${
-                    (priceCountStatuses[bag.warenkorbPosition.gliederungspositionsnummer] || ({} as any))
-                        .anzahlPreiseProPMS
-                }`,
+                `${(
+                    priceCountStatuses[
+                        priceCountId(preismeldestelle.pmsNummer, bag.warenkorbPosition.gliederungspositionsnummer)
+                    ] || ({} as any)
+                ).numActivePrices || 0}/${(
+                    priceCountStatuses[
+                        priceCountId(preismeldestelle.pmsNummer, bag.warenkorbPosition.gliederungspositionsnummer)
+                    ] || ({} as any)
+                ).anzahlPreiseProPMS || 0}`,
             ],
         },
         {

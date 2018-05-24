@@ -57,7 +57,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     currentPriceCountStatus$ = this.currentPreismeldung$.combineLatest(
         this.priceCountStatuses$,
         (currentPreismeldung, priceCountStatuses) =>
-            !currentPreismeldung ? null : priceCountStatuses[currentPreismeldung.preismeldung.epNummer]
+            !currentPreismeldung ? null : priceCountStatuses[priceCountIdByPm(currentPreismeldung.preismeldung)]
     );
 
     selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
