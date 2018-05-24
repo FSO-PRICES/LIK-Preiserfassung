@@ -14,10 +14,12 @@ export interface StichtagGroupedCockpitPreismeldungSummary {
 export interface CockpitPreismeldungSummary {
     total: number;
     newPreismeldungen: number;
-    synced: boolean;
     todo: number;
     doneButNotUploaded: number;
     uploaded: number;
+    synced: boolean;
+    nothingTodo: boolean;
+    nothingToUpload: boolean;
     uploadedAll: boolean;
 }
 
@@ -60,7 +62,7 @@ export function reducer(state = initialState, action: cockpit.Action): State {
             return {
                 isExecuting: true,
                 cockpitReportData: null,
-                selectedPreiserheber: null,
+                selectedPreiserheber: state.selectedPreiserheber,
             };
         }
 
@@ -111,13 +113,15 @@ export function reducer(state = initialState, action: cockpit.Action): State {
             return {
                 isExecuting: false,
                 cockpitReportData: {
-                    preiserheber: preiserheberSummary,
+                    preiserheber: preiserheberSummary.filter(ps => !ps.summary || ps.summary.indifferent.total > 0),
                     unassigned: {
                         summary: unassignedSummary,
                         pmsPreismeldungSummary: unassignedPmsPreismeldungSummary,
                     },
                 },
-                selectedPreiserheber: null,
+                selectedPreiserheber: !!state.selectedPreiserheber
+                    ? preiserheberSummary.find(ps => ps.erheber._id === state.selectedPreiserheber.erheber._id)
+                    : null,
             };
         }
 
@@ -172,16 +176,25 @@ function createCockpitPreismeldungenSummary(
     const inErhebungszeitpunkt = (pm: P.Preismeldung | P.PreismeldungReference) =>
         !erhebungsZeitpunkt ? true : pm.erhebungsZeitpunkt === erhebungsZeitpunkt;
     const todo_ = todo.filter(x => inErhebungszeitpunkt(x));
-    return {
+    const summary = {
         total: todo_.length,
-        synced: todoSynced.length > 0 || todo_.length === 0,
         newPreismeldungen: newPreismeldungen.filter(x => inErhebungszeitpunkt(x)).length,
         todo: todo_.filter(x => !doneById[x.pmId]).length,
         doneButNotUploaded: done.filter(x => !x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
         uploaded: done.filter(x => !!x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
-        uploadedAll: todo.every(
-            x => inErhebungszeitpunkt(x) && !!doneById[x.pmId] && !!doneById[x.pmId].uploadRequestedAt
-        ),
+    };
+    const synced = todoSynced.length > 0 || todo_.length === 0;
+    const nothingTodo = synced && summary.todo === 0;
+    const nothingToUpload = nothingTodo && summary.doneButNotUploaded === 0;
+
+    return {
+        ...summary,
+        synced,
+        nothingTodo,
+        nothingToUpload,
+        uploadedAll:
+            nothingToUpload &&
+            todo.every(x => inErhebungszeitpunkt(x) && !!doneById[x.pmId] && !!doneById[x.pmId].uploadRequestedAt),
     };
 }
 

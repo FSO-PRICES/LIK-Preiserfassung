@@ -95,21 +95,26 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                             total: agg.total + v.summary[this.form.value.erhebungsZeitpunkt].total,
                             newPreismeldungen:
                                 agg.newPreismeldungen + v.summary[this.form.value.erhebungsZeitpunkt].newPreismeldungen,
-                            synced: agg.synced && v.summary[this.form.value.erhebungsZeitpunkt].synced,
                             todo: agg.todo + v.summary[this.form.value.erhebungsZeitpunkt].todo,
                             doneButNotUploaded:
                                 agg.doneButNotUploaded +
                                 v.summary[this.form.value.erhebungsZeitpunkt].doneButNotUploaded,
                             uploaded: agg.uploaded + v.summary[this.form.value.erhebungsZeitpunkt].uploaded,
+                            synced: agg.synced && v.summary[this.form.value.erhebungsZeitpunkt].synced,
+                            nothingTodo: agg.nothingTodo && v.summary[this.form.value.erhebungsZeitpunkt].nothingTodo,
+                            nothingToUpload:
+                                agg.nothingToUpload && v.summary[this.form.value.erhebungsZeitpunkt].nothingToUpload,
                             uploadedAll: agg.uploadedAll && v.summary[this.form.value.erhebungsZeitpunkt].doneAll,
                         } as CockpitPreismeldungSummary),
                     {
                         total: 0,
                         newPreismeldungen: 0,
-                        synced: true,
                         todo: 0,
                         doneButNotUploaded: 0,
                         uploaded: 0,
+                        synced: true,
+                        nothingTodo: true,
+                        nothingToUpload: true,
                         uploadedAll: true,
                     } as CockpitPreismeldungSummary
                 )

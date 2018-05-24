@@ -49,10 +49,10 @@
                     <span class="status-number" [class.good]="(filteredSummary$ | async).synced">{{ (filteredSummary$ | async).total }} / {{ (filteredSummary$ | async).newPreismeldungen }}</span>
                 </div>
                 <div class="offen-nicht-erfasst">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).todo === 0">{{ (filteredSummary$ | async).todo }}</span>
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).nothingTodo">{{ (filteredSummary$ | async).todo }}</span>
                 </div>
                 <div class="offen-erfasst">
-                    <span class="status-number" [class.good]="(filteredSummary$ | async).synced && (filteredSummary$ | async).todo === 0 && (filteredSummary$ | async).doneButNotUploaded === 0">{{ (filteredSummary$ | async).doneButNotUploaded }}</span>
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).nothingToUpload">{{ (filteredSummary$ | async).doneButNotUploaded }}</span>
                 </div>
                 <div class="hochgeladene">
                     <span class="status-number" [class.good]="(filteredSummary$ | async).uploadedAll">{{ (filteredSummary$ | async).uploaded }}</span>
@@ -74,11 +74,11 @@
                         </span>
                     </div>
                     <div class="offen-nicht-erfasst">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].todo === 0">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingTodo">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}
                         </span>
                     </div>
                     <div class="offen-erfasst">
-                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].synced && preiserheber.summary[form.value.erhebungsZeitpunkt].todo === 0 && preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded === 0">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded }}</span>
+                        <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingToUpload">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded }}</span>
                     </div>
                     <div class="hochgeladene">
                         <span class="status-number" [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll">{{ preiserheber.summary[form.value.erhebungsZeitpunkt].uploaded }}</span>

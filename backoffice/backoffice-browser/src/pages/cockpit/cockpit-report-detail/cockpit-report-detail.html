@@ -35,11 +35,11 @@
                 </span>
             </div>
             <div class="offen-nicht-erfasst">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].todo === 0">{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}
+                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingTodo">{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}
                 </span>
             </div>
             <div class="offen-erfasst">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].synced && pmsSummary.summary[erhebungsZeitpunktKey].todo === 0 && pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded === 0">{{ pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded }}</span>
+                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingToUpload">{{ pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded }}</span>
             </div>
             <div class="hochgeladene">
                 <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].uploadedAll">{{ pmsSummary.summary[erhebungsZeitpunktKey].uploaded }}</span>
