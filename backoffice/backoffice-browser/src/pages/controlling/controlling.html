@@ -3,7 +3,7 @@
 
     <controlling-report [preismeldungenStatus]="preismeldungenStatus$ | async" (runReport)="runControllingReport$.next($event)"
         [reportData]="controllingReportData$ | async" (editPreismeldungId)="editPreismeldungId$.emit($event)" (setPreismeldungStatus)="setPreismeldungStatus$.emit($event)"
-        (completeAllPreismeldungenStatus)="completeAllPreismeldungenStatus$.emit($event)" (clearControlling)="clearControlling$.emit()">
+        (completeAllPreismeldungenStatus)="completeAllPreismeldungenStatus$.emit($event)">
         <div class="additional-actions">
             <stichtage (runReport)="runStichtageReport$.next()" [reportExecuting]="stichtageReportExecuting$ | async"></stichtage>
         </div>

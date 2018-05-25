@@ -43,10 +43,7 @@ export async function getAllPreismeldungenStatus() {
     return currentPreismeldungenStatus;
 }
 
-export async function updateMissingPreismeldungenStatus(
-    preismeldungen: P.Preismeldung[],
-    refPreismeldungen: P.PreismeldungReference[]
-) {
+export async function updateMissingPreismeldungenStatus(preismeldungen: P.Preismeldung[]) {
     await downloadDatabaseAsync(dbNames.preismeldungen_status);
     const db = await getLocalDatabase(dbNames.preismeldungen_status);
     const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
@@ -54,14 +51,8 @@ export async function updateMissingPreismeldungenStatus(
         'preismeldungen_status'
     );
     let hasNew = false;
-    refPreismeldungen.forEach(pmRef => {
-        if (currentPreismeldungenStatus.statusMap[pmRef.pmId] == null) {
-            hasNew = true;
-            currentPreismeldungenStatus.statusMap[pmRef.pmId] = P.PreismeldungStatus['ungeprüft'];
-        }
-    });
     preismeldungen.forEach(pm => {
-        if (currentPreismeldungenStatus.statusMap[pm._id] == null) {
+        if (!!pm.uploadRequestedAt && currentPreismeldungenStatus.statusMap[pm._id] == null) {
             hasNew = true;
             currentPreismeldungenStatus.statusMap[pm._id] = P.PreismeldungStatus['ungeprüft'];
         }

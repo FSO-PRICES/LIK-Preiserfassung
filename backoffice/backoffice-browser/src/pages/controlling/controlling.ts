@@ -174,10 +174,6 @@ export class ControllingPage implements OnDestroy {
         this.resetPreismeldung$
             .takeUntil(this.onDestroy$)
             .subscribe(() => this.store.dispatch({ type: 'RESET_PREISMELDUNG' }));
-
-        this.clearControlling$
-            .takeUntil(this.onDestroy$)
-            .subscribe(() => this.store.dispatch(controlling.createClearControllingAction()));
     }
 
     public ionViewDidEnter() {

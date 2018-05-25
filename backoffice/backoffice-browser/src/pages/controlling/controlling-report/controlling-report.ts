@@ -17,7 +17,6 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     @Output('setPreismeldungStatus')
     setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
     @Output('runReport') runReport$ = new EventEmitter<string>();
-    @Output('clearControlling') clearControlling$ = new EventEmitter();
     @Output('editPreismeldungId') editPreismeldungId$ = new EventEmitter<string>();
     @Output('completeAllPreismeldungenStatus') completeAllPreismeldungenStatus$: Observable<string[]>;
 
@@ -108,8 +107,10 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                 })
             );
         this.completeAllPreismeldungenStatus$ = this.completeAllPreismeldungenStatusClicked$
-            .withLatestFrom(this.preismeldungen$)
-            .map(([_, preismeldungen]) => preismeldungen.filter(pm => pm.canView).map(pm => pm.pmId));
+            .withLatestFrom(this.preismeldungen$, this.preismeldungenStatus$)
+            .map(([_, preismeldungen, preismeldungenStatus]) =>
+                preismeldungen.filter(pm => pm.canView && preismeldungenStatus[pm.pmId] != null).map(pm => pm.pmId)
+            );
 
         this.hiddenColumns$ = this.toggleColumn$
             .asObservable()

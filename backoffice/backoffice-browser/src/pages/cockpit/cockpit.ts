@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import * as P from '../../common-models';
 import * as fromRoot from '../../reducers';
 import * as preismeldungenStatusActions from '../../actions/preismeldungen-status';
+import * as controlling from '../../actions/controlling';
 
 @IonicPage({
     segment: 'cockpit',
@@ -33,11 +34,10 @@ export class CockpitPage {
         this.preiserheberSelected$
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(pe => this.store.dispatch({ type: 'COCKPIT_PREISERHEBER_SELECTED', payload: pe }));
-        this.initPreismeldungenStatus$
-            .takeUntil(this.ionViewDidLeave$)
-            .subscribe(() =>
-                this.store.dispatch(preismeldungenStatusActions.createInitializePreismeldungenStatusAction())
-            );
+        this.initPreismeldungenStatus$.takeUntil(this.ionViewDidLeave$).subscribe(() => {
+            this.store.dispatch(preismeldungenStatusActions.createInitializePreismeldungenStatusAction());
+            this.store.dispatch(controlling.createClearControllingAction());
+        });
     }
 
     public ionViewDidEnter() {
