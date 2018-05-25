@@ -86,7 +86,9 @@ async function setPreismeldungStatusBulk(data: { pmId: string; status: P.Preisme
     const db = await getLocalDatabase(dbNames.preismeldungen_status);
     const pmStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(db, 'preismeldungen_status');
     data.forEach(({ pmId, status }) => {
-        pmStatus.statusMap[pmId] = status;
+        if (pmStatus.statusMap[pmId] != null) {
+            pmStatus.statusMap[pmId] = status;
+        }
     });
     await db.put(pmStatus);
     return pmStatus;

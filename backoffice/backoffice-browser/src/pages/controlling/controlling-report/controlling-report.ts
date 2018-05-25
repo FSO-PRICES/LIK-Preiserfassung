@@ -109,7 +109,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             );
         this.completeAllPreismeldungenStatus$ = this.completeAllPreismeldungenStatusClicked$
             .withLatestFrom(this.preismeldungen$)
-            .map(([_, preismeldungen]) => preismeldungen.map(pm => pm.pmId));
+            .map(([_, preismeldungen]) => preismeldungen.filter(pm => pm.canView).map(pm => pm.pmId));
 
         this.hiddenColumns$ = this.toggleColumn$
             .asObservable()

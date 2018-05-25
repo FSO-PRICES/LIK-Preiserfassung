@@ -50,7 +50,7 @@
                     </button>
                 </td>
                 <td>
-                    <pef-pm-status [disabled]="row.exported" [preismeldungStatus]="preismeldungenStatus[row.pmId]" (setPreismeldungStatus)="setPreismeldungStatus$.emit({ pmId: row.pmId, status: $event })"></pef-pm-status>
+                    <pef-pm-status [class.visibility-hidden]="!row.canView" [disabled]="row.exported" [preismeldungStatus]="preismeldungenStatus[row.pmId]" (setPreismeldungStatus)="setPreismeldungStatus$.emit({ pmId: row.pmId, status: $event })"></pef-pm-status>
                 </td>
                 <td *ngFor="let value of row.values; let i = index" [class.collapsed]="(hiddenColumns$ | async)[i]">{{ value }}</td>
             </tr>

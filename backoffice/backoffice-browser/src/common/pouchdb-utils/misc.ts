@@ -55,13 +55,13 @@ export async function updateMissingPreismeldungenStatus(
     );
     let hasNew = false;
     refPreismeldungen.forEach(pmRef => {
-        if (!currentPreismeldungenStatus.statusMap[pmRef.pmId]) {
+        if (currentPreismeldungenStatus.statusMap[pmRef.pmId] == null) {
             hasNew = true;
             currentPreismeldungenStatus.statusMap[pmRef.pmId] = P.PreismeldungStatus['ungeprüft'];
         }
     });
     preismeldungen.forEach(pm => {
-        if (!currentPreismeldungenStatus.statusMap[pm._id]) {
+        if (currentPreismeldungenStatus.statusMap[pm._id] == null) {
             hasNew = true;
             currentPreismeldungenStatus.statusMap[pm._id] = P.PreismeldungStatus['ungeprüft'];
         }
