@@ -128,7 +128,9 @@ export function reducer(state = initialState, action: cockpit.Action): State {
         case cockpit.COCKPIT_PREISERHEBER_SELECTED: {
             return {
                 ...state,
-                selectedPreiserheber: action.payload,
+                selectedPreiserheber: state.cockpitReportData.preiserheber.find(
+                    pe => pe.erheber._id === action.payload
+                ),
             };
         }
 

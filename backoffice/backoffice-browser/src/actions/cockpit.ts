@@ -20,4 +20,4 @@ export type Action =
               preiserheber: P.Erheber[];
           };
       }
-    | { type: typeof COCKPIT_PREISERHEBER_SELECTED; payload: CockpitPreiserheberSummary };
+    | { type: typeof COCKPIT_PREISERHEBER_SELECTED; payload: string };
