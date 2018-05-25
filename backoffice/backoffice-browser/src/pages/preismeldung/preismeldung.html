@@ -7,7 +7,7 @@
             (selectPreismeldung)="selectPreismeldung$.emit($event)" (resetPreismeldungen)="resetPreismeldungen$.emit()"></preismeldung-list>
         <div class="preismeldung-detail-container container" *ngIf="currentPreismeldung$ | async; let currentPreismeldung">
             <preismeldung-toolbar *ngIf="!!(currentPreismeldung$ | async)?.pmId" [preismeldung]="currentPreismeldung$ | async" [selectedTab]="selectedTab$ | async"
-                (selectTab)="selectTab$.emit($event)" [isAdminApp]="true" (buttonClicked)="toolbarButtonClicked$.emit($event)">
+                (selectTab)="selectTab$.emit($event)" [isAdminApp]="true" (buttonClicked)="toolbarButtonClicked$.emit($event)" [disableQuickEqual]="disableQuickEqual$ | async">
             </preismeldung-toolbar>
             <div class="tab-container" *ngIf="!!(currentPreismeldung$ | async)?.pmId">
                 <preismeldung-info-warenkorb [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'" [isDesktop]="true" [preismeldung]="currentPreismeldung$ | async"
@@ -27,7 +27,7 @@
                     [isDesktop]="true" [preismeldestelle]="preismeldestelle$ | async" [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async" (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()" (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
-                    (requestThrowChanges)="requestThrowChanges$.emit({})" [isAdminApp]="true" (save)="save$.emit($event)">
+                    (requestThrowChanges)="requestThrowChanges$.emit({})" [isAdminApp]="true" (save)="save$.emit($event)" (disableQuickEqual)="disableQuickEqual$.emit($event)">
                     <div class="additional-actions" *ngIf="!!currentPreismeldung.preismeldung.uploadRequestedAt">
                         <pef-pm-status [disabled]="currentPreismeldung.exported" [preismeldungStatus]="(preismeldungenStatus$ | async)[currentPreismeldung.pmId]"
                             (setPreismeldungStatus)="setPreismeldungStatus$.emit({ pmId: currentPreismeldung.pmId, status: $event })"></pef-pm-status>

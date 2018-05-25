@@ -286,6 +286,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
     @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
     @Output('isSaveLookDisabled') public isSaveLookDisabled$: Observable<boolean>;
+    @Output('disableQuickEqual') disableQuickEqual$: Observable<boolean>;
 
     public isReadonly$: Observable<boolean>;
 
@@ -366,6 +367,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .startWith(false)
             .publishReplay(1)
             .refCount();
+
+        this.disableQuickEqual$ = infoPopoverRightActive$;
 
         this.subscriptions.push(
             this.preisChanged$.subscribe(x => this.form.patchValue({ preis: `${preisFormatFn(x)}` }))

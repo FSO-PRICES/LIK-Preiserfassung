@@ -33,6 +33,7 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
     public toolbarButtonClicked$ = new EventEmitter<string>();
     public selectedTab$: Observable<string>;
     public _closeClicked$ = new EventEmitter();
+    public disableQuickEqual$ = new EventEmitter<boolean>();
 
     public duplicatePreismeldung$ = new EventEmitter();
     public requestSelectNextPreismeldung$ = new EventEmitter();

@@ -63,6 +63,7 @@ export class PreismeldungPage {
     public resetPreismeldung$ = new EventEmitter();
     public resetPreismeldungen$ = new EventEmitter();
     public setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
+    public disableQuickEqual$ = new EventEmitter<boolean>();
 
     public globalFilterTextChanged$ = new EventEmitter<PmsFilter>();
 

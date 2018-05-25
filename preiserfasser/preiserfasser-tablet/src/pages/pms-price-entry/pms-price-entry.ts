@@ -74,6 +74,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     selectNextPreismeldungRequested$: Observable<{}>;
     requestThrowChanges$ = new EventEmitter<{}>();
     isNotSave$ = new EventEmitter<boolean>();
+    disableQuickEqual$ = new EventEmitter<boolean>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();

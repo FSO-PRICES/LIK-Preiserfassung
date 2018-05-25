@@ -70,6 +70,7 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     @Input() selectedTab: string;
     @Input() isAdminApp: boolean;
     @Input() isNotSave: boolean;
+    @Input() disableQuickEqual: boolean;
     @Output('selectTab') selectTab$ = new EventEmitter<string>();
     @Output('buttonClicked') buttonClicked$: Observable<string>;
     otherButtonClicked$ = new EventEmitter<string>();
@@ -87,6 +88,10 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     public isAdminApp$ = this.observePropertyCurrentValue<boolean>('isAdminApp')
         .publishReplay(1)
         .refCount();
+    public disableQuickEqual$ = this.observePropertyCurrentValue<boolean>('disableQuickEqual')
+        .startWith(false)
+        .publishReplay(1)
+        .refCount();
     public hasAttributes$: Observable<boolean>;
     public requestPreismeldungQuickEqualDisabled$: Observable<boolean>;
 
@@ -101,6 +106,7 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
 
         this.requestPreismeldungQuickEqualDisabled$ = this.preismeldung$
             .map(x => !!x && [2, 3, 7].some(y => y === x.preismeldung.bearbeitungscode))
+            .combineLatest(this.disableQuickEqual$, (disabledByPm, disabledByInput) => disabledByInput || disabledByPm)
             .startWith(false);
 
         this.buttonClicked$ = this.otherButtonClicked$.merge(
