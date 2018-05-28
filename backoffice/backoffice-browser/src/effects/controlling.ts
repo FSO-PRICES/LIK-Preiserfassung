@@ -69,23 +69,13 @@ export class ControllingEffects {
                         controllingType,
                         data,
                     }))
-                )
-                    .flatMap(x =>
-                        getAllPreismeldungenStatus().then(preismeldungenStatus => ({
-                            ...x,
-                            data: {
-                                ...x.data,
-                                preismeldungenStatus,
-                            },
-                        }))
-                    )
-                    .concatMap(x => [
-                        {
-                            type: 'UPDATE_PRICE_COUNT_STATUSES',
-                            payload: { ...x.data, warenkorb },
-                        } as PreismeldungAction,
-                        controlling.createRunControllingDataReadyAction(x.controllingType, x.data),
-                    ])
+                ).concatMap(x => [
+                    {
+                        type: 'UPDATE_PRICE_COUNT_STATUSES',
+                        payload: { ...x.data, warenkorb },
+                    } as PreismeldungAction,
+                    controlling.createRunControllingDataReadyAction(x.controllingType, x.data),
+                ])
             )
         );
 

@@ -1,4 +1,5 @@
 import * as controlling from '../actions/controlling';
+import * as preismeldungenStatusActions from '../actions/preismeldungen-status';
 import { orderBy } from 'lodash';
 
 import { Models as P, formatPercentageChange } from 'lik-shared';
@@ -22,6 +23,7 @@ export interface State {
     rawCachedData: controlling.ControllingData;
     controllingReport: ControllingReportData;
     controllingReportExecuting: boolean;
+    preismeldungStatusMap: { [pmId: string]: P.PreismeldungStatus };
 }
 
 const initialState: State = {
@@ -29,9 +31,13 @@ const initialState: State = {
     rawCachedData: null,
     controllingReport: null,
     controllingReportExecuting: false,
+    preismeldungStatusMap: {},
 };
 
-export function reducer(state = initialState, action: controlling.ControllingAction): State {
+export function reducer(
+    state = initialState,
+    action: controlling.ControllingAction | preismeldungenStatusActions.Action
+): State {
     switch (action.type) {
         case controlling.UPDATE_STICHTAGE_SUCCESS:
             return { ...state, stichtagPreismeldungenUpdated: action.payload };
@@ -47,12 +53,13 @@ export function reducer(state = initialState, action: controlling.ControllingAct
             };
         }
         case controlling.RUN_CONTROLLING_DATA_READY: {
+            const { data, controllingType } = action.payload;
             return {
                 ...state,
-                rawCachedData: action.payload.data || state.rawCachedData,
+                rawCachedData: data || state.rawCachedData,
                 controllingReport: {
-                    controllingType: action.payload.controllingType,
-                    ...runReport(state.rawCachedData || action.payload.data, action.payload.controllingType),
+                    controllingType: controllingType,
+                    ...runReport(state.rawCachedData || data, controllingType, state.preismeldungStatusMap),
                 },
                 controllingReportExecuting: false,
             };
@@ -81,7 +88,8 @@ export function reducer(state = initialState, action: controlling.ControllingAct
                     preismeldungen: [preismeldung],
                     refPreismeldungen: state.rawCachedData.refPreismeldungen.filter(x => x.pmId === preismeldung._id),
                 },
-                state.controllingReport.controllingType
+                state.controllingReport.controllingType,
+                state.preismeldungStatusMap
             );
             const row = report.rows.find(x => x.pmId === preismeldung._id);
             const rows = !row
@@ -96,14 +104,25 @@ export function reducer(state = initialState, action: controlling.ControllingAct
                 },
             };
         }
+        case preismeldungenStatusActions.LOAD_PREISMELDUNGEN_STATUS_SUCCESS:
+        case preismeldungenStatusActions.SET_PREISMELDUNGEN_STATUS_SUCCESS: {
+            return {
+                ...state,
+                preismeldungStatusMap: action.payload,
+            };
+        }
         default:
             return state;
     }
 }
 
-function runReport(data: controlling.ControllingData, controllingType: controlling.CONTROLLING_TYPE) {
+function runReport(
+    data: controlling.ControllingData,
+    controllingType: controlling.CONTROLLING_TYPE,
+    preismeldungenStatus: { [pmId: string]: P.PreismeldungStatus }
+) {
     const controllingConfig = controllingConfigs[controllingType];
-    const erhebungsPositionen = filterErhebungsPositionen(controllingConfig, data);
+    const erhebungsPositionen = filterErhebungsPositionen(controllingConfig, data, preismeldungenStatus);
     const results = erhebungsPositionen.map(x => ({
         values: controllingConfig.columns.map(v => columnDefinition[v](x)),
         canView: !!x.preismeldung,
@@ -253,7 +272,7 @@ type ColumnType =
     | typeof columnWarenkorbIndex;
 
 interface ErherbungsPositionFilterFn {
-    (x: ControllingErhebungsPosition, preismeldungenStatus?: P.PreismeldungenStatus): boolean;
+    (x: ControllingErhebungsPosition, preismeldungenStatus: { [pmId: string]: P.PreismeldungStatus }): boolean;
 }
 
 interface GliederungspositionnummerRangeType {
@@ -275,7 +294,8 @@ interface ControllingConfig {
 
 function filterErhebungsPositionen(
     controllingConfig: ControllingConfig,
-    data: controlling.ControllingData
+    data: controlling.ControllingData,
+    preismeldungenStatus: { [pmId: string]: P.PreismeldungStatus }
 ): ControllingErhebungsPosition[] {
     const inRange = (epRange: EpRange, gliederungspositionsnummer: number): boolean =>
         gliederungspositionsnummer >= epRange.lowEpNummer && gliederungspositionsnummer <= epRange.highEpNummer;
@@ -346,7 +366,7 @@ function filterErhebungsPositionen(
                 !!x &&
                 !!warenkorbItemsByEpNummer[x.warenkorbItem.gliederungspositionsnummer] &&
                 (!controllingConfig.erherbungsPositionFilter ||
-                    controllingConfig.erherbungsPositionFilter(x, data.preismeldungenStatus))
+                    controllingConfig.erherbungsPositionFilter(x, preismeldungenStatus))
         );
 }
 
@@ -764,17 +784,17 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0810]: {
         ...base_0800_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
-            !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.ungeprüft,
+            !!status && !!x.preismeldung && status[x.preismeldung._id] === P.PreismeldungStatus.ungeprüft,
     },
     [controlling.CONTROLLING_0820]: {
         ...base_0800_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
-            !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.blockiert,
+            !!status && !!x.preismeldung && status[x.preismeldung._id] === P.PreismeldungStatus.blockiert,
     },
     [controlling.CONTROLLING_0830]: {
         ...base_0800_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
-            !!status && !!x.preismeldung && status.statusMap[x.preismeldung._id] === P.PreismeldungStatus.geprüft,
+            !!status && !!x.preismeldung && status[x.preismeldung._id] === P.PreismeldungStatus.geprüft,
     },
 };
 

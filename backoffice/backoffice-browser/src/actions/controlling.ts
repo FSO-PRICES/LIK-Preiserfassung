@@ -79,7 +79,6 @@ export interface ControllingData {
     preismeldestellen: P.Preismeldestelle[];
     preiserheber: P.Erheber[];
     preiszuweisungen: P.Preiszuweisung[];
-    preismeldungenStatus: P.PreismeldungenStatus;
 }
 
 export type ControllingAction =
