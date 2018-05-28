@@ -262,7 +262,7 @@ function filterPreismeldungenByStatus(
     return preismeldungen.filter(pm => {
         switch (filter.statusFilter) {
             case 'erhebung':
-                return !pm.uploadRequestedAt;
+                return !!pm.uploadRequestedAt && preismeldungenStatus[pm._id] == null;
             case 'exportiert':
                 return !!alreadyExportedById[pm._id];
             case 'prüfung':
