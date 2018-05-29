@@ -12,6 +12,12 @@ If not already done: `./node_modules/.bin/ionic cordova platforms add android`
 3.  `unzip tools_r25.2.3-linux.zip -d Android/sdk/`
 4.  `Android/sdk/tools/bin/sdkmanager "platform-tools" "platforms;android-25" "build-tools;25.0.3" "tools"`
 
+Due to a gradle build problem in cordova, it is required to edit the file `preiserfasser/preiserfasser-tablet/platforms/android/build.gradle` and append following code:
+
+```
+configurations.all {\n    nresolutionStrategy.force 'com.android.support:support-v4:25.0.0'\n}
+```
+
 ## Sign APK
 
 ### Generate Key
