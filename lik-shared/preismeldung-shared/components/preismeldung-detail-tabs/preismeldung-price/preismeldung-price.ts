@@ -795,13 +795,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         observable: () =>
                             Observable.if(
                                 () => !bag.messages.kommentar,
-                                pefMessageDialogService.displayMessageDialog(
-                                    [
-                                        { textKey: 'btn_yes', dismissValue: 'YES' },
-                                        { textKey: 'btn_verwerfen', dismissValue: 'THROW_CHANGES' },
-                                        { textKey: 'btn_edit-comment', dismissValue: 'EDIT' },
-                                    ],
-                                    'dialogText_abnormal-preisentwicklung'
+                                Observable.defer(() =>
+                                    pefMessageDialogService.displayMessageDialog(
+                                        [
+                                            { textKey: 'btn_yes', dismissValue: 'YES' },
+                                            { textKey: 'btn_verwerfen', dismissValue: 'THROW_CHANGES' },
+                                            { textKey: 'btn_edit-comment', dismissValue: 'EDIT' },
+                                        ],
+                                        'dialogText_abnormal-preisentwicklung'
+                                    )
                                 ),
                                 // Always write autotext for "hasPriceWarning" https://github.com/Lambda-IT/lik-studio/issues/339
                                 Observable.of({ data: 'YES' })
