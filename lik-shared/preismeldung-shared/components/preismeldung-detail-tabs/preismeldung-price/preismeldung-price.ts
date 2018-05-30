@@ -791,37 +791,40 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                 ),
                     },
                     {
-                        condition: () => !isAdminApp && bag.hasPriceWarning && !bag.messages.kommentar,
+                        condition: () => !isAdminApp && bag.hasPriceWarning,
                         observable: () =>
-                            pefMessageDialogService
-                                .displayMessageDialog(
+                            Observable.if(
+                                () => !bag.messages.kommentar,
+                                pefMessageDialogService.displayMessageDialog(
                                     [
                                         { textKey: 'btn_yes', dismissValue: 'YES' },
                                         { textKey: 'btn_verwerfen', dismissValue: 'THROW_CHANGES' },
                                         { textKey: 'btn_edit-comment', dismissValue: 'EDIT' },
                                     ],
                                     'dialogText_abnormal-preisentwicklung'
-                                )
-                                .map(res => {
-                                    switch (res.data) {
-                                        case 'YES':
-                                            return {
-                                                type: saveAction.type,
-                                                saveWithData: [
-                                                    {
-                                                        type: 'COMMENT',
-                                                        comments: [
-                                                            'kommentar-autotext_abnormale-preisentwicklung-bestaetigt',
-                                                        ],
-                                                    },
-                                                ],
-                                            };
-                                        case 'THROW_CHANGES':
-                                            return 'THROW_CHANGES';
-                                        case 'EDIT':
-                                            return { type: 'CANCEL' };
-                                    }
-                                }),
+                                ),
+                                // Always write autotext for "hasPriceWarning" https://github.com/Lambda-IT/lik-studio/issues/339
+                                Observable.of({ data: 'YES' })
+                            ).map(res => {
+                                switch (res.data) {
+                                    case 'YES':
+                                        return {
+                                            type: saveAction.type,
+                                            saveWithData: [
+                                                {
+                                                    type: 'COMMENT',
+                                                    comments: [
+                                                        'kommentar-autotext_abnormale-preisentwicklung-bestaetigt',
+                                                    ],
+                                                },
+                                            ],
+                                        };
+                                    case 'THROW_CHANGES':
+                                        return 'THROW_CHANGES';
+                                    case 'EDIT':
+                                        return { type: 'CANCEL' };
+                                }
+                            }),
                     },
                     {
                         condition: () =>
