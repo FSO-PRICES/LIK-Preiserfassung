@@ -44,13 +44,13 @@ Um von CouchDb 1.6 zu CouchDb 2.1 wechseln zu können müssen folgende Schritte 
 1. Die Offline Zeit planen und ankündigen.
 2. Ein Backup von dem `var/` Verzeichniss und den `etc/local.ini`und `etc/local.d/*.ini` Dateien erstellen.
 3. CouchDb Service offline nehmen.
-4. [Upgrade von CouchDb zu 2.1.](###install-new-couchdb)
+4. [Upgrade von CouchDb zu 2.1.](#install-new-couchdb)
 5. Start von CouchDb.
 6. Migration der Datenbanken.
     * Falls die neue Verison von CouchDb in einem neuen Verzeichnis ist, muss man alle alten `.couch` Dateien unter dem `var/lib/couchdb/` Verzeichnis nach `data/` kopieren. Ansonsten kann man diesen Schritt überspringen.
     * Es gibt zwei Methoden für die Migration:
       * Manuell: http://docs.couchdb.org/en/master/install/upgrading.html#manual-couchdb-1-x-migration
-      * Tool: Man kann `couchup` verwenden, zu finden unter `CouchDB/bin/`. [Hier eine Anleitung](###couchup-db-upgrade). Der Nachteil ist, dass dieses Tool einige Abhängigkeiten hat.
+      * Tool: Man kann `couchup` verwenden, zu finden unter `CouchDB/bin/`. [Hier eine Anleitung](#couchup-db-upgrade). Der Nachteil ist, dass dieses Tool einige Abhängigkeiten hat.
 
 ### Install new CouchDb
 
