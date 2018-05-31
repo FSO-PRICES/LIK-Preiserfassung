@@ -37,7 +37,53 @@ Passwords and user information are saved in the KeePass **LIK-BFS** group.
 After everything has been installed and configured:
   1. Secure the couchdb admin interface **futon** `http://13.94.141.213:5984/_utils/index.html` using the `Fix this` link on the bottom right.
 
-### Android (SDK, APK build)
+## CouchDb 2.1 Upgrade
+
+Um von CouchDb 1.6 zu CouchDb 2.1 wechseln zu können müssen folgende Schritte gemacht werden:
+
+1. Die Offline Zeit planen und ankündigen.
+2. Ein Backup von dem `var/` Verzeichniss und den `etc/local.ini`und `etc/local.d/*.ini` Dateien erstellen.
+3. CouchDb Service offline nehmen.
+4. [Upgrade von CouchDb zu 2.1.](###install-new-couchdb)
+5. Start von CouchDb.
+6. Migration der Datenbanken.
+    * Falls die neue Verison von CouchDb in einem neuen Verzeichnis ist, muss man alle alten `.couch` Dateien unter dem `var/lib/couchdb/` Verzeichnis nach `data/` kopieren. Ansonsten kann man diesen Schritt überspringen.
+    * Es gibt zwei Methoden für die Migration:
+      * Manuell: http://docs.couchdb.org/en/master/install/upgrading.html#manual-couchdb-1-x-migration
+      * Tool: Man kann `couchup` verwenden, zu finden unter `CouchDB/bin/`. [Hier eine Anleitung](###couchup-db-upgrade). Der Nachteil ist, dass dieses Tool einige Abhängigkeiten hat.
+
+### Install new CouchDb
+
+**Windows**
+* Installer [hier herunterladen](https://dl.bintray.com/apache/couchdb/win/2.1.1/couchdb-2.1.1.msi) und installieren.
+
+**Linux:**
+* `echo "deb https://apache.bintray.com/couchdb-deb {distribution} main" | sudo tee -a /etc/apt/sources.list`
+
+`{distribution}` sollte man folgendermassen ersetzen:
+
+* Debian 8: `jessie`
+* Debian 9: `stretch`
+* Ubuntu 14.04: `trusty`
+* Ubuntu 16.04: `xenial`
+
+* `sudo apt-get update && sudo apt-get install couchdb=2.1.1-1~{distribution}` - Mit `apt-cache madison couchdb` kann man die richtige Distribution leicht identifizieren sollte aber Version 2.1.1 sein.
+
+### couchup DB upgrade
+
+http://docs.couchdb.org/en/master/install/upgrading.html#couchup-utility
+`couchup` benötigt python 2.7 oder 3.x und die [`Request`](http://docs.python-requests.org/en/master/user/install/) Bibliothek.
+
+* Falls `pipenv` nicht vorhanden ist, `pip install pipenv` ausführen.
+* `pipenv install requests` ausführen.
+1. `./couchup list` unter dem `bin/` Verzeichnis von CouchDb 2.1 aufrufen.
+2. Kontrollieren
+3. `./couchup replicate -a`
+4. Datenbanken in der CouchDb Admin anschauen und überprüfen.
+5. `./couchup delete -a`
+6. `./couchup list` nochmals ausführen, dieses mal sollte nichts ausgegeben werden.
+
+## Android (SDK, APK build)
 
 1. Java SDK installieren: `jdk-8u121`
 2. Android Studio installieren: `android-studio-bundle-162.3764568`
