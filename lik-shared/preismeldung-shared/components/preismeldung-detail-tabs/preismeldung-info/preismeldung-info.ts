@@ -159,7 +159,7 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
 
     formatInternetLink(link: string) {
         if (!link) return link;
-        return !link.startsWith('http://') || !link.startsWith('https://') ? `http://${link}` : link;
+        return !link.startsWith('http://') && !link.startsWith('https://') ? `http://${link}` : link;
     }
 
     navigateToInternetLink(event: any, internetLink: string) {

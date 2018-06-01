@@ -1261,7 +1261,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         if (!internetLink) return;
 
         let _internetLink = internetLink;
-        if (!internetLink.startsWith('http://') || !internetLink.startsWith('https://')) {
+        if (!internetLink.startsWith('http://') && !internetLink.startsWith('https://')) {
             _internetLink = `http://${internetLink}`;
         }
         if (this.isDesktop) {
