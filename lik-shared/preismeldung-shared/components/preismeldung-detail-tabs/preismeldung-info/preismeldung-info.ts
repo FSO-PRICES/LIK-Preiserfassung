@@ -6,11 +6,13 @@ import {
     SimpleChange,
     EventEmitter,
     ChangeDetectionStrategy,
+    Inject,
 } from '@angular/core';
 
 import { ReactiveComponent } from '../../../../';
 
 import * as P from '../../../models';
+import { ElectronService } from '../../../services/electron.service';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -110,8 +112,7 @@ import { Observable } from 'rxjs/Observable';
                             {{ 'label_internetlink' | translate }}
                         </div>
                         <div class="info-table-cell-value">
-                            <a *ngIf="(preismeldung$ | async)?.preismeldung.internetLink" href="{{ (formatInternetLink((preismeldung$ | async)?.preismeldung.internetLink)) }}"
-                                target="_blank">{{ (preismeldung$ | async)?.preismeldung.internetLink }}</a>
+                            <a *ngIf="(preismeldung$ | async)?.preismeldung.internetLink" [href]="formatInternetLink((preismeldung$ | async)?.preismeldung.internetLink)" target="_blank" (click)="navigateToInternetLink($event, preismeldung?.preismeldung.internetLink)">{{ (preismeldung$ | async)?.preismeldung.internetLink }}</a>
                             <span *ngIf="!(preismeldung$ | async)?.preismeldung.internetLink">&ndash;</span>
                         </div>
                     </div>
@@ -138,7 +139,7 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
 
-    constructor() {
+    constructor(private electronService: ElectronService, @Inject('windowObject') public window: any) {
         super();
 
         this.canReset$ = this.preismeldung$
@@ -159,6 +160,16 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
     formatInternetLink(link: string) {
         if (!link) return link;
         return !link.startsWith('http://') || !link.startsWith('https://') ? `http://${link}` : link;
+    }
+
+    navigateToInternetLink(event: any, internetLink: string) {
+        if (!internetLink) return;
+
+        let _internetLink = this.formatInternetLink(internetLink);
+        if (this.isDesktop) {
+            event.preventDefault();
+            this.electronService.openExternal(_internetLink);
+        }
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

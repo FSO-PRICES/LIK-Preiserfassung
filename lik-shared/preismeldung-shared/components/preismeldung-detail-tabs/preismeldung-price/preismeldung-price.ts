@@ -29,6 +29,7 @@ import {
     PefDialogValidationErrorsComponent,
 } from '../../../../';
 import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
+import { ElectronService } from '../../../services/electron.service';
 
 import * as P from '../../../models';
 
@@ -355,6 +356,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         pefDialogService: PefDialogService,
         pefMessageDialogService: PefMessageDialogService,
         translateService: TranslateService,
+        private electronService: ElectronService,
         @Inject('windowObject') public window: any
     ) {
         super();
@@ -1257,8 +1259,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     navigateToInternetLink(internetLink: string) {
         if (!internetLink) return;
+
+        let _internetLink = internetLink;
         if (!internetLink.startsWith('http://') || !internetLink.startsWith('https://')) {
-            this.window.open(`http://${internetLink}`, '_blank');
+            _internetLink = `http://${internetLink}`;
+        }
+        if (this.isDesktop) {
+            this.electronService.openExternal(_internetLink);
+        } else {
+            this.window.open(_internetLink, '_blank');
         }
     }
 }

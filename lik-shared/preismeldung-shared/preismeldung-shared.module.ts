@@ -16,6 +16,8 @@ import { PreismeldungMessagesComponent } from './components/preismeldung-detail-
 import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
 import { PreismeldungReadonlyHeader } from './components/preismeldung-detail-tabs/preismeldung-readonly-header/preismeldung-readonly-header';
 
+import { ElectronService } from './services/electron.service';
+
 @NgModule({
     declarations: [
         BearbeitungsTypeComponent,
@@ -29,16 +31,11 @@ import { PreismeldungReadonlyHeader } from './components/preismeldung-detail-tab
         PreismeldungMessagesComponent,
         PreismeldungPriceComponent,
         PreismeldungReadonlyHeader,
-        PreismeldungToolbarComponent
+        PreismeldungToolbarComponent,
     ],
-    imports: [
-        IonicModule,
-        PefComponentsModule
-    ],
-    entryComponents: [
-        DialogCancelEditComponent,
-        DialogChoosePercentageReductionComponent
-    ],
+    imports: [IonicModule, PefComponentsModule],
+    entryComponents: [DialogCancelEditComponent, DialogChoosePercentageReductionComponent],
+    providers: [ElectronService],
     exports: [
         BearbeitungsTypeComponent,
         DialogCancelEditComponent,
@@ -49,8 +46,7 @@ import { PreismeldungReadonlyHeader } from './components/preismeldung-detail-tab
         PreismeldungMessagesComponent,
         PreismeldungPriceComponent,
         PreismeldungReadonlyHeader,
-        PreismeldungToolbarComponent
-    ]
+        PreismeldungToolbarComponent,
+    ],
 })
-export class PreismeldungSharedModule {
-}
+export class PreismeldungSharedModule {}
