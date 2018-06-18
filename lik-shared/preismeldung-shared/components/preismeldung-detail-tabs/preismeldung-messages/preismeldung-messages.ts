@@ -30,7 +30,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                         <ion-textarea formControlName="notiz" (blur)="onBlur$.emit()" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
                         <button ion-button color="java" (click)="notizClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
                     </div>
                     <h3>{{ 'heading_kommentar-zum-aktuellen-monat' | translate }}</h3>
@@ -41,7 +41,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                         <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
                         <button ion-button color="java" (click)="kommentarClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
                     </div>
                     <h3>{{ 'heading_kommunikation' | translate }}</h3>
@@ -52,7 +52,7 @@ import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actio
                         <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="isReadonly$ | async" [readonly]="isReadonly$ | async"></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_ok' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
                         <button ion-button color="java" (click)="bemerkungenClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
                         <button ion-button color="java" [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
                     </div>
