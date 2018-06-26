@@ -95,6 +95,13 @@ function parseCode(code: number) {
     return parsed == null ? '' : parsed === '99' ? '–' : parsed;
 }
 
+function trunc(doc: jsPDF, text: string, maxLength: number, fontSize = 10) {
+    var truncated = doc.splitTextToSize(text, maxLength - doc.getStringUnitWidth('…', { fontSize }) - 5, {
+        fontSize,
+    }) as string[];
+    return truncated[0] != text ? truncated[0].concat('…') : text;
+}
+
 function mapData(
     preismeldestelle: P.Models.Preismeldestelle,
     preismeldungen: P.PreismeldungBag[],
@@ -273,6 +280,22 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                 if (data.row.index >= settings.table.commentRowIndex) {
                     doc.setDrawColor(settings.colors.innerBorder);
                     doc.line(cell.x, cell.y, cell.x + cell.width, cell.y);
+                }
+                if (data.row.index == 1 && data.column.index == 1) {
+                    docA.autoTableText(
+                        trunc(doc, cell.raw[1], cell.width * 3),
+                        cell.textPos.x,
+                        cell.textPos.y + settings.data.spacingY,
+                        {
+                            valign: 'middle',
+                        }
+                    );
+                    doc.setFontSize(8);
+                    doc.setTextColor(settings.table.placeholderTextColor);
+                    docA.autoTableText(cell.raw[0], cell.textPos.x, cell.textPos.y, {
+                        valign: 'top',
+                    });
+                    return false;
                 }
                 if (Array.isArray(cell.raw)) {
                     docA.autoTableText(cell.raw[1], cell.textPos.x, cell.textPos.y + settings.data.spacingY, {
