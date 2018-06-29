@@ -37,7 +37,7 @@
         "dragula": "^3.7.2",
         "ionic-angular": "3.3.0",
         "ionicons": "3.0.0",
-        "jspdf": "^1.3.5",
+        "jspdf": "1.3.5",
         "jspdf-autotable": "^2.3.2",
         "lik-shared": "file:../../lik-shared",
         "lodash": "^4.17.4",
