@@ -1,13 +1,14 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { IonicPage } from 'ionic-angular';
 import { first } from 'lodash';
+import { Observable, Subscription } from 'rxjs';
 
 import * as P from 'lik-shared';
 
 import * as controlling from '../../actions/controlling';
+import * as status from '../../actions/preismeldungen-status';
 import * as fromRoot from '../../reducers';
-import { IonicPage } from 'ionic-angular';
 
 @IonicPage({
     segment: 'controlling',
@@ -154,14 +155,17 @@ export class ControllingPage implements OnDestroy {
 
         this.setPreismeldungStatus$
             .takeUntil(this.onDestroy$)
-            .subscribe(payload => this.store.dispatch({ type: 'SET_PREISMELDUNGEN_STATUS', payload }));
+            .subscribe(payload => this.store.dispatch(status.createSetPreismeldungenStatusAction(payload)));
 
-        this.completeAllPreismeldungenStatus$.takeUntil(this.onDestroy$).subscribe(pmIds =>
-            this.store.dispatch({
-                type: 'SET_PREISMELDUNGEN_STATUS_BULK',
-                payload: pmIds.map(pmId => ({ pmId, status: P.Models.PreismeldungStatus.geprüft })),
-            })
-        );
+        this.completeAllPreismeldungenStatus$
+            .takeUntil(this.onDestroy$)
+            .subscribe(pmIds =>
+                this.store.dispatch(
+                    status.createSetPreismeldungenStatusBulkAction(
+                        pmIds.map(pmId => ({ pmId, status: P.Models.PreismeldungStatus.geprüft }))
+                    )
+                )
+            );
 
         this.kommentarClearClicked$
             .takeUntil(this.onDestroy$)
@@ -187,6 +191,7 @@ export class ControllingPage implements OnDestroy {
     }
 
     public ionViewDidLeave() {
+        this.store.dispatch(status.createApplyPreismeldungenStatusAction());
         this.store.dispatch({ type: 'SWITCH_TO_PREISMELDUNG_SLOT', payload: '__original' });
     }
 
