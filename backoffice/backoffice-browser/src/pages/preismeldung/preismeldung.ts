@@ -15,8 +15,9 @@ import {
 import * as P from '../../common-models';
 
 import * as fromRoot from '../../reducers';
-import * as preismeldestelle from '../../actions/preismeldestelle';
 import * as filterOptions from '../../actions/filter-options';
+import * as preismeldestelle from '../../actions/preismeldestelle';
+import * as status from '../../actions/preismeldungen-status';
 
 @IonicPage({
     segment: 'pm',
@@ -263,7 +264,7 @@ export class PreismeldungPage {
 
         this.setPreismeldungStatus$
             .takeUntil(this.ionViewDidLeave$)
-            .subscribe(payload => this.store.dispatch({ type: 'SET_PREISMELDUNGEN_STATUS', payload }));
+            .subscribe(payload => status.createSetPreismeldungenStatusAction(payload));
     }
 
     public ionViewDidEnter() {
@@ -276,6 +277,7 @@ export class PreismeldungPage {
     }
 
     public ionViewDidLeave() {
+        this.store.dispatch(status.createApplyPreismeldungenStatusAction());
         this.ionViewDidLeave$.next();
     }
 }

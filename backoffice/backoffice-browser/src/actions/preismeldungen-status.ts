@@ -1,5 +1,6 @@
 import { Models as P, PreismeldungBag } from 'lik-shared';
 
+export const APPLY_PREISMELDUNGEN_STATUS = 'APPLY_PREISMELDUNGEN_STATUS';
 export const LOAD_PREISMELDUNGEN_STATUS = 'LOAD_PREISMELDUNGEN_STATUS';
 export const LOAD_PREISMELDUNGEN_STATUS_SUCCESS = 'LOAD_PREISMELDUNGEN_STATUS_SUCCESS';
 export const LOAD_PREISMELDUNGEN_STATUS_FAILURE = 'LOAD_PREISMELDUNGEN_STATUS_FAILRE';
@@ -13,6 +14,7 @@ export const SYNCED_PREISMELDUNGEN_STATUS_SUCCESS = 'SYNCED_PREISMELDUNGEN_STATU
 export type PreismeldungenStatusPayload = { [pmId: string]: P.PreismeldungStatus };
 
 export type Action =
+    | { type: typeof APPLY_PREISMELDUNGEN_STATUS }
     | { type: typeof LOAD_PREISMELDUNGEN_STATUS }
     | { type: typeof LOAD_PREISMELDUNGEN_STATUS_SUCCESS; payload: PreismeldungenStatusPayload }
     | { type: typeof SET_PREISMELDUNGEN_STATUS; payload: { pmId: string; status: P.PreismeldungStatus } }
@@ -22,6 +24,9 @@ export type Action =
     | { type: typeof SET_PREISMELDUNGEN_STATUS_ARE_INITIALIZING }
     | { type: typeof SYNCED_PREISMELDUNGEN_STATUS_SUCCESS };
 
+export const createApplyPreismeldungenStatusAction = (): Action => ({
+    type: APPLY_PREISMELDUNGEN_STATUS,
+});
 export const createLoadPreismeldungenStatusAction = (): Action => ({
     type: LOAD_PREISMELDUNGEN_STATUS,
 });

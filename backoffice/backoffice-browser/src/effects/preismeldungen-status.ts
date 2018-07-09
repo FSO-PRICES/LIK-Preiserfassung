@@ -68,8 +68,8 @@ export class PreismeldungenStatusEffects {
         );
 
     @Effect()
-    syncStatuses$ = this.setPreismeldungStatus$
-        .merge(this.setPreismeldungStatusBulk$)
+    syncStatuses$ = this.actions$
+        .ofType(preismeldungenStatus.APPLY_PREISMELDUNGEN_STATUS)
         .debounceTime(1000)
         .flatMap(() =>
             uploadPreismeldungStatuses().then(() =>
