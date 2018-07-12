@@ -1,0 +1,13 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "types": ["jest", "node"],
+        "paths": {
+            "lik-shared": ["../../lik-shared/"]
+        }
+    },
+    "include": ["src/**/*.ts", "../../lik-shared/**/*.ts"],
+    "exclude": ["**/e2e/*.ts", "**/*.e2e-spec.ts", "node_modules", "tmp", "www", "platforms"]
+}

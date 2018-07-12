@@ -11,10 +11,16 @@ import { Models as P, parseDate } from 'lik-shared';
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
 
-const DB_NAME = 'lik';
+export const DB_NAME = 'lik';
 
 function _checkIfDatabaseExists(dbName): Promise<boolean> {
-    return (PouchDB as any).allDbs().then((dbnames: string[]) => (dbnames || []).find(x => x === dbName));
+    return (PouchDB as any)
+        .allDbs()
+        .then(x => {
+            console.log('all_dbs:', x);
+            return x;
+        })
+        .then((dbnames: string[]) => (dbnames || []).find(x => x === dbName));
 }
 
 export function getOrCreateDatabase() {
@@ -52,8 +58,13 @@ export function getDocumentWithFallback<T>(db: PouchDB.Database<{}>, id: string,
 
 export const checkIfDatabaseExists = (): Promise<boolean> =>
     _checkIfDatabaseExists(DB_NAME).then(exists => {
+        console.log('does db exist?????', exists, DB_NAME);
         if (!exists) return Promise.resolve(false);
         return getOrCreateDatabase()
+            .then(db => {
+                console.log('does db exist_____________2?????', db);
+                return db;
+            })
             .then(db =>
                 db
                     .get('db-schema-version')

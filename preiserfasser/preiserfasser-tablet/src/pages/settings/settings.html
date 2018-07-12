@@ -26,7 +26,7 @@
                     </ion-item>
                 </ion-list>
                 <div class="actions">
-                    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(allowToSave$ | async)">{{'btn_save' | translate}}</button>
+                    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(allowToSave$ | async)" id="save">{{'btn_save' | translate}}</button>
                     <button type="button" ion-button (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">{{'btn_cancel' | translate}}</button>
                 </div>
             </form>

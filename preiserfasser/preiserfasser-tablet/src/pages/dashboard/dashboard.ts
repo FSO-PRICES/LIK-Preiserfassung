@@ -23,9 +23,6 @@ import { Actions as DatabaseAction } from '../../actions/database';
 import { Action as LoginAction } from '../../actions/login';
 import { PreismeldestelleStatistics } from '../../reducers/statistics';
 
-import * as IDBExportImport from 'indexeddb-export-import';
-import * as bluebird from 'bluebird';
-
 type DashboardPms = P.Preismeldestelle & {
     keinErhebungsart: boolean;
     isPdf: boolean;
@@ -290,47 +287,6 @@ export class DashboardPage implements OnDestroy {
                 )
                 .subscribe(),
         ];
-
-        this.dumpIndexedDbs();
-    }
-
-    public async dumpIndexedDbs() {
-        const dbs = [
-            '_pouch_lik',
-            '_pouch_pouch__all_dbs__',
-            '_pouch_preismeldungen',
-            '_pouch_preismeldungen_status',
-            '_pouch_settings',
-        ];
-        let exportedDbs = {};
-
-        const lookups2 = bluebird.mapSeries(dbs, db => {
-            return new bluebird.Promise((resolve, reject) => {
-                console.log('Opening: ', db);
-                const dbConnection = window.indexedDB.open(db, 5);
-                dbConnection.onsuccess = function(event) {
-                    const idb_db = dbConnection.result;
-                    IDBExportImport.exportToJsonString(idb_db, function(err, jsonString) {
-                        if (err) {
-                            console.error(err);
-                            reject(err);
-                        } else {
-                            console.log('Exported as JSON: ', db);
-                            resolve({ [db]: btoa(decodeURIComponent(encodeURIComponent(jsonString))) });
-                            // IDBExportImport.clearDatabase(idb_db, function (err) {
-                            //     if (!err) // cleared data successfully
-                            //         IDBExportImport.importFromJsonString(idb_db, jsonString, function (err) {
-                            //             if (!err)
-                            //                 console.log("Imported data successfully");
-                            //         });
-                            // });
-                        }
-                    });
-                };
-            });
-        });
-
-        console.log('Exported result:', JSON.stringify((await lookups2).reduce((acc, x) => ({ ...acc, ...x }), {})));
     }
 
     public ngOnDestroy() {

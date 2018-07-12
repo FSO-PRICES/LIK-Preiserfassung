@@ -1,45 +1,37 @@
-import { importFromJsonString } from 'indexeddb-export-import';
-import * as bluebird from 'bluebird';
-import { database_seed } from '../fixtures/pouch_databases';
+// import { DB_NAME } from '../../src/effects/pouchdb-utils';
+import PouchDB from 'pouchdb';
+import PouchDBLoad from 'pouchdb-load';
+PouchDB.plugin(PouchDBLoad);
 
 context('Window', () => {
     beforeEach(() => {
         cy.visit('#/settings');
     });
 
-    it('get the title', () => {
-        cy.title().should('include', 'LIK PreisAdmin');
-    });
+    // it('get the title', () => {
+    //     cy.title().should('include', 'Preiserfassung LIK');
+    // });
 
     it('write url', async () => {
-        const dbs = [
-            '_pouch_lik',
-            '_pouch_pouch__all_dbs__',
-            '_pouch_preismeldungen',
-            '_pouch_preismeldungen_status',
-            '_pouch_settings',
-        ];
-        let exportedDbs = {};
-
-        const imports = bluebird.mapSeries(dbs, (db: string) => {
-            return new bluebird.Promise((resolve, reject) => {
-                console.log('Opening: ', db);
-                const dbConnection = window.indexedDB.open(db, 5);
-                dbConnection.onsuccess = function(event) {
-                    const idb_db = dbConnection.result;
-                    importFromJsonString(idb_db, database_seed[db], function(err) {
-                        if (!err) {
-                            console.log('Imported data successfully');
-                            resolve({ [db]: 'loaded' });
-                        } else {
-                            console.error(err);
-                            reject(err);
-                        }
+        localStorage.removeItem('bfs-pe-server-url');
+        cy.readFile('cypress/fixtures/pouch_databases.dump').then(data => {
+            return new Cypress.Promise((resolve, reject) => {
+                const db = new PouchDB('lik') as any;
+                cy.log('data', data);
+                return db
+                    .load(data)
+                    .then(function() {
+                        cy.log('ok');
+                        resolve();
+                        // done loading!
+                    })
+                    .catch(function(err) {
+                        cy.log('not ok', err);
+                        reject(err);
+                        // HTTP error or something like that
                     });
-                };
             });
         });
-        console.log('Imported result:', JSON.stringify((await imports).reduce((acc, x) => ({ ...acc, ...x }), {})));
 
         const value = 'http://172.30.30.10:5984';
         cy.get('[formcontrolname="url"] input')
