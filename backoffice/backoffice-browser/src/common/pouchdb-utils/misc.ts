@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import * as bluebird from 'bluebird';
-import PouchDB from 'pouchdb';
+import PouchDB from './pouchdb';
 
 import { Models as P, preismeldungId } from 'lik-shared';
 
