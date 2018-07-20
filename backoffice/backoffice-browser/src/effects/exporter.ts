@@ -8,6 +8,7 @@ import { Models as P, preismeldestelleId, preismeldungId, preismeldungRefId, pms
 
 import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
+import { createClearControllingAction } from '../actions/controlling';
 import {
     dbNames,
     getAllDocumentsForPrefixFromDb,
@@ -132,7 +133,8 @@ export class ExporterEffects {
 
                                         return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
                                     })
-                                );
+                                )
+                                .concat(Observable.of(createClearControllingAction()));
                         })
                         .catch(error =>
                             Observable.of({
