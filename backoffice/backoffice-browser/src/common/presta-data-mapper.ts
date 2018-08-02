@@ -222,7 +222,7 @@ export function preparePmForExport(
             Menge_VPK: toDecimal(pm.mengeVPK, 10, 3, 'Menge_VPK'),
             Bearbeitungscode: excludeBearbeitungscode(toNumber(pm.bearbeitungscode, 3, 'Bearbeitungscode')),
             Aktionscode: !pm.aktion ? 0 : 1,
-            Preisbezeichnung: toText((pm.artikeltext || '').substr(0, 200), 200, 'Preisbezeichnung'),
+            Preisbezeichnung: toText(escapeNewlinesInText(pm.artikeltext || '').substr(0, 200), 200, 'Preisbezeichnung'),
             Artikelnummer: toText((pm.artikelnummer || '').substr(0, 30), 30, 'Artikelnummer'),
             Fehlende_Preise: toText(
                 (pm.fehlendePreiseR || '').substr(0, 24) || (pm.bearbeitungscode === 44 ? 'S' : null),
