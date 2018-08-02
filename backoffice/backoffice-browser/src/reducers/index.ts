@@ -64,7 +64,11 @@ const reducers = {
     filterOptions: fromFilterOptions.reducer,
 };
 
-const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
+const developmentReducer: ActionReducer<AppState> = compose(
+    storeLogger(),
+    storeFreeze,
+    combineReducers
+)(reducers);
 const productionReducer: ActionReducer<AppState> = combineReducers(reducers);
 
 export function reducer(state: AppState, action: any): AppState {
@@ -130,6 +134,10 @@ export const getPreismeldungenStatusState = (state: AppState) => state.preismeld
 export const getPreismeldungenStatusMap = createSelector(
     getPreismeldungenStatusState,
     fromPreismeldungenStatus.getPreismeldungenStatusMap
+);
+export const getPreismeldungenStatusMapUpdatedCount = createSelector(
+    getPreismeldungenStatusState,
+    fromPreismeldungenStatus.getPreismeldungenStatusMapUpdatedCount
 );
 export const getArePreismeldungenStatusInitializing = createSelector(
     getPreismeldungenStatusState,

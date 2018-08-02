@@ -15,6 +15,7 @@ import { CockpitPreismeldungSummary } from '../../../common-models';
 })
 export class CockpitReportComponent extends ReactiveComponent implements OnChanges, OnInit {
     @Input('report-executing') reportExecuting: boolean;
+    @Input('status-updated-count') statusUpdatedCount: number | null;
     @Input('initializing-preismeldungen-status') initializingPreismeldungenStatus: boolean;
     @Input('cockpit-report-data') cockpitReportData: P.CockpitReportData;
     @Input('selected-preiserheber') selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;
@@ -55,6 +56,15 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                 this.pefDialogService.displayLoading(
                     'Daten werden zusammengefasst, bitte warten...',
                     this.reportExecuting$.filter(x => !x).take(1)
+                )
+            );
+
+        this.initializingPreismeldungenStatus$
+            .filter(x => !!x)
+            .subscribe(() =>
+                this.pefDialogService.displayLoading(
+                    'Prüfstatus wird zugewiesen, bitte warten...',
+                    this.initializingPreismeldungenStatus$.filter(x => !x).take(1)
                 )
             );
 

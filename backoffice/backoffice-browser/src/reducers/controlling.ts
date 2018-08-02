@@ -104,7 +104,12 @@ export function reducer(
                 },
             };
         }
-        case preismeldungenStatusActions.LOAD_PREISMELDUNGEN_STATUS_SUCCESS:
+        case preismeldungenStatusActions.LOAD_PREISMELDUNGEN_STATUS_SUCCESS: {
+            return {
+                ...state,
+                preismeldungStatusMap: action.payload.statusMap,
+            };
+        }
         case preismeldungenStatusActions.SET_PREISMELDUNGEN_STATUS_SUCCESS: {
             return {
                 ...state,
