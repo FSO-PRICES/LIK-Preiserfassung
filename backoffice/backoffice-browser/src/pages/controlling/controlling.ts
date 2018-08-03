@@ -18,8 +18,6 @@ import * as fromRoot from '../../reducers';
     templateUrl: 'controlling.html',
 })
 export class ControllingPage implements OnDestroy {
-    public runStichtageReport$ = new EventEmitter();
-    public stichtageReportExecuting$: Observable<boolean>;
     public stichtagPreismeldungenUpdated$ = this.store.select(fromRoot.getStichtagPreismeldungenUpdated);
     public numStichtagPreismeldungenUpdated$: Observable<number>;
 
@@ -80,46 +78,11 @@ export class ControllingPage implements OnDestroy {
     private onDestroy$ = new EventEmitter();
 
     constructor(private store: Store<fromRoot.AppState>, private pefDialogService: P.PefDialogService) {
-        this.stichtageReportExecuting$ = this.runStichtageReport$
-            .mapTo(true)
-            .merge(
-                this.runStichtageReport$
-                    .flatMap(() => Observable.defer(() => this.stichtagPreismeldungenUpdated$.skip(1).take(1)))
-                    .mapTo(false)
-            )
-            .startWith(false)
-            .publishReplay(1)
-            .refCount();
-
-        this.numStichtagPreismeldungenUpdated$ = this.runStichtageReport$
-            .merge(
-                this.runStichtageReport$.flatMap(() =>
-                    Observable.defer(() =>
-                        this.stichtagPreismeldungenUpdated$
-                            .skip(1)
-                            .take(1)
-                            .map(x => x.length)
-                    )
-                )
-            )
-            .startWith(null)
-            .publishReplay(1)
-            .refCount();
-
-        this.stichtageReportExecuting$
+        this.controllingReportExecuting$
             .filter(x => !!x)
-            .map(() => this.stichtageReportExecuting$.filter(x => !x).take(1))
-            .merge(
-                this.controllingReportExecuting$
-                    .filter(x => !!x)
-                    .map(() => this.controllingReportExecuting$.filter(x => !x).take(1))
-            )
+            .map(() => this.controllingReportExecuting$.filter(x => !x).take(1))
             .takeUntil(this.onDestroy$)
             .subscribe(x => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', x));
-
-        this.runStichtageReport$
-            .takeUntil(this.onDestroy$)
-            .subscribe(() => this.store.dispatch(controlling.createUpdateStichtageAction()));
 
         this.runControllingReport$
             .takeUntil(this.onDestroy$)

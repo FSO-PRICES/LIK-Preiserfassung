@@ -4,9 +4,6 @@
     <controlling-report [preismeldungenStatus]="preismeldungenStatus$ | async" (runReport)="runControllingReport$.next($event)"
         [reportData]="controllingReportData$ | async" (editPreismeldungId)="editPreismeldungId$.emit($event)" (setPreismeldungStatus)="setPreismeldungStatus$.emit($event)"
         (completeAllPreismeldungenStatus)="completeAllPreismeldungenStatus$.emit($event)">
-        <div class="additional-actions">
-            <stichtage (runReport)="runStichtageReport$.next()" [reportExecuting]="stichtageReportExecuting$ | async"></stichtage>
-        </div>
     </controlling-report>
     <edit-preismeldung *ngIf="!!(currentPreismeldung$ | async)" [currentPreismeldung]="currentPreismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async"
         [preiserheber]="preiserheber$ | async" [warenkorb]="warenkorb$ | async" [preismeldungenStatus]="preismeldungenStatus$ | async"
