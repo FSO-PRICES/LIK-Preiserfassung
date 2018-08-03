@@ -1031,7 +1031,7 @@ function createPercentages(
 function createPriceCountStatuses(entities: { [pmsNummer: string]: PreismeldungBag }) {
     const preismeldungBags = keys(entities).map(id => entities[id]);
     const getPreisId = ({ preismeldung: pm }: PreismeldungBag) => preismeldungId(pm.pmsNummer, pm.epNummer);
-    const activePricesPerPmsAndEp = createCountMapOf(preismeldungBags, pmBag => getPreisId(pmBag));
+    const activePricesPerPmsAndEp = createCountMapOf(preismeldungBags.filter(bag => bag.preismeldung.bearbeitungscode !== 0), pmBag => getPreisId(pmBag));
     return preismeldungBags.reduce((agg, preismeldungBag) => {
         const numActivePrices = activePricesPerPmsAndEp[getPreisId(preismeldungBag)];
         agg[priceCountIdByPm(preismeldungBag.preismeldung)] = createPriceCountStatus(
