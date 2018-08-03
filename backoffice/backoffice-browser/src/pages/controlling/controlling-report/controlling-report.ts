@@ -28,6 +28,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public toggleColumn$ = new EventEmitter<number>();
     public hiddenColumns$: Observable<boolean[]>;
     public hasStatusInputDisabled$: Observable<boolean>;
+    public controllingType$: Observable<string>;
     public shortColumnNames = ShortColumnNames;
 
     public controllings = [
@@ -83,6 +84,8 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
 
     constructor() {
         super();
+
+        this.controllingType$ = this.reportData$.filter(x => x != null).map(x => x.controllingType);
         this.preismeldungStatusFilter$ = this.setPreismeldungStatusFilter$
             .asObservable()
             .startWith(P.Models.PreismeldungStatusFilter.exportiert)
