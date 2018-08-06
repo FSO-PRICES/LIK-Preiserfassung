@@ -41,6 +41,7 @@
     "dialogText_unveraendert-pm-text": "Are new item's name and number really unchanged to former item?",
     "dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis": "Reduced price of previous period equal to or higher than current normal price. Is product still on sale?",
     "dialogText_pdf-preparing-data": "PDF being created",
+    "dialogText_pdf-create-error": "PDF couldn't be created",
     "dialogText_pdf-saved-at-documents": "PDF successfully saved in Documents",
     "dialogText_pdf-saved-at-application": "PDF successfully saved in Application folder, Files -> Internal > Android > data > io.ionic.starter",
     "error_login-wrong-credentials": "User name and password do not match.",

@@ -41,6 +41,7 @@
     "dialogText_unveraendert-pm-text": "La description/le numéro d'article est-il vraiment identique à celle/celui de l'article du mois précédent?",
     "dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis": "Le prix en action de la période précédente est supérieur/égal au prix normal actuel. Le prix actuel est-il en action ?",
     "dialogText_pdf-preparing-data": "PDF being created",
+    "dialogText_pdf-create-error": "PDF ERROR",
     "dialogText_pdf-saved-at-documents": "PDF successfully saved in Documents",
     "dialogText_pdf-saved-at-application": "PDF successfully saved in Application folder, Files -> Internal > Android > data > io.ionic.starter",
     "error_login-wrong-credentials": "L'identificateur et/ou le mot de passe n'est pas correct.",
