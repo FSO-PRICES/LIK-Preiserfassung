@@ -13,7 +13,6 @@ import * as fromRoot from '../reducers';
 import * as P from '../common-models';
 
 import { mengeFormatFn, preisFormatFn, PefLanguageService, formatDate, priceCountId } from 'lik-shared';
-import { PropertyTranslation } from 'lik-shared/common/models';
 
 @Injectable()
 export class CreatePdfEffects {
@@ -38,55 +37,60 @@ export class CreatePdfEffects {
                 type: string;
                 payload: { preismeldestelle: P.Models.Preismeldestelle; erhebungsmonat: string };
             }) =>
-                Observable.of({ type: 'PDF_RESET_PMS' }).concat(
-                    this.store
-                        .select(fromRoot.getPreismeldungen)
-                        .skip(1)
-                        .filter(x => x.length > 0)
-                        .take(1)
-                        .map(preismeldungen => ({ preismeldestelle, erhebungsmonat, preismeldungen }))
-                        .withLatestFrom(
-                            this.store.select(fromRoot.getPriceCountStatuses),
-                            this.store.select(fromRoot.getWarenkorb),
-                            this.pefLanguageService.currentLanguage$,
-                            (data, priceCountStatuses, warenkorb, currentLanguage) => ({
-                                ...data,
-                                priceCountStatuses,
-                                warenkorb,
-                                currentLanguage,
-                            })
-                        )
-                        .flatMap(
-                            ({
-                                preismeldungen,
-                                erhebungsmonat,
-                                preismeldestelle,
-                                priceCountStatuses,
-                                warenkorb,
-                                currentLanguage,
-                            }) => {
-                                const translateFn = key => this.translateService.instant(key);
-                                const data = mapData(
-                                    preismeldestelle,
-                                    preismeldungen,
+                Observable.of({ type: 'PDF_RESET_PMS' })
+                    .concat(
+                        this.store
+                            .select(fromRoot.getPreismeldungen)
+                            .skip(1)
+                            .filter(x => x.length > 0)
+                            .take(1)
+                            .map(preismeldungen => ({ preismeldestelle, erhebungsmonat, preismeldungen }))
+                            .withLatestFrom(
+                                this.store.select(fromRoot.getPriceCountStatuses),
+                                this.store.select(fromRoot.getWarenkorb),
+                                this.pefLanguageService.currentLanguage$,
+                                (data, priceCountStatuses, warenkorb, currentLanguage) => ({
+                                    ...data,
                                     priceCountStatuses,
                                     warenkorb,
                                     currentLanguage,
-                                    translateFn
-                                );
-                                return toPdf(
-                                    data,
-                                    this.file as any,
-                                    preismeldestelle,
-                                    this.platform,
+                                })
+                            )
+                            .flatMap(
+                                ({
+                                    preismeldungen,
                                     erhebungsmonat,
+                                    preismeldestelle,
+                                    priceCountStatuses,
+                                    warenkorb,
                                     currentLanguage,
-                                    translateFn
-                                );
-                            }
-                        )
-                        .map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo }))
-                )
+                                }) => {
+                                    const translateFn = key => this.translateService.instant(key);
+                                    const data = mapData(
+                                        preismeldestelle,
+                                        preismeldungen,
+                                        priceCountStatuses,
+                                        warenkorb,
+                                        currentLanguage,
+                                        translateFn
+                                    );
+                                    return toPdf(
+                                        data,
+                                        this.file as any,
+                                        preismeldestelle,
+                                        this.platform,
+                                        erhebungsmonat,
+                                        currentLanguage,
+                                        translateFn
+                                    );
+                                }
+                            )
+                            .map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo }))
+                    )
+                    .catch(error => {
+                        console.log('PDF CREATION ERROR', error);
+                        return Observable.of({ type: 'PDF_CREATION_FAILED', payload: error });
+                    })
         );
 }
 
@@ -118,7 +122,7 @@ function mapData(
             ],
             col2: [
                 translateFn('label_print_positionsbezeichnung'),
-                bag.warenkorbPosition.positionsbezeichnung[currentLanguage],
+                translateProperty(bag.warenkorbPosition.positionsbezeichnung, currentLanguage),
             ],
             col5: [
                 translateFn('label_print_preiszahl'),
@@ -163,7 +167,9 @@ function mapData(
             ? [
                   {
                       col1: [
-                          bag.warenkorbPosition.productMerkmale.map(x => x[currentLanguage]).join('; '),
+                          bag.warenkorbPosition.productMerkmale
+                              .map(x => translateProperty(x, currentLanguage))
+                              .join('; '),
                           bag.preismeldung.productMerkmale.join('; '),
                       ],
                   },
@@ -505,4 +511,8 @@ function toPdf(
         doc.save(`PDF_${pmsNummer}_${+new Date()}.pdf`);
         return Promise.resolve(null);
     }
+}
+
+function translateProperty(property: P.Models.PropertyTranslation, lang: string) {
+    return property[lang] != null ? property[lang] : property[P.Models.Languages.Deutsch.languageCode];
 }

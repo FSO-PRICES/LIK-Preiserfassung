@@ -4,10 +4,18 @@ import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
 import { assign, keyBy, orderBy, flatten } from 'lodash';
 
-import { Models as P, preismeldestelleId, preismeldungId, preismeldungRefId, pmsSortId } from 'lik-shared';
+import {
+    Models as P,
+    preismeldestelleId,
+    preismeldungId,
+    preismeldungRefId,
+    PreismeldungAction,
+    pmsSortId,
+} from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as exporter from '../actions/exporter';
+import { createClearControllingAction } from '../actions/controlling';
 import {
     dbNames,
     getAllDocumentsForPrefixFromDb,
@@ -132,6 +140,10 @@ export class ExporterEffects {
 
                                         return { type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count };
                                     })
+                                )
+                                .concat(
+                                    Observable.of(createClearControllingAction()),
+                                    Observable.of({ type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction)
                                 );
                         })
                         .catch(error =>

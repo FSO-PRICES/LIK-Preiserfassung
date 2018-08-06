@@ -1,7 +1,5 @@
 import { Models as P, PreismeldungBag } from 'lik-shared';
 
-export const UPDATE_STICHTAGE = 'UPDATE_STICHTAGE';
-export const UPDATE_STICHTAGE_SUCCESS = 'UPDATE_STICHTAGE_SUCCESS';
 export const RUN_CONTROLLING = 'RUN_CONTROLLING';
 export const CLEAR_CONTROLLING = 'CLEAR_CONTROLLING';
 export const RUN_CONTROLLING_EXECUTING = 'RUN_CONTROLLING_EXECUTING';
@@ -82,8 +80,6 @@ export interface ControllingData {
 }
 
 export type ControllingAction =
-    | { type: typeof UPDATE_STICHTAGE }
-    | { type: typeof UPDATE_STICHTAGE_SUCCESS; payload: P.Preismeldung[] }
     | { type: typeof RUN_CONTROLLING; payload: CONTROLLING_TYPE }
     | { type: typeof CLEAR_CONTROLLING }
     | { type: typeof RUN_CONTROLLING_EXECUTING }
@@ -94,12 +90,6 @@ export type ControllingAction =
     | { type: typeof SAVE_PREISMELDUNG_PRICE_SUCCESS; payload: { preismeldung: P.Preismeldung } }
     | { type: typeof SAVE_PREISMELDUNG_MESSAGES_SUCCESS; payload: P.Preismeldung }
     | { type: typeof SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS; payload: P.Preismeldung };
-
-export const createUpdateStichtageAction = (): ControllingAction => ({ type: UPDATE_STICHTAGE });
-export const createUpdateStichtageSuccessAction = (preismeldungen: P.Preismeldung[]): ControllingAction => ({
-    type: UPDATE_STICHTAGE_SUCCESS,
-    payload: preismeldungen,
-});
 
 export const createRunControllingAction = (controllingType: CONTROLLING_TYPE): ControllingAction => ({
     type: RUN_CONTROLLING,

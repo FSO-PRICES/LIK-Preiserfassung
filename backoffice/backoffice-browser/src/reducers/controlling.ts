@@ -39,9 +39,6 @@ export function reducer(
     action: controlling.ControllingAction | preismeldungenStatusActions.Action
 ): State {
     switch (action.type) {
-        case controlling.UPDATE_STICHTAGE_SUCCESS:
-            return { ...state, stichtagPreismeldungenUpdated: action.payload };
-
         case controlling.CLEAR_CONTROLLING:
             return { ...state, controllingReport: null, rawCachedData: null };
 
@@ -104,7 +101,12 @@ export function reducer(
                 },
             };
         }
-        case preismeldungenStatusActions.LOAD_PREISMELDUNGEN_STATUS_SUCCESS:
+        case preismeldungenStatusActions.LOAD_PREISMELDUNGEN_STATUS_SUCCESS: {
+            return {
+                ...state,
+                preismeldungStatusMap: action.payload.statusMap,
+            };
+        }
         case preismeldungenStatusActions.SET_PREISMELDUNGEN_STATUS_SUCCESS: {
             return {
                 ...state,

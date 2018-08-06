@@ -41,6 +41,7 @@
     "dialogText_unveraendert-pm-text": "La descrizione dell'articolo/il numero dell'articolo sono effettivamente gli stessi rispetto al prodotto precedente?",
     "dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis": "Il prezzo scontato del periodo precedente era lo stesso o più elevato rispetto al prezzo attuale.  Il prezzo attuale è scontato?",
     "dialogText_pdf-preparing-data": "PDF being created",
+    "dialogText_pdf-create-error": "PDF ERROR",
     "dialogText_pdf-saved-at-documents": "PDF successfully saved in Documents",
     "dialogText_pdf-saved-at-application": "PDF successfully saved in Application folder, Files -> Internal > Android > data > io.ionic.starter",
     "error_login-wrong-credentials": "Il nome utente e la password non corrispondono.",

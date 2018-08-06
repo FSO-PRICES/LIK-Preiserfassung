@@ -34,6 +34,7 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
     public selectedTab$: Observable<string>;
     public _closeClicked$ = new EventEmitter();
     public disableQuickEqual$ = new EventEmitter<boolean>();
+    public quickEqualDisabled$: Observable<boolean>;
 
     public duplicatePreismeldung$ = new EventEmitter();
     public requestSelectNextPreismeldung$ = new EventEmitter();
@@ -41,6 +42,13 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
 
     constructor() {
         super();
+
+        // Wrapped the disable event emitter into a delay 0 observable due to ExpressionChangedAfterItHasBeenCheckedError error
+        this.quickEqualDisabled$ = this.disableQuickEqual$
+            .asObservable()
+            .delay(0)
+            .publishReplay(1)
+            .refCount();
 
         this.selectedTab$ = this.selectTab$
             .merge(

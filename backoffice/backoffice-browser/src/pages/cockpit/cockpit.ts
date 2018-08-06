@@ -19,6 +19,7 @@ export class CockpitPage {
     public reportExecuting$ = this.store.select(fromRoot.getCockpitIsExecuting);
     public cockpitReportData$ = this.store.select(fromRoot.getCockpitReportData);
     public cockpitSelectedPreiserheber$ = this.store.select(fromRoot.getCockpitSelectedPreiserheber);
+    public preismeldungenStatusMapUpdatedCount$ = this.store.select(fromRoot.getPreismeldungenStatusMapUpdatedCount);
     public initializingPreismeldungenStatus$ = this.store.select(fromRoot.getArePreismeldungenStatusInitializing);
 
     public loadData$ = new EventEmitter();

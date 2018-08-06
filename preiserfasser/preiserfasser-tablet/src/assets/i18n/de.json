@@ -49,6 +49,7 @@
     "dialogText_unveraendert-pm-text": "Ist der Artikeltext/die Artikelnummer wirklich unverändert zum Vorgängerprodukt?",
     "dialogText_vp_aktionspreis-gleich-hoeher-aktueller-normalpreis": "Aktionspreis der VP war gleich oder grösser als aktueller Normalpreis. Ist der aktuelle Preis ein Aktionspreis?",
     "dialogText_pdf-preparing-data": "PDF wird vorbereitet",
+    "dialogText_pdf-create-error": "PDF konnte nicht erstellt werden.",
     "dialogText_pdf-saved-at-documents": "PDF wurde zu den Dokumenten abgelegt",
     "dialogText_pdf-saved-at-application": "PDF wurde zu den Applikationsdokumente abgelegt, Eigene Dateien -> Interner Speicher > Android > data > io.ionic.starter",
     "error_login-wrong-credentials": "Benutzername und Password stimmen nicht überein.",

@@ -50,16 +50,16 @@ export async function updateMissingPreismeldungenStatus(preismeldungen: P.Preism
         db,
         'preismeldungen_status'
     );
-    let hasNew = false;
+    let count = 0;
     preismeldungen.forEach(pm => {
         if (!!pm.uploadRequestedAt && currentPreismeldungenStatus.statusMap[pm._id] == null) {
-            hasNew = true;
+            count++;
             currentPreismeldungenStatus.statusMap[pm._id] = P.PreismeldungStatus['ungeprüft'];
         }
     });
-    if (hasNew) {
+    if (count > 0) {
         await db.put(currentPreismeldungenStatus);
         await uploadDatabaseAsync(dbNames.preismeldungen_status);
     }
-    return currentPreismeldungenStatus;
+    return { currentPreismeldungenStatus, count };
 }

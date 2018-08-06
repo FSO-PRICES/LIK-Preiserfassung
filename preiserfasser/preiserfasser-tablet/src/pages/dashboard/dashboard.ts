@@ -69,6 +69,10 @@ export class DashboardPage implements OnDestroy {
     public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
     public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat);
     public lastSyncedAt$ = this.store.select(x => x.database.lastSyncedAt);
+    public createdPmsPdf$ = this.store
+        .select(fromRoot.getCreatedPmsPdf)
+        .publishReplay(1)
+        .refCount();
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
     public navigateToPriceEntry$ = new EventEmitter<P.Preismeldestelle>();
@@ -248,10 +252,7 @@ export class DashboardPage implements OnDestroy {
                     pefDialogService
                         .displayLoading(
                             translateService.instant('dialogText_pdf-preparing-data'),
-                            this.store
-                                .select(fromRoot.getCreatedPmsPdf)
-                                .skip(1)
-                                .filter(x => !!x)
+                            this.createdPmsPdf$.skip(1).filter(x => !!x)
                         )
                         .map(() => data)
                 )
@@ -266,17 +267,18 @@ export class DashboardPage implements OnDestroy {
                     } as PreismeldungAction);
                 }),
 
-            this.store
-                .select(fromRoot.getCreatedPmsPdf)
+            this.createdPmsPdf$
                 .skip(1)
-                .filter(x => !!x && !!x.message)
-                .flatMap(({ message: location }) =>
+                .filter(x => !!x && (!!x.message || x.error))
+                .flatMap(({ message: location, error }) =>
                     this.pefMessageDialogService
                         .displayDialogOneButton(
                             'btn_ok',
-                            location == 'DOCUMENT_LOCATION'
-                                ? 'dialogText_pdf-saved-at-documents'
-                                : 'dialogText_pdf-saved-at-application'
+                            error
+                                ? 'dialogText_pdf-create-error'
+                                : location == 'DOCUMENT_LOCATION'
+                                    ? 'dialogText_pdf-saved-at-documents'
+                                    : 'dialogText_pdf-saved-at-application'
                         )
                         .map(res => {
                             switch (res.data) {

@@ -61,7 +61,10 @@ export class PreismeldungenStatusEffects {
                 [preismeldungenStatus.createSetPreismeldungenStatusAreInitializingAction()],
                 getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
                     updateMissingPreismeldungenStatus(preismeldungen).then(status =>
-                        preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(status.statusMap)
+                        preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(
+                            status.currentPreismeldungenStatus.statusMap,
+                            status.count
+                        )
                     )
                 )
             )

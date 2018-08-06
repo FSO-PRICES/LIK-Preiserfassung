@@ -1,6 +1,7 @@
 <div class="cockpit-actions">
     <button type="button" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</button>
     <button type="button" ion-button (click)="initPreismeldungenStatus$.emit()" [disabled]="initializingPreismeldungenStatus$ | async">Prüfstatus zuweisen</button>
+    <span *ngIf="statusUpdatedCount" ion-text color="primary">{{statusUpdatedCount}} Preismeldungen haben nun neu einen Prüfstatus</span>
 </div>
 
 <div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)">

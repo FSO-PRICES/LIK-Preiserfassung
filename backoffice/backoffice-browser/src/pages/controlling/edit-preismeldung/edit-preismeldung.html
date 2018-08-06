@@ -6,7 +6,7 @@
     <div class="edit-wrapper">
         <preismeldung-toolbar *ngIf="!!(currentPreismeldung$ | async); let currentPreismeldung" [preismeldung]="currentPreismeldung$ | async"
             [selectedTab]="selectedTab$ | async" (selectTab)="selectTab$.emit($event)" [isAdminApp]="true" (buttonClicked)="toolbarButtonClicked$.emit($event)"
-            [disableQuickEqual]="disableQuickEqual$ | async">
+            [disableQuickEqual]="quickEqualDisabled$ | async">
         </preismeldung-toolbar>
         <div class="tab-container" *ngIf="!!(currentPreismeldung$ | async)">
             <preismeldung-info-warenkorb [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'" [isDesktop]="true" [preismeldung]="currentPreismeldung$ | async"

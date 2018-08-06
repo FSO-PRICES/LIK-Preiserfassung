@@ -19,7 +19,7 @@
         </div>
         <div class="controlling">
             <select #controllingSelect class="controlling-selected" (change)="controllingTypeSelected$.emit($event.target.value)">
-                <option *ngFor="let controlling of controllings" [value]="controlling.name" [selected]="reportData?.controllingType === controlling.name">{{controlling.label}}</option>
+                <option *ngFor="let controlling of controllings" [value]="controlling.name" [selected]="(controllingType$ | async) === controlling.name">{{controlling.label}}</option>
             </select>
         </div>
     </div>
