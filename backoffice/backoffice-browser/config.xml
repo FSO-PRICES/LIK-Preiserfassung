@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.ionicframework.backofficebrowser942149" version="2.1.010"
-    xmlns="http://www.w3.org/ns/widgets"
+<widget id="com.ionicframework.backofficebrowser942149" version="2.1.011" 
+    xmlns="http://www.w3.org/ns/widgets" 
     xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>LIK PreisAdmin</name>
     <description>LIK PreisAdmin</description>
