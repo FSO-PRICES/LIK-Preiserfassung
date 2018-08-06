@@ -264,7 +264,7 @@ export class PreismeldungPage {
 
         this.setPreismeldungStatus$
             .takeUntil(this.ionViewDidLeave$)
-            .subscribe(payload => status.createSetPreismeldungenStatusAction(payload));
+            .subscribe(payload => this.store.dispatch(status.createSetPreismeldungenStatusAction(payload)));
     }
 
     public ionViewDidEnter() {
