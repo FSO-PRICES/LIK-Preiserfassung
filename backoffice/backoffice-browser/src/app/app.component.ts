@@ -19,7 +19,7 @@ export class Backoffice implements OnInit {
     @HostBinding('class.fullscreen') fullscreen = false;
     @ViewChild('nav') navCtrl: NavController;
 
-    public rootPage = 'PreiserheberPage';
+    public rootPage = 'CockpitPage';
 
     constructor(
         platform: Platform,
