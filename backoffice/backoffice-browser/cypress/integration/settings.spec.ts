@@ -1,7 +1,14 @@
 import { assign } from 'lodash';
+import PouchDB from 'pouchdb';
+import * as PouchDBAllDbs from 'pouchdb-all-dbs';
+import PouchDBLoad from 'pouchdb-load';
+PouchDBAllDbs(PouchDB);
+PouchDB.plugin(PouchDBLoad);
 
 context('Window', () => {
     beforeEach(() => {
+        cy.clearLocalStorage();
+        clearDb('settings');
         cy.visit('#/settings');
     });
 
@@ -21,3 +28,7 @@ context('Window', () => {
         cy.get('[formcontrolname="url"] input').should('have.value', value);
     });
 });
+
+async function clearDb(db: string) {
+    return new PouchDB(db).destroy();
+}

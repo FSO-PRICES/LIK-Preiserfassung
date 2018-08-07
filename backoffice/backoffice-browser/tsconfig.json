@@ -9,9 +9,10 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "target": "es5",
+        "types": ["jest", "jest-marbles"],
         "typeRoots": ["node_modules/@types"]
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "jest-mocks/**/*.ts"],
     "exclude": ["node_modules"],
     "compileOnSave": false,
     "atom": {

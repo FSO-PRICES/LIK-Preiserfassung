@@ -86,6 +86,7 @@
         "preset": "jest-preset-angular",
         "setupTestFrameworkScriptFile": "./src/setup-jest.ts",
         "rootDir": "./",
+        "testURL": "http://localhost:8100/",
         "roots": [
             "./src"
         ],
@@ -105,7 +106,8 @@
         "moduleNameMapper": {
             "lik-shared": "<rootDir>/../../lik-shared/",
             "@ionic-native/status-bar": "<rootDir>/jest-mocks/ionic-native_status-bar.ts",
-            "@ionic-native/splash-screen": "<rootDir>/jest-mocks/ionic-native_splash-screen.ts"
+            "@ionic-native/splash-screen": "<rootDir>/jest-mocks/ionic-native_splash-screen.ts",
+            ".*file-extensions": "<rootDir>/jest-mocks/file-extensions.ts"
         }
     }
 }

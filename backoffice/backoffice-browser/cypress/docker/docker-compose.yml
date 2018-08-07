@@ -1,0 +1,6 @@
+version: '3'
+services:
+  lik-couchdb:
+    build: ./
+    ports:
+      - "5984:5984"
