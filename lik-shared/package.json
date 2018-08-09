@@ -27,12 +27,41 @@
         "zone.js": "0.8.12"
     },
     "devDependencies": {
+        "@types/jest": "^23.1.5",
         "@types/lodash": "^4.14.64",
         "codelyzer": "^3.0.1",
         "electron": "^1.4.15",
+        "jest": "^23.3.0",
+        "jest-preset-angular": "^5.2.3",
         "tslint": "^5.3.2",
         "tslint-eslint-rules": "^4.1.1",
         "typescript": "2.3.4"
     },
-    "description": "LIK BFS Common Project"
+    "description": "LIK BFS Common Project",
+    "jest": {
+        "verbose": true,
+        "preset": "jest-preset-angular",
+        "setupTestFrameworkScriptFile": "./setup-jest.ts",
+        "rootDir": "./",
+        "testURL": "http://localhost:8100/",
+        "roots": [
+            "./common",
+            "./pef-components",
+            "./preismeldung-shared"
+        ],
+        "globals": {
+            "ts-jest": {
+                "tsConfigFile": "./tsconfig.spec.json"
+            },
+            "__TRANSFORM_HTML__": true
+        },
+        "transform": {
+            "^.+\\.ts?$": "ts-jest"
+        },
+        "testMatch": [
+            "**/?(*.)+(spec|test).ts"
+        ],
+        "modulePathIgnorePatterns": [],
+        "moduleNameMapper": {}
+    }
 }
