@@ -23,19 +23,25 @@ const testData = {
 describe('Reporting Effects', () => {
     describe('Test prepare monthly report data', () => {
         test('should process data correctly', () => {
-            expect(prepareMonthlyData(testData.input.monthly)).toMatchObject(testData.expected.monthly);
+            const monthlyData = prepareMonthlyData(testData.input.monthly);
+            delete monthlyData.zeitpunkt.erstellungsdatum;
+            expect(monthlyData).toEqual(testData.expected.monthly);
         });
     });
 
     describe('Test prepare organisation report data', () => {
         test('should process data correctly', () => {
-            expect(prepareOrganisationData(testData.input.organisation)).toMatchObject(testData.expected.organisation);
+            const organisationData = prepareOrganisationData(testData.input.organisation);
+            delete organisationData.zeitpunkt.erstellungsdatum;
+            expect(organisationData).toEqual(testData.expected.organisation);
         });
     });
 
     describe('Test prepare pmsProblems report data', () => {
         test('should process data correctly', () => {
-            expect(preparePmsProblemeData(testData.input.pmsProblems)).toMatchObject(testData.expected.pmsProblems);
+            const pmsProblemeData = preparePmsProblemeData(testData.input.pmsProblems);
+            delete pmsProblemeData.zeitpunkt.erstellungsdatum;
+            expect(pmsProblemeData).toEqual(testData.expected.pmsProblems);
         });
     });
 });
