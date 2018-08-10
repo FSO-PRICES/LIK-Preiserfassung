@@ -13,7 +13,7 @@
         "typeRoots": ["node_modules/@types"]
     },
     "include": ["src/**/*.ts", "jest-mocks/**/*.ts"],
-    "exclude": ["node_modules"],
+    "exclude": ["node_modules", "src/test"],
     "compileOnSave": false,
     "atom": {
         "rewriteTsconfig": false

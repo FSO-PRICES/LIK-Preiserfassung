@@ -13,7 +13,7 @@
         "typeRoots": ["node_modules/@types"]
     },
     "include": ["src/**/*.ts"],
-    "exclude": ["node_modules", "src/**/*.spec.ts"],
+    "exclude": ["node_modules", "src/**/*.spec.ts", "src/test"],
     "compileOnSave": false,
     "atom": {
         "rewriteTsconfig": false
