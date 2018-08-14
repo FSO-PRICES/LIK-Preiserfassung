@@ -7,7 +7,6 @@ export type Action =
     | { type: 'PARSE_FILE_SUCCESS'; payload: { data: string[][]; parsedType: string } }
     | { type: 'CLEAR_PARSED_FILES'; payload: null }
     | { type: 'IMPORT_STARTED'; payload: null }
-    | { type: 'IMPORT_WARENKORB'; payload: { de: string[][]; fr: string[][]; it: string[][] } }
     | { type: 'IMPORT_WARENKORB_SUCCESS'; payload: P.WarenkorbDocument }
     | { type: 'IMPORT_PREISMELDESTELLEN'; payload: string[][] }
     | { type: 'IMPORT_PREISMELDESTELLEN_SUCCESS'; payload: P.Preismeldestelle[] }

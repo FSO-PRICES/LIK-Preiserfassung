@@ -18,19 +18,19 @@ const testFiles = {
 // prettier-ignore
 const testData = {
     input: {
-        warenkorb: { de: [ [ '01.11.2017', '0', '100', '', '1', '1', 'Total', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '-70', '99', '', '', '', '', '', '', '', '0', '', ], [ '01.11.2017', '0', '3162', '', '6', '7', 'Pyjama und Body, Baby', 'M', '1.00', 'Stk', 'z_d', '2', 'Baumwolle', '', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '-70', '99', '-10', '10', '-80', '1000', '-80', '1000', 'S;R;0', '0', 'Marke;Faser 1 (%);Fiber 2 (%)', ], [ '01.11.2017', '0', '9037', '', '6', '5', 'Videokameras', 'M', '1.00', 'Stk', 'z', '3', '', '', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '-70', '99', '-10', '10', '-25', '25', '-35', '35', '', '0', '', ], ], fr: [ [ '01.11.2017', '0', '100', '', '1', '1', 'Total', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '-70', '99', '', '', '', '', '', '', '', '0', '', ], [ '01.11.2017', '0', '3162', '', '6', '7', 'Pyjama et body, bébés', 'M', '1.00', 'pce', 'z_d', '2', 'coton', '', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '-70', '99', '-10', '10', '-80', '1000', '-80', '1000', 'S;R;0', '0', 'Marque;Fibre 1(%);Fibre 2 (%)', ], [ '01.11.2017', '0', '9037', '', '6', '5', 'Caméras vidéo', 'M', '1.00', 'pce', 'z', '3', '', '', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '-70', '99', '-10', '10', '-25', '25', '-35', '35', '', '0', '', ], ], it: [ [ '01.11.2017', '0', '100', '', '1', '1', 'Totale', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '-70', '99', '', '', '', '', '', '', '', '0', '', ], [ '01.11.2017', '0', '3162', '', '6', '7', 'Pigiama e body, da bebè', 'M', '1.00', 'pz', 'z_d', '2', 'cotone', '', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '-70', '99', '-10', '10', '-80', '1000', '-80', '1000', 'S;R;0', '0', 'Marca;Fibra 1 (%);Fibra 2 (%)', ], [ '01.11.2017', '0', '9037', '', '6', '5', 'Videocamere', 'M', '1.00', 'pz', 'z', '3', '', '', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '-70', '99', '-10', '10', '-25', '25', '-35', '35', '', '0', '', ], ], },
+        warenkorb: [ [ "01.07.2018", "0", "100", "", "1", "1", "Total", "Total", "Totale", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "-70", "99", "", "", "", "", "", "", "", "0", "", "", "" ], [ "01.07.2018", "0", "3162", "", "6", "7", "sdgasga wgasg, gasg", "sg et asgasg", "ags e basgasè", "M", "M", "M", "1.00", "Stk", "pce", "pz", "z_d", "2", "ssdgs", "sg", "wgw", "asgasg bis wgw2", "asgasg asgasg 92", "Induasgasgglia 92", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "-70", "99", "-10", "10", "-80", "1000", "-80", "1000", "S;0;1;2;3;7", "0", "Marke;Faser 1 (%);Fiber 2 (%)", "Marque;Fibre 1(%);Fibre 2 (%)", "Marca;Fibra 1 (%);Fibra 2 (%)" ], [ "01.07.2018", "0", "9037", "", "6", "5", "asgasg", "asgwgaw asga", "wagsgasg", "M", "M", "M", "1.00", "Stk", "pce", "pz", "z", "3", "", "", "", "", "", "", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "-70", "99", "-10", "10", "-25", "25", "-35", "35", "", "0", "", "", "" ] ],
         preismeldungen: [ [ '01.02.2018', '2', '0', '1000', '5103', '7', '699.5000', '1.000', '1', 'BRAND 181 GS A++ NF', '4.291.964', '01.12.2017', '1399.0000', '1.000', 'RR', '', '', '', '', '01.05.2018', '11.05.2018', '24', '1399.0000', '1.000', '', 'BRAND;BRAND 181 GS A ++NF;179 L;freistehend', ], [ '01.02.2018', '2', '0', '2300', '1540', '3', '6.9000', '0.250', '0', 'Poudre de chocolat BRAND 43% cacao', '', '01.07.2017', '11.9500', '0.500', '', '', "*Bonjour, s'agit-il vraiment d'un chocolat en poudre destiné à être bu ou s'agit-il de chocolat en poudre pour dessert? Dans le second cas, merci de le remplacer ou si aucun remplacement n'est possible, de supprimer la série de prix. Merci. ADMIN 02.2018", '', '', '02.05.2018', '11.05.2018', '270', '6.9000', '0.250', '06.02.2018', ';', ], ],
         preismeldestellen: [ [ '01.02.2018', '2', '1000', 'Baufachmarkt', 'Ladenerhebung', 'Klunkergasse 1', '8000', 'Zürich', '000 000 00 00', '', '', '1', 'Zürich', '100000', '0', '', '', '', '22123', 'Anna', 'Zweifel', '', '000 000 00 00', '', '', '', '1', '22122', '', '', '', '000 000 00 00', '', '', '', '1', ], [ '01.02.2018', '2', '1300', 'Grosmagasin & Cie SA', '', 'Rue Nsamé 1', '1000', 'Lausanne', '000 000 00 00', '', '', '2', 'Lausanne', '100000', '0', '', "relevé la 1ère semaineBus 13, arrêt 12 \\n\\n Non disponible:\\n\\n 1037, 1041, 5143, 5154, 5254, 5255.\\n 1340: Il n'y a pas de kiwi à la pièce seulement au kg.", '', '22003', '', 'Monsieur Macron', '', '000 000 00 00', '', '', '', '1', '', '', '', '', '', '', '', '', '', ], ],
     },
     expected: {
         warenkorb: {
+            erhebungsmonat: "01.07.2018",
             warenkorb: [
-                { _id: '100', type: 'LEAF', erhebungsschemaperiode: '01.11.2017', gliederungspositionsnummer: '100', parentGliederungspositionsnummer: null, produktecode: null, gliederungspositionstyp: 1, tiefencode: 1, positionsbezeichnung: { de: 'Total', fr: 'Total', it: 'Totale', en: null }, periodizitaetscode: null, standardmenge: null, standardeinheit: null, erhebungstyp: '', anzahlPreiseProPMS: null, beispiele: null, info: null, periodizitaetMonat: 0, abweichungPmUG2: -70, abweichungPmOG2: 99, negativeLimite: null, positiveLimite: null, negativeLimite_1: null, positiveLimite_1: null, negativeLimite_7: null, positiveLimite_7: null, nichtEmpfohleneBc: [], erhebungszeitpunkte: 0, productMerkmale: [], },
-                { _id: '3162', type: 'LEAF', erhebungsschemaperiode: '01.11.2017', gliederungspositionsnummer: '3162', parentGliederungspositionsnummer: null, produktecode: null, gliederungspositionstyp: 6, tiefencode: 7, positionsbezeichnung: { de: 'Pyjama und Body, Baby', fr: 'Pyjama et body, bébés', it: 'Pigiama e body, da bebè', en: null, }, periodizitaetscode: { de: 'M', fr: 'M', it: 'M', en: null }, standardmenge: 1, standardeinheit: { de: 'Stk', fr: 'pce', it: 'pz', en: null }, erhebungstyp: 'z_d', anzahlPreiseProPMS: 2, beispiele: { de: 'Baumwolle', fr: 'coton', it: 'cotone', en: null }, info: null, periodizitaetMonat: 4095, abweichungPmUG2: -70, abweichungPmOG2: 99, negativeLimite: -10, positiveLimite: 10, negativeLimite_1: -80, positiveLimite_1: 1000, negativeLimite_7: -80, positiveLimite_7: 1000, nichtEmpfohleneBc: [44, 101, 0], erhebungszeitpunkte: 0, productMerkmale: [ { de: 'Marke', fr: 'Marque', it: 'Marca' }, { de: 'Faser 1 (%)', fr: 'Fibre 1(%)', it: 'Fibra 1 (%)' }, { de: 'Fiber 2 (%)', fr: 'Fibre 2 (%)', it: 'Fibra 2 (%)' }, ], },
-                { _id: '9037', type: 'LEAF', erhebungsschemaperiode: '01.11.2017', gliederungspositionsnummer: '9037', parentGliederungspositionsnummer: null, produktecode: null, gliederungspositionstyp: 6, tiefencode: 5, positionsbezeichnung: { de: 'Videokameras', fr: 'Caméras vidéo', it: 'Videocamere', en: null }, periodizitaetscode: { de: 'M', fr: 'M', it: 'M', en: null }, standardmenge: 1, standardeinheit: { de: 'Stk', fr: 'pce', it: 'pz', en: null }, erhebungstyp: 'z', anzahlPreiseProPMS: 3, beispiele: null, info: null, periodizitaetMonat: 4095, abweichungPmUG2: -70, abweichungPmOG2: 99, negativeLimite: -10, positiveLimite: 10, negativeLimite_1: -25, positiveLimite_1: 25, negativeLimite_7: -35, positiveLimite_7: 35, nichtEmpfohleneBc: [], erhebungszeitpunkte: 0, productMerkmale: [], },
-            ],
-            erhebungsmonat: '01.11.2017',
-        },
+              { _id: "100", abweichungPmOG2: 99, abweichungPmUG2: -70, anzahlPreiseProPMS: null, beispiele: null, erhebungsschemaperiode: "01.07.2018", erhebungstyp: "", erhebungszeitpunkte: 0, gliederungspositionsnummer: "100", gliederungspositionstyp: 1, info: null, negativeLimite: null, negativeLimite_1: null, negativeLimite_7: null, nichtEmpfohleneBc: [], parentGliederungspositionsnummer: null, periodizitaetMonat: 0, periodizitaetscode: null, positionsbezeichnung: { de: "Total", en: null, fr: "Total", it: "Totale" }, positiveLimite: null, positiveLimite_1: null, positiveLimite_7: null, productMerkmale: [], produktecode: null, standardeinheit: null, standardmenge: null, tiefencode: 1, type: "LEAF" },
+              { _id: "3162", abweichungPmOG2: 99, abweichungPmUG2: -70, anzahlPreiseProPMS: 2, beispiele: { de: "ssdgs", en: null, fr: "sg", it: "wgw" }, erhebungsschemaperiode: "01.07.2018", erhebungstyp: "z_d", erhebungszeitpunkte: 0, gliederungspositionsnummer: "3162", gliederungspositionstyp: 6, info: { de: "asgasg bis wgw2", en: null, fr: "asgasg asgasg 92", it: "Induasgasgglia 92" }, negativeLimite: -10, negativeLimite_1: -80, negativeLimite_7: -80, nichtEmpfohleneBc: [44, 0, 1, 2, 3, 7], parentGliederungspositionsnummer: null, periodizitaetMonat: 4095, periodizitaetscode: { de: "M", en: null, fr: "M", it: "M" }, positionsbezeichnung: { de: "sdgasga wgasg, gasg", en: null, fr: "sg et asgasg", it: "ags e basgasè" }, positiveLimite: 10, positiveLimite_1: 1000, positiveLimite_7: 1000, productMerkmale: [ { de: "Marke", fr: "Marque", it: "Marca" }, { de: "Faser 1 (%)", fr: "Fibre 1(%)", it: "Fibra 1 (%)" }, { de: "Fiber 2 (%)", fr: "Fibre 2 (%)", it: "Fibra 2 (%)" } ], produktecode: null, standardeinheit: { de: "Stk", en: null, fr: "pce", it: "pz" }, standardmenge: 1, tiefencode: 7, type: "LEAF" },
+              { _id: "9037", abweichungPmOG2: 99, abweichungPmUG2: -70, anzahlPreiseProPMS: 3, beispiele: null, erhebungsschemaperiode: "01.07.2018", erhebungstyp: "z", erhebungszeitpunkte: 0, gliederungspositionsnummer: "9037", gliederungspositionstyp: 6, info: null, negativeLimite: -10, negativeLimite_1: -25, negativeLimite_7: -35, nichtEmpfohleneBc: [], parentGliederungspositionsnummer: null, periodizitaetMonat: 4095, periodizitaetscode: { de: "M", en: null, fr: "M", it: "M" }, positionsbezeichnung: { de: "asgasg", en: null, fr: "asgwgaw asga", it: "wagsgasg" }, positiveLimite: 10, positiveLimite_1: 25, positiveLimite_7: 35, productMerkmale: [], produktecode: null, standardeinheit: { de: "Stk", en: null, fr: "pce", it: "pz" }, standardmenge: 1, tiefencode: 5, type: "LEAF" }
+            ]
+          },
         preismeldungen: {
             erhebungsmonat: '01.02.2018',
             preismeldungen: [
@@ -58,22 +58,22 @@ describe('Importer Effects', () => {
             const actions = new Actions(
                 hot('-a|', {
                     a: {
-                        type: 'PARSE_WARENKORB_FILE',
-                        payload: { file: null, language: 'de' },
+                        type: 'PARSE_FILE',
+                        payload: { file: null, parseType: importerActions.Type.warenkorb },
                     } as importerActions.Action,
                 })
             );
 
             const expected = cold('-a|', {
                 a: {
-                    type: 'PARSE_WARENKORB_FILE_SUCCESS',
-                    payload: { data: null, language: 'de' },
+                    type: 'PARSE_FILE_SUCCESS',
+                    payload: { data: null, parsedType: importerActions.Type.warenkorb },
                 } as importerActions.Action,
             });
 
             const effects = new ImporterEffects(actions, storeStub as any);
 
-            expect(effects.parseWarenkorbFile$).toBeObservable(expected);
+            expect(effects.parseFile$).toBeObservable(expected);
         });
     });
 
@@ -86,22 +86,22 @@ describe('Importer Effects', () => {
             const actions = new Actions(
                 hot('-a|', {
                     a: {
-                        type: 'PARSE_WARENKORB_FILE',
-                        payload: { file, language: testFiles.warenkorb_de.language },
+                        type: 'PARSE_FILE',
+                        payload: { file, parseType: importerActions.Type.warenkorb },
                     } as importerActions.Action,
                 })
             );
 
             const expected = cold('-a|', {
                 a: {
-                    type: 'PARSE_WARENKORB_FILE_SUCCESS',
-                    payload: { data: testFiles.warenkorb_de.expected, language: testFiles.warenkorb_de.language },
+                    type: 'PARSE_FILE_SUCCESS',
+                    payload: { data: testFiles.warenkorb_de.expected, parsedType: importerActions.Type.warenkorb },
                 } as importerActions.Action,
             });
 
             const effects = new ImporterEffects(actions, storeStub as any);
 
-            expect(effects.parseWarenkorbFile$).toBeObservable(expected);
+            expect(effects.parseFile$).toBeObservable(expected);
         });
     });
 

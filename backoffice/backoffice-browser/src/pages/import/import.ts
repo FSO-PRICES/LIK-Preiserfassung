@@ -16,7 +16,7 @@ import { IonicPage } from 'ionic-angular';
     templateUrl: 'import.html',
 })
 export class ImportPage implements OnDestroy {
-    public warenkorbFileSelected$ = new EventEmitter<{ file: File; language: string }>();
+    public warenkorbFileSelected$ = new EventEmitter<File>();
     public warenkorbStartImport$ = new EventEmitter();
     public warenkorbFileParsed$: Observable<boolean>;
     public warenkorbImportedCount$: Observable<number>;
@@ -71,9 +71,7 @@ export class ImportPage implements OnDestroy {
             .map(parseDate)
             .combineLatest(parsedPreismeldungen$, (m, parsedWarenkorb) => (!!parsedWarenkorb ? null : m));
 
-        this.warenkorbFileParsed$ = parsedWarenkorb$.map(
-            content => content != null && content.de != null && content.fr != null && content.it != null
-        );
+        this.warenkorbFileParsed$ = parsedWarenkorb$.map(content => content != null);
         this.preismeldestelleFileParsed$ = parsedPreismeldestellen$.map(content => content != null);
         this.preismeldungFileParsed$ = parsedPreismeldungen$.map(content => content != null);
 
@@ -87,10 +85,10 @@ export class ImportPage implements OnDestroy {
             .select(fromRoot.getImportedPreismeldungen)
             .map(x => (!x ? null : x.length));
 
-        this.warenkorbFileSelected$.takeUntil(this.onDestroy$).subscribe(data =>
+        this.warenkorbFileSelected$.takeUntil(this.onDestroy$).subscribe(file =>
             store.dispatch({
-                type: 'PARSE_WARENKORB_FILE',
-                payload: { file: data.file, language: data.language },
+                type: 'PARSE_FILE',
+                payload: { file, parseType: importer.Type.warenkorb },
             } as importer.Action)
         );
 

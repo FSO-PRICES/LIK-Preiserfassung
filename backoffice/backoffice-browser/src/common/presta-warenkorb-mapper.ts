@@ -3,6 +3,8 @@ import { assign, mapValues, values, keys } from 'lodash';
 import { Models as P } from 'lik-shared';
 import { parseCsvText } from '../common/file-extensions';
 
+type LanguageIndexes = { de: number; fr: number; it: number };
+
 const indexes = {
     erhebungsschemaperiode: 0,
     erhebungsschemanummer: 1,
@@ -10,46 +12,54 @@ const indexes = {
     produktecode: 3,
     gliederungspositionstyp: 4,
     tiefencode: 5,
-    positionsbezeichnung: 6,
-    periodizitaetscode: 7,
-    standardmenge: 8,
-    standardeinheit: 9,
-    erhebungstyp: 10,
-    anzahlPreiseProPMS: 11,
-    beispiele: 12,
-    info: 13,
-    periodizitaetMonat1: 14,
-    periodizitaetMonat2: 15,
-    periodizitaetMonat3: 16,
-    periodizitaetMonat4: 17,
-    periodizitaetMonat5: 18,
-    periodizitaetMonat6: 19,
-    periodizitaetMonat7: 20,
-    periodizitaetMonat8: 21,
-    periodizitaetMonat9: 22,
-    periodizitaetMonat10: 23,
-    periodizitaetMonat11: 24,
-    periodizitaetMonat12: 25,
-    abweichungPmUG2: 26,
-    abweichungPmOG2: 27,
-    negativeLimite: 28,
-    positiveLimite: 29,
-    negativeLimite_1: 30,
-    positiveLimite_1: 31,
-    negativeLimite_7: 32,
-    positiveLimite_7: 33,
-    nichtEmpfohleneBc: 34,
-    erhebungszeitpunkte: 35,
-    produktmerkmale: 36
+    positionsbezeichnung: { de: 6, fr: 7, it: 8 },
+    periodizitaetscode: { de: 9, fr: 10, it: 11 },
+    standardmenge: 12,
+    standardeinheit: { de: 13, fr: 14, it: 15 },
+    erhebungstyp: 16,
+    anzahlPreiseProPMS: 17,
+    beispiele: { de: 18, fr: 19, it: 20 },
+    info: { de: 21, fr: 22, it: 23 },
+    periodizitaetMonat1: 24,
+    periodizitaetMonat2: 25,
+    periodizitaetMonat3: 26,
+    periodizitaetMonat4: 27,
+    periodizitaetMonat5: 28,
+    periodizitaetMonat6: 29,
+    periodizitaetMonat7: 30,
+    periodizitaetMonat8: 31,
+    periodizitaetMonat9: 32,
+    periodizitaetMonat10: 33,
+    periodizitaetMonat11: 34,
+    periodizitaetMonat12: 35,
+    abweichungPmUG2: 36,
+    abweichungPmOG2: 37,
+    negativeLimite: 38,
+    positiveLimite: 39,
+    negativeLimite_1: 40,
+    positiveLimite_1: 41,
+    negativeLimite_7: 42,
+    positiveLimite_7: 43,
+    nichtEmpfohleneBc: 44,
+    erhebungszeitpunkte: 45,
+    produktmerkmale: { de: 46, fr: 47, it: 48 },
 };
 
-
-export function buildTree(data: { de: string[][], fr: string[][], it: string[][] }) {
-    const lastDepthGliederungspositionsnummers: { [index: number]: P.WarenkorbTreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
+export function buildTree(data: string[][]) {
+    const lastDepthGliederungspositionsnummers: { [index: number]: P.WarenkorbTreeItem } = {
+        1: null,
+        2: null,
+        3: null,
+        4: null,
+        5: null,
+        6: null,
+        7: null,
+        8: null,
+    };
 
     const treeItems: P.WarenkorbTreeItem[] = [];
-    for (let i = 0; i < data.de.length; i++) {
-        const thisLine = data.de[i];
+    for (let i = 0; i < data.length; i++) {
+        const thisLine = data[i];
         const treeItem: P.WarenkorbTreeItem & { _id: string } = {
             _id: thisLine[indexes.gliederungspositionsnummer],
             type: 'LEAF',
@@ -59,14 +69,14 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             produktecode: parseProduktecode(thisLine[indexes.produktecode]),
             gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
             tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
-            positionsbezeichnung: translationsToStringOrNull(thisLine[indexes.positionsbezeichnung], data.fr[i][indexes.positionsbezeichnung], data.it[i][indexes.positionsbezeichnung]),
-            periodizitaetscode: translationsToStringOrNull(thisLine[indexes.periodizitaetscode], data.fr[i][indexes.periodizitaetscode], data.it[i][indexes.periodizitaetscode]),
+            positionsbezeichnung: translationsToStringOrNull(thisLine, indexes.positionsbezeichnung),
+            periodizitaetscode: translationsToStringOrNull(thisLine, indexes.periodizitaetscode),
             standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
-            standardeinheit: translationsToStringOrNull(thisLine[indexes.standardeinheit], data.fr[i][indexes.standardeinheit], data.it[i][indexes.standardeinheit]),
+            standardeinheit: translationsToStringOrNull(thisLine, indexes.standardeinheit),
             erhebungstyp: thisLine[indexes.erhebungstyp],
             anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
-            beispiele: translationsToStringOrNull(parseBeispiel(thisLine[indexes.beispiele]), parseBeispiel(data.fr[i][indexes.beispiele]), parseBeispiel(data.it[i][indexes.beispiele])),
-            info: translationsToStringOrNull(parseInfo(thisLine[indexes.info]), parseInfo(data.fr[i][indexes.info]), parseInfo(data.it[i][indexes.info])),
+            beispiele: translationsToStringOrNull(thisLine, indexes.beispiele),
+            info: translationsToStringOrNull(thisLine, indexes.info),
             periodizitaetMonat: parsePeriodizitaet([
                 thisLine[indexes.periodizitaetMonat1],
                 thisLine[indexes.periodizitaetMonat2],
@@ -79,7 +89,7 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
                 thisLine[indexes.periodizitaetMonat9],
                 thisLine[indexes.periodizitaetMonat10],
                 thisLine[indexes.periodizitaetMonat11],
-                thisLine[indexes.periodizitaetMonat12]
+                thisLine[indexes.periodizitaetMonat12],
             ]),
             abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
             abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
@@ -91,7 +101,7 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
             positiveLimite_7: parseNumberOrNull(thisLine[indexes.positiveLimite_7]),
             nichtEmpfohleneBc: parseBearbeitungscode(thisLine[indexes.nichtEmpfohleneBc]),
             erhebungszeitpunkte: parseNumberOrNull(thisLine[indexes.erhebungszeitpunkte]),
-            productMerkmale: prepareProduktmerkmale({ de: thisLine[indexes.produktmerkmale], fr: data.fr[i][indexes.produktmerkmale], it: data.it[i][indexes.produktmerkmale] })
+            productMerkmale: prepareProduktmerkmale(thisLine, indexes.produktmerkmale),
         };
         treeItems.push(treeItem);
         const parent: P.WarenkorbTreeItem = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
@@ -109,20 +119,20 @@ export function buildTree(data: { de: string[][], fr: string[][], it: string[][]
         lastDepthGliederungspositionsnummers[treeItem.tiefencode] = treeItem;
     }
 
-    const erhebungsmonat = data.de[0] ? data.de[0][indexes.erhebungsschemaperiode] : '';
+    const erhebungsmonat = data[0] ? data[0][indexes.erhebungsschemaperiode] : '';
     return { warenkorb: treeItems, erhebungsmonat };
 }
 
 function parseProduktecode(s: string) {
     const cleanedString = s.replace(/^\s*(.*?)\s*$/, '$1');
-    return (!cleanedString.length) ? null : cleanedString;
+    return !cleanedString.length ? null : cleanedString;
 }
 
 const parseInfo = parseOutQuotes;
 const parseBeispiel = parseOutQuotes;
 function parseOutQuotes(s: string) {
     const cleanedString = s.replace(/^\"?(.*?)\"?$/, '$1');
-    return (!cleanedString.length) ? null : cleanedString;
+    return !cleanedString.length ? null : cleanedString;
 }
 
 const parseGliederungspositionstyp = (s: string) => parseNumber(s, 'gliederungspositionstyp');
@@ -142,12 +152,20 @@ function parseNumber(s: string, propertyName: string) {
     return number;
 }
 
-function createHierarchyRecursive(parent: P.WarenkorbTreeItem, currentItemIndex: number, treeItems: P.WarenkorbTreeItem[]): P.WarenkorbHierarchicalTreeItem {
+function createHierarchyRecursive(
+    parent: P.WarenkorbTreeItem,
+    currentItemIndex: number,
+    treeItems: P.WarenkorbTreeItem[]
+): P.WarenkorbHierarchicalTreeItem {
     if (parent.type === 'LEAF') return parent;
 
     const children = [];
     let currentItem = treeItems[currentItemIndex];
-    for (var i = currentItemIndex; i < treeItems.length && !!currentItem && currentItem.tiefencode > parent.tiefencode; i++) {
+    for (
+        var i = currentItemIndex;
+        i < treeItems.length && !!currentItem && currentItem.tiefencode > parent.tiefencode;
+        i++
+    ) {
         if (currentItem.tiefencode === parent.tiefencode + 1) {
             children.push(createHierarchyRecursive(currentItem, i + 1, treeItems));
         }
@@ -177,8 +195,8 @@ function parseBoolean(s: string) {
 
 function parsePeriodizitaet(periodizitaten: string[]) {
     return periodizitaten.reduce((prev, curr, index) => {
-        return prev |= parseBoolean(curr) ? <P.PeriodizitaetMonat>(1 << index) : P.PeriodizitaetMonat.None;
-    }, P.PeriodizitaetMonat.None)
+        return (prev |= parseBoolean(curr) ? <P.PeriodizitaetMonat>(1 << index) : P.PeriodizitaetMonat.None);
+    }, P.PeriodizitaetMonat.None);
 }
 
 const parseAbweichung = parseNumberOrNull;
@@ -187,24 +205,27 @@ function parseStringOrEmpty(s: string) {
     return !!s ? s.toString() : '';
 }
 
-function translationsToStringOrNull(de: string, fr: string, it: string) {
-    return !!de || !!fr || !!it ?
-        { de: parseStringOrEmpty(de), fr: parseStringOrEmpty(fr), it: parseStringOrEmpty(it), en: null } :
-        null;
+function translationsToStringOrNull(line: string[], langIndexes: LanguageIndexes): P.PropertyTranslation {
+    const langKeys = Object.keys(langIndexes);
+    return langKeys.some(lang => !!line[langIndexes[lang]])
+        ? langKeys.reduce((translations, lang) => ({ ...translations, [lang]: line[langIndexes[lang]] }), {
+              en: null,
+          } as P.PropertyTranslation)
+        : null;
 }
 
-function prepareProduktmerkmale(rawMerkmale: { de: string, fr: string, it: string }): P.PropertyTranslation[] {
-    const merkmale = mapValues(rawMerkmale, text => !text ? [] : parseSingleCsvText(text)) as any;
+function prepareProduktmerkmale(line: string[], langIndexes: LanguageIndexes): P.PropertyTranslation[] {
+    const merkmale = mapValues(langIndexes, i => (!!line[i] ? parseSingleCsvText(line[i]) : []));
     const merkmaleList = [];
     Object.keys(merkmale).map(language => {
-        merkmale[language].map((merkmal, i) => merkmaleList[i] = Object.assign({}, merkmaleList[i], { [language]: merkmal || null }));
+        merkmale[language].map((merkmal, i) => (merkmaleList[i] = { ...merkmaleList[i], [language]: merkmal || null }));
     });
 
     return merkmaleList;
 }
 
 function parseBearbeitungscode(bearbeitungcodes) {
-    const getCodeNumber = (code) => {
+    const getCodeNumber = code => {
         const index = values(P.bearbeitungscodeDescriptions).indexOf(code);
         return index !== -1 ? +keys(P.bearbeitungscodeDescriptions)[index] : code;
     };

@@ -40,22 +40,6 @@ export class ImporterEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    parseWarenkorbFile$ = this.actions$.ofType('PARSE_WARENKORB_FILE').flatMap(action => {
-        if (action.payload.file == null) {
-            return Observable.of({
-                type: 'PARSE_WARENKORB_FILE_SUCCESS',
-                payload: { data: null, language: action.payload.language },
-            } as importer.Action);
-        }
-        return parseCsvAsObservable(action.payload.file)
-            .map(data => ({ language: action.payload.language, data }))
-            .map(
-                ({ language, data }) =>
-                    ({ type: 'PARSE_WARENKORB_FILE_SUCCESS', payload: { data, language } } as importer.Action)
-            );
-    });
-
-    @Effect()
     parseFile$ = this.actions$.ofType('PARSE_FILE').flatMap(action => {
         if (action.payload.file == null) {
             return Observable.of({
@@ -70,27 +54,6 @@ export class ImporterEffects {
                     ({ type: 'PARSE_FILE_SUCCESS', payload: { data, parsedType } } as importer.Action)
             );
     });
-
-    @Effect()
-    importWarenkorb$ = this.actions$
-        .ofType('IMPORT_WARENKORB')
-        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
-        .map(action => buildTree(action.payload))
-        .flatMap(data => dropRemoteCouchDatabase(dbNames.warenkorb).then(_ => data))
-        .flatMap(data =>
-            getDatabase('warenkorb').then(db =>
-                db
-                    .put({ _id: 'warenkorb', products: data.warenkorb })
-                    .then<P.WarenkorbDocument>(_ => db.get(dbNames.warenkorb))
-                    .then(warenkorb =>
-                        db.put({ _id: 'erhebungsmonat', monthAsString: data.erhebungsmonat }).then(() => warenkorb)
-                    )
-            )
-        )
-        .flatMap(warenkorb =>
-            this.updateImportMetadata(dbNames.warenkorb, importer.Type.warenkorb).map(() => warenkorb)
-        )
-        .map(warenkorb => ({ type: 'IMPORT_WARENKORB_SUCCESS', payload: warenkorb } as importer.Action));
 
     @Effect()
     import$ = this.actions$
@@ -215,7 +178,7 @@ export class ImporterEffects {
         return { type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: pmInfo.preismeldungen } as importer.Action;
     }
 
-    private importWarenkorb(parsedWarenkorb: { de: string[][]; fr: string[][]; it: string[][] }) {
+    private importWarenkorb(parsedWarenkorb: string[][]) {
         const data = buildTree(parsedWarenkorb);
         return Observable.fromPromise(dropRemoteCouchDatabase('warenkorb'))
             .flatMap(() =>
