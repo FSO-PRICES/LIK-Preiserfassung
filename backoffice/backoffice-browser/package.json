@@ -1,5 +1,5 @@
 {
-    "name": "bfs-backoffice",
+    "name": "lik-preis-admin",
     "version": "2.1.011",
     "author": "Lambda IT GmbH",
     "homepage": "http://lambda-it.ch/",
@@ -76,5 +76,5 @@
         "tslint-eslint-rules": "^4.1.1",
         "typescript": "2.3.3"
     },
-    "description": "backoffice-browser: An Ionic project"
+    "description": "LIK-PreisAdmin"
 }
