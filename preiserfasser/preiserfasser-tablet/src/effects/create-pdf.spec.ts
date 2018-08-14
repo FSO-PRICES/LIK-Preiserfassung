@@ -51,7 +51,6 @@ xdescribe('PDF Effects', () => {
                     new Platform()
                 );
 
-                console.log('effects?', effects.pmsToPdf$);
                 m.expect(effects.pmsToPdf$).toBeObservable(expected);
             })
         );
