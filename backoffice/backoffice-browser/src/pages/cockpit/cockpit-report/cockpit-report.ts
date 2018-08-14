@@ -157,3 +157,9 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
         this.baseNgOnChanges(changes);
     }
 }
+
+function bla() {}
+
+export const __test = {
+    bla,
+};

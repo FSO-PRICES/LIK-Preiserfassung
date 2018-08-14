@@ -1,9 +1,10 @@
 import { Observable } from 'rxjs/Observable';
 import { first } from 'lodash';
-import PouchDB from 'pouchdb';
 import * as bluebird from 'bluebird';
 
 import { Models as P } from 'lik-shared';
+
+import PouchDB from './pouchdb';
 
 export const dbNames = {
     emptyDb: 'inexistant',

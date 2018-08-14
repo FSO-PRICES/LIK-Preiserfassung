@@ -11,7 +11,7 @@ import { Models as P, parseDate } from 'lik-shared';
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
 
-const DB_NAME = 'lik';
+export const DB_NAME = 'lik';
 
 function _checkIfDatabaseExists(dbName): Promise<boolean> {
     return (PouchDB as any).allDbs().then((dbnames: string[]) => (dbnames || []).find(x => x === dbName));
