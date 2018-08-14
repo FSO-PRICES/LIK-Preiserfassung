@@ -1,7 +1,7 @@
 {
-    "name": "lik-studio",
+    "name": "lik-preiserfassung",
     "version": "1.0.0",
-    "description": "lik-studio",
+    "description": "LIK-Preiserfassung",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"

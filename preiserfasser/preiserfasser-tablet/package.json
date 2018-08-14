@@ -1,5 +1,5 @@
 {
-    "name": "preiserfasser-tablet",
+    "name": "lik-preiserfasser",
     "version": "2.1.011",
     "author": "Lambda IT GmbH",
     "homepage": "http://lambda-it.ch/",
@@ -108,5 +108,5 @@
             "@ionic-native/file": "<rootDir>/jest-mocks/ionic-native_file.ts"
         }
     },
-    "description": "preiserfasser-tablet: An Ionic project"
+    "description": "LIK-Preiserfasser"
 }
