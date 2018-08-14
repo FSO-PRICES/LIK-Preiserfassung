@@ -55,7 +55,6 @@ export class DashboardPage implements OnDestroy {
                 pms => `${pms.pmsTop ? 'A' : 'Z'}_${pms.name.toLowerCase()}`
             )
         )
-        // .do(x => console.log('am here', x))
         .publishReplay(1)
         .refCount();
 
@@ -95,7 +94,6 @@ export class DashboardPage implements OnDestroy {
         )
         .debounceTime(300)
         .startWith([]);
-    // .subscribe(x => console.log('XXX', x));
 
     constructor(
         private navCtrl: NavController,
