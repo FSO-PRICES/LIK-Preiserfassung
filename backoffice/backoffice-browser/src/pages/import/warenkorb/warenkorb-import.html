@@ -6,7 +6,7 @@
         <label>Erhebungsschema Import</label>
     </div>
     <div class="column">
-        <input class="file-select-btn" type="file" (change)="warenkorbSelected$.emit($event)" [value]="(resetInputValue$ | async)?.value"
+        <input class="file-select-btn" type="file" (change)="warenkorbSelected$.emit($event)" [value]="(resetInputValue$ | async)?.value" required
         />
     </div>
 </div>
