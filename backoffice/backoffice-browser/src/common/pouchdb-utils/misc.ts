@@ -63,3 +63,19 @@ export async function updateMissingPreismeldungenStatus(preismeldungen: P.Preism
     }
     return { currentPreismeldungenStatus, count };
 }
+
+export async function getMissingPreismeldungenStatusCount(preismeldungen: P.Preismeldung[]) {
+    await downloadDatabaseAsync(dbNames.preismeldungen_status);
+    const db = await getLocalDatabase(dbNames.preismeldungen_status);
+    const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
+        db,
+        'preismeldungen_status'
+    );
+    let count = 0;
+    preismeldungen.forEach(pm => {
+        if (!!pm.uploadRequestedAt && currentPreismeldungenStatus.statusMap[pm._id] == null) {
+            count++;
+        }
+    });
+    return count;
+}

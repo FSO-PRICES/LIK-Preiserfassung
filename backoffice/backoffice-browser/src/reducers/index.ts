@@ -135,6 +135,10 @@ export const getPreismeldungenStatusMap = createSelector(
     getPreismeldungenStatusState,
     fromPreismeldungenStatus.getPreismeldungenStatusMap
 );
+export const getPreismeldungenStatusMapMissingCount = createSelector(
+    getPreismeldungenStatusState,
+    fromPreismeldungenStatus.getPreismeldungenStatusMapMissingCount
+);
 export const getPreismeldungenStatusMapUpdatedCount = createSelector(
     getPreismeldungenStatusState,
     fromPreismeldungenStatus.getPreismeldungenStatusMapUpdatedCount

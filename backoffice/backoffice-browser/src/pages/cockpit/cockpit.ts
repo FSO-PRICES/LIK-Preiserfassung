@@ -19,6 +19,7 @@ export class CockpitPage {
     public reportExecuting$ = this.store.select(fromRoot.getCockpitIsExecuting);
     public cockpitReportData$ = this.store.select(fromRoot.getCockpitReportData);
     public cockpitSelectedPreiserheber$ = this.store.select(fromRoot.getCockpitSelectedPreiserheber);
+    public preismeldungenStatusMapMissingCount$ = this.store.select(fromRoot.getPreismeldungenStatusMapMissingCount);
     public preismeldungenStatusMapUpdatedCount$ = this.store.select(fromRoot.getPreismeldungenStatusMapUpdatedCount);
     public initializingPreismeldungenStatus$ = this.store.select(fromRoot.getArePreismeldungenStatusInitializing);
 
@@ -43,6 +44,7 @@ export class CockpitPage {
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
+        this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction());
     }
 
     public ionViewDidLeave() {

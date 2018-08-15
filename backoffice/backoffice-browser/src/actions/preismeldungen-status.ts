@@ -4,6 +4,8 @@ export const APPLY_PREISMELDUNGEN_STATUS = 'APPLY_PREISMELDUNGEN_STATUS';
 export const LOAD_PREISMELDUNGEN_STATUS = 'LOAD_PREISMELDUNGEN_STATUS';
 export const LOAD_PREISMELDUNGEN_STATUS_SUCCESS = 'LOAD_PREISMELDUNGEN_STATUS_SUCCESS';
 export const LOAD_PREISMELDUNGEN_STATUS_FAILURE = 'LOAD_PREISMELDUNGEN_STATUS_FAILRE';
+export const GET_MISSING_PREISMELDUNGEN_STATUS_COUNT = 'GET_MISSING_PREISMELDUNGEN_STATUS_COUNT';
+export const GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_SUCCESS = 'GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_SUCCESS';
 export const SET_PREISMELDUNGEN_STATUS = 'SET_PREISMELDUNGEN_STATUS';
 export const SET_PREISMELDUNGEN_STATUS_BULK = 'SET_PREISMELDUNGEN_STATUS_BULK';
 export const SET_PREISMELDUNGEN_STATUS_SUCCESS = 'SET_PREISMELDUNGEN_STATUS_SUCCESS';
@@ -23,6 +25,8 @@ export type Action =
     | { type: typeof SET_PREISMELDUNGEN_STATUS; payload: { pmId: string; status: P.PreismeldungStatus } }
     | { type: typeof SET_PREISMELDUNGEN_STATUS_BULK; payload: { pmId: string; status: P.PreismeldungStatus }[] }
     | { type: typeof SET_PREISMELDUNGEN_STATUS_SUCCESS; payload: { [pmId: string]: P.PreismeldungStatus } }
+    | { type: typeof GET_MISSING_PREISMELDUNGEN_STATUS_COUNT }
+    | { type: typeof GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_SUCCESS; payload: number }
     | { type: typeof INITIALIZE_PREISMELDUNGEN_STATUS }
     | { type: typeof SET_PREISMELDUNGEN_STATUS_ARE_INITIALIZING }
     | { type: typeof SYNCED_PREISMELDUNGEN_STATUS_SUCCESS };
@@ -60,6 +64,13 @@ export const createSetPreismeldungenStatusSuccessAction = (payload: {
     [pmId: string]: P.PreismeldungStatus;
 }): Action => ({
     type: SET_PREISMELDUNGEN_STATUS_SUCCESS,
+    payload,
+});
+export const createGetMissingPreismeldungenStatusCountAction = (): Action => ({
+    type: GET_MISSING_PREISMELDUNGEN_STATUS_COUNT,
+});
+export const createGetMissingPreismeldungenStatusCountSuccessAction = (payload: number): Action => ({
+    type: GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_SUCCESS,
     payload,
 });
 export const createInitializePreismeldungenStatusAction = (): Action => ({

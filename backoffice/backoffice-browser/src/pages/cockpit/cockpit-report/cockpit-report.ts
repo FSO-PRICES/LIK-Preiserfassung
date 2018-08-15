@@ -16,6 +16,7 @@ import { CockpitPreismeldungSummary } from '../../../common-models';
 export class CockpitReportComponent extends ReactiveComponent implements OnChanges, OnInit {
     @Input('report-executing') reportExecuting: boolean;
     @Input('status-updated-count') statusUpdatedCount: number | null;
+    @Input('status-missing-count') statusMissingCount: number | null;
     @Input('initializing-preismeldungen-status') initializingPreismeldungenStatus: boolean;
     @Input('cockpit-report-data') cockpitReportData: P.CockpitReportData;
     @Input('selected-preiserheber') selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;

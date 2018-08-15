@@ -15,6 +15,7 @@ import {
     uploadDatabaseAsync,
     getAllPreismeldungenStatus,
     updateMissingPreismeldungenStatus,
+    getMissingPreismeldungenStatusCount,
 } from '../common/pouchdb-utils';
 import { getAllDocumentsForPrefixFromUserDbs } from '../common/user-db-values';
 
@@ -45,6 +46,18 @@ export class PreismeldungenStatusEffects {
         .flatMap(action =>
             getAllPreismeldungenStatus().then(payload =>
                 preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(payload.statusMap)
+            )
+        );
+
+    @Effect()
+    getMissingPreismeldungenStatusCount$ = this.actions$
+        .ofType(preismeldungenStatus.GET_MISSING_PREISMELDUNGEN_STATUS_COUNT)
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(action =>
+            getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
+                getMissingPreismeldungenStatusCount(preismeldungen).then(count =>
+                    preismeldungenStatus.createGetMissingPreismeldungenStatusCountSuccessAction(count)
+                )
             )
         );
 
