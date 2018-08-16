@@ -3,7 +3,7 @@ import { OpenExternalOptions, IpcRenderer, shell } from 'electron';
 
 @Injectable()
 export class ElectronService {
-    private isElectronApp: boolean;
+    public isElectronApp: boolean;
     private _ipc: IpcRenderer | undefined = void 0;
     private _shell: typeof shell | undefined = void 0;
 
@@ -39,5 +39,12 @@ export class ElectronService {
             return;
         }
         this._ipc.send(channel, ...args);
+    }
+
+    public sendSync(channel: string, ...args): any {
+        if (!this._ipc) {
+            return;
+        }
+        return this._ipc.sendSync(channel, ...args);
     }
 }

@@ -45,6 +45,9 @@ export class SettingsPage implements OnDestroy {
                 senderId: null,
                 recipientId: null,
             }),
+            export: formBuilder.group({
+                targetPath: null,
+            }),
         });
 
         const update$ = this.form.valueChanges.map(() => this.form.value);
@@ -92,6 +95,7 @@ export class SettingsPage implements OnDestroy {
                         serverConnection: settings.serverConnection,
                         general: settings.general || {},
                         transportRequestSettings: settings.transportRequestSettings || {},
+                        export: settings.export || {},
                     },
                     { emitEvent: false }
                 );

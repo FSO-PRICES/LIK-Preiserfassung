@@ -35,6 +35,12 @@
                             <ion-input type="text" formControlName="recipientId"></ion-input>
                         </ion-item>
                     </ion-list>
+                    <ion-list formGroupName="export" no-lines>
+                        <ion-item class="pef-item">
+                            <ion-label stacked>Zielpfad</ion-label>
+                            <ion-input type="text" formControlName="targetPath"></ion-input>
+                        </ion-item>
+                    </ion-list>
                     <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" id="save">Speichern</button>
                     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
                 </form>

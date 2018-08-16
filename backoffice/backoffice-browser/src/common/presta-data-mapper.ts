@@ -182,9 +182,8 @@ export function preparePm(
                 notiz: cells[importPmFromPrestaIndexes.notiz],
                 bemerkungen: cells[importPmFromPrestaIndexes.bemerkungen],
                 internetLink: cells[importPmFromPrestaIndexes.internetLink],
-                erhebungsZeitpunkt: <P.Models.Erhebungszeitpunkt>parseInt(
-                    cells[importPmFromPrestaIndexes.erhebungsZeitpunkt],
-                    10
+                erhebungsZeitpunkt: <P.Models.Erhebungszeitpunkt>(
+                    parseInt(cells[importPmFromPrestaIndexes.erhebungsZeitpunkt], 10)
                 ),
                 erhebungsAnfangsDatum: cells[importPmFromPrestaIndexes.erhebungsAnfangsDatum],
                 erhebungsEndDatum: cells[importPmFromPrestaIndexes.erhebungsEndDatum],
@@ -222,7 +221,11 @@ export function preparePmForExport(
             Menge_VPK: toDecimal(pm.mengeVPK, 10, 3, 'Menge_VPK'),
             Bearbeitungscode: excludeBearbeitungscode(toNumber(pm.bearbeitungscode, 3, 'Bearbeitungscode')),
             Aktionscode: !pm.aktion ? 0 : 1,
-            Preisbezeichnung: toText(escapeNewlinesInText(pm.artikeltext || '').substr(0, 200), 200, 'Preisbezeichnung'),
+            Preisbezeichnung: toText(
+                escapeNewlinesInText(pm.artikeltext || '').substr(0, 200),
+                200,
+                'Preisbezeichnung'
+            ),
             Artikelnummer: toText((pm.artikelnummer || '').substr(0, 30), 30, 'Artikelnummer'),
             Fehlende_Preise: toText(
                 (pm.fehlendePreiseR || '').substr(0, 24) || (pm.bearbeitungscode === 44 ? 'S' : null),
@@ -301,7 +304,7 @@ export function preparePmsForExport(preismeldestellen: P.Models.Preismeldestelle
 export function preparePreiserheberForExport(
     preiserhebers: (P.Models.Erheber & { pmsNummers: string[] })[],
     erhebungsmonat: string,
-    erhebungsorgannummer: number
+    erhebungsorgannummer: string
 ) {
     return preiserhebers.map(preiserheber =>
         validatePreiserheber(preiserheber.username, () => ({
