@@ -831,7 +831,8 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnPreisT]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.preis,
     [columnMengeT]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.menge,
     [columnStandardeinheit]: (p: ControllingErhebungsPosition) => p.warenkorbItem.standardeinheit.de,
-    [columnBearbeitungscode]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.bearbeitungscode,
+    [columnBearbeitungscode]: (p: ControllingErhebungsPosition) =>
+        p.preismeldung && P.bearbeitungscodeDescriptions[p.preismeldung.bearbeitungscode],
     [columnAktionscodeVP]: (p: ControllingErhebungsPosition) =>
         p.refPreismeldung && p.refPreismeldung.aktion ? 'A' : undefined,
     [columnAktionscodeT]: (p: ControllingErhebungsPosition) =>
