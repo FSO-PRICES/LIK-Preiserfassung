@@ -274,7 +274,7 @@ async function saveFile(
                 targetPath,
             });
             if (saveResult.state !== 1) {
-                reject(saveResult.error || 'Es wurde kein Zielpfad ausgewählt');
+                reject(saveResult.error || 'Es wurde kein Exportpfad ausgewählt');
             } else {
                 resolve();
             }
