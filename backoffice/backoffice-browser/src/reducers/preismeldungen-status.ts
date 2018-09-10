@@ -31,9 +31,7 @@ export function reducer(state = initialState, action: preismeldungenStatus.Actio
             return {
                 ...state,
                 statusMap: action.payload.statusMap,
-                statusMapMissingCount: 0,
                 statusMapUpdatedCount: action.payload.count,
-                statusAreInitializing: false,
             };
         }
         case preismeldungenStatus.SET_PREISMELDUNGEN_STATUS_SUCCESS: {
@@ -42,10 +40,25 @@ export function reducer(state = initialState, action: preismeldungenStatus.Actio
                 statusMap: action.payload,
             };
         }
+        case preismeldungenStatus.GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_RESET: {
+            return {
+                ...state,
+                statusMapMissingCount: null,
+            };
+        }
         case preismeldungenStatus.GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_SUCCESS: {
             return {
                 ...state,
                 statusMapMissingCount: action.payload,
+            };
+        }
+        case preismeldungenStatus.SET_PREISMELDUNGEN_STATUS_INITIALIZED: {
+            return {
+                ...state,
+                statusMap: action.payload.statusMap,
+                statusMapMissingCount: 0,
+                statusMapUpdatedCount: action.payload.count,
+                statusAreInitializing: false,
             };
         }
         default:

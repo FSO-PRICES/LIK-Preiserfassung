@@ -113,6 +113,12 @@ export function reducer(
                 preismeldungStatusMap: action.payload,
             };
         }
+        case preismeldungenStatusActions.SET_PREISMELDUNGEN_STATUS_INITIALIZED: {
+            return {
+                ...state,
+                preismeldungStatusMap: action.payload.statusMap,
+            };
+        }
         default:
             return state;
     }

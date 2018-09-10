@@ -30,9 +30,10 @@ export class CockpitPage {
     private ionViewDidLeave$ = new Subject();
 
     constructor(private store: Store<fromRoot.AppState>) {
-        this.loadData$
-            .takeUntil(this.ionViewDidLeave$)
-            .subscribe(() => this.store.dispatch({ type: 'LOAD_COCKPIT_DATA' }));
+        this.loadData$.takeUntil(this.ionViewDidLeave$).subscribe(() => {
+            this.store.dispatch({ type: 'LOAD_COCKPIT_DATA' });
+            this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction());
+        });
         this.preiserheberSelected$
             .takeUntil(this.ionViewDidLeave$)
             .subscribe(pe => this.store.dispatch({ type: 'COCKPIT_PREISERHEBER_SELECTED', payload: pe.erheber._id }));

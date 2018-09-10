@@ -54,9 +54,12 @@ export class PreismeldungenStatusEffects {
         .ofType(preismeldungenStatus.GET_MISSING_PREISMELDUNGEN_STATUS_COUNT)
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .flatMap(action =>
-            getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
-                getMissingPreismeldungenStatusCount(preismeldungen).then(count =>
-                    preismeldungenStatus.createGetMissingPreismeldungenStatusCountSuccessAction(count)
+            Observable.concat(
+                [preismeldungenStatus.createGetMissingPreismeldungenStatusCountResetAction()],
+                getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
+                    getMissingPreismeldungenStatusCount(preismeldungen).then(count =>
+                        preismeldungenStatus.createGetMissingPreismeldungenStatusCountSuccessAction(count)
+                    )
                 )
             )
         );
@@ -74,9 +77,9 @@ export class PreismeldungenStatusEffects {
                 [preismeldungenStatus.createSetPreismeldungenStatusAreInitializingAction()],
                 getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
                     updateMissingPreismeldungenStatus(preismeldungen).then(status =>
-                        preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(
-                            status.currentPreismeldungenStatus.statusMap,
-                            status.count
+                        preismeldungenStatus.createSetPreismeldungenStatusInitializedAction(
+                            status.count,
+                            status.currentPreismeldungenStatus.statusMap
                         )
                     )
                 )
