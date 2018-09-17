@@ -3,6 +3,8 @@ import { Store } from '@ngrx/store';
 import { Loading, LoadingController, IonicPage } from 'ionic-angular';
 import { Observable } from 'rxjs/Observable';
 
+import * as P from 'lik-shared';
+
 import * as fromRoot from '../../reducers';
 import { createLoadReportDataAction, ReportTypes } from '../../actions/report';
 
@@ -22,7 +24,13 @@ export class ReportingPage implements OnDestroy {
     public loadData$ = new EventEmitter<ReportTypes>();
     private onDestroy$ = new EventEmitter();
 
-    constructor(private store: Store<fromRoot.AppState>) {
+    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: P.PefDialogService) {
+        this.reportExecuting$
+            .filter(x => !!x)
+            .map(() => this.reportExecuting$.filter(x => !x).take(1))
+            .takeUntil(this.onDestroy$)
+            .subscribe(x => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', x));
+
         this.loadData$
             .takeUntil(this.onDestroy$)
             .subscribe(reportType => this.store.dispatch(createLoadReportDataAction(reportType)));

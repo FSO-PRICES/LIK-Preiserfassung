@@ -34,8 +34,4 @@ export class PmsProblemeReportComponent extends ReactiveComponent implements OnC
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
-
-    public iterateValues<T>(map: T) {
-        return Object.keys(map).map((key: keyof T) => ({ key, value: map[key] }));
-    }
 }

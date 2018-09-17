@@ -18,8 +18,8 @@ export type MonthlyReport = {
 
     erhebungsart: {
         'N/A': number;
-        offline: number;
-        online: number;
+        internetZentral: number;
+        normalerhebung: number;
     };
 
     bearbeitungsCode: {

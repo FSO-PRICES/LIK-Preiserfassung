@@ -23,8 +23,8 @@ export function prepareMonthlyData({
 
         erhebungsart: {
             'N/A': 0,
-            offline: 0,
-            online: 0,
+            internetZentral: 0,
+            normalerhebung: 0,
         },
 
         bearbeitungsCode: {
@@ -69,7 +69,7 @@ export function prepareMonthlyData({
         },
     };
 
-    const pmsOnOffline = mapPmsToOnAndOffline(preismeldestellen);
+    const pmsOnOffline = mapPmsToZentralDezentral(preismeldestellen);
     const erhebungsartenByPmsNummer = preismeldestellen.reduce(
         (erhebungsarten, pmsBag) => ({
             ...erhebungsarten,
@@ -208,32 +208,25 @@ export function preparePmsProblemeData({
 }: report.PmsProblemeReportData): PmsProblemeReport {
     return {
         zeitpunkt: getZeitpunktData(erhebungsmonat),
-        pmsGeschlossen: preismeldestellen.filter(pms => pms.pmsGeschlossen > 0).map(pms => ({
-            name: `${pms.pmsNummer} ${pms.name}`,
-            grund: PmsGeschlossen[pms.pmsGeschlossen],
-            zusatzinfo: pms.zusatzInformationen,
-        })),
+        pmsGeschlossen: preismeldestellen
+            .filter(pms => pms.pmsGeschlossen > 0)
+            .map(pms => ({
+                name: `${pms.pmsNummer} ${pms.name}`,
+                grund: PmsGeschlossen[pms.pmsGeschlossen],
+                zusatzinfo: pms.zusatzInformationen,
+            }))
+            .sort((a, b) => sortNumericBeginningText(a.name, b.name)),
     };
 }
 
-const mapPmsToOnAndOffline = (
+const mapPmsToZentralDezentral = (
     preismeldestellen: { pms: P.Preismeldestelle; erhebungsarten: P.Erhebungsarten }[]
-): { [pmsNummer: string]: 'offline' | 'online' | 'N/A' } => {
-    const isErhebungsartOffline = (erhebungsart: P.Erhebungsarten) =>
-        !!erhebungsart &&
-        (!!erhebungsart.email ||
-            !!erhebungsart.papierlisteAbgegeben ||
-            !!erhebungsart.papierlisteVorOrt ||
-            !!erhebungsart.tablet ||
-            !!erhebungsart.telefon);
+): { [pmsNummer: string]: 'internetZentral' | 'normalerhebung' | 'N/A' } => {
     return preismeldestellen.reduce(
         (map, pmsBag) => ({
             ...map,
-            [pmsBag.pms.pmsNummer]: isErhebungsartOffline(pmsBag.erhebungsarten)
-                ? 'offline'
-                : pmsBag.erhebungsarten.internet
-                    ? 'online'
-                    : 'N/A',
+            [pmsBag.pms.pmsNummer]:
+                pmsBag.pms.erhebungsregion === 'Internet-Schweiz' ? 'internetZentral' : 'normalerhebung',
         }),
         {}
     );
@@ -245,3 +238,8 @@ const getZeitpunktData = erhebungsmonat => {
         erhebungsmonat: erhebungsmonat,
     };
 };
+
+const getNumber = /^([0-9]+) /;
+export function sortNumericBeginningText(a: string, b: string): number {
+    return +((a.match(getNumber) || [])[1] || 0) - +(b.match(getNumber)[1] || [] || 0);
+}

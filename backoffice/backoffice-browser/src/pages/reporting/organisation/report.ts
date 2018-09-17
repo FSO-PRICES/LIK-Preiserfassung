@@ -16,6 +16,7 @@ import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../common-models';
 import { OrganisationReport } from '../../../reducers/report';
 import { ReportTypes } from '../../../actions/report';
+import { sortNumericBeginningText } from '../../../common/report-functions';
 
 @Component({
     selector: 'organisation-report',
@@ -36,7 +37,14 @@ export class OrganisationReportComponent extends ReactiveComponent implements On
         this.baseNgOnChanges(changes);
     }
 
-    public iterateValues<T>(map: T) {
-        return Object.keys(map).map((key: keyof T) => ({ key, value: map[key] }));
+    public iterateValues(map: any, numeric: boolean) {
+        const list = Object.keys(map)
+            .sort(numeric ? sortNumericBeginningText : undefined)
+            .filter(x => x !== 'N/A')
+            .map(key => ({ key, value: map[key] }));
+        if (map['N/A'] != null) {
+            list.push({ key: 'N/A', value: map['N/A'] });
+        }
+        return list;
     }
 }
