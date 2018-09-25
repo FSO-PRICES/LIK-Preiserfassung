@@ -194,6 +194,7 @@ const columnAktionscodeVP = 'Actionscode_VP';
 const columnAktionscodeT = 'Actionscode_T';
 const columnMerkmaleVP = 'Merkmale_VP';
 const columnMerkmaleT = 'Merkmale_T';
+const columnFehlendePreiseT = 'Fehlende_Preise T (R, S)';
 const columnDPToVPRaw = '[RAW] Veränderung';
 const columnDPToVP = 'Veränderung';
 const columnDPToVPVorReduktion = 'Veränderung vor Reduktion';
@@ -272,6 +273,7 @@ type ColumnType =
     | typeof columnAktionscodeT
     | typeof columnMerkmaleVP
     | typeof columnMerkmaleT
+    | typeof columnFehlendePreiseT
     | typeof columnKommentarT
     | typeof columnBemerkungenT
     | typeof columnPeNummer
@@ -391,6 +393,7 @@ const base_0100_0200_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => 
         columnPmsName,
         columnPositionsbezeichnung,
         columnPreisbezeichnungT,
+        columnPreisT,
         columnPeNummer,
         columnPeName,
         columnPmsGeschlossen,
@@ -406,7 +409,42 @@ const base_0100_0200_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => 
 const base_0110_0210_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
     gliederungspositionnummerRange: {
         type: REPORT_INCLUDE_EP,
-        range: [{ lowEpNummer: 4090, highEpNummer: 4100 }, { lowEpNummer: 7106, highEpNummer: 7111 }],
+        range: [{ lowEpNummer: 4090, highEpNummer: 4100 }],
+    },
+    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt,
+    columns: [
+        columnPmsErhebungsregion,
+        columnPmsNummer,
+        columnPmsName,
+        columnEpNummer,
+        columnLaufnummer,
+        columnPositionsbezeichnung,
+        columnPreisbezeichnungT,
+        columnPreisVP,
+        columnMengeVP,
+        columnPreisT,
+        columnMengeT,
+        columnStandardeinheit,
+        columnDPToVP,
+        columnKommentarT,
+        columnBemerkungenT,
+        columnPeNummer,
+        columnPeName,
+        columnPmsGeschlossen,
+    ],
+    sortBy: [
+        { column: columnPmsErhebungsregion, convertToNumber: false },
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+        { column: columnDPToVPRaw, convertToNumber: true },
+    ],
+});
+
+const base_0115_0215_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
+    gliederungspositionnummerRange: {
+        type: REPORT_INCLUDE_EP,
+        range: [{ lowEpNummer: 7106, highEpNummer: 7111 }],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
         (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt,
@@ -490,22 +528,22 @@ const base_0230_0240_config = (erhebungsZeitpunkt: 10 | 20): ControllingConfig =
         columnPeName,
         columnPmsGeschlossen,
     ],
-    sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }],
+    sortBy: [
+        { column: columnPmsErhebungsregion, convertToNumber: false },
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+        { column: columnLaufnummer, convertToNumber: true },
+    ],
 });
 
-const report_0250_config: ControllingConfig = {
-    gliederungspositionnummerRange: {
-        type: REPORT_INCLUDE_EP,
-        range: [{ lowEpNummer: 1305, highEpNummer: 1413 }],
-    },
-    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        !!x.preismeldung && [0, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
+const report_0250_300_config = {
     columns: [
         columnPreisId,
         columnPmsName,
         columnPositionsbezeichnung,
         columnPreisbezeichnungT,
         columnBearbeitungscode,
+        columnFehlendePreiseT,
         columnAktionscodeVP,
         columnAktionscodeT,
         columnKommentarT,
@@ -513,11 +551,11 @@ const report_0250_config: ControllingConfig = {
         columnPeNummer,
         columnPeName,
         columnPmsGeschlossen,
-    ],
-    sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }],
+    ] as ColumnType[],
+    sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
 };
 
-const base_0300_0310_0320_0400_0410_0420_0430_config = {
+const base_0310_0320_0400_0405_0410_0420_0430_config = {
     columns: [
         columnPreisId,
         columnPmsName,
@@ -537,8 +575,8 @@ const base_0300_0310_0320_0400_0410_0420_0430_config = {
     sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
 };
 
-const base_0300_0310_0320_config = {
-    ...base_0300_0310_0320_0400_0410_0420_0430_config,
+const base_0310_0320_config = {
+    ...base_0310_0320_0400_0405_0410_0420_0430_config,
     gliederungspositionnummerRange: {
         type: REPORT_INCLUDE_EP,
         range: [{ lowEpNummer: 3000, highEpNummer: 3999 }],
@@ -566,6 +604,36 @@ const report_0440_config: ControllingConfig = {
         columnKommentarT,
     ] as ColumnType[],
     sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
+};
+
+const report_0450_config: ControllingConfig = {
+    gliederungspositionnummerRange: {
+        type: REPORT_EXCLUDE_EP,
+        range: [],
+    },
+    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+        x.refPreismeldung &&
+        !!x.preismeldung &&
+        x.preismeldung.bearbeitungscode === 99 &&
+        x.refPreismeldung.artikeltext !== x.preismeldung.artikeltext,
+    columns: [
+        columnPreisId,
+        columnPositionsbezeichnung,
+        columnPreisbezeichnungT,
+        columnPreisT,
+        columnMengeT,
+        columnDPToVP,
+        columnPreisT,
+        columnMengeT,
+        columnStandardeinheit,
+        columnBearbeitungscode,
+        columnAktionscodeVP,
+        columnAktionscodeT,
+        columnKommentarT,
+        columnPeNummer,
+        columnPeName,
+    ] as ColumnType[],
+    sortBy: [{ column: columnDPToVPRaw, convertToNumber: true }] as SortByType[],
 };
 
 const base_0500_0510_0520_0530_0540_config = {
@@ -604,9 +672,7 @@ const base_0800_config: ControllingConfig = {
         columnPmsName,
         columnEpNummer,
         columnPositionsbezeichnung,
-        columnPreisT,
-        columnMengeT,
-        columnNumPreiseProEP,
+        columnDPToVP,
         columnPeNummer,
         columnPeName,
     ] as ColumnType[],
@@ -652,15 +718,16 @@ const report_0700_config: ControllingConfig = {
         columnPmsNummer,
         columnPmsName,
         columnEpNummer,
+        columnLaufnummer,
         columnPositionsbezeichnung,
         columnNumPreiseProEP,
         columnPeNummer,
         columnPeName,
     ] as ColumnType[],
     sortBy: [
-        { column: columnPeNummer, convertToNumber: true },
         { column: columnPmsNummer, convertToNumber: true },
         { column: columnEpNummer, convertToNumber: true },
+        { column: columnLaufnummer, convertToNumber: true },
     ] as SortByType[],
 };
 
@@ -694,28 +761,55 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0200]: base_0100_0200_config(2),
     [controlling.CONTROLLING_0110]: base_0110_0210_config(1),
     [controlling.CONTROLLING_0210]: base_0110_0210_config(2),
+    [controlling.CONTROLLING_0115]: base_0115_0215_config(1),
+    [controlling.CONTROLLING_0215]: base_0115_0215_config(2),
     [controlling.CONTROLLING_0120]: base_0120_0220_config(1),
     [controlling.CONTROLLING_0220]: base_0120_0220_config(2),
     [controlling.CONTROLLING_0230]: base_0230_0240_config(10),
     [controlling.CONTROLLING_0240]: base_0230_0240_config(20),
-    [controlling.CONTROLLING_0250]: report_0250_config,
+    [controlling.CONTROLLING_0250]: {
+        ...report_0250_300_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_INCLUDE_EP,
+            range: [{ lowEpNummer: 1305, highEpNummer: 1413 }],
+        },
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+            !!x.preismeldung && [0, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
+    },
     [controlling.CONTROLLING_0300]: {
-        ...base_0300_0310_0320_config,
+        ...report_0250_300_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_INCLUDE_EP,
+            range: [{ lowEpNummer: 3000, highEpNummer: 3999 }],
+        },
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung && [7, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0310]: {
-        ...base_0300_0310_0320_config,
+        ...base_0310_0320_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_EXCLUDE_EP,
+            range: [{ lowEpNummer: 3000, highEpNummer: 3188 }],
+        } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0320]: {
-        ...base_0300_0310_0320_config,
+        ...base_0310_0320_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0400]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_EXCLUDE_EP,
+            range: [{ lowEpNummer: 3000, highEpNummer: 3188 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
+        } as GliederungspositionnummerRangeType,
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+            !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
+    },
+    [controlling.CONTROLLING_0405]: {
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
@@ -724,7 +818,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0410]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
@@ -733,7 +827,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0420]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [],
@@ -742,7 +836,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [1, 7].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0430]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [],
@@ -751,14 +845,20 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [0, 2, 3].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0440]: report_0440_config,
+    [controlling.CONTROLLING_0450]: report_0450_config,
     [controlling.CONTROLLING_0500]: {
         ...base_0500_0510_0520_0530_0540_config,
-        erherbungsPositionFilter: (x: ControllingErhebungsPosition) => !!x.preismeldung && isUG2OrOG2(x.preismeldung),
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+            !!x.preismeldung &&
+            (x.preismeldung.d_DPToVP.percentage >= 250 || x.preismeldung.d_DPToVP.percentage <= -75),
     },
     [controlling.CONTROLLING_0510]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && isPositiveNegative(x.preismeldung),
+            !!x.preismeldung &&
+            isPositiveNegative(x.preismeldung) &&
+            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
+            (!!x.refPreismeldung && !x.refPreismeldung.aktion && (!!x.preismeldung && !x.preismeldung.aktion)),
     },
     [controlling.CONTROLLING_0520]: {
         ...base_0500_0510_0520_0530_0540_config,
@@ -766,8 +866,8 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung &&
             [1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
             isPositiveNegative(x.preismeldung) &&
-            isUG2OrOG2(x.preismeldung) &&
-            ((!!x.refPreismeldung && x.refPreismeldung.aktion) || (!!x.preismeldung && x.preismeldung.aktion)),
+            isUG2OrOG2(x.preismeldung),
+        // (!!x.refPreismeldung && x.refPreismeldung.aktion && (!!x.preismeldung && x.preismeldung.aktion)),
     },
     [controlling.CONTROLLING_0530]: {
         ...base_0500_0510_0520_0530_0540_config,
@@ -782,7 +882,6 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
-            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
             isPositiveNegative(x.preismeldung) &&
             isUG2OrOG2(x.preismeldung) &&
             !x.preismeldung.aktion,
@@ -824,6 +923,7 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnPositionsbezeichnung]: (p: ControllingErhebungsPosition) => p.warenkorbItem.positionsbezeichnung.de,
     [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
         (p.preismeldung && p.preismeldung.artikeltext) || (p.refPreismeldung && p.refPreismeldung.artikeltext),
+    [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) => p.refPreismeldung && p.refPreismeldung.artikeltext,
     [columnPreisVP]: (p: ControllingErhebungsPosition) => p.refPreismeldung && p.refPreismeldung.preis,
     [columnMengeVP]: (p: ControllingErhebungsPosition) => p.refPreismeldung && p.refPreismeldung.menge,
     [columnDPToVPRaw]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.d_DPToVP.percentage,
@@ -851,6 +951,11 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         p.warenkorbItem.productMerkmale
             .map((m, i) => `${m.de}:${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
             .join('|'),
+    [columnFehlendePreiseT]: (p: ControllingErhebungsPosition) =>
+        p.preismeldung &&
+        [p.preismeldung.fehlendePreiseR, p.preismeldung.bearbeitungscode === 44 ? 'S' : null]
+            .filter(x => !!x)
+            .join(', '),
     [columnKommentarT]: (p: ControllingErhebungsPosition) =>
         p.preismeldung && (p.preismeldung.kommentar === '\\n' ? undefined : p.preismeldung.kommentar),
     [columnBemerkungenT]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.bemerkungen,
