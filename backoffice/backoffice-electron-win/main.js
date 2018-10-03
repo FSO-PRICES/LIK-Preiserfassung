@@ -133,7 +133,7 @@ app.on('activate', function() {
 ipcMain.on('save-file', (event, fileSaveOptions) => {
     const { content, targetPath, fileName } = fileSaveOptions;
     const saveFile = fileName => {
-        fs.writeFile(fileName, content, err => {
+        fs.writeFile(fileName, '\ufeff' + content, err => {
             if (err) {
                 event.returnValue = { state: 2, error: err };
                 return;
