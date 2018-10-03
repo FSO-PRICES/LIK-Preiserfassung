@@ -9,20 +9,25 @@ import * as fromRoot from '../../reducers';
 import { IonicPage } from 'ionic-angular';
 
 @IonicPage({
-    segment: 'export'
+    segment: 'export',
 })
 @Component({
     selector: 'export-to-presta',
-    templateUrl: 'export-to-presta.html'
+    templateUrl: 'export-to-presta.html',
 })
 export class ExportToPrestaPage implements OnDestroy {
-    public settings$ = this.store.select(fromRoot.getSettings).publishReplay(1).refCount();
+    public settings$ = this.store
+        .select(fromRoot.getSettings)
+        .publishReplay(1)
+        .refCount();
 
     public exportedPreismeldestellen$ = this.store.select(fromRoot.getExportedPreismeldestellen);
     public exportedPreismeldungen$ = this.store.select(fromRoot.getExportedPreismeldungen);
     public exportedPreiserheber$ = this.store.select(fromRoot.getExportedPreiserheber);
 
-    public exportErrorPreismeldestellen$ = this.store.select(fromRoot.getExporterState).map(s => s.preismeldestellenError);
+    public exportErrorPreismeldestellen$ = this.store
+        .select(fromRoot.getExporterState)
+        .map(s => s.preismeldestellenError);
     public exportErrorPreismeldungen$ = this.store.select(fromRoot.getExporterState).map(s => s.preismeldungenError);
     public exportErrorPreiserheber$ = this.store.select(fromRoot.getExporterState).map(s => s.preiserheberError);
 
@@ -39,24 +44,53 @@ export class ExportToPrestaPage implements OnDestroy {
             .map(settings => !!settings && !!settings.general && !!settings.general.erhebungsorgannummer)
             .distinctUntilChanged();
 
-        const dismissPreismeldestellenLoading$ = this.exportedPreismeldestellen$.skip(1).merge(this.exportErrorPreismeldestellen$.skip(1));
-        const dismissPreismeldungenLoading$ = this.exportedPreismeldungen$.skip(1).merge(this.exportErrorPreismeldungen$.skip(1));
-        const dismissPreisherberLoading$ = this.exportedPreiserheber$.skip(1).merge(this.exportErrorPreiserheber$.skip(1));
+        const dismissPreismeldestellenLoading$ = this.exportedPreismeldestellen$
+            .skip(1)
+            .filter(x => x !== null)
+            .merge(this.exportErrorPreismeldestellen$.skip(1).filter(x => x !== null));
+        const dismissPreismeldungenLoading$ = this.exportedPreismeldungen$
+            .skip(1)
+            .filter(x => x !== null)
+            .merge(this.exportErrorPreismeldungen$.skip(1).filter(x => x !== null));
+        const dismissPreisherberLoading$ = this.exportedPreiserheber$
+            .skip(1)
+            .filter(x => x !== null)
+            .merge(this.exportErrorPreiserheber$.skip(1).filter(x => x !== null));
 
         this.subscriptions = [
             // Skip is being used to skip initial/previous store value and to wait for a new one
             this.exportPreismeldestellenClicked$
-                .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', dismissPreismeldestellenLoading$))
+                .flatMap(() =>
+                    this.pefDialogService.displayLoading(
+                        'Daten werden zusammengefasst, bitte warten...',
+                        dismissPreismeldestellenLoading$
+                    )
+                )
                 .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDESTELLEN' } as exporter.Action)),
 
             this.exportPreismeldungenClicked$
-                .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', dismissPreismeldungenLoading$))
+                .flatMap(() =>
+                    this.pefDialogService.displayLoading(
+                        'Daten werden zusammengefasst, bitte warten...',
+                        dismissPreismeldungenLoading$
+                    )
+                )
                 .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDUNGEN' } as exporter.Action)),
 
             this.exportPreiserheberClicked$
-                .flatMap(() => this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', dismissPreisherberLoading$))
+                .flatMap(() =>
+                    this.pefDialogService.displayLoading(
+                        'Daten werden zusammengefasst, bitte warten...',
+                        dismissPreisherberLoading$
+                    )
+                )
                 .withLatestFrom(this.settings$, (_, settings) => settings.general.erhebungsorgannummer)
-                .subscribe(erhebungsorgannummer => this.store.dispatch({ type: 'EXPORT_PREISERHEBER', payload: erhebungsorgannummer } as exporter.Action))
+                .subscribe(erhebungsorgannummer =>
+                    this.store.dispatch({
+                        type: 'EXPORT_PREISERHEBER',
+                        payload: erhebungsorgannummer,
+                    } as exporter.Action)
+                ),
         ];
     }
 
@@ -65,8 +99,6 @@ export class ExportToPrestaPage implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 }
