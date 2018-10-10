@@ -25,7 +25,7 @@ import * as P from '../../../../common-models';
 export class PreismeldungListComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @ViewChild(Content) content: Content;
     @Input() isDesktop: boolean;
-    @Input() currentTime: Date;
+    @Input() currentDate: Date;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() currentLanguage: string;
     @Input() preismeldungen: P.PreismeldungBag[];
@@ -61,7 +61,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung')
         .publishReplay(1)
         .refCount();
-    public currentTime$ = this.observePropertyCurrentValue<Date>('currentTime')
+    public currentDate$ = this.observePropertyCurrentValue<Date>('currentDate')
         .publishReplay(1)
         .refCount();
     private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
@@ -76,7 +76,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.ionItemHeight$.subscribe(itemHeight => (this.itemHeight = itemHeight));
 
-        this.currentTime$.takeUntil(this.onDestroy$).subscribe();
+        this.currentDate$.takeUntil(this.onDestroy$).subscribe();
 
         const filterStatus$ = this.selectFilterTodo$
             .mapTo('TODO')
@@ -245,19 +245,19 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         return P.Models.bearbeitungscodeDescriptions[bearbeitungscode];
     }
 
-    calcStichtagStatus(bag: P.PreismeldungBag, currentTime: Date) {
+    calcStichtagStatus(bag: P.PreismeldungBag, currentDate: Date) {
         if (!bag.refPreismeldung) return null;
         const erhebungsAnfangsDatum = parseDate(bag.refPreismeldung.erhebungsAnfangsDatum);
         const erhebungsEndDatum = parseDate(bag.refPreismeldung.erhebungsEndDatum);
-        if (isBefore(currentTime, erhebungsAnfangsDatum)) return 'gray';
-        if (isAfter(currentTime, erhebungsAnfangsDatum) && isBefore(currentTime, subMilliseconds(erhebungsEndDatum, 1)))
+        if (isBefore(currentDate, erhebungsAnfangsDatum)) return 'gray';
+        if (isAfter(currentDate, erhebungsAnfangsDatum) && isBefore(currentDate, subMilliseconds(erhebungsEndDatum, 1)))
             return 'green';
         if (
-            isAfter(currentTime, erhebungsEndDatum) &&
-            isBefore(currentTime, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))
+            isAfter(currentDate, erhebungsEndDatum) &&
+            isBefore(currentDate, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))
         )
             return 'orange';
-        if (isAfter(currentTime, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))) return 'red';
+        if (isAfter(currentDate, subMilliseconds(addDays(erhebungsEndDatum, 1), 1))) return 'red';
         return 'green';
     }
 

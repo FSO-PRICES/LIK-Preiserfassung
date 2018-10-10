@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="preismeldung-list-container">
-            <preismeldung-list [preismeldungen]="preismeldungen$ | async" [currentTime]="currentTime$ | async" [preismeldestelle]="preismeldestelle$ | async"
+            <preismeldung-list [preismeldungen]="preismeldungen$ | async" [currentDate]="currentDate$ | async" [preismeldestelle]="preismeldestelle$ | async"
                 [currentPreismeldung]="currentPreismeldung$ | async" (selectPreismeldung)="selectPreismeldung$.emit($event)"
                 (addNewPreisreihe)="addNewPreisreihe$.emit()" (sortPreismeldungen)="navigateToPmsSort$.emit()" [currentLanguage]="currentLanguage$ | async"
                 [requestSelectNextPreismeldung]="selectNextPreismeldungRequested$ | async" [isDesktop]="isDesktop$ | async"></preismeldung-list>
