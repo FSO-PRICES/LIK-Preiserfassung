@@ -32,6 +32,7 @@ export class ImportPage implements OnDestroy {
     public preismeldungenImportedCount$: Observable<number>;
 
     public getImportedAllDataAt$ = this.store.select(fromRoot.getImportedAllDataAt);
+    public importErrors$ = this.store.select(fromRoot.getImportError);
 
     public warenkorbErhebungsmonat$: Observable<Date>;
     public preismeldestellenErhebungsmonat$: Observable<Date>;
@@ -137,7 +138,10 @@ export class ImportPage implements OnDestroy {
             .flatMap(() =>
                 this.pefDialogService.displayLoading(
                     'Daten werden importiert, bitte warten...',
-                    this.getImportedAllDataAt$.skip(1).take(1)
+                    this.getImportedAllDataAt$
+                        .skip(1)
+                        .merge(this.importErrors$.skip(1))
+                        .take(1)
                 )
             )
             .takeUntil(this.onDestroy$)

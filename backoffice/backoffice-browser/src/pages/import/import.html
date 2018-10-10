@@ -41,6 +41,9 @@
                     <div class="text-info" *ngIf="!!(getImportedAllDataAt$ | async)">Zuletzt importiert am: {{ getImportedAllDataAt$ | async | date:"dd MMMM yyyy, HH:mm" }}</div>
                 </div>
             </div>
+            <div *ngIf="importErrors$ | async; let errors" ion-text color="danger" class="error-messages row import-row">
+                <div *ngFor="let error of errors">{{ error }}</div>
+            </div>
         </form>
     </ion-content>
 </div>

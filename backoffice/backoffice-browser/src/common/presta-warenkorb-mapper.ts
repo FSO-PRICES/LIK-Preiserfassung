@@ -59,64 +59,68 @@ export function buildTree(data: string[][]) {
 
     const treeItems: P.WarenkorbTreeItem[] = [];
     for (let i = 0; i < data.length; i++) {
-        const thisLine = data[i];
-        const treeItem: P.WarenkorbTreeItem & { _id: string } = {
-            _id: thisLine[indexes.gliederungspositionsnummer],
-            type: 'LEAF',
-            erhebungsschemaperiode: thisLine[indexes.erhebungsschemaperiode],
-            gliederungspositionsnummer: thisLine[indexes.gliederungspositionsnummer],
-            parentGliederungspositionsnummer: null,
-            produktecode: parseProduktecode(thisLine[indexes.produktecode]),
-            gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
-            tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
-            positionsbezeichnung: translationsToStringOrNull(thisLine, indexes.positionsbezeichnung),
-            periodizitaetscode: translationsToStringOrNull(thisLine, indexes.periodizitaetscode),
-            standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
-            standardeinheit: translationsToStringOrNull(thisLine, indexes.standardeinheit),
-            erhebungstyp: thisLine[indexes.erhebungstyp],
-            anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
-            beispiele: translationsToStringOrNull(thisLine, indexes.beispiele),
-            info: translationsToStringOrNull(thisLine, indexes.info),
-            periodizitaetMonat: parsePeriodizitaet([
-                thisLine[indexes.periodizitaetMonat1],
-                thisLine[indexes.periodizitaetMonat2],
-                thisLine[indexes.periodizitaetMonat3],
-                thisLine[indexes.periodizitaetMonat4],
-                thisLine[indexes.periodizitaetMonat5],
-                thisLine[indexes.periodizitaetMonat6],
-                thisLine[indexes.periodizitaetMonat7],
-                thisLine[indexes.periodizitaetMonat8],
-                thisLine[indexes.periodizitaetMonat9],
-                thisLine[indexes.periodizitaetMonat10],
-                thisLine[indexes.periodizitaetMonat11],
-                thisLine[indexes.periodizitaetMonat12],
-            ]),
-            abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
-            abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
-            negativeLimite: parseNumberOrNull(thisLine[indexes.negativeLimite]),
-            positiveLimite: parseNumberOrNull(thisLine[indexes.positiveLimite]),
-            negativeLimite_1: parseNumberOrNull(thisLine[indexes.negativeLimite_1]),
-            positiveLimite_1: parseNumberOrNull(thisLine[indexes.positiveLimite_1]),
-            negativeLimite_7: parseNumberOrNull(thisLine[indexes.negativeLimite_7]),
-            positiveLimite_7: parseNumberOrNull(thisLine[indexes.positiveLimite_7]),
-            nichtEmpfohleneBc: parseBearbeitungscode(thisLine[indexes.nichtEmpfohleneBc]),
-            erhebungszeitpunkte: parseNumberOrNull(thisLine[indexes.erhebungszeitpunkte]),
-            productMerkmale: prepareProduktmerkmale(thisLine, indexes.produktmerkmale),
-        };
-        treeItems.push(treeItem);
-        const parent: P.WarenkorbTreeItem = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
-        if (!!parent) {
-            if (parent.type === 'LEAF') {
-                delete parent.standardmenge;
-                delete parent.standardeinheit;
-                delete parent.erhebungstyp;
-                delete parent.anzahlPreiseProPMS;
+        try {
+            const thisLine = data[i];
+            const treeItem: P.WarenkorbTreeItem & { _id: string } = {
+                _id: thisLine[indexes.gliederungspositionsnummer],
+                type: 'LEAF',
+                erhebungsschemaperiode: thisLine[indexes.erhebungsschemaperiode],
+                gliederungspositionsnummer: thisLine[indexes.gliederungspositionsnummer],
+                parentGliederungspositionsnummer: null,
+                produktecode: parseProduktecode(thisLine[indexes.produktecode]),
+                gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
+                tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
+                positionsbezeichnung: translationsToStringOrNull(thisLine, indexes.positionsbezeichnung),
+                periodizitaetscode: translationsToStringOrNull(thisLine, indexes.periodizitaetscode),
+                standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
+                standardeinheit: translationsToStringOrNull(thisLine, indexes.standardeinheit),
+                erhebungstyp: thisLine[indexes.erhebungstyp],
+                anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
+                beispiele: translationsToStringOrNull(thisLine, indexes.beispiele),
+                info: translationsToStringOrNull(thisLine, indexes.info),
+                periodizitaetMonat: parsePeriodizitaet([
+                    thisLine[indexes.periodizitaetMonat1],
+                    thisLine[indexes.periodizitaetMonat2],
+                    thisLine[indexes.periodizitaetMonat3],
+                    thisLine[indexes.periodizitaetMonat4],
+                    thisLine[indexes.periodizitaetMonat5],
+                    thisLine[indexes.periodizitaetMonat6],
+                    thisLine[indexes.periodizitaetMonat7],
+                    thisLine[indexes.periodizitaetMonat8],
+                    thisLine[indexes.periodizitaetMonat9],
+                    thisLine[indexes.periodizitaetMonat10],
+                    thisLine[indexes.periodizitaetMonat11],
+                    thisLine[indexes.periodizitaetMonat12],
+                ]),
+                abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
+                abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
+                negativeLimite: parseNumberOrNull(thisLine[indexes.negativeLimite]),
+                positiveLimite: parseNumberOrNull(thisLine[indexes.positiveLimite]),
+                negativeLimite_1: parseNumberOrNull(thisLine[indexes.negativeLimite_1]),
+                positiveLimite_1: parseNumberOrNull(thisLine[indexes.positiveLimite_1]),
+                negativeLimite_7: parseNumberOrNull(thisLine[indexes.negativeLimite_7]),
+                positiveLimite_7: parseNumberOrNull(thisLine[indexes.positiveLimite_7]),
+                nichtEmpfohleneBc: parseBearbeitungscode(thisLine[indexes.nichtEmpfohleneBc]),
+                erhebungszeitpunkte: parseNumberOrNull(thisLine[indexes.erhebungszeitpunkte]),
+                productMerkmale: prepareProduktmerkmale(thisLine, indexes.produktmerkmale),
+            };
+            treeItems.push(treeItem);
+            const parent: P.WarenkorbTreeItem = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
+            if (!!parent) {
+                if (parent.type === 'LEAF') {
+                    delete parent.standardmenge;
+                    delete parent.standardeinheit;
+                    delete parent.erhebungstyp;
+                    delete parent.anzahlPreiseProPMS;
+                }
+                parent.type = 'BRANCH';
+                treeItem.parentGliederungspositionsnummer = parent.gliederungspositionsnummer;
+                treeItem._id = `${(<any>parent)._id}/${treeItem.gliederungspositionsnummer}`;
             }
-            parent.type = 'BRANCH';
-            treeItem.parentGliederungspositionsnummer = parent.gliederungspositionsnummer;
-            treeItem._id = `${(<any>parent)._id}/${treeItem.gliederungspositionsnummer}`;
+            lastDepthGliederungspositionsnummers[treeItem.tiefencode] = treeItem;
+        } catch (error) {
+            throw new Error(`Warenkorb Import Fehler (Zeile #${i + 1}): ${error.message}`);
         }
-        lastDepthGliederungspositionsnummers[treeItem.tiefencode] = treeItem;
     }
 
     const erhebungsmonat = data[0] ? data[0][indexes.erhebungsschemaperiode] : '';

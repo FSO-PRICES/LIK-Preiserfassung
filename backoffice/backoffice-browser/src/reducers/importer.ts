@@ -23,6 +23,7 @@ export interface State {
     preismeldungenErhebungsmonat: string;
 
     importedAllDataAt: Date;
+    importError: string[];
 }
 
 const initialState: State = {
@@ -43,6 +44,7 @@ const initialState: State = {
     preismeldungenErhebungsmonat: null,
 
     importedAllDataAt: null,
+    importError: null,
 };
 
 export function reducer(state = initialState, action: importer.Action): State {
@@ -89,12 +91,17 @@ export function reducer(state = initialState, action: importer.Action): State {
 
         case 'IMPORT_PREISMELDESTELLEN_FAILURE': {
             const { payload } = action;
-            return { ...state, importedPreismeldestellen: null, importError: payload, parsedPreismeldestellen: null };
+            return { ...state, importedPreismeldestellen: null, importError: [payload], parsedPreismeldestellen: null };
         }
 
         case 'IMPORT_PREISMELDUNGEN_SUCCESS': {
             const { payload } = action;
             return { ...state, importedPreismeldungen: payload, importError: null, parsedPreismeldungen: null };
+        }
+
+        case 'IMPORTED_ALL_FAILURE': {
+            const { payload } = action;
+            return { ...state, importError: payload };
         }
 
         case 'LOAD_LATEST_IMPORTED_AT_SUCCESS': {
@@ -147,6 +154,7 @@ export const getImportedPreismeldungenAt = (state: State) => state.importedPreis
 export const getPreismeldungenErhebungsmonat = (state: State) => state.preismeldungenErhebungsmonat;
 
 export const getImportedAllDataAt = (state: State) => state.importedAllDataAt;
+export const getImportError = (state: State) => state.importError;
 
 function parseDate(date: number) {
     return !!date ? new Date(date) : null;

@@ -118,30 +118,34 @@ function parseKontaktPersons(cells: string[]) {
 }
 
 export function preparePms(lines: string[][]) {
-    const preismeldestellen = lines.map(cells => {
-        const id = P.preismeldestelleId(cells[importPmsFromPrestaIndexes.pmsNummer]);
-        return <P.Models.Preismeldestelle>{
-            _id: id,
-            _rev: undefined,
-            preissubsystem: parseNumber(cells[importPmsFromPrestaIndexes.preissubsystem], 'preissubsystem'),
-            pmsNummer: cells[importPmsFromPrestaIndexes.pmsNummer],
-            name: cells[importPmsFromPrestaIndexes.pmsName],
-            supplement: cells[importPmsFromPrestaIndexes.pmsZusatzname],
-            street: cells[importPmsFromPrestaIndexes.pmsStrasse],
-            postcode: cells[importPmsFromPrestaIndexes.pmsPlz],
-            town: cells[importPmsFromPrestaIndexes.pmsOrt],
-            telephone: cells[importPmsFromPrestaIndexes.pmsTelefon],
-            email: cells[importPmsFromPrestaIndexes.pmsEMail],
-            internetLink: cells[importPmsFromPrestaIndexes.pmsInternetLink],
-            languageCode: parseLanguageCode(cells[importPmsFromPrestaIndexes.pmsSprache]),
-            erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
-            erhebungsartComment: parseNewlinesInText(cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart]),
-            pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
-            erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
-            zusatzInformationen: parseNewlinesInText(cells[importPmsFromPrestaIndexes.pmsZusatzinformationen]),
-            pmsTop: cells[importPmsFromPrestaIndexes.pmsTop] === '1',
-            kontaktpersons: parseKontaktPersons(cells),
-        };
+    const preismeldestellen = lines.map((cells, i) => {
+        try {
+            const id = P.preismeldestelleId(cells[importPmsFromPrestaIndexes.pmsNummer]);
+            return <P.Models.Preismeldestelle>{
+                _id: id,
+                _rev: undefined,
+                preissubsystem: parseNumber(cells[importPmsFromPrestaIndexes.preissubsystem], 'preissubsystem'),
+                pmsNummer: cells[importPmsFromPrestaIndexes.pmsNummer],
+                name: cells[importPmsFromPrestaIndexes.pmsName],
+                supplement: cells[importPmsFromPrestaIndexes.pmsZusatzname],
+                street: cells[importPmsFromPrestaIndexes.pmsStrasse],
+                postcode: cells[importPmsFromPrestaIndexes.pmsPlz],
+                town: cells[importPmsFromPrestaIndexes.pmsOrt],
+                telephone: cells[importPmsFromPrestaIndexes.pmsTelefon],
+                email: cells[importPmsFromPrestaIndexes.pmsEMail],
+                internetLink: cells[importPmsFromPrestaIndexes.pmsInternetLink],
+                languageCode: parseLanguageCode(cells[importPmsFromPrestaIndexes.pmsSprache]),
+                erhebungsart: cells[importPmsFromPrestaIndexes.pmsErhebungsart],
+                erhebungsartComment: parseNewlinesInText(cells[importPmsFromPrestaIndexes.bemerkungZurErhebungsart]),
+                pmsGeschlossen: parsePmsGeschlossen(cells[importPmsFromPrestaIndexes.pmsGeschlossen]),
+                erhebungsregion: cells[importPmsFromPrestaIndexes.pmsErhebungsregion],
+                zusatzInformationen: parseNewlinesInText(cells[importPmsFromPrestaIndexes.pmsZusatzinformationen]),
+                pmsTop: cells[importPmsFromPrestaIndexes.pmsTop] === '1',
+                kontaktpersons: parseKontaktPersons(cells),
+            };
+        } catch (error) {
+            throw new Error(`Preismeldestellen Import Fehler (Zeile #${i + 1}): ${error.message}`);
+        }
     });
 
     const erhebungsmonat = lines[0] ? lines[0][importPmFromPrestaIndexes.erhebungsmonat] : '';
@@ -151,9 +155,9 @@ export function preparePms(lines: string[][]) {
 export function preparePm(
     lines: string[][]
 ): { erhebungsmonat: string; preismeldungen: P.Models.PreismeldungReference[] } {
-    const preismeldungen = lines.map(
-        cells =>
-            ({
+    const preismeldungen = lines.map((cells, i) => {
+        try {
+            return {
                 _id: P.preismeldungRefId(
                     cells[importPmFromPrestaIndexes.pmsNummer],
                     cells[importPmFromPrestaIndexes.epNummer],
@@ -192,8 +196,11 @@ export function preparePm(
                 mengeVorReduktion: parseFloat(cells[importPmFromPrestaIndexes.mengeVorReduktion]),
                 datumVorReduktion: cells[importPmFromPrestaIndexes.datumVorReduktion],
                 productMerkmale: parseProduktMerkmale(cells[importPmFromPrestaIndexes.produktMerkmale]),
-            } as P.Models.PreismeldungReference)
-    );
+            } as P.Models.PreismeldungReference;
+        } catch (error) {
+            throw new Error(`Preismeldung Import Fehler (Zeile #${i + 1}): ${error.message}`);
+        }
+    });
 
     const erhebungsmonat = lines[0] ? lines[0][importPmFromPrestaIndexes.erhebungsmonat] : '';
     return { preismeldungen, erhebungsmonat };

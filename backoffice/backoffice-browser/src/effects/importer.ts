@@ -60,38 +60,48 @@ export class ImporterEffects {
         .ofType('IMPORT_DATA')
         .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
         .map(action => action.payload)
-        .flatMap(({ parsedPreismeldungen, parsedPreismeldestellen, parsedWarenkorb }) =>
-            Observable.concat(
-                [{ type: 'IMPORT_STARTED' }],
-                Observable.fromPromise(dropMonthlyDatabases())
-                    .do(x => console.log('1. CHECKSYSTEMDATABASES'))
-                    .flatMap(() => this.checkSystemDatabases())
-                    .do(x => console.log('2. IMPORTPREISMELDUNGEN'))
-                    .flatMap(() => this.importPreismeldungenAsync(parsedPreismeldungen))
-                    .do(x => console.log('3. IMPORTPREISMELDESTELLEN'))
-                    .flatMap(importPreismeldungAction =>
-                        this.importPreismeldestellen(parsedPreismeldestellen).map(importPreismeldestellenAction => [
-                            importPreismeldungAction,
-                            importPreismeldestellenAction,
-                        ])
+        .flatMap(data =>
+            Observable.of({
+                preismeldungen: preparePm(data.parsedPreismeldungen),
+                preismeldestellen: preparePms(data.parsedPreismeldestellen),
+                warenkorb: buildTree(data.parsedWarenkorb),
+            })
+                .flatMap(({ preismeldungen, preismeldestellen, warenkorb }) =>
+                    Observable.concat(
+                        [{ type: 'IMPORT_STARTED' }],
+                        Observable.fromPromise(dropMonthlyDatabases())
+                            .do(x => console.log('1. CHECKSYSTEMDATABASES'))
+                            .flatMap(() => this.checkSystemDatabases())
+                            .do(x => console.log('2. IMPORTPREISMELDUNGEN'))
+                            .flatMap(() => this.importPreismeldungenAsync(preismeldungen))
+                            .do(x => console.log('3. IMPORTPREISMELDESTELLEN'))
+                            .flatMap(importPreismeldungAction =>
+                                this.importPreismeldestellen(preismeldestellen).map(importPreismeldestellenAction => [
+                                    importPreismeldungAction,
+                                    importPreismeldestellenAction,
+                                ])
+                            )
+                            .do(x => console.log('4. IMPORTWARENKORB'))
+                            .flatMap(actions =>
+                                this.importWarenkorb(warenkorb).map(importWarenkorbAction => [
+                                    ...actions,
+                                    importWarenkorbAction,
+                                ])
+                            )
+                            .do(x => console.log('5. DROPANDRECREATEALLUSERDBS'))
+                            .flatMap(actions => this.dropAndRecreateAllUserDbs().map(action => [action, ...actions]))
+                            .do(x => console.log('6. UPDATEIMPORTMETADATA'))
+                            .flatMap(actions =>
+                                this.updateImportMetadata(null, importer.Type.all_data).map(() => actions)
+                            )
+                            .do(x => console.log('7. LOADLATESTIMPORTEDAT'))
+                            .flatMap(actions => this.loadLatestImportedAt().map(action => [action, ...actions]))
+                            .flatMap(actions => loaderhebungsMonateAction().then(action => [action, ...actions]))
+                            .do(x => console.log('8. ACTIONS', x))
+                            .flatMap(actions => actions)
                     )
-                    .do(x => console.log('4. IMPORTWARENKORB'))
-                    .flatMap(actions =>
-                        this.importWarenkorb(parsedWarenkorb).map(importWarenkorbAction => [
-                            ...actions,
-                            importWarenkorbAction,
-                        ])
-                    )
-                    .do(x => console.log('5. DROPANDRECREATEALLUSERDBS'))
-                    .flatMap(actions => this.dropAndRecreateAllUserDbs().map(action => [action, ...actions]))
-                    .do(x => console.log('6. UPDATEIMPORTMETADATA'))
-                    .flatMap(actions => this.updateImportMetadata(null, importer.Type.all_data).map(() => actions))
-                    .do(x => console.log('7. LOADLATESTIMPORTEDAT'))
-                    .flatMap(actions => this.loadLatestImportedAt().map(action => [action, ...actions]))
-                    .flatMap(actions => loaderhebungsMonateAction().then(action => [action, ...actions]))
-                    .do(x => console.log('8. ACTIONS', x))
-                    .flatMap(actions => actions)
-            )
+                )
+                .catch(error => Observable.of({ type: 'IMPORTED_ALL_FAILURE', payload: [error] } as importer.Action))
         );
 
     @Effect()
@@ -146,13 +156,14 @@ export class ImporterEffects {
             );
     }
 
-    private async importPreismeldungenAsync(parsedPreismeldungen: string[][]) {
+    private async importPreismeldungenAsync(pmInfo: {
+        erhebungsmonat: string;
+        preismeldungen: P.PreismeldungReference[];
+    }) {
         await dropLocalDatabase(dbNames.preismeldungen);
         await dropLocalDatabase(dbNames.preismeldungen_status);
         const localPreismeldungenDb = await getLocalDatabase(dbNames.preismeldungen);
         const localPreismeldungenStatusDb = await getLocalDatabase(dbNames.preismeldungen_status);
-
-        const pmInfo = preparePm(parsedPreismeldungen);
 
         const writeAll = await bluebird.all(
             chunk(pmInfo.preismeldungen, 6000).map(preismeldungenBatch =>
@@ -178,8 +189,7 @@ export class ImporterEffects {
         return { type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: pmInfo.preismeldungen } as importer.Action;
     }
 
-    private importWarenkorb(parsedWarenkorb: string[][]) {
-        const data = buildTree(parsedWarenkorb);
+    private importWarenkorb(data: { warenkorb: P.WarenkorbTreeItem[]; erhebungsmonat: string }) {
         return Observable.fromPromise(dropRemoteCouchDatabase('warenkorb'))
             .flatMap(() =>
                 getDatabase('warenkorb').then(db =>
@@ -197,14 +207,11 @@ export class ImporterEffects {
             .map(warenkorb => ({ type: 'IMPORT_WARENKORB_SUCCESS', payload: warenkorb } as importer.Action));
     }
 
-    private importPreismeldestellen(parsedPreismeldestellen: string[][]) {
+    private importPreismeldestellen(pmsInfo: { preismeldestellen: P.Preismeldestelle[]; erhebungsmonat: string }) {
         return Observable.fromPromise(dropRemoteCouchDatabase(dbNames.preismeldestellen).catch(_ => null))
             .flatMap(() => getDatabase(dbNames.preismeldestellen))
+            .flatMap(db => db.bulkDocs(pmsInfo.preismeldestellen).then(_ => db))
             .flatMap(db =>
-                doAsyncAsObservable(() => preparePms(parsedPreismeldestellen)).map(pmsInfo => ({ pmsInfo, db }))
-            )
-            .flatMap(({ pmsInfo, db }) => db.bulkDocs(pmsInfo.preismeldestellen).then(_ => ({ pmsInfo, db })))
-            .flatMap(({ pmsInfo, db }) =>
                 db
                     .put({ _id: 'erhebungsmonat', monthAsString: pmsInfo.erhebungsmonat })
                     .then(() => pmsInfo.preismeldestellen)

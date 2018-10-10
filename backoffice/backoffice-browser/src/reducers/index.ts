@@ -189,6 +189,7 @@ export const getPreismeldungenErhebungsmonat = createSelector(
 );
 
 export const getImportedAllDataAt = createSelector(getImporterState, fromImporter.getImportedAllDataAt);
+export const getImportError = createSelector(getImporterState, fromImporter.getImportError);
 
 export const getExporterState = (state: AppState) => state.exporter;
 export const getExportedPreismeldungen = createSelector(getExporterState, fromExporter.getExportedPreismeldungen);
