@@ -1,5 +1,6 @@
 import * as controlling from '../actions/controlling';
 import * as preismeldungenStatusActions from '../actions/preismeldungen-status';
+import { translateKommentare } from '../common/kommentar-functions';
 import { orderBy } from 'lodash';
 
 import { Models as P, formatPercentageChange } from 'lik-shared';
@@ -956,8 +957,12 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         [p.preismeldung.fehlendePreiseR, p.preismeldung.bearbeitungscode === 44 ? 'S' : null]
             .filter(x => !!x)
             .join(', '),
-    [columnKommentarT]: (p: ControllingErhebungsPosition) =>
-        p.preismeldung && (p.preismeldung.kommentar === '\\n' ? undefined : p.preismeldung.kommentar),
+    [columnKommentarT]: (p: ControllingErhebungsPosition) => {
+        if (!p.preismeldung || p.preismeldung.kommentar === '\\n') {
+            return undefined;
+        }
+        return translateKommentare(p.preismeldung.kommentar);
+    },
     [columnBemerkungenT]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.bemerkungen,
     [columnPeNummer]: (p: ControllingErhebungsPosition) => p.preiserheber && p.preiserheber.peNummer,
     [columnPeName]: (p: ControllingErhebungsPosition) =>

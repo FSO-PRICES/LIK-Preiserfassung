@@ -4,7 +4,8 @@ import { keyBy } from 'lodash';
 
 import * as P from 'lik-shared';
 
-import { toCsv } from '../common/file-extensions';
+import { toCsv } from './file-extensions';
+import { translateKommentare } from './kommentar-functions';
 
 enum LanguageMap {
     de = 1,
@@ -240,7 +241,7 @@ export function preparePmForExport(
                 'Fehlende_Preise'
             ),
             PE_Notiz: toText((pm.notiz || '').substr(0, 4000), 4000, 'PE_Notiz'),
-            PE_Kommentar: toText((pm.kommentar || '').substr(0, 4000), 4000, 'PE_Kommentar'),
+            PE_Kommentar: toText(translateKommentare(pm.kommentar || '').substr(0, 4000), 4000, 'PE_Kommentar'),
             Bemerkungen: toText(
                 formatBemerkungen(pm.bemerkungen, refPreismeldung.bemerkungen).substr(0, 4000),
                 4000,
