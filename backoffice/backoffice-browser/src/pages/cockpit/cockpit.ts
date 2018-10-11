@@ -36,7 +36,9 @@ export class CockpitPage {
         });
         this.preiserheberSelected$
             .takeUntil(this.ionViewDidLeave$)
-            .subscribe(pe => this.store.dispatch({ type: 'COCKPIT_PREISERHEBER_SELECTED', payload: pe.erheber._id }));
+            .subscribe(pe =>
+                this.store.dispatch({ type: 'COCKPIT_PREISERHEBER_SELECTED', payload: pe ? pe.erheber._id : null })
+            );
         this.initPreismeldungenStatus$.takeUntil(this.ionViewDidLeave$).subscribe(() => {
             this.store.dispatch(preismeldungenStatusActions.createInitializePreismeldungenStatusAction());
             this.store.dispatch(controlling.createClearControllingAction());

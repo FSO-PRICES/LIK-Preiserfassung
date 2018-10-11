@@ -91,6 +91,6 @@
     </div>
 
     <div class="container">
-        <cockpit-report-detail [preiserheber]="selectedPreiserheber$ | async" [erhebungsZeitpunktKey]="form.value.erhebungsZeitpunkt"></cockpit-report-detail>
+        <cockpit-report-detail [preiserheber]="selectedPreiserheber$ | async" [erhebungsZeitpunktKey]="erhebungsZeitpunkt$ | async"></cockpit-report-detail>
     </div>
 </div>
