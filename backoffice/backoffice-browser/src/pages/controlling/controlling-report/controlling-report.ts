@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChange, ViewChild } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import { first } from 'lodash';
 
 import { ReactiveComponent } from 'lik-shared';
 import * as P from '../../../common-models';
 import { ControllingTypesWithoutPmStatus, CONTROLLING_TYPE, CONTROLLING_0830 } from '../../../actions/controlling';
-import { ShortColumnNames } from '../../../reducers/controlling';
+import { ShortColumnNames, ColumnValue } from '../../../reducers/controlling';
 
 @Component({
     selector: 'controlling-report',
@@ -86,11 +87,11 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             exported: boolean;
             pmId: string;
             canView: boolean;
-            values: (string | number)[];
+            values: ColumnValue[];
         }[]
     >;
 
-    constructor() {
+    constructor(private domSanitizer: DomSanitizer) {
         super();
 
         this.controllingType$ = this.reportData$.filter(x => x != null).map(x => x.controllingType);
@@ -149,6 +150,13 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             .map(type => ControllingTypesWithoutPmStatus.some(x => x === type))
             .publishReplay(1)
             .refCount();
+    }
+
+    public formatValue(column: ColumnValue) {
+        if (!column.parseHtml) {
+            return column.value;
+        }
+        return this.domSanitizer.bypassSecurityTrustHtml(column.value);
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
