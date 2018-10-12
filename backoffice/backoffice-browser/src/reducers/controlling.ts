@@ -195,7 +195,6 @@ const columnAktionscodeVP = 'Actionscode_VP';
 const columnAktionscodeT = 'Actionscode_T';
 const columnMerkmaleVP = 'Merkmale_VP';
 const columnMerkmaleT = 'Merkmale_T';
-const columnFehlendePreiseT = 'Fehlende_Preise T (R, S)';
 const columnDPToVPRaw = '[RAW] Veränderung';
 const columnDPToVP = 'Veränderung';
 const columnDPToVPVorReduktion = 'Veränderung vor Reduktion';
@@ -287,7 +286,6 @@ type ColumnType =
     | typeof columnAktionscodeT
     | typeof columnMerkmaleVP
     | typeof columnMerkmaleT
-    | typeof columnFehlendePreiseT
     | typeof columnKommentarT
     | typeof columnBemerkungenT
     | typeof columnPeNummer
@@ -557,7 +555,6 @@ const report_0250_300_config = {
         columnPositionsbezeichnung,
         columnPreisbezeichnungT,
         columnBearbeitungscode,
-        columnFehlendePreiseT,
         columnAktionscodeVP,
         columnAktionscodeT,
         columnKommentarT,
@@ -923,7 +920,17 @@ const preismeldungOrRefPreimeldung = (p: ControllingErhebungsPosition) => p.prei
 
 const reportFormatPercentageChange = (n: number) =>
     fwith(formatPercentageChange(n, 1), s => (s === '&mdash;' ? undefined : s));
-const controllingBearbeitungsCodes = { ...P.bearbeitungscodeDescriptions, [99]: '' };
+const renderBearbeitungsCode = (p: ControllingErhebungsPosition) => {
+    if (!p.preismeldung) {
+        return undefined;
+    }
+    const controllingBearbeitungsCodes = {
+        ...P.bearbeitungscodeDescriptions,
+        [99]: '',
+        [101]: p.preismeldung.fehlendePreiseR,
+    };
+    return controllingBearbeitungsCodes[p.preismeldung.bearbeitungscode];
+};
 
 const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => ColumnValue } = {
     [columnErhebungsZeitpunkt]: (p: ControllingErhebungsPosition) =>
@@ -957,8 +964,7 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnPreisT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.preis),
     [columnMengeT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.menge),
     [columnStandardeinheit]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.standardeinheit.de),
-    [columnBearbeitungscode]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && controllingBearbeitungsCodes[p.preismeldung.bearbeitungscode]),
+    [columnBearbeitungscode]: (p: ControllingErhebungsPosition) => normalColumn(renderBearbeitungsCode(p)),
     [columnAktionscodeVP]: (p: ControllingErhebungsPosition) =>
         normalColumn(p.refPreismeldung && p.refPreismeldung.aktion ? 'A' : undefined),
     [columnAktionscodeT]: (p: ControllingErhebungsPosition) =>
@@ -974,13 +980,6 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
             p.warenkorbItem.productMerkmale
                 .map((m, i) => `${m.de}:${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
                 .join('|')
-        ),
-    [columnFehlendePreiseT]: (p: ControllingErhebungsPosition) =>
-        normalColumn(
-            p.preismeldung &&
-                [p.preismeldung.fehlendePreiseR, p.preismeldung.bearbeitungscode === 44 ? 'S' : null]
-                    .filter(x => !!x)
-                    .join(', ')
         ),
     [columnKommentarT]: (p: ControllingErhebungsPosition) => {
         if (!p.preismeldung || p.preismeldung.kommentar === '\\n') {
