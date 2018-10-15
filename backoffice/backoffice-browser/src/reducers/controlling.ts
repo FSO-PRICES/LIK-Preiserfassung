@@ -185,6 +185,7 @@ const columnEpNummer = 'EP_Nummer';
 const columnLaufnummer = 'Laufnummer';
 const columnPositionsbezeichnung = 'Positionsbezeichnung';
 const columnPreisbezeichnungT = 'Preisbezeichnung_T';
+const columnPreisbezeichnungVP = 'Preisbezeichnung_VP';
 const columnPreisVP = 'Preis_VP';
 const columnMengeVP = 'Menge_VP';
 const columnPreisT = 'Preis_T';
@@ -241,7 +242,8 @@ export const ShortColumnNames = {
     'Preis_vor_Reduktion T': 'NormPrice_T',
     'Preis_vor_Reduktion VP': 'NormPrice_VP',
     Preis_VP: 'Price_VP',
-    Preisbezeichnung_T: 'Text',
+    Preisbezeichnung_T: 'Text T',
+    Preisbezeichnung_VP: 'Text VP',
     Sort_ID: 'ID',
     Standardeinheit: 'StdUnit',
     Standardmenge: 'StdQty',
@@ -631,6 +633,7 @@ const report_0450_config: ControllingConfig = {
         columnPreisId,
         columnPositionsbezeichnung,
         columnPreisbezeichnungT,
+        columnPreisbezeichnungVP,
         columnPreisT,
         columnMengeT,
         columnDPToVP,
@@ -732,6 +735,7 @@ const report_0700_config: ControllingConfig = {
         columnLaufnummer,
         columnPositionsbezeichnung,
         columnNumPreiseProEP,
+        columnBearbeitungscode,
         columnPeNummer,
         columnPeName,
     ] as ColumnType[],
@@ -752,20 +756,21 @@ const limitProperties = (p: P.Preismeldung) => [
     p.d_VPKToVPVorReduktion,
 ];
 const ug2og2Limits = [P.limitAbweichungPmOG2, P.limitAbweichungPmUG2] as P.LimitType[];
-const positiveNegativeLimits = [
-    P.limitNegativeLimite,
-    P.limitPositiveLimite,
-    P.limitNegativeLimite_1,
-    P.limitPositiveLimite_1,
-    P.limitNegativeLimite_7,
-    P.limitPositiveLimite_7,
-] as P.LimitType[];
+const positiveLimits = [P.limitPositiveLimite, P.limitPositiveLimite_1, P.limitPositiveLimite_7] as P.LimitType[];
+const negativeLimits = [P.limitNegativeLimite, P.limitNegativeLimite_1, P.limitNegativeLimite_7] as P.LimitType[];
+const positiveNegativeLimits = [...positiveLimits, ...negativeLimits] as P.LimitType[];
 
 const containsLimits = (p: P.Preismeldung, limits: P.LimitType[]) =>
     limitProperties(p).some(x => limits.some(l => l === x));
 
 const isUG2OrOG2 = (p: P.Preismeldung) => containsLimits(p, ug2og2Limits);
 const isPositiveNegative = (p: P.Preismeldung) => containsLimits(p, positiveNegativeLimits);
+const isPositiveNegative1 = (p: P.Preismeldung) =>
+    containsLimits(p, [P.limitNegativeLimite_1, P.limitPositiveLimite_1]);
+const isPositiveNegative7 = (p: P.Preismeldung) =>
+    containsLimits(p, [P.limitNegativeLimite_7, P.limitPositiveLimite_7]);
+const isPositive = (p: P.Preismeldung) => containsLimits(p, positiveLimits);
+const isNegative = (p: P.Preismeldung) => containsLimits(p, negativeLimits);
 
 const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0100]: base_0100_0200_config(1),
@@ -799,7 +804,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0310]: {
         ...base_0310_0320_config,
         gliederungspositionnummerRange: {
-            type: REPORT_EXCLUDE_EP,
+            type: REPORT_INCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3188 }],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
@@ -826,7 +831,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [101, 44].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0410]: {
         ...base_0310_0320_0400_0405_0410_0420_0430_config,
@@ -869,33 +874,27 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung &&
             isPositiveNegative(x.preismeldung) &&
             ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
-            (!!x.refPreismeldung && !x.refPreismeldung.aktion && (!!x.preismeldung && !x.preismeldung.aktion)),
+            (!!x.refPreismeldung && !x.refPreismeldung.aktion && !x.preismeldung.aktion),
     },
     [controlling.CONTROLLING_0520]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
-            [1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
-            isPositiveNegative(x.preismeldung) &&
-            isUG2OrOG2(x.preismeldung),
-        // (!!x.refPreismeldung && x.refPreismeldung.aktion && (!!x.preismeldung && x.preismeldung.aktion)),
+            ((1 === x.preismeldung.bearbeitungscode && isPositiveNegative1(x.preismeldung)) ||
+                (7 === x.preismeldung.bearbeitungscode && isPositiveNegative7(x.preismeldung))),
     },
     [controlling.CONTROLLING_0530]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
             ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
-            isPositiveNegative(x.preismeldung) &&
             isUG2OrOG2(x.preismeldung) &&
-            !((!!x.refPreismeldung && x.refPreismeldung.aktion) || (!!x.preismeldung && x.preismeldung.aktion)),
+            ((x.refPreismeldung && x.refPreismeldung.aktion) || x.preismeldung.aktion),
     },
     [controlling.CONTROLLING_0540]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung &&
-            isPositiveNegative(x.preismeldung) &&
-            isUG2OrOG2(x.preismeldung) &&
-            !x.preismeldung.aktion,
+            !!x.preismeldung && isPositive(x.preismeldung) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0600]: report_0600_config,
     [controlling.CONTROLLING_0700]: report_0700_config,
@@ -945,9 +944,8 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnPositionsbezeichnung]: (p: ControllingErhebungsPosition) =>
         normalColumn(p.warenkorbItem.positionsbezeichnung.de),
     [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
-        normalColumn(
-            (p.preismeldung && p.preismeldung.artikeltext) || (p.refPreismeldung && p.refPreismeldung.artikeltext)
-        ),
+        normalColumn(p.preismeldung && p.preismeldung.artikeltext),
+    [columnPreisbezeichnungVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung.artikeltext),
     [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
         normalColumn(p.refPreismeldung && p.refPreismeldung.artikeltext),
     [columnPreisVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung && p.refPreismeldung.preis),
@@ -960,7 +958,8 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         normalColumn(p.preismeldung && p.preismeldung.d_DPToVPVorReduktion.percentage),
     [columnDPToVPVorReduktion]: (p: ControllingErhebungsPosition) =>
         normalColumn(p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVPVorReduktion.percentage)),
-    [columnNumPreiseProEP]: (p: ControllingErhebungsPosition) => normalColumn(p.numEpForThisPms),
+    [columnNumPreiseProEP]: (p: ControllingErhebungsPosition) =>
+        normalColumn(`${p.numEpForThisPms || 0}/${p.warenkorbItem.anzahlPreiseProPMS}`),
     [columnPreisT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.preis),
     [columnMengeT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.menge),
     [columnStandardeinheit]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.standardeinheit.de),
