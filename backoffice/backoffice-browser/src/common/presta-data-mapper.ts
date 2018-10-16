@@ -332,7 +332,7 @@ export function preparePreiserheberForExport(
             PE_Strasse: toText(preiserheber.street, 60, 'PE_Strasse'),
             PE_PLZ: toNumber(preiserheber.postcode, 5, 'PE_PLZ'),
             PE_Ort: toText(preiserheber.town, 40, 'PE_Ort'),
-            PE_Zuweisung_PMS: toText(preiserheber.pmsNummers.join(','), 400, 'PE_Zuweisung_PMS'),
+            PE_Zuweisung_PMS: toText(preiserheber.pmsNummers.join(','), 800, 'PE_Zuweisung_PMS'),
         }))
     );
 }
