@@ -977,7 +977,7 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnMerkmaleT]: (p: ControllingErhebungsPosition) =>
         normalColumn(
             p.warenkorbItem.productMerkmale
-                .map((m, i) => `${m.de}:${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
+                .map((m, i) => `<b>${m.de}</b>:${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
                 .join('|')
         ),
     [columnKommentarT]: (p: ControllingErhebungsPosition) => {
