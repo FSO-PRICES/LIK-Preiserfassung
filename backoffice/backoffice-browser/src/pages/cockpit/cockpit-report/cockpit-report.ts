@@ -78,7 +78,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
             .startWith({})
             .combineLatest(this.cockpitReportData$.filter(x => !!x), (form, cockpitReportData) => {
                 const erhebungsZeitpunktKey = this.form.value.erhebungsZeitpunkt;
-                const showAll = erhebungsZeitpunktKey.indexOf('stichtag') === -1;
+                const showAll = erhebungsZeitpunktKey === 'indifferent';
                 const filterStichtage = (preiserhebers: P.CockpitPreiserheberSummary[]) => {
                     return showAll
                         ? preiserhebers

@@ -34,7 +34,7 @@ export class CockpitReportDetailComponent extends ReactiveComponent implements O
         .filter(x => !!x)
         .combineLatest(this.erhebungsZeitpunktKey$.filter(x => !!x))
         .map(([preiserheber, erhebungsZeitpunktKey]) => {
-            const showAll = erhebungsZeitpunktKey.indexOf('stichtag') === -1;
+            const showAll = erhebungsZeitpunktKey === 'indifferent';
             return sortBy(
                 preiserheber.pmsPreismeldungSummary.filter(
                     summary => !!summary.pms && (showAll || summary.summary[erhebungsZeitpunktKey].total > 0)
