@@ -400,8 +400,7 @@ const base_0100_0200_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => 
         range: [{ lowEpNummer: 4090, highEpNummer: 4100 }, { lowEpNummer: 7106, highEpNummer: 7111 }],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt &&
-        (!x.preismeldung || (!!x.preismeldung && !!x.preismeldung.preis)),
+        x.refPreismeldung.erhebungsZeitpunkt === erhebungsZeitpunkt && !x.preismeldung,
     columns: [
         columnPreisId,
         columnPmsName,
@@ -530,8 +529,7 @@ const base_0230_0240_config = (erhebungsZeitpunkt: 10 | 20): ControllingConfig =
         range: [{ lowEpNummer: 1305, highEpNummer: 1413 }],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt &&
-        (!x.preismeldung || (!!x.preismeldung && !!x.preismeldung.preis)),
+        x.refPreismeldung && x.refPreismeldung.erhebungsZeitpunkt === erhebungsZeitpunkt && !x.preismeldung,
     // erherbungsPositionFilter: (x: PreismeldungAndRefPreismeldung) => !x.preismeldung || (!!x.preismeldung && !!x.preismeldung.preis), // for testing because erhebungszeitpunkt for fruit and gemüse is wrong in test data
     columns: [
         columnPreisId,
