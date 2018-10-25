@@ -1,20 +1,18 @@
 {
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "declaration": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "lib": [
-      "dom",
-      "es2015"
-    ],
-    "module": "es2015",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "target": "es5"
-  },
-  "exclude": [
-    "node_modules"
-  ],
-  "compileOnSave": false
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "declaration": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": ["dom", "es2015"],
+        "module": "es2015",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "target": "es5",
+        "types": ["jest"],
+        "typeRoots": ["node_modules/@types"]
+    },
+    "include": ["./common/**/*.ts", "./pef-components/**/*.ts", "./preismeldung-shared/**/*.ts"],
+    "exclude": ["**/e2e/*.ts", "**/*.e2e-spec.ts", "node_modules"],
+    "compileOnSave": false
 }

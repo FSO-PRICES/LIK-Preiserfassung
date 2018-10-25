@@ -3,28 +3,10 @@
 </div>
 <div class="row">
     <div class="column">
-        <label>Erhebungsschema Deutsch</label>
+        <label>Erhebungsschema Import</label>
     </div>
     <div class="column">
-        <input class="file-select-btn" type="file" (change)="warenkorbSelectedDe$.emit($event)" [value]="(resetInputValue$ | async)?.value"
-        />
-    </div>
-</div>
-<div class="row">
-    <div class="column">
-        <label>Erhebungsschema Französisch</label>
-    </div>
-    <div class="column">
-        <input class="file-select-btn" type="file" (change)="warenkorbSelectedFr$.emit($event)" [value]="(resetInputValue$ | async)?.value"
-        />
-    </div>
-</div>
-<div class="row">
-    <div class="column">
-        <label>Erhebungsschema Italienisch</label>
-    </div>
-    <div class="column">
-        <input class="file-select-btn" type="file" (change)="warenkorbSelectedIt$.emit($event)" [value]="(resetInputValue$ | async)?.value"
+        <input class="file-select-btn" type="file" (change)="warenkorbSelected$.emit($event)" [value]="(resetInputValue$ | async)?.value" required
         />
     </div>
 </div>

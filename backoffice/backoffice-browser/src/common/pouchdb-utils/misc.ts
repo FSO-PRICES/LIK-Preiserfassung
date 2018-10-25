@@ -1,11 +1,12 @@
 import { Observable } from 'rxjs/Observable';
 import * as bluebird from 'bluebird';
-import PouchDB from 'pouchdb';
+import PouchDB from './pouchdb';
 
 import { Models as P, preismeldungId } from 'lik-shared';
 
 import { getLocalDatabase, getSettings, dbNames, downloadDatabaseAsync, uploadDatabaseAsync } from './database';
 import { getDocumentByKeyFromDb } from './documents';
+import { environment } from '../../environments/environment';
 
 function setCouchLoginTime(timestamp: number) {
     return localStorage.setItem('couchdb_lastLoginTime', timestamp.toString());
@@ -45,6 +46,32 @@ export async function getAllPreismeldungenStatus() {
 
 export async function updateMissingPreismeldungenStatus(preismeldungen: P.Preismeldung[]) {
     await downloadDatabaseAsync(dbNames.preismeldungen_status);
+    const settings = await getSettings();
+    const db = await getLocalDatabase(dbNames.preismeldungen_status);
+    const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
+        db,
+        'preismeldungen_status'
+    );
+    let count = 0;
+    const newStatus =
+        environment.masterErhebungsorgannummer === settings.general.erhebungsorgannummer
+            ? P.PreismeldungStatus['geprüft']
+            : P.PreismeldungStatus['ungeprüft'];
+    preismeldungen.forEach(pm => {
+        if (!!pm.uploadRequestedAt && currentPreismeldungenStatus.statusMap[pm._id] == null) {
+            count++;
+            currentPreismeldungenStatus.statusMap[pm._id] = newStatus;
+        }
+    });
+    if (count > 0) {
+        await db.put(currentPreismeldungenStatus);
+        await uploadDatabaseAsync(dbNames.preismeldungen_status);
+    }
+    return { currentPreismeldungenStatus, count };
+}
+
+export async function getMissingPreismeldungenStatusCount(preismeldungen: P.Preismeldung[]) {
+    await downloadDatabaseAsync(dbNames.preismeldungen_status);
     const db = await getLocalDatabase(dbNames.preismeldungen_status);
     const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
         db,
@@ -54,12 +81,7 @@ export async function updateMissingPreismeldungenStatus(preismeldungen: P.Preism
     preismeldungen.forEach(pm => {
         if (!!pm.uploadRequestedAt && currentPreismeldungenStatus.statusMap[pm._id] == null) {
             count++;
-            currentPreismeldungenStatus.statusMap[pm._id] = P.PreismeldungStatus['ungeprüft'];
         }
     });
-    if (count > 0) {
-        await db.put(currentPreismeldungenStatus);
-        await uploadDatabaseAsync(dbNames.preismeldungen_status);
-    }
-    return { currentPreismeldungenStatus, count };
+    return count;
 }

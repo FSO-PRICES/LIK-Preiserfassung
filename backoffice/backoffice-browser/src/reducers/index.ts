@@ -135,6 +135,10 @@ export const getPreismeldungenStatusMap = createSelector(
     getPreismeldungenStatusState,
     fromPreismeldungenStatus.getPreismeldungenStatusMap
 );
+export const getPreismeldungenStatusMapMissingCount = createSelector(
+    getPreismeldungenStatusState,
+    fromPreismeldungenStatus.getPreismeldungenStatusMapMissingCount
+);
 export const getPreismeldungenStatusMapUpdatedCount = createSelector(
     getPreismeldungenStatusState,
     fromPreismeldungenStatus.getPreismeldungenStatusMapUpdatedCount
@@ -185,6 +189,7 @@ export const getPreismeldungenErhebungsmonat = createSelector(
 );
 
 export const getImportedAllDataAt = createSelector(getImporterState, fromImporter.getImportedAllDataAt);
+export const getImportError = createSelector(getImporterState, fromImporter.getImportError);
 
 export const getExporterState = (state: AppState) => state.exporter;
 export const getExportedPreismeldungen = createSelector(getExporterState, fromExporter.getExportedPreismeldungen);

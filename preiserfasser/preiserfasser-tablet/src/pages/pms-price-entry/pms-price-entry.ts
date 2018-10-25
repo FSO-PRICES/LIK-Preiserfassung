@@ -48,8 +48,8 @@ export class PmsPriceEntryPage implements OnDestroy {
         .select(fromRoot.getCurrentLanguage)
         .publishReplay(1)
         .refCount();
-    currentTime$ = this.store
-        .select(fromRoot.getCurrentTime)
+    currentDate$ = this.store
+        .select(fromRoot.getCurrentDate)
         .publishReplay(1)
         .refCount();
     priceCountStatuses$ = this.store.select(fromRoot.getPriceCountStatuses);
@@ -146,7 +146,7 @@ export class PmsPriceEntryPage implements OnDestroy {
                         .filter(x => x.to === tabName)
                 );
 
-        this.currentTime$.takeUntil(this.onDestroy$).subscribe();
+        this.currentDate$.takeUntil(this.onDestroy$).subscribe();
 
         createTabLeaveObservable('MESSAGES')
             .delay(50)

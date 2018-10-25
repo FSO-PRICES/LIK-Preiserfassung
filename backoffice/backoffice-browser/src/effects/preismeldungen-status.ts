@@ -15,6 +15,7 @@ import {
     uploadDatabaseAsync,
     getAllPreismeldungenStatus,
     updateMissingPreismeldungenStatus,
+    getMissingPreismeldungenStatusCount,
 } from '../common/pouchdb-utils';
 import { getAllDocumentsForPrefixFromUserDbs } from '../common/user-db-values';
 
@@ -49,6 +50,21 @@ export class PreismeldungenStatusEffects {
         );
 
     @Effect()
+    getMissingPreismeldungenStatusCount$ = this.actions$
+        .ofType(preismeldungenStatus.GET_MISSING_PREISMELDUNGEN_STATUS_COUNT)
+        .let(continueEffectOnlyIfTrue(this.isLoggedIn$))
+        .flatMap(action =>
+            Observable.concat(
+                [preismeldungenStatus.createGetMissingPreismeldungenStatusCountResetAction()],
+                getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
+                    getMissingPreismeldungenStatusCount(preismeldungen).then(count =>
+                        preismeldungenStatus.createGetMissingPreismeldungenStatusCountSuccessAction(count)
+                    )
+                )
+            )
+        );
+
+    @Effect()
     setPreismeldungStatusSuccess$ = this.setPreismeldungStatus$
         .merge(this.setPreismeldungStatusBulk$)
         .map(status => preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(status.statusMap));
@@ -61,9 +77,9 @@ export class PreismeldungenStatusEffects {
                 [preismeldungenStatus.createSetPreismeldungenStatusAreInitializingAction()],
                 getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).flatMap(preismeldungen =>
                     updateMissingPreismeldungenStatus(preismeldungen).then(status =>
-                        preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(
-                            status.currentPreismeldungenStatus.statusMap,
-                            status.count
+                        preismeldungenStatus.createSetPreismeldungenStatusInitializedAction(
+                            status.count,
+                            status.currentPreismeldungenStatus.statusMap
                         )
                     )
                 )

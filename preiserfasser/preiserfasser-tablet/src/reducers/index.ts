@@ -53,7 +53,11 @@ const reducers = {
     pdf: fromPdf.reducer,
 };
 
-const developmentReducer: ActionReducer<AppState> = compose(storeLogger(), storeFreeze, combineReducers)(reducers);
+const developmentReducer: ActionReducer<AppState> = compose(
+    storeLogger(),
+    storeFreeze,
+    combineReducers
+)(reducers);
 const productionReducer: ActionReducer<AppState> = combineReducers(reducers);
 
 export function reducer(state: AppState, action: any): AppState {
@@ -85,6 +89,7 @@ export const getPreismeldungenCurrentPmsNummer = createSelector(
 
 export const getTimeState = (state: AppState) => state.time;
 export const getCurrentTime = createSelector(getTimeState, fromTime.getCurrentTime);
+export const getCurrentDate = createSelector(getTimeState, fromTime.getCurrentDate);
 
 export const getLanguagesState = (state: AppState) => state.languages;
 export const getLanguages = createSelector(getLanguagesState, fromLanguages.getLanguages);
@@ -117,8 +122,8 @@ export const getErhebungsInfo = (state: AppState) => state.erhebungsInfo;
 
 export const getCurrentPreismeldungViewBag = createSelector(
     getCurrentPreismeldung,
-    getCurrentTime,
-    (currentPreismeldungBag, currentTime): P.CurrentPreismeldungViewBag => {
+    getCurrentDate,
+    (currentPreismeldungBag, currentDate): P.CurrentPreismeldungViewBag => {
         function isReadonly() {
             if (!currentPreismeldungBag) return false;
             if (!!currentPreismeldungBag.preismeldung.uploadRequestedAt) return true;
@@ -127,14 +132,14 @@ export const getCurrentPreismeldungViewBag = createSelector(
             const parsed = dateRegex.exec(currentPreismeldungBag.refPreismeldung.erhebungsAnfangsDatum);
             if (!parsed) return false;
             const erhebungsAnfangsDatum = new Date(+parsed[3], +parsed[2] - 1, +parsed[1] - 1);
-            return isBefore(currentTime, erhebungsAnfangsDatum) ? true : false;
+            return isBefore(currentDate, erhebungsAnfangsDatum);
         }
         return !currentPreismeldungBag
             ? null
             : {
-                ...currentPreismeldungBag,
-                isReadonly: isReadonly(),
-            };
+                  ...currentPreismeldungBag,
+                  isReadonly: isReadonly(),
+              };
     }
 );
 

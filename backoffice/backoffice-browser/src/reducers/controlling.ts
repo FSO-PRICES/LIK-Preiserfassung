@@ -1,5 +1,6 @@
 import * as controlling from '../actions/controlling';
 import * as preismeldungenStatusActions from '../actions/preismeldungen-status';
+import { translateKommentare } from '../common/kommentar-functions';
 import { orderBy } from 'lodash';
 
 import { Models as P, formatPercentageChange } from 'lik-shared';
@@ -14,7 +15,7 @@ export interface ControllingReportData {
         exported: boolean;
         pmId: string;
         canView: boolean;
-        values: (string | number)[];
+        values: ColumnValue[];
     }[];
 }
 
@@ -113,6 +114,12 @@ export function reducer(
                 preismeldungStatusMap: action.payload,
             };
         }
+        case preismeldungenStatusActions.SET_PREISMELDUNGEN_STATUS_INITIALIZED: {
+            return {
+                ...state,
+                preismeldungStatusMap: action.payload.statusMap,
+            };
+        }
         default:
             return state;
     }
@@ -178,6 +185,7 @@ const columnEpNummer = 'EP_Nummer';
 const columnLaufnummer = 'Laufnummer';
 const columnPositionsbezeichnung = 'Positionsbezeichnung';
 const columnPreisbezeichnungT = 'Preisbezeichnung_T';
+const columnPreisbezeichnungVP = 'Preisbezeichnung_VP';
 const columnPreisVP = 'Preis_VP';
 const columnMengeVP = 'Menge_VP';
 const columnPreisT = 'Preis_T';
@@ -234,13 +242,27 @@ export const ShortColumnNames = {
     'Preis_vor_Reduktion T': 'NormPrice_T',
     'Preis_vor_Reduktion VP': 'NormPrice_VP',
     Preis_VP: 'Price_VP',
-    Preisbezeichnung_T: 'Text',
+    Preisbezeichnung_T: 'Text T',
+    Preisbezeichnung_VP: 'Text VP',
     Sort_ID: 'ID',
     Standardeinheit: 'StdUnit',
     Standardmenge: 'StdQty',
     'Veränderung vor Reduktion': 'NormVar_%',
     Veränderung: 'Var_%',
 };
+
+export type ColumnValue =
+    | {
+          value: string | number;
+          parseHtml: false;
+      }
+    | {
+          value: string;
+          parseHtml: true;
+      };
+
+const normalColumn = (value: string | number) => ({ value, parseHtml: false } as ColumnValue);
+const htmlColumn = (value: string) => ({ value, parseHtml: true } as ColumnValue);
 
 type ColumnType =
     | typeof columnErhebungsZeitpunkt
@@ -378,13 +400,13 @@ const base_0100_0200_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => 
         range: [{ lowEpNummer: 4090, highEpNummer: 4100 }, { lowEpNummer: 7106, highEpNummer: 7111 }],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt &&
-        (!x.preismeldung || (!!x.preismeldung && !!x.preismeldung.preis)),
+        x.refPreismeldung.erhebungsZeitpunkt === erhebungsZeitpunkt && !x.preismeldung,
     columns: [
         columnPreisId,
         columnPmsName,
         columnPositionsbezeichnung,
         columnPreisbezeichnungT,
+        columnPreisT,
         columnPeNummer,
         columnPeName,
         columnPmsGeschlossen,
@@ -400,7 +422,42 @@ const base_0100_0200_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => 
 const base_0110_0210_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
     gliederungspositionnummerRange: {
         type: REPORT_INCLUDE_EP,
-        range: [{ lowEpNummer: 4090, highEpNummer: 4100 }, { lowEpNummer: 7106, highEpNummer: 7111 }],
+        range: [{ lowEpNummer: 4090, highEpNummer: 4100 }],
+    },
+    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt,
+    columns: [
+        columnPmsErhebungsregion,
+        columnPmsNummer,
+        columnPmsName,
+        columnEpNummer,
+        columnLaufnummer,
+        columnPositionsbezeichnung,
+        columnPreisbezeichnungT,
+        columnPreisVP,
+        columnMengeVP,
+        columnPreisT,
+        columnMengeT,
+        columnStandardeinheit,
+        columnDPToVP,
+        columnKommentarT,
+        columnBemerkungenT,
+        columnPeNummer,
+        columnPeName,
+        columnPmsGeschlossen,
+    ],
+    sortBy: [
+        { column: columnPmsErhebungsregion, convertToNumber: false },
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+        { column: columnDPToVPRaw, convertToNumber: true },
+    ],
+});
+
+const base_0115_0215_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
+    gliederungspositionnummerRange: {
+        type: REPORT_INCLUDE_EP,
+        range: [{ lowEpNummer: 7106, highEpNummer: 7111 }],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
         (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt,
@@ -472,8 +529,7 @@ const base_0230_0240_config = (erhebungsZeitpunkt: 10 | 20): ControllingConfig =
         range: [{ lowEpNummer: 1305, highEpNummer: 1413 }],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt &&
-        (!x.preismeldung || (!!x.preismeldung && !!x.preismeldung.preis)),
+        x.refPreismeldung && x.refPreismeldung.erhebungsZeitpunkt === erhebungsZeitpunkt && !x.preismeldung,
     // erherbungsPositionFilter: (x: PreismeldungAndRefPreismeldung) => !x.preismeldung || (!!x.preismeldung && !!x.preismeldung.preis), // for testing because erhebungszeitpunkt for fruit and gemüse is wrong in test data
     columns: [
         columnPreisId,
@@ -484,16 +540,15 @@ const base_0230_0240_config = (erhebungsZeitpunkt: 10 | 20): ControllingConfig =
         columnPeName,
         columnPmsGeschlossen,
     ],
-    sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }],
+    sortBy: [
+        { column: columnPmsErhebungsregion, convertToNumber: false },
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+        { column: columnLaufnummer, convertToNumber: true },
+    ],
 });
 
-const report_0250_config: ControllingConfig = {
-    gliederungspositionnummerRange: {
-        type: REPORT_INCLUDE_EP,
-        range: [{ lowEpNummer: 1305, highEpNummer: 1413 }],
-    },
-    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        !!x.preismeldung && [0, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
+const report_0250_300_config = {
     columns: [
         columnPreisId,
         columnPmsName,
@@ -507,11 +562,11 @@ const report_0250_config: ControllingConfig = {
         columnPeNummer,
         columnPeName,
         columnPmsGeschlossen,
-    ],
-    sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }],
+    ] as ColumnType[],
+    sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
 };
 
-const base_0300_0310_0320_0400_0410_0420_0430_config = {
+const base_0310_0320_0400_0405_0410_0420_0430_config = {
     columns: [
         columnPreisId,
         columnPmsName,
@@ -531,8 +586,8 @@ const base_0300_0310_0320_0400_0410_0420_0430_config = {
     sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
 };
 
-const base_0300_0310_0320_config = {
-    ...base_0300_0310_0320_0400_0410_0420_0430_config,
+const base_0310_0320_config = {
+    ...base_0310_0320_0400_0405_0410_0420_0430_config,
     gliederungspositionnummerRange: {
         type: REPORT_INCLUDE_EP,
         range: [{ lowEpNummer: 3000, highEpNummer: 3999 }],
@@ -560,6 +615,37 @@ const report_0440_config: ControllingConfig = {
         columnKommentarT,
     ] as ColumnType[],
     sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
+};
+
+const report_0450_config: ControllingConfig = {
+    gliederungspositionnummerRange: {
+        type: REPORT_EXCLUDE_EP,
+        range: [],
+    },
+    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+        x.refPreismeldung &&
+        !!x.preismeldung &&
+        x.preismeldung.bearbeitungscode === 99 &&
+        x.refPreismeldung.artikeltext !== x.preismeldung.artikeltext,
+    columns: [
+        columnPreisId,
+        columnPositionsbezeichnung,
+        columnPreisbezeichnungT,
+        columnPreisbezeichnungVP,
+        columnPreisT,
+        columnMengeT,
+        columnDPToVP,
+        columnPreisT,
+        columnMengeT,
+        columnStandardeinheit,
+        columnBearbeitungscode,
+        columnAktionscodeVP,
+        columnAktionscodeT,
+        columnKommentarT,
+        columnPeNummer,
+        columnPeName,
+    ] as ColumnType[],
+    sortBy: [{ column: columnDPToVPRaw, convertToNumber: true }] as SortByType[],
 };
 
 const base_0500_0510_0520_0530_0540_config = {
@@ -598,9 +684,7 @@ const base_0800_config: ControllingConfig = {
         columnPmsName,
         columnEpNummer,
         columnPositionsbezeichnung,
-        columnPreisT,
-        columnMengeT,
-        columnNumPreiseProEP,
+        columnDPToVP,
         columnPeNummer,
         columnPeName,
     ] as ColumnType[],
@@ -646,15 +730,17 @@ const report_0700_config: ControllingConfig = {
         columnPmsNummer,
         columnPmsName,
         columnEpNummer,
+        columnLaufnummer,
         columnPositionsbezeichnung,
         columnNumPreiseProEP,
+        columnBearbeitungscode,
         columnPeNummer,
         columnPeName,
     ] as ColumnType[],
     sortBy: [
-        { column: columnPeNummer, convertToNumber: true },
         { column: columnPmsNummer, convertToNumber: true },
         { column: columnEpNummer, convertToNumber: true },
+        { column: columnLaufnummer, convertToNumber: true },
     ] as SortByType[],
 };
 
@@ -668,57 +754,85 @@ const limitProperties = (p: P.Preismeldung) => [
     p.d_VPKToVPVorReduktion,
 ];
 const ug2og2Limits = [P.limitAbweichungPmOG2, P.limitAbweichungPmUG2] as P.LimitType[];
-const positiveNegativeLimits = [
-    P.limitNegativeLimite,
-    P.limitPositiveLimite,
-    P.limitNegativeLimite_1,
-    P.limitPositiveLimite_1,
-    P.limitNegativeLimite_7,
-    P.limitPositiveLimite_7,
-] as P.LimitType[];
+const positiveLimits = [P.limitPositiveLimite, P.limitPositiveLimite_1, P.limitPositiveLimite_7] as P.LimitType[];
+const negativeLimits = [P.limitNegativeLimite, P.limitNegativeLimite_1, P.limitNegativeLimite_7] as P.LimitType[];
+const positiveNegativeLimits = [...positiveLimits, ...negativeLimits] as P.LimitType[];
 
 const containsLimits = (p: P.Preismeldung, limits: P.LimitType[]) =>
     limitProperties(p).some(x => limits.some(l => l === x));
 
 const isUG2OrOG2 = (p: P.Preismeldung) => containsLimits(p, ug2og2Limits);
 const isPositiveNegative = (p: P.Preismeldung) => containsLimits(p, positiveNegativeLimits);
+const isPositiveNegative1 = (p: P.Preismeldung) =>
+    containsLimits(p, [P.limitNegativeLimite_1, P.limitPositiveLimite_1]);
+const isPositiveNegative7 = (p: P.Preismeldung) =>
+    containsLimits(p, [P.limitNegativeLimite_7, P.limitPositiveLimite_7]);
+const isPositive = (p: P.Preismeldung) => containsLimits(p, positiveLimits);
+const isNegative = (p: P.Preismeldung) => containsLimits(p, negativeLimits);
 
 const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0100]: base_0100_0200_config(1),
     [controlling.CONTROLLING_0200]: base_0100_0200_config(2),
     [controlling.CONTROLLING_0110]: base_0110_0210_config(1),
     [controlling.CONTROLLING_0210]: base_0110_0210_config(2),
+    [controlling.CONTROLLING_0115]: base_0115_0215_config(1),
+    [controlling.CONTROLLING_0215]: base_0115_0215_config(2),
     [controlling.CONTROLLING_0120]: base_0120_0220_config(1),
     [controlling.CONTROLLING_0220]: base_0120_0220_config(2),
     [controlling.CONTROLLING_0230]: base_0230_0240_config(10),
     [controlling.CONTROLLING_0240]: base_0230_0240_config(20),
-    [controlling.CONTROLLING_0250]: report_0250_config,
+    [controlling.CONTROLLING_0250]: {
+        ...report_0250_300_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_INCLUDE_EP,
+            range: [{ lowEpNummer: 1305, highEpNummer: 1413 }],
+        },
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+            !!x.preismeldung && [0, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
+    },
     [controlling.CONTROLLING_0300]: {
-        ...base_0300_0310_0320_config,
+        ...report_0250_300_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_INCLUDE_EP,
+            range: [{ lowEpNummer: 3000, highEpNummer: 3999 }],
+        },
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung && [7, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0310]: {
-        ...base_0300_0310_0320_config,
+        ...base_0310_0320_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_INCLUDE_EP,
+            range: [{ lowEpNummer: 3000, highEpNummer: 3188 }],
+        } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0320]: {
-        ...base_0300_0310_0320_config,
+        ...base_0310_0320_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0400]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
+        gliederungspositionnummerRange: {
+            type: REPORT_EXCLUDE_EP,
+            range: [{ lowEpNummer: 3000, highEpNummer: 3188 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
+        } as GliederungspositionnummerRangeType,
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+            !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
+    },
+    [controlling.CONTROLLING_0405]: {
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [101, 44].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0410]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
@@ -727,7 +841,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0420]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [],
@@ -736,7 +850,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [1, 7].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0430]: {
-        ...base_0300_0310_0320_0400_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [],
@@ -745,41 +859,40 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [0, 2, 3].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0440]: report_0440_config,
+    [controlling.CONTROLLING_0450]: report_0450_config,
     [controlling.CONTROLLING_0500]: {
         ...base_0500_0510_0520_0530_0540_config,
-        erherbungsPositionFilter: (x: ControllingErhebungsPosition) => !!x.preismeldung && isUG2OrOG2(x.preismeldung),
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+            !!x.preismeldung &&
+            (x.preismeldung.d_DPToVP.percentage >= 250 || x.preismeldung.d_DPToVP.percentage <= -75),
     },
     [controlling.CONTROLLING_0510]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && isPositiveNegative(x.preismeldung),
+            !!x.preismeldung &&
+            isPositiveNegative(x.preismeldung) &&
+            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
+            (!!x.refPreismeldung && !x.refPreismeldung.aktion && !x.preismeldung.aktion),
     },
     [controlling.CONTROLLING_0520]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
-            [1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
-            isPositiveNegative(x.preismeldung) &&
-            isUG2OrOG2(x.preismeldung) &&
-            ((!!x.refPreismeldung && x.refPreismeldung.aktion) || (!!x.preismeldung && x.preismeldung.aktion)),
+            ((1 === x.preismeldung.bearbeitungscode && isPositiveNegative1(x.preismeldung)) ||
+                (7 === x.preismeldung.bearbeitungscode && isPositiveNegative7(x.preismeldung))),
     },
     [controlling.CONTROLLING_0530]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
             ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
-            isPositiveNegative(x.preismeldung) &&
             isUG2OrOG2(x.preismeldung) &&
-            !((!!x.refPreismeldung && x.refPreismeldung.aktion) || (!!x.preismeldung && x.preismeldung.aktion)),
+            ((x.refPreismeldung && x.refPreismeldung.aktion) || x.preismeldung.aktion),
     },
     [controlling.CONTROLLING_0540]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung &&
-            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
-            isPositiveNegative(x.preismeldung) &&
-            isUG2OrOG2(x.preismeldung) &&
-            !x.preismeldung.aktion,
+            !!x.preismeldung && isPositive(x.preismeldung) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0600]: report_0600_config,
     [controlling.CONTROLLING_0700]: report_0700_config,
@@ -804,55 +917,81 @@ const preismeldungOrRefPreimeldung = (p: ControllingErhebungsPosition) => p.prei
 
 const reportFormatPercentageChange = (n: number) =>
     fwith(formatPercentageChange(n, 1), s => (s === '&mdash;' ? undefined : s));
+const renderBearbeitungsCode = (p: ControllingErhebungsPosition) => {
+    if (!p.preismeldung) {
+        return undefined;
+    }
+    const controllingBearbeitungsCodes = {
+        ...P.bearbeitungscodeDescriptions,
+        [99]: '',
+        [101]: p.preismeldung.fehlendePreiseR,
+    };
+    return controllingBearbeitungsCodes[p.preismeldung.bearbeitungscode];
+};
 
-const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => string | number } = {
+const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => ColumnValue } = {
     [columnErhebungsZeitpunkt]: (p: ControllingErhebungsPosition) =>
-        p.refPreismeldung && p.refPreismeldung.erhebungsZeitpunkt,
+        normalColumn(p.refPreismeldung && p.refPreismeldung.erhebungsZeitpunkt),
     [columnPreisId]: (p: ControllingErhebungsPosition) =>
-        fwith(preismeldungOrRefPreimeldung(p), x => `${x.pmsNummer}/${x.epNummer}/${x.laufnummer}`),
-    [columnPmsErhebungsregion]: (p: ControllingErhebungsPosition) => p.preismeldestelle.erhebungsregion,
-    [columnPmsNummer]: (p: ControllingErhebungsPosition) => p.preismeldestelle.pmsNummer,
-    [columnPmsName]: (p: ControllingErhebungsPosition) => p.preismeldestelle.name,
-    [columnEpNummer]: (p: ControllingErhebungsPosition) => p.warenkorbItem.gliederungspositionsnummer,
-    [columnLaufnummer]: (p: ControllingErhebungsPosition) => preismeldungOrRefPreimeldung(p).laufnummer,
-    [columnPositionsbezeichnung]: (p: ControllingErhebungsPosition) => p.warenkorbItem.positionsbezeichnung.de,
+        normalColumn(fwith(preismeldungOrRefPreimeldung(p), x => `${x.pmsNummer}/${x.epNummer}/${x.laufnummer}`)),
+    [columnPmsErhebungsregion]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.erhebungsregion),
+    [columnPmsNummer]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.pmsNummer),
+    [columnPmsName]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.name),
+    [columnEpNummer]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.gliederungspositionsnummer),
+    [columnLaufnummer]: (p: ControllingErhebungsPosition) => normalColumn(preismeldungOrRefPreimeldung(p).laufnummer),
+    [columnPositionsbezeichnung]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.warenkorbItem.positionsbezeichnung.de),
     [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
-        (p.preismeldung && p.preismeldung.artikeltext) || (p.refPreismeldung && p.refPreismeldung.artikeltext),
-    [columnPreisVP]: (p: ControllingErhebungsPosition) => p.refPreismeldung && p.refPreismeldung.preis,
-    [columnMengeVP]: (p: ControllingErhebungsPosition) => p.refPreismeldung && p.refPreismeldung.menge,
-    [columnDPToVPRaw]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.d_DPToVP.percentage,
+        normalColumn(p.preismeldung && p.preismeldung.artikeltext),
+    [columnPreisbezeichnungVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung.artikeltext),
+    [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.refPreismeldung && p.refPreismeldung.artikeltext),
+    [columnPreisVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung && p.refPreismeldung.preis),
+    [columnMengeVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung && p.refPreismeldung.menge),
+    [columnDPToVPRaw]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldung && p.preismeldung.d_DPToVP.percentage),
     [columnDPToVP]: (p: ControllingErhebungsPosition) =>
-        p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVP.percentage),
+        normalColumn(p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVP.percentage)),
     [columnDPToVPVorReduktionRaw]: (p: ControllingErhebungsPosition) =>
-        p.preismeldung && p.preismeldung.d_DPToVPVorReduktion.percentage,
+        normalColumn(p.preismeldung && p.preismeldung.d_DPToVPVorReduktion.percentage),
     [columnDPToVPVorReduktion]: (p: ControllingErhebungsPosition) =>
-        p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVPVorReduktion.percentage),
-    [columnNumPreiseProEP]: (p: ControllingErhebungsPosition) => p.numEpForThisPms,
-    [columnPreisT]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.preis,
-    [columnMengeT]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.menge,
-    [columnStandardeinheit]: (p: ControllingErhebungsPosition) => p.warenkorbItem.standardeinheit.de,
-    [columnBearbeitungscode]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.bearbeitungscode,
+        normalColumn(p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVPVorReduktion.percentage)),
+    [columnNumPreiseProEP]: (p: ControllingErhebungsPosition) =>
+        normalColumn(`${p.numEpForThisPms || 0}/${p.warenkorbItem.anzahlPreiseProPMS}`),
+    [columnPreisT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.preis),
+    [columnMengeT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.menge),
+    [columnStandardeinheit]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.standardeinheit.de),
+    [columnBearbeitungscode]: (p: ControllingErhebungsPosition) => normalColumn(renderBearbeitungsCode(p)),
     [columnAktionscodeVP]: (p: ControllingErhebungsPosition) =>
-        p.refPreismeldung && p.refPreismeldung.aktion ? 'A' : undefined,
+        normalColumn(p.refPreismeldung && p.refPreismeldung.aktion ? 'A' : undefined),
     [columnAktionscodeT]: (p: ControllingErhebungsPosition) =>
-        p.preismeldung && p.preismeldung.aktion ? 'A' : undefined,
+        normalColumn(p.preismeldung && p.preismeldung.aktion ? 'A' : undefined),
     [columnMerkmaleVP]: (p: ControllingErhebungsPosition) =>
-        p.warenkorbItem.productMerkmale
-            .map((m, i) => `${m.de}:${!!p.refPreismeldung ? p.refPreismeldung.productMerkmale[i] : ''}`)
-            .join('|'),
+        htmlColumn(
+            p.warenkorbItem.productMerkmale
+                .map((m, i) => `<b>${m.de}</b>:${!!p.refPreismeldung ? p.refPreismeldung.productMerkmale[i] : ''}`)
+                .join('|')
+        ),
     [columnMerkmaleT]: (p: ControllingErhebungsPosition) =>
-        p.warenkorbItem.productMerkmale
-            .map((m, i) => `${m.de}:${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
-            .join('|'),
-    [columnKommentarT]: (p: ControllingErhebungsPosition) =>
-        p.preismeldung && (p.preismeldung.kommentar === '\\n' ? undefined : p.preismeldung.kommentar),
-    [columnBemerkungenT]: (p: ControllingErhebungsPosition) => p.preismeldung && p.preismeldung.bemerkungen,
-    [columnPeNummer]: (p: ControllingErhebungsPosition) => p.preiserheber && p.preiserheber.peNummer,
+        normalColumn(
+            p.warenkorbItem.productMerkmale
+                .map((m, i) => `<b>${m.de}</b>:${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
+                .join('|')
+        ),
+    [columnKommentarT]: (p: ControllingErhebungsPosition) => {
+        if (!p.preismeldung || p.preismeldung.kommentar === '\\n') {
+            return normalColumn(undefined);
+        }
+        return normalColumn(translateKommentare(p.preismeldung.kommentar));
+    },
+    [columnBemerkungenT]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldung && p.preismeldung.bemerkungen),
+    [columnPeNummer]: (p: ControllingErhebungsPosition) => normalColumn(p.preiserheber && p.preiserheber.peNummer),
     [columnPeName]: (p: ControllingErhebungsPosition) =>
-        fwith(p.preiserheber, e => (!!e ? `${e.firstName} ${e.surname}` : null)),
-    [columnPmsGeschlossen]: (p: ControllingErhebungsPosition) => p.preismeldestelle.pmsGeschlossen,
-    [columnWarenkorbIndex]: (p: ControllingErhebungsPosition) => p.warenkorbIndex,
-    [columnAnzahlPreiseProPMS]: (p: ControllingErhebungsPosition) => p.warenkorbItem.anzahlPreiseProPMS,
+        normalColumn(fwith(p.preiserheber, e => (!!e ? `${e.firstName} ${e.surname}` : null))),
+    [columnPmsGeschlossen]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.pmsGeschlossen),
+    [columnWarenkorbIndex]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbIndex),
+    [columnAnzahlPreiseProPMS]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.anzahlPreiseProPMS),
 };
 
 export const getStichtagPreismeldungenUpdated = (state: State) => state.stichtagPreismeldungenUpdated;

@@ -35,6 +35,7 @@ export function reducer(state = initialState, action: setting.Action): State {
                 serverConnection: { url: null },
                 general: { erhebungsorgannummer: null },
                 transportRequestSettings: { senderId: null, recipientId: null },
+                export: { targetPath: null },
                 version: null,
                 isModified: false,
                 isSaved: false,
@@ -50,6 +51,7 @@ export function reducer(state = initialState, action: setting.Action): State {
                 serverConnection: payload.serverConnection,
                 general: payload.general,
                 transportRequestSettings: payload.transportRequestSettings,
+                export: payload.export,
             };
 
             const currentSettings = assign({}, state.settings, valuesFromPayload, { isModified: true });

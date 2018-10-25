@@ -19,6 +19,7 @@ export class CockpitPage {
     public reportExecuting$ = this.store.select(fromRoot.getCockpitIsExecuting);
     public cockpitReportData$ = this.store.select(fromRoot.getCockpitReportData);
     public cockpitSelectedPreiserheber$ = this.store.select(fromRoot.getCockpitSelectedPreiserheber);
+    public preismeldungenStatusMapMissingCount$ = this.store.select(fromRoot.getPreismeldungenStatusMapMissingCount);
     public preismeldungenStatusMapUpdatedCount$ = this.store.select(fromRoot.getPreismeldungenStatusMapUpdatedCount);
     public initializingPreismeldungenStatus$ = this.store.select(fromRoot.getArePreismeldungenStatusInitializing);
 
@@ -29,12 +30,15 @@ export class CockpitPage {
     private ionViewDidLeave$ = new Subject();
 
     constructor(private store: Store<fromRoot.AppState>) {
-        this.loadData$
-            .takeUntil(this.ionViewDidLeave$)
-            .subscribe(() => this.store.dispatch({ type: 'LOAD_COCKPIT_DATA' }));
+        this.loadData$.takeUntil(this.ionViewDidLeave$).subscribe(() => {
+            this.store.dispatch({ type: 'LOAD_COCKPIT_DATA' });
+            this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction());
+        });
         this.preiserheberSelected$
             .takeUntil(this.ionViewDidLeave$)
-            .subscribe(pe => this.store.dispatch({ type: 'COCKPIT_PREISERHEBER_SELECTED', payload: pe.erheber._id }));
+            .subscribe(pe =>
+                this.store.dispatch({ type: 'COCKPIT_PREISERHEBER_SELECTED', payload: pe ? pe.erheber._id : null })
+            );
         this.initPreismeldungenStatus$.takeUntil(this.ionViewDidLeave$).subscribe(() => {
             this.store.dispatch(preismeldungenStatusActions.createInitializePreismeldungenStatusAction());
             this.store.dispatch(controlling.createClearControllingAction());
@@ -43,6 +47,7 @@ export class CockpitPage {
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
+        this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction());
     }
 
     public ionViewDidLeave() {

@@ -1,7 +1,7 @@
 <div class="cockpit-actions">
     <button type="button" ion-button (click)="loadData$.emit()" [disabled]="reportExecuting$ | async">Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</button>
     <button type="button" ion-button (click)="initPreismeldungenStatus$.emit()" [disabled]="initializingPreismeldungenStatus$ | async">Prüfstatus zuweisen</button>
-    <span *ngIf="statusUpdatedCount" ion-text color="primary">{{statusUpdatedCount}} Preismeldungen haben nun neu einen Prüfstatus</span>
+    <span *ngIf="statusMissingCount != null" ion-text color="primary">{{statusMissingCount}} Preismeldungen ohne Prüfstatus</span>
 </div>
 
 <div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)">
@@ -18,6 +18,7 @@
                                 <option value="stichtag2">Stichtag 2</option>
                                 <option value="woche1">Woche 1</option>
                                 <option value="woche2">Woche 2</option>
+                                <option value="keinStichdatum">Kein Stichdatum</option>
                             </select>
                         </div>
                     </div>
@@ -90,6 +91,6 @@
     </div>
 
     <div class="container">
-        <cockpit-report-detail [preiserheber]="selectedPreiserheber$ | async" [erhebungsZeitpunktKey]="form.value.erhebungsZeitpunkt"></cockpit-report-detail>
+        <cockpit-report-detail [preiserheber]="selectedPreiserheber$ | async" [erhebungsZeitpunktKey]="erhebungsZeitpunkt$ | async"></cockpit-report-detail>
     </div>
 </div>

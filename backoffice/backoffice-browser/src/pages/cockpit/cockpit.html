@@ -5,6 +5,7 @@
             [report-executing]="reportExecuting$ | async"
             [cockpit-report-data]="cockpitReportData$ | async"
             [selected-preiserheber]="cockpitSelectedPreiserheber$ | async"
+            [status-missing-count]="preismeldungenStatusMapMissingCount$ | async"
             [status-updated-count]="preismeldungenStatusMapUpdatedCount$ | async"
             [initializing-preismeldungen-status]="initializingPreismeldungenStatus$ | async"
             (load-data)="loadData$.next()"

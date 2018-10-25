@@ -103,7 +103,6 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             .refCount();
 
         this.save$ = canSave$
-            .do(() => console.log(this.form))
             .filter(x => x.isValid)
             .publishReplay(1)
             .refCount();

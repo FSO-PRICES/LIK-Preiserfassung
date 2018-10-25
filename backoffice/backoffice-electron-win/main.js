@@ -1,7 +1,10 @@
 const electron = require('electron');
+const fs = require('fs');
 // Module to control application life.
 const app = electron.app;
 const Menu = electron.Menu;
+const ipcMain = electron.ipcMain;
+const dialog = electron.dialog;
 
 const template = [
     {
@@ -124,6 +127,33 @@ app.on('activate', function() {
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
         createWindow();
+    }
+});
+
+ipcMain.on('save-file', (event, fileSaveOptions) => {
+    const { content, targetPath, fileName } = fileSaveOptions;
+    const saveFile = fileName => {
+        fs.writeFile(fileName, '\ufeff' + content, err => {
+            if (err) {
+                event.returnValue = { state: 2, error: err };
+                return;
+            }
+
+            event.returnValue = { state: 1 };
+        });
+    };
+
+    if (targetPath) {
+        saveFile(targetPath + '/' + fileName);
+    } else {
+        dialog.showSaveDialog({ defaultPath: fileName }, newFileName => {
+            if (newFileName === undefined) {
+                event.returnValue = { state: 0 };
+                return;
+            }
+
+            saveFile(newFileName);
+        });
     }
 });
 

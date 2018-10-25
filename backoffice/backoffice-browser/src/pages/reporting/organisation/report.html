@@ -60,7 +60,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let preismeldung of iterateValues(reportData.preismeldungen)">
+                    <tr *ngFor="let preismeldung of iterateValues(reportData.preismeldungen, true)">
                         <td>{{preismeldung.key}}</td>
                         <td class="number">{{preismeldung.value.pm | pefFormatNumber:numberFormatOptions}}</td>
                         <td>{{preismeldung.value.peName}}</td>

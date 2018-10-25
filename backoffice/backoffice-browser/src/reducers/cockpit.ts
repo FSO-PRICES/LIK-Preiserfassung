@@ -9,6 +9,7 @@ export interface StichtagGroupedCockpitPreismeldungSummary {
     woche1: CockpitPreismeldungSummary;
     woche2: CockpitPreismeldungSummary;
     indifferent: CockpitPreismeldungSummary;
+    keinStichdatum: CockpitPreismeldungSummary;
 }
 
 export interface CockpitPreismeldungSummary {
@@ -148,14 +149,15 @@ function createStichtagGroupedCockpitPreismeldungSummary(
     const newPreismeldungen = preismeldungenSynced.filter(pm => !refPreismeldungen.some(r => r.pmId === pm._id));
     const doneById = createMapOf(done, pm => pm._id);
 
-    const createCockpitPreismeldungenSummaryFn = (erhebungsZeitpunkt?: number) =>
+    const createCockpitPreismeldungenSummaryFn = (erhebungsZeitpunkt?: number, onlyNoErhebungszeitpunkt?: boolean) =>
         createCockpitPreismeldungenSummary(
             refPreismeldungen,
             todoSynced,
             done,
             doneById,
             newPreismeldungen,
-            erhebungsZeitpunkt
+            erhebungsZeitpunkt,
+            onlyNoErhebungszeitpunkt
         );
 
     return {
@@ -164,6 +166,7 @@ function createStichtagGroupedCockpitPreismeldungSummary(
         woche1: createCockpitPreismeldungenSummaryFn(10),
         woche2: createCockpitPreismeldungenSummaryFn(20),
         indifferent: createCockpitPreismeldungenSummaryFn(null),
+        keinStichdatum: createCockpitPreismeldungenSummaryFn(null, true),
     };
 }
 
@@ -173,10 +176,15 @@ function createCockpitPreismeldungenSummary(
     done: P.Preismeldung[],
     doneById: { [pmId: string]: P.Preismeldung },
     newPreismeldungen: P.Preismeldung[],
-    erhebungsZeitpunkt?: number
+    erhebungsZeitpunkt?: number,
+    onlyNoErhebungszeitpunkt?: boolean
 ): CockpitPreismeldungSummary {
     const inErhebungszeitpunkt = (pm: P.Preismeldung | P.PreismeldungReference) =>
-        !erhebungsZeitpunkt ? true : pm.erhebungsZeitpunkt === erhebungsZeitpunkt;
+        erhebungsZeitpunkt === null
+            ? onlyNoErhebungszeitpunkt
+                ? !pm.erhebungsZeitpunkt
+                : true
+            : pm.erhebungsZeitpunkt === erhebungsZeitpunkt;
     const todo_ = todo.filter(x => inErhebungszeitpunkt(x));
     const summary = {
         total: todo_.length,
@@ -194,9 +202,7 @@ function createCockpitPreismeldungenSummary(
         synced,
         nothingTodo,
         nothingToUpload,
-        uploadedAll:
-            nothingToUpload &&
-            todo.every(x => inErhebungszeitpunkt(x) && !!doneById[x.pmId] && !!doneById[x.pmId].uploadRequestedAt),
+        uploadedAll: nothingToUpload && todo_.every(x => !!doneById[x.pmId] && !!doneById[x.pmId].uploadRequestedAt),
     };
 }
 

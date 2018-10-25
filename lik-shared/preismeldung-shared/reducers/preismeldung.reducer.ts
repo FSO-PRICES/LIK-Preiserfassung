@@ -64,7 +64,7 @@ export interface State {
     };
 }
 
-const initialState: State = {
+export const initialState: State = {
     isAdminApp: false,
     pmsNummer: null,
     preismeldungIds: [],

@@ -3,9 +3,9 @@ import { Models as P } from 'lik-shared';
 
 export interface State {
     parsedWarenkorb: {
-        de: string[][],
-        fr: string[][],
-        it: string[][]
+        de: string[][];
+        fr: string[][];
+        it: string[][];
     };
     importedWarenkorb: P.WarenkorbDocument;
     importedWarenkorbAt: Date;
@@ -23,7 +23,8 @@ export interface State {
     preismeldungenErhebungsmonat: string;
 
     importedAllDataAt: Date;
-};
+    importError: string[];
+}
 
 const initialState: State = {
     parsedWarenkorb: null,
@@ -43,20 +44,16 @@ const initialState: State = {
     preismeldungenErhebungsmonat: null,
 
     importedAllDataAt: null,
+    importError: null,
 };
 
 export function reducer(state = initialState, action: importer.Action): State {
     switch (action.type) {
-        case 'PARSE_WARENKORB_FILE_SUCCESS': {
-            let parsedWarenkorb = Object.assign({}, state.parsedWarenkorb);
-            parsedWarenkorb[action.payload.language] = action.payload.data;
-            return Object.assign({}, state, { parsedWarenkorb, importError: null });
-        }
-
         case 'PARSE_FILE_SUCCESS': {
             const parseMap = {
                 preismeldestellen: 'parsedPreismeldestellen',
                 preismeldungen: 'parsedPreismeldungen',
+                warenkorb: 'parsedWarenkorb',
             };
             if (!parseMap[action.payload.parsedType]) {
                 return state;
@@ -66,7 +63,11 @@ export function reducer(state = initialState, action: importer.Action): State {
         }
 
         case 'CLEAR_PARSED_FILES': {
-            return Object.assign({}, state, { parsedWarenkorb: null, parsedPreismeldestellen: null, parsedPreismeldungen: null });
+            return Object.assign({}, state, {
+                parsedWarenkorb: null,
+                parsedPreismeldestellen: null,
+                parsedPreismeldungen: null,
+            });
         }
 
         case 'IMPORT_STARTED': {
@@ -90,12 +91,17 @@ export function reducer(state = initialState, action: importer.Action): State {
 
         case 'IMPORT_PREISMELDESTELLEN_FAILURE': {
             const { payload } = action;
-            return { ...state, importedPreismeldestellen: null, importError: payload, parsedPreismeldestellen: null };
+            return { ...state, importedPreismeldestellen: null, importError: [payload], parsedPreismeldestellen: null };
         }
 
         case 'IMPORT_PREISMELDUNGEN_SUCCESS': {
             const { payload } = action;
             return { ...state, importedPreismeldungen: payload, importError: null, parsedPreismeldungen: null };
+        }
+
+        case 'IMPORTED_ALL_FAILURE': {
+            const { payload } = action;
+            return { ...state, importError: payload };
         }
 
         case 'LOAD_LATEST_IMPORTED_AT_SUCCESS': {
@@ -109,14 +115,22 @@ export function reducer(state = initialState, action: importer.Action): State {
                 importedWarenkorbAt: !!warenkorb ? parseDate(warenkorb.latestImportAt) : null,
                 importedPreismeldestellenAt: !!preismeldestellen ? parseDate(preismeldestellen.latestImportAt) : null,
                 importedPreismeldungenAt: !!preismeldungen ? parseDate(preismeldungen.latestImportAt) : null,
-                importedAllDataAt: !!allData ? parseDate(allData.latestImportAt) : null
-            }
+                importedAllDataAt: !!allData ? parseDate(allData.latestImportAt) : null,
+            };
             return Object.assign({}, state, latestImportedAt, { importError: null });
         }
 
         case 'LOAD_ERHEBUNGSMONATE_SUCCESS': {
-            const { warenkorbErhebungsmonat, preismeldestellenErhebungsmonat, preismeldungenErhebungsmonat } = action.payload
-            return Object.assign({}, state, { warenkorbErhebungsmonat, preismeldestellenErhebungsmonat, preismeldungenErhebungsmonat })
+            const {
+                warenkorbErhebungsmonat,
+                preismeldestellenErhebungsmonat,
+                preismeldungenErhebungsmonat,
+            } = action.payload;
+            return Object.assign({}, state, {
+                warenkorbErhebungsmonat,
+                preismeldestellenErhebungsmonat,
+                preismeldungenErhebungsmonat,
+            });
         }
 
         default:
@@ -140,6 +154,7 @@ export const getImportedPreismeldungenAt = (state: State) => state.importedPreis
 export const getPreismeldungenErhebungsmonat = (state: State) => state.preismeldungenErhebungsmonat;
 
 export const getImportedAllDataAt = (state: State) => state.importedAllDataAt;
+export const getImportError = (state: State) => state.importError;
 
 function parseDate(date: number) {
     return !!date ? new Date(date) : null;

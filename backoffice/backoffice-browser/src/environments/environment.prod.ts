@@ -1,6 +1,8 @@
 export const environment = {
     production: true,
-    version: '2.1.011',
+    version: '2.1.016',
+
+    masterErhebungsorgannummer: '69',
 
     defaultSettings: {
         serverConnection: {

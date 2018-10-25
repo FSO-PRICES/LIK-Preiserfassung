@@ -16,6 +16,7 @@ import { CockpitPreismeldungSummary } from '../../../common-models';
 export class CockpitReportComponent extends ReactiveComponent implements OnChanges, OnInit {
     @Input('report-executing') reportExecuting: boolean;
     @Input('status-updated-count') statusUpdatedCount: number | null;
+    @Input('status-missing-count') statusMissingCount: number | null;
     @Input('initializing-preismeldungen-status') initializingPreismeldungenStatus: boolean;
     @Input('cockpit-report-data') cockpitReportData: P.CockpitReportData;
     @Input('selected-preiserheber') selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;
@@ -35,6 +36,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
     public hasExecutedOnce$: Observable<boolean>;
     public filteredPreiserheber$: Observable<P.CockpitPreiserheberSummary[]>;
     public filteredSummary$: Observable<P.CockpitPreismeldungSummary>;
+    public erhebungsZeitpunkt$: Observable<string>;
     public scrollList: Observable<P.CockpitPreiserheberSummary[]>;
 
     private form: FormGroup;
@@ -49,6 +51,10 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
             preiserheberFilter: [null],
             erhebungsZeitpunkt: ['indifferent'],
         });
+
+        const formValueChange$ = this.form.valueChanges.publishReplay(1).refCount();
+
+        this.erhebungsZeitpunkt$ = formValueChange$.map(x => x.erhebungsZeitpunkt).startWith('indifferent');
 
         this.reportExecuting$
             .filter(x => !!x)
@@ -68,9 +74,16 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                 )
             );
 
-        this.filteredPreiserheber$ = this.form.valueChanges
+        this.filteredPreiserheber$ = formValueChange$
             .startWith({})
             .combineLatest(this.cockpitReportData$.filter(x => !!x), (form, cockpitReportData) => {
+                const erhebungsZeitpunktKey = this.form.value.erhebungsZeitpunkt;
+                const showAll = erhebungsZeitpunktKey === 'indifferent';
+                const filterStichtage = (preiserhebers: P.CockpitPreiserheberSummary[]) => {
+                    return showAll
+                        ? preiserhebers
+                        : preiserhebers.filter(pe => !!pe.summary && pe.summary[erhebungsZeitpunktKey].total > 0);
+                };
                 if (!form.preiserheberFilter) {
                     const unassigned = {
                         username: 'unassigned',
@@ -83,9 +96,9 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                         summary: cockpitReportData.unassigned.summary,
                         pmsPreismeldungSummary: cockpitReportData.unassigned.pmsPreismeldungSummary,
                     } as P.CockpitPreiserheberSummary;
-                    return [unassigned].concat(cockpitReportData.preiserheber);
+                    return [unassigned].concat(filterStichtage(cockpitReportData.preiserheber));
                 } else {
-                    return pefSearch(form.preiserheberFilter, cockpitReportData.preiserheber, [
+                    return pefSearch(form.preiserheberFilter, filterStichtage(cockpitReportData.preiserheber), [
                         x => x.erheber.firstName,
                         x => x.erheber.surname,
                         x => x.erheber.erhebungsregion,

@@ -44,22 +44,19 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Erhebungsart Offline/Online</th>
+                        <th>Erhebungsart Abrechnung
+                        </th>
                         <th>#Preise</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Offline</td>
-                        <td class="number">{{reportData.erhebungsart.online | pefFormatNumber:numberFormatOptions}}</td>
+                        <td>Internet zentral</td>
+                        <td class="number">{{reportData.erhebungsart.internetZentral | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                     <tr>
-                        <td>Online</td>
-                        <td class="number">{{reportData.erhebungsart.offline | pefFormatNumber:numberFormatOptions}}</td>
-                    </tr>
-                    <tr>
-                        <td>Nicht angegeben</td>
-                        <td class="number">{{reportData.erhebungsart['N/A'] | pefFormatNumber:numberFormatOptions}}</td>
+                        <td>Normalerhebung</td>
+                        <td class="number">{{reportData.erhebungsart.normalerhebung | pefFormatNumber:numberFormatOptions}}</td>
                     </tr>
                 </tbody>
             </table>

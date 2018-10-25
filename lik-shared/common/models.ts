@@ -344,6 +344,9 @@ export interface SettingProperties {
         senderId: string;
         recipientId: string;
     };
+    export: {
+        targetPath: string;
+    };
 }
 
 export type Setting = SettingProperties & CouchProperties;

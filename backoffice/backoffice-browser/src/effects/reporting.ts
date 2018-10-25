@@ -44,14 +44,14 @@ export class ReportingEffects {
 async function loadDataForReport(reportType: report.ReportTypes): Promise<report.LoadReportSuccess> {
     const erhebungsmonat = (await (await getDatabase(dbNames.preismeldungen)).get<P.Erhebungsmonat>('erhebungsmonat'))
         .monthAsString;
-    const preismeldestellen = await loadAllPreismeldestellen().toPromise();
+    const preismeldestellen: P.Preismeldestelle[] = await loadAllPreismeldestellen().toPromise();
 
     const loadRefPreismeldungen = async () =>
         await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
             await getDatabase(dbNames.preismeldungen),
             preismeldungRefId()
         );
-    const loadPreismeldungen = async (refPreismeldungen: P.PreismeldungReference[]) =>
+    const loadPreismeldungen = async () =>
         await getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).toPromise();
     const loadPreiserheber = async () => await loadAllPreiserheber().toPromise();
     const loadWarenkorb = async () =>
@@ -59,16 +59,17 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
     const loadPreiszuweisungen = async () =>
         await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisungen).toPromise();
 
+    const refPreismeldungen = await loadRefPreismeldungen();
+
     switch (reportType) {
         case 'monthly': {
-            const refPreismeldungen = await loadRefPreismeldungen();
             return {
                 reportType,
                 preismeldestellen: preismeldestellen.map(pms => ({
                     pms,
                     erhebungsarten: parseErhebungsarten(pms.erhebungsart),
                 })),
-                preismeldungen: (await loadPreismeldungen(refPreismeldungen)).map(pm => ({
+                preismeldungen: (await loadPreismeldungen()).map(pm => ({
                     pmId: pm._id,
                     preismeldung: pm,
                     refPreismeldung: refPreismeldungen.find(rpm => rpm.pmId === pm._id) || {},
@@ -78,18 +79,16 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
             };
         }
         case 'organisation': {
-            const refPreismeldungen = await loadRefPreismeldungen();
             return {
                 reportType,
                 preismeldestellen,
-                preismeldungen: await loadPreismeldungen(refPreismeldungen),
+                preismeldungen: await loadPreismeldungen(),
                 preiszuweisungen: await loadPreiszuweisungen(),
                 preiserheber: await loadPreiserheber(),
                 erhebungsmonat,
             };
         }
         case 'pmsProblems': {
-            const refPreismeldungen = await loadRefPreismeldungen();
             return {
                 reportType,
                 preismeldestellen,

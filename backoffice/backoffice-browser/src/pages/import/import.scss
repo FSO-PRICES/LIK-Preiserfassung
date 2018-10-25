@@ -46,4 +46,11 @@ import-page {
     ion-content.content-md {
         background-color: transparent;
     }
+
+    input {
+        width: 100%;
+        &:invalid {
+            color: transparent;
+        }
+    }
 }

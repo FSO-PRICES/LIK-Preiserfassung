@@ -1215,10 +1215,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
-    foobar(e) {
-        console.log('asdfasdf', e);
-    }
-
     formLevelValidationFactory() {
         return (group: FormGroup) => {
             const bearbeitungscode = group.get('bearbeitungscode');
