@@ -25,6 +25,7 @@ import { PouchService } from '../services/PouchService';
 import { BO_EFFECTS } from '../effects';
 import { reducer } from '../reducers';
 import { PefMessageDialogService, PefLanguageService } from 'lik-shared';
+import { AppService } from '../services/app-service';
 
 @NgModule({
     declarations: [Backoffice],
@@ -50,6 +51,7 @@ import { PefMessageDialogService, PefLanguageService } from 'lik-shared';
     providers: [
         { provide: ErrorHandler, useClass: IonicErrorHandler },
         { provide: LOCALE_ID, useValue: 'de-CH' },
+        AppService,
         PefDialogService,
         PefLanguageService,
         PefMessageDialogService,
