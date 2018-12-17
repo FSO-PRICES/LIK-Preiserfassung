@@ -139,7 +139,7 @@ function runReport(
         ...controllingConfig.sortBy.reduce(
             (acc, v, i) => ({
                 ...acc,
-                [`sort${i}`]: fwith(columnDefinition[v.column](x), y => (v.convertToNumber ? +y : y)),
+                [`sort${i}`]: fwith(columnDefinition[v.column](x).value, y => (v.convertToNumber ? +y : y)),
             }),
             {}
         ),
