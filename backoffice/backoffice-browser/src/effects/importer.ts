@@ -185,6 +185,7 @@ export class ImporterEffects {
         await dropRemoteCouchDatabaseAndSyncLocalToRemote(dbNames.preismeldungen_status);
         const adminUser = await this.loggedInUser$.take(1).toPromise();
         await putAdminUserToDatabaseAsync(dbNames.preismeldungen_status, adminUser.username);
+        await putAdminUserToDatabaseAsync(dbNames.preismeldungen, adminUser.username);
 
         return { type: 'IMPORT_PREISMELDUNGEN_SUCCESS', payload: pmInfo.preismeldungen } as importer.Action;
     }
