@@ -4,8 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../reducers';
 import * as login from '../actions/login';
-import { dbNames, getDatabase, loginToDatabase, checkServerConnection } from '../common/pouchdb-utils';
-import { Action } from '../common/effects-extensions';
+import { dbNames, getDatabase, loginToDatabase, checkServerConnection, logout } from '../common/pouchdb-utils';
 import { getCurrentLoggedInUser, setCurrentLoggedInUser, resetCurrentLoggedInUser } from '../common/login-extensions';
 import { Observable } from 'rxjs/Observable';
 
@@ -76,4 +75,10 @@ export class LoginEffects {
                     ? ({ type: 'LOGIN_SUCCESS', payload: user } as login.Action)
                     : ({ type: 'LOGIN_FAIL', payload: error } as login.Action)
         );
+
+    @Effect({ dispatch: false })
+    logout$ = this.actions$
+        .ofType('LOGOUT')
+        .flatMap(({ payload }) => logout().then(() => payload))
+        .do(reload => (reload ? window.location.reload() : console.log('All sessions closed #411')));
 }

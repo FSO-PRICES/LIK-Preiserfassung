@@ -84,6 +84,10 @@ export async function getAuthorizedUsersAsync(dbName) {
     return await createRequestAsync(`${dbName}/_security`, 'GET');
 }
 
+export async function logout() {
+    return await createRequestAsync('/_session', 'DELETE');
+}
+
 export function getUserDatabaseName(preiserheberId: string) {
     return `user_${preiserheberId}`;
 }
@@ -92,7 +96,7 @@ export function listUserDatabases() {
     return listAllDatabases().map((dbs: string[]) => dbs.filter(n => n.startsWith('user_')));
 }
 
-async function createRequestAsync(path: string, method: 'GET' | 'POST' | 'PUT', body?: any) {
+async function createRequestAsync(path: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', body?: any) {
     return getSettings().then(settings => {
         return new Promise<P.CouchSecurity>((resolve, reject) => {
             const xhr = new XMLHttpRequest();

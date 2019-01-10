@@ -15,8 +15,15 @@
     }
 
     .about-app {
+        display: flex;
+        flex-direction: column;
         flex: 0 0 auto;
+        .logout {
+            align-self: flex-end;
+            margin-top: 10px;
+        }
         .about-box {
+            flex: 0;
             background-color: white;
             padding: 1em;
         }

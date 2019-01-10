@@ -39,21 +39,16 @@ export class Backoffice implements OnInit {
             .then(() => {
                 this.initialized = true;
 
-                // Skip 1 is used to skip the first initial value and to wait for the new value after the dispatch
                 const settings$ = store
                     .select(fromRoot.getSettings)
-                    .skip(1)
                     .publishReplay(1)
                     .refCount();
 
                 const loginDialog$ = store
                     .select(fromRoot.getIsLoggedIn)
-                    .skip(1)
+                    .filter(loggedIn => loggedIn === false)
                     .withLatestFrom(settings$, (isLoggedIn, settings) => ({ isLoggedIn, settings }))
-                    .filter(
-                        ({ isLoggedIn, settings }) =>
-                            !!settings && !settings.isDefault && isLoggedIn != null && !isLoggedIn
-                    )
+                    .filter(({ isLoggedIn, settings }) => !!settings && !settings.isDefault)
                     .flatMap(() => pefDialogService.displayDialog(PefDialogLoginComponent, {}).map(x => x.data))
                     .publishReplay(1)
                     .refCount();
@@ -89,6 +84,7 @@ export class Backoffice implements OnInit {
     }
 
     public ngOnInit() {
+        // this.store.dispatch({ type: 'LOGOUT', payload: false });
         this.store.dispatch({ type: 'SETTING_LOAD' });
         this.store.dispatch({ type: 'LOAD_ONOFFLINE' });
         this.store.dispatch({ type: 'LOAD_WARENKORB' });

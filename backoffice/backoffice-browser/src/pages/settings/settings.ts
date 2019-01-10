@@ -19,6 +19,7 @@ export class SettingsPage implements OnDestroy {
 
     public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
+    public logoutClicked$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
 
@@ -100,6 +101,8 @@ export class SettingsPage implements OnDestroy {
                     { emitEvent: false }
                 );
             }),
+
+            this.logoutClicked$.subscribe(() => store.dispatch({ type: 'LOGOUT', payload: true })),
         ];
     }
 

@@ -3,15 +3,13 @@
     <div class="page-content">
         <div class="settings-container container">
             <div class="subcontent">
-                <div class="header">
-                    <h1 class="large">
-                        Einstellungen
-                    </h1>
-                </div>
-                <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
-                    <h1 class="large">
-                        <div>Serververbindung</div>
-                    </h1>
+                <div class="header"><h1 class="large">Einstellungen</h1></div>
+                <form
+                    [formGroup]="form"
+                    class="stacked-form"
+                    [class.form-show-validation-hints]="showValidationHints$ | async"
+                >
+                    <h1 class="large"><div>Serververbindung</div></h1>
                     <ion-list no-lines>
                         <ion-item class="pef-item" formGroupName="serverConnection">
                             <ion-label stacked>URL</ion-label>
@@ -22,9 +20,7 @@
                             <ion-input type="text" formControlName="erhebungsorgannummer"></ion-input>
                         </ion-item>
                     </ion-list>
-                    <h1 class="large">
-                        <div>Transfereinstellungen (Sedex)</div>
-                    </h1>
+                    <h1 class="large"><div>Transfereinstellungen (Sedex)</div></h1>
                     <ion-list formGroupName="transportRequestSettings" no-lines>
                         <ion-item class="pef-item">
                             <ion-label stacked>Sender ID</ion-label>
@@ -41,17 +37,18 @@
                             <ion-input type="text" formControlName="targetPath"></ion-input>
                         </ion-item>
                     </ion-list>
-                    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" id="save">Speichern</button>
+                    <button type="button" ion-button color="blue-chill" (click)="saveClicked$.emit($event)" id="save">
+                        Speichern
+                    </button>
                     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
                 </form>
             </div>
             <div class="about-app">
                 <div class="about-box">
-                    <h2>LIK PreisAdmin {{version}}</h2>
-                    <span>Autor:
-                        <a href="https://lambda-it.ch/">Lambda IT GmbH</a>
-                    </span>
+                    <h2>LIK PreisAdmin {{ version }}</h2>
+                    <span>Autor: <a href="https://lambda-it.ch/">Lambda IT GmbH</a> </span>
                 </div>
+                <button class="logout" type="button" ion-button (click)="logoutClicked$.emit($event)">Logout</button>
             </div>
         </div>
     </div>
