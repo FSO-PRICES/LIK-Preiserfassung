@@ -80,15 +80,14 @@ export class Backoffice implements OnInit {
 
                 translateService.setTranslation('de', translations.de);
                 translateService.use('de');
+                // this.store.dispatch({ type: 'LOGOUT', payload: false });
+                this.store.dispatch({ type: 'SETTING_LOAD' });
+                this.store.dispatch({ type: 'LOAD_ONOFFLINE' });
+                this.store.dispatch({ type: 'LOAD_WARENKORB' });
             });
     }
 
-    public ngOnInit() {
-        // this.store.dispatch({ type: 'LOGOUT', payload: false });
-        this.store.dispatch({ type: 'SETTING_LOAD' });
-        this.store.dispatch({ type: 'LOAD_ONOFFLINE' });
-        this.store.dispatch({ type: 'LOAD_WARENKORB' });
-    }
+    public ngOnInit() {}
 
     public navigateToSettings() {
         return this.navCtrl.setRoot('SettingsPage', {}, { animate: false });

@@ -99,6 +99,10 @@ export function listUserDatabases() {
 async function createRequestAsync(path: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', body?: any) {
     return getSettings().then(settings => {
         return new Promise<P.CouchSecurity>((resolve, reject) => {
+            if (!settings || !settings.serverConnection || !settings.serverConnection.url) {
+                resolve(false);
+                return;
+            }
             const xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
             xhr.open(method, `${settings.serverConnection.url}/${path}`, true);
