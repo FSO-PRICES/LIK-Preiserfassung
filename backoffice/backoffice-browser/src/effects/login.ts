@@ -76,9 +76,9 @@ export class LoginEffects {
                     : ({ type: 'LOGIN_FAIL', payload: error } as login.Action)
         );
 
-    @Effect({ dispatch: false })
+    @Effect()
     logout$ = this.actions$
         .ofType('LOGOUT')
-        .flatMap(({ payload }) => logout().then(() => payload))
-        .do(reload => (reload ? window.location.reload() : console.log('All sessions closed #411')));
+        .flatMap(() => logout())
+        .map(() => ({ type: 'SET_IS_LOGGED_OUT' } as login.Action));
 }

@@ -43,6 +43,18 @@ export function getDatabase(dbName): Promise<PouchDB.Database<{}>> {
     return getCouchDb(dbName);
 }
 
+export function checkConnectivity(url) {
+    return Observable.ajax({
+        url,
+        headers: { 'Content-Type': 'application/json' },
+        crossDomain: true,
+        withCredentials: true,
+        responseType: 'json',
+        method: 'GET',
+        timeout: 1000,
+    }).map(resp => resp.response['version'] === '1.6.1' || resp.response['version'].indexOf('2.1') === 0);
+}
+
 export const getDatabaseAsObservable = (dbName: string) => Observable.fromPromise(getDatabase(dbName));
 
 export function getLocalDatabase(dbName) {

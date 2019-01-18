@@ -9,7 +9,7 @@ import { Models as P } from 'lik-shared';
 
 import * as fromRoot from '../reducers';
 import * as onoffline from '../actions/onoffline';
-import { dbNames, getSettings, getDatabase, getDatabaseAsObservable } from '../common/pouchdb-utils';
+import { dbNames, getSettings, getDatabase, getDatabaseAsObservable, checkConnectivity } from '../common/pouchdb-utils';
 import { CurrentSetting } from '../reducers/setting';
 
 @Injectable()
@@ -38,6 +38,20 @@ export class OnOfflineEffects {
                 payload => ({ type: 'LOAD_ONOFFLINE_SUCCESS', payload } as onoffline.Action)
             )
         );
+
+    @Effect()
+    canConnectToDatabase$ = this.actions$.ofType('CHECK_CONNECTIVITY_TO_DATABASE').flatMap(() =>
+        this.store
+            .select(fromRoot.getSettings)
+            .take(1)
+            .flatMap(
+                settings =>
+                    !!settings && !settings.isDefault
+                        ? checkConnectivity(settings.serverConnection.url).catch(() => Observable.of(false))
+                        : Observable.of(false)
+            )
+            .map(canConnect => ({ type: 'CAN_CONNECT_TO_DATABASE', payload: canConnect } as onoffline.Action))
+    );
 }
 
 const onOfflineStatusDocName = 'onoffline_status';

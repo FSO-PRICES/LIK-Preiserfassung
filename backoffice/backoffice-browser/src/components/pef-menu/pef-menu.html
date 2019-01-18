@@ -15,4 +15,6 @@
         LIK PreisAdmin
     </ion-title>
     <button ion-button class="on-off-line" (click)="onOffLineClicked$.emit()">{{ (isOffline$ | async) ? 'OFF-LINE' : 'ON-LINE' }}</button>
+    <button ion-button class="reload" (click)="reloadClicked$.emit()">Login refresh</button>
+    <pef-icon item-right name="wifi" class="connectivity" [class.error]="(canConnectToDatabase$ | async) === false" [class.ok]="(canConnectToDatabase$ | async) === true"></pef-icon>
 </div>

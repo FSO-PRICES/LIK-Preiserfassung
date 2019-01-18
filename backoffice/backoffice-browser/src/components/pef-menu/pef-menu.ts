@@ -21,7 +21,9 @@ export class PefMenuComponent implements OnDestroy {
         { page: 'ExportToPrestaPage', pageAliases: ['ExportToPrestaPage'], name: 'Export' },
     ];
 
+    public canConnectToDatabase$: Observable<boolean>;
     public dangerZone$: Observable<boolean>;
+    public reloadClicked$ = new EventEmitter();
     public onOffLineClicked$ = new EventEmitter();
     public toggleFullscreenClicked$ = new EventEmitter();
     public isOffline$: Observable<boolean>;
@@ -36,6 +38,10 @@ export class PefMenuComponent implements OnDestroy {
             .map(settings => settings.serverConnection.url.indexOf('bfs-lik.lambda-it.ch') !== -1)
             .startWith(false);
 
+        this.canConnectToDatabase$ = store
+            .select(fromRoot.getCanConnectToDatabase)
+            .publishReplay(1)
+            .refCount();
         this.isOffline$ = store.select(fromRoot.getIsOffline);
         this.isFullscreen$ = store.select(fromRoot.getIsFullscreen);
 
@@ -46,6 +52,18 @@ export class PefMenuComponent implements OnDestroy {
         this.toggleFullscreenClicked$.takeUntil(this.onDestroy$).subscribe(() => {
             store.dispatch({ type: 'TOGGLE_FULLSCREEN' });
         });
+
+        this.reloadClicked$.takeUntil(this.onDestroy$).subscribe(() => {
+            store.dispatch({ type: 'LOGOUT' });
+        });
+
+        store
+            .select(fromRoot.getSettings)
+            .filter(settings => !!settings && !!settings.serverConnection && !!settings.serverConnection.url)
+            .take(1)
+            .flatMap(() => Observable.interval(10000).startWith(0))
+            .takeUntil(this.onDestroy$)
+            .subscribe(() => store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' }));
     }
 
     navigateToPage(page) {

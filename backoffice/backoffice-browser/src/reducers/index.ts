@@ -212,6 +212,7 @@ export const getWarenkorbState = (state: AppState) => state.warenkorb;
 
 export const getOnOfflineState = (state: AppState) => state.onoffline;
 export const getIsOffline = createSelector(getOnOfflineState, fromOnOffline.getIsOffline);
+export const getCanConnectToDatabase = createSelector(getOnOfflineState, fromOnOffline.getCanConnectToDatabase);
 
 export const getCurrentPreismeldungViewBag = createSelector(
     getCurrentPreismeldung,

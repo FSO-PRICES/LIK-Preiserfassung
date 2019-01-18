@@ -85,7 +85,7 @@ export async function getAuthorizedUsersAsync(dbName) {
 }
 
 export async function logout() {
-    return await createRequestAsync('/_session', 'DELETE');
+    return await createRequestAsync('_session', 'DELETE').catch(() => false);
 }
 
 export function getUserDatabaseName(preiserheberId: string) {

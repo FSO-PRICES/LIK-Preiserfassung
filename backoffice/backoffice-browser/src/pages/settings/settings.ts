@@ -19,7 +19,6 @@ export class SettingsPage implements OnDestroy {
 
     public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
-    public logoutClicked$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
 
@@ -85,7 +84,10 @@ export class SettingsPage implements OnDestroy {
                 store.dispatch({ type: 'SAVE_SETTING' });
             }),
 
-            this.currentSettings$.filter(pe => pe != null && pe.isSaved).subscribe(() => this.dismissLoadingScreen()),
+            this.currentSettings$.filter(pe => pe != null && pe.isSaved).subscribe(() => {
+                this.dismissLoadingScreen();
+                store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' });
+            }),
 
             distinctSetting$.subscribe((settings: CurrentSetting) => {
                 this.form.markAsUntouched();
@@ -101,8 +103,6 @@ export class SettingsPage implements OnDestroy {
                     { emitEvent: false }
                 );
             }),
-
-            this.logoutClicked$.subscribe(() => store.dispatch({ type: 'LOGOUT', payload: true })),
         ];
     }
 

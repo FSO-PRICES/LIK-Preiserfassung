@@ -403,6 +403,7 @@ export interface LastImportAtProperties {
 export type LastImportAt = LastImportAtProperties & CouchProperties;
 
 export interface OnOfflineStatus {
+    canConnectToDatabase: boolean | null;
     isOffline: boolean;
     updatedAt: number;
 }

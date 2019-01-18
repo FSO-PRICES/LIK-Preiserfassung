@@ -58,6 +58,18 @@ header {
         }
     }
 
+    pef-icon.connectivity {
+        margin: 0 0 0 0.5em;
+        stroke: transparent;
+        fill: $white;
+        &.error {
+            fill: $alizarin-crimson;
+        }
+        &.ok {
+            fill: $emerald;
+        }
+    }
+
     pef-icon {
         stroke: $white;
     }
