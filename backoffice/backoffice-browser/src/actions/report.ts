@@ -20,6 +20,7 @@ export type OrganisationReportData = {
     preismeldestellen: P.Preismeldestelle[];
     preismeldungen: P.Preismeldung[];
     preiszuweisungen: P.Preiszuweisung[];
+    alreadyExported: string[];
     erhebungsmonat: string;
 };
 

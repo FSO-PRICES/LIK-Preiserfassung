@@ -81,9 +81,10 @@ export function prepareMonthlyData({
     );
 
     preismeldungen.forEach(bag => {
-        if (!!bag.preismeldung.uploadRequestedAt) {
-            map.preismeldungen.erfasst++;
+        if (!bag.exported) {
+            return;
         }
+        map.preismeldungen.erfasst++;
         if (bag.preismeldung.bearbeitungscode === 2 || bag.preismeldung.bearbeitungscode === 3) {
             map.preismeldungen.new++;
         }
@@ -133,6 +134,7 @@ export function prepareOrganisationData({
     preismeldestellen,
     preiszuweisungen,
     preismeldungen,
+    alreadyExported,
     erhebungsmonat,
 }: report.OrganisationReportData) {
     const map: OrganisationReport = {
@@ -193,11 +195,14 @@ export function prepareOrganisationData({
         map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].pms++;
     });
 
+    console.log('alreadyExported', alreadyExported);
     preismeldungen.forEach(pm => {
-        const region = regionenByPms[pm.pmsNummer] || 'N/A';
-        map.erhebungsregionen[region].pm++;
+        if (alreadyExported.find(pmId => pmId === pm._id) == null) {
+            return;
+        }
+        map.erhebungsregionen[regionenByPms[pm.pmsNummer] || 'N/A'].pm++;
         map.preiserheber[preisereheberByPms[pm.pmsNummer] || 'N/A'].pm++;
-        map.preismeldungen[preismeldestellenNamesById[pm.pmsNummer]].pm++;
+        map.preismeldungen[preismeldestellenNamesById[pm.pmsNummer] || 'N/A'].pm++;
     });
     return map;
 }
@@ -241,5 +246,5 @@ const getZeitpunktData = erhebungsmonat => {
 
 const getNumber = /^([0-9]+) /;
 export function sortNumericBeginningText(a: string, b: string): number {
-    return +((a.match(getNumber) || [])[1] || 0) - +(b.match(getNumber)[1] || [] || 0);
+    return +((a.match(getNumber) || [])[1] || 0) - +((b.match(getNumber) || [])[1] || 0);
 }

@@ -3,6 +3,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { flatten } from 'lodash';
 
 import * as fromRoot from '../reducers';
 import * as report from '../actions/report';
@@ -46,6 +47,10 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
         .monthAsString;
     const preismeldestellen: P.Preismeldestelle[] = await loadAllPreismeldestellen().toPromise();
 
+    const loadAlreadyExported = async () =>
+        await getAllDocumentsFromDbName<any>(dbNames.exports)
+            .map(docs => flatten(docs.map(doc => (doc.preismeldungIds as string[]) || [])))
+            .toPromise();
     const loadRefPreismeldungen = async () =>
         await getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
             await getDatabase(dbNames.preismeldungen),
@@ -63,6 +68,7 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
 
     switch (reportType) {
         case 'monthly': {
+            const alreadyExported = await loadAlreadyExported();
             return {
                 reportType,
                 preismeldestellen: preismeldestellen.map(pms => ({
@@ -73,6 +79,7 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
                     pmId: pm._id,
                     preismeldung: pm,
                     refPreismeldung: refPreismeldungen.find(rpm => rpm.pmId === pm._id) || {},
+                    exported: alreadyExported.find(pmId => pmId === pm._id) != null,
                 })) as PreismeldungBag[],
                 erhebungsmonat,
                 refPreismeldungen,
@@ -85,6 +92,7 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
                 preismeldungen: await loadPreismeldungen(),
                 preiszuweisungen: await loadPreiszuweisungen(),
                 preiserheber: await loadPreiserheber(),
+                alreadyExported: await loadAlreadyExported(),
                 erhebungsmonat,
             };
         }
