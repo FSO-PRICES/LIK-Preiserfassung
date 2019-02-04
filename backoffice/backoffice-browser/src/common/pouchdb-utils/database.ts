@@ -52,7 +52,12 @@ export function checkConnectivity(url) {
         responseType: 'json',
         method: 'GET',
         timeout: 1000,
-    }).map(resp => resp.response['version'] === '1.6.1' || resp.response['version'].indexOf('2.1') === 0);
+    }).map(
+        resp =>
+            resp.response['version'] === '1.6.1' ||
+            resp.response['version'].indexOf('2.1') === 0 ||
+            resp.response['version'].indexOf('2.3') === 0
+    );
 }
 
 export const getDatabaseAsObservable = (dbName: string) => Observable.fromPromise(getDatabase(dbName));
