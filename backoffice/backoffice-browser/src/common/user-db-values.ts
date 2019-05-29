@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable';
 import { groupBy, sortBy, first, assign, flatten, intersection } from 'lodash';
 import * as bluebird from 'bluebird';
 
-import { Models as P, preismeldungId, preismeldungRefId, preismeldestelleId, PmsFilter } from 'lik-shared';
+import { Models as P, preismeldungId, preismeldungRefId, preismeldestelleId, PmsFilter, pmsSortId } from 'lik-shared';
 
 import {
     listUserDatabases,
@@ -42,8 +42,8 @@ export function loadAllPreismeldungenForExport(
             )
         )
         .withLatestFrom(getAllPreismeldungenStatus())
-        .map(([{ preismeldungen, refPreismeldungen }, preismeldungenStatus]) => {
-            const grouped = groupBy(
+        .map(([{ preismeldungen, refPreismeldungen }, preismeldungenStatus]) => ({
+            grouped: groupBy(
                 preismeldungen.filter(
                     pm =>
                         pm.istAbgebucht &&
@@ -51,22 +51,50 @@ export function loadAllPreismeldungenForExport(
                         (preismeldungenStatus.statusMap[pm._id] || 0) >= P.PreismeldungStatus['geprüft']
                 ),
                 pm => pm.pmsNummer
-            );
-            return flatten(
+            ),
+            refPreismeldungen,
+        }))
+        .flatMap(({ grouped, refPreismeldungen }) =>
+            getAllSortierungenByPmId(Object.keys(grouped)).map(sortierung => ({
+                grouped,
+                refPreismeldungen,
+                sortierung,
+            }))
+        )
+        .map(({ grouped, refPreismeldungen, sortierung }) =>
+            flatten(
                 Object.keys(grouped).reduce(
                     (acc, pms) => [
                         ...acc,
-                        sortBy(grouped[pms], [pm => pm.pmsNummer, pm => pm.erfasstAt]).map((pm, i) => ({
+                        sortBy(grouped[pms], [pm => pm.pmsNummer, pm => pm.erfasstAt]).map(pm => ({
                             pm,
                             refPreismeldung: refPreismeldungen.find(rpm => rpm.pmId === pm._id) || {},
-                            sortierungsnummer: i + 1,
+                            sortierungsnummer: sortierung[pm._id] || null,
                         })),
                     ],
                     []
                 )
-            );
-        });
+            )
+        );
 }
+
+const getAllSortierungenByPmId = (pmsIds: string[]) =>
+    Observable.forkJoin(
+        pmsIds.map(pmsNummer =>
+            getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).map(list =>
+                list
+                    .reduce(
+                        (acc, sort) => [...acc, ...sort.sortOrder.reduce((sublist, x) => [...sublist, x], [])],
+                        [] as ({
+                            pmId: string;
+                        } & P.PreismeldungSortProperties)[]
+                    )
+                    .reduce((acc, sort) => ({ ...acc, [sort.pmId]: sort.sortierungsnummer }), {} as {
+                        [pmId: string]: number;
+                    })
+            )
+        )
+    ).map(x => x.reduce((acc, sort) => ({ ...acc, ...sort }), {} as { [pmId: string]: number }));
 
 const loadUserDbs = async (preiserheberIds: string[]) => {
     if (preiserheberIds.length === 0) {
