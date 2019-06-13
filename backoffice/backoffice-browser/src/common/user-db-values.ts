@@ -55,7 +55,7 @@ export function loadAllPreismeldungenForExport(
             refPreismeldungen,
         }))
         .flatMap(({ grouped, refPreismeldungen }) =>
-            getAllSortierungenByPmId(Object.keys(grouped)).map(sortierung => ({
+            getAllSortierungenByPmsId(Object.keys(grouped)).map(sortierung => ({
                 grouped,
                 refPreismeldungen,
                 sortierung,
@@ -78,7 +78,7 @@ export function loadAllPreismeldungenForExport(
         );
 }
 
-const getAllSortierungenByPmId = (pmsIds: string[]) =>
+const getAllSortierungenByPmsId = (pmsIds: string[]) =>
     Observable.forkJoin(
         pmsIds.map(pmsNummer =>
             getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).map(list =>
