@@ -513,6 +513,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         }
 
         case 'DUPLICATE_PREISMELDUNG': {
+            const allPreismeldungen = getAll(state);
+            const allErfasstePreismeldungen = allPreismeldungen.filter(pm => !!pm.preismeldung.erfasstAt);
             const currentPreismeldung = action.payload.preismeldungToDuplicate;
             const preismeldungen = getAll(state).filter(
                 x =>
@@ -522,6 +524,10 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[
                 preismeldungen.length - 1
             ] + 1}`;
+            const sortierungsnummer =
+                allErfasstePreismeldungen.length !== 0
+                    ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
+                    : 1;
             const newPmId = preismeldungId(
                 currentPreismeldung.preismeldung.pmsNummer,
                 currentPreismeldung.preismeldung.epNummer,
@@ -541,7 +547,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     {
                         pmId: newPmId,
                         refPreismeldung: null,
-                        sortierungsnummer: currentPreismeldung.sortierungsnummer + 1,
+                        sortierungsnummer,
                         preismeldung: newPreismeldung,
                         warenkorbPosition: currentPreismeldung.warenkorbPosition,
                     },
@@ -562,6 +568,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
         case 'NEW_PREISMELDUNG': {
             const allPreismeldungen = getAll(state);
+            const allErfasstePreismeldungen = allPreismeldungen.filter(pm => !!pm.preismeldung.erfasstAt);
             const preismeldungen = getAll(state).filter(
                 x =>
                     x.warenkorbPosition.gliederungspositionsnummer ===
@@ -580,11 +587,9 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 nextLaufnummer
             );
             const sortierungsnummer =
-                preismeldungen.length === 0
-                    ? allPreismeldungen.length !== 0
-                        ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
-                        : 1
-                    : sortBy(preismeldungen, x => x.sortierungsnummer)[0].sortierungsnummer + 1;
+                allErfasstePreismeldungen.length !== 0
+                    ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
+                    : 1;
             const priceCountStatus =
                 state.priceCountStatuses[
                     priceCountId(action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer)
