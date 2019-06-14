@@ -30,6 +30,8 @@ import { Component } from '@angular/core';
                     <polygon points="12.707 14.586 12.707 6 10.707 6 10.707 14.586 8.414 12.293 7 13.707 11.707 18.414 16.414 13.707 15 12.293"/>
                 </g>
             </symbol>
+            <symbol class="icon-play_arrow" id="play_arrow" width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="fill: inherit"/></symbol>
+            <symbol class="icon-stop" id="stop" width="24" height="24" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></symbol>
             <symbol class="icon-benutzerkonto_pdf_dokument" id="benutzerkonto_pdf_dokument" width="30" height="30" viewBox="0 0 30 30">
                 <defs>
                     <polygon id="a" points="21.914 11.707 21.914 23.414 0 23.414 0 11.707 0 0 21.914 0 21.914 11.707"/>

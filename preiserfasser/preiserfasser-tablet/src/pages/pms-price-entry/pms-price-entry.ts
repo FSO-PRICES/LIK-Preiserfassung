@@ -52,6 +52,10 @@ export class PmsPriceEntryPage implements OnDestroy {
         .select(fromRoot.getCurrentDate)
         .publishReplay(1)
         .refCount();
+    isInRecordMode$ = this.store
+        .select(fromRoot.getPreismeldungenIsInRecordMode)
+        .publishReplay(1)
+        .refCount();
     priceCountStatuses$ = this.store.select(fromRoot.getPriceCountStatuses);
     warenkorb$ = this.store.select(fromRoot.getWarenkorb);
     currentPriceCountStatus$ = this.currentPreismeldung$.combineLatest(
@@ -68,6 +72,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     duplicatePreismeldung$ = new EventEmitter();
     addNewPreisreihe$ = new EventEmitter();
     navigateToPmsSort$ = new EventEmitter();
+    recordSortPreismeldungen$ = new EventEmitter();
     ionViewDidLoad$ = new EventEmitter();
     resetPreismeldung$ = new EventEmitter();
     requestSelectNextPreismeldung$ = new EventEmitter<{}>();
@@ -299,6 +304,10 @@ export class PmsPriceEntryPage implements OnDestroy {
             )
             .publishReplay(1)
             .refCount();
+
+        this.recordSortPreismeldungen$.subscribe(() =>
+            this.store.dispatch({ type: 'PREISMELDUNGEN_TOGGLE_RECORD_MODE' })
+        );
 
         duplicatePreismeldung$
             .takeUntil(this.onDestroy$)

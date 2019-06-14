@@ -104,8 +104,13 @@ export type PreismeldungAction =
     | { type: 'UPDATE_PREISMELDUNG_ATTRIBUTES'; payload: string[] }
     | {
           type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS';
-          payload: { preismeldung: P.Models.Preismeldung; saveAction: SavePreismeldungPriceSaveAction };
+          payload: {
+              preismeldung: P.Models.Preismeldung;
+              sortierung: P.Models.PmsPreismeldungenSortProperties;
+              saveAction: SavePreismeldungPriceSaveAction;
+          };
       }
+    | { type: 'PREISMELDUNGEN_TOGGLE_RECORD_MODE'; payload: null }
     | {
           type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS';
           payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort };

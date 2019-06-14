@@ -80,6 +80,10 @@ export const getCurrentPreismeldestelle = createSelector(
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);
+export const getPreismeldungenIsInRecordMode = createSelector(
+    getPreismeldungenState,
+    fromPreismeldungen.getPreismeldungenIsInRecordMode
+);
 const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
 export const getPriceCountStatuses = createSelector(getPreismeldungenState, fromPreismeldungen.getPriceCountStatuses);
 export const getPreismeldungenCurrentPmsNummer = createSelector(

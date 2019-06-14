@@ -149,7 +149,7 @@ preismeldung-list {
     }
 
     .preismeldung-list-functions, .preismeldung-list-arrows {
-        button:first-of-type {
+        button {
             @include set-margin-right(1);
         }
     }

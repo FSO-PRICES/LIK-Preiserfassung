@@ -1,4 +1,4 @@
-import { PreismeldungReference, PercentageWithWarning } from './models';
+import { Preismeldung, PreismeldungReference, PercentageWithWarning } from './models';
 import { format } from 'date-fns';
 
 type PreismeldungSortShape = { sortierungsnummer: number; epNummer: string; laufnummer: string };
@@ -8,12 +8,12 @@ export function preismeldungCompareFn(a: PreismeldungSortShape, b: PreismeldungS
     if (b.sortierungsnummer == null) return -1;
     return (
         a.sortierungsnummer - b.sortierungsnummer ||
-        parseInt(a.epNummer) - parseInt(b.epNummer) ||
-        parseInt(a.laufnummer) - parseInt(b.laufnummer)
+        parseInt(a.epNummer, 10) - parseInt(b.epNummer, 10) ||
+        parseInt(a.laufnummer, 10) - parseInt(b.laufnummer, 10)
     );
 }
 
-export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungReference) {
+export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungReference): Partial<Preismeldung> {
     return {
         pmsNummer: rpm.pmsNummer,
         epNummer: rpm.epNummer,
@@ -31,6 +31,7 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungR
         artikeltext: rpm.artikeltext,
         bemerkungen: '',
         notiz: rpm.notiz,
+        erfasstAt: null,
         erhebungsZeitpunkt: rpm.erhebungsZeitpunkt,
         kommentar: '',
         productMerkmale: rpm.productMerkmale,

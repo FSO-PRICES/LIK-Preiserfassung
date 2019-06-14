@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { startOfMonth } from 'date-fns';
-import { assign, cloneDeep, flatMap, isEqual } from 'lodash';
+import { assign, cloneDeep, flatMap, isEqual, maxBy, sortBy } from 'lodash';
 import { Observable } from 'rxjs/Observable';
 
 import {
@@ -27,10 +27,13 @@ import {
     PreismeldungAction,
     copyPreismeldungPropertiesFromRefPreismeldung,
 } from 'lik-shared';
+import { of } from 'rxjs/observable/of';
 
 @Injectable()
 export class PreismeldungenEffects {
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
+    isInRecordMode$ = this.store.select(fromRoot.getPreismeldungenIsInRecordMode);
+    preismeldungen$ = this.store.select(fromRoot.getPreismeldungen);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
@@ -140,6 +143,11 @@ export class PreismeldungenEffects {
     @Effect()
     savePreismeldung$ = this.savePreismeldungPrice$
         .filter(x => !x.currentPreismeldung.isNew)
+        .flatMap(x =>
+            this.applySortierungen(x.currentPreismeldung)
+                .defaultIfEmpty()
+                .map(sortierung => ({ ...x, sortierung }))
+        )
         .flatMap(x => {
             const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
             let currentPreismeldung = x.currentPreismeldung;
@@ -168,7 +176,11 @@ export class PreismeldungenEffects {
                 { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext }) },
                 setAktion
             );
-            return this.savePreismeldungPrice(currentPreismeldung).then(preismeldung => ({ preismeldung, saveAction }));
+            return this.savePreismeldungPrice(currentPreismeldung).then(preismeldung => ({
+                preismeldung,
+                sortierung: x.sortierung,
+                saveAction,
+            }));
         })
         .map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload }));
 
@@ -311,14 +323,7 @@ export class PreismeldungenEffects {
 
     preismeldungenSortSave = this.actions$
         .ofType('PREISMELDUNGEN_SORT_SAVE')
-        .flatMap(({ payload }) => getDatabaseAsObservable().map(db => ({ db, payload })))
-        .flatMap(x =>
-            x.db
-                .get(P.pmsSortId(x.payload.pmsNummer))
-                .then((dbDoc: P.Models.PmsPreismeldungenSort) => ({ dbDoc, payload: x.payload, db: x.db }))
-        )
-        .filter(x => !isEqual(x.dbDoc.sortOrder, x.payload.sortOrderDoc.sortOrder))
-        .flatMap(x => x.db.put(assign({}, x.dbDoc, x.payload.sortOrderDoc)))
+        .flatMap(({ payload }) => this.savePreismeldungenSort(payload))
         .subscribe();
 
     savePreismeldung(
@@ -347,5 +352,58 @@ export class PreismeldungenEffects {
             bag => propertiesFromCurrentPreismeldung(bag),
             bag => messagesFromCurrentPreismeldung(bag),
         ]);
+    }
+
+    applySortierungen(currentPreismeldung: P.CurrentPreismeldungBag) {
+        return this.preismeldungen$
+            .take(1)
+            .withLatestFrom(this.isInRecordMode$, (preismeldungen, isInRecordMode) => ({
+                preismeldungen,
+                isInRecordMode,
+            }))
+            .filter(({ isInRecordMode }) => isInRecordMode)
+            .map(({ preismeldungen }) => {
+                const lastSortierungsnummer = maxBy(
+                    preismeldungen,
+                    x => (!!x.preismeldung.erfasstAt ? x.sortierungsnummer : 0)
+                ).sortierungsnummer;
+                const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
+                const newIndex = preismeldungen.findIndex(pm => pm.sortierungsnummer === lastSortierungsnummer);
+                if (currentIndex !== newIndex) {
+                    const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
+                    return [
+                        ...sortedPreismeldungen.slice(0, newIndex + 1),
+                        currentPreismeldung,
+                        ...sortedPreismeldungen.slice(newIndex + 1),
+                    ]
+                        .filter((_, i) => i !== currentIndex + (currentIndex > newIndex ? 1 : 0))
+                        .map((pm, i) => ({ ...pm, sortierungsnummer: i + 1 }));
+                }
+                return preismeldungen;
+            })
+            .flatMap(preismeldungen =>
+                this.savePreismeldungenSort({
+                    pmsNummer: currentPreismeldung.preismeldung.pmsNummer,
+                    sortOrderDoc: {
+                        sortOrder: preismeldungen.map(pm => ({
+                            pmId: pm.pmId,
+                            sortierungsnummer: pm.sortierungsnummer,
+                        })),
+                    },
+                })
+            );
+    }
+
+    savePreismeldungenSort(payload: { pmsNummer: string; sortOrderDoc: P.Models.PmsPreismeldungenSortProperties }) {
+        return getDatabaseAsObservable()
+            .map(db => ({ db, payload }))
+            .flatMap(x =>
+                x.db
+                    .get(P.pmsSortId(x.payload.pmsNummer))
+                    .then((dbDoc: P.Models.PmsPreismeldungenSort) => ({ dbDoc, payload: x.payload, db: x.db }))
+            )
+            .filter(x => !isEqual(x.dbDoc.sortOrder, x.payload.sortOrderDoc.sortOrder))
+            .flatMap(x => x.db.put(assign({}, x.dbDoc, x.payload.sortOrderDoc)).then(() => x))
+            .flatMap(x => x.db.get<P.Models.PmsPreismeldungenSort>(P.pmsSortId(x.payload.pmsNummer)));
     }
 }

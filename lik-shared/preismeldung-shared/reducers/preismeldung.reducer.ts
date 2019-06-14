@@ -52,6 +52,7 @@ export type PriceCountStatusMap = { [pmsNummer: string]: PriceCountStatus };
 
 export interface State {
     isAdminApp: boolean;
+    isInRecordMode: boolean;
     pmsNummer: string;
     preismeldungIds: string[];
     entities: { [pmNummer: string]: PreismeldungBag };
@@ -66,6 +67,7 @@ export interface State {
 
 export const initialState: State = {
     isAdminApp: false,
+    isInRecordMode: false,
     pmsNummer: null,
     preismeldungIds: [],
     entities: {},
@@ -105,8 +107,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const status = !action.payload.pms
                 ? 'Preismeldestelle nicht zugewiesen.'
                 : !action.payload.preismeldungen.length
-                    ? 'Preismeldungen noch nicht von der Preiserheber App synchronsiert.'
-                    : null;
+                ? 'Preismeldungen noch nicht von der Preiserheber App synchronsiert.'
+                : null;
 
             const preismeldungIds = !!payload.pmsPreismeldungenSort
                 ? sortBy(preismeldungBags, x => x.sortierungsnummer).map(x => x.pmId)
@@ -360,15 +362,31 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 });
             }
 
-            const entities = assign({}, state.entities, {
+            let entities = assign({}, state.entities, {
                 [currentPreismeldung.pmId]: assign({}, currentPreismeldung),
             });
+            let preismeldungIds = state.preismeldungIds;
+            if (!!action.payload.sortierung) {
+                entities = action.payload.sortierung.sortOrder.reduce(
+                    (e, sort) => ({
+                        ...e,
+                        ...{ [sort.pmId]: { ...entities[sort.pmId], sortierungsnummer: sort.sortierungsnummer } },
+                    }),
+                    {}
+                );
+                preismeldungIds = action.payload.sortierung.sortOrder.map(sort => sort.pmId);
+            }
 
             return assign({}, state, {
                 currentPreismeldung: nextPreismeldung,
                 entities,
+                preismeldungIds,
                 priceCountStatuses: createPriceCountStatuses(entities),
             });
+        }
+
+        case 'PREISMELDUNGEN_TOGGLE_RECORD_MODE': {
+            return assign({}, state, { isInRecordMode: !state.isInRecordMode });
         }
 
         case 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS': {
@@ -1146,7 +1164,10 @@ export const getCurrentPreismeldung = (state: State) => state.currentPreismeldun
 export const getPriceCountStatuses = (state: State) => state.priceCountStatuses;
 export const getPreismeldungenCurrentPmsNummer = (state: State) => state.pmsNummer;
 export const getPreismeldungenStatus = (state: State) => state.status;
+export const getPreismeldungenIsInRecordMode = (state: State) => state.isInRecordMode;
 
-export const getAll = createSelector(getEntities, getPreismeldungIds, (entities, preismeldungIds) =>
-    preismeldungIds.map(x => entities[x])
+export const getAll = createSelector(
+    getEntities,
+    getPreismeldungIds,
+    (entities, preismeldungIds) => preismeldungIds.map(x => entities[x])
 );
