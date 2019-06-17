@@ -1,5 +1,6 @@
-import { Directive, ElementRef, OnInit, Inject, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Directive, ElementRef, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { interval, of as observableOf } from 'rxjs';
+import { flatMap, retry, take } from 'rxjs/operators';
 
 @Directive({
     selector: '[pef-detect-ion-list-item-height]',
@@ -7,14 +8,15 @@ import { Observable } from 'rxjs';
 export class PefDetectIonListItemHeightDirective implements OnInit {
     @Output('pef-detect-ion-list-item-height') ionItemHeight = new EventEmitter<number>();
 
-    constructor(private elementRef: ElementRef, @Inject('windowObject') private window: any) {
-    }
+    constructor(private elementRef: ElementRef, @Inject('windowObject') private window: any) {}
 
     ngOnInit() {
-        Observable.interval(500)
-            .flatMap(() => Observable.of(this.getIonItemElement()))
-            .retry()
-            .take(1)
+        interval(500)
+            .pipe(
+                flatMap(() => observableOf(this.getIonItemElement())),
+                retry(),
+                take(1),
+            )
             .subscribe(ionItem => {
                 this.ionItemHeight.emit(this.getIonItemHeight(ionItem));
             });
@@ -29,8 +31,10 @@ export class PefDetectIonListItemHeightDirective implements OnInit {
     }
 
     getIonItemHeight(ionItem: HTMLElement) {
-        return Math.round(parseFloat(this.window.getComputedStyle(ionItem).marginTop))
-            + Math.round(parseFloat(this.window.getComputedStyle(ionItem).marginBottom))
-            + Math.round(ionItem.getBoundingClientRect().height);
+        return (
+            Math.round(parseFloat(this.window.getComputedStyle(ionItem).marginTop)) +
+            Math.round(parseFloat(this.window.getComputedStyle(ionItem).marginBottom)) +
+            Math.round(ionItem.getBoundingClientRect().height)
+        );
     }
 }

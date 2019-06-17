@@ -1,24 +1,29 @@
 import {
-    Component,
-    Input,
-    Output,
-    OnChanges,
-    SimpleChange,
-    EventEmitter,
     ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
     Inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChange,
 } from '@angular/core';
+import { Observable } from 'rxjs';
+import { filter, map, withLatestFrom } from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../../';
 
 import * as P from '../../../models';
 import { ElectronService } from '../../../services/electron.service';
-import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'preismeldung-info',
     template: `
-        <preismeldung-readonly-header [preismeldung]="preismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [isAdminApp]="isAdminApp$ | async"></preismeldung-readonly-header>
+        <preismeldung-readonly-header
+            [preismeldung]="preismeldung$ | async"
+            [preismeldestelle]="preismeldestelle$ | async"
+            [isAdminApp]="isAdminApp$ | async"
+        ></preismeldung-readonly-header>
 
         <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop$ | async">
             <div class="detail-tab-bottom-part">
@@ -46,7 +51,10 @@ import { Observable } from 'rxjs/Observable';
                             {{ 'label_preis-vor-reduktion' | translate }}
                         </div>
                         <div class="info-table-cell-value">
-                            {{ (preismeldung$ | async)?.refPreismeldung.preisVorReduktion | pefFormatNumber: numberFormattingOptions }}
+                            {{
+                                (preismeldung$ | async)?.refPreismeldung.preisVorReduktion
+                                    | pefFormatNumber: numberFormattingOptions
+                            }}
                         </div>
                     </div>
                     <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
@@ -54,8 +62,8 @@ import { Observable } from 'rxjs/Observable';
                             {{ 'label_menge-vor-reduktion' | translate }}
                         </div>
                         <div class="info-table-cell-value">
-                            {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit
-                            | pefPropertyTranslate }}
+                            {{ (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion }}
+                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
                         </div>
                     </div>
                     <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
@@ -79,7 +87,10 @@ import { Observable } from 'rxjs/Observable';
                             {{ 'label_basispreis' | translate }}
                         </div>
                         <div class="info-table-cell-value">
-                            {{ (preismeldung$ | async)?.refPreismeldung.basisPreis | pefFormatNumber: numberFormattingOptions }}
+                            {{
+                                (preismeldung$ | async)?.refPreismeldung.basisPreis
+                                    | pefFormatNumber: numberFormattingOptions
+                            }}
                         </div>
                     </div>
                     <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
@@ -87,8 +98,8 @@ import { Observable } from 'rxjs/Observable';
                             {{ 'label_basismenge' | translate }}
                         </div>
                         <div class="info-table-cell-value">
-                            {{ (preismeldung$ | async)?.refPreismeldung.basisMenge }} {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
-                            pefPropertyTranslate }}
+                            {{ (preismeldung$ | async)?.refPreismeldung.basisMenge }}
+                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
                         </div>
                     </div>
                     <div class="info-table-row" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
@@ -112,14 +123,28 @@ import { Observable } from 'rxjs/Observable';
                             {{ 'label_internetlink' | translate }}
                         </div>
                         <div class="info-table-cell-value">
-                            <a *ngIf="(preismeldung$ | async)?.preismeldung.internetLink" [href]="formatInternetLink((preismeldung$ | async)?.preismeldung.internetLink)" target="_blank" (click)="navigateToInternetLink($event, preismeldung?.preismeldung.internetLink)">{{ (preismeldung$ | async)?.preismeldung.internetLink }}</a>
+                            <a
+                                *ngIf="(preismeldung$ | async)?.preismeldung.internetLink"
+                                [href]="formatInternetLink((preismeldung$ | async)?.preismeldung.internetLink)"
+                                target="_blank"
+                                (click)="navigateToInternetLink($event, preismeldung?.preismeldung.internetLink)"
+                                >{{ (preismeldung$ | async)?.preismeldung.internetLink }}</a
+                            >
                             <span *ngIf="!(preismeldung$ | async)?.preismeldung.internetLink">&ndash;</span>
                         </div>
                     </div>
                 </div>
-                <button ion-button class="reset-button" (click)="resetClicked$.emit()" [disabled]="!(canReset$ | async)">{{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate}}</button>
+                <button
+                    ion-button
+                    class="reset-button"
+                    (click)="resetClicked$.emit()"
+                    [disabled]="!(canReset$ | async)"
+                >
+                    {{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate }}
+                </button>
             </div>
-        </ion-content>`,
+        </ion-content>
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungInfoComponent extends ReactiveComponent implements OnChanges {
@@ -142,15 +167,13 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
     constructor(private electronService: ElectronService, @Inject('windowObject') public window: any) {
         super();
 
-        this.canReset$ = this.preismeldung$
-            .withLatestFrom(this.isAdminApp$)
-            .filter(([pm]) => !!pm)
-            .map(
-                ([pm, isAdminApp]) =>
-                    !isAdminApp
-                        ? !pm.preismeldung.uploadRequestedAt
-                        : !!pm.preismeldung.uploadRequestedAt && !pm.exported
-            );
+        this.canReset$ = this.preismeldung$.pipe(
+            withLatestFrom(this.isAdminApp$),
+            filter(([pm]) => !!pm),
+            map(([pm, isAdminApp]) =>
+                !isAdminApp ? !pm.preismeldung.uploadRequestedAt : !!pm.preismeldung.uploadRequestedAt && !pm.exported,
+            ),
+        );
     }
 
     formatPreismeldungId(bag: P.PreismeldungBag) {
@@ -165,7 +188,7 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
     navigateToInternetLink(event: any, internetLink: string) {
         if (!internetLink) return;
 
-        let _internetLink = this.formatInternetLink(internetLink);
+        const _internetLink = this.formatInternetLink(internetLink);
         if (this.isDesktop) {
             event.preventDefault();
             this.electronService.openExternal(_internetLink);

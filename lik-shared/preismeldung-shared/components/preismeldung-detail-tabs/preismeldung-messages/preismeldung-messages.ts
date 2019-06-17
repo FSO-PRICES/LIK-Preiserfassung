@@ -1,64 +1,131 @@
 import {
+    ChangeDetectionStrategy,
     Component,
+    EventEmitter,
     Input,
     OnChanges,
-    SimpleChange,
-    ChangeDetectionStrategy,
-    EventEmitter,
-    Output,
     OnDestroy,
+    Output,
+    SimpleChange,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { assign } from 'lodash';
+import { defer, Observable, Subject } from 'rxjs';
+import {
+    debounceTime,
+    distinctUntilKeyChanged,
+    filter,
+    flatMap,
+    map,
+    merge,
+    publishReplay,
+    refCount,
+    share,
+    startWith,
+    take,
+    tap,
+    withLatestFrom,
+} from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../../';
 
 import * as P from '../../../models';
-import { Observable, Subject } from 'rxjs';
-import { PreismeldungMessagesPayload } from '../../../actions/preismeldung.actions';
 
 @Component({
     selector: 'preismeldung-messages',
     template: `
-        <preismeldung-readonly-header [preismeldung]="preismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [isAdminApp]="isAdminApp$ | async"></preismeldung-readonly-header>
+        <preismeldung-readonly-header
+            [preismeldung]="preismeldung$ | async"
+            [preismeldestelle]="preismeldestelle$ | async"
+            [isAdminApp]="isAdminApp$ | async"
+        ></preismeldung-readonly-header>
 
         <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop$ | async">
             <form [formGroup]="form" novalidate>
                 <div class="detail-tab-bottom-part">
                     <h3>{{ 'heading_meine-notiz' | translate }}</h3>
                     <ion-item class="pef-textarea-item">
-                        <ion-textarea formControlName="notiz" (blur)="onBlur$.emit()" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-textarea>
+                        <ion-textarea
+                            formControlName="notiz"
+                            (blur)="onBlur$.emit()"
+                            [readonly]="isReadonly$ | async"
+                            [class.readonly]="isReadonly$ | async"
+                        ></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
-                        <button ion-button color="java" (click)="notizClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">
+                            {{ 'btn_erfassung_speichern' | translate }}
+                        </button>
+                        <button ion-button color="java" (click)="notizClear$.emit()" [disabled]="isReadonly$ | async">
+                            {{ 'btn_leeren' | translate }}
+                        </button>
                     </div>
                     <h3>{{ 'heading_kommentar-zum-aktuellen-monat' | translate }}</h3>
                     <div class="kommentar-autotext">
-                        <span *ngFor="let text of (preismeldung$ | async)?.messages.kommentarAutotext">{{ (text | translate) + '\u0020' }}</span>
+                        <span *ngFor="let text of (preismeldung$ | async)?.messages.kommentarAutotext">{{
+                            (text | translate) + '\u0020'
+                        }}</span>
                     </div>
                     <ion-item class="pef-textarea-item">
-                        <ion-textarea formControlName="kommentar" (blur)="onBlur$.emit()" [readonly]="isReadonly$ | async" [class.readonly]="isReadonly$ | async"></ion-textarea>
+                        <ion-textarea
+                            formControlName="kommentar"
+                            (blur)="onBlur$.emit()"
+                            [readonly]="isReadonly$ | async"
+                            [class.readonly]="isReadonly$ | async"
+                        ></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
-                        <button ion-button color="java" (click)="kommentarClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">
+                            {{ 'btn_erfassung_speichern' | translate }}
+                        </button>
+                        <button
+                            ion-button
+                            color="java"
+                            (click)="kommentarClear$.emit()"
+                            [disabled]="isReadonly$ | async"
+                        >
+                            {{ 'btn_leeren' | translate }}
+                        </button>
                     </div>
                     <h3>{{ 'heading_kommunikation' | translate }}</h3>
-                    <div class="message-history" *ngIf="(bemerkungenHistory$ | async)">
-                        <div class="message-item"><span class="message-text" [innerHtml]="(bemerkungenHistory$ | async)"></span></div>
+                    <div class="message-history" *ngIf="bemerkungenHistory$ | async">
+                        <div class="message-item">
+                            <span class="message-text" [innerHtml]="bemerkungenHistory$ | async"></span>
+                        </div>
                     </div>
                     <ion-item class="pef-textarea-item">
-                        <ion-textarea formControlName="bemerkungen" (blur)="onBlur$.emit()" [class.readonly]="isReadonly$ | async" [readonly]="isReadonly$ | async"></ion-textarea>
+                        <ion-textarea
+                            formControlName="bemerkungen"
+                            (blur)="onBlur$.emit()"
+                            [class.readonly]="isReadonly$ | async"
+                            [readonly]="isReadonly$ | async"
+                        ></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
-                        <button ion-button color="java" (click)="bemerkungenClear$.emit()" [disabled]="isReadonly$ | async">{{ 'btn_leeren' | translate }}</button>
-                        <button ion-button color="java" [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)" (click)="erledigt$.emit()">{{ 'btn_erledigt' | translate }}</button>
+                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">
+                            {{ 'btn_erfassung_speichern' | translate }}
+                        </button>
+                        <button
+                            ion-button
+                            color="java"
+                            (click)="bemerkungenClear$.emit()"
+                            [disabled]="isReadonly$ | async"
+                        >
+                            {{ 'btn_leeren' | translate }}
+                        </button>
+                        <button
+                            ion-button
+                            color="java"
+                            [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)"
+                            (click)="erledigt$.emit()"
+                        >
+                            {{ 'btn_erledigt' | translate }}
+                        </button>
                     </div>
                 </div>
             </form>
-        </ion-content>`,
+        </ion-content>
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungMessagesComponent extends ReactiveComponent implements OnChanges, OnDestroy {
@@ -72,9 +139,10 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     @Output('kommentarClearClicked') kommentarClearClicked$: Observable<{}>;
 
     public isActive$ = this.observePropertyCurrentValue<boolean>('isActive');
-    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung')
-        .publishReplay(1)
-        .refCount();
+    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung').pipe(
+        publishReplay(1),
+        refCount(),
+    );
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
@@ -103,33 +171,43 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             bemerkungen: [''],
         });
 
-        const distinctPreismeldung$ = this.preismeldung$
-            .filter(x => !!x)
-            .distinctUntilKeyChanged('pmId')
-            .merge(
-                this.isActive$
-                    .filter(x => x)
-                    .flatMap(() => Observable.defer(() => this.preismeldung$.filter(x => !!x).take(1)))
-            )
-            .publishReplay(1)
-            .refCount();
+        const distinctPreismeldung$ = this.preismeldung$.pipe(
+            filter(x => !!x),
+            distinctUntilKeyChanged('pmId'),
+            merge(
+                this.isActive$.pipe(
+                    filter(x => x),
+                    flatMap(() =>
+                        defer(() =>
+                            this.preismeldung$.pipe(
+                                filter(x => !!x),
+                                take(1),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            publishReplay(1),
+            refCount(),
+        );
 
-        this.isReadonly$ = distinctPreismeldung$
-            .map(x => x.isReadonly)
-            .publishReplay(1)
-            .refCount();
+        this.isReadonly$ = distinctPreismeldung$.pipe(
+            map(x => x.isReadonly),
+            publishReplay(1),
+            refCount(),
+        );
 
-        this.bemerkungenHistory$ = distinctPreismeldung$
-            .map(
-                x =>
-                    !!x.refPreismeldung
-                        ? !!x.refPreismeldung.bemerkungen
-                            ? x.refPreismeldung.bemerkungen.replace(/\\n/g, '<br/>')
-                            : ''
+        this.bemerkungenHistory$ = distinctPreismeldung$.pipe(
+            map(x =>
+                !!x.refPreismeldung
+                    ? !!x.refPreismeldung.bemerkungen
+                        ? x.refPreismeldung.bemerkungen.replace(/\\n/g, '<br/>')
                         : ''
-            )
-            .publishReplay(1)
-            .refCount();
+                    : '',
+            ),
+            publishReplay(1),
+            refCount(),
+        );
 
         distinctPreismeldung$.takeUntil(this.onDestroy$).subscribe(bag => {
             this.form.reset({
@@ -139,61 +217,65 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             });
         });
 
-        const notizClearDone$ = this.notizClear$.do(() => {
-            this.form.patchValue({ notiz: '' });
-        });
+        const notizClearDone$ = this.notizClear$.pipe(
+            tap(() => {
+                this.form.patchValue({ notiz: '' });
+            }),
+        );
 
-        const kommentarClearDone$ = this.kommentarClear$
-            .do(() => {
+        const kommentarClearDone$ = this.kommentarClear$.pipe(
+            tap(() => {
                 this.form.patchValue({ kommentar: '' });
-            })
-            .share();
+            }),
+            share(),
+        );
 
-        const bemerkungenClearDone$ = this.bemerkungenClear$
-            .do(() => {
+        const bemerkungenClearDone$ = this.bemerkungenClear$.pipe(
+            tap(() => {
                 this.form.patchValue({ bemerkungen: '' });
-            })
-            .share();
+            }),
+            share(),
+        );
 
         this.kommentarClearClicked$ = kommentarClearDone$.merge(bemerkungenClearDone$);
 
-        const erledigtDone$ = this.erledigt$.do(() => {
-            let bemerkungen = this.form.value['bemerkungen'];
-            bemerkungen = !!bemerkungen ? bemerkungen + '\n' : bemerkungen;
-            bemerkungen += '@OK';
-            this.form.patchValue({ bemerkungen });
-        });
-
-        const buttonActionDone$ = Observable.merge(
-            notizClearDone$,
-            kommentarClearDone$,
-            bemerkungenClearDone$,
-            erledigtDone$
+        const erledigtDone$ = this.erledigt$.pipe(
+            tap(() => {
+                let bemerkungen = this.form.value['bemerkungen'];
+                bemerkungen = !!bemerkungen ? bemerkungen + '\n' : bemerkungen;
+                bemerkungen += '@OK';
+                this.form.patchValue({ bemerkungen });
+            }),
         );
 
-        this.erledigtDisabled$ = this.form.valueChanges
-            .map(x => x.bemerkungen.endsWith('@OK'))
-            .startWith(false)
-            .withLatestFrom(this.isReadonly$, (disabled, readonly) => disabled || readonly);
-        this.erledigtButtonDisabled$ = this.form.valueChanges
-            .map(x => !x.bemerkungen)
-            .merge(distinctPreismeldung$.map(x => !x.messages.bemerkungen))
-            .startWith(true);
+        const buttonActionDone$ = merge(notizClearDone$, kommentarClearDone$, bemerkungenClearDone$, erledigtDone$);
 
-        this.preismeldungMessagesPayload$ = this.onBlur$
-            .merge(buttonActionDone$)
-            .withLatestFrom(
-                this.form.valueChanges.startWith({ notiz: '', kommentar: '', bemerkungen: '' }),
-                (_, formValue) => formValue
-            )
-            .debounceTime(100)
-            .withLatestFrom(this.isAdminApp$.startWith(false), (x, isAdminApp) => assign(x, { isAdminApp }))
-            .map(x => ({
+        this.erledigtDisabled$ = this.form.valueChanges.pipe(
+            map(x => x.bemerkungen.endsWith('@OK')),
+            startWith(false),
+            withLatestFrom(this.isReadonly$, (disabled, readonly) => disabled || readonly),
+        );
+        this.erledigtButtonDisabled$ = this.form.valueChanges.pipe(
+            map(x => !x.bemerkungen),
+            merge(distinctPreismeldung$.map(x => !x.messages.bemerkungen)),
+            startWith(true),
+        );
+
+        this.preismeldungMessagesPayload$ = this.onBlur$.pipe(
+            merge(buttonActionDone$),
+            withLatestFrom(
+                this.form.valueChanges.pipe(startWith({ notiz: '', kommentar: '', bemerkungen: '' })),
+                (_, formValue) => formValue,
+            ),
+            debounceTime(100),
+            withLatestFrom(this.isAdminApp$.pipe(startWith(false)), (x, isAdminApp) => assign(x, { isAdminApp })),
+            map(x => ({
                 notiz: x.notiz.replace(/(?:\r\n|\r|\n)/g, '\\n'),
                 kommentar: x.kommentar.replace(/(?:\r\n|\r|\n)/g, '\\n'),
                 bemerkungen: x.bemerkungen.replace(/(?:\r\n|\r|\n)/g, '\\n'),
                 isAdminApp: x.isAdminApp,
-            }));
+            })),
+        );
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

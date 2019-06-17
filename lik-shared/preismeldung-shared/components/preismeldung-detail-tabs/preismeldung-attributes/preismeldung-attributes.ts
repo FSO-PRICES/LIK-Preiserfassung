@@ -1,30 +1,46 @@
-import { Component, Input, OnChanges, SimpleChange, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { assign, keys } from 'lodash';
+import { Observable } from 'rxjs';
+import { filter, withLatestFrom } from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../../';
 
 import * as P from '../../../models';
-import { keys, assign } from 'lodash';
-import { Observable } from 'rxjs';
 
 @Component({
     selector: 'preismeldung-attributes',
     template: `
-        <preismeldung-readonly-header [preismeldung]="preismeldung$ | async" [preismeldestelle]="preismeldestelle$ | async" [isAdminApp]="isAdminApp$ | async"></preismeldung-readonly-header>
+        <preismeldung-readonly-header
+            [preismeldung]="preismeldung$ | async"
+            [preismeldestelle]="preismeldestelle$ | async"
+            [isAdminApp]="isAdminApp$ | async"
+        ></preismeldung-readonly-header>
 
         <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop$ | async">
             <form [formGroup]="form">
                 <div class="detail-tab-bottom-part">
                     <h3 class="large">{{ 'heading_preismeldung-attributes' | translate }}</h3>
                     <ion-list>
-                        <ion-item class="pef-item" *ngFor="let att of (preismeldung$ | async)?.warenkorbPosition.productMerkmale; let i = index">
+                        <ion-item
+                            class="pef-item"
+                            *ngFor="
+                                let att of (preismeldung$ | async)?.warenkorbPosition.productMerkmale;
+                                let i = index
+                            "
+                        >
                             <ion-label>{{ att | pefPropertyTranslate }}</ion-label>
-                            <ion-input type="text" [formControlName]="'attribute_' + i" (blur)="fieldEdited$.emit()"></ion-input>
+                            <ion-input
+                                type="text"
+                                [formControlName]="'attribute_' + i"
+                                (blur)="fieldEdited$.emit()"
+                            ></ion-input>
                         </ion-item>
                     </ion-list>
                 </div>
             </form>
-        </ion-content>`
+        </ion-content>
+    `,
 })
 export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.Models.Preismeldung;
@@ -59,26 +75,29 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
             attribute_6: [''],
             attribute_7: [''],
             attribute_8: [''],
-            attribute_9: ['']
+            attribute_9: [''],
         });
 
         this.subscriptions.push(
-            this.preismeldung$
-                .filter(bag => !!bag)
-                .subscribe(bag => {
-                    const formDef = keys(bag.warenkorbPosition.productMerkmale)
-                        .reduce((agg, v) => assign(agg, { [`attribute_${v}`]: !!bag.attributes ? bag.attributes[v] : null }), {});
-                    this.form.reset(formDef);
-                })
+            this.preismeldung$.pipe(filter(bag => !!bag)).subscribe(bag => {
+                const formDef = keys(bag.warenkorbPosition.productMerkmale).reduce(
+                    (agg, v) => assign(agg, { [`attribute_${v}`]: !!bag.attributes ? bag.attributes[v] : null }),
+                    {},
+                );
+                this.form.reset(formDef);
+            }),
         );
 
-        this.preismeldungAttributesPayload$ = this.fieldEdited$
-            .withLatestFrom(this.preismeldung$, (_, bag) => {
-                const productMerkmale = bag.warenkorbPosition.productMerkmale.map((x, i) => this.form.value[`attribute_${i}`]);
+        this.preismeldungAttributesPayload$ = this.fieldEdited$.pipe(
+            withLatestFrom(this.preismeldung$, (_, bag) => {
+                const productMerkmale = bag.warenkorbPosition.productMerkmale.map(
+                    (x, i) => this.form.value[`attribute_${i}`],
+                );
                 const isSame = productMerkmale.every((v, i) => bag.attributes[i] === v);
                 return isSame ? null : productMerkmale;
-            })
-            .filter(x => !!x);
+            }),
+            filter(x => !!x),
+        );
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -86,8 +105,6 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
     }
 
     ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 }

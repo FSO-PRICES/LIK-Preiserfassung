@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { OpenExternalOptions, IpcRenderer, shell } from 'electron';
+import { IpcRenderer, OpenExternalOptions, shell } from 'electron';
 
 @Injectable()
 export class ElectronService {

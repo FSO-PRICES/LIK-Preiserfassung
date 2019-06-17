@@ -1,5 +1,7 @@
-import { Directive, OnChanges, AfterViewInit, ElementRef, Input, SimpleChange, NgZone } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, Input, NgZone, OnChanges, SimpleChange } from '@angular/core';
 import * as Ps from 'perfect-scrollbar';
+import { filter } from 'rxjs/operators';
+
 import { ReactiveComponent } from '../../common/ReactiveComponent';
 
 @Directive({
@@ -19,7 +21,7 @@ export class PefPerfectScrollbarDirective extends ReactiveComponent implements O
 
     ngAfterViewInit() {
         this.observePropertyCurrentValue<boolean>('enabled')
-            .filter(x => x)
+            .pipe(filter(x => x))
             .subscribe(() => {
                 this.ngZone.runOutsideAngular(() => {
                     Ps.initialize(this.container);
@@ -30,15 +32,14 @@ export class PefPerfectScrollbarDirective extends ReactiveComponent implements O
                 });
             });
 
-        this.observePropertyCurrentValue<{}>('scrollToTop')
-            .subscribe(() => {
-                this.ngZone.runOutsideAngular(() => {
-                    setTimeout(() => {
-                        this.container.scrollTop = 0;
-                        Ps.update(this.container);
-                    }, 100);
-                });
+        this.observePropertyCurrentValue<{}>('scrollToTop').subscribe(() => {
+            this.ngZone.runOutsideAngular(() => {
+                setTimeout(() => {
+                    this.container.scrollTop = 0;
+                    Ps.update(this.container);
+                }, 100);
             });
+        });
     }
 
     ngOnChanges(changes: { [key: string]: SimpleChange }) {

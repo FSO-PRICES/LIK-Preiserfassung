@@ -1,11 +1,37 @@
-import { Component, EventEmitter, ElementRef, NgZone, forwardRef, HostListener, Input, Output, ChangeDetectionStrategy, SimpleChange, OnChanges, OnDestroy, HostBinding } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Observable } from 'rxjs';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    forwardRef,
+    HostBinding,
+    HostListener,
+    Input,
+    OnChanges,
+    OnDestroy,
+    Output,
+    SimpleChange,
+} from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { assign } from 'lodash';
+import { Observable } from 'rxjs';
 import 'rxjs-ng-extras/add/operator/observeOnZone';
+import {
+    combineLatest,
+    distinctUntilChanged,
+    filter,
+    map,
+    mapTo,
+    merge,
+    publishReplay,
+    refCount,
+    scan,
+    startWith,
+    tap,
+} from 'rxjs/operators';
 
-import * as P from '../../models';
 import { ReactiveComponent } from '../../../common/ReactiveComponent';
+import * as P from '../../models';
 
 interface BearbeitungsType {
     code: P.Models.Bearbeitungscode;
@@ -25,14 +51,32 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
     selector: 'bearbeitungs-type',
     template: `
         <div style="position: relative;">
-            <button ion-button pef-toggle-button [toggleOn]="buttonOn$ | async" color="mercury" class="code-button" (click)="buttonClicked$.emit($event)"
-                [disabled]="readonly$ | async">
-                <div class="code-name" [class.highlighted]="(selectedBearbeitungsType$ | async)?.code != 99">{{ 'text_code' | translate }}&nbsp;{{ (selectedBearbeitungsType$ | async)?.codeName }}</div>
-                <div class="description">{{ ((selectedBearbeitungsType$ | async)?.description) | translate }}</div>
+            <button
+                ion-button
+                pef-toggle-button
+                [toggleOn]="buttonOn$ | async"
+                color="mercury"
+                class="code-button"
+                (click)="buttonClicked$.emit($event)"
+                [disabled]="readonly$ | async"
+            >
+                <div class="code-name" [class.highlighted]="(selectedBearbeitungsType$ | async)?.code != 99">
+                    {{ 'text_code' | translate }}&nbsp;{{ (selectedBearbeitungsType$ | async)?.codeName }}
+                </div>
+                <div class="description">{{ (selectedBearbeitungsType$ | async)?.description | translate }}</div>
             </button>
-            <div class="bearbeitungs-type-flyout" [class.visible]="buttonOn$ | async" [style.marginBottom]="marginBottom$ | async">
+            <div
+                class="bearbeitungs-type-flyout"
+                [class.visible]="buttonOn$ | async"
+                [style.marginBottom]="marginBottom$ | async"
+            >
                 <ion-list>
-                    <ion-item tappable class="bearbeitungs-type-option" *ngFor="let bearbeitungsType of (bearbeitungsTypes$ | async)" (click)="selectBearbeitungsType$.emit({event: $event, bearbeitungsType: bearbeitungsType})">
+                    <ion-item
+                        tappable
+                        class="bearbeitungs-type-option"
+                        *ngFor="let bearbeitungsType of bearbeitungsTypes$ | async"
+                        (click)="selectBearbeitungsType$.emit({ event: $event, bearbeitungsType: bearbeitungsType })"
+                    >
                         <div class="icon">
                             <pef-icon [name]="bearbeitungsType.iconName"></pef-icon>
                         </div>
@@ -41,11 +85,16 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
                     </ion-item>
                 </ion-list>
             </div>
-        </div>`,
+        </div>
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [{
-        provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => BearbeitungsTypeComponent), multi: true
-    }]
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => BearbeitungsTypeComponent),
+            multi: true,
+        },
+    ],
 })
 export class BearbeitungsTypeComponent extends ReactiveComponent implements ControlValueAccessor, OnChanges, OnDestroy {
     @Input() codeListType: CodeListType = 'STANDARD';
@@ -58,7 +107,7 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
     public buttonClicked$ = new EventEmitter<MouseEvent>();
     public buttonOn$: Observable<boolean>;
-    public selectBearbeitungsType$ = new EventEmitter<{ event: Event, bearbeitungsType: BearbeitungsType }>();
+    public selectBearbeitungsType$ = new EventEmitter<{ event: Event; bearbeitungsType: BearbeitungsType }>();
     public documentClick$ = new EventEmitter<MouseEvent>();
     public marginBottom$: Observable<string>;
 
@@ -68,48 +117,82 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
 
     private subscriptions = [];
 
-    constructor(private elementRef: ElementRef, private zone: NgZone) {
+    constructor(elementRef: ElementRef) {
         super();
 
-        this.bearbeitungsTypes$ = this.codeListType$
-            .map(codeListType => codeListType === 'NEW_PM' ? this.newPmBearbeitungsTypes : this.standardBearbeitungsTypes)
-            .combineLatest(this.observePropertyCurrentValue<P.Models.Bearbeitungscode[]>('nichtEmpfohleneBc'), (bearbeitungsTypes, nichtEmpfohleneBc) =>
-                bearbeitungsTypes.map(x => (nichtEmpfohleneBc || []).some(y => y === x.code) ? assign({}, x, { iconName: 'not_recommended' }) : x)
-            )
-            .publishReplay(1).refCount();
+        this.bearbeitungsTypes$ = this.codeListType$.pipe(
+            map(codeListType =>
+                codeListType === 'NEW_PM' ? this.newPmBearbeitungsTypes : this.standardBearbeitungsTypes,
+            ),
+            combineLatest(
+                this.observePropertyCurrentValue<P.Models.Bearbeitungscode[]>('nichtEmpfohleneBc'),
+                (bearbeitungsTypes, nichtEmpfohleneBc) =>
+                    bearbeitungsTypes.map(x =>
+                        (nichtEmpfohleneBc || []).some(y => y === x.code)
+                            ? assign({}, x, { iconName: 'not_recommended' })
+                            : x,
+                    ),
+            ),
+            publishReplay(1),
+            refCount(),
+        );
 
-        const bearbeitungsTypeFromInput$ = this.changeFromInput$
-            .combineLatest(this.bearbeitungsTypes$, (changeFromInput, bearbeitungsTypes) => ({ changeFromInput, bearbeitungsTypes }))
-            .map(x => x.bearbeitungsTypes.find(y => y.code === x.changeFromInput))
-            .publishReplay(1);
-        bearbeitungsTypeFromInput$.connect();
+        const bearbeitungsTypeFromInput$ = this.changeFromInput$.pipe(
+            combineLatest(this.bearbeitungsTypes$, (changeFromInput, bearbeitungsTypes) => ({
+                changeFromInput,
+                bearbeitungsTypes,
+            })),
+            map(x => x.bearbeitungsTypes.find(y => y.code === x.changeFromInput)),
+            publishReplay(1),
+        ); //TODO CHECK IF STILL WORKS
 
-        this.selectedBearbeitungsType$ = this.selectBearbeitungsType$
-            .map(x => x.bearbeitungsType)
-            .merge(bearbeitungsTypeFromInput$)
-            .startWith(this.standardBearbeitungsTypes[0])
-            .publishReplay(1).refCount();
+        this.selectedBearbeitungsType$ = this.selectBearbeitungsType$.pipe(
+            map(x => x.bearbeitungsType),
+            merge(bearbeitungsTypeFromInput$),
+            startWith(this.standardBearbeitungsTypes[0]),
+            publishReplay(1),
+            refCount(),
+        );
 
-        this.change$ = this.selectBearbeitungsType$
-            .map(x => x.bearbeitungsType.code)
-            .publishReplay(1).refCount();
+        this.change$ = this.selectBearbeitungsType$.pipe(
+            map(x => x.bearbeitungsType.code),
+            publishReplay(1),
+            refCount(),
+        );
 
-        this.subscriptions.push(this.change$.subscribe(x => { this._onChange(x); }));
+        this.subscriptions.push(
+            this.change$.subscribe(x => {
+                this._onChange(x);
+            }),
+        );
 
-        this.buttonOn$ = this.buttonClicked$.do(x => { x.cancelBubble = true; })
-            .map(() => ({ type: 'TOGGLE' }))
-            .merge(this.selectBearbeitungsType$.do(x => { x.event.cancelBubble = true; }).mapTo({ type: 'CLOSE' }))
-            .merge(this.documentClick$.mapTo({ type: 'CLOSE' }))
-            .scan((agg, v) => v.type === 'TOGGLE' ? !agg : false, false)
-            .startWith(false)
-            .distinctUntilChanged()
-            .observeOnZone(zone)
-            .publishReplay(1).refCount();
+        this.buttonOn$ = this.buttonClicked$.pipe(
+            tap(x => {
+                x.cancelBubble = true;
+            }),
+            map(() => ({ type: 'TOGGLE' })),
+            merge(
+                this.selectBearbeitungsType$.pipe(
+                    tap(x => {
+                        x.event.cancelBubble = true;
+                    }),
+                    mapTo({ type: 'CLOSE' }),
+                ),
+            ),
+            merge(this.documentClick$.pipe(mapTo({ type: 'CLOSE' }))),
+            scan((agg, v) => (v.type === 'TOGGLE' ? !agg : false), false),
+            startWith(false),
+            distinctUntilChanged(),
+            // TODO CHECK IF STILL WORKS
+            publishReplay(1),
+            refCount(),
+        );
 
-        this.marginBottom$ = this.buttonOn$
-            .filter(x => x)
-            .map(() => this._calculateMarginBottom(elementRef))
-            .startWith('0');
+        this.marginBottom$ = this.buttonOn$.pipe(
+            filter(x => x),
+            map(() => this._calculateMarginBottom(elementRef)),
+            startWith('0'),
+        );
     }
 
     private _calculateMarginBottom(elementRef: ElementRef) {
@@ -122,8 +205,8 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
         this.documentClick$.emit($event);
     }
 
-    _onChange = (value: any) => { };
-    _onTouched: () => any = () => { };
+    _onChange = (_value: any) => {};
+    _onTouched: () => any = () => {};
 
     registerOnChange(fn: (value: any) => void): void {
         this._onChange = fn;
@@ -143,16 +226,14 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
     }
 
     ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
     private codeToBearbeitungsType = (code: P.Models.Bearbeitungscode) => ({
         code,
         iconName: 'recommended',
         description: `bearbeitungscode_${code}`,
-        codeName: P.Models.bearbeitungscodeDescriptions[code]
+        codeName: P.Models.bearbeitungscodeDescriptions[code],
     });
 
     public standardBearbeitungsTypes: BearbeitungsType[] = [99, 44, 101, 1, 7, 0].map(this.codeToBearbeitungsType);

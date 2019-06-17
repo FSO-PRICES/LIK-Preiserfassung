@@ -1,8 +1,8 @@
-import { Component, HostBinding, EventEmitter, OnDestroy } from '@angular/core';
-import { ViewController } from 'ionic-angular';
-import { Observable } from 'rxjs/Observable';
+import { Component, EventEmitter, HostBinding, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { ViewController } from 'ionic-angular';
+import { Observable, Subscription } from 'rxjs';
+import { map, merge, startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'dialog-choose-percentage-reduction',
@@ -37,17 +37,20 @@ import { Subscription } from 'rxjs';
                     <ion-input
                         type="number"
                         formControlName="percentage"
-                        min="0.00" step="0.01"
+                        min="0.00"
+                        step="0.01"
                         pef-highlight-on-focus
                         pef-disable-input-number-behaviour
-                        pef-disable-input-negative-number></ion-input>
+                        pef-disable-input-negative-number
+                    ></ion-input>
                 </ion-item>
             </form>
         </div>
         <div class="pef-dialog-button-row">
             <button ion-button [disabled]="!(isValid$ | async)" (click)="okClicked$.emit()" color="primary">OK</button>
             <button ion-button (click)="viewCtrl.dismiss({ type: 'CANCEL' })" color="secondary">Abbrechen</button>
-        </div>`
+        </div>
+    `,
 })
 export class DialogChoosePercentageReductionComponent implements OnDestroy {
     @HostBinding('class') classes = 'pef-dialog';
@@ -63,13 +66,17 @@ export class DialogChoosePercentageReductionComponent implements OnDestroy {
     constructor(public viewCtrl: ViewController, formBuilder: FormBuilder) {
         this.form = formBuilder.group({ percentage: [''] });
 
-        this.isValid$ = this.form.valueChanges
-            .map(x => x.percentage)
-            .map(x => !!x && !isNaN(+x) && +x > 0 && +x < 100)
-            .startWith(false);
+        this.isValid$ = this.form.valueChanges.pipe(
+            map(x => x.percentage),
+            map(x => !!x && !isNaN(+x) && +x > 0 && +x < 100),
+            startWith(false),
+        );
 
-        this.subscription = this.okClicked$.map(() => this.form.value.percentage)
-            .merge(this.quickSelect$)
+        this.subscription = this.okClicked$
+            .pipe(
+                map(() => this.form.value.percentage),
+                merge(this.quickSelect$),
+            )
             .subscribe(percentage => viewCtrl.dismiss({ type: 'OK', percentage }));
     }
 

@@ -1,25 +1,18 @@
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/observable/of';
-
 import {
     Component,
     ElementRef,
     EventEmitter,
     HostListener,
     Input,
-    NgModule,
     OnChanges,
     OnDestroy,
     OnInit,
     Output,
-    Renderer,
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-
-import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { of as observableOf, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 export interface ChangeEvent {
     start?: number;
@@ -30,33 +23,34 @@ export interface ChangeEvent {
     selector: 'pef-virtual-scroll,[pefVirtualScroll]',
     exportAs: 'pefVirtualScroll',
     template: `
-    <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
-    <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
-        <ng-content></ng-content>
-    </div>
-  `,
-    styles: [`
-    :host {
-        overflow: hidden;
-        overflow-y: auto;
-        position: relative;
-        -webkit-overflow-scrolling: touch;
-    }
-    .scrollable-content {
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-    }
-    .total-padding {
-        width: 1px;
-        opacity: 0;
-    }
-  `]
+        <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
+        <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
+            <ng-content></ng-content>
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                overflow: hidden;
+                overflow-y: auto;
+                position: relative;
+                -webkit-overflow-scrolling: touch;
+            }
+            .scrollable-content {
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+            }
+            .total-padding {
+                width: 1px;
+                opacity: 0;
+            }
+        `,
+    ],
 })
 export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
-
     @Input()
     items: any[] = [];
 
@@ -84,7 +78,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     @Output()
     end: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
-    @ViewChild('content', { read: ElementRef })
+    @ViewChild('content', { read: ElementRef, static: true })
     contentElementRef: ElementRef;
 
     scroll$: Subject<Event> = new Subject<Event>();
@@ -96,18 +90,22 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     previousEnd: number;
     startupLoop = true;
 
-    constructor(private element: ElementRef, private renderer: Renderer) { }
+    constructor(private element: ElementRef) {}
 
     @HostListener('scroll')
-    onScroll(e: Event) {
+    onScroll() {
         this.scroll$.next();
     }
 
     ngOnInit() {
-        this.scroll$.switchMap(() => {
-            this.refresh();
-            return Observable.of();
-        }).subscribe();
+        this.scroll$
+            .pipe(
+                switchMap(() => {
+                    this.refresh();
+                    return observableOf();
+                }),
+            )
+            .subscribe();
 
         this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
         this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;
@@ -117,7 +115,10 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         this.previousStart = undefined;
         this.previousEnd = undefined;
         const items = (changes as any).items || {};
-        if ((changes as any).items !== undefined && items.previousValue === undefined || (!!items.previousValue && items.previousValue.length === 0)) {
+        if (
+            ((changes as any).items !== undefined && items.previousValue === undefined) ||
+            (!!items.previousValue && items.previousValue.length === 0)
+        ) {
             this.startupLoop = true;
         }
         this.refresh();
@@ -142,8 +143,8 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         if (index < 0 || index >= (this.items || []).length) return;
 
         let d = this.calculateDimensions();
-        this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) *
-            d.childHeight - Math.max(0, (d.itemsPerCol - 1)) * d.childHeight;
+        this.element.nativeElement.scrollTop =
+            Math.floor(index / d.itemsPerRow) * d.childHeight - Math.max(0, d.itemsPerCol - 1) * d.childHeight;
         this.refresh();
     }
 
@@ -169,10 +170,12 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
         let contentDimensions;
         if (this.childWidth === undefined || this.childHeight === undefined) {
-            contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
-                width: viewWidth,
-                height: viewHeight
-            };
+            contentDimensions = content.children[0]
+                ? content.children[0].getBoundingClientRect()
+                : {
+                      width: viewWidth,
+                      height: viewHeight,
+                  };
         }
         let childWidth = this.childWidth || contentDimensions.width;
         let childHeight = this.childHeight || contentDimensions.height;
@@ -181,7 +184,10 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
         let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
         let scrollTop = Math.max(0, el.scrollTop);
-        if (itemsPerCol === 1 && Math.floor(scrollTop / this.scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
+        if (
+            itemsPerCol === 1 &&
+            Math.floor((scrollTop / this.scrollHeight) * itemCount) + itemsPerRowByCalc >= itemCount
+        ) {
             itemsPerRow = itemsPerRowByCalc;
         }
 
@@ -193,7 +199,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
             childHeight: childHeight,
             itemsPerRow: itemsPerRow,
             itemsPerCol: itemsPerCol,
-            itemsPerRowByCalc: itemsPerRowByCalc
+            itemsPerRowByCalc: itemsPerRowByCalc,
         };
     }
 
@@ -202,14 +208,17 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
         let d = this.calculateDimensions();
         let items = this.items || [];
-        this.scrollHeight = d.childHeight * d.itemCount / d.itemsPerRow;
+        this.scrollHeight = (d.childHeight * d.itemCount) / d.itemsPerRow;
         if (this.element.nativeElement.scrollTop > this.scrollHeight) {
             this.element.nativeElement.scrollTop = this.scrollHeight;
         }
 
         let scrollTop = Math.max(0, el.scrollTop);
-        let indexByScrollTop = scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
-        let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
+        let indexByScrollTop = ((scrollTop / this.scrollHeight) * d.itemCount) / d.itemsPerRow;
+        let end = Math.min(
+            d.itemCount,
+            Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1),
+        );
 
         let maxStartEnd = end;
         const modEnd = end % d.itemsPerRow;
@@ -224,7 +233,6 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         start = !isNaN(start) ? start : -1;
         end = !isNaN(end) ? end : -1;
         if (start !== this.previousStart || end !== this.previousEnd) {
-
             // update the scroll list
             this.update.emit(items.slice(start, end));
 
@@ -246,7 +254,6 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
             } else {
                 this.change.emit({ start, end });
             }
-
         } else if (this.startupLoop === true) {
             this.startupLoop = false;
             this.refresh();

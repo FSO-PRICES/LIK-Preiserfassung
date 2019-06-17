@@ -1,5 +1,15 @@
-import { Directive, OnChanges, AfterViewInit, ElementRef, Input, SimpleChange, EventEmitter, NgZone } from '@angular/core';
+import {
+    AfterViewInit,
+    Directive,
+    ElementRef,
+    EventEmitter,
+    Input,
+    NgZone,
+    OnChanges,
+    SimpleChange,
+} from '@angular/core';
 import * as Ps from 'perfect-scrollbar';
+import { combineLatest, filter, map } from 'rxjs/operators';
 import { ReactiveComponent } from '../../common/ReactiveComponent';
 
 @Directive({
@@ -14,10 +24,13 @@ export class PefPerfectVirtualscrollScrollbarDirective extends ReactiveComponent
         super();
 
         const enabled$ = this.observePropertyCurrentValue<boolean>('enabled');
-        this.ngAfterViewInit$.combineLatest(enabled$, (_, enabled) => enabled)
-            .filter(enabled => enabled)
-            .map(() => elementRef.nativeElement.getElementsByClassName('scroll-content')[0] as HTMLInputElement)
-            .filter(scrollContent => !!scrollContent)
+        this.ngAfterViewInit$
+            .pipe(
+                combineLatest(enabled$, (_, enabled) => enabled),
+                filter(enabled => enabled),
+                map(() => elementRef.nativeElement.getElementsByClassName('scroll-content')[0] as HTMLInputElement),
+                filter(scrollContent => !!scrollContent),
+            )
             .subscribe(scrollContent => {
                 ngZone.runOutsideAngular(() => {
                     Ps.initialize(scrollContent);
