@@ -153,4 +153,8 @@ preismeldung-list {
             @include set-margin-right(1);
         }
     }
+
+    .record {
+        fill: $alizarin-crimson;
+    }
 }

@@ -368,7 +368,9 @@ export class PreismeldungenEffects {
                     x => (!!x.preismeldung.erfasstAt ? x.sortierungsnummer : 0)
                 ).sortierungsnummer;
                 const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
-                const newIndex = preismeldungen.findIndex(pm => pm.sortierungsnummer === lastSortierungsnummer);
+                const newIndex = preismeldungen.some(x => !!x.preismeldung.erfasstAt)
+                    ? preismeldungen.findIndex(pm => pm.sortierungsnummer === lastSortierungsnummer)
+                    : -1;
                 if (currentIndex !== newIndex) {
                     const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
                     return [
