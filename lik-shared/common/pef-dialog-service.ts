@@ -1,7 +1,7 @@
-import { Component, Injectable } from '@angular/core';
-import { LoadingController, ModalController, PopoverController } from 'ionic-angular';
-import { bindCallback, from, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { LoadingController, ModalController, PopoverController } from '@ionic/angular';
+import { from, Observable } from 'rxjs';
+import { take, switchMap } from 'rxjs/operators';
 
 export interface DialogOptions {
     params?: any;
@@ -23,40 +23,54 @@ export class PefDialogService {
         private loadingController: LoadingController,
     ) {}
 
-    displayDialog(
-        dialogComponent: any,
-        params: any,
-        enableBackdropDismiss = false,
-        requestDismiss$: Observable<{}> = null,
-    ) {
-        const dialog = this.popoverController.create(dialogComponent, { params }, { enableBackdropDismiss });
-        dialog.present();
+    displayDialog(dialogComponent: any, params: any, backdropDismiss = false, requestDismiss$: Observable<{}> = null) {
+        const dialog$ = from(
+            this.popoverController.create({ component: dialogComponent, componentProps: params, backdropDismiss }),
+        ).pipe(switchMap(dialog => dialog.present().then(() => dialog)));
         if (requestDismiss$ !== null) {
-            requestDismiss$.pipe(take(1)).subscribe(() => dialog.dismiss());
+            requestDismiss$
+                .pipe(
+                    take(1),
+                    switchMap(() => dialog$),
+                )
+                .subscribe(dialog => dialog.dismiss());
         }
-        return bindCallback<any[]>(cb => dialog.onWillDismiss(cb))().map(([data, role]) => ({ data, role }));
+        return dialog$.pipe(switchMap(dialog => dialog.onWillDismiss()));
     }
 
-    displayModal(dialogComponent: Component, options: DialogOptions = defaultOptions) {
-        const dialog = this.modalController.create(
-            dialogComponent,
-            { params: options.params },
-            { enableBackdropDismiss: options.enableBackdropDismiss },
-        );
-        dialog.present();
+    displayModal(dialogComponent: any, options: DialogOptions = defaultOptions) {
+        const dialog$ = from(
+            this.modalController.create({
+                component: dialogComponent,
+                componentProps: options.params,
+                backdropDismiss: options.enableBackdropDismiss,
+            }),
+        ).pipe(switchMap(dialog => dialog.present().then(() => dialog)));
         if (options.requestDismiss$ !== null) {
-            options.requestDismiss$.pipe(take(1)).subscribe(() => dialog.dismiss());
+            options.requestDismiss$
+                .pipe(
+                    take(1),
+                    switchMap(() => dialog$),
+                )
+                .subscribe(dialog => dialog.dismiss());
         }
-        return bindCallback<any[]>(cb => dialog.onWillDismiss(cb))().map(([data, role]) => ({ data, role }));
+        return dialog$.pipe(switchMap(dialog => dialog.onWillDismiss()));
     }
 
     displayLoading(text: string, requestDismiss$: Observable<{}>) {
-        const loader = this.loadingController.create({
-            content: text,
-        });
+        const loader$ = from(
+            this.loadingController.create({
+                message: text,
+            }),
+        ).pipe(switchMap(dialog => dialog.present().then(() => dialog)));
         if (requestDismiss$ !== null) {
-            requestDismiss$.pipe(take(1)).subscribe(() => loader.dismiss());
+            requestDismiss$
+                .pipe(
+                    take(1),
+                    switchMap(() => loader$),
+                )
+                .subscribe(loader => loader.dismiss());
         }
-        return from(loader.present());
+        return loader$;
     }
 }

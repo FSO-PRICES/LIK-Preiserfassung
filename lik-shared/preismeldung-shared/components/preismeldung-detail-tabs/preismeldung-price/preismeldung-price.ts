@@ -76,16 +76,15 @@ import * as P from '../../../models';
                             [class.readonly]="isReadonly$ | async"
                         ></ion-input>
                     </ion-item>
-                    <button
+                    <ion-button
                         class="pef-icon-secondary server-url-button"
-                        ion-button
                         icon-only
                         (click)="navigateToInternetLink(form.value.internetLink)"
                         [disabled]="!form.value.internetLink"
                         *ngIf="isInternet$ | async"
                     >
                         <pef-icon name="server_url"></pef-icon>
-                    </button>
+                    </ion-button>
                     <div
                         class="right-column price-count-status"
                         [ngClass]="{
@@ -113,9 +112,8 @@ import * as P from '../../../models';
                         ></ion-textarea>
                     </ion-item>
                     <div class="right-column">
-                        <button
+                        <ion-button
                             *ngIf="!(isAdminApp$ | async)"
-                            ion-button
                             icon-only
                             class="pef-icon-secondary duplicate"
                             (click)="duplicatePreismeldung$.emit()"
@@ -134,7 +132,7 @@ import * as P from '../../../models';
                                     />
                                 </g>
                             </svg>
-                        </button>
+                        </ion-button>
                         <ng-content select=".additional-actions"></ng-content>
                     </div>
                 </div>
@@ -322,9 +320,8 @@ import * as P from '../../../models';
                                             ></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
-                                            <button
+                                            <ion-button
                                                 class="unit-button"
-                                                ion-button
                                                 color="mercury"
                                                 (click)="applyUnitQuickEqual$.emit()"
                                                 [disabled]="preisAndMengeDisabled$ | async"
@@ -333,7 +330,7 @@ import * as P from '../../../models';
                                                     (preismeldung$ | async)?.warenkorbPosition.standardeinheit
                                                         | pefPropertyTranslate
                                                 }}
-                                            </button>
+                                            </ion-button>
                                         </div>
                                     </div>
                                 </ion-list>
@@ -382,9 +379,8 @@ import * as P from '../../../models';
                                             ></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
-                                            <button
+                                            <ion-button
                                                 class="unit-button"
-                                                ion-button
                                                 color="mercury"
                                                 (click)="applyUnitQuickEqual$.emit()"
                                                 [disabled]="preisAndMengeDisabled$ | async"
@@ -393,7 +389,7 @@ import * as P from '../../../models';
                                                     (preismeldung$ | async)?.warenkorbPosition.standardeinheit
                                                         | pefPropertyTranslate
                                                 }}
-                                            </button>
+                                            </ion-button>
                                         </div>
                                     </div>
                                 </ion-list>
@@ -421,14 +417,13 @@ import * as P from '../../../models';
                                             (isReadonly$ | async)
                                         "
                                     >
-                                        <button
+                                        <ion-button
                                             class="aktion-percent-button"
-                                            ion-button
                                             color="mercury"
                                             (click)="chooseReductionPercentage$.emit()"
                                         >
                                             %
-                                        </button>
+                                        </ion-button>
                                     </div>
                                     <div
                                         class="code"
@@ -501,9 +496,8 @@ import * as P from '../../../models';
                                             ></ion-input>
                                         </ion-item>
                                         <div class="unit-button-wrapper">
-                                            <button
+                                            <ion-button
                                                 class="unit-button"
-                                                ion-button
                                                 color="mercury"
                                                 (click)="applyUnitQuickEqualVP$.emit()"
                                                 [disabled]="preisAndMengeDisabled$ | async"
@@ -512,7 +506,7 @@ import * as P from '../../../models';
                                                     (preismeldung$ | async)?.warenkorbPosition.standardeinheit
                                                         | pefPropertyTranslate
                                                 }}
-                                            </button>
+                                            </ion-button>
                                         </div>
                                     </div>
                                 </ion-list>
@@ -552,25 +546,23 @@ import * as P from '../../../models';
                                 ></span>
                             </div>
                             <div class="buttons-container">
-                                <button
-                                    ion-button
+                                <ion-button
                                     color="java"
                                     class="save-button"
                                     (click)="attemptSave$.emit($event)"
                                     [class.look-disabled]="isSaveLookDisabled$ | async"
                                 >
                                     {{ 'btn_erfassung_speichern' | translate }}
-                                </button>
-                                <button
+                                </ion-button>
+                                <ion-button
                                     *ngIf="!(isAdminApp$ | async)"
-                                    ion-button
                                     icon-only
                                     color="primary"
                                     class="next-button"
                                     (click)="requestSelectNextPreismeldung$.emit({})"
                                 >
                                     <pef-icon name="arrow_right"></pef-icon>
-                                </button>
+                                </ion-button>
                             </div>
                         </div>
                     </div>
@@ -581,8 +573,7 @@ import * as P from '../../../models';
                                 [innerHTML]="(textzeil | translate) + '\u00a0'"
                             ></span>
                         </div>
-                        <button
-                            ion-button
+                        <ion-button
                             color="primary"
                             class="save-button"
                             [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
@@ -590,10 +581,9 @@ import * as P from '../../../models';
                             [class.look-disabled]="isSaveLookDisabled$ | async"
                         >
                             {{ 'btn_erfassung_speichern' | translate }}
-                        </button>
-                        <button
+                        </ion-button>
+                        <ion-button
                             *ngIf="!(isAdminApp$ | async)"
-                            ion-button
                             icon-only
                             color="primary"
                             class="next-button"
@@ -601,7 +591,7 @@ import * as P from '../../../models';
                             (click)="requestSelectNextPreismeldung$.emit({})"
                         >
                             <pef-icon name="arrow_right"></pef-icon>
-                        </button>
+                        </ion-button>
                     </div>
                 </div>
             </ion-content>

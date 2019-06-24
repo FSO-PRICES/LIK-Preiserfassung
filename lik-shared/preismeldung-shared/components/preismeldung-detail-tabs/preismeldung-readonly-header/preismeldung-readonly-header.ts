@@ -35,16 +35,15 @@ import * as P from '../../../models';
                     [value]="(preismeldung$ | async)?.preismeldung.internetLink"
                 ></ion-input>
             </ion-item>
-            <button
+            <ion-button
                 class="pef-icon-secondary server-url-button"
-                ion-button
                 icon-only
                 (click)="navigateToInternetLink$.emit()"
                 [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink"
                 *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'"
             >
                 <pef-icon name="server_url"></pef-icon>
-            </button>
+            </ion-button>
             <div
                 class="right-column price-count-status"
                 [ngClass]="{

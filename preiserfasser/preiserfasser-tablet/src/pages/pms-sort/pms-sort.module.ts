@@ -1,20 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { PmsSortPage } from './pms-sort';
-import { IonicPageModule } from 'ionic-angular';
-import { PefComponentsModule } from 'lik-shared';
-import { PreiserfasserCommonModule } from '../../common/preiserfasser-common.module';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Routes } from '@angular/router';
 
-import { PmsSortComponent } from './pms-sort.component/pms-sort.component';
+import { IonicModule } from '@ionic/angular';
+
+import { PmsSortPage } from './pms-sort.page';
+
+const routes: Routes = [
+    {
+        path: '',
+        component: PmsSortPage,
+    },
+];
 
 @NgModule({
-    declarations: [
-        PmsSortPage,
-        PmsSortComponent
-    ],
-    imports: [
-        IonicPageModule.forChild(PmsSortPage),
-        PefComponentsModule,
-        PreiserfasserCommonModule
-    ],
+    imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes)],
+    declarations: [PmsSortPage],
 })
-export class PmsSortPageModule { }
+export class PmsSortPageModule {}

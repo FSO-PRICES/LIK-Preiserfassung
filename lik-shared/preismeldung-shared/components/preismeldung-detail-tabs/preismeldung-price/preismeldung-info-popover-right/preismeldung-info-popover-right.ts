@@ -16,8 +16,7 @@ import * as P from '../../../../models';
 @Component({
     selector: 'preismeldung-info-popover-right',
     template: `
-        <button
-            ion-button
+        <ion-button
             icon-only
             color="wild-sand"
             class="info-toggle"
@@ -25,7 +24,7 @@ import * as P from '../../../../models';
             (click)="buttonClicked$.emit()"
         >
             <pef-icon name="price_tag_info"></pef-icon>
-        </button>
+        </ion-button>
         <!--[style.display]="(popoverActive$ | async) ? 'flex' : 'none'"-->
         <div
             class="info-popover"

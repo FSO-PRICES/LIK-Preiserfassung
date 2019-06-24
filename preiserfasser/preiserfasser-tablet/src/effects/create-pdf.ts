@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
+import * as nativeFile from '@ionic-native/file/ngx';
+import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import * as nativeFile from '@ionic-native/file';
-import { Effect, Actions } from '@ngrx/effects';
 import { TranslateService } from '@ngx-translate/core';
 import { Platform } from 'ionic-angular';
-import { Subject, Observable } from 'rxjs';
 import * as jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Subject, of } from 'rxjs';
+import { catchError, flatMap, skip, filter, take, map, withLatestFrom, concat } from 'rxjs/operators';
 
-import { getDatabase, getAllDocumentsForPrefixFromDb } from './pouchdb-utils';
-import * as fromRoot from '../reducers';
 import * as P from '../common-models';
+import * as fromRoot from '../reducers';
 
-import { mengeFormatFn, preisFormatFn, PefLanguageService, formatDate, priceCountId } from 'lik-shared';
+import { formatDate, mengeFormatFn, PefLanguageService, preisFormatFn, priceCountId } from 'lik-shared';
 
 @Injectable()
 export class CreatePdfEffects {
@@ -24,28 +24,26 @@ export class CreatePdfEffects {
         private translateService: TranslateService,
         private store: Store<fromRoot.AppState>,
         private file: nativeFile.File,
-        private platform: Platform
+        private platform: Platform,
     ) {}
 
     @Effect()
-    pmsToPdf$ = this.actions$
-        .ofType('CREATE_PMS_PDF')
-        .flatMap(
+    pmsToPdf$ = this.actions$.ofType('CREATE_PMS_PDF').pipe(
+        flatMap(
             ({
                 payload: { preismeldestelle, erhebungsmonat },
             }: {
                 type: string;
                 payload: { preismeldestelle: P.Models.Preismeldestelle; erhebungsmonat: string };
             }) =>
-                Observable.of({ type: 'PDF_RESET_PMS' })
-                    .concat(
-                        this.store
-                            .select(fromRoot.getPreismeldungen)
-                            .skip(1)
-                            .filter(x => x.length > 0)
-                            .take(1)
-                            .map(preismeldungen => ({ preismeldestelle, erhebungsmonat, preismeldungen }))
-                            .withLatestFrom(
+                of({ type: 'PDF_RESET_PMS' }).pipe(
+                    concat(
+                        this.store.select(fromRoot.getPreismeldungen).pipe(
+                            skip(1),
+                            filter(x => x.length > 0),
+                            take(1),
+                            map(preismeldungen => ({ preismeldestelle, erhebungsmonat, preismeldungen })),
+                            withLatestFrom(
                                 this.store.select(fromRoot.getPriceCountStatuses),
                                 this.store.select(fromRoot.getWarenkorb),
                                 this.pefLanguageService.currentLanguage$,
@@ -54,9 +52,9 @@ export class CreatePdfEffects {
                                     priceCountStatuses,
                                     warenkorb,
                                     currentLanguage,
-                                })
-                            )
-                            .flatMap(
+                                }),
+                            ),
+                            flatMap(
                                 ({
                                     preismeldungen,
                                     erhebungsmonat,
@@ -72,7 +70,7 @@ export class CreatePdfEffects {
                                         priceCountStatuses,
                                         warenkorb,
                                         currentLanguage,
-                                        translateFn
+                                        translateFn,
                                     );
                                     return toPdf(
                                         data,
@@ -81,17 +79,21 @@ export class CreatePdfEffects {
                                         this.platform,
                                         erhebungsmonat,
                                         currentLanguage,
-                                        translateFn
+                                        translateFn,
                                     );
-                                }
-                            )
-                            .map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo }))
-                    )
-                    .catch(error => {
+                                },
+                            ),
+                            map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo })),
+                        ),
+                    ),
+
+                    catchError(error => {
                         console.log('PDF CREATION ERROR', error);
-                        return Observable.of({ type: 'PDF_CREATION_FAILED', payload: error });
-                    })
-        );
+                        return of({ type: 'PDF_CREATION_FAILED', payload: error });
+                    }),
+                ),
+        ),
+    );
 }
 
 function parseCode(code: number) {
@@ -100,10 +102,10 @@ function parseCode(code: number) {
 }
 
 function trunc(doc: jsPDF, text: string, maxLength: number, fontSize = 10) {
-    var truncated = doc.splitTextToSize(text, maxLength - doc.getStringUnitWidth('…', { fontSize }) - 5, {
+    let truncated = doc.splitTextToSize(text, maxLength - doc.getStringUnitWidth('…', { fontSize }) - 5, {
         fontSize,
     }) as string[];
-    return truncated[0] != text ? truncated[0].concat('…') : text;
+    return truncated[0] !== text ? truncated[0].concat('…') : text;
 }
 
 function mapData(
@@ -112,7 +114,7 @@ function mapData(
     priceCountStatuses: { [pmsNummer: string]: P.PriceCountStatus },
     warenkorb: P.WarenkorbInfo[],
     currentLanguage: string,
-    translateFn: (key: string) => string
+    translateFn: (key: string) => string,
 ) {
     return preismeldungen.map(bag => [
         {
@@ -178,9 +180,9 @@ function mapData(
         {
             col1:
                 `${translateFn('label_print_preis-vor-reduktion')}: ${preisFormatFn(
-                    formatPrice(bag.refPreismeldung.preisVorReduktion)
+                    formatPrice(bag.refPreismeldung.preisVorReduktion),
                 )} / ${translateFn('label_print_menge-vor-reduktion')}: ${mengeFormatFn(
-                    bag.refPreismeldung.mengeVorReduktion
+                    bag.refPreismeldung.mengeVorReduktion,
                 )} ` +
                 ` / ${translateFn('label_print_anzahl-code-r')}: ${
                     bag.refPreismeldung.fehlendePreiseR.length
@@ -240,7 +242,7 @@ function formatPrice(price: number) {
 }
 
 function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: number, isPlaceholder: boolean = false) {
-    var docA = doc as any;
+    const docA = doc as any;
     docA.autoTable(
         [
             { title: '', dataKey: 'col1' },
@@ -279,7 +281,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
             showHeader: 'never',
             drawCell: function(cell, data) {
                 doc.setLineWidth(settings.table.border.inner);
-                if (data.row.index == 1 && data.column.index >= 1 && data.column.index < 4) {
+                if (data.row.index === 1 && data.column.index >= 1 && data.column.index < 4) {
                     doc.setDrawColor(settings.colors.innerBorder);
                     doc.line(cell.x, cell.y, cell.x + cell.width, cell.y);
                 }
@@ -287,14 +289,14 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                     doc.setDrawColor(settings.colors.innerBorder);
                     doc.line(cell.x, cell.y, cell.x + cell.width, cell.y);
                 }
-                if (data.row.index == 1 && data.column.index == 1) {
+                if (data.row.index === 1 && data.column.index === 1) {
                     docA.autoTableText(
                         trunc(doc, cell.raw[1], cell.width * 3),
                         cell.textPos.x,
                         cell.textPos.y + settings.data.spacingY,
                         {
                             valign: 'middle',
-                        }
+                        },
                     );
                     doc.setFontSize(8);
                     doc.setTextColor(settings.table.placeholderTextColor);
@@ -313,7 +315,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                         valign: 'top',
                     });
                     cell.text = [''];
-                } else if (data.row.index < settings.table.commentRowIndex && data.column.index == 0) {
+                } else if (data.row.index < settings.table.commentRowIndex && data.column.index === 0) {
                     doc.setFontSize(8);
                     doc.setTextColor(settings.table.placeholderTextColor);
                     docA.autoTableText(cell.raw, cell.textPos.x, cell.textPos.y + settings.data.spacingY, {
@@ -322,7 +324,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                     cell.text = [''];
                 }
                 if (data.row.index >= rawData.length - 1 && data.column.dataKey === 'col1') {
-                    var middlepoint = data.settings.margin.left + data.table.width / 2;
+                    const middlepoint = data.settings.margin.left + data.table.width / 2;
                     if (isPlaceholder) {
                         doc.setTextColor(settings.table.placeholderTextColor);
                     }
@@ -334,7 +336,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                 }
             },
             drawRow: function(row, opts) {
-                if (row.index == rawData.length - 1) {
+                if (row.index === rawData.length - 1) {
                     row.height = 7;
                 }
             },
@@ -342,18 +344,18 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                 if (isPlaceholder && opts.row.index > rawData.length - 2) {
                     cell.styles.fontSize = settings.table.smallFontSize;
                 }
-                if (isPlaceholder || opts.row.index == rawData.length - 1) {
+                if (isPlaceholder || opts.row.index === rawData.length - 1) {
                     cell.styles.textColor = settings.table.placeholderTextColor;
                 }
                 if (
-                    (opts.row.index == 0 && opts.column.index >= 1 && opts.column.index < 4) ||
-                    (opts.row.index == 1 && opts.column.index >= 1 && opts.column.index < 4) ||
+                    (opts.row.index === 0 && opts.column.index >= 1 && opts.column.index < 4) ||
+                    (opts.row.index === 1 && opts.column.index >= 1 && opts.column.index < 4) ||
                     opts.row.index > settings.table.commentRowIndex - 1
                 ) {
                     cell.styles.lineWidth = 0;
                 }
             },
-        }
+        },
     );
 
     return docA.autoTableEndPosY();
@@ -366,7 +368,7 @@ function toPdf(
     platform: Platform,
     erhebungsmonat: string,
     currentLanguage: string,
-    translateFn: (key: string) => string
+    translateFn: (key: string) => string,
 ) {
     const pmsNummer = preismeldestelle.pmsNummer;
     const doc = new jsPDF('p');
@@ -394,7 +396,7 @@ function toPdf(
         { col1: [translateFn('label_print_produktmale'), ''] },
         { col1: translateFn('label_print_information') },
     ];
-    var settings: TableSettings = {
+    const settings: TableSettings = {
         page: {
             margin: {
                 left: 10,
@@ -436,9 +438,8 @@ function toPdf(
         },
     };
 
-    var lastPos = null;
+    let lastPos = null;
     for (let i = 0; i < data.length; i++) {
-        var rawData = data[i];
         lastPos = createTable(doc, settings, data[i], lastPos);
     }
     doc.addPage();
@@ -447,7 +448,7 @@ function toPdf(
         lastPos = createTable(doc, settings, placeholderData, lastPos, true);
     }
 
-    var pageCount = parseInt((doc as any).internal.getNumberOfPages(), 10);
+    const pageCount = parseInt((doc as any).internal.getNumberOfPages(), 10);
     for (let i = 1; i < pageCount + 1; i += 1) {
         doc.setPage(i);
         const currentPage = parseInt(doc.internal.getCurrentPageInfo().pageNumber, 10);
@@ -455,7 +456,7 @@ function toPdf(
         doc.text(
             settings.page.margin.left,
             settings.page.margin.top,
-            `${preismeldestelle.pmsNummer} ${preismeldestelle.name}`
+            `${preismeldestelle.pmsNummer} ${preismeldestelle.name}`,
         );
         doc.text(
             doc.internal.pageSize.width / 2,
@@ -463,7 +464,7 @@ function toPdf(
             formatDate(erhebungsmonat, 'MMMM YYYY', currentLanguage),
             null,
             null,
-            'center'
+            'center',
         );
         doc.text(
             doc.internal.pageSize.width - 10,
@@ -471,22 +472,22 @@ function toPdf(
             `${translateFn('label_print_seite')} ` + String(currentPage) + ' / ' + String(pageCount),
             null,
             null,
-            'right'
+            'right',
         );
         doc.setDrawColor(settings.colors.tableBorder);
         doc.line(
             settings.page.margin.left,
             settings.page.header.hr,
             doc.internal.pageSize.width - settings.page.margin.right,
-            settings.page.header.hr
+            settings.page.header.hr,
         );
     }
 
     if (platform.is('mobile')) {
-        let pdfOutput = doc.output();
-        let buffer = new ArrayBuffer(pdfOutput.length);
-        let array = new Uint8Array(buffer);
-        for (var i = 0; i < pdfOutput.length; i++) {
+        const pdfOutput = doc.output();
+        const buffer = new ArrayBuffer(pdfOutput.length);
+        const array = new Uint8Array(buffer);
+        for (let i = 0; i < pdfOutput.length; i++) {
             array[i] = pdfOutput.charCodeAt(i);
         }
 
@@ -499,9 +500,9 @@ function toPdf(
                         .writeFile(
                             file.externalApplicationStorageDirectory,
                             `PDF_${pmsNummer}_${+new Date()}.pdf`,
-                            buffer
+                            buffer,
                         )
-                        .then(() => 'APPLICATION_LOCATION')
+                        .then(() => 'APPLICATION_LOCATION'),
                 );
 
         return file

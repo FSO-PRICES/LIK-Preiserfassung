@@ -3,16 +3,15 @@ import * as format from 'format-number';
 import { isString, isObject } from 'lodash';
 
 @Directive({
-    selector: '[pef-format-number]'
+    selector: '[pef-format-number]',
 })
 export class PefFormatNumber implements OnInit {
     @Input('pef-format-number') formatOptions: string | Object;
 
-    constructor(private elementRef: ElementRef) {
-    }
+    constructor(private elementRef: ElementRef) {}
 
     ngOnInit() {
-        setTimeout(() => this.formatElValue())
+        setTimeout(() => this.formatElValue());
     }
 
     @HostListener('focus')
@@ -27,11 +26,9 @@ export class PefFormatNumber implements OnInit {
     }
 
     @HostListener('ngModelChange', ['$event'])
-    onChange(e) {
+    onChange() {
         const el = this.getInputElement();
         if (el !== document.activeElement) setTimeout(() => this.formatElValue());
-
-
     }
 
     getInputElement() {

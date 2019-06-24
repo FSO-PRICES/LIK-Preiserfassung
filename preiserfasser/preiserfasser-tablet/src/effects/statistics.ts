@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Effect, Actions } from '@ngrx/effects';
+import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, groupBy, mapValues } from 'lodash';
+import { flatMap, map } from 'rxjs/operators';
 
-import { Models as P, preismeldungId, preismeldestelleId } from 'lik-shared';
+import { Models as P, preismeldestelleId, preismeldungId } from 'lik-shared';
 
-import { getDatabase, getAllDocumentsForPrefixFromDb } from './pouchdb-utils';
-import * as fromRoot from '../reducers';
 import { Action as StatisticsAction } from '../actions/statistics';
+import * as fromRoot from '../reducers';
 import { PreismeldestelleStatisticsMap } from '../reducers/statistics';
+import { getAllDocumentsForPrefixFromDb, getDatabase } from './pouchdb-utils';
 
 @Injectable()
 export class StatisticsEffects {
@@ -17,24 +18,21 @@ export class StatisticsEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreismeldungen$ = this.actions$
-        .ofType('PREISMELDUNG_STATISTICS_LOAD')
-        .flatMap(() => getDatabase())
-        .flatMap(db =>
-            loadAllPreismeldungRefs(db).then(pmsRefPreismeldungenTotals => ({ db, pmsRefPreismeldungenTotals }))
-        )
-        .flatMap(({ db, pmsRefPreismeldungenTotals }) =>
+    loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNG_STATISTICS_LOAD').pipe(
+        flatMap(() => getDatabase()),
+        flatMap(db =>
+            loadAllPreismeldungRefs(db).then(pmsRefPreismeldungenTotals => ({ db, pmsRefPreismeldungenTotals })),
+        ),
+        flatMap(({ db, pmsRefPreismeldungenTotals }) =>
             getAllDocumentsForPrefixFromDb(db, preismeldungId())
                 .then((allPreismeldungen: P.Preismeldung[]) => {
                     const pmsPreismeldungen = groupBy(allPreismeldungen, p => p.pmsNummer);
                     const pmsPreismeldungenStatistics = mapValues(pmsPreismeldungen, preismeldungen => {
-                        const preismeldungenByUploaded = groupBy(
-                            preismeldungen,
-                            p => (!!p.uploadRequestedAt ? 'uploaded' : 'notUploaded')
+                        const preismeldungenByUploaded = groupBy(preismeldungen, p =>
+                            !!p.uploadRequestedAt ? 'uploaded' : 'notUploaded',
                         );
-                        const preismeldungenBySaved = groupBy(
-                            preismeldungenByUploaded['notUploaded'],
-                            p => (!!p.istAbgebucht ? 'saved' : 'notSaved')
+                        const preismeldungenBySaved = groupBy(preismeldungenByUploaded['notUploaded'], p =>
+                            !!p.istAbgebucht ? 'saved' : 'notSaved',
                         );
                         return {
                             totalCount: preismeldungen.length,
@@ -56,17 +54,18 @@ export class StatisticsEffects {
                               };
                     }) as PreismeldestelleStatisticsMap;
                 })
-                .then(preismeldestelleStatistics => ({ db, preismeldestelleStatistics }))
-        )
-        .flatMap(({ db, preismeldestelleStatistics }) =>
+                .then(preismeldestelleStatistics => ({ db, preismeldestelleStatistics })),
+        ),
+        flatMap(({ db, preismeldestelleStatistics }) =>
             db
                 .get('erhebungsmonat')
-                .then((doc: P.Erhebungsmonat) => ({ monthAsString: doc.monthAsString, preismeldestelleStatistics }))
-        )
-        .map(
+                .then((doc: P.Erhebungsmonat) => ({ monthAsString: doc.monthAsString, preismeldestelleStatistics })),
+        ),
+        map(
             preismeldungenData =>
-                ({ type: 'PREISMELDUNG_STATISTICS_LOAD_SUCCESS', payload: preismeldungenData } as StatisticsAction)
-        );
+                ({ type: 'PREISMELDUNG_STATISTICS_LOAD_SUCCESS', payload: preismeldungenData } as StatisticsAction),
+        ),
+    );
 }
 
 async function loadAllPreismeldungRefs(db): Promise<{ [pmsNummer: number]: { downloadedCount: number } }> {

@@ -1,17 +1,23 @@
 import { NgModule } from '@angular/core';
-import { DashboardPage } from './dashboard';
-import { IonicPageModule } from 'ionic-angular';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Routes, RouterModule } from '@angular/router';
+
+import { IonicModule } from '@ionic/angular';
+
 import { PefComponentsModule } from 'lik-shared';
-import { PreiserfasserCommonModule } from '../../common/preiserfasser-common.module';
+
+import { DashboardPage } from './dashboard.page';
+
+const routes: Routes = [
+    {
+        path: '',
+        component: DashboardPage,
+    },
+];
 
 @NgModule({
-    declarations: [
-        DashboardPage,
-    ],
-    imports: [
-        IonicPageModule.forChild(DashboardPage),
-        PefComponentsModule,
-        PreiserfasserCommonModule
-    ],
+    imports: [CommonModule, FormsModule, IonicModule, PefComponentsModule, RouterModule.forChild(routes)],
+    declarations: [DashboardPage],
 })
-export class DashboardPageModule { }
+export class DashboardPageModule {}

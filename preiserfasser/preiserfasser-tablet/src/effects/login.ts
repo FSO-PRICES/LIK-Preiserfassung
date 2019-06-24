@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Effect, Actions } from '@ngrx/effects';
+import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { of, from } from 'rxjs';
+import { flatMap, concat, map, combineLatest, take, catchError } from 'rxjs/operators';
 
-import * as fromRoot from '../reducers';
 import * as login from '../actions/login';
-import { getLoggedInUser, loginIntoDatabase, getDatabaseAsObservable } from './pouchdb-utils';
+import * as fromRoot from '../reducers';
+import { getDatabaseAsObservable, getLoggedInUser, loginIntoDatabase } from './pouchdb-utils';
 
 @Injectable()
 export class LoginEffects {
@@ -15,42 +16,61 @@ export class LoginEffects {
     constructor(
         private actions$: Actions,
         private store: Store<fromRoot.AppState>,
-        private translate: TranslateService) {
-    }
+        private translate: TranslateService,
+    ) {}
 
     @Effect()
-    checkIsLoggedIn$ = this.actions$.ofType('CHECK_IS_LOGGED_IN')
-        .flatMap(() =>
-            Observable.of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action)
-                .concat(this.getSettingsAndUsername()
-                    .flatMap(({ settings, username }) =>
-                        getLoggedInUser(settings.serverConnection.url, username)
-                            .map(loggedInUser => !loggedInUser ?
-                                { type: 'SET_IS_LOGGED_OUT' } as login.Action :
-                                { type: 'SET_IS_LOGGED_IN', payload: loggedInUser } as login.Action
-                            )
-                    )
-                    .catch(error => Observable.of({ type: 'SET_IS_LOGGED_OUT' } as login.Action))
-                )
-        );
+    checkIsLoggedIn$ = this.actions$.ofType('CHECK_IS_LOGGED_IN').pipe(
+        flatMap(() =>
+            of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action).pipe(
+                concat(
+                    this.getSettingsAndUsername().pipe(
+                        flatMap(({ settings, username }) =>
+                            getLoggedInUser(settings.serverConnection.url, username).pipe(
+                                map(loggedInUser =>
+                                    !loggedInUser
+                                        ? ({ type: 'SET_IS_LOGGED_OUT' } as login.Action)
+                                        : ({ type: 'SET_IS_LOGGED_IN', payload: loggedInUser } as login.Action),
+                                ),
+                            ),
+                        ),
+                        catchError(error => of({ type: 'SET_IS_LOGGED_OUT' } as login.Action)),
+                    ),
+                ),
+            ),
+        ),
+    );
 
     @Effect()
-    login$ = this.actions$.ofType('LOGIN')
-        .flatMap(({ payload }) =>
-            Observable.of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action)
-                .concat(loginIntoDatabase(payload)
-                    .map(() => ({ user: { username: payload.username }, error: null }))
-                    .catch(() => Observable.of(({ user: null, error: this.translate.instant('error_login-wrong-credentials') })))
-                    .map(({ user, error }) => !error ?
-                        { type: 'LOGIN_SUCCESS', payload: user } as login.Action :
-                        { type: 'LOGIN_FAIL', payload: error } as login.Action
-                    )
-                )
-        );
+    login$ = this.actions$.ofType('LOGIN').pipe(
+        flatMap((
+            action: any, // TODO Fix typing
+        ) =>
+            of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action).pipe(
+                concat(
+                    loginIntoDatabase(action.payload).pipe(
+                        map(() => ({ user: { username: action.payload.username }, error: null })),
+                        catchError(() =>
+                            of({ user: null, error: this.translate.instant('error_login-wrong-credentials') }),
+                        ),
+                        map(({ user, error }) =>
+                            !error
+                                ? ({ type: 'LOGIN_SUCCESS', payload: user } as login.Action)
+                                : ({ type: 'LOGIN_FAIL', payload: error } as login.Action),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    );
 
     private getSettingsAndUsername() {
-        return getDatabaseAsObservable()
-            .flatMap(db => Observable.fromPromise(db.get('preiserheber').then((pe: any) => pe.username)))
-            .combineLatest(this.store.select(fromRoot.getSettings).take(1), (username, settings) => ({ username, settings }));
+        return getDatabaseAsObservable().pipe(
+            flatMap(db => from(db.get('preiserheber').then((pe: any) => pe.username))),
+            combineLatest(this.store.select(fromRoot.getSettings).pipe(take(1)), (username, settings) => ({
+                username,
+                settings,
+            })),
+        );
     }
 }

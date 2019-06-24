@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostBinding, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ViewController } from 'ionic-angular';
+import { ModalController } from '@ionic/angular';
 import { Observable, Subscription } from 'rxjs';
 import { map, merge, startWith } from 'rxjs/operators';
 
@@ -8,26 +8,26 @@ import { map, merge, startWith } from 'rxjs/operators';
     selector: 'dialog-choose-percentage-reduction',
     template: `
         <div class="percentage-button-row first-row">
-            <button ion-button color="mercury" (click)="quickSelect$.emit(10)">10%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(20)">20%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(30)">30%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(40)">40%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(50)">50%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(60)">60%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(70)">70%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(80)">80%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(90)">90%</button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(10)">10%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(20)">20%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(30)">30%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(40)">40%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(50)">50%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(60)">60%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(70)">70%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(80)">80%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(90)">90%</ion-button>
         </div>
         <div class="percentage-button-row second-row">
-            <button ion-button color="mercury" (click)="quickSelect$.emit(5)">5%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(15)">15%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(25)">25%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(35)">35%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(45)">45%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(55)">55%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(65)">65%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(75)">75%</button>
-            <button ion-button color="mercury" (click)="quickSelect$.emit(85)">85%</button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(5)">5%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(15)">15%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(25)">25%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(35)">35%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(45)">45%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(55)">55%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(65)">65%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(75)">75%</ion-button>
+            <ion-button color="mercury" (click)="quickSelect$.emit(85)">85%</ion-button>
         </div>
         <div class="separator"></div>
         <div class="input-row">
@@ -47,8 +47,8 @@ import { map, merge, startWith } from 'rxjs/operators';
             </form>
         </div>
         <div class="pef-dialog-button-row">
-            <button ion-button [disabled]="!(isValid$ | async)" (click)="okClicked$.emit()" color="primary">OK</button>
-            <button ion-button (click)="viewCtrl.dismiss({ type: 'CANCEL' })" color="secondary">Abbrechen</button>
+            <ion-button [disabled]="!(isValid$ | async)" (click)="okClicked$.emit()" color="primary">OK</ion-button>
+            <ion-button (click)="viewCtrl.dismiss({ type: 'CANCEL' })" color="secondary">Abbrechen</ion-button>
         </div>
     `,
 })
@@ -63,7 +63,7 @@ export class DialogChoosePercentageReductionComponent implements OnDestroy {
 
     private subscription: Subscription;
 
-    constructor(public viewCtrl: ViewController, formBuilder: FormBuilder) {
+    constructor(public viewCtrl: ModalController, formBuilder: FormBuilder) {
         this.form = formBuilder.group({ percentage: [''] });
 
         this.isValid$ = this.form.valueChanges.pipe(

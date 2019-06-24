@@ -15,7 +15,6 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { assign } from 'lodash';
 import { Observable } from 'rxjs';
-import 'rxjs-ng-extras/add/operator/observeOnZone';
 import {
     combineLatest,
     distinctUntilChanged,
@@ -51,8 +50,7 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
     selector: 'bearbeitungs-type',
     template: `
         <div style="position: relative;">
-            <button
-                ion-button
+            <ion-button
                 pef-toggle-button
                 [toggleOn]="buttonOn$ | async"
                 color="mercury"
@@ -64,7 +62,7 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
                     {{ 'text_code' | translate }}&nbsp;{{ (selectedBearbeitungsType$ | async)?.codeName }}
                 </div>
                 <div class="description">{{ (selectedBearbeitungsType$ | async)?.description | translate }}</div>
-            </button>
+            </ion-button>
             <div
                 class="bearbeitungs-type-flyout"
                 [class.visible]="buttonOn$ | async"

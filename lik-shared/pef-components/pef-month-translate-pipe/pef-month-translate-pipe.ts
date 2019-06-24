@@ -14,13 +14,10 @@ export class PefMonthTranslatePipe implements PipeTransform, OnDestroy {
     private subscriptions = [];
 
     constructor(pefLanguageService: PefLanguageService) {
-        this.subscriptions.push(
-            pefLanguageService.currentLanguage$
-                .subscribe(lang => this.currentLanguage = lang)
-        );
+        this.subscriptions.push(pefLanguageService.currentLanguage$.subscribe(lang => (this.currentLanguage = lang)));
     }
 
-    transform(value: string, formatOptions: any) {
+    transform(value: string, _formatOptions: any) {
         if (!value) return undefined;
 
         return format(`2000-${value}-01`, 'MMMM', { locale: this.getLocale() });
@@ -46,8 +43,6 @@ export class PefMonthTranslatePipe implements PipeTransform, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscriptions
-            .filter(s => !!s && !s.closed)
-            .forEach(s => s.unsubscribe());
+        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 }

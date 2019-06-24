@@ -1,0 +1,79 @@
+@import "../../theme/imports.scss";
+
+pms-price-entry.ion-page {
+    .message {
+        @include set-padding(1, 1, 1, 1);
+        flex: 1;
+        background-color: $mercury;
+    }
+
+    .pms-price-entry-content {
+        height: 100%;
+        width: 100%;
+        display: flex;
+    }
+
+    preismeldung-toolbar {
+        flex: 0 0 5.25em;
+        max-width: 5.25em;
+        // order: 1; // TODO: implement left + right handed
+    }
+
+    choose-from-warenkorb {
+        visibility: hidden;
+        &.active {
+            visibility: visible;
+        }
+    }
+
+    .work-area {
+        flex: 1;
+        display: flex;
+        background-color: $alto;
+        @include set-padding-vert-horiz(1, 1.5);
+    }
+
+    .preismeldung-details-container {
+        flex: 0 1 66.6%;
+        max-width: 66.6%;
+        display: flex;
+        flex-direction: column;
+        @include set-padding-right(0.75);
+
+        .content-md {
+            background-color: $mercury;
+        }
+    }
+
+    .tabs-container {
+        flex: 1;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        > * {
+            flex: 1;
+            // height: 100%;
+        }
+    }
+
+    .preismeldung-list-container {
+        flex: 0 1 33.3%;
+        max-width: 33.3%;
+        display: flex;
+        @include set-padding-left(0.75);
+    }
+
+    preismeldung-list {
+        flex: 1;
+        max-width: 100%;
+    }
+
+    .detail-tab-bottom-part {
+        @include set-padding(1, 1, 1, 1);
+        @include set-margin-top(0.25);
+        flex: 1 1 auto;
+        background-color: $mercury;
+        display: flex;
+        flex-direction: column;
+    }
+}

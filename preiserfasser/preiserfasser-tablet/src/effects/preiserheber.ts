@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Effect, Actions } from '@ngrx/effects';
+import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { assign } from 'lodash';
+import { flatMap, map, withLatestFrom } from 'rxjs/operators';
 
 import { Models as P } from 'lik-shared';
-import { assign } from 'lodash';
 
-import { getServerUrl, setServerUrl } from './local-storage-utils';
-import * as fromRoot from '../reducers';
 import * as preiserheber from '../actions/preiserheber';
+import * as fromRoot from '../reducers';
 import { CurrentPreiserheber } from '../reducers/preiserheber';
 import { getDatabase } from './pouchdb-utils';
 
@@ -15,29 +15,31 @@ import { getDatabase } from './pouchdb-utils';
 export class PreiserheberEffects {
     currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber);
 
-    constructor(
-        private actions$: Actions,
-        private store: Store<fromRoot.AppState>) {
-    }
+    constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreiserheber$ = this.actions$
-        .ofType('LOAD_PREISERHEBER')
-        .flatMap(() => getDatabase())
-        .flatMap(db => db.get('preiserheber'))
-        .map(erheber => ({ type: 'LOAD_PREISERHEBER_SUCCESS', payload: erheber } as preiserheber.Action ));
+    loadPreiserheber$ = this.actions$.ofType('LOAD_PREISERHEBER').pipe(
+        flatMap(() => getDatabase()),
+        flatMap(db => db.get('preiserheber')),
+        map(erheber => ({ type: 'LOAD_PREISERHEBER_SUCCESS', payload: erheber } as preiserheber.Action)),
+    );
 
     @Effect()
-    savePreiserheber$ = this.actions$
-        .ofType('SAVE_PREISERHEBER')
-        .withLatestFrom(this.currentPreiserheber$, (_, currentPreiserheber) => currentPreiserheber)
-        .flatMap(currentPreiserheber => {
+    savePreiserheber$ = this.actions$.ofType('SAVE_PREISERHEBER').pipe(
+        withLatestFrom(this.currentPreiserheber$, (_, currentPreiserheber) => currentPreiserheber),
+        flatMap(currentPreiserheber => {
             return getDatabase()
                 .then(db => db.get(`preiserheber`).then(doc => ({ db, doc })))
-                .then(({ db, doc }) => db.put(assign({}, doc, this.propertiesFromCurrentPreiserheber(currentPreiserheber))).then(() => db))
+                .then(({ db, doc }) =>
+                    db.put(assign({}, doc, this.propertiesFromCurrentPreiserheber(currentPreiserheber))).then(() => db),
+                )
                 .then(db => db.get(`preiserheber`));
-        })
-        .map(currentPreiserheber => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload: currentPreiserheber } as preiserheber.Action));
+        }),
+        map(
+            currentPreiserheber =>
+                ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload: currentPreiserheber } as preiserheber.Action),
+        ),
+    );
 
     private propertiesFromCurrentPreiserheber(currentPreiserheber: CurrentPreiserheber) {
         return {
@@ -51,7 +53,7 @@ export class PreiserheberEffects {
             webseite: currentPreiserheber.webseite,
             street: currentPreiserheber.street,
             postcode: currentPreiserheber.postcode,
-            town: currentPreiserheber.town
+            town: currentPreiserheber.town,
         } as P.Erheber;
     }
 }

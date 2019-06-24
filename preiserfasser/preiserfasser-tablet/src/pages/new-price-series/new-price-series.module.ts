@@ -1,19 +1,22 @@
 import { NgModule } from '@angular/core';
-import { NewPriceSeriesPage } from './new-price-series';
-import { IonicPageModule } from 'ionic-angular';
-import { PefComponentsModule } from 'lik-shared';
-import { PreiserfasserCommonModule } from '../../common/preiserfasser-common.module';
-import { ChooseFromWarenkorbComponent } from './choose-from-warenkorb'
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Routes, RouterModule } from '@angular/router';
+
+import { IonicModule } from '@ionic/angular';
+
+import { NewPriceSeriesPage } from './new-price-series.page';
+import { ChooseFromWarenkorbComponent } from './choose-from-warenkorb';
+
+const routes: Routes = [
+    {
+        path: '',
+        component: NewPriceSeriesPage,
+    },
+];
 
 @NgModule({
-    declarations: [
-        NewPriceSeriesPage,
-        ChooseFromWarenkorbComponent
-    ],
-    imports: [
-        IonicPageModule.forChild(NewPriceSeriesPage),
-        PefComponentsModule,
-        PreiserfasserCommonModule
-    ]
+    imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes)],
+    declarations: [NewPriceSeriesPage, ChooseFromWarenkorbComponent],
 })
-export class NewPriceSeriesPageModule { }
+export class NewPriceSeriesPageModule {}

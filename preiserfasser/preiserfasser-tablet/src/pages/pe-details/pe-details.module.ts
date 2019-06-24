@@ -1,17 +1,21 @@
 import { NgModule } from '@angular/core';
-import { IonicPageModule } from 'ionic-angular';
-import { PefComponentsModule } from 'lik-shared';
-import { PreiserfasserCommonModule } from '../../common/preiserfasser-common.module';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Routes, RouterModule } from '@angular/router';
 
-import { PreiserheberPage } from './pe-details';
+import { IonicModule } from '@ionic/angular';
+
+import { PreiserheberPage } from './pe-details.page';
+
+const routes: Routes = [
+    {
+        path: '',
+        component: PreiserheberPage,
+    },
+];
 
 @NgModule({
+    imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes)],
     declarations: [PreiserheberPage],
-    imports: [
-        IonicPageModule.forChild(PreiserheberPage),
-        PefComponentsModule,
-        PreiserfasserCommonModule
-    ]
 })
-export class PreiserheberModule {
-}
+export class PeDetailsPageModule {}

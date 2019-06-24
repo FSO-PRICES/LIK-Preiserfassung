@@ -25,6 +25,7 @@ import {
     take,
     tap,
     withLatestFrom,
+    takeUntil,
 } from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../../';
@@ -53,12 +54,12 @@ import * as P from '../../../models';
                         ></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">
+                        <ion-button color="java" type="button" [disabled]="isReadonly$ | async">
                             {{ 'btn_erfassung_speichern' | translate }}
-                        </button>
-                        <button ion-button color="java" (click)="notizClear$.emit()" [disabled]="isReadonly$ | async">
+                        </ion-button>
+                        <ion-button color="java" (click)="notizClear$.emit()" [disabled]="isReadonly$ | async">
                             {{ 'btn_leeren' | translate }}
-                        </button>
+                        </ion-button>
                     </div>
                     <h3>{{ 'heading_kommentar-zum-aktuellen-monat' | translate }}</h3>
                     <div class="kommentar-autotext">
@@ -75,17 +76,12 @@ import * as P from '../../../models';
                         ></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">
+                        <ion-button color="java" type="button" [disabled]="isReadonly$ | async">
                             {{ 'btn_erfassung_speichern' | translate }}
-                        </button>
-                        <button
-                            ion-button
-                            color="java"
-                            (click)="kommentarClear$.emit()"
-                            [disabled]="isReadonly$ | async"
-                        >
+                        </ion-button>
+                        <ion-button color="java" (click)="kommentarClear$.emit()" [disabled]="isReadonly$ | async">
                             {{ 'btn_leeren' | translate }}
-                        </button>
+                        </ion-button>
                     </div>
                     <h3>{{ 'heading_kommunikation' | translate }}</h3>
                     <div class="message-history" *ngIf="bemerkungenHistory$ | async">
@@ -102,25 +98,19 @@ import * as P from '../../../models';
                         ></ion-textarea>
                     </ion-item>
                     <div class="actions">
-                        <button ion-button color="java" type="button" [disabled]="isReadonly$ | async">
+                        <ion-button color="java" type="button" [disabled]="isReadonly$ | async">
                             {{ 'btn_erfassung_speichern' | translate }}
-                        </button>
-                        <button
-                            ion-button
-                            color="java"
-                            (click)="bemerkungenClear$.emit()"
-                            [disabled]="isReadonly$ | async"
-                        >
+                        </ion-button>
+                        <ion-button color="java" (click)="bemerkungenClear$.emit()" [disabled]="isReadonly$ | async">
                             {{ 'btn_leeren' | translate }}
-                        </button>
-                        <button
-                            ion-button
+                        </ion-button>
+                        <ion-button
                             color="java"
                             [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)"
                             (click)="erledigt$.emit()"
                         >
                             {{ 'btn_erledigt' | translate }}
-                        </button>
+                        </ion-button>
                     </div>
                 </div>
             </form>
@@ -209,7 +199,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             refCount(),
         );
 
-        distinctPreismeldung$.takeUntil(this.onDestroy$).subscribe(bag => {
+        distinctPreismeldung$.pipe(takeUntil(this.onDestroy$)).subscribe(bag => {
             this.form.reset({
                 notiz: bag.messages.notiz.replace(/\\n/g, '\n'),
                 kommentar: bag.messages.kommentar.replace(/\\n/g, '\n'),

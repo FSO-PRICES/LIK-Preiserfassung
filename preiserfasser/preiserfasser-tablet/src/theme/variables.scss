@@ -1,18 +1,15 @@
-// Ionic Variables and Theming. For more info, please see:
-// http://ionicframework.com/docs/v2/theming/
-// http://ionicframework.com/docs/v2/theming/overriding-ionic-variables/
+// http://ionicframework.com/docs/theming/
 
-@import "ionic.globals";
+@import '../global.scss';
 
-@import "../../../../lik-shared/styles/variables.scss";
+@import '../../../../lik-shared/styles/variables.scss';
 
-@import "ionic.theme.default";
-
+// @import "ionic.theme.default";
 
 // Ionicons
 // --------------------------------------------------
 // The premium icon font for Ionic. For more info, please see:
 // http://ionicframework.com/docs/v2/ionicons/
 
-$ionicons-font-path: "../assets/fonts";
-@import "ionicons";
+// $ionicons-font-path: "../assets/fonts";
+// @import "ionicons";

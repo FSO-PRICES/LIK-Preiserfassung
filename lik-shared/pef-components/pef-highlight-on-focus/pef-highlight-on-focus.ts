@@ -1,8 +1,7 @@
 import { Directive, ElementRef, HostListener } from '@angular/core';
-import { Subscription } from 'rxjs';
 
 @Directive({
-    selector: '[pef-highlight-on-focus]'
+    selector: '[pef-highlight-on-focus]',
 })
 export class PefHighlightOnFocus {
     constructor(private elementRef: ElementRef) {}

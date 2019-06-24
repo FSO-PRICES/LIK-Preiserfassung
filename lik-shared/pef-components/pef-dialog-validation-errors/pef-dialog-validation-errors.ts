@@ -1,5 +1,5 @@
 import { Component, HostBinding } from '@angular/core';
-import { ViewController, NavParams } from 'ionic-angular';
+import { NavParams, ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'pef-dialog-validation-errors',
@@ -14,11 +14,13 @@ import { ViewController, NavParams } from 'ionic-angular';
 
         <div class="pef-dialog-button-row">
             <button style="visibility: hidden"></button>
-            <button ion-button (click)="viewCtrl.dismiss('DIALOG_CANCEL')" color="primary">{{ 'btn_continue-editing' | translate }}</button>
+            <ion-button (click)="viewCtrl.dismiss('DIALOG_CANCEL')" color="primary">
+                {{ 'btn_continue-editing' | translate }}
+            </ion-button>
         </div>
     `,
 })
 export class PefDialogValidationErrorsComponent {
     @HostBinding('class') classes = 'pef-dialog';
-    constructor(public viewCtrl: ViewController, public navParams: NavParams) { }
+    constructor(public viewCtrl: ModalController, public navParams: NavParams) {}
 }

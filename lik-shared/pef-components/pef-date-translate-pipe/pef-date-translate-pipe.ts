@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, OnDestroy, Pipe, PipeTransform } from '@angular/core';
+import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
 import { format } from 'date-fns';
 import * as deLocale from 'date-fns/locale/de';
 import * as enLocale from 'date-fns/locale/en';
@@ -10,9 +10,6 @@ import { PefLanguageService } from '../../common/pef-language.service';
 
 @Pipe({ name: 'pefDateTranslate', pure: false })
 export class PefDateTranslatePipe implements PipeTransform, OnDestroy {
-    private latestValue: string = null;
-    private latestReturnValue: string = null;
-
     private currentLanguage: string;
 
     private subscriptions: Subscription[] = [];

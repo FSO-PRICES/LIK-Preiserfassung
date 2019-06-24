@@ -134,14 +134,9 @@ import { ElectronService } from '../../../services/electron.service';
                         </div>
                     </div>
                 </div>
-                <button
-                    ion-button
-                    class="reset-button"
-                    (click)="resetClicked$.emit()"
-                    [disabled]="!(canReset$ | async)"
-                >
+                <ion-button class="reset-button" (click)="resetClicked$.emit()" [disabled]="!(canReset$ | async)">
                     {{ (!(preismeldung$ | async)?.refPreismeldung ? 'btn_pm-delete' : 'btn_pm-reset') | translate }}
-                </button>
+                </ion-button>
             </div>
         </ion-content>
     `,

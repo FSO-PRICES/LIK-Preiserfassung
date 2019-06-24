@@ -1,5 +1,6 @@
 import { EffectsModule } from '@ngrx/effects';
 
+import { CreatePdfEffects } from './create-pdf';
 import { DatabaseEffects } from './database';
 import { ErhebungsInfoEffects } from './erhebungsinfo';
 import { LoginEffects } from './login';
@@ -10,18 +11,19 @@ import { SettingEffects } from './setting';
 import { StatisticsEffects } from './statistics';
 import { TimeEffects } from './time';
 import { WarenkorbEffects } from './warenkorb';
-import { CreatePdfEffects } from './create-pdf';
 
 export const PEF_EFFECTS = [
-    EffectsModule.run(DatabaseEffects),
-    EffectsModule.run(ErhebungsInfoEffects),
-    EffectsModule.run(LoginEffects),
-    EffectsModule.run(PreiserheberEffects),
-    EffectsModule.run(PreismeldestelleEffects),
-    EffectsModule.run(PreismeldungenEffects),
-    EffectsModule.run(SettingEffects),
-    EffectsModule.run(StatisticsEffects),
-    EffectsModule.run(TimeEffects),
-    EffectsModule.run(WarenkorbEffects),
-    EffectsModule.run(CreatePdfEffects)
+    EffectsModule.forRoot([
+        DatabaseEffects,
+        ErhebungsInfoEffects,
+        LoginEffects,
+        PreiserheberEffects,
+        PreismeldestelleEffects,
+        PreismeldungenEffects,
+        SettingEffects,
+        StatisticsEffects,
+        TimeEffects,
+        WarenkorbEffects,
+        CreatePdfEffects,
+    ]),
 ];

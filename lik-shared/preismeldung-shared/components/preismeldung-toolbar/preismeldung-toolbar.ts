@@ -9,7 +9,16 @@ import {
     SimpleChange,
 } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { combineLatest, map, merge, publishReplay, refCount, startWith, withLatestFrom } from 'rxjs/operators';
+import {
+    combineLatest,
+    map,
+    merge,
+    publishReplay,
+    refCount,
+    startWith,
+    withLatestFrom,
+    takeUntil,
+} from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../';
 
@@ -18,18 +27,16 @@ import * as P from '../../models';
 @Component({
     selector: 'preismeldung-toolbar',
     template: `
-        <button
+        <ion-button
             *ngIf="!(isAdminApp$ | async)"
-            ion-button
             icon-only
             class="pef-tab-button"
             (click)="otherButtonClicked$.emit('HOME')"
         >
             <pef-icon name="home"></pef-icon>
-        </button>
+        </ion-button>
         <div class="preismeldung-buttons" *ngIf="!!preismeldung">
-            <button
-                ion-button
+            <ion-button
                 icon-only
                 class="pef-tab-button"
                 [disabled]="(selectedTab$ | async) == 'INFO_WARENKORB'"
@@ -37,9 +44,8 @@ import * as P from '../../models';
                 (click)="selectTab$.emit('INFO_WARENKORB')"
             >
                 <pef-icon name="zusatzinfo"></pef-icon>
-            </button>
-            <button
-                ion-button
+            </ion-button>
+            <ion-button
                 icon-only
                 class="pef-tab-button"
                 [disabled]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
@@ -47,9 +53,8 @@ import * as P from '../../models';
                 (click)="selectTab$.emit('PREISMELDUNG_INFO')"
             >
                 <pef-icon name="price_tag_info"></pef-icon>
-            </button>
-            <button
-                ion-button
+            </ion-button>
+            <ion-button
                 icon-only
                 class="pef-tab-button"
                 [disabled]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES' || !(hasAttributes$ | async)"
@@ -64,9 +69,8 @@ import * as P from '../../models';
                         *ngIf="(preismeldung$ | async).hasAttributeWarning"
                     ></pef-icon>
                 </div>
-            </button>
-            <button
-                ion-button
+            </ion-button>
+            <ion-button
                 icon-only
                 class="pef-tab-button"
                 [disabled]="(selectedTab$ | async) == 'MESSAGES'"
@@ -86,9 +90,8 @@ import * as P from '../../models';
                         *ngIf="(preismeldung$ | async).hasMessageToCheck"
                     ></pef-icon>
                 </div>
-            </button>
-            <button
-                ion-button
+            </ion-button>
+            <ion-button
                 icon-only
                 class="pef-tab-button"
                 [disabled]="(selectedTab$ | async) == 'PREISMELDUNG'"
@@ -103,9 +106,8 @@ import * as P from '../../models';
                         *ngIf="(preismeldung$ | async).hasPriceWarning"
                     ></pef-icon>
                 </div>
-            </button>
-            <button
-                ion-button
+            </ion-button>
+            <ion-button
                 icon-only
                 class="pef-toolbar-button"
                 (click)="otherButtonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')"
@@ -117,10 +119,9 @@ import * as P from '../../models';
                 <div class="pef-inner">
                     <pef-icon name="equal"></pef-icon>
                 </div>
-            </button>
-            <button
+            </ion-button>
+            <ion-button
                 *ngIf="!(isAdminApp$ | async)"
-                ion-button
                 icon-only
                 class="pef-toolbar-button"
                 (click)="saveButtonClicked$.emit()"
@@ -129,7 +130,7 @@ import * as P from '../../models';
                 <div class="pef-inner">
                     <pef-icon [name]="(isNotSave$ | async) ? 'arrow_right' : 'save'"></pef-icon>
                 </div>
-            </button>
+            </ion-button>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -171,7 +172,7 @@ export class PreismeldungToolbarComponent extends ReactiveComponent implements O
     constructor() {
         super();
 
-        this.selectedTab$.takeUntil(this.onDestroy$).subscribe();
+        this.selectedTab$.pipe(takeUntil(this.onDestroy$)).subscribe();
 
         this.hasAttributes$ = this.preismeldung$.pipe(
             map(p => !!p && !!p.warenkorbPosition.productMerkmale && !!p.warenkorbPosition.productMerkmale.length),
