@@ -326,17 +326,15 @@ export class PreismeldungenEffects {
         .flatMap(({ payload }) => this.savePreismeldungenSort(payload))
         .subscribe();
 
-    savePreismeldung(
+    async savePreismeldung(
         currentPreismeldungBag: P.CurrentPreismeldungBag,
         copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]
     ) {
-        return getDatabase()
-            .then(db => db.get(currentPreismeldungBag.preismeldung._id).then(doc => ({ db, doc })))
-            .then(({ db, doc }) => {
-                const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
-                return db.put(assign({}, doc, ...copyObjects)).then(() => db);
-            })
-            .then(db => db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
+        const db = await getDatabase();
+        const doc = await db.get(currentPreismeldungBag.preismeldung._id);
+        const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
+        await db.put(assign({}, doc, ...copyObjects));
+        return await (db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
     }
 
     savePreismeldungMessages(currentPreismeldungBag: P.CurrentPreismeldungBag) {
@@ -363,14 +361,13 @@ export class PreismeldungenEffects {
             }))
             .filter(({ isInRecordMode }) => isInRecordMode)
             .map(({ preismeldungen }) => {
-                const lastSortierungsnummer = maxBy(
-                    preismeldungen,
-                    x => (!!x.preismeldung.erfasstAt ? x.sortierungsnummer : 0)
-                ).sortierungsnummer;
                 const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
-                const newIndex = preismeldungen.some(x => !!x.preismeldung.erfasstAt)
-                    ? preismeldungen.findIndex(pm => pm.sortierungsnummer === lastSortierungsnummer)
-                    : -1;
+                let newIndex = -1;
+                sortBy(preismeldungen, pm => pm.sortierungsnummer).forEach((pm, i) => {
+                    if (pm.preismeldung.erhebungsZeitpunkt >= 1 || (!!pm.preismeldung.erfasstAt && i > newIndex)) {
+                        newIndex = i;
+                    }
+                });
                 if (currentIndex !== newIndex) {
                     const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
                     return [
