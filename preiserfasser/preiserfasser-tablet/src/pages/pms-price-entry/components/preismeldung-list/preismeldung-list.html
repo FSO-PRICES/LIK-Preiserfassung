@@ -40,7 +40,7 @@
     <div class="preismeldung-list-footer">
         <div class="preismeldung-list-functions">
             <button ion-button icon-only color="wild-sand" (click)="recordSortPreismeldungen$.emit()">
-                <pef-icon *ngIf="!isInRecordMode; else stopRecordMode" name="play_arrow"></pef-icon>
+                <pef-icon *ngIf="!isInRecordMode; else stopRecordMode" name="record" class="record"></pef-icon>
                 <ng-template #stopRecordMode><pef-icon name="stop"></pef-icon></ng-template>
             </button>
             <button ion-button icon-only color="wild-sand" (click)="sortPreismeldungen$.emit()" [disabled]="(currentPreismeldung$ | async)?.isModified || (currentPreismeldung$ | async)?.isNew">

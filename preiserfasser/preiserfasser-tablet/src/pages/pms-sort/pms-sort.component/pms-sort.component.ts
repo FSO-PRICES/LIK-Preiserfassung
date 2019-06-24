@@ -46,6 +46,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     public onDrag$ = new EventEmitter();
     public multiSelectMode$: Observable<boolean>;
     public multipleSelected$: Observable<boolean>;
+    public isModified$: Observable<boolean>;
     public selectForMultiselect$ = new EventEmitter<string>();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
 
@@ -111,6 +112,8 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         this.preismeldungSortSave$ = this.save$
             .withLatestFrom(this.preismeldungen$, (_, preismeldungen) => preismeldungen)
             .map(preismeldungen => ({ sortOrder: preismeldungen.map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })) }));
+
+        this.isModified$ = Observable.merge(this.preismeldungSortSave$.startWith().mapTo(false), this.onDrag$.mapTo(true));
 
         this.subscriptions.push(
             this.onDrag$
