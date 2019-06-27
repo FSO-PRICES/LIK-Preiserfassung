@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnDestroy, Input, ViewChild, OnChanges, SimpleChange, ChangeDetectionStrategy, ElementRef, AfterViewInit, OnInit, Inject, Output } from '@angular/core';
 import { ReactiveComponent, PefVirtualScrollComponent } from 'lik-shared';
+import { minBy } from 'lodash';
 
 import dragula from 'dragula';
 import autoScroll from 'dom-autoscroller';
@@ -101,8 +102,9 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                         return !!pmWithNewOrder ? assign({}, b, { sortierungsnummer: pmWithNewOrder.sortierungsnummer }) : b;
                     });
                 }
+                const minSortnumber = minBy(agg, pm => pm.sortierungsnummer).sortierungsnummer;
                 return orderBy(preismeldungenTemp, x => x.sortierungsnummer).map((b, i) => {
-                    const pm = b.sortierungsnummer !== i + 1 ? assign({}, b, { sortierungsnummer: i + 1 }) : b;
+                    const pm = b.sortierungsnummer !== i + 1 ? assign({}, b, { sortierungsnummer: Math.round(minSortnumber) + i }) : b;
                     return assign({}, pm, { selectionIndex: null });
                 });
             }, [] as P.PreismeldungBag[]);

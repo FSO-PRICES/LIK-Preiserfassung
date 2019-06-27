@@ -370,13 +370,17 @@ export class PreismeldungenEffects {
                 });
                 if (currentIndex !== newIndex) {
                     const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
+                    const lastSortNumber = preismeldungen[newIndex].sortierungsnummer;
                     return [
                         ...sortedPreismeldungen.slice(0, newIndex + 1),
-                        currentPreismeldung,
+                        { ...currentPreismeldung, sortierungsnummer: lastSortNumber + 1 },
                         ...sortedPreismeldungen.slice(newIndex + 1),
                     ]
-                        .filter((_, i) => i !== currentIndex + (currentIndex > newIndex ? 1 : 0))
-                        .map((pm, i) => ({ ...pm, sortierungsnummer: i + 1 }));
+                        .map((pm, i) => ({
+                            ...pm,
+                            sortierungsnummer: i > newIndex ? lastSortNumber + i - newIndex : pm.sortierungsnummer,
+                        }))
+                        .filter((_, i) => i !== currentIndex + (currentIndex > newIndex ? 1 : 0));
                 }
                 return preismeldungen;
             })
