@@ -25,13 +25,7 @@ export class PmsSortPage implements OnDestroy {
         .refCount();
     preismeldungen$ = this.ionViewDidLoad$.combineLatest(
         this.store.select(fromRoot.getPreismeldungen),
-        (_, preismeldungen) =>
-            preismeldungen.slice(
-                findLastIndex(
-                    sortBy(preismeldungen, pm => pm.sortierungsnummer),
-                    pm => !!pm.preismeldung.uploadRequestedAt
-                ) + 1
-            )
+        (_, preismeldungen) => preismeldungen
     );
 
     private subscriptions: Subscription[] = [];

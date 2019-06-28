@@ -362,25 +362,32 @@ export class PreismeldungenEffects {
             .filter(({ isInRecordMode }) => isInRecordMode)
             .map(({ preismeldungen }) => {
                 const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
-                let newIndex = -1;
+                let newIndex = 0;
                 sortBy(preismeldungen, pm => pm.sortierungsnummer).forEach((pm, i) => {
-                    if (pm.preismeldung.erhebungsZeitpunkt >= 1 || (!!pm.preismeldung.erfasstAt && i > newIndex)) {
-                        newIndex = i;
+                    if (pm.preismeldung.erhebungsZeitpunkt >= 1 || (!!pm.preismeldung.erfasstAt && i >= newIndex)) {
+                        newIndex = i + 1;
                     }
                 });
                 if (currentIndex !== newIndex) {
                     const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
-                    const lastSortNumber = preismeldungen[newIndex].sortierungsnummer;
+                    const lastSortNumber = preismeldungen[newIndex - (newIndex === 0 ? 0 : 1)].sortierungsnummer;
                     return [
-                        ...sortedPreismeldungen.slice(0, newIndex + 1),
-                        { ...currentPreismeldung, sortierungsnummer: lastSortNumber + 1 },
-                        ...sortedPreismeldungen.slice(newIndex + 1),
+                        ...sortedPreismeldungen.slice(0, newIndex),
+                        { ...currentPreismeldung, sortierungsnummer: lastSortNumber + (newIndex === 0 ? 0 : 1) },
+                        ...sortedPreismeldungen.slice(newIndex),
                     ]
+                        .filter((_, i) => i !== currentIndex + (currentIndex > newIndex ? 1 : 0))
                         .map((pm, i) => ({
                             ...pm,
-                            sortierungsnummer: i > newIndex ? lastSortNumber + i - newIndex : pm.sortierungsnummer,
-                        }))
-                        .filter((_, i) => i !== currentIndex + (currentIndex > newIndex ? 1 : 0));
+                            sortierungsnummer:
+                                i >= newIndex
+                                    ? lastSortNumber +
+                                      i -
+                                      newIndex +
+                                      (newIndex === 0 ? 0 : 1) +
+                                      (currentIndex < newIndex ? 1 : 0)
+                                    : pm.sortierungsnummer,
+                        }));
                 }
                 return preismeldungen;
             })

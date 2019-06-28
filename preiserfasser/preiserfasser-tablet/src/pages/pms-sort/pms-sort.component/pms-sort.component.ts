@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, Input, ViewChild, OnChanges, SimpleChange, ChangeDetectionStrategy, ElementRef, AfterViewInit, OnInit, Inject, Output } from '@angular/core';
 import { ReactiveComponent, PefVirtualScrollComponent } from 'lik-shared';
-import { minBy } from 'lodash';
+import { findLastIndex, minBy, sortBy } from 'lodash';
 
 import dragula from 'dragula';
 import autoScroll from 'dom-autoscroller';
@@ -56,10 +56,16 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     constructor(private el: ElementRef, @Inject('windowObject') private window: any, private translateService: TranslateService) {
         super();
 
-        const preismeldungen$ = this.ngAfterViewInit$
+        const allPreismeldungen$ = this.ngAfterViewInit$
             .delay(100)
             .flatMap(() => this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen'))
-            .publishReplay(1).refCount();
+            .map(preismeldungen => sortBy(preismeldungen, pm => pm.sortierungsnummer))
+            .publishReplay(1)
+            .refCount();
+
+        const preismeldungen$ = allPreismeldungen$.map(preismeldungen =>
+            preismeldungen.slice(findLastIndex(preismeldungen, pm => !!pm.preismeldung.uploadRequestedAt) + 1)
+        );
 
         this.multiSelectMode$ = this.multiSelectClick$
             .scan((agg, _) => !agg, false)
@@ -112,8 +118,19 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         this.subscriptions.push(this.preismeldungen$.filter(x => !!x.length).take(1).delay(100).subscribe(() => this.virtualScroll.refresh()));
 
         this.preismeldungSortSave$ = this.save$
-            .withLatestFrom(this.preismeldungen$, (_, preismeldungen) => preismeldungen)
-            .map(preismeldungen => ({ sortOrder: preismeldungen.map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })) }));
+            .withLatestFrom(preismeldungen$, allPreismeldungen$, (_, preismeldungen, allPreismeldungen) => ({
+                preismeldungen,
+                allPreismeldungen,
+            }))
+            .map(({ preismeldungen, allPreismeldungen }) => ({
+                    sortOrder: [
+                        ...allPreismeldungen
+                            .slice(0, findLastIndex(allPreismeldungen, pm => !!pm.preismeldung.uploadRequestedAt) + 1)
+                            .map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })),
+                        ...preismeldungen.map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })),
+                    ],
+                })
+            );
 
         this.isModified$ = Observable.merge(this.preismeldungSortSave$.startWith().mapTo(false), this.onDrag$.mapTo(true));
 
