@@ -118,7 +118,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         this.subscriptions.push(this.preismeldungen$.filter(x => !!x.length).take(1).delay(100).subscribe(() => this.virtualScroll.refresh()));
 
         this.preismeldungSortSave$ = this.save$
-            .withLatestFrom(preismeldungen$, allPreismeldungen$, (_, preismeldungen, allPreismeldungen) => ({
+            .withLatestFrom(this.preismeldungen$, allPreismeldungen$, (_, preismeldungen, allPreismeldungen) => ({
                 preismeldungen,
                 allPreismeldungen,
             }))
