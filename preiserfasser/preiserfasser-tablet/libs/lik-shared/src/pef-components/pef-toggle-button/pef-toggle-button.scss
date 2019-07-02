@@ -1,0 +1,16 @@
+@import '../../styles/_variables.scss';
+
+:host {
+    ::ng-deep {
+        ion-button {
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+            &.toggled-on {
+                color: white;
+                fill: white;
+                background-color: $surfie-green;
+            }
+        }
+    }
+}

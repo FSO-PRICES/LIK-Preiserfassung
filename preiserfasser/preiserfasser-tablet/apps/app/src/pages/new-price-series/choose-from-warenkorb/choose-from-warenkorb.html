@@ -1,0 +1,101 @@
+<div class="wrapper">
+    <div class="header">
+        <h3>{{ 'heading_warenkorb_neu_preisreihe_hinzufügen' | translate }}</h3>
+        <ion-button clear class="close-button" (click)="closeClicked$.emit()">
+            {{ 'btn_close' | translate }}
+            <pef-icon name="close_screen"></pef-icon>
+        </ion-button>
+    </div>
+    <div class="content">
+        <div class="search-row">
+            <pef-search-input (valueChanges)="searchString$.emit($event)"></pef-search-input>
+            <div class="search-summary">
+                <span class="label">{{ 'text_warenkorb_anzahlergebnisse' | translate | pef_no_break_string }}:</span
+                >&nbsp;<span class="number">{{ numberOfEp$ | async }}</span>
+            </div>
+            <ion-button class="collapse-all" (click)="collapseAllClicked$.emit()">{{
+                'btn_warenkorb_collapse_all' | translate
+            }}</ion-button>
+        </div>
+        <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
+            <ion-virtual-scroll [items]="warenkorbUiItems$ | async" [approxItemHeight]="'50px'">
+                <ion-item
+                    *virtualItem="let warenkorbUiItem"
+                    class="{{
+                        'warenkorb-item-row tiefencode-' +
+                            warenkorbUiItem.depth +
+                            ' ' +
+                            (warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch')
+                    }}"
+                    (click)="warenkorbItemClicked$.emit(warenkorbUiItem)"
+                    [attr.tappable]="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? null : true"
+                >
+                    <span class="icon">
+                        <pef-icon
+                            *ngIf="iconMap[warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer]"
+                            [name]="iconMap[warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer]"
+                        ></pef-icon>
+                    </span>
+                    <span class="gliederungspositionsnummer"
+                        >{{ warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer }}
+                        <div *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">&nbsp;</div></span
+                    >
+
+                    <span
+                        *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
+                        class="positionsbezeichnung"
+                        >{{
+                            warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung | pefPropertyTranslate
+                        }}</span
+                    >
+                    <ion-button
+                        *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
+                        color="mercury"
+                        class="ep-expand-button"
+                        (click)="warenkorbItemEpExpand$.emit({ event: $event, warenkorbUiItem: warenkorbUiItem })"
+                        [disabled]="warenkorbUiItem.filteredLeafCount == 0"
+                        >{{ warenkorbUiItem.filteredLeafCount }} EP</ion-button
+                    >
+                    <pef-icon
+                        class="open-close"
+                        *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
+                        [name]="warenkorbUiItem.isExpanded ? 'dropdown_close' : 'dropdown_open'"
+                    ></pef-icon>
+
+                    <div class="leaf-description" *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">
+                        <div class="leaf-positionsbezeichnung">
+                            {{
+                                (warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung
+                                    | pefPropertyTranslate) || '&ndash;'
+                            }}
+                        </div>
+                        <div class="leaf-beispiele">
+                            {{
+                                (warenkorbUiItem.warenkorbInfo.warenkorbItem.beispiele | pefPropertyTranslate) ||
+                                    '&ndash;'
+                            }}
+                        </div>
+                    </div>
+                    <div class="bfs-symbol" *ngIf="warenkorbUiItem.showBFS">BFS</div>
+                    <div class="season-icon" *ngIf="warenkorbUiItem.notInSeason">
+                        <pef-icon name="not_in_season"></pef-icon>
+                    </div>
+                    <div class="count-status" *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">
+                        ({{ warenkorbUiItem.preismeldungCount }}/{{
+                            warenkorbUiItem.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS
+                        }})
+                    </div>
+                    <ion-button
+                        icon-only
+                        *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'"
+                        class="add-button"
+                        [disabled]="!warenkorbUiItem.canSelect"
+                        (click)="selectWarenkorbItem$.emit(warenkorbUiItem)"
+                    >
+                        <pef-icon name="add"></pef-icon>
+                    </ion-button>
+                </ion-item>
+            </ion-virtual-scroll>
+        </ion-content>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+// http://ionicframework.com/docs/theming/
+
+@import '../global.scss';
+
+@import '../../../../libs/lik-shared/src/styles/_variables.scss';
+
+// @import "ionic.theme.default";
+
+// Ionicons
+// --------------------------------------------------
+// The premium icon font for Ionic. For more info, please see:
+// http://ionicframework.com/docs/v2/ionicons/
+
+// $ionicons-font-path: "../assets/fonts";
+// @import "ionicons";
+:root {
+    --ion-color-primary: #15aabf;
+    --ion-color-primary-rgb: 21, 170, 191;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #1296a8;
+    --ion-color-primary-tint: #2cb3c5;
+
+    --ion-color-secondary: #3bc9db;
+    --ion-color-secondary-rgb: 59, 201, 219;
+    --ion-color-secondary-contrast: #000000;
+    --ion-color-secondary-contrast-rgb: 0, 0, 0;
+    --ion-color-secondary-shade: #34b1c1;
+    --ion-color-secondary-tint: #4fcedf;
+
+    --ion-color-tertiary: #f5f5f5;
+    --ion-color-tertiary-rgb: 245, 245, 245;
+    --ion-color-tertiary-contrast: #000000;
+    --ion-color-tertiary-contrast-rgb: 0, 0, 0;
+    --ion-color-tertiary-shade: #d8d8d8;
+    --ion-color-tertiary-tint: #f6f6f6;
+}

@@ -1,0 +1,76 @@
+@import './shadows.scss';
+@import './mixins.scss';
+@import './_variables.scss';
+
+ion-button {
+    text-transform: none;
+    transition: opacity 150ms;
+    &:hover:not(.disable-hover) {
+        opacity: 0.7;
+    }
+    &.align-right {
+        padding-right: 0;
+        margin-right: 0;
+    }
+    &:hover:not(.disable-hover) {
+        opacity: 1;
+        background-color: $blue-chill;
+        &.button-clear {
+            color: $surfie-green;
+            fill: $surfie-green;
+            background-color: transparent;
+        }
+    }
+    &.button-clear {
+        color: $blue-chill;
+        fill: $blue-chill;
+    }
+}
+
+.button-md-mercury {
+    background-color: $mercury;
+    color: $blue-chill;
+    fill: $blue-chill;
+    box-shadow: none;
+
+    &[disabled] {
+        color: $oslo-gray;
+        background-color: transparent;
+        opacity: 1;
+    }
+}
+
+.button-md-wild-sand {
+    background-color: $wild-sand;
+    color: $blue-chill;
+    fill: $blue-chill;
+    box-shadow: none;
+}
+
+.button-md-mercury,
+.button-md-wild-sand {
+    &:hover:not(.disable-hover) {
+        background-color: $blue-chill;
+        color: white;
+        fill: white;
+    }
+}
+
+.button[icon-only] {
+    min-width: calc(2.25em + 4px);
+}
+
+.button-large-md {
+    font-size: 1.6rem;
+    height: 3.6rem;
+}
+
+.button-clear-md:hover:not(.disable-hover) {
+    background-color: initial;
+}
+
+.button-radio-selected {
+    background-color: $blue-chill;
+    color: white;
+    fill: white;
+}

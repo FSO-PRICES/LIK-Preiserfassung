@@ -1,0 +1,116 @@
+<div class="wrapper">
+    <div class="header">
+        <h3>{{ 'heading_preiserheber' | translate }}</h3>
+        <ion-button large clear class="align-right" color="white" (click)="cancelClicked$.emit($event)">
+            {{ 'btn_close' | translate }}
+            <pef-icon name="close_screen"></pef-icon>
+        </ion-button>
+    </div>
+    <ion-content no-scroll>
+        <div class="preiserheber-content">
+            <form
+                [formGroup]="form"
+                class="stacked-form"
+                [class.form-show-validation-hints]="showValidationHints$ | async"
+            >
+                <div class="row">
+                    <div class="column">
+                        <ion-list>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{
+                                    'label_preiserheber_erhebungsregion' | translate
+                                }}</ion-label>
+                                <ion-input
+                                    type="text"
+                                    formControlName="erhebungsregion"
+                                    readonly
+                                    tabindex="-1"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{
+                                    'label_preiserheber_firstName' | translate
+                                }}</ion-label>
+                                <ion-input type="text" formControlName="firstName"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{ 'label_preiserheber_surname' | translate }}</ion-label>
+                                <ion-input type="text" formControlName="surname"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label
+                                    position="stacked"
+                                    [class.target-ng-invalid]="form.controls.languageCode.invalid"
+                                    >{{ 'label_preiserheber_languageCode' | translate }}</ion-label
+                                >
+                                <ion-select interface="popover" formControlName="languageCode">
+                                    <ion-select-option
+                                        *ngFor="let language of (languages$ | async)"
+                                        [value]="language.languageCode"
+                                        >{{ language.name }}</ion-select-option
+                                    >
+                                </ion-select>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{
+                                    'label_preiserheber_telephone' | translate
+                                }}</ion-label>
+                                <ion-input type="text" formControlName="telephone"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{
+                                    'label_preiserheber_mobilephone' | translate
+                                }}</ion-label>
+                                <ion-input type="text" formControlName="mobilephone"></ion-input>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                    <div class="column">
+                        <ion-list>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{ 'label_preiserheber_email' | translate }}</ion-label>
+                                <ion-input type="text" formControlName="email"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{ 'label_preiserheber_fax' | translate }}</ion-label>
+                                <ion-input type="text" formControlName="fax"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{
+                                    'label_preiserheber_webseite' | translate
+                                }}</ion-label>
+                                <ion-input type="text" formControlName="webseite"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{ 'label_preiserheber_street' | translate }}</ion-label>
+                                <ion-input type="text" formControlName="street"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{
+                                    'label_preiserheber_postcode' | translate
+                                }}</ion-label>
+                                <ion-input type="text" formControlName="postcode"></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item on-dark">
+                                <ion-label position="stacked">{{ 'label_preiserheber_town' | translate }}</ion-label>
+                                <ion-input type="text" formControlName="town"></ion-input>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                </div>
+                <div class="actions">
+                    <ion-button
+                        type="button"
+                        color="blue-chill"
+                        (click)="saveClicked$.emit($event)"
+                        [disabled]="!(allowToSave$ | async)"
+                        >{{ 'btn_save' | translate }}</ion-button
+                    >
+                    <ion-button type="button" (click)="cancelClicked$.emit($event)">{{
+                        'btn_cancel' | translate
+                    }}</ion-button>
+                </div>
+            </form>
+        </div>
+    </ion-content>
+</div>

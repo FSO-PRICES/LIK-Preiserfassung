@@ -1,0 +1,70 @@
+<div class="wrapper">
+    <div class="header">
+        <h3>{{ 'heading_settings' | translate }}</h3>
+        <ion-button
+            large
+            clear
+            class="align-right"
+            color="white"
+            (click)="cancelClicked$.emit($event)"
+            [hidden]="!(canLeave$ | async)"
+        >
+            {{ 'btn_close' | translate }}
+            <pef-icon name="close_screen"></pef-icon>
+        </ion-button>
+    </div>
+    <ion-content no-scroll>
+        <div class="settings-content">
+            <ion-row>
+                <ion-col>
+                    <div>{{ 'installed-software-version' | translate }}:</div>
+                </ion-col>
+                <ion-col>
+                    <div>{{ (currentSettings$ | async)?.version }}</div>
+                </ion-col>
+            </ion-row>
+            <form
+                [formGroup]="form"
+                class="stacked-form"
+                [class.form-show-validation-hints]="showValidationHints$ | async"
+            >
+                <h3><pef-icon name="server_url"></pef-icon> {{ 'server-connection-url' | translate }}</h3>
+                <ion-list formGroupName="serverConnection">
+                    <ion-item class="pef-item on-dark">
+                        <ion-input type="text" formControlName="url" type="url"></ion-input>
+                        <pef-icon
+                            item-right
+                            name="wifi"
+                            class="connectivity"
+                            [class.error]="!(canConnectToDatabase$ | async)"
+                        ></pef-icon>
+                    </ion-item>
+                </ion-list>
+                <div class="actions">
+                    <ion-button
+                        type="button"
+                        color="blue-chill"
+                        (click)="saveClicked$.emit($event)"
+                        [disabled]="!(allowToSave$ | async)"
+                        id="save"
+                    >
+                        {{ 'btn_save' | translate }}
+                    </ion-button>
+                    <ion-button type="button" (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">
+                        {{ 'btn_cancel' | translate }}
+                    </ion-button>
+                </div>
+            </form>
+            <div class="danger-zone">
+                <h3><pef-icon name="warning"></pef-icon> {{ 'heading_danger-zone' | translate }}</h3>
+                <ion-button type="button" color="blue-chill" (click)="deleteAllClicked$.emit($event)">
+                    <pef-icon name="warning"></pef-icon>
+                    <span>{{ 'btn_delete-local-entries' | translate }}</span>
+                </ion-button>
+                <p *ngIf="(databaseIsDeleted$ | async)" class="info-text">
+                    {{ 'text_database-successfully-deleted' | translate }}
+                </p>
+            </div>
+        </div>
+    </ion-content>
+</div>

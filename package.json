@@ -23,5 +23,7 @@
         "tslint-eslint-rules": "^4.1.1",
         "typescript": "2.3.4"
     },
-    "dependencies": {}
+    "dependencies": {
+        "@ionic-native/screen-orientation": "^5.0.0"
+    }
 }
