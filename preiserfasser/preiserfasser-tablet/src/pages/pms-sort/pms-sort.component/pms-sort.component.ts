@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, Input, ViewChild, OnChanges, SimpleChange, ChangeDetectionStrategy, ElementRef, AfterViewInit, OnInit, Inject, Output } from '@angular/core';
 import { ReactiveComponent, PefVirtualScrollComponent } from 'lik-shared';
-import { findLastIndex, minBy, sortBy } from 'lodash';
+import { findLastIndex, minBy, sortBy, takeWhile } from 'lodash';
 
 import dragula from 'dragula';
 import autoScroll from 'dom-autoscroller';
@@ -96,24 +96,36 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
             .scan((agg, v) => {
                 if (v.preismeldungenOrderAction.type === 'RESET') return v.preismeldungenOrderAction.payload;
                 const { dropBeforePmId, preismeldungPmId } = v.preismeldungenOrderAction.payload;
-                const dropPreismeldungBeforeSortierungsNummer = !dropBeforePmId ? Number.MAX_VALUE : agg.find(b => b.pmId === dropBeforePmId).sortierungsnummer;
-                let preismeldungenTemp: P.PreismeldungBag[];
+                const prioritizedPm = orderBy(agg, x => x.sortierungsnummer).map((pm, i) => ({ ...pm, priority: i + 1 }));
+
+                const dropPreismeldungBeforePriority = !dropBeforePmId ? Number.MAX_VALUE : prioritizedPm.find(b => b.pmId === dropBeforePmId).priority;
+                let preismeldungenTemp: (P.PreismeldungBag & { priority: number })[];
                 if (!v.multiSelectMode) {
-                    preismeldungenTemp = agg.map((b, i) => b.pmId === preismeldungPmId ? assign({}, b, { sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - 0.1 }) : b)
+                    preismeldungenTemp = prioritizedPm.map((b, i) => b.pmId === preismeldungPmId ? assign({}, b, { priority: dropPreismeldungBeforePriority - 0.1 }) : b)
                 } else {
                     const preismeldungenToMove = orderBy(keys(v.multiselectIndexes).filter(k => !!v.multiselectIndexes[k]).map(pmId => ({ pmId, selectionIndex: v.multiselectIndexes[pmId] })), x => x.selectionIndex, 'desc');
-                    const preismeldungenToMoveOrdered = preismeldungenToMove.map((x, i) => ({ pmId: x.pmId, sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - ((i + 1) * 0.0001) }));
-                    preismeldungenTemp = agg.map((b, i) => {
+                    const preismeldungenToMoveOrdered = preismeldungenToMove.map((x, i) => ({ pmId: x.pmId, priority: dropPreismeldungBeforePriority - ((i + 1) * 0.0001) }));
+                    preismeldungenTemp = prioritizedPm.map((b, i) => {
                         const pmWithNewOrder = preismeldungenToMoveOrdered.find(x => x.pmId === b.pmId);
-                        return !!pmWithNewOrder ? assign({}, b, { sortierungsnummer: pmWithNewOrder.sortierungsnummer }) : b;
+                        return !!pmWithNewOrder ? assign({}, b, { priority: pmWithNewOrder.priority }) : b;
                     });
                 }
-                const minSortnumber = minBy(agg, pm => pm.sortierungsnummer).sortierungsnummer;
-                return orderBy(preismeldungenTemp, x => x.sortierungsnummer).map((b, i) => {
-                    const pm = b.sortierungsnummer !== i + 1 ? assign({}, b, { sortierungsnummer: Math.round(minSortnumber) + i }) : b;
+
+                let minSortNummer = minBy(prioritizedPm, pm => pm.sortierungsnummer).sortierungsnummer;
+                const sortedPm = orderBy(preismeldungenTemp, x => x.priority);
+                const lastSaisonalPmIndex = takeWhile(sortedPm, x => x.sortierungsnummer === 0).length - 1;
+
+                // If the last saisonal pm has been moved use sortnummer 1
+                if (minSortNummer === 0 && sortedPm[0] && sortedPm[0].sortierungsnummer !== 0) {
+                    minSortNummer = 1;
+                }
+                return sortedPm.map((b, i) => {
+                    const pm = i > lastSaisonalPmIndex  ? assign({}, b, { sortierungsnummer: Math.round(minSortNummer) + i - (lastSaisonalPmIndex > 0 ? lastSaisonalPmIndex : 0) }) : b;
                     return assign({}, pm, { selectionIndex: null });
                 });
-            }, [] as P.PreismeldungBag[]);
+            }, [] as P.PreismeldungBag[])
+            .publishReplay(1)
+            .refCount();
 
         this.subscriptions.push(this.preismeldungen$.filter(x => !!x.length).take(1).delay(100).subscribe(() => this.virtualScroll.refresh()));
 
