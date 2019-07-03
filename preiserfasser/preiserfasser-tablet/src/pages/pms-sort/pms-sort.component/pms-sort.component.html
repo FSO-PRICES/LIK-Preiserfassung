@@ -27,7 +27,7 @@
                             <button ion-button class="selection-button active" [class.visibility-hidden]="!(multiSelectMode$ | async)" (click)="selectForMultiselect$.emit(bag.pmId)">{{ (multiselectIndexes$ | async)[bag.pmId] }}</button>
                             <div class="box-part">
                                 <div class="preismeldung-position-number">
-                                    {{ bag.preismeldung.epNummer }}<br/>&nbsp;
+                                    {{ bag.sortierungsnummer }}<br/>&nbsp;
                                 </div>
                                 <div class="preismeldung-description">
                                     <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span>
