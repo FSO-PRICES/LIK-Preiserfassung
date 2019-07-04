@@ -312,11 +312,19 @@ export class PreismeldungenEffects {
                         .get(P.pmsSortId(bag.preismeldung.pmsNummer))
                         .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
                             const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
-                                sortOrder: pmsPreismeldungenSort.sortOrder.filter(x => x.pmId !== bag.pmId),
+                                sortOrder: [
+                                    ...pmsPreismeldungenSort.sortOrder.filter(
+                                        x => x.sortierungsnummer < bag.sortierungsnummer
+                                    ),
+                                    ...pmsPreismeldungenSort.sortOrder
+                                        .filter(x => x.sortierungsnummer > bag.sortierungsnummer)
+                                        .map(x => ({ pmId: x.pmId, sortierungsnummer: x.sortierungsnummer - 1 })),
+                                ],
                             });
                             return db.put(newPmsPreismeldungsSort).then(() => db);
                         })
-                        .then(() => bag.preismeldung._id)
+                        .then(() => db.get<P.Models.PmsPreismeldungenSort>(P.pmsSortId(bag.preismeldung.pmsNummer)))
+                        .then(pmsPreismeldungenSort => ({ pmId: bag.preismeldung._id, pmsPreismeldungenSort }))
                 )
         )
         .map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload }));

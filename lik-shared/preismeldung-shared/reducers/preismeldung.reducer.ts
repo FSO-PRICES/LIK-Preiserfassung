@@ -397,9 +397,16 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 { isModified: false, isNew: false }
             );
             const preismeldungIds = action.payload.pmsPreismeldungenSort.sortOrder.map(x => x.pmId);
-            const entities = assign({}, state.entities, {
+            let entities = assign({}, state.entities, {
                 [currentPreismeldung.pmId]: assign({}, currentPreismeldung),
             });
+            entities = action.payload.pmsPreismeldungenSort.sortOrder.reduce(
+                (e, sort) => ({
+                    ...e,
+                    ...{ [sort.pmId]: { ...entities[sort.pmId], sortierungsnummer: sort.sortierungsnummer } },
+                }),
+                {}
+            );
 
             return assign({}, state, {
                 currentPreismeldung,
@@ -426,8 +433,15 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         }
 
         case 'DELETE_PREISMELDUNG_SUCCESS': {
-            const { payload: pmId } = action;
-            const entities = omit(state.entities, pmId) as { [pmNummer: string]: PreismeldungBag };
+            const { pmId, pmsPreismeldungenSort } = action.payload;
+            let entities = omit(state.entities, pmId) as { [pmNummer: string]: PreismeldungBag };
+            entities = pmsPreismeldungenSort.sortOrder.reduce(
+                (e, sort) => ({
+                    ...e,
+                    ...{ [sort.pmId]: { ...entities[sort.pmId], sortierungsnummer: sort.sortierungsnummer } },
+                }),
+                {}
+            );
             const priceCountStatuses = createPriceCountStatuses(entities);
             const preismeldungIds = state.preismeldungIds.filter(x => x !== pmId);
             return assign({}, state, { currentPreismeldung: null, entities, priceCountStatuses, preismeldungIds });
@@ -524,10 +538,11 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[
                 preismeldungen.length - 1
             ] + 1}`;
-            const sortierungsnummer =
-                allErfasstePreismeldungen.length !== 0
-                    ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
-                    : 1;
+            const sortierungsnummer = state.isInRecordMode
+                ? allErfasstePreismeldungen.length !== 0
+                    ? last(allErfasstePreismeldungen).sortierungsnummer + 1
+                    : 1
+                : currentPreismeldung.sortierungsnummer + 1;
             const newPmId = preismeldungId(
                 currentPreismeldung.preismeldung.pmsNummer,
                 currentPreismeldung.preismeldung.epNummer,
@@ -586,10 +601,17 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 action.payload.warenkorbPosition.gliederungspositionsnummer,
                 nextLaufnummer
             );
+            const nextSortierungsnummerWhenNoEp = !state.isInRecordMode
+                ? allPreismeldungen.length !== 0
+                    ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
+                    : 1
+                : allErfasstePreismeldungen.length !== 0
+                ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
+                : 1;
             const sortierungsnummer =
-                allErfasstePreismeldungen.length !== 0
-                    ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
-                    : 1;
+                preismeldungen.length === 0 || state.isInRecordMode
+                    ? nextSortierungsnummerWhenNoEp
+                    : last(sortBy(preismeldungen, x => x.sortierungsnummer)).sortierungsnummer + 1;
             const priceCountStatus =
                 state.priceCountStatuses[
                     priceCountId(action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer)
