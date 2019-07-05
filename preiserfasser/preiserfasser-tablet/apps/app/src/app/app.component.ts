@@ -8,6 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { distinctUntilChanged, filter, map, publishReplay, refCount } from 'rxjs/operators';
 
 import { translations } from '@lik-shared';
+
 import { initialisePouchForDev } from '../effects/pouchdb-utils';
 import { environment } from '../environments/environment';
 import * as fromRoot from '../reducers';
@@ -18,7 +19,6 @@ import * as fromRoot from '../reducers';
 })
 export class AppComponent implements OnInit {
     @HostBinding('class.pef-desktop') isDesktop = false;
-    @HostBinding('class.pef-toolbar-right') toolbarRight = false;
 
     constructor(
         platform: Platform,
@@ -29,12 +29,13 @@ export class AppComponent implements OnInit {
         screenOrientation: ScreenOrientation,
     ) {
         platform.ready().then(() => {
-            if (platform.is('mobile')) {
+            const isMobile = false; // platform.is('mobile');
+            if (isMobile) {
                 // remember when testing, this will fail on the desktop with "cannot read property 'apply' of undefined"
                 screenOrientation.lock('landscape');
             }
             this.store.dispatch({ type: 'SET_VERSION', payload: environment.version });
-            this.isDesktop = !platform.is('mobile');
+            this.isDesktop = !isMobile;
             this.store.dispatch({ type: 'APP_CONFIG_SET_IS_DESKTOP', payload: this.isDesktop });
             this.store.dispatch({ type: 'CHECK_DATABASE_EXISTS' });
             this.initialiseLanguages();
@@ -82,29 +83,10 @@ export class AppComponent implements OnInit {
         this.store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload: 'de' });
     }
 
+    ionViewDidEnter() {}
+
     public ngOnInit() {
         this.store.dispatch({ type: 'LOAD_SETTINGS' });
         this.store.dispatch({ type: 'CHECK_DATABASE_LAST_UPLOADED_AT' });
-        // TODO Fix initial redirecting
-        // this.navCtrl.viewDidEnter
-        //     .filter(event => event.name != 'SettingsPage')
-        //     .flatMap(
-        //         event => this.store.select(fromRoot.getSettings).take(1),
-        //         (event, settings) => ({ event, settings }),
-        //     )
-        //     .subscribe(({ event, settings }) => {
-        //         if (!!settings && settings.isDefault) {
-        //             this.navCtrl.setRoot('SettingsPage');
-        //         }
-        //     });
-        // this.store
-        //     .select(fromRoot.getSettings)
-        //     .filter(setting => !!setting && setting.isDefault)
-        //     .take(1)
-        //     .subscribe(setting => {
-        //         if (setting.isDefault) {
-        //             this.rootPage = 'SettingsPage';
-        //         }
-        //     });
     }
 }

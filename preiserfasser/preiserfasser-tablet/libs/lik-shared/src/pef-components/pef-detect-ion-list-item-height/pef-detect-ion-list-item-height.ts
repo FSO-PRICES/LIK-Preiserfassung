@@ -1,4 +1,5 @@
 import { Directive, ElementRef, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { WINDOW } from 'ngx-window-token';
 import { interval, of as observableOf } from 'rxjs';
 import { flatMap, retry, take } from 'rxjs/operators';
 
@@ -8,7 +9,7 @@ import { flatMap, retry, take } from 'rxjs/operators';
 export class PefDetectIonListItemHeightDirective implements OnInit {
     @Output('pef-detect-ion-list-item-height') ionItemHeight = new EventEmitter<number>();
 
-    constructor(private elementRef: ElementRef, @Inject('windowObject') private window: any) {}
+    constructor(private elementRef: ElementRef, @Inject(WINDOW) private wndw: Window) {}
 
     ngOnInit() {
         interval(500)
@@ -32,8 +33,8 @@ export class PefDetectIonListItemHeightDirective implements OnInit {
 
     getIonItemHeight(ionItem: HTMLElement) {
         return (
-            Math.round(parseFloat(this.window.getComputedStyle(ionItem).marginTop)) +
-            Math.round(parseFloat(this.window.getComputedStyle(ionItem).marginBottom)) +
+            Math.round(parseFloat(this.wndw.getComputedStyle(ionItem).marginTop)) +
+            Math.round(parseFloat(this.wndw.getComputedStyle(ionItem).marginBottom)) +
             Math.round(ionItem.getBoundingClientRect().height)
         );
     }

@@ -1,7 +1,7 @@
-import { Observable, of as observableOf } from 'rxjs';
-
 import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, Output, SimpleChange } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { WINDOW } from 'ngx-window-token';
+import { Observable, of as observableOf } from 'rxjs';
 import { filter, map, merge, publishReplay, refCount, scan, startWith } from 'rxjs/operators';
 
 import {
@@ -10,31 +10,12 @@ import {
     preisNumberFormattingOptions,
     ReactiveComponent,
 } from '../../../../../common/';
-
 import * as P from '../../../../models';
 
 @Component({
     selector: 'preismeldung-info-popover-left',
     styleUrls: ['./preismeldung-info-popover-left.scss'],
-    template: `
-        <ion-button
-            icon-only
-            color="wild-sand"
-            class="info-toggle"
-            [class.active]="popoverActive$ | async"
-            (click)="buttonClicked$.emit()"
-        >
-            <pef-icon name="price_tag_info"></pef-icon>
-        </ion-button>
-        <div
-            class="info-popover"
-            [style.display]="'none'"
-            [style.left]="sanitizer.bypassSecurityTrustStyle(popoverLeft$ | async)"
-            [style.maxHeight]="sanitizer.bypassSecurityTrustStyle(popoverMaxHeight$ | async)"
-            [style.width]="sanitizer.bypassSecurityTrustStyle(popoverWidth$ | async)"
-            [style.height]="sanitizer.bypassSecurityTrustStyle(popoverHeight$ | async)"
-        ></div>
-    `,
+    templateUrl: 'preismeldung-info-popover-left.html',
 })
 export class PreismeldungInfoPopoverLeft extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;
@@ -54,7 +35,7 @@ export class PreismeldungInfoPopoverLeft extends ReactiveComponent implements On
     public preisNumberFormattingOptions = preisNumberFormattingOptions;
     public mengeNumberFormattingOptions = mengeNumberFormattingOptions;
 
-    constructor(elementRef: ElementRef, public sanitizer: DomSanitizer, @Inject('windowObject') window: any) {
+    constructor(elementRef: ElementRef, public sanitizer: DomSanitizer, @Inject(WINDOW) private wndw: Window) {
         super();
 
         this.comparisonContainerWidth$ = observableOf(300);
@@ -78,13 +59,13 @@ export class PreismeldungInfoPopoverLeft extends ReactiveComponent implements On
         );
 
         this.popoverWidth$ = recalcPopover$
-            // .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px + ${this.extraWidth || '0px'} - 16px - ${this.pefRelativeSize(window.innerWidth, 1)})`);
+            // .map(() => `calc(${elementRef.nativeElement.offsetLeft}px + ${elementRef.nativeElement.offsetWidth}px + ${this.extraWidth || '0px'} - 16px - ${this.pefRelativeSize(wndw.innerWidth, 1)})`);
             .pipe(
                 map(
                     () =>
                         `calc(${elementRef.nativeElement.offsetLeft}px + ${
                             elementRef.nativeElement.offsetWidth
-                        }px + ${this.extraWidth || '0px'} - ${this.pefRelativeSize(window.innerWidth, 1)})`,
+                        }px + ${this.extraWidth || '0px'} - ${this.pefRelativeSize(wndw.innerWidth, 1)})`,
                 ),
             );
 
@@ -92,14 +73,14 @@ export class PreismeldungInfoPopoverLeft extends ReactiveComponent implements On
             map(height => `calc(${height || '0px'} + 1px)`),
         );
 
-        this.popoverLeft$ = recalcPopover$.pipe(map(() => `calc(${this.pefRelativeSize(window.innerWidth, 1)})`));
+        this.popoverLeft$ = recalcPopover$.pipe(map(() => `calc(${this.pefRelativeSize(wndw.innerWidth, 1)})`));
 
         this.popoverMaxHeight$ = recalcPopover$.pipe(
             map(
                 () =>
                     `calc(${elementRef.nativeElement.offsetParent.clientHeight}px - ${
                         elementRef.nativeElement.offsetTop
-                    }px - ${elementRef.nativeElement.clientHeight}px - ${this.pefRelativeSize(window.innerWidth, 1)})`,
+                    }px - ${elementRef.nativeElement.clientHeight}px - ${this.pefRelativeSize(wndw.innerWidth, 1)})`,
             ),
         );
     }

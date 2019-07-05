@@ -35,88 +35,7 @@ import * as P from '../../../models';
 @Component({
     selector: 'preismeldung-messages',
     styleUrls: ['./preismeldung-messages.scss'],
-    template: `
-        <preismeldung-readonly-header
-            [preismeldung]="preismeldung$ | async"
-            [preismeldestelle]="preismeldestelle$ | async"
-            [isAdminApp]="isAdminApp$ | async"
-        ></preismeldung-readonly-header>
-
-        <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop$ | async">
-            <form [formGroup]="form" novalidate>
-                <div class="detail-tab-bottom-part">
-                    <h3>{{ 'heading_meine-notiz' | translate }}</h3>
-                    <ion-item class="pef-textarea-item">
-                        <ion-textarea
-                            formControlName="notiz"
-                            (blur)="onBlur$.emit()"
-                            [readonly]="isReadonly$ | async"
-                            [class.readonly]="isReadonly$ | async"
-                        ></ion-textarea>
-                    </ion-item>
-                    <div class="actions">
-                        <ion-button color="java" type="button" [disabled]="isReadonly$ | async">
-                            {{ 'btn_erfassung_speichern' | translate }}
-                        </ion-button>
-                        <ion-button color="java" (click)="notizClear$.emit()" [disabled]="isReadonly$ | async">
-                            {{ 'btn_leeren' | translate }}
-                        </ion-button>
-                    </div>
-                    <h3>{{ 'heading_kommentar-zum-aktuellen-monat' | translate }}</h3>
-                    <div class="kommentar-autotext">
-                        <span *ngFor="let text of (preismeldung$ | async)?.messages.kommentarAutotext">{{
-                            (text | translate) + '\u0020'
-                        }}</span>
-                    </div>
-                    <ion-item class="pef-textarea-item">
-                        <ion-textarea
-                            formControlName="kommentar"
-                            (blur)="onBlur$.emit()"
-                            [readonly]="isReadonly$ | async"
-                            [class.readonly]="isReadonly$ | async"
-                        ></ion-textarea>
-                    </ion-item>
-                    <div class="actions">
-                        <ion-button color="java" type="button" [disabled]="isReadonly$ | async">
-                            {{ 'btn_erfassung_speichern' | translate }}
-                        </ion-button>
-                        <ion-button color="java" (click)="kommentarClear$.emit()" [disabled]="isReadonly$ | async">
-                            {{ 'btn_leeren' | translate }}
-                        </ion-button>
-                    </div>
-                    <h3>{{ 'heading_kommunikation' | translate }}</h3>
-                    <div class="message-history" *ngIf="(bemerkungenHistory$ | async)">
-                        <div class="message-item">
-                            <span class="message-text" [innerHtml]="bemerkungenHistory$ | async"></span>
-                        </div>
-                    </div>
-                    <ion-item class="pef-textarea-item">
-                        <ion-textarea
-                            formControlName="bemerkungen"
-                            (blur)="onBlur$.emit()"
-                            [class.readonly]="isReadonly$ | async"
-                            [readonly]="isReadonly$ | async"
-                        ></ion-textarea>
-                    </ion-item>
-                    <div class="actions">
-                        <ion-button color="java" type="button" [disabled]="isReadonly$ | async">
-                            {{ 'btn_erfassung_speichern' | translate }}
-                        </ion-button>
-                        <ion-button color="java" (click)="bemerkungenClear$.emit()" [disabled]="isReadonly$ | async">
-                            {{ 'btn_leeren' | translate }}
-                        </ion-button>
-                        <ion-button
-                            color="java"
-                            [disabled]="(erledigtDisabled$ | async) || (erledigtButtonDisabled$ | async)"
-                            (click)="erledigt$.emit()"
-                        >
-                            {{ 'btn_erledigt' | translate }}
-                        </ion-button>
-                    </div>
-                </div>
-            </form>
-        </ion-content>
-    `,
+    templateUrl: 'preismeldung-messages.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungMessagesComponent extends ReactiveComponent implements OnChanges, OnDestroy {
@@ -239,7 +158,9 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             }),
         );
 
-        const buttonActionDone$ = merge(notizClearDone$, kommentarClearDone$, bemerkungenClearDone$, erledigtDone$);
+        const buttonActionDone$ = notizClearDone$.pipe(
+            merge(kommentarClearDone$, bemerkungenClearDone$, erledigtDone$),
+        );
 
         this.erledigtDisabled$ = this.form.valueChanges.pipe(
             map(x => x.bemerkungen.endsWith('@OK')),

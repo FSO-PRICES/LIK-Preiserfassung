@@ -22,7 +22,7 @@
         flex-direction: column;
         color: $white;
 
-        ion-content.content-md {
+        ion-content {
             background-color: transparent;
             flex: 1;
         }
@@ -68,21 +68,5 @@
         background-color: transparent !important;
         border-bottom-color: transparent !important;
         color: $white;
-    }
-
-    form.form-show-validation-hints {
-        ion-item.ng-invalid .input-wrapper {
-            ion-label {
-                color: $flamingo !important;
-            }
-        }
-        .pef-item {
-            ion-label.target-ng-invalid {
-                color: $flamingo !important;
-            }
-            select.ng-invalid {
-                border-left: 2px solid $flamingo;
-            }
-        }
     }
 }

@@ -1,0 +1,162 @@
+@import '../../theme/imports.scss';
+
+:host {
+    background-color: $trout;
+    display: flex;
+
+    h5 {
+        font-size: 0.75em;
+    }
+
+    .wrapper {
+        flex: 1;
+        margin: 0 6em;
+        display: flex;
+        flex-direction: column;
+        color: $white;
+
+        ion-content {
+            background-color: transparent;
+            flex: 1;
+        }
+    }
+
+    .inline {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 37px;
+        ion-checkbox {
+            margin-right: 10px;
+        }
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        height: 3.5em;
+        h3 {
+            flex: 1;
+            margin: 0;
+        }
+        .button,
+        a[ion-button].button:hover {
+            color: $white;
+            fill: $white;
+        }
+    }
+
+    .pms-details-content {
+        overflow-y: auto;
+        background-color: $mercury;
+        color: $outer-space;
+        flex: 1;
+        display: flex;
+        padding: 1em 1.5em;
+        position: relative;
+        > * {
+            flex: 1;
+        }
+
+        .pef-item .input-wrapper {
+            height: inherit;
+        }
+    }
+
+    .pms-scroll-content {
+        max-width: 1280px;
+    }
+
+    .row {
+        padding: 0 4px 20px 4px;
+        display: flex;
+        .column {
+            flex: 1;
+            ion-list {
+                width: 80%;
+            }
+        }
+    }
+
+    .double-column {
+        padding: 0;
+        width: 90%;
+    }
+
+    .padding-to-header {
+        padding-top: 10px;
+    }
+
+    .readonly-text {
+        font-weight: 500;
+    }
+
+    .actions {
+        padding: 2em;
+        text-align: right;
+    }
+
+    .form-error {
+        padding: 0.6em 1.2em;
+        margin-bottom: 1em;
+        background-color: $alizarin-crimson;
+        color: $white;
+        display: flex;
+
+        pef-icon {
+            flex: 0;
+        }
+        .messages {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+
+            span {
+                padding: 0.2em 0;
+                flex: 1;
+                display: block;
+            }
+        }
+    }
+
+    form.form-show-validation-hints {
+        ion-item.ng-invalid .input-wrapper {
+            ion-label {
+                color: $flamingo !important;
+            }
+        }
+        .pef-item {
+            ion-label.target-ng-invalid {
+                color: $flamingo !important;
+            }
+            select.ng-invalid {
+                border-left: 2px solid $flamingo;
+            }
+        }
+    }
+
+    .pef-checkbox {
+        flex-wrap: wrap;
+        ion-label.pef-checkbox-label {
+            display: block;
+            flex: 1 100%;
+            margin-bottom: 0;
+        }
+        ion-checkbox {
+            margin-top: 0;
+        }
+        .input-wrapper ion-label {
+            margin-top: 4px;
+            margin-bottom: 5px;
+        }
+    }
+
+    .item-md.pef-item ion-input[readonly] {
+        border: none;
+        margin-bottom: 2px;
+    }
+
+    ion-textarea > textarea {
+        height: 4.8em;
+    }
+}

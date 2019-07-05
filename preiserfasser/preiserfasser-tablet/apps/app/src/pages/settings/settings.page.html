@@ -2,9 +2,9 @@
     <div class="header">
         <h3>{{ 'heading_settings' | translate }}</h3>
         <ion-button
-            large
-            clear
-            class="align-right"
+            size="large"
+            fill="clear"
+            class="close-page on-dark"
             color="white"
             (click)="cancelClicked$.emit($event)"
             [hidden]="!(canLeave$ | async)"
@@ -43,7 +43,7 @@
                 <div class="actions">
                     <ion-button
                         type="button"
-                        color="blue-chill"
+                        color="tertiary"
                         (click)="saveClicked$.emit($event)"
                         [disabled]="!(allowToSave$ | async)"
                         id="save"
@@ -57,7 +57,7 @@
             </form>
             <div class="danger-zone">
                 <h3><pef-icon name="warning"></pef-icon> {{ 'heading_danger-zone' | translate }}</h3>
-                <ion-button type="button" color="blue-chill" (click)="deleteAllClicked$.emit($event)">
+                <ion-button type="button" color="tertiary" (click)="deleteAllClicked$.emit($event)">
                     <pef-icon name="warning"></pef-icon>
                     <span>{{ 'btn_delete-local-entries' | translate }}</span>
                 </ion-button>

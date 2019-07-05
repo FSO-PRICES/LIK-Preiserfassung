@@ -25,6 +25,7 @@
     .header {
         color: $white;
         display: flex;
+        min-height: 64px;
         align-items: center;
         margin-bottom: 1.2em;
         h3 {

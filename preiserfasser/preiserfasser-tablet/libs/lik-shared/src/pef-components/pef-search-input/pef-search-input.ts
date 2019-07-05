@@ -7,17 +7,7 @@ import { ReactiveComponent } from '../../common/ReactiveComponent';
 @Component({
     selector: 'pef-search-input',
     styleUrls: ['./pef-search-input.scss'],
-    template: `
-        <ion-item class="pef-label" *ngIf="!!label">
-            <ion-label>{{ label }}</ion-label>
-        </ion-item>
-        <ion-item class="pef-search">
-            <ion-label>
-                <pef-icon name="search"></pef-icon>
-            </ion-label>
-            <ion-input type="text" clearInput [formControl]="filterText"></ion-input>
-        </ion-item>
-    `,
+    templateUrl: 'pef-search-input.html',
 })
 export class PefSearchInput extends ReactiveComponent implements OnChanges, OnDestroy {
     public filterText = new FormControl();

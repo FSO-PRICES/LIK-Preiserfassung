@@ -29,7 +29,13 @@ import {
     withLatestFrom,
 } from 'rxjs/operators';
 
-import { formatPercentageChange, parseDate, pefSearch, PefVirtualScrollComponent, ReactiveComponent } from '@lik-shared';
+import {
+    formatPercentageChange,
+    parseDate,
+    pefSearch,
+    PefVirtualScrollComponent,
+    ReactiveComponent,
+} from '@lik-shared';
 
 import * as P from '../../../../common-models';
 
@@ -72,7 +78,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectFilterCompleted$ = new EventEmitter();
 
     public filterTodoSelected$: Observable<boolean>;
+    public filterTodoColor$: Observable<string>;
     public filterCompletedSelected$: Observable<boolean>;
+    public filterCompletedColor$: Observable<string>;
 
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle').pipe(
         publishReplay(1),
@@ -99,7 +107,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     constructor() {
         super();
 
-        this.ionItemHeight$.subscribe(itemHeight => (this.itemHeight = itemHeight));
+        this.ionItemHeight$.asObservable().subscribe(itemHeight => (this.itemHeight = itemHeight));
 
         this.currentDate$.pipe(takeUntil(this.onDestroy$)).subscribe();
 
@@ -125,7 +133,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         );
 
         this.filterTodoSelected$ = filterStatus$.pipe(map(x => x.todo));
+        this.filterTodoColor$ = filterStatus$.pipe(map(x => (x.todo ? 'blue-chill' : 'wild-sand')));
         this.filterCompletedSelected$ = filterStatus$.pipe(map(x => x.completed));
+        this.filterCompletedColor$ = filterStatus$.pipe(map(x => (x.completed ? 'blue-chill' : 'wild-sand')));
 
         this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
             combineLatest(

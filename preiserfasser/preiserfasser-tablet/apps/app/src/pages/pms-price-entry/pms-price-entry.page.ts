@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, NgZone, OnDestroy } from '@angular/core';
-import { NavController, NavParams } from '@ionic/angular';
+import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
-import { TranslateService } from '@ngx-translate/core';
 import { defer, Observable, of, Subject } from 'rxjs';
 import {
     combineLatest,
@@ -30,7 +30,7 @@ import * as fromRoot from '../../reducers';
     styleUrls: ['pms-price-entry.page.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PmsPriceEntryPage implements OnDestroy {
+export class PmsPriceEntryPage implements OnInit, OnDestroy {
     isDesktop$ = this.store.select(fromRoot.getIsDesktop).pipe(
         publishReplay(1),
         refCount(),
@@ -101,18 +101,17 @@ export class PmsPriceEntryPage implements OnDestroy {
     private onDestroy$ = new Subject<void>();
 
     constructor(
+        activeRoute: ActivatedRoute,
+        pefDialogService: PefDialogService,
+        pefMessageDialogService: PefMessageDialogService,
         private navController: NavController,
-        private navParams: NavParams,
-        private pefDialogService: PefDialogService,
-        private pefMessageDialogService: PefMessageDialogService,
         private store: Store<fromRoot.AppState>,
-        private zone: NgZone,
-        translateService: TranslateService,
     ) {
         const cancelEditDialog$ = defer(() =>
             pefDialogService.displayDialog(DialogCancelEditComponent, {}).pipe(map(x => x.data)),
         );
 
+        const params$ = activeRoute.params.pipe(map(({ pmsNummer, reload }) => ({ pmsNummer, reload })));
         this.selectedTab$ = this.selectTab$.pipe(
             merge(
                 this.save$.pipe(
@@ -317,44 +316,47 @@ export class PmsPriceEntryPage implements OnDestroy {
             ),
         );
 
-        const duplicatePreismeldung$ = this.duplicatePreismeldung$.pipe(
-            withLatestFrom(
-                this.currentPreismeldung$,
-                this.priceCountStatuses$,
-                (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) => ({
-                    priceCountStatus: priceCountStatuses[priceCountIdByPm(currentPreismeldung.preismeldung)],
-                    currentPreismeldung,
-                }),
-            ),
-            flatMap(({ priceCountStatus, currentPreismeldung }) =>
-                priceCountStatus.enough
-                    ? dialogSufficientPreismeldungen$.pipe(
-                          map((response: string) => ({ response, currentPreismeldung })),
-                      )
-                    : of({ response: 'YES', currentPreismeldung }),
-            ),
-            filter(x => x.response === 'YES'),
-            map(({ currentPreismeldung }) => ({ source: 'FROM_BUTTON', currentPreismeldung })),
-            merge(
-                this.save$.pipe(
-                    filter(x => x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG'),
-                    withLatestFrom(this.currentPreismeldung$),
-                    map(([_, currentPreismeldung]) => ({ source: 'FROM_CODE_0', currentPreismeldung })),
-                ),
-            ),
-            flatMap(({ source, currentPreismeldung }) =>
-                dialogNewPmbearbeitungsCode$.pipe(
-                    map(({ action, bearbeitungscode }) => ({
-                        action,
-                        source,
-                        bearbeitungscode,
+        const duplicatePreismeldung$ = this.duplicatePreismeldung$
+            .pipe(
+                withLatestFrom(
+                    this.currentPreismeldung$,
+                    this.priceCountStatuses$,
+                    (_, currentPreismeldung: P.PreismeldungBag, priceCountStatuses: P.PriceCountStatusMap) => ({
+                        priceCountStatus: priceCountStatuses[priceCountIdByPm(currentPreismeldung.preismeldung)],
                         currentPreismeldung,
-                    })),
+                    }),
                 ),
-            ),
-            publishReplay(1),
-            refCount(),
-        );
+                flatMap(({ priceCountStatus, currentPreismeldung }) =>
+                    priceCountStatus.enough
+                        ? dialogSufficientPreismeldungen$.pipe(
+                              map((response: string) => ({ response, currentPreismeldung })),
+                          )
+                        : of({ response: 'YES', currentPreismeldung }),
+                ),
+                filter(x => x.response === 'YES'),
+                map(({ currentPreismeldung }) => ({ source: 'FROM_BUTTON', currentPreismeldung })),
+                merge(
+                    this.save$.pipe(
+                        filter(x => x.type === 'SAVE_AND_DUPLICATE_PREISMELDUNG'),
+                        withLatestFrom(this.currentPreismeldung$),
+                        map(([_, currentPreismeldung]) => ({ source: 'FROM_CODE_0', currentPreismeldung })),
+                    ),
+                ),
+                flatMap(({ source, currentPreismeldung }) =>
+                    dialogNewPmbearbeitungsCode$.pipe(
+                        map(({ action, bearbeitungscode }) => ({
+                            action,
+                            source,
+                            bearbeitungscode,
+                            currentPreismeldung,
+                        })),
+                    ),
+                ),
+            )
+            .pipe(
+                publishReplay(1),
+                refCount(),
+            );
 
         this.recordSortPreismeldungen$.subscribe(() =>
             this.store.dispatch({ type: 'PREISMELDUNGEN_TOGGLE_RECORD_MODE' }),
@@ -387,24 +389,38 @@ export class PmsPriceEntryPage implements OnDestroy {
                 }),
             );
 
-        this.addNewPreisreihe$.pipe(takeUntil(this.onDestroy$)).subscribe(() => this.navigateToNewPriceSeries());
+        this.addNewPreisreihe$
+            .pipe(
+                takeUntil(this.onDestroy$),
+                withLatestFrom(params$),
+            )
+            .subscribe(([, params]) => this.navigateToNewPriceSeries(params.pmsNummer));
 
-        this.navigateToPmsSort$.pipe(takeUntil(this.onDestroy$)).subscribe(() => this.navigateToPmsSort());
+        this.navigateToPmsSort$
+            .pipe(
+                takeUntil(this.onDestroy$),
+                withLatestFrom(params$),
+            )
+            .subscribe(([, params]) => this.navigateToPmsSort(params.pmsNummer));
 
         this.ionViewDidLoad$
             .pipe(
                 take(1),
                 withLatestFrom(
+                    params$,
                     this.preismeldungenCurrentPmsNummer$,
-                    (_, preismeldungenCurrentPmsNummer) => preismeldungenCurrentPmsNummer,
+                    (_, params, preismeldungenCurrentPmsNummer) => ({ params, preismeldungenCurrentPmsNummer }),
                 ),
-                filter(x => x !== this.navParams.get('pmsNummer') || !!this.navParams.get('reload')),
+                filter(
+                    ({ params, preismeldungenCurrentPmsNummer }) =>
+                        preismeldungenCurrentPmsNummer !== params.pmsNummer || !!params.reload,
+                ),
             )
-            .subscribe(() => {
+            .subscribe(({ params }) => {
                 this.store.dispatch({ type: 'PREISMELDUNGEN_RESET' });
                 this.store.dispatch({
                     type: 'PREISMELDUNGEN_LOAD_FOR_PMS',
-                    payload: this.navParams.get('pmsNummer'),
+                    payload: params.pmsNummer,
                 });
             });
 
@@ -417,7 +433,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         );
     }
 
-    ionViewDidLoad() {
+    ngOnInit() {
         this.ionViewDidLoad$.emit();
     }
 
@@ -425,12 +441,12 @@ export class PmsPriceEntryPage implements OnDestroy {
         return this.navController.navigateRoot('/');
     }
 
-    navigateToPmsSort() {
-        return this.navController.navigateRoot(['/pms-sort/', this.navParams.get('pmsNummer')]);
+    navigateToPmsSort(pmsNummer: string) {
+        return this.navController.navigateRoot(['/pms-sort/', pmsNummer]);
     }
 
-    navigateToNewPriceSeries() {
-        return this.navController.navigateRoot(['/new-price-series/', this.navParams.get('pmsNummer')]);
+    navigateToNewPriceSeries(pmsNummer: string) {
+        return this.navController.navigateRoot(['/new-price-series/', pmsNummer]);
     }
 
     ngOnDestroy() {

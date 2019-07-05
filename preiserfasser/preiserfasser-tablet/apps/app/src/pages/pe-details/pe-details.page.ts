@@ -25,7 +25,7 @@ import { Action as PreiserheberAction } from '../../actions/preiserheber';
     templateUrl: 'pe-details.page.html',
     styleUrls: ['pe-details.page.scss'],
 })
-export class PreiserheberPage implements OnDestroy {
+export class PeDetailsPage implements OnDestroy {
     public currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber).pipe(skip(1));
     public languages$ = this.store.select(fromRoot.getLanguagesList).pipe(
         publishReplay(1),

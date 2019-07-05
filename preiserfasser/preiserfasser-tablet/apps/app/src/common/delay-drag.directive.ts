@@ -1,4 +1,5 @@
-import { Directive, HostListener, Input, HostBinding, ElementRef, Inject } from '@angular/core';
+import { Directive, HostBinding, HostListener, Inject, Input } from '@angular/core';
+import { WINDOW } from 'ngx-window-token';
 
 @Directive({
     selector: '[delay-drag]',
@@ -8,9 +9,9 @@ export class DelayDragDirective {
 
     private touchTimeout: number;
 
-    @HostBinding('class.delay-drag-lifted') private draggable: boolean = false;
+    @HostBinding('class.delay-drag-lifted') private draggable = false;
 
-    constructor(@Inject('windowObject') private window: any) {}
+    constructor(@Inject(WINDOW) private wndw: Window) {}
 
     // private get draggable(): boolean {
     //     return this.el.nativeElement.draggable;
@@ -29,7 +30,7 @@ export class DelayDragDirective {
         if (this.touchTimeout) {
             clearTimeout(this.touchTimeout);
         }
-        this.touchTimeout = this.window.setTimeout(() => {
+        this.touchTimeout = this.wndw.setTimeout(() => {
             // console.log('setting draggable = true');
             this.draggable = true;
             // this.setDraggable(true);

@@ -1,7 +1,13 @@
 <div class="wrapper">
     <div class="header">
         <h3>{{ 'heading_preiserheber' | translate }}</h3>
-        <ion-button large clear class="align-right" color="white" (click)="cancelClicked$.emit($event)">
+        <ion-button
+            size="large"
+            fill="clear"
+            class="close-page on-dark"
+            color="white"
+            (click)="cancelClicked$.emit($event)"
+        >
             {{ 'btn_close' | translate }}
             <pef-icon name="close_screen"></pef-icon>
         </ion-button>
@@ -101,7 +107,7 @@
                 <div class="actions">
                     <ion-button
                         type="button"
-                        color="blue-chill"
+                        color="tertiary"
                         (click)="saveClicked$.emit($event)"
                         [disabled]="!(allowToSave$ | async)"
                         >{{ 'btn_save' | translate }}</ion-button

@@ -12,6 +12,33 @@
         flex-direction: column;
     }
 
+    ion-content.md {
+        background-color: $mercury;
+    }
+
+    ion-radio-group {
+        ion-item {
+            --padding-start: 0;
+        }
+        ion-radio {
+            margin-right: 10px;
+        }
+        ion-label {
+            padding-left: 0.7em;
+        }
+    }
+
+    ion-item {
+        [slot='end'] {
+            margin: 0;
+            padding-left: 0.75rem;
+            width: 2.688rem;
+            &.unit-button-label {
+                opacity: 1;
+            }
+        }
+    }
+
     .pm-header {
         @include set-padding-vert-horiz(0.5, 1);
         flex: 0 0 auto;
@@ -180,9 +207,6 @@
     .product-detail-row {
         .item.md.pef-item {
             ion-label {
-                order: 1;
-                padding-left: 1.25em;
-                width: 3.5em;
                 margin: 0;
                 font-size: 1em;
                 color: $outer-space;
@@ -231,16 +255,6 @@
             .data-input-area {
                 flex: 0 0 100%;
                 max-width: 100%;
-            }
-
-            ion-label {
-                padding-left: 0.7em;
-                &.currency-label {
-                    padding-left: 0.8em;
-                }
-                &.unit-button-label {
-                    opacity: 1;
-                }
             }
 
             .code-button-list,
@@ -389,24 +403,13 @@
         @include set-padding(1, 1, 1, 1);
     }
 
-    .unit-item-wrapper {
-        display: flex;
-    }
-
-    .unit-button-wrapper {
-        flex: 0 0 3.5em;
-    }
-
     .unit-button {
-        margin-left: 0.7em;
-        margin-right: 0;
-        width: 3em;
         &[disabled] {
             color: $outer-space;
-            .button-inner {
-                justify-content: flex-end;
-                font-size: 1.6rem;
-            }
+            font-size: 1.6rem;
+            --background: transparent;
+            --box-shadow: none;
+            --border-radius: none;
         }
     }
 
@@ -417,10 +420,8 @@
             }
         }
     }
-}
 
-@media screen and (min-height: 800px) {
-    preismeldung-price {
+    @media screen and (min-height: 800px) {
         .product-detail-row.row-3 {
             .current-period > * {
                 display: none;

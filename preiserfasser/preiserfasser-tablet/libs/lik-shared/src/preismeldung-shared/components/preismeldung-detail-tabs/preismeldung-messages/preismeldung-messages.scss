@@ -6,6 +6,7 @@
 
     ion-content.md {
         flex: 1;
+        background-color: $mercury;
     }
 
     h3:not(:first-child) {
@@ -20,6 +21,9 @@
         max-width: 40em;
         padding-left: 0;
         margin-bottom: 0.5em;
+        &.readonly {
+            --background: #{$wild-sand};
+        }
         &.item.md.item-block .item-inner {
             padding-right: 0;
             border-bottom-width: 0;
@@ -28,7 +32,6 @@
             border-bottom: 2px solid $hit-gray;
             &.readonly {
                 border-bottom-width: 0px;
-                background-color: $wild-sand;
                 text-area {
                     opacity: 0.6;
                 }

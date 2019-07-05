@@ -12,6 +12,16 @@
             margin-bottom: 0;
         }
     }
+    ion-item {
+        --min-height: auto;
+    }
+    ion-label {
+        margin: 8px 0 0 0;
+    }
+    ion-input {
+        height: 44px;
+        margin-bottom: 0;
+    }
     .pef-search {
         &ion-item.item.md {
             height: 3em;

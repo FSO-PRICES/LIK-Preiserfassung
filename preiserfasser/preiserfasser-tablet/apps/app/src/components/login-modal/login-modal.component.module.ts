@@ -7,6 +7,7 @@ import { PefComponentsModule } from '@lik-shared';
 import { LoginModalComponent } from './login-modal.component';
 
 @NgModule({
+    entryComponents: [LoginModalComponent],
     declarations: [LoginModalComponent],
     imports: [FormsModule, IonicModule, PefComponentsModule],
 })

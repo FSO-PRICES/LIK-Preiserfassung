@@ -7,12 +7,12 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { PefComponentsModule } from '@lik-shared';
 
-import { PreiserheberPage } from './pe-details.page';
+import { PeDetailsPage } from './pe-details.page';
 
 const routes: Routes = [
     {
         path: '',
-        component: PreiserheberPage,
+        component: PeDetailsPage,
     },
 ];
 
@@ -26,6 +26,6 @@ const routes: Routes = [
         IonicModule,
         RouterModule.forChild(routes),
     ],
-    declarations: [PreiserheberPage],
+    declarations: [PeDetailsPage],
 })
 export class PeDetailsPageModule {}

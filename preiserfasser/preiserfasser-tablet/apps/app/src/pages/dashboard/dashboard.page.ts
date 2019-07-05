@@ -259,7 +259,7 @@ export class DashboardPage implements OnDestroy {
 
             this.navigateToPreiserheber$.pipe(delay(100)).subscribe(() => this.navCtrl.navigateRoot(['pe-details'])),
 
-            this.navigateToSettings$.pipe(delay(100)).subscribe(() => this.navCtrl.navigateRoot('settings')),
+            this.navigateToSettings$.pipe(delay(100)).subscribe(() => this.navCtrl.navigateRoot(['settings'])),
 
             this.navigateToDetails$
                 .pipe(delay(100))
@@ -325,7 +325,7 @@ export class DashboardPage implements OnDestroy {
                                 'btn_ok',
                                 error
                                     ? 'dialogText_pdf-create-error'
-                                    : location == 'DOCUMENT_LOCATION'
+                                    : location === 'DOCUMENT_LOCATION'
                                     ? 'dialogText_pdf-saved-at-documents'
                                     : 'dialogText_pdf-saved-at-application',
                             )

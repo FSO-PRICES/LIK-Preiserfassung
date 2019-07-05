@@ -49,43 +49,7 @@ export type CodeListType = 'STANDARD' | 'NEW_PM';
 @Component({
     selector: 'bearbeitungs-type',
     styleUrls: ['./bearbeitungs-type.scss'],
-    template: `
-        <div style="position: relative;">
-            <pef-toggle-button [toggleOn]="buttonOn$ | async">
-                <ion-button
-                    color="mercury"
-                    class="code-button"
-                    (click)="buttonClicked$.emit($event)"
-                    [disabled]="readonly$ | async"
-                >
-                    <div class="code-name" [class.highlighted]="(selectedBearbeitungsType$ | async)?.code != 99">
-                        {{ 'text_code' | translate }}&nbsp;{{ (selectedBearbeitungsType$ | async)?.codeName }}
-                    </div>
-                    <div class="description">{{ (selectedBearbeitungsType$ | async)?.description | translate }}</div>
-                </ion-button>
-            </pef-toggle-button>
-            <div
-                class="bearbeitungs-type-flyout"
-                [class.visible]="buttonOn$ | async"
-                [style.marginBottom]="marginBottom$ | async"
-            >
-                <ion-list>
-                    <ion-item
-                        tappable
-                        class="bearbeitungs-type-option"
-                        *ngFor="let bearbeitungsType of (bearbeitungsTypes$ | async)"
-                        (click)="selectBearbeitungsType$.emit({ event: $event, bearbeitungsType: bearbeitungsType })"
-                    >
-                        <div class="icon">
-                            <pef-icon [name]="bearbeitungsType.iconName"></pef-icon>
-                        </div>
-                        <div class="code-name">{{ 'text_code' | translate }}&nbsp;{{ bearbeitungsType.codeName }}</div>
-                        <div class="description">{{ bearbeitungsType.description | translate }}</div>
-                    </ion-item>
-                </ion-list>
-            </div>
-        </div>
-    `,
+    templateUrl: 'bearbeitungs-type.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {

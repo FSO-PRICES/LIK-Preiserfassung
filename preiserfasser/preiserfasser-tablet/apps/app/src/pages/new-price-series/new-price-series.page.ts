@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy } from '@angular/core';
-import { NavController, NavParams } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { combineLatest, filter, flatMap, take, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, filter, map, take, withLatestFrom } from 'rxjs/operators';
 
 import * as P from '../../common-models';
 import * as fromRoot from '../../reducers';
@@ -35,43 +36,40 @@ export class NewPriceSeriesPage implements OnDestroy {
     private subscriptions: Subscription[] = [];
 
     constructor(
+        activeRoute: ActivatedRoute,
         private navController: NavController,
-        private navParams: NavParams,
         private store: Store<fromRoot.AppState>,
     ) {
+        const pmsNummerParam$ = activeRoute.params.pipe(map(({ pmsNummer }) => pmsNummer as string));
         this.subscriptions.push(
             this.ionViewDidLoad$
                 .pipe(
-                    withLatestFrom(this.store.select(x => x.preismeldungen.pmsNummer), (_, pmsNummer) => pmsNummer),
-                    filter(pmsNummer => pmsNummer !== this.navParams.get('pmsNummer')),
+                    withLatestFrom(pmsNummerParam$, this.store.select(x => x.preismeldungen.pmsNummer)),
+                    filter(([, pmsNummerParam, pmsNummer]) => pmsNummer !== pmsNummerParam),
                     take(1),
                 )
-                .subscribe(() =>
+                .subscribe(([, pmsNummerParam]) =>
                     this.store.dispatch({
                         type: 'PREISMELDUNGEN_LOAD_FOR_PMS',
-                        payload: this.navParams.get('pmsNummer'),
+                        payload: pmsNummerParam,
                     }),
                 ),
         );
 
         this.subscriptions.push(
-            this.closeChooseFromWarenkorb$
-                .pipe(
-                    flatMap(x => {
-                        if (!!x) {
-                            this.store.dispatch({
-                                type: 'NEW_PREISMELDUNG',
-                                payload: {
-                                    warenkorbPosition: x.warenkorbPosition,
-                                    bearbeitungscode: x.bearbeitungscode,
-                                    pmsNummer: this.navParams.get('pmsNummer'),
-                                },
-                            });
-                        }
-                        return this.navigateToPmsPriceEntry();
-                    }),
-                )
-                .subscribe(),
+            this.closeChooseFromWarenkorb$.pipe(withLatestFrom(pmsNummerParam$)).subscribe(([x, pmsNummer]) => {
+                if (!!x) {
+                    this.store.dispatch({
+                        type: 'NEW_PREISMELDUNG',
+                        payload: {
+                            warenkorbPosition: x.warenkorbPosition,
+                            bearbeitungscode: x.bearbeitungscode,
+                            pmsNummer,
+                        },
+                    });
+                }
+                this.navigateToPmsPriceEntry(pmsNummer);
+            }),
         );
     }
 
@@ -83,9 +81,7 @@ export class NewPriceSeriesPage implements OnDestroy {
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
-    navigateToPmsPriceEntry() {
-        return this.navController.navigateRoot('PmsPriceEntryPage', {
-            queryParams: { pmsNummer: this.navParams.get('pmsNummer') },
-        });
+    navigateToPmsPriceEntry(pmsNummer: string) {
+        this.navController.navigateRoot(['pms-price-entry', pmsNummer]);
     }
 }

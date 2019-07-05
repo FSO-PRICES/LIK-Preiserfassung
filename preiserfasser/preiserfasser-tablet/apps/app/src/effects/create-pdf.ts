@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as nativeFile from '@ionic-native/file/ngx';
+import { File } from '@ionic-native/file/ngx';
 import { Platform } from '@ionic/angular';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
@@ -23,7 +23,7 @@ export class CreatePdfEffects {
         private pefLanguageService: PefLanguageService,
         private translateService: TranslateService,
         private store: Store<fromRoot.AppState>,
-        private file: nativeFile.File,
+        private file: File,
         private platform: Platform,
     ) {}
 
@@ -363,7 +363,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
 
 function toPdf(
     data,
-    file: nativeFile.File,
+    file: File,
     preismeldestelle: P.Models.Preismeldestelle,
     platform: Platform,
     erhebungsmonat: string,

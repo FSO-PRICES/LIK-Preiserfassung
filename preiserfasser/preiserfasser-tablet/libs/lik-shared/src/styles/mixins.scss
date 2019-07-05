@@ -149,8 +149,10 @@
 
 @mixin set-margin-right($amount) {
     margin-right: calc(#{$amount} * 16px);
+    --margin-right: calc(#{$amount} * 16px);
     @media screen and (max-width: 1280px) {
         margin-right: calc(#{$amount} * 1em);
+        --margin-right: calc(#{$amount} * 1em);
     }
 }
 
@@ -160,4 +162,3 @@
         flex: $grow $shrink calc(#{$basis} * 1em);
     }
 }
-

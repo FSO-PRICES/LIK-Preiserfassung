@@ -23,6 +23,7 @@ import { PefDialogService } from '@lik-shared';
 
 import { Actions as DatabaseAction } from '../../actions/database';
 import { Action as SettingsAction } from '../../actions/setting';
+import { areSettingsValid } from '../../common/settings';
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
 
@@ -65,7 +66,7 @@ export class SettingsPage implements OnDestroy {
         const loadingText$ = translateService.get('text_saving-settings');
 
         this.canLeave$ = this.currentSettings$.pipe(
-            map(x => !!x && !x.isDefault),
+            map(areSettingsValid),
             startWith(false),
             publishReplay(1),
             refCount(),

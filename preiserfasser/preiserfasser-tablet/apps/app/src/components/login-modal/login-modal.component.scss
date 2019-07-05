@@ -1,45 +1,41 @@
 @import '../../theme/imports.scss';
 
 :host {
-    // TODO put this in app.scss
-    .md .modal-wrapper {
-        box-shadow: none;
+    padding: 2em;
+    background-color: white;
+
+    ion-item.item.md {
+        padding-left: 0;
+        border-bottom: 2px solid $hit-gray;
     }
-    .ion-page {
-        box-shadow: $whiteframe-shadow-4dp;
-        height: 300px;
 
-        padding: 2em;
-        background-color: white;
+    ion-label {
+        font-weight: 300;
+    }
 
-        ion-item.item.md {
-            padding-left: 0;
+    button {
+        float: right;
+    }
+
+    .header {
+        display: flex;
+        h3 {
+            flex: 1;
         }
+    }
 
-        button {
-            float: right;
-        }
+    .actions {
+        @include set-margin-top(1);
+        display: flex;
+        justify-content: space-between;
 
-        .header {
-            display: flex;
-            h3 {
-                flex: 1;
-            }
-        }
+        a {
+            flex: 0;
+            white-space: nowrap;
+            align-self: center;
 
-        .actions {
-            @include set-margin-top(1);
-            display: flex;
-            justify-content: space-between;
-
-            a {
-                flex: 0;
-                white-space: nowrap;
-                align-self: center;
-
-                pef-icon {
-                    margin: -0.5em 0;
-                }
+            pef-icon {
+                margin: -0.5em 0;
             }
         }
     }

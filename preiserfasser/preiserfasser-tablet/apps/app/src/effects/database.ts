@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { chain } from 'lodash';
-import { of, from } from 'rxjs';
-import { flatMap, concat, map, take, catchError } from 'rxjs/operators';
+import { concat, from, of } from 'rxjs';
+import { catchError, flatMap, map, take } from 'rxjs/operators';
 
 import { Models as P, PreismeldungAction, preismeldungId } from '@lik-shared';
 

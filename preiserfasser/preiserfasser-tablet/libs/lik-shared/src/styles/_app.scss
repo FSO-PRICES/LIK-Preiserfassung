@@ -50,6 +50,10 @@
         U + 20ac, U + 2212, U + 2215, U + E0FF, U + EFFD, U + F000;
 }
 
+html {
+    font-size: 62.5%;
+}
+
 html,
 ion-app.md {
     font-family: 'Roboto', sans-serif !important;
@@ -57,22 +61,271 @@ ion-app.md {
     background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-ion-content {
-    --ion-background-color: transparent;
+ion-app {
+    font-size: 1.6rem;
 }
 
-ion-item {
+ion-content {
+    --ion-background-color: transparent;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+ion-label {
+    font-weight: 500;
+}
+
+ion-item.pef-item {
+    --highlight-color-focused: transparent;
+    --highlight-color-valid: transparent;
+    --highlight-color-invalid: transparent;
+    --ion-safe-area-left: 0px;
+    --ion-safe-area-right: 0px;
+    --padding-start: 0px;
+
+    ion-label {
+        margin-left: 0;
+        margin-right: 8px;
+        margin-top: 13px;
+        margin-bottom: 13px;
+    }
     .label-stacked.sc-ion-label-md-h {
         padding-left: 8px;
         margin-top: 13px;
         margin-right: 8px;
         height: 28px;
+        min-height: 28px;
     }
-    .native-input.sc-ion-input-md {
+    ion-select {
         background-color: $white;
+    }
+    ion-input.sc-ion-input-md-h {
+        background-color: $white;
+        --padding-start: 8px;
+        --padding-end: 8px;
     }
     .label-stacked.sc-ion-label-md-h {
         transform: none;
+    }
+    .item-native {
+        height: calc(2.75 * 1em);
+    }
+    &.pef-item-compact {
+        --background: transparent;
+        ion-input {
+            height: 36px;
+        }
+    }
+}
+
+ion-input,
+ion-textarea,
+ion-select {
+    margin-bottom: 2px;
+}
+
+form.form-show-validation-hints {
+    .item.md.pef-item.ion-invalid {
+        ion-label {
+            color: $outer-space;
+        }
+        ion-input,
+        ion-textarea,
+        ion-select {
+            border-bottom: 2px solid $alizarin-crimson;
+            margin-bottom: 0px;
+        }
+    }
+    .item.md.pef-item.on-dark.ion-invalid {
+        ion-label {
+            color: $flamingo;
+        }
+        ion-input,
+        ion-textarea,
+        ion-select {
+            border-bottom-color: $flamingo;
+        }
+    }
+}
+
+.pef-icon__alarmclock_normal {
+    &.green {
+        fill: $emerald;
+    }
+    &.gray {
+        fill: $oslo-gray;
+    }
+    &.orange {
+        fill: orange;
+    }
+    &.red {
+        fill: $flamingo;
+    }
+}
+
+[pef-perfect-scrollbar] {
+    /* perfect-scrollbar v0.6.15 */
+    position: relative;
+
+    &.ps-container {
+        -ms-touch-action: auto;
+        touch-action: auto;
+        overflow: hidden !important;
+        -ms-overflow-style: none;
+    }
+    @supports (-ms-overflow-style: none) {
+        &.ps-container {
+            overflow: auto !important;
+        }
+    }
+    @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+        &.ps-container {
+            overflow: auto !important;
+        }
+    }
+    &.ps-container.ps-active-x > .ps-scrollbar-x-rail,
+    &.ps-container.ps-active-y > .ps-scrollbar-y-rail {
+        display: block;
+        background-color: transparent;
+    }
+    &.ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
+        background-color: #eee;
+        opacity: 0.9;
+    }
+    &.ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
+        background-color: #999;
+        height: 11px;
+    }
+    &.ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+        background-color: #eee;
+        opacity: 0.9;
+    }
+    &.ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+        background-color: #999;
+        width: 11px;
+    }
+    &.ps-container > .ps-scrollbar-x-rail {
+        display: none;
+        position: absolute;
+        /* please don't change 'position' */
+
+        opacity: 0;
+        -webkit-transition: background-color 0.2s linear, opacity 0.2s linear;
+        -o-transition: background-color 0.2s linear, opacity 0.2s linear;
+        -moz-transition: background-color 0.2s linear, opacity 0.2s linear;
+        transition: background-color 0.2s linear, opacity 0.2s linear;
+        bottom: 0px;
+        /* there must be 'bottom' for ps-scrollbar-x-rail */
+
+        height: 15px;
+    }
+    &.ps-container > .ps-scrollbar-x-rail > .ps-scrollbar-x {
+        position: absolute;
+        /* please don't change 'position' */
+
+        background-color: #aaa;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        border-radius: 6px;
+        -webkit-transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            -webkit-border-radius 0.2s ease-in-out;
+        transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            -webkit-border-radius 0.2s ease-in-out;
+        -o-transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out;
+        -moz-transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out, -moz-border-radius 0.2s ease-in-out;
+        transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out;
+        transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out, -webkit-border-radius 0.2s ease-in-out, -moz-border-radius 0.2s ease-in-out;
+        bottom: 2px;
+        /* there must be 'bottom' for ps-scrollbar-x */
+
+        height: 6px;
+    }
+    &.ps-container > .ps-scrollbar-x-rail:hover > .ps-scrollbar-x,
+    &.ps-container > .ps-scrollbar-x-rail:active > .ps-scrollbar-x {
+        height: 11px;
+    }
+    &.ps-container > .ps-scrollbar-y-rail {
+        display: none;
+        position: absolute;
+        /* please don't change 'position' */
+
+        opacity: 0;
+        -webkit-transition: background-color 0.2s linear, opacity 0.2s linear;
+        -o-transition: background-color 0.2s linear, opacity 0.2s linear;
+        -moz-transition: background-color 0.2s linear, opacity 0.2s linear;
+        transition: background-color 0.2s linear, opacity 0.2s linear;
+        right: 0;
+        /* there must be 'right' for ps-scrollbar-y-rail */
+
+        width: 15px;
+    }
+    &.ps-container > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+        position: absolute;
+        /* please don't change 'position' */
+
+        background-color: #aaa;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        border-radius: 6px;
+        -webkit-transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            -webkit-border-radius 0.2s ease-in-out;
+        transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            -webkit-border-radius 0.2s ease-in-out;
+        -o-transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out;
+        -moz-transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out, -moz-border-radius 0.2s ease-in-out;
+        transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out;
+        transition: background-color 0.2s linear, height 0.2s linear, width 0.2s ease-in-out,
+            border-radius 0.2s ease-in-out, -webkit-border-radius 0.2s ease-in-out, -moz-border-radius 0.2s ease-in-out;
+        right: 2px;
+        /* there must be 'right' for ps-scrollbar-y */
+
+        width: 6px;
+    }
+    &.ps-container > .ps-scrollbar-y-rail:hover > .ps-scrollbar-y,
+    &.ps-container > .ps-scrollbar-y-rail:active > .ps-scrollbar-y {
+        width: 11px;
+    }
+    &.ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
+        background-color: #eee;
+        opacity: 0.9;
+    }
+    &.ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
+        background-color: #999;
+        height: 11px;
+    }
+    &.ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+        background-color: #eee;
+        opacity: 0.9;
+    }
+    &.ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+        background-color: #999;
+        width: 11px;
+    }
+    &.ps-container:hover > .ps-scrollbar-x-rail,
+    &.ps-container:hover > .ps-scrollbar-y-rail {
+        opacity: 0.6;
+    }
+    &.ps-container:hover > .ps-scrollbar-x-rail:hover {
+        background-color: #eee;
+        opacity: 0.9;
+    }
+    &.ps-container:hover > .ps-scrollbar-x-rail:hover > .ps-scrollbar-x {
+        background-color: #999;
+    }
+    &.ps-container:hover > .ps-scrollbar-y-rail:hover {
+        background-color: #eee;
+        opacity: 0.9;
+    }
+    &.ps-container:hover > .ps-scrollbar-y-rail:hover > .ps-scrollbar-y {
+        background-color: #999;
     }
 }
 
@@ -100,7 +353,11 @@ h6 {
     }
 }
 
-.app-root.pef-desktop {
+app-root {
+    display: block;
+    height: 100%;
+}
+app-root.pef-desktop {
     max-width: $pef-app-max-width;
     margin: 0 auto;
     position: relative;
@@ -108,6 +365,10 @@ h6 {
     ion-content .scroll-content {
         overflow-y: auto;
     }
+}
+
+.modal-wrapper {
+    --height: 350px;
 }
 
 ion-content.md {
@@ -129,29 +390,11 @@ ion-content.md {
     --border-color: transparent;
 }
 
-form.form-show-validation-hints {
-    .item.md.pef-item.ng-invalid {
-        ion-input,
-        ion-textarea,
-        select {
-            border-bottom-color: $alizarin-crimson;
-        }
-    }
-}
-
 form.stacked-form {
     .pef-select {
         display: flex;
         flex: 1;
         align-self: stretch;
-    }
-
-    select {
-        flex: 1;
-        background-color: $white;
-        border: none;
-        padding: 6px 8px;
-        margin: 0 0 2px 0 !important;
     }
 }
 
@@ -215,17 +458,6 @@ form.stacked-form {
 //         }
 //     }
 // }
-
-form.form-show-validation-hints {
-    .item.md.pef-item.on-dark.ng-invalid {
-        ion-input {
-            border-bottom-color: orange;
-        }
-        ion-label {
-            color: white;
-        }
-    }
-}
 
 // .list-md .item-input:last-child {
 //     border-bottom: 0;
@@ -426,8 +658,8 @@ ion-popover.popover-md {
         contain: none;
         height: initial;
     }
-    .app-root,
-    .app-root.pef-desktop {
+    app-root,
+    app-root.pef-desktop {
         position: static;
         contain: none;
     }

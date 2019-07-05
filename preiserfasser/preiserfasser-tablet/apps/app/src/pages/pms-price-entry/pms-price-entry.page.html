@@ -1,9 +1,86 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>pms-price-entry</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
-
-</ion-content>
+<div class="pms-price-entry-content">
+    <preismeldung-toolbar
+        [preismeldung]="currentPreismeldung$ | async"
+        [selectedTab]="selectedTab$ | async"
+        (selectTab)="selectTab$.emit($event)"
+        [isNotSave]="isNotSave$ | async"
+        (buttonClicked)="toolbarButtonClicked$.emit($event)"
+        [disableQuickEqual]="disableQuickEqual$ | async"
+    >
+    </preismeldung-toolbar>
+    <div class="work-area">
+        <div class="preismeldung-details-container">
+            <div class="tabs-container" [class.display-none]="!(currentPreismeldung$ | async)">
+                <preismeldung-info-warenkorb
+                    [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
+                    [isDesktop]="isDesktop$ | async"
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
+                    [warenkorb]="warenkorb$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                ></preismeldung-info-warenkorb>
+                <preismeldung-info
+                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
+                    [isDesktop]="isDesktop$ | async"
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                    (resetClicked)="resetPreismeldung$.emit()"
+                    [isAdminApp]="false"
+                ></preismeldung-info>
+                <preismeldung-attributes
+                    [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [isDesktop]="isDesktop$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                    (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"
+                ></preismeldung-attributes>
+                <preismeldung-messages
+                    [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
+                    [isActive]="(selectedTab$ | async) == 'MESSAGES'"
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
+                    [priceCountStatus]="currentPriceCountStatus$ | async"
+                    [isDesktop]="isDesktop$ | async"
+                    (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"
+                ></preismeldung-messages>
+                <preismeldung-price
+                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'"
+                    [preismeldung]="currentPreismeldung$ | async"
+                    [isDesktop]="isDesktop$ | async"
+                    [preismeldestelle]="preismeldestelle$ | async"
+                    [requestPreismeldungSave]="requestPreismeldungSave$ | async"
+                    [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
+                    (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
+                    (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
+                    (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
+                    (requestThrowChanges)="requestThrowChanges$.emit({})"
+                    [isAdminApp]="false"
+                    (save)="save$.emit($event)"
+                    (isSaveLookDisabled)="isNotSave$.emit($event)"
+                    (disableQuickEqual)="disableQuickEqual$.emit($event)"
+                ></preismeldung-price>
+            </div>
+            <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
+                {{ 'label_no_preismeldung-selected' | translate }}
+            </div>
+        </div>
+        <div class="preismeldung-list-container">
+            <preismeldung-list
+                [preismeldungen]="preismeldungen$ | async"
+                [currentDate]="currentDate$ | async"
+                [preismeldestelle]="preismeldestelle$ | async"
+                [currentPreismeldung]="currentPreismeldung$ | async"
+                [isInRecordMode]="isInRecordMode$ | async"
+                (selectPreismeldung)="selectPreismeldung$.emit($event)"
+                (addNewPreisreihe)="addNewPreisreihe$.emit()"
+                (sortPreismeldungen)="navigateToPmsSort$.emit()"
+                (recordSortPreismeldungen)="recordSortPreismeldungen$.emit()"
+                [currentLanguage]="currentLanguage$ | async"
+                [requestSelectNextPreismeldung]="selectNextPreismeldungRequested$ | async"
+                [isDesktop]="isDesktop$ | async"
+            ></preismeldung-list>
+        </div>
+    </div>
+</div>

@@ -1,9 +1,9 @@
 import { format } from 'date-fns';
 import { assign } from 'lodash';
 import PouchDB from 'pouchdb';
-import * as PouchDBAllDbs from 'pouchdb-all-dbs';
-import * as pouchDbAuthentication from 'pouchdb-authentication';
-// import PouchDBDebug from 'pouchdb-debug';
+import PouchDBAllDbs from 'pouchdb-all-dbs';
+import pouchDbAuthentication from 'pouchdb-authentication';
+import pouchDBDebug from 'pouchdb-debug';
 import { bindNodeCallback, from, Observable, Observer, of } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { flatMap, map } from 'rxjs/operators';
@@ -202,9 +202,9 @@ export function getLoggedInUser(url: string, username: string) {
 
 export function loginIntoDatabase(data: { url: string; username: string; password: string }) {
     return getOrCreateDatabaseAsObservable().pipe(
-        flatMap(pouch => {
-            const couch = new PouchDB(`${data.url}/user_${data.username}`, { skip_setup: true }) as any;
-            const login = bindNodeCallback(couch.login.bind(couch));
+        flatMap(() => {
+            const couch = new PouchDB(`${data.url}/user_${data.username}`, { skip_setup: true });
+            const login = bindNodeCallback(couch.logIn.bind(couch));
             return login(data.username, data.password);
         }),
     );
@@ -212,5 +212,6 @@ export function loginIntoDatabase(data: { url: string; username: string; passwor
 
 export function initialisePouchForDev() {
     (window as any).PouchDB = PouchDB;
-    // PouchDBDebug.enable('pouchdb:http');
+    PouchDB.plugin(pouchDBDebug);
+    PouchDB.debug.enable('pouchdb:http');
 }

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     EventEmitter,
@@ -22,33 +23,9 @@ export interface ChangeEvent {
 @Component({
     selector: 'pef-virtual-scroll,[pefVirtualScroll]',
     exportAs: 'pefVirtualScroll',
-    template: `
-        <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
-        <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
-            <ng-content></ng-content>
-        </div>
-    `,
-    styles: [
-        `
-            :host {
-                overflow: hidden;
-                overflow-y: auto;
-                position: relative;
-                -webkit-overflow-scrolling: touch;
-            }
-            .scrollable-content {
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                position: absolute;
-            }
-            .total-padding {
-                width: 1px;
-                opacity: 0;
-            }
-        `,
-    ],
+    templateUrl: 'pef-virtual-scroll.html',
+    styleUrls: ['pef-virtual-scroll.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     @Input()

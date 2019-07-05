@@ -8,12 +8,15 @@
         line-height: 1.25em;
         height: auto;
         width: 100%;
-        @include set-padding(0.5, 1, 0.5, 1);
-        .button-inner {
+        --border-radius: none;
+        --box-shadow: none;
+        .code-group {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             height: auto;
+            width: 100%;
+            @include set-padding(0.5, 1, 0.5, 1);
         }
         .description {
             @include crop-text();
@@ -41,7 +44,7 @@
                 color: white;
             }
         }
-        &[disabled] {
+        &.button-disabled {
             background-color: $alto;
         }
     }

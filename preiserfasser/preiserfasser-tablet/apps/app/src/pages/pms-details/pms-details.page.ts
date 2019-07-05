@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NavController, NavParams } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
 import { assign, range } from 'lodash';
 import { Observable, Subscription } from 'rxjs';
@@ -14,6 +15,7 @@ import {
     publishReplay,
     refCount,
     scan,
+    withLatestFrom,
 } from 'rxjs/operators';
 
 import { encodeErhebungsartFromForm, Models as P, parseErhebungsarten } from '@lik-shared';
@@ -44,8 +46,8 @@ export class PmsDetailsPage implements OnDestroy {
     public form: FormGroup;
 
     constructor(
+        activeRoute: ActivatedRoute,
         private navCtrl: NavController,
-        private navParams: NavParams,
         private store: Store<fromRoot.AppState>,
         private formBuilder: FormBuilder,
     ) {
@@ -77,6 +79,8 @@ export class PmsDetailsPage implements OnDestroy {
             },
             { validator: this.formLevelValidationFactory() },
         );
+
+        const pmsNummerParam$ = activeRoute.params.pipe(map(({ pmsNummer }) => pmsNummer));
 
         const distinctPreismeldestelle$ = this.pms$.pipe(
             filter(x => !!x),
@@ -136,9 +140,12 @@ export class PmsDetailsPage implements OnDestroy {
 
             this.store
                 .select(fromRoot.getPreismeldestellen)
-                .pipe(filter(x => !!x && x.length > 0))
-                .subscribe(() => {
-                    this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: navParams.get('pmsNummer') });
+                .pipe(
+                    filter(x => !!x && x.length > 0),
+                    withLatestFrom(pmsNummerParam$),
+                )
+                .subscribe(([, pmsNummer]) => {
+                    this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: pmsNummer });
                 }),
 
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),

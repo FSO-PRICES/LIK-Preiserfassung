@@ -1,79 +1,15 @@
 import { Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, SimpleChange } from '@angular/core';
+import { WINDOW } from 'ngx-window-token';
 import { Observable } from 'rxjs';
 import { map, publishReplay, refCount, withLatestFrom } from 'rxjs/operators';
 
 import { parseErhebungsarten, ReactiveComponent } from '../../../../common';
-
 import * as P from '../../../models';
 
 @Component({
     selector: 'preismeldung-readonly-header',
     styleUrls: ['./preismeldung-readonly-header.scss'],
-    template: `
-        <div class="pms-heading" *ngIf="(isAdminApp$ | async)">
-            {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }}
-        </div>
-        <div class="header-line" *ngIf="!!(preismeldung$ | async)">
-            <div class="product-heading">
-                {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }}
-                {{ (preismeldung$ | async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
-            </div>
-            <ion-item class="pef-item on-dark" *ngIf="!(isInternet$ | async)">
-                <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
-                <ion-input
-                    type="text"
-                    [readonly]="true"
-                    [class.readonly]="true"
-                    [value]="(preismeldung$ | async)?.preismeldung.artikelnummer"
-                ></ion-input>
-            </ion-item>
-            <ion-item class="pef-item on-dark" *ngIf="(isInternet$ | async)">
-                <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
-                <ion-input
-                    type="text"
-                    [readonly]="true"
-                    [class.readonly]="true"
-                    [value]="(preismeldung$ | async)?.preismeldung.internetLink"
-                ></ion-input>
-            </ion-item>
-            <ion-button
-                class="pef-icon-secondary server-url-button"
-                icon-only
-                (click)="navigateToInternetLink$.emit()"
-                [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink"
-                *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'"
-            >
-                <pef-icon name="server_url"></pef-icon>
-            </ion-button>
-            <div
-                class="right-column price-count-status"
-                [ngClass]="{
-                    ok: (preismeldung$ | async)?.priceCountStatus?.ok,
-                    'not-ok': !(preismeldung$ | async)?.priceCountStatus?.ok
-                }"
-            >
-                <span
-                    >{{ (preismeldung$ | async).priceCountStatus.numActivePrices }}/{{
-                        (preismeldung$ | async).priceCountStatus.anzahlPreiseProPMS
-                    }}</span
-                >
-            </div>
-        </div>
-        <div class="header-line" *ngIf="!!(preismeldung$ | async)">
-            <ion-item class="pef-item on-dark">
-                <ion-label
-                    >{{ 'label_artikeltext' | translate }}<span style="visibility: hidden">&nbsp;*</span>
-                </ion-label>
-                <ion-input
-                    type="text"
-                    [readonly]="true"
-                    [class.readonly]="true"
-                    [value]="(preismeldung$ | async)?.preismeldung.artikeltext"
-                ></ion-input>
-            </ion-item>
-            <div class="right-column"></div>
-        </div>
-    `,
+    templateUrl: 'preismeldung-readonly-header.html',
 })
 export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.PreismeldungBag;
@@ -93,7 +29,7 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
 
     private subscriptions = [];
 
-    constructor(@Inject('windowObject') public window: any) {
+    constructor(@Inject(WINDOW) private wndw: Window) {
         super();
 
         this.subscriptions.push(
@@ -105,7 +41,7 @@ export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnC
                 .subscribe(internetLink => {
                     if (!internetLink) return;
                     if (!internetLink.startsWith('http://') || !internetLink.startsWith('https://')) {
-                        this.window.open(`http://${internetLink}`, '_blank');
+                        this.wndw.open(`http://${internetLink}`, '_blank');
                     }
                 }),
         );

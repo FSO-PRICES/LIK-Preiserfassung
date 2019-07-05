@@ -8,6 +8,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PefComponentsModule } from '@lik-shared';
 
+import { LoginModalComponentModule } from '../../components/login-modal';
 import { DashboardPage } from './dashboard.page';
 
 const routes: Routes = [
@@ -24,6 +25,7 @@ const routes: Routes = [
         IonicModule,
         TranslateModule,
         PefComponentsModule,
+        LoginModalComponentModule,
         RouterModule.forChild(routes),
     ],
     declarations: [DashboardPage],

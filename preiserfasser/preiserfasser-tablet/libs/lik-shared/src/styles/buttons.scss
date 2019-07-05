@@ -5,6 +5,7 @@
 ion-button {
     text-transform: none;
     transition: opacity 150ms;
+    letter-spacing: normal;
     &:hover:not(.disable-hover) {
         opacity: 0.7;
     }
@@ -12,18 +13,44 @@ ion-button {
         padding-right: 0;
         margin-right: 0;
     }
-    &:hover:not(.disable-hover) {
-        opacity: 1;
-        background-color: $blue-chill;
-        &.button-clear {
-            color: $surfie-green;
-            fill: $surfie-green;
-            background-color: transparent;
+    &.icon-only {
+        --color: #{$white};
+        --padding-start: 3.5px;
+        --padding-end: 3.5px;
+        --box-shadow: none;
+        --border-radius: 2px;
+        pef-icon {
+            fill: $white;
         }
     }
     &.button-clear {
+        --color: #{$blue-chill};
+        --color-hover: #{$blue-chill};
+        pef-icon {
+            fill: $blue-chill;
+        }
+    }
+    &.close-page {
+        pef-icon {
+            fill: $blue-chill;
+            width: 1.4em;
+            height: 1.4em;
+        }
+        &.on-dark pef-icon {
+            fill: $white;
+        }
+    }
+
+    &.button.ion-color-wild-sand {
         color: $blue-chill;
-        fill: $blue-chill;
+        pef-icon {
+            fill: $blue-chill;
+        }
+    }
+
+    &.button-radio-selected {
+        color: white;
+        fill: white;
     }
 }
 
@@ -67,10 +94,4 @@ ion-button {
 
 .button-clear-md:hover:not(.disable-hover) {
     background-color: initial;
-}
-
-.button-radio-selected {
-    background-color: $blue-chill;
-    color: white;
-    fill: white;
 }
