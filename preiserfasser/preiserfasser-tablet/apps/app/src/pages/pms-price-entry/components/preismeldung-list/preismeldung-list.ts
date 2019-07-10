@@ -26,6 +26,7 @@ import {
     scan,
     startWith,
     takeUntil,
+    tap,
     withLatestFrom,
 } from 'rxjs/operators';
 
@@ -68,7 +69,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectPrevPreismeldung$ = new EventEmitter();
 
     public viewPortItems: P.Models.Preismeldung[];
-    public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
+    public filteredPreismeldungen$: Observable<(P.PreismeldungBag & { marked: boolean })[]>;
     public scrollList: P.PreismeldungBag[];
     public completedCount$: Observable<string>;
 
@@ -100,6 +101,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
 
     public ionItemHeight$ = new EventEmitter<number>();
+    public favorite$ = new EventEmitter<P.PreismeldungBag & { marked: boolean }>();
     public itemHeight = 50;
 
     private onDestroy$ = new Subject();
@@ -130,6 +132,14 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             startWith({ todo: true, completed: true }),
             publishReplay(1),
             refCount(),
+        );
+
+        const markedPreismeldungen$ = this.favorite$.asObservable().pipe(
+            scan(
+                (markedIds, bag) => (bag.marked ? markedIds.filter(id => id !== bag.pmId) : [...markedIds, bag.pmId]),
+                [] as string[],
+            ),
+            startWith([]),
         );
 
         this.filterTodoSelected$ = filterStatus$.pipe(map(x => x.todo));
@@ -175,6 +185,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     ? [currentPreismeldung as P.PreismeldungBag].concat(preismeldungen)
                     : preismeldungen;
             }),
+            combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
+                preismeldungen.map(bag => ({ ...bag, marked: markedIds.lastIndexOf(bag.pmId) !== -1 })),
+            ),
             debounceTime(100),
             publishReplay(1),
             refCount(),

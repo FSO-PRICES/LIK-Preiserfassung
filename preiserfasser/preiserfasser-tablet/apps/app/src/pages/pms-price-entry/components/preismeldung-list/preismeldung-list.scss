@@ -69,6 +69,14 @@
                 color: white;
             }
         }
+        &.marked {
+            background-color: $egg-white;
+            --background: #{$egg-white};
+            &.selected {
+                background-color: $bright-sun;
+                --background: #{$bright-sun};
+            }
+        }
         &.item.md.item-block .item-inner {
             @include set-padding(0, 0, 0, 0.5);
         }
