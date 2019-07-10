@@ -22,6 +22,7 @@ import {
 import { DialogCancelEditComponent, PefDialogService, PefMessageDialogService, priceCountIdByPm } from '@lik-shared';
 
 import * as P from '../../common-models';
+import { DialogNewPmBearbeitungsCodeComponent } from '../../components/dialog';
 import * as fromRoot from '../../reducers';
 
 @Component({
@@ -237,7 +238,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
             .subscribe();
 
         const dialogNewPmbearbeitungsCode$ = defer(() =>
-            pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).pipe(map(x => x.data)),
+            pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).pipe(map(x => x.data)),
         );
         const dialogSufficientPreismeldungen$ = defer(() =>
             pefMessageDialogService.displayDialogYesNo('dialogText_ausreichend-artikel').pipe(map(x => x.data)),

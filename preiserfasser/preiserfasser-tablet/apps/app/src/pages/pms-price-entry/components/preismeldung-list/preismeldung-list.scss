@@ -27,6 +27,11 @@
         background-color: #{$white};
     }
 
+    ion-button.icon-only {
+        --box-shadow: none;
+        --border-radius: 2px;
+    }
+
     .preismeldung-list-filter,
     .preismeldung-list-check-filter {
         @include set-margin-bottom(0.5);

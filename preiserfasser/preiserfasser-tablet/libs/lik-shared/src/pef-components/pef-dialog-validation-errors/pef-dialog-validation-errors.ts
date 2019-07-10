@@ -1,5 +1,7 @@
-import { Component, HostBinding } from '@angular/core';
-import { NavParams, ModalController } from '@ionic/angular';
+import { Component, HostBinding, Input } from '@angular/core';
+import { ModalController, NavParams } from '@ionic/angular';
+
+import { InputP } from '../../common';
 
 @Component({
     selector: 'pef-dialog-validation-errors',
@@ -9,7 +11,7 @@ import { NavParams, ModalController } from '@ionic/angular';
                 <pef-icon name="warning"></pef-icon>
                 {{ 'heading_validation-error' | translate }}
             </h3>
-            <p *ngFor="let errorMessage of navParams.data.params">{{ errorMessage }}</p>
+            <p *ngFor="let errorMessage of errorMessages">{{ errorMessage }}</p>
         </div>
 
         <div class="pef-dialog-button-row">
@@ -22,5 +24,7 @@ import { NavParams, ModalController } from '@ionic/angular';
 })
 export class PefDialogValidationErrorsComponent {
     @HostBinding('class') classes = 'pef-dialog';
+    @Input() public errorMessages: InputP<string[]> = [];
+
     constructor(public viewCtrl: ModalController, public navParams: NavParams) {}
 }

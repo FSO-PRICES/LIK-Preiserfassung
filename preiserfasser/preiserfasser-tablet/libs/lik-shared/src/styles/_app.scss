@@ -102,8 +102,13 @@ ion-item.pef-item {
     }
     ion-input.sc-ion-input-md-h {
         background-color: $white;
+        --background: #{$white};
         --padding-start: 8px;
         --padding-end: 8px;
+        &.readonly {
+            background-color: $alto;
+            --background: #{$alto};
+        }
     }
     .label-stacked.sc-ion-label-md-h {
         transform: none;
@@ -123,6 +128,10 @@ ion-input,
 ion-textarea,
 ion-select {
     margin-bottom: 2px;
+}
+
+ion-label.sc-ion-label-md-h.md {
+    font-size: 1.2rem;
 }
 
 form.form-show-validation-hints {
@@ -501,7 +510,11 @@ ion-list[radio-group] {
     @include set-margin(0.5625, 0.625, 0.5625, 0);
 }
 
-.item.md.item-radio ion-label {
+.sc-ion-popover-md-h {
+    --width: calc(1920px / 3 + 38px);
+}
+
+ion-radio-group .item.md ion-label {
     font-size: 1em;
 }
 
@@ -597,14 +610,10 @@ ion-list.checkboxes-as-radios {
     }
 }
 
-.button-md.pef-icon-secondary {
-    background-color: $wild-sand;
+ion-button.pef-icon-secondary {
+    --background: #{$wild-sand};
     fill: $blue-chill;
     box-shadow: none;
-    &:hover:not(.disable-hover) {
-        background-color: $blue-chill;
-        opacity: 1;
-    }
 }
 
 input[type='number']::-webkit-outer-spin-button,

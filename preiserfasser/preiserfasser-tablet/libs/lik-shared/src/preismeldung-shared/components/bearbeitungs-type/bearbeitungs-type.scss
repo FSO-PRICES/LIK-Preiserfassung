@@ -10,6 +10,8 @@
         width: 100%;
         --border-radius: none;
         --box-shadow: none;
+        --padding-start: 0;
+        --padding-end: 0;
         .code-group {
             display: flex;
             flex-direction: column;
@@ -39,6 +41,13 @@
         }
         &:hover:not(.disable-hover),
         &.toggled-on {
+            opacity: 1;
+            --opacity: 1;
+            background-color: $blue-chill;
+            --background: #{$blue-chill};
+            .code-group {
+                background-color: $blue-chill;
+            }
             .description,
             .code-name {
                 color: white;
@@ -70,7 +79,9 @@
     ion-item.bearbeitungs-type-option {
         padding: 0;
         min-height: 2.5em;
-        &:not(:last-of-type) .item-inner {
+        --min-height: 38px;
+        --padding-start: 0.7em;
+        &:not(:last-of-type) {
             border-bottom: 2px solid $alto;
         }
         &:hover {

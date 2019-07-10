@@ -16,9 +16,14 @@
         background-color: $mercury;
     }
 
+    .reduction-radio-group-list {
+        padding: 0;
+    }
+
     ion-radio-group {
         ion-item {
             --padding-start: 0;
+            --min-height: 0;
         }
         ion-radio {
             margin-right: 10px;
@@ -31,12 +36,22 @@
     ion-item {
         [slot='end'] {
             margin: 0;
-            padding-left: 0.75rem;
-            width: 2.688rem;
+            padding-left: 0.8em;
+            width: 3.5em;
             &.unit-button-label {
                 opacity: 1;
             }
         }
+    }
+
+    .unit-button {
+        font-size: 1.4rem;
+        margin: 0;
+        height: 36px;
+        --ion-color-contrast: #{$blue-chill};
+        --padding-start: 0.7em;
+        --box-shadow: none;
+        --border-radius: 2px;
     }
 
     .pm-header {
@@ -49,6 +64,27 @@
         }
         textarea {
             resize: none;
+        }
+        ion-item {
+            --inner-padding-end: 0;
+            width: 100%;
+            --background: transparent;
+            --min-height: 0;
+        }
+        ion-input {
+            border-bottom: 2px solid $hit-gray;
+        }
+        ion-textarea {
+            margin-top: 0;
+            background-color: $white;
+            --background: #{$white};
+            --padding-top: 6px;
+            --padding-bottom: 6px;
+            border-bottom: 2px solid $hit-gray;
+            &.readonly {
+                background-color: $alto;
+                --background: #{$alto};
+            }
         }
     }
 
@@ -202,6 +238,16 @@
     .current-period {
         flex: 0 0 calc(50% - 5em);
         max-width: calc(50% - 5em);
+
+        ion-item {
+            --min-height: 44px;
+
+            ion-input {
+                height: 38px;
+                border-bottom: 2px solid $hit-gray;
+                text-align: right;
+            }
+        }
     }
 
     .product-detail-row {
@@ -217,12 +263,6 @@
                     opacity: 1;
                     color: $oslo-gray;
                 }
-            }
-        }
-        .item.md.pef-item ion-input {
-            display: flex;
-            input {
-                text-align: right;
             }
         }
     }
@@ -403,14 +443,10 @@
         @include set-padding(1, 1, 1, 1);
     }
 
-    .unit-button {
-        &[disabled] {
-            color: $outer-space;
-            font-size: 1.6rem;
-            --background: transparent;
-            --box-shadow: none;
-            --border-radius: none;
-        }
+    .readonly-text {
+        color: $outer-space;
+        font-size: 1.6rem;
+        font-weight: 500;
     }
 
     .item.md.pef-item {

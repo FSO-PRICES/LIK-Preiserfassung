@@ -1,5 +1,7 @@
-import { Component, HostBinding } from '@angular/core';
-import { NavParams, ModalController } from '@ionic/angular';
+import { Component, HostBinding, Input } from '@angular/core';
+import { ModalController } from '@ionic/angular';
+
+import { InputP } from '../../common';
 
 export interface PefMessageDialogButton {
     textKey: string;
@@ -11,12 +13,12 @@ export interface PefMessageDialogButton {
     template: `
         <div class="pef-dialog-message">
             <h3>
-                {{ navParams.data.params.message }}
+                {{ message }}
             </h3>
         </div>
         <div class="pef-dialog-button-row">
             <ion-button
-                *ngFor="let button of navParams.data.params.buttons; let i = index"
+                *ngFor="let button of buttons; let i = index"
                 (click)="viewCtrl.dismiss(button.dismissValue)"
                 [color]="i == 0 ? 'primary' : 'secondary'"
             >
@@ -28,5 +30,8 @@ export interface PefMessageDialogButton {
 export class PefMessageDialogComponent {
     @HostBinding('class') classes = 'pef-dialog';
 
-    constructor(public viewCtrl: ModalController, public navParams: NavParams) {}
+    @Input() message: InputP<string>;
+    @Input() buttons: InputP<PefMessageDialogButton[]>;
+
+    constructor(public viewCtrl: ModalController) {}
 }

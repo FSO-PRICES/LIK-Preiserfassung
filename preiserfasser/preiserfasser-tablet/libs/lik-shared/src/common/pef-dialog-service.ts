@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { LoadingController, ModalController, PopoverController } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
-import { take, switchMap } from 'rxjs/operators';
+import { switchMap, take } from 'rxjs/operators';
+
+import { InputP } from './dialog';
 
 export interface DialogOptions {
     params?: any;
@@ -23,7 +25,12 @@ export class PefDialogService {
         private loadingController: LoadingController,
     ) {}
 
-    displayDialog(dialogComponent: any, params: any, backdropDismiss = false, requestDismiss$: Observable<{}> = null) {
+    displayDialog<T extends Function, K extends keyof T['prototype']>(
+        dialogComponent: T,
+        params: { [P in K]: T['prototype'][P] extends InputP<unknown> ? T['prototype'][P] : never },
+        backdropDismiss = false,
+        requestDismiss$: Observable<{}> = null,
+    ) {
         const dialog$ = from(
             this.popoverController.create({ component: dialogComponent, componentProps: params, backdropDismiss }),
         ).pipe(switchMap(dialog => dialog.present().then(() => dialog)));

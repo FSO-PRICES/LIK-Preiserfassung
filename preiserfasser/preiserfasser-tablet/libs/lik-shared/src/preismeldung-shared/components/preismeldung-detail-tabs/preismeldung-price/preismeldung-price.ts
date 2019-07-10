@@ -588,7 +588,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     mergeMap(() =>
                         pefDialogService.displayDialog(
                             PefDialogValidationErrorsComponent,
-                            [translateService.instant('validation_produktMerkmale_erfassen')],
+                            { errorMessages: translateService.instant('validation_produktMerkmale_erfassen') },
                             true,
                         ),
                     ),
@@ -614,7 +614,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             pefDialogService
                                 .displayDialog(
                                     PefDialogValidationErrorsComponent,
-                                    [translateService.instant('validation_frage-antworten')],
+                                    { errorMessages: translateService.instant('validation_frage-antworten') },
                                     true,
                                 )
                                 .pipe(
@@ -986,7 +986,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             }),
                     ),
                     mergeMap(errorMessages =>
-                        pefDialogService.displayDialog(PefDialogValidationErrorsComponent, errorMessages, true),
+                        pefDialogService.displayDialog(PefDialogValidationErrorsComponent, { errorMessages }, true),
                     ),
                 )
                 .subscribe(),

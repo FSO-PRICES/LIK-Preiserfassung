@@ -1,5 +1,5 @@
 import { Component, HostBinding } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 
 @Component({
     selector: 'dialog-cancel-edit',
@@ -33,5 +33,5 @@ import { ModalController } from '@ionic/angular';
 export class DialogCancelEditComponent {
     @HostBinding('class') classes = 'pef-dialog';
 
-    constructor(public viewCtrl: ModalController) {}
+    constructor(public viewCtrl: PopoverController) {}
 }

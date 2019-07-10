@@ -3,6 +3,7 @@
         <ion-button
             color="mercury"
             class="code-button"
+            [class.toggled-on]="buttonOn$ | async"
             (click)="buttonClicked$.emit($event)"
             [disabled]="readonly$ | async"
         >

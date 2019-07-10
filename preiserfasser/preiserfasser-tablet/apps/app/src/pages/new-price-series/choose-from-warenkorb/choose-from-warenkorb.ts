@@ -35,6 +35,7 @@ import {
 import { pefContains, PefDialogService, PefMessageDialogService, ReactiveComponent } from '@lik-shared';
 
 import * as P from '../../../common-models';
+import { DialogNewPmBearbeitungsCodeComponent } from '../../../components/dialog';
 
 interface WarenkorbUiItem {
     isExpanded: boolean;
@@ -427,7 +428,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
             pefMessageDialogService.displayDialogYesNo('dialogText_ausreichend-artikel').pipe(map(x => x.data)),
         );
         const dialogNewPmbearbeitungsCode$ = defer(() =>
-            pefDialogService.displayDialog('DialogNewPmBearbeitungsCodeComponent', {}).pipe(map(x => x.data)),
+            pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent, {}).pipe(map(x => x.data)),
         );
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.pipe(
