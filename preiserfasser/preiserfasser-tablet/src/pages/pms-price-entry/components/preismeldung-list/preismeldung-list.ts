@@ -46,7 +46,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public viewPortItems: P.Models.Preismeldung[];
     public filteredPreismeldungen$: Observable<P.PreismeldungBag[]>;
     public scrollList: P.PreismeldungBag[];
-    public completedCount$: Observable<string>;
+    public completedCount$: Observable<{ abgebucht: number; menge: number }>;
 
     public filterText$ = new EventEmitter<string>();
 
@@ -230,9 +230,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 }
             });
 
-        this.completedCount$ = this.preismeldungen$.map(
-            x => `${x.filter(y => y.preismeldung.istAbgebucht).length}/${x.length}`
-        );
+        this.completedCount$ = this.preismeldungen$.map(x => ({
+            abgebucht: x.filter(y => y.preismeldung.istAbgebucht).length,
+            menge: x.length,
+        }));
     }
 
     formatPercentageChange = (preismeldung: P.Models.Preismeldung) => {

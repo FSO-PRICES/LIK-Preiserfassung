@@ -146,9 +146,13 @@ preismeldung-list {
 
     .preismeldung-list-completed-count {
         text-align: center;
+        span {
+            display: inline-block;
+        }
     }
 
     .preismeldung-list-functions, .preismeldung-list-arrows {
+        white-space: nowrap;
         button {
             @include set-margin-right(1);
         }

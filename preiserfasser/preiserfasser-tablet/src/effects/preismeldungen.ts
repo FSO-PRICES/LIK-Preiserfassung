@@ -372,7 +372,7 @@ export class PreismeldungenEffects {
                 const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
                 let newIndex = 0;
                 sortBy(preismeldungen, pm => pm.sortierungsnummer).forEach((pm, i) => {
-                    if (pm.sortierungsnummer === 0 || (!!pm.preismeldung.erfasstAt && i >= newIndex)) {
+                    if (pm.sortierungsnummer === 0 || (!!pm.preismeldung.erfasstAt && !!pm.refPreismeldung && i >= newIndex)) {
                         newIndex = i + 1;
                     }
                 });

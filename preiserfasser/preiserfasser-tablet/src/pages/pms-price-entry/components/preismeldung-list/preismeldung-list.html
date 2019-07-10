@@ -50,8 +50,8 @@
                 <pef-icon name="add"></pef-icon>
             </button>
         </div>
-        <div class="preismeldung-list-completed-count">
-            {{ completedCount$ | async }}
+        <div class="preismeldung-list-completed-count" *ngIf="completedCount$ | async; let completedCount">
+            <span>{{ completedCount.abgebucht }}</span>/<span>{{ completedCount.menge }}</span>
         </div>
         <div class="preismeldung-list-arrows">
             <button ion-button icon-only (click)="selectPrevPreismeldung$.emit()">
