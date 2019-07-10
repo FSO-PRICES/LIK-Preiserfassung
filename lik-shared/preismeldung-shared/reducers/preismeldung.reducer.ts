@@ -1,19 +1,11 @@
 import { createSelector } from 'reselect';
-import { assign, cloneDeep, sortBy, keys, initial, last, omit, uniq } from 'lodash';
+import { assign, cloneDeep, sortBy, keys, maxBy, initial, last, omit, uniq } from 'lodash';
 
 import * as P from '../models';
 import { preismeldungId, priceCountId, priceCountIdByPm } from '../../common/helper-functions';
 import { PreismeldungAction } from '../actions/preismeldung.actions';
 import { createMapOf, createCountMapOf } from '../../common/map-functions';
-
-export interface PreismeldungBag {
-    pmId: string;
-    refPreismeldung?: P.Models.PreismeldungReference;
-    sortierungsnummer: number;
-    preismeldung: P.Models.Preismeldung;
-    warenkorbPosition: P.Models.WarenkorbLeaf;
-    exported?: boolean;
-}
+import { getNextIndexForRecMode } from '../../common/preismeldung-functions';
 
 export interface CurrentPreismeldungBagMessages {
     isAdminApp: boolean;
@@ -23,7 +15,7 @@ export interface CurrentPreismeldungBagMessages {
     bemerkungen: string;
 }
 
-export type CurrentPreismeldungBag = PreismeldungBag & {
+export type CurrentPreismeldungBag = P.PreismeldungBag & {
     isModified: boolean;
     isMessagesModified: boolean;
     isAttributesModified: boolean;
@@ -55,7 +47,7 @@ export interface State {
     isInRecordMode: boolean;
     pmsNummer: string;
     preismeldungIds: string[];
-    entities: { [pmNummer: string]: PreismeldungBag };
+    entities: { [pmNummer: string]: P.PreismeldungBag };
     currentPreismeldung: CurrentPreismeldungBag;
     priceCountStatuses: PriceCountStatusMap;
     status: string;
@@ -434,7 +426,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
         case 'DELETE_PREISMELDUNG_SUCCESS': {
             const { pmId, pmsPreismeldungenSort } = action.payload;
-            let entities = omit(state.entities, pmId) as { [pmNummer: string]: PreismeldungBag };
+            let entities = omit(state.entities, pmId) as { [pmNummer: string]: P.PreismeldungBag };
             entities = pmsPreismeldungenSort.sortOrder.reduce(
                 (e, sort) => ({
                     ...e,
@@ -528,9 +520,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
         case 'DUPLICATE_PREISMELDUNG': {
             const allPreismeldungen = getAll(state);
-            const allErfasstePreismeldungen = allPreismeldungen.filter(pm => !!pm.preismeldung.erfasstAt);
             const currentPreismeldung = action.payload.preismeldungToDuplicate;
-            const preismeldungen = getAll(state).filter(
+            const preismeldungen = allPreismeldungen.filter(
                 x =>
                     x.warenkorbPosition.gliederungspositionsnummer ===
                     currentPreismeldung.warenkorbPosition.gliederungspositionsnummer
@@ -538,11 +529,6 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[
                 preismeldungen.length - 1
             ] + 1}`;
-            const sortierungsnummer = state.isInRecordMode
-                ? allErfasstePreismeldungen.length !== 0
-                    ? last(allErfasstePreismeldungen).sortierungsnummer + 1
-                    : 1
-                : currentPreismeldung.sortierungsnummer + 1;
             const newPmId = preismeldungId(
                 currentPreismeldung.preismeldung.pmsNummer,
                 currentPreismeldung.preismeldung.epNummer,
@@ -562,7 +548,11 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     {
                         pmId: newPmId,
                         refPreismeldung: null,
-                        sortierungsnummer,
+                        sortierungsnummer: getNextDuplicateSortierungsnummer(
+                            state.isInRecordMode,
+                            allPreismeldungen,
+                            currentPreismeldung
+                        ),
                         preismeldung: newPreismeldung,
                         warenkorbPosition: currentPreismeldung.warenkorbPosition,
                     },
@@ -583,8 +573,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
         case 'NEW_PREISMELDUNG': {
             const allPreismeldungen = getAll(state);
-            const allErfasstePreismeldungen = allPreismeldungen.filter(pm => !!pm.preismeldung.erfasstAt);
-            const preismeldungen = getAll(state).filter(
+            const preismeldungen = allPreismeldungen.filter(
                 x =>
                     x.warenkorbPosition.gliederungspositionsnummer ===
                     action.payload.warenkorbPosition.gliederungspositionsnummer
@@ -601,17 +590,6 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 action.payload.warenkorbPosition.gliederungspositionsnummer,
                 nextLaufnummer
             );
-            const nextSortierungsnummerWhenNoEp = !state.isInRecordMode
-                ? allPreismeldungen.length !== 0
-                    ? allPreismeldungen[allPreismeldungen.length - 1].sortierungsnummer + 1
-                    : 1
-                : allErfasstePreismeldungen.length !== 0
-                ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
-                : 1;
-            const sortierungsnummer =
-                preismeldungen.length === 0 || state.isInRecordMode
-                    ? nextSortierungsnummerWhenNoEp
-                    : last(sortBy(preismeldungen, x => x.sortierungsnummer)).sortierungsnummer + 1;
             const priceCountStatus =
                 state.priceCountStatuses[
                     priceCountId(action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer)
@@ -632,7 +610,11 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     {
                         pmId: newPmId,
                         refPreismeldung: null,
-                        sortierungsnummer,
+                        sortierungsnummer: getNextNewSortierungsnummer(
+                            state.isInRecordMode,
+                            allPreismeldungen,
+                            action.payload.warenkorbPosition.gliederungspositionsnummer
+                        ),
                         preismeldung: newPreismeldung,
                         warenkorbPosition: action.payload.warenkorbPosition,
                     },
@@ -657,6 +639,34 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         default:
             return state;
     }
+}
+
+function getNextDuplicateSortierungsnummer(
+    isInRecordMode: boolean,
+    preismeldungen: P.PreismeldungBag[],
+    currentPreismeldung: CurrentPreismeldungBag | null
+) {
+    if (isInRecordMode) {
+        const nextIndex = getNextIndexForRecMode(preismeldungen);
+        return nextIndex !== -1 ? preismeldungen[nextIndex].sortierungsnummer : 1;
+    }
+    return currentPreismeldung.sortierungsnummer + 1;
+}
+
+function getNextNewSortierungsnummer(
+    isInRecordMode: boolean,
+    preismeldungen: P.PreismeldungBag[],
+    epNummer: string = null
+) {
+    if (isInRecordMode) {
+        const nextIndex = getNextIndexForRecMode(preismeldungen);
+        return nextIndex !== -1 ? preismeldungen[nextIndex].sortierungsnummer : 1;
+    }
+    const epPreismeldungen = preismeldungen.filter(bag => bag.preismeldung.epNummer === epNummer);
+    const lastEpIndex = epPreismeldungen.indexOf(maxBy(epPreismeldungen, bag => bag.sortierungsnummer));
+    return lastEpIndex !== -1
+        ? epPreismeldungen[lastEpIndex].sortierungsnummer + 1
+        : last(preismeldungen).sortierungsnummer + 1;
 }
 
 // tslint:disable-next-line:no-unused-variable
@@ -1073,9 +1083,9 @@ function createPercentages(
     return { percentages, hasPriceWarning, textzeile };
 }
 
-function createPriceCountStatuses(entities: { [pmsNummer: string]: PreismeldungBag }) {
+function createPriceCountStatuses(entities: { [pmsNummer: string]: P.PreismeldungBag }) {
     const preismeldungBags = keys(entities).map(id => entities[id]);
-    const getPreisId = ({ preismeldung: pm }: PreismeldungBag) => preismeldungId(pm.pmsNummer, pm.epNummer);
+    const getPreisId = ({ preismeldung: pm }: P.PreismeldungBag) => preismeldungId(pm.pmsNummer, pm.epNummer);
     const activePricesPerPmsAndEp = createCountMapOf(
         preismeldungBags.filter(bag => bag.preismeldung.bearbeitungscode !== 0),
         pmBag => getPreisId(pmBag)
@@ -1161,7 +1171,7 @@ const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenk
     return !!productMerkmaleFromWarenkorb ? !productMerkmaleFromWarenkorb.every((x, i) => !!attributes[i]) : false;
 };
 
-function calcWarningAndTextzeile(bag: PreismeldungBag) {
+function calcWarningAndTextzeile(bag: P.PreismeldungBag) {
     const {
         d_DPToVP,
         d_DPToVPVorReduktion,

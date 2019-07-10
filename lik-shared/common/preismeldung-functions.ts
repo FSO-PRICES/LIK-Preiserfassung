@@ -1,5 +1,8 @@
-import { Preismeldung, PreismeldungReference, PercentageWithWarning } from './models';
 import { format } from 'date-fns';
+import { maxBy } from 'lodash';
+
+import { Preismeldung, PreismeldungReference, PercentageWithWarning } from './models';
+import { PreismeldungBag } from '../preismeldung-shared/models';
 
 type PreismeldungSortShape = { sortierungsnummer: number; epNummer: string; laufnummer: string };
 
@@ -48,6 +51,29 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungR
         d_DPVorReduktionToVP: createInitialPercentageWithWarning(),
         internetLink: rpm.internetLink,
     };
+}
+
+export function getNextIndexForRecMode(preismeldungen: PreismeldungBag[]) {
+    const validErfassteMap = preismeldungen.reduce(
+        (acc, bag) => ({
+            ...acc,
+            [bag.warenkorbPosition.gliederungspositionsnummer]:
+                (acc[bag.warenkorbPosition.gliederungspositionsnummer] || 0) + (!!bag.refPreismeldung ? 1 : 0),
+        }),
+        {} as Record<string, number>
+    );
+    const indexOfLastErfasst = preismeldungen.findIndex(
+        pm =>
+            pm.pmId ===
+            maxBy(
+                preismeldungen.filter(
+                    bag =>
+                        !!bag.refPreismeldung || validErfassteMap[bag.warenkorbPosition.gliederungspositionsnummer] >= 1
+                ),
+                bag => bag.preismeldung.erfasstAt
+            ).pmId
+    );
+    return indexOfLastErfasst !== -1 ? indexOfLastErfasst + 1 : -1;
 }
 
 function createInitialPercentageWithWarning(): PercentageWithWarning {

@@ -13,6 +13,7 @@ export {
     SavePreismeldungPriceSaveActionNavigate,
     SavePreismeldungPriceSaveActionWithDataType,
     isSavePreismeldungPriceSaveActionSave,
+    getNextIndexForRecMode,
     preismeldungId,
     preismeldungRefId,
     preismeldestelleId,

@@ -4,16 +4,8 @@ import { Store } from '@ngrx/store';
 import { startOfMonth } from 'date-fns';
 import { assign, cloneDeep, flatMap, isEqual, maxBy, sortBy } from 'lodash';
 import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
 
-import {
-    getDatabase,
-    getAllDocumentsForPrefix,
-    getAllDocumentsForPrefixFromDb,
-    getDatabaseAsObservable,
-    getDocumentWithFallback,
-} from './pouchdb-utils';
-import * as fromRoot from '../reducers';
-import * as P from '../common-models';
 import {
     preismeldungCompareFn,
     SavePreismeldungPriceSaveActionCommentsType,
@@ -26,8 +18,18 @@ import {
     preismeldestelleId,
     PreismeldungAction,
     copyPreismeldungPropertiesFromRefPreismeldung,
+    getNextIndexForRecMode,
 } from 'lik-shared';
-import { of } from 'rxjs/observable/of';
+
+import {
+    getDatabase,
+    getAllDocumentsForPrefix,
+    getAllDocumentsForPrefixFromDb,
+    getDatabaseAsObservable,
+    getDocumentWithFallback,
+} from './pouchdb-utils';
+import * as fromRoot from '../reducers';
+import * as P from '../common-models';
 
 @Injectable()
 export class PreismeldungenEffects {
@@ -369,15 +371,18 @@ export class PreismeldungenEffects {
             }))
             .filter(({ isInRecordMode }) => isInRecordMode)
             .map(({ preismeldungen }) => {
+                const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
                 const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
-                let newIndex = 0;
-                sortBy(preismeldungen, pm => pm.sortierungsnummer).forEach((pm, i) => {
-                    if (pm.sortierungsnummer === 0 || (!!pm.preismeldung.erfasstAt && !!pm.refPreismeldung && i >= newIndex)) {
+                let newIndex = getNextIndexForRecMode(sortedPreismeldungen);
+                sortedPreismeldungen.forEach((pm, i) => {
+                    if (pm.sortierungsnummer === 0 && i >= newIndex) {
                         newIndex = i + 1;
                     }
                 });
+                if (newIndex === -1) {
+                    newIndex = 0;
+                }
                 if (currentIndex !== newIndex) {
-                    const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
                     const lastSortNumber = preismeldungen[newIndex - (newIndex === 0 ? 0 : 1)].sortierungsnummer;
                     return [
                         ...sortedPreismeldungen.slice(0, newIndex),
