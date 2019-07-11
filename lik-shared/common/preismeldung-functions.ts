@@ -54,24 +54,8 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungR
 }
 
 export function getNextIndexForRecMode(preismeldungen: PreismeldungBag[]) {
-    const validErfassteMap = preismeldungen.reduce(
-        (acc, bag) => ({
-            ...acc,
-            [bag.warenkorbPosition.gliederungspositionsnummer]:
-                (acc[bag.warenkorbPosition.gliederungspositionsnummer] || 0) + (!!bag.refPreismeldung ? 1 : 0),
-        }),
-        {} as Record<string, number>
-    );
     const indexOfLastErfasst = preismeldungen.findIndex(
-        pm =>
-            pm.pmId ===
-            maxBy(
-                preismeldungen.filter(
-                    bag =>
-                        !!bag.refPreismeldung || validErfassteMap[bag.warenkorbPosition.gliederungspositionsnummer] >= 1
-                ),
-                bag => bag.preismeldung.erfasstAt
-            ).pmId
+        pm => pm.pmId === maxBy(preismeldungen, bag => bag.preismeldung.erfasstAt).pmId
     );
     return indexOfLastErfasst !== -1 ? indexOfLastErfasst + 1 : -1;
 }
