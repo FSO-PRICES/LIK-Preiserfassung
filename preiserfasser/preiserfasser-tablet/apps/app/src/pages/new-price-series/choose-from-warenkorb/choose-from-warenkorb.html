@@ -17,16 +17,16 @@
                 'btn_warenkorb_collapse_all' | translate
             }}</ion-button>
         </div>
-        <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop">
-            <ion-virtual-scroll [items]="warenkorbUiItems$ | async" [approxItemHeight]="'50px'">
+        <ion-content>
+            <ion-virtual-scroll [items]="warenkorbUiItems$ | async" approxItemHeight="50px">
                 <ion-item
                     *virtualItem="let warenkorbUiItem"
-                    class="{{
+                    [ngClass]="
                         'warenkorb-item-row tiefencode-' +
-                            warenkorbUiItem.depth +
-                            ' ' +
-                            (warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch')
-                    }}"
+                        warenkorbUiItem.depth +
+                        ' ' +
+                        (warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch')
+                    "
                     (click)="warenkorbItemClicked$.emit(warenkorbUiItem)"
                     [attr.tappable]="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? null : true"
                 >
@@ -86,9 +86,8 @@
                         }})
                     </div>
                     <ion-button
-                        icon-only
                         *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'"
-                        class="add-button"
+                        class="add-button icon-only"
                         [disabled]="!warenkorbUiItem.canSelect"
                         (click)="selectWarenkorbItem$.emit(warenkorbUiItem)"
                     >

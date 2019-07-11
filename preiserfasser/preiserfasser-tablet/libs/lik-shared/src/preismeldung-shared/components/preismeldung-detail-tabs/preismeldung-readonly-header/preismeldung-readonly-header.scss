@@ -10,6 +10,26 @@
     .item.md.pef-item ion-label {
         color: white;
     }
+    textarea {
+        resize: none;
+    }
+    ion-item {
+        --inner-padding-end: 0;
+        width: 100%;
+        --background: transparent;
+        --min-height: 0;
+    }
+    ion-input {
+        border-bottom: 2px solid $hit-gray;
+    }
+    ion-textarea {
+        margin-top: 0;
+        background-color: $alto;
+        --background: #{$alto};
+        --padding-top: 6px;
+        --padding-bottom: 6px;
+        border-bottom: 2px solid $hit-gray;
+    }
 
     .header-line {
         display: flex;
@@ -50,7 +70,7 @@
         }
     }
 
-    input {
+    ion-input {
         font-size: 1.25em;
         font-weight: 500;
     }

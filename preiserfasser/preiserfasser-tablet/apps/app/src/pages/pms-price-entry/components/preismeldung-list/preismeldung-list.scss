@@ -59,6 +59,7 @@
         padding-left: 0;
         border-bottom-width: 0;
         min-height: 3.5em;
+        --min-height: 3.5em;
         @include set-margin-bottom(0.25);
         &.selected {
             background-color: $surfie-green;

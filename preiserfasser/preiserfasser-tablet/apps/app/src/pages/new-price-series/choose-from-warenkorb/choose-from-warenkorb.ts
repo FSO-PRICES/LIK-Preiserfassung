@@ -4,7 +4,6 @@ import {
     ElementRef,
     EventEmitter,
     Input,
-    NgZone,
     OnChanges,
     OnDestroy,
     Output,
@@ -12,7 +11,6 @@ import {
     ViewChild,
 } from '@angular/core';
 import { IonContent } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 import { assign } from 'lodash';
 import { defer, Observable, of } from 'rxjs';
 import {
@@ -61,7 +59,8 @@ interface ClickAction {
 
 @Component({
     selector: 'choose-from-warenkorb',
-    templateUrl: 'choose-from-warenkorb.html',
+    styleUrls: ['./choose-from-warenkorb.scss'],
+    templateUrl: './choose-from-warenkorb.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChooseFromWarenkorbComponent extends ReactiveComponent implements OnChanges, OnDestroy {
@@ -108,12 +107,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         12: 'navigation_services',
     };
 
-    constructor(
-        private pefDialogService: PefDialogService,
-        private pefMessageDialogService: PefMessageDialogService,
-        translateService: TranslateService,
-        private zone: NgZone,
-    ) {
+    constructor(pefDialogService: PefDialogService, pefMessageDialogService: PefMessageDialogService) {
         super();
 
         const currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>(

@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
-import { combineLatest, filter, map, take, withLatestFrom } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { combineLatest, filter, map, publishReplay, refCount, take, withLatestFrom } from 'rxjs/operators';
 
 import * as P from '../../common-models';
 import * as fromRoot from '../../reducers';
@@ -14,17 +14,13 @@ import * as fromRoot from '../../reducers';
     styleUrls: ['new-price-series.page.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NewPriceSeriesPage implements OnDestroy {
+export class NewPriceSeriesPage implements OnInit, OnDestroy {
     ionViewDidLoad$ = new EventEmitter();
     currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage);
     isDesktop$ = this.store.select(fromRoot.getIsDesktop);
 
-    warenkorb$ = this.ionViewDidLoad$.pipe(
-        combineLatest(this.store.select(fromRoot.getWarenkorb), (_, warenkorb) => warenkorb),
-    );
-    preismeldungen$ = this.ionViewDidLoad$.pipe(
-        combineLatest(this.store.select(fromRoot.getPreismeldungen), (_, preismeldungen) => preismeldungen),
-    );
+    warenkorb$: Observable<P.WarenkorbInfo[]>;
+    preismeldungen$: Observable<P.PreismeldungBag[]>;
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
     erhebungsInfo$ = this.store.select(fromRoot.getErhebungsInfo);
 
@@ -41,8 +37,20 @@ export class NewPriceSeriesPage implements OnDestroy {
         private store: Store<fromRoot.AppState>,
     ) {
         const pmsNummerParam$ = activeRoute.params.pipe(map(({ pmsNummer }) => pmsNummer as string));
+        const ionViewDidLoad$ = this.ionViewDidLoad$.asObservable().pipe(
+            publishReplay(1),
+            refCount(),
+        );
+
+        this.warenkorb$ = ionViewDidLoad$.pipe(
+            combineLatest(this.store.select(fromRoot.getWarenkorb), (_, warenkorb) => warenkorb),
+        );
+        this.preismeldungen$ = ionViewDidLoad$.pipe(
+            combineLatest(this.store.select(fromRoot.getPreismeldungen), (_, preismeldungen) => preismeldungen),
+        );
+
         this.subscriptions.push(
-            this.ionViewDidLoad$
+            ionViewDidLoad$
                 .pipe(
                     withLatestFrom(pmsNummerParam$, this.store.select(x => x.preismeldungen.pmsNummer)),
                     filter(([, pmsNummerParam, pmsNummer]) => pmsNummer !== pmsNummerParam),
@@ -73,7 +81,7 @@ export class NewPriceSeriesPage implements OnDestroy {
         );
     }
 
-    ionViewDidLoad() {
+    ngOnInit() {
         this.ionViewDidLoad$.emit();
     }
 

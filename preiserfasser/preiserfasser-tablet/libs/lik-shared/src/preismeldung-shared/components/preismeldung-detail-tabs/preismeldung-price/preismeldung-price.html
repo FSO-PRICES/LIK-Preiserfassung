@@ -221,7 +221,7 @@
                                     [readonly]="preisAndMengeDisabled$ | async"
                                     [class.readonly]="preisAndMengeDisabled$ | async"
                                     (ionBlur)="preisChanged$.emit(preis.value)"
-                                    (ionChange)="preisInput$.emit($event.target.value)"
+                                    (ionInput)="preisInput$.emit($event.target.value)"
                                     [value]="(preisCurrentValue$ | async)?.value"
                                 ></ion-input>
                                 <ion-label slot="end" class="currency-label">{{ 'text_chf' | translate }}</ion-label>
@@ -238,7 +238,7 @@
                                     [class.readonly]="preisAndMengeDisabled$ | async"
                                     (ionBlur)="mengeChanged$.emit(menge.value)"
                                     [value]="form.value.menge"
-                                    (ionChange)="mengeInput$.emit($event.target.value)"
+                                    (ionInput)="mengeInput$.emit($event.target.value)"
                                 ></ion-input>
                                 <div slot="end">
                                     <ion-button
@@ -278,7 +278,7 @@
                                     pef-disable-input-negative-number
                                     [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async"
                                     (ionBlur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)"
-                                    (ionChange)="preisVorReduktionInput$.emit($event.target.value)"
+                                    (ionInput)="preisVorReduktionInput$.emit($event.target.value)"
                                     [readonly]="isReadonly$ | async"
                                     [class.readonly]="isReadonly$ | async"
                                     [value]="form.value.preisVorReduktion"
@@ -298,7 +298,7 @@
                                         pef-disable-input-negative-number
                                         [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
                                         (ionBlur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)"
-                                        (ionChange)="mengeVorReduktionInput$.emit($event.target.value)"
+                                        (ionInput)="mengeVorReduktionInput$.emit($event.target.value)"
                                         [readonly]="isReadonly$ | async"
                                         [class.readonly]="isReadonly$ | async"
                                         [value]="form.value.mengeVorReduktion"

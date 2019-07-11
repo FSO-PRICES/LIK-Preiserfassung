@@ -21,19 +21,33 @@
         max-width: 40em;
         padding-left: 0;
         margin-bottom: 0.5em;
-        &.readonly {
-            --background: #{$wild-sand};
-        }
+        --padding-start: 0;
+        --inner-padding-end: 0;
         &.item.md.item-block .item-inner {
             padding-right: 0;
             border-bottom-width: 0;
         }
         ion-textarea {
+            margin-top: 0;
+            background-color: $white;
+            --background: #{$white};
             border-bottom: 2px solid $hit-gray;
+            --padding-top: 0;
+            --padding-bottom: 0;
+            padding: 13px 8px;
             &.readonly {
+                background-color: $wild-sand;
+                --background: #{$wild-sand};
                 border-bottom-width: 0px;
                 text-area {
                     opacity: 0.6;
+                }
+            }
+            ::ng-deep {
+                .native-textarea {
+                    resize: vertical;
+                    min-height: 38px;
+                    max-height: 226px;
                 }
             }
         }

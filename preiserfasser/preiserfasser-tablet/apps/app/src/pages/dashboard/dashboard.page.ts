@@ -347,6 +347,16 @@ export class DashboardPage implements OnDestroy {
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
+    trackByPms(
+        index: number,
+        item: {
+            preismeldestelle: DashboardPms;
+        },
+    ) {
+        if (item) return index;
+        return item.preismeldestelle.pmsNummer;
+    }
+
     toDashboardPms(pms: P.Preismeldestelle) {
         const _erhebungsart = parseErhebungsarten(pms.erhebungsart);
         return assign({}, pms, {

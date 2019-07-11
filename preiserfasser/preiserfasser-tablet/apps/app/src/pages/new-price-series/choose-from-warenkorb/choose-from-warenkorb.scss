@@ -29,7 +29,7 @@
         @include set-margin-top(0.75);
     }
 
-    ion-button.button.button-clear.button-clear-md.close-button {
+    ion-button.close-button {
         font-size: 1em;
         color: white;
         fill: white;
@@ -83,7 +83,6 @@
     }
 
     .warenkorb-item-row {
-        position: relative;
         display: flex;
         width: 100%;
         @include set-height(3);
@@ -108,9 +107,8 @@
         width: 5em;
         max-width: 5em;
         margin-right: 0;
-        .button-inner {
-            justify-content: flex-end;
-        }
+        height: 3.6rem;
+        --box-shadow: none;
         &:disabled {
             background-color: $mercury;
             opacity: 0.6;
@@ -221,6 +219,9 @@
             @include set-height(4.5);
             .add-button {
                 fill: white;
+                peft-icon {
+                    margin-top: -4px;
+                }
             }
         }
     }

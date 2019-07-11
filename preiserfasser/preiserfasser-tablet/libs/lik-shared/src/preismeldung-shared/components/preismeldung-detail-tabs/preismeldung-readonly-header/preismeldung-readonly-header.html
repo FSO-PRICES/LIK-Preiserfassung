@@ -6,7 +6,7 @@
         {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }}
         {{ (preismeldung$ | async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
     </div>
-    <ion-item class="pef-item on-dark" *ngIf="!(isInternet$ | async)">
+    <ion-item class="pef-item pef-item-compact on-dark" *ngIf="!(isInternet$ | async)">
         <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
         <ion-input
             type="text"
@@ -15,7 +15,7 @@
             [value]="(preismeldung$ | async)?.preismeldung.artikelnummer"
         ></ion-input>
     </ion-item>
-    <ion-item class="pef-item on-dark" *ngIf="(isInternet$ | async)">
+    <ion-item class="pef-item pef-item-compact on-dark" *ngIf="(isInternet$ | async)">
         <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
         <ion-input
             type="text"
@@ -25,8 +25,7 @@
         ></ion-input>
     </ion-item>
     <ion-button
-        class="pef-icon-secondary server-url-button"
-        icon-only
+        class="pef-icon-secondary server-url-button icon-only"
         (click)="navigateToInternetLink$.emit()"
         [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink"
         *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'"
@@ -41,8 +40,8 @@
         }"
     >
         <span
-            >{{ (preismeldung$ | async).priceCountStatus.numActivePrices }}/{{
-                (preismeldung$ | async).priceCountStatus.anzahlPreiseProPMS
+            >{{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}/{{
+                (preismeldung$ | async)?.priceCountStatus.anzahlPreiseProPMS
             }}</span
         >
     </div>
@@ -50,12 +49,12 @@
 <div class="header-line" *ngIf="!!(preismeldung$ | async)">
     <ion-item class="pef-item on-dark">
         <ion-label>{{ 'label_artikeltext' | translate }}<span style="visibility: hidden">&nbsp;*</span> </ion-label>
-        <ion-input
-            type="text"
+        <ion-textarea
+            rows="2"
             [readonly]="true"
             [class.readonly]="true"
             [value]="(preismeldung$ | async)?.preismeldung.artikeltext"
-        ></ion-input>
+        ></ion-textarea>
     </ion-item>
     <div class="right-column"></div>
 </div>

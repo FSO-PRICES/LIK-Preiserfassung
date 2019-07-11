@@ -54,7 +54,7 @@
             </div>
             <ion-content pef-perfect-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
                 <div class="pms-table">
-                    <div class="pms-row" *ngFor="let bag of (filteredPreismeldestellenWithStatistics$ | async)">
+                    <div class="pms-row" *ngFor="let bag of (filteredPreismeldestellenWithStatistics$ | async); trackBy trackByPms">
                         <div class="pms-cell pms-nummer">
                             <div class="pms-cell-content">
                                 <ion-button
