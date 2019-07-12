@@ -26,5 +26,5 @@ export class PefDialogValidationErrorsComponent {
     @HostBinding('class') classes = 'pef-dialog';
     @Input() public errorMessages: InputP<string[]> = [];
 
-    constructor(public viewCtrl: ModalController, public navParams: NavParams) {}
+    constructor(public viewCtrl: ModalController) {}
 }

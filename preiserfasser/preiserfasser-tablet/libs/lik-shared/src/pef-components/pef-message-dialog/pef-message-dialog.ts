@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 
 import { InputP } from '../../common';
 
@@ -33,5 +33,5 @@ export class PefMessageDialogComponent {
     @Input() message: InputP<string>;
     @Input() buttons: InputP<PefMessageDialogButton[]>;
 
-    constructor(public viewCtrl: ModalController) {}
+    constructor(public viewCtrl: PopoverController) {}
 }
