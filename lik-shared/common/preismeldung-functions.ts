@@ -54,10 +54,15 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungR
 }
 
 export function getNextIndexForRecMode(preismeldungen: PreismeldungBag[]) {
-    const indexOfLastErfasst = preismeldungen.findIndex(
-        pm => pm.pmId === maxBy(preismeldungen, bag => bag.preismeldung.erfasstAt).pmId
-    );
-    return indexOfLastErfasst !== -1 ? indexOfLastErfasst + 1 : -1;
+    let nextIndex = 0;
+    let maxErfasstAt = 0;
+    preismeldungen.forEach((bag, i) => {
+        if (bag.preismeldung.erfasstAt >= maxErfasstAt || !!bag.preismeldung.uploadRequestedAt) {
+            maxErfasstAt = bag.preismeldung.erfasstAt;
+            nextIndex = i;
+        }
+    });
+    return nextIndex !== -1 ? nextIndex + 1 : -1;
 }
 
 function createInitialPercentageWithWarning(): PercentageWithWarning {

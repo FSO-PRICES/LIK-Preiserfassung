@@ -650,7 +650,11 @@ function getNextDuplicateSortierungsnummer(
         const nextIndex = getNextIndexForRecMode(preismeldungen);
         return nextIndex !== -1 ? preismeldungen[nextIndex].sortierungsnummer : 1;
     }
-    return currentPreismeldung.sortierungsnummer + 1;
+    const nextSortierungsnummer = currentPreismeldung.sortierungsnummer + 1;
+    return nextSortierungsnummer <=
+        maxBy(preismeldungen, bag => bag.preismeldung.uploadRequestedAt + bag.preismeldung.erfasstAt).sortierungsnummer
+        ? maxBy(preismeldungen, bag => bag.sortierungsnummer).sortierungsnummer + 1
+        : nextSortierungsnummer;
 }
 
 function getNextNewSortierungsnummer(
