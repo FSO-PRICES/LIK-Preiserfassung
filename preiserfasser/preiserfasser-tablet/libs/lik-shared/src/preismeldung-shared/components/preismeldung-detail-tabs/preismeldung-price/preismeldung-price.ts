@@ -922,7 +922,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
                 return alertsToExecute.length > 0
                     ? (alertsToExecute.reduce((agg, v) => {
-                          if (!agg) return v();
+                          if (!agg) return v().pipe(map(save => ({ ...saveActionData(saveAction), ...save })));
                           return (agg as any).flatMap(lastAlertResult => {
                               if (
                                   lastAlertResult === 'THROW_CHANGES' ||
@@ -935,21 +935,25 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                           P.isSavePreismeldungPriceSaveActionSave(lastAlertResult) &&
                                           P.isSavePreismeldungPriceSaveActionSave(thisAlertResult)
                                       ) {
-                                          return assign({}, thisAlertResult, {
+                                          return {
+                                              ...saveActionData(saveAction),
+                                              ...thisAlertResult,
                                               saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(
                                                   lastAlertResult.saveWithData,
                                               ),
-                                          });
+                                          };
                                       } else {
-                                          return thisAlertResult;
+                                          return { ...saveActionData(saveAction), ...thisAlertResult };
                                       }
                                   }),
                               );
                           });
                       }, null) as Observable<P.SavePreismeldungPriceSaveAction | string>)
-                    : observableOf({ type: saveAction.type, saveWithData: [{ type: 'COMMENT', comments: [] }] } as
-                          | P.SavePreismeldungPriceSaveAction
-                          | string);
+                    : observableOf({
+                          ...saveActionData(saveAction),
+                          type: saveAction.type,
+                          saveWithData: [{ type: 'COMMENT', comments: [] }],
+                      } as P.SavePreismeldungPriceSaveAction | string);
             }),
             publishReplay(1),
             refCount(),
@@ -1120,5 +1124,14 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         } else {
             this.wndw.open(_internetLink, '_blank');
         }
+    }
+}
+
+function saveActionData(saveAction: P.SavePreismeldungPriceSaveAction) {
+    switch (saveAction.type) {
+        case 'SAVE_AND_MOVE_TO_NEXT':
+            return { nextId: saveAction.nextId };
+        default:
+            return {};
     }
 }

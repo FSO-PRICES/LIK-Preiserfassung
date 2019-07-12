@@ -77,6 +77,7 @@
                 (addNewPreisreihe)="addNewPreisreihe$.emit()"
                 (sortPreismeldungen)="navigateToPmsSort$.emit()"
                 (recordSortPreismeldungen)="recordSortPreismeldungen$.emit()"
+                (filteredPreismeldungen)="filteredPreismeldungen$.emit($event)"
                 [currentLanguage]="currentLanguage$ | async"
                 [requestSelectNextPreismeldung]="selectNextPreismeldungRequested$ | async"
                 [isDesktop]="isDesktop$ | async"

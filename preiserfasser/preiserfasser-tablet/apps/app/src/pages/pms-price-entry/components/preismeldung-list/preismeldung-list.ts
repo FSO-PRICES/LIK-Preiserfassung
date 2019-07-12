@@ -61,6 +61,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
     @Output('sortPreismeldungen') sortPreismeldungen$ = new EventEmitter();
     @Output('recordSortPreismeldungen') recordSortPreismeldungen$ = new EventEmitter();
+    @Output('filteredPreismeldungen') filteredPreismeldungen$: Observable<(P.PreismeldungBag & { marked: boolean })[]>;
 
     @ViewChild(PefVirtualScrollComponent, { static: true }) private virtualScroll: any;
 
@@ -69,7 +70,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectPrevPreismeldung$ = new EventEmitter();
 
     public viewPortItems: P.Models.Preismeldung[];
-    public filteredPreismeldungen$: Observable<(P.PreismeldungBag & { marked: boolean })[]>;
     public scrollList: P.PreismeldungBag[];
     public completedCount$: Observable<string>;
 

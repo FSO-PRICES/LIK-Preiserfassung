@@ -346,11 +346,11 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 { isModified: false, lastSaveAction: action.payload.saveAction },
             );
 
-            const index = state.preismeldungIds.findIndex(x => x === state.currentPreismeldung.pmId);
-            const nextId = index === state.preismeldungIds.length - 1 ? null : state.preismeldungIds[index + 1];
-
-            let nextPreismeldung;
-            if (action.payload.saveAction.type === 'SAVE_AND_MOVE_TO_NEXT' && nextId !== null) {
+            const saveAction = action.payload.saveAction;
+            let nextPreismeldung: P.PreismeldungBag;
+            if (saveAction.type === 'SAVE_AND_MOVE_TO_NEXT') {
+                const index = !!saveAction.nextId ? state.preismeldungIds.findIndex(x => x === saveAction.nextId) : 0;
+                const nextId = state.preismeldungIds[index];
                 nextPreismeldung = createCurrentPreismeldungBag(
                     !!nextId ? state.entities[nextId] : state.entities[0],
                     state.priceCountStatuses,

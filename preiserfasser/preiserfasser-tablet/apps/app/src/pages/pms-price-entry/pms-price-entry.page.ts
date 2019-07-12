@@ -88,6 +88,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
     requestThrowChanges$ = new EventEmitter<{}>();
     isNotSave$ = new EventEmitter<boolean>();
     disableQuickEqual$ = new EventEmitter<boolean>();
+    filteredPreismeldungen$ = new EventEmitter<P.PreismeldungBag[]>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -140,6 +141,11 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
                 }
                 return cancelEditDialog$;
             }),
+            publishReplay(1),
+            refCount(),
+        );
+
+        const filteredPreismeldungen$ = this.filteredPreismeldungen$.asObservable().pipe(
             publishReplay(1),
             refCount(),
         );
@@ -302,7 +308,18 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         this.requestPreismeldungSave$ = this.toolbarButtonClicked$.pipe(
             filter(x => x === 'PREISMELDUNG_SAVE'),
-            map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' } as P.SavePreismeldungPriceSaveAction)),
+            withLatestFrom(filteredPreismeldungen$, this.currentPreismeldung$),
+            map(
+                ([, preismeldungen, currentPreismeldung]) =>
+                    ({
+                        type: 'SAVE_AND_MOVE_TO_NEXT',
+                        nextId: (
+                            preismeldungen[preismeldungen.findIndex(p => p.pmId === currentPreismeldung.pmId) + 1] || {
+                                pmId: null,
+                            }
+                        ).pmId,
+                    } as P.SavePreismeldungPriceSaveAction),
+            ),
             merge(
                 cancelEditReponse$.pipe(
                     filter(x => x.dialogCode === 'SAVE'),

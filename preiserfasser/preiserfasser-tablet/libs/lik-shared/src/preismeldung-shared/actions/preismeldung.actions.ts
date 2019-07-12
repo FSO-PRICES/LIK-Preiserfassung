@@ -52,6 +52,7 @@ export type SavePreismeldungPriceSaveActionJustSave = {
 export type SavePreismeldungPriceSaveActionSaveMoveNext = {
     type: 'SAVE_AND_MOVE_TO_NEXT';
     saveWithData: SavePreismeldungPriceSaveActionWithDataType[];
+    nextId: string;
 };
 export type SavePreismeldungPriceSaveActionSaveDuplicate = {
     type: 'SAVE_AND_DUPLICATE_PREISMELDUNG';
