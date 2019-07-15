@@ -190,6 +190,9 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
             this.element.nativeElement.scrollTop = this.scrollHeight;
         }
 
+        if (this.scrollHeight < d.viewHeight) {
+            this.element.nativeElement.scrollTop = 0;
+        }
         let scrollTop = Math.max(0, el.scrollTop);
         let indexByScrollTop = ((scrollTop / this.scrollHeight) * d.itemCount) / d.itemsPerRow;
         let end = Math.min(
