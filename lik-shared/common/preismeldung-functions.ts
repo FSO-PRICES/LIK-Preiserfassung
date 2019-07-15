@@ -57,12 +57,15 @@ export function getNextIndexForRecMode(preismeldungen: PreismeldungBag[]) {
     let nextIndex = 0;
     let maxErfasstAt = 0;
     preismeldungen.forEach((bag, i) => {
-        if (bag.preismeldung.erfasstAt >= maxErfasstAt || !!bag.preismeldung.uploadRequestedAt) {
+        if (
+            (!!bag.preismeldung.erfasstAt && bag.preismeldung.erfasstAt >= maxErfasstAt) ||
+            !!bag.preismeldung.uploadRequestedAt
+        ) {
             maxErfasstAt = bag.preismeldung.erfasstAt;
             nextIndex = i;
         }
     });
-    return nextIndex !== -1 ? nextIndex + 1 : -1;
+    return nextIndex !== 0 ? nextIndex + 1 : 0;
 }
 
 function createInitialPercentageWithWarning(): PercentageWithWarning {
