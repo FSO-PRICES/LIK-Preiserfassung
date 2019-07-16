@@ -1,5 +1,6 @@
 export * from './erhebungsart-functions';
 export * from './formatting-functions';
+export * from './hammer';
 export * from './helper-functions';
 export * from './map-functions';
 export * from './models';

@@ -3,18 +3,18 @@ import { LoadingController, ModalController, PopoverController } from '@ionic/an
 import { from, Observable } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 
+import { PopoverOptions } from '@ionic/core';
 import { InputP } from './dialog';
 
-export interface DialogOptions {
-    params?: any;
-    enableBackdropDismiss?: boolean;
+type Class<T extends Function> = T['prototype'];
+type TextDialogOptions = {
     requestDismiss$?: Observable<{}>;
-}
-
-const defaultOptions: DialogOptions = {
-    params: null,
-    enableBackdropDismiss: false,
-    requestDismiss$: null,
+    dialogOptions?: Omit<PopoverOptions, 'component' | 'componentProps'>;
+};
+type DialogOptions<T extends Function, K extends keyof Class<T>> = {
+    params?: { [P in K]: Class<T>[P] extends InputP<unknown> ? Class<T>[P] : never };
+    requestDismiss$?: Observable<{}>;
+    dialogOptions?: Omit<PopoverOptions, 'component' | 'componentProps'>;
 };
 
 @Injectable()
@@ -25,14 +25,20 @@ export class PefDialogService {
         private loadingController: LoadingController,
     ) {}
 
-    displayDialog<T extends Function, K extends keyof T['prototype']>(
-        dialogComponent: T,
-        params: { [P in K]: T['prototype'][P] extends InputP<unknown> ? T['prototype'][P] : never },
-        backdropDismiss = false,
-        requestDismiss$: Observable<{}> = null,
-    ) {
+    displayDialog<T extends Function, K extends keyof Class<T>>(dialogComponent: T, options: DialogOptions<T, K> = {}) {
+        const { params, requestDismiss$, dialogOptions } = {
+            requestDismiss$: null,
+            params: {},
+            dialogOptions: null,
+            ...options,
+        };
         const dialog$ = from(
-            this.popoverController.create({ component: dialogComponent, componentProps: params, backdropDismiss }),
+            this.popoverController.create({
+                component: dialogComponent,
+                componentProps: params,
+                backdropDismiss: false,
+                ...dialogOptions,
+            }),
         ).pipe(switchMap(dialog => dialog.present().then(() => dialog)));
         if (requestDismiss$ !== null) {
             requestDismiss$
@@ -45,16 +51,22 @@ export class PefDialogService {
         return dialog$.pipe(switchMap(dialog => dialog.onWillDismiss()));
     }
 
-    displayModal(dialogComponent: any, options: DialogOptions = defaultOptions) {
+    displayModal<T extends Function, K extends keyof Class<T>>(component: T, options: DialogOptions<T, K> = {}) {
+        const { params, requestDismiss$, dialogOptions } = {
+            requestDismiss$: null,
+            params: {},
+            dialogOptions: null,
+            ...options,
+        };
         const dialog$ = from(
             this.modalController.create({
-                component: dialogComponent,
-                componentProps: options.params,
-                backdropDismiss: options.enableBackdropDismiss,
+                component: component,
+                componentProps: params,
+                ...dialogOptions,
             }),
         ).pipe(switchMap(dialog => dialog.present().then(() => dialog)));
-        if (options.requestDismiss$ !== null) {
-            options.requestDismiss$
+        if (requestDismiss$ !== null) {
+            requestDismiss$
                 .pipe(
                     take(1),
                     switchMap(() => dialog$),
@@ -64,10 +76,12 @@ export class PefDialogService {
         return dialog$.pipe(switchMap(dialog => dialog.onWillDismiss()));
     }
 
-    displayLoading(text: string, requestDismiss$: Observable<{}>) {
+    displayLoading(text: string, options: TextDialogOptions = {}) {
+        const { requestDismiss$, dialogOptions } = { requestDismiss$: null, dialogOptions: null, ...options };
         const loader$ = from(
             this.loadingController.create({
                 message: text,
+                ...dialogOptions,
             }),
         ).pipe(switchMap(dialog => dialog.present().then(() => dialog)));
         if (requestDismiss$ !== null) {

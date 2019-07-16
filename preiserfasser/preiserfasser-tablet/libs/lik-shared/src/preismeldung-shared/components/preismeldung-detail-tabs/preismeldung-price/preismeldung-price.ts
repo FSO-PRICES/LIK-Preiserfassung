@@ -134,8 +134,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         pefDialogService: PefDialogService,
         pefMessageDialogService: PefMessageDialogService,
         translateService: TranslateService,
+        @Inject(WINDOW) public wndw: Window,
         private electronService: ElectronService,
-        @Inject(WINDOW) private wndw: Window,
     ) {
         super();
 
@@ -384,7 +384,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .pipe(
                     mergeMap(() =>
                         pefDialogService
-                            .displayDialog(DialogChoosePercentageReductionComponent, null, true)
+                            .displayDialog(DialogChoosePercentageReductionComponent, {
+                                dialogOptions: { backdropDismiss: true },
+                            })
                             .pipe(map(x => x.data)),
                     ),
                     filter(x => !!x && x.type === 'OK'),
@@ -586,11 +588,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 .pipe(
                     filter(x => x.bag.hasAttributeWarning),
                     mergeMap(() =>
-                        pefDialogService.displayDialog(
-                            PefDialogValidationErrorsComponent,
-                            { errorMessages: translateService.instant('validation_produktMerkmale_erfassen') },
-                            true,
-                        ),
+                        pefDialogService.displayDialog(PefDialogValidationErrorsComponent, {
+                            params: { errorMessages: translateService.instant('validation_produktMerkmale_erfassen') },
+                            dialogOptions: { backdropDismiss: true },
+                        }),
                     ),
                 )
                 .subscribe(),
@@ -612,11 +613,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             bag.messages.bemerkungen === '',
                         observable: () =>
                             pefDialogService
-                                .displayDialog(
-                                    PefDialogValidationErrorsComponent,
-                                    { errorMessages: translateService.instant('validation_frage-antworten') },
-                                    true,
-                                )
+                                .displayDialog(PefDialogValidationErrorsComponent, {
+                                    params: { errorMessages: translateService.instant('validation_frage-antworten') },
+                                    dialogOptions: { backdropDismiss: true },
+                                })
                                 .pipe(
                                     map(
                                         () =>
@@ -990,7 +990,10 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                             }),
                     ),
                     mergeMap(errorMessages =>
-                        pefDialogService.displayDialog(PefDialogValidationErrorsComponent, { errorMessages }, true),
+                        pefDialogService.displayDialog(PefDialogValidationErrorsComponent, {
+                            params: { errorMessages },
+                            dialogOptions: { backdropDismiss: true },
+                        }),
                     ),
                 )
                 .subscribe(),

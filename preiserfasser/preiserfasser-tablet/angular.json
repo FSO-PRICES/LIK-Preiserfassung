@@ -1,12 +1,12 @@
 {
     "$schema": "./node_modules/@angular-devkit/core/src/workspace/workspace-schema.json",
     "version": 1,
-    "defaultProject": "app",
+    "defaultProject": "preiserfasser",
     "newProjectRoot": "",
     "projects": {
-        "app": {
-            "root": "apps\\app",
-            "sourceRoot": "apps\\app\\src",
+        "preiserfasser": {
+            "root": "apps\\preiserfasser",
+            "sourceRoot": "apps\\preiserfasser\\src",
             "projectType": "application",
             "prefix": "app",
             "schematics": {},
@@ -14,15 +14,15 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
-                        "outputPath": "dist\\apps\\app",
-                        "index": "apps/app/src/index.html",
-                        "main": "apps/app/src/main.ts",
-                        "polyfills": "apps/app/src/polyfills.ts",
-                        "tsConfig": "apps\\app\\tsconfig.app.json",
+                        "outputPath": "dist\\apps\\preiserfasser",
+                        "index": "apps/preiserfasser/src/index.html",
+                        "main": "apps/preiserfasser/src/main.ts",
+                        "polyfills": "apps/preiserfasser/src/polyfills.ts",
+                        "tsConfig": "apps\\preiserfasser\\tsconfig.app.json",
                         "assets": [
                             {
                                 "glob": "**/*",
-                                "input": "apps/app/src/assets",
+                                "input": "apps/preiserfasser/src/assets",
                                 "output": "assets"
                             },
                             {
@@ -33,24 +33,52 @@
                         ],
                         "styles": [
                             {
-                                "input": "apps/app/src/theme/variables.scss"
+                                "input": "apps/preiserfasser/src/theme/variables.scss"
                             },
                             {
-                                "input": "apps/app/src/global.scss"
+                                "input": "apps/preiserfasser/src/global.scss"
                             },
                             {
-                                "input": "apps/app/src/app/app.scss"
+                                "input": "apps/preiserfasser/src/app/app.scss"
                             }
                         ],
                         "scripts": [],
                         "es5BrowserSupport": true
                     },
                     "configurations": {
+                        "ionic": {
+                            "outputPath": "www"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/app/src/environments/environment.ts",
-                                    "with": "apps/app/src/environments/environment.prod.ts"
+                                    "replace": "apps/preiserfasser/src/environments/environment.ts",
+                                    "with": "apps/preiserfasser/src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "aot": true,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                }
+                            ]
+                        },
+                        "ionic-production": {
+                            "outputPath": "www",
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/preiserfasser/src/environments/environment.ts",
+                                    "with": "apps/preiserfasser/src/environments/environment.prod.ts"
                                 }
                             ],
                             "optimization": true,
@@ -78,11 +106,11 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "browserTarget": "app:build"
+                        "browserTarget": "preiserfasser:build"
                     },
                     "configurations": {
                         "production": {
-                            "browserTarget": "app:build:production"
+                            "browserTarget": "preiserfasser:build:production"
                         },
                         "ci": {
                             "progress": false
@@ -92,27 +120,27 @@
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                        "browserTarget": "app:build"
+                        "browserTarget": "preiserfasser:build"
                     }
                 },
                 "test": {
                     "builder": "@angular-devkit/build-angular:karma",
                     "options": {
-                        "main": "apps/app/src/test.ts",
-                        "polyfills": "apps/app/src/polyfills.ts",
-                        "tsConfig": "apps\\app\\tsconfig.spec.json",
-                        "karmaConfig": "apps\\app\\karma.conf.js",
+                        "main": "apps/preiserfasser/src/test.ts",
+                        "polyfills": "apps/preiserfasser/src/polyfills.ts",
+                        "tsConfig": "apps\\preiserfasser\\tsconfig.spec.json",
+                        "karmaConfig": "apps\\preiserfasser\\karma.conf.js",
                         "styles": [],
                         "scripts": [],
                         "assets": [
                             {
                                 "glob": "favicon.ico",
-                                "input": "apps/app/src/",
+                                "input": "apps/preiserfasser/src/",
                                 "output": "/"
                             },
                             {
                                 "glob": "**/*",
-                                "input": "apps/app/src/assets",
+                                "input": "apps/preiserfasser/src/assets",
                                 "output": "/assets"
                             }
                         ]
@@ -128,8 +156,8 @@
                     "builder": "@angular-devkit/build-angular:tslint",
                     "options": {
                         "tsConfig": [
-                            "apps\\app\\tsconfig.app.json",
-                            "apps\\app\\tsconfig.spec.json"
+                            "apps\\preiserfasser\\tsconfig.app.json",
+                            "apps\\preiserfasser\\tsconfig.spec.json"
                         ],
                         "exclude": [
                             "**/node_modules/**"
@@ -139,24 +167,35 @@
                 "ionic-cordova-build": {
                     "builder": "@ionic/angular-toolkit:cordova-build",
                     "options": {
-                        "browserTarget": "app:build"
+                        "browserTarget": "preiserfasser:build"
                     },
                     "configurations": {
                         "production": {
-                            "browserTarget": "app:build:production"
+                            "browserTarget": "preiserfasser:build:production"
+                        }
+                    }
+                },
+                "ionic-cordova-build-www": {
+                    "builder": "@ionic/angular-toolkit:cordova-build",
+                    "options": {
+                        "browserTarget": "preiserfasser:build:ionic"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "preiserfasser:build:ionic-production"
                         }
                     }
                 },
                 "ionic-cordova-serve": {
                     "builder": "@ionic/angular-toolkit:cordova-serve",
                     "options": {
-                        "cordovaBuildTarget": "app:ionic-cordova-build",
-                        "devServerTarget": "app:serve"
+                        "cordovaBuildTarget": "preiserfasser:ionic-cordova-build",
+                        "devServerTarget": "preiserfasser:serve"
                     },
                     "configurations": {
                         "production": {
-                            "cordovaBuildTarget": "app:ionic-cordova-build:production",
-                            "devServerTarget": "app:serve:production"
+                            "cordovaBuildTarget": "preiserfasser:ionic-cordova-build:production",
+                            "devServerTarget": "preiserfasser:serve:production"
                         }
                     }
                 }

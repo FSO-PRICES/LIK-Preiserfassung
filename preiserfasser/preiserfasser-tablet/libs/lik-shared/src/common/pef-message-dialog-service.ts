@@ -11,38 +11,36 @@ export class PefMessageDialogService {
     constructor(private pefDialogService: PefDialogService, private translateService: TranslateService) {}
 
     displayDialogYesNo(messageTranslationKey: string, params: {} = null) {
-        return this.pefDialogService.displayDialog(
-            PefMessageDialogComponent,
-            { message: this.translateService.instant(messageTranslationKey, params), buttons: YesNoButtons },
-            false,
-        );
+        return this.pefDialogService.displayDialog(PefMessageDialogComponent, {
+            params: { message: this.translateService.instant(messageTranslationKey, params), buttons: YesNoButtons },
+        });
     }
 
     displayDialogYesNoEdit(messageTranslationKey: string, params: {} = null) {
-        return this.pefDialogService.displayDialog(
-            PefMessageDialogComponent,
-            { message: this.translateService.instant(messageTranslationKey, params), buttons: YesNoEditButtons },
-            false,
-        );
+        return this.pefDialogService.displayDialog(PefMessageDialogComponent, {
+            params: {
+                message: this.translateService.instant(messageTranslationKey, params),
+                buttons: YesNoEditButtons,
+            },
+        });
     }
 
     displayDialogOneButton(buttonTranslationKey: string, messageTranslationKey: string, params: {} = null) {
-        return this.pefDialogService.displayDialog(
-            PefMessageDialogComponent,
-            {
+        return this.pefDialogService.displayDialog(PefMessageDialogComponent, {
+            params: {
                 message: this.translateService.instant(messageTranslationKey, params),
                 buttons: [{ textKey: buttonTranslationKey, dismissValue: 'CLOSE' }],
             },
-            false,
-        );
+        });
     }
 
     displayMessageDialog(buttons: PefMessageDialogButton[], messageTranslationKey: string, params: {} = null) {
-        return this.pefDialogService.displayDialog(
-            PefMessageDialogComponent,
-            { message: this.translateService.instant(messageTranslationKey, params), buttons },
-            false,
-        );
+        return this.pefDialogService.displayDialog(PefMessageDialogComponent, {
+            params: {
+                message: this.translateService.instant(messageTranslationKey, params),
+                buttons,
+            },
+        });
     }
 }
 

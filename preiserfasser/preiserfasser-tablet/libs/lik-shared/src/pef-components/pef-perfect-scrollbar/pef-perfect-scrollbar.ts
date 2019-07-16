@@ -1,6 +1,6 @@
 import { AfterViewInit, Directive, ElementRef, Input, NgZone, OnChanges, SimpleChange } from '@angular/core';
 import * as Ps from 'perfect-scrollbar';
-import { filter } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../common/ReactiveComponent';
 
@@ -21,7 +21,10 @@ export class PefPerfectScrollbarDirective extends ReactiveComponent implements O
 
     ngAfterViewInit() {
         this.observePropertyCurrentValue<boolean>('enabled')
-            .pipe(filter(x => x))
+            .pipe(
+                tap(x => console.log('pef perfect is enabled?', x)),
+                filter(x => x),
+            )
             .subscribe(() => {
                 this.ngZone.runOutsideAngular(() => {
                     Ps.initialize(this.container);

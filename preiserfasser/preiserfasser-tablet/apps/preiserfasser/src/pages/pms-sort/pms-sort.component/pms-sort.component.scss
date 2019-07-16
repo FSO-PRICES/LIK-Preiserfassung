@@ -1,0 +1,62 @@
+@import '../../../theme/imports.scss';
+
+:host {
+    height: 100%;
+    width: 100%;
+    display: flex;
+
+    .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .work-area {
+        flex: 1;
+        display: flex;
+    }
+
+    .button-container {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 1em 1em 1em;
+        button {
+            min-width: 10em;
+        }
+    }
+
+    .help {
+        flex: 0 0 55%;
+        max-width: 55%;
+    }
+
+    .right-side {
+        flex: 0 0 45%;
+        max-width: 45%;
+        padding: 1em;
+        display: flex;
+    }
+
+    pef-virtual-scroll {
+        flex: 1;
+        overflow: hidden !important;
+        &.is-dragging {
+            .multi-select {
+                // opacity: 0.2;
+                visibility: hidden;
+            }
+        }
+    }
+
+    .right-side {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .function-buttons {
+        padding-left: 3.5em;
+        padding-bottom: 1em;
+    }
+}

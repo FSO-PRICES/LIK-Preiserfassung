@@ -1,8 +1,9 @@
 {
     "name": "preiserfasser-tablet",
     "version": "0.0.1",
-    "author": "Ionic Framework",
-    "homepage": "https://ionicframework.com/",
+    "author": "Lambda IT",
+    "homepage": "https://www.lambda-it.ch",
+    "description": "BFS - Preiserfassungs APP",
     "scripts": {
         "ng": "ng",
         "start": "ng serve",
@@ -18,6 +19,7 @@
         "affected:lint": "nx affected:lint",
         "affected:dep-graph": "nx affected:dep-graph",
         "affected": "nx affected",
+        "ionic:build": "ng run preiserfasser:ionic-cordova-build-www --configuration=production --platform=android",
         "format": "nx format:write",
         "format:write": "nx format:write",
         "format:check": "nx format:check",
@@ -49,21 +51,29 @@
         "@ngx-translate/core": "11.0.1",
         "@nrwl/angular": "8.1.2",
         "@nrwl/schematics": "^7.1.1",
+        "@types/dragula": "^2.1.34",
+        "@types/hammerjs": "^2.0.36",
         "@types/lodash": "^4.14.134",
         "@types/pouchdb-browser": "^6.1.3",
         "@types/pouchdb-node": "^6.1.3",
         "@types/pouchdb-replication": "^6.4.2",
         "acorn": "^6.1.1",
         "cordova-android": "8.0.0",
+        "cordova-plugin-screen-orientation": "^3.0.2",
+        "cordova-res": "^0.6.0",
         "core-js": "^2.5.4",
         "cpx": "^1.5.0",
         "date-fns": "^1.28.5",
+        "dom-autoscroller": "^2.3.4",
+        "dragula": "^3.7.2",
         "electron": "^1.4.15",
+        "es6-promise-plugin": "^4.2.2",
         "format-number": "^2.0.2",
-        "ionic": "^5.1.0",
+        "hammerjs": "^2.0.8",
         "jspdf": "^1.5.3",
         "jspdf-autotable": "^2.3.5",
         "lodash": "^4.17.11",
+        "native-run": "^0.2.8",
         "ngrx-store-freeze": "^0.2.4",
         "ngrx-store-logger": "^0.2.2",
         "ngx-window-token": "^2.0.1",
@@ -95,12 +105,13 @@
         "@types/node": "~12.0.0",
         "@types/pouchdb": "^6.3.3",
         "codelyzer": "^4.5.0",
-        "cordova-plugin-device": "^2.0.2",
+        "cordova": "^9.0.0",
+        "cordova-plugin-device": "^2.0.3",
         "cordova-plugin-ionic-keyboard": "^2.1.3",
         "cordova-plugin-ionic-webview": "^4.1.1",
-        "cordova-plugin-splashscreen": "^5.0.2",
-        "cordova-plugin-statusbar": "^2.4.2",
-        "cordova-plugin-whitelist": "^1.3.3",
+        "cordova-plugin-splashscreen": "^5.0.3",
+        "cordova-plugin-statusbar": "^2.4.3",
+        "cordova-plugin-whitelist": "^1.3.4",
         "jasmine-core": "~2.99.1",
         "jasmine-spec-reporter": "~4.2.1",
         "karma": "~4.1.0",
@@ -115,21 +126,5 @@
         "tsickle": "^0.35.0",
         "tslint": "^5.18.0",
         "typescript": "^3.4.5"
-    },
-    "description": "An Ionic project",
-    "cordova": {
-        "plugins": {
-            "cordova-plugin-whitelist": {},
-            "cordova-plugin-statusbar": {},
-            "cordova-plugin-device": {},
-            "cordova-plugin-splashscreen": {},
-            "cordova-plugin-ionic-webview": {
-                "ANDROID_SUPPORT_ANNOTATIONS_VERSION": "27.+"
-            },
-            "cordova-plugin-ionic-keyboard": {}
-        },
-        "platforms": [
-            "android"
-        ]
     }
 }

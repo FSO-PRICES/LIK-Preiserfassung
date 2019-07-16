@@ -1,5 +1,5 @@
 {
-    "npmScope": "app",
+    "npmScope": "preiserfasser",
     "implicitDependencies": {
         "angular.json": "*",
         "package.json": "*",
@@ -8,7 +8,7 @@
         "nx.json": "*"
     },
     "projects": {
-        "app": {
+        "preiserfasser": {
             "tags": []
         },
         "lik-shared": {

@@ -6,6 +6,7 @@ ion-button {
     text-transform: none;
     transition: opacity 150ms;
     letter-spacing: normal;
+    --ripple-color: transparent;
     &:hover:not(.disable-hover) {
         opacity: 0.7;
     }
@@ -81,7 +82,7 @@ ion-button {
     }
 }
 
-.button[icon-only] {
+.button.icon-only {
     min-width: calc(2.25em + 4px);
 }
 

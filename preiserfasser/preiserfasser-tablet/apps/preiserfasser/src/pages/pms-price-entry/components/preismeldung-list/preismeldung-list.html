@@ -1,0 +1,126 @@
+<div class="preismeldung-list-flex-container">
+    <div class="preismeldung-list-filter">
+        <pef-search-input class="pms-search" (valueChanges)="filterText$.emit($event)"></pef-search-input>
+    </div>
+    <div class="preismeldung-list-check-filter">
+        <div class="filter-actions">
+            <ion-button
+                class="icon-only"
+                [color]="filterTodoColor$ | async"
+                [class.button-radio-selected]="filterTodoSelected$ | async"
+                (click)="selectFilterTodo$.emit()"
+            >
+                <pef-icon name="todo"></pef-icon>
+            </ion-button>
+            <ion-button
+                class="icon-only"
+                [color]="filterCompletedColor$ | async"
+                [class.button-radio-selected]="filterCompletedSelected$ | async"
+                (click)="selectFilterCompleted$.emit()"
+            >
+                <pef-icon name="checkmark"></pef-icon>
+            </ion-button>
+            <ion-button
+                class="icon-only"
+                [color]="isReorderingActiveColor$ | async"
+                (click)="activateReordering$.emit()"
+            >
+                <pef-icon name="sorting_arrows"></pef-icon>
+                <span class="sort-one">1</span>
+            </ion-button>
+        </div>
+        <div class="pms-name">
+            <span> {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }} </span>
+        </div>
+    </div>
+    <pef-virtual-scroll
+        [items]="filteredPreismeldungen$ | async"
+        [childHeight]="itemHeight"
+        (update)="scrollList = $event"
+        (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)"
+        pef-perfect-scrollbar
+        [enabled]="isDesktop"
+    >
+        <ion-item-sliding *ngFor="let bag of scrollList; trackBy: trackByFn; let i = index" #slidingList>
+            <ion-item
+                [button]="true"
+                class="preismeldung-item"
+                (press)="activateReordering$.emit($event)"
+                (click)="selectClickedPreismeldung$.emit(bag)"
+                [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
+                [class.marked]="bag.marked"
+            >
+                <div class="preismeldung-wrapper">
+                    <div class="preismeldung-position-number">
+                        {{ bag.preismeldung.epNummer }}
+                        <br />&nbsp;
+                    </div>
+                    <div class="preismeldung-description">
+                        <span class="text">{{
+                            bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate
+                        }}</span>
+                        <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
+                    </div>
+                    <div
+                        class="preismeldung-status-todo"
+                        *ngIf="bag.preismeldung.d_DPToVP.percentage == null && !bag.isNew"
+                    >
+                        <pef-icon
+                            name="alarmclock_normal"
+                            [svgCssClasses]="calcStichtagStatus(bag, currentDate$ | async)"
+                        ></pef-icon>
+                        <div class="status-bar"></div>
+                    </div>
+                    <div class="preismeldung-status-done" *ngIf="bag.preismeldung.istAbgebucht">
+                        <div
+                            class="code"
+                            [innerHTML]="
+                                bag.preismeldung.bearbeitungscode == 99
+                                    ? '&nbsp;'
+                                    : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)
+                            "
+                        ></div>
+                        <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
+                    </div>
+                </div>
+            </ion-item>
+            <ion-item-options (ionSwipe)="favorite$.emit(bag); slidingList.closeOpened()" side="end">
+            </ion-item-options>
+        </ion-item-sliding>
+    </pef-virtual-scroll>
+    <div class="preismeldung-list-footer">
+        <div class="preismeldung-list-functions">
+            <ion-button class="icon-only" color="wild-sand" (click)="recordSortPreismeldungen$.emit()">
+                <pef-icon *ngIf="!isInRecordMode; else stopRecordMode" name="record" class="record"></pef-icon>
+                <ng-template #stopRecordMode><pef-icon name="stop"></pef-icon></ng-template>
+            </ion-button>
+            <ion-button
+                class="icon-only"
+                color="wild-sand"
+                (click)="sortPreismeldungen$.emit()"
+                [disabled]="(currentPreismeldung$ | async)?.isModified || (currentPreismeldung$ | async)?.isNew"
+            >
+                <pef-icon name="sorting_arrows"></pef-icon>
+            </ion-button>
+            <ion-button
+                class="icon-only"
+                color="wild-sand"
+                (click)="addNewPreisreihe$.emit()"
+                [disabled]="(currentPreismeldung$ | async)?.isModified"
+            >
+                <pef-icon name="add"></pef-icon>
+            </ion-button>
+        </div>
+        <div class="preismeldung-list-completed-count">
+            {{ completedCount$ | async }}
+        </div>
+        <div class="preismeldung-list-arrows">
+            <ion-button class="icon-only" (click)="selectPrevPreismeldung$.emit()">
+                <pef-icon name="arrow_left"></pef-icon>
+            </ion-button>
+            <ion-button class="icon-only" (click)="selectNextPreismeldung$.emit()">
+                <pef-icon name="arrow_right"></pef-icon>
+            </ion-button>
+        </div>
+    </div>
+</div>

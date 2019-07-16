@@ -9,6 +9,7 @@ export * from './common/ReactiveComponent';
 export * from './common/search-functions';
 export * from './common/translation-functions';
 export * from './common/validators';
+export * from './common/hammer';
 export * from './pef-components';
 export * from './preismeldung-shared';
 

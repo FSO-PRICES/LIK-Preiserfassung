@@ -1,7 +1,18 @@
 {
-    "name": "preiserfasser-tablet",
-    "integrations": {
-        "cordova": {}
-    },
-    "type": "angular"
+  "defaultProject": "preiserfasser",
+  "projects": {
+    "preiserfasser": {
+      "name": "LIK-Preiserfasser",
+      "integrations": {
+        "cordova": {},
+        "capacitor": {}
+      },
+      "type": "angular",
+      "root": "apps/preiserfasser"
+    }
+  },
+  "integrations": {
+    "capacitor": {},
+    "cordova": {}
+  }
 }
