@@ -20,7 +20,6 @@ import {
     delay,
     filter,
     map,
-    mapTo,
     merge,
     publishReplay,
     refCount,
@@ -33,12 +32,15 @@ import {
 import {
     formatPercentageChange,
     parseDate,
+    partition,
     pefSearch,
     PefVirtualScrollComponent,
     ReactiveComponent,
 } from '@lik-shared';
 
 import * as P from '../../../../common-models';
+
+type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
 
 @Component({
     selector: 'preismeldung-list',
@@ -75,17 +77,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public scrollList: P.PreismeldungBag[];
     public completedCount$: Observable<string>;
     public isReorderingActive$: Observable<boolean>;
-    public isReorderingActiveColor$: Observable<string>;
 
     public filterText$ = new EventEmitter<string>();
 
-    public selectFilterTodo$ = new EventEmitter();
-    public selectFilterCompleted$ = new EventEmitter();
+    public selectFilterClicked$ = new EventEmitter<Filters>();
 
-    public filterTodoSelected$: Observable<boolean>;
+    public selectFilter$: Observable<Filters>;
     public filterTodoColor$: Observable<string>;
-    public filterCompletedSelected$: Observable<boolean>;
     public filterCompletedColor$: Observable<string>;
+    public filterAllColor$: Observable<string>;
+    public filterFavoritesColor$: Observable<string>;
 
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle').pipe(
         publishReplay(1),
@@ -122,32 +123,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             publishReplay(1),
             refCount(),
         );
-        this.isReorderingActive$.subscribe(x => console.log('activating reordering?', x));
-        this.reordered$.pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-            x.detail.complete();
-            console.log('reordered?', x.detail);
-        });
-
-        const filterStatus$ = this.selectFilterTodo$.pipe(
-            mapTo('TODO'),
-            merge(this.selectFilterCompleted$.pipe(mapTo('COMPLETED'))),
-            scan(
-                (agg, v) => {
-                    if (v === 'TODO') {
-                        if (!agg.todo && agg.completed) return { todo: true, completed: true };
-                        return { todo: false, completed: true };
-                    }
-                    if (v === 'COMPLETED') {
-                        if (!agg.completed && agg.todo) return { todo: true, completed: true };
-                        return { todo: true, completed: false };
-                    }
-                },
-                { todo: true, completed: true },
-            ),
-            startWith({ todo: true, completed: true }),
-            publishReplay(1),
-            refCount(),
-        );
+        this.reordered$.pipe(takeUntil(this.onDestroy$)).subscribe(x => x.detail.complete());
 
         const markedPreismeldungen$ = this.favorite$.asObservable().pipe(
             scan(
@@ -157,30 +133,28 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             startWith([]),
         );
 
-        this.filterTodoSelected$ = filterStatus$.pipe(map(x => x.todo));
-        this.filterTodoColor$ = filterStatus$.pipe(map(x => (x.todo ? 'blue-chill' : 'wild-sand')));
-        this.filterCompletedSelected$ = filterStatus$.pipe(map(x => x.completed));
-        this.filterCompletedColor$ = filterStatus$.pipe(map(x => (x.completed ? 'blue-chill' : 'wild-sand')));
-        this.isReorderingActiveColor$ = this.isReorderingActive$.pipe(
-            map(active => (active ? 'blue-chill' : 'wild-sand')),
+        this.handleFilters();
+
+        const currentPreismeldung$ = this.currentPreismeldung$.pipe(
+            withLatestFrom(markedPreismeldungen$),
+            map(([bag, markedIds]) => (bag ? { ...bag, marked: markedIds.some(id => id === bag.pmId) } : null)),
         );
+        const [filterFavorites$, filterStatus$] = this.getFilters();
+        this.filterFavoritesColor$ = filterFavorites$.pipe(map(x => (x ? 'blue-chill' : 'wild-sand')));
 
         this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
+            combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
+                preismeldungen.map(bag => ({ ...bag, marked: markedIds.lastIndexOf(bag.pmId) !== -1 })),
+            ),
             combineLatest(
                 this.filterText$.pipe(startWith('')),
                 filterStatus$,
+                filterFavorites$,
                 this.currentLanguage$,
-                (
-                    preismeldungen: P.PreismeldungBag[],
-                    filterText: string,
-                    filterStatus: { todo: boolean; completed: boolean },
-                    currentLanguage: string,
-                ) => {
-                    let filteredPreismeldungen: P.PreismeldungBag[];
+                (preismeldungen, filterText, filterStatus, filterFavorites, currentLanguage) => {
+                    let filteredPreismeldungen = preismeldungen;
 
-                    if (!filterText || filterText.length === 0) {
-                        filteredPreismeldungen = preismeldungen;
-                    } else {
+                    if (filterText && filterText.length > 0) {
                         filteredPreismeldungen = pefSearch(filterText, preismeldungen, [
                             pm => pm.warenkorbPosition.gliederungspositionsnummer,
                             pm => pm.warenkorbPosition.positionsbezeichnung[currentLanguage],
@@ -188,24 +162,25 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                         ]);
                     }
 
-                    if (filterStatus.todo && filterStatus.completed) return filteredPreismeldungen;
+                    if (filterFavorites) filteredPreismeldungen = filteredPreismeldungen.filter(bag => bag.marked);
 
-                    if (filterStatus.todo) return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
-                    if (filterStatus.completed) return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
+                    if (filterStatus === 'ALL') return filteredPreismeldungen;
+
+                    if (filterStatus === 'COMPLETED')
+                        return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
+
+                    if (filterStatus === 'TODO') return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
 
                     return [];
                 },
             ),
-            combineLatest(this.currentPreismeldung$, (preismeldungen, currentPreismeldung) => {
+            combineLatest(currentPreismeldung$, (preismeldungen, currentPreismeldung) => {
                 return !!currentPreismeldung &&
                     (currentPreismeldung.isNew || currentPreismeldung.isModified) &&
                     !preismeldungen.some(x => x.pmId === currentPreismeldung.pmId)
-                    ? [currentPreismeldung as P.PreismeldungBag].concat(preismeldungen)
+                    ? [currentPreismeldung, ...preismeldungen]
                     : preismeldungen;
             }),
-            combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
-                preismeldungen.map(bag => ({ ...bag, marked: markedIds.lastIndexOf(bag.pmId) !== -1 })),
-            ),
             debounceTime(100),
             publishReplay(1),
             refCount(),
@@ -349,5 +324,38 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     ngOnDestroy() {
         this.onDestroy$.next();
+    }
+
+    private handleFilters() {
+        this.selectFilter$ = this.selectFilterClicked$.pipe(
+            startWith('ALL' as Filters),
+            publishReplay(1),
+            refCount(),
+        );
+        const { ALL, COMPLETED, TODO } = (['ALL', 'COMPLETED', 'TODO'] as Filters[]).reduce(
+            (filters, f) => ({
+                ...filters,
+                [f]: this.selectFilter$.pipe(
+                    filter(x => x !== 'FAVORITES'),
+                    startWith(false),
+                    map(x => (x === f ? 'blue-chill' : 'wild-sand')),
+                ),
+            }),
+            {} as Record<Filters, Observable<string>>,
+        );
+        this.filterTodoColor$ = TODO;
+        this.filterCompletedColor$ = COMPLETED;
+        this.filterAllColor$ = ALL;
+    }
+
+    private getFilters() {
+        const [favorites$, statusFilters$] = partition(this.selectFilter$, filters => filters === 'FAVORITES');
+        return [
+            favorites$.pipe(
+                scan(acc => !acc, false),
+                startWith(false),
+            ),
+            statusFilters$,
+        ] as [Observable<boolean>, Observable<Exclude<Filters, 'FAVORITES'>>];
     }
 }

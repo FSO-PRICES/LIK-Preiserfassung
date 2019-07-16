@@ -6,6 +6,8 @@ import { switchMap, take } from 'rxjs/operators';
 import { PopoverOptions } from '@ionic/core';
 import { InputP } from './dialog';
 
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+
 type Class<T extends Function> = T['prototype'];
 type TextDialogOptions = {
     requestDismiss$?: Observable<{}>;

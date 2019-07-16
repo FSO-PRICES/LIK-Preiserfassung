@@ -5,6 +5,7 @@ export * from './helper-functions';
 export * from './map-functions';
 export * from './models';
 export * from './dialog';
+export * from './partition';
 export * from './pef-dialog-service';
 export * from './pef-language.service';
 export * from './pef-message-dialog-service';

@@ -1,6 +1,7 @@
 export * from './common/erhebungsart-functions';
 export * from './common/formatting-functions';
 export * from './common/helper-functions';
+export * from './common/partition';
 export * from './common/pef-dialog-service';
 export * from './common/pef-language.service';
 export * from './common/pef-message-dialog-service';

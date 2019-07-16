@@ -4,29 +4,29 @@
     </div>
     <div class="preismeldung-list-check-filter">
         <div class="filter-actions">
+            <ion-button class="icon-only" [color]="filterAllColor$ | async" (click)="selectFilterClicked$.emit('ALL')">
+                <pef-icon name="all"></pef-icon>
+            </ion-button>
             <ion-button
                 class="icon-only"
                 [color]="filterTodoColor$ | async"
-                [class.button-radio-selected]="filterTodoSelected$ | async"
-                (click)="selectFilterTodo$.emit()"
+                (click)="selectFilterClicked$.emit('TODO')"
             >
                 <pef-icon name="todo"></pef-icon>
             </ion-button>
             <ion-button
                 class="icon-only"
                 [color]="filterCompletedColor$ | async"
-                [class.button-radio-selected]="filterCompletedSelected$ | async"
-                (click)="selectFilterCompleted$.emit()"
+                (click)="selectFilterClicked$.emit('COMPLETED')"
             >
                 <pef-icon name="checkmark"></pef-icon>
             </ion-button>
             <ion-button
                 class="icon-only"
-                [color]="isReorderingActiveColor$ | async"
-                (click)="activateReordering$.emit()"
+                [color]="filterFavoritesColor$ | async"
+                (click)="selectFilterClicked$.emit('FAVORITES')"
             >
-                <pef-icon name="sorting_arrows"></pef-icon>
-                <span class="sort-one">1</span>
+                <pef-icon name="star"></pef-icon>
             </ion-button>
         </div>
         <div class="pms-name">
