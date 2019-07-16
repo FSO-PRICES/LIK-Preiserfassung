@@ -54,7 +54,7 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungR
 }
 
 export function getNextIndexForRecMode(preismeldungen: PreismeldungBag[]) {
-    let nextIndex = 0;
+    let nextIndex = -1;
     let maxErfasstAt = 0;
     preismeldungen.forEach((bag, i) => {
         if (
@@ -65,7 +65,7 @@ export function getNextIndexForRecMode(preismeldungen: PreismeldungBag[]) {
             nextIndex = i;
         }
     });
-    return nextIndex !== 0 ? nextIndex + 1 : 0;
+    return nextIndex !== -1 ? nextIndex + 1 : 0;
 }
 
 function createInitialPercentageWithWarning(): PercentageWithWarning {
