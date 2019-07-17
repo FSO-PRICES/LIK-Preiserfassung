@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PefComponentsModule, PreismeldungSharedModule } from '@lik-shared';
 
+import { PreiserfasserCommonModule } from '../../common';
 import { PreismeldungListComponent } from './components/preismeldung-list/preismeldung-list';
 import { PmsPriceEntryPage } from './pms-price-entry.page';
 
@@ -22,6 +23,7 @@ const routes: Routes = [
         FormsModule,
         IonicModule,
         PefComponentsModule,
+        PreiserfasserCommonModule,
         PreismeldungSharedModule,
         RouterModule.forChild(routes),
     ],

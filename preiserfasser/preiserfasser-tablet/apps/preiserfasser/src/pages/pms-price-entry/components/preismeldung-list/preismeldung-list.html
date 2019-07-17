@@ -40,8 +40,17 @@
         (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)"
         pef-perfect-scrollbar
         [enabled]="isDesktop"
+        [class.can-reorder]="canReorder$ | async"
+        #pmList
     >
-        <ion-item-sliding *ngFor="let bag of scrollList; trackBy: trackByFn; let i = index" #slidingList>
+        <ion-item-sliding
+            [delay-drag]="500"
+            *ngFor="let bag of scrollList; trackBy: trackByFn; let i = index"
+            [attr.data-pmid]="bag.pmId"
+            #slidingList
+            [class.dragable-item]="bag.dragable"
+            [class.last-uploaded-item]="bag.lastUploaded"
+        >
             <ion-item
                 [button]="true"
                 class="preismeldung-item"

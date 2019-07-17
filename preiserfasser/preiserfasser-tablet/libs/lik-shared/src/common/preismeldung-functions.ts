@@ -1,8 +1,8 @@
 import { format } from 'date-fns';
 import { maxBy } from 'lodash';
 
-import { Preismeldung, PreismeldungReference, PercentageWithWarning } from './models';
 import { PreismeldungBag } from '../preismeldung-shared/models';
+import { PercentageWithWarning, Preismeldung, PreismeldungReference } from './models';
 
 type PreismeldungSortShape = { sortierungsnummer: number; epNummer: string; laufnummer: string };
 

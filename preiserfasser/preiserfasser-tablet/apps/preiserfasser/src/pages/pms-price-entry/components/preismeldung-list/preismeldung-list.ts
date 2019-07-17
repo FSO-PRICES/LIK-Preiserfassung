@@ -6,6 +6,7 @@ import {
     Input,
     OnChanges,
     OnDestroy,
+    OnInit,
     Output,
     SimpleChange,
     ViewChild,
@@ -13,6 +14,9 @@ import {
 import { IonContent } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import { addDays, isAfter, isBefore, subMilliseconds } from 'date-fns';
+import autoScroll from 'dom-autoscroller';
+import dragula from 'dragula';
+import { assign, findLastIndex, minBy, orderBy, reverse, takeWhile } from 'lodash';
 import { Observable, Subject } from 'rxjs';
 import {
     combineLatest,
@@ -26,6 +30,7 @@ import {
     scan,
     startWith,
     takeUntil,
+    tap,
     withLatestFrom,
 } from 'rxjs/operators';
 
@@ -41,6 +46,7 @@ import {
 import * as P from '../../../../common-models';
 
 type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
+type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
 
 @Component({
     selector: 'preismeldung-list',
@@ -48,7 +54,7 @@ type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
     styleUrls: ['preismeldung-list.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PreismeldungListComponent extends ReactiveComponent implements OnChanges, OnDestroy {
+export class PreismeldungListComponent extends ReactiveComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild(IonContent, { static: true }) content: IonContent;
     @ViewChild(IonContent, { read: ElementRef, static: true }) contentElementRef: ElementRef;
     @Input() isDesktop: boolean;
@@ -63,9 +69,13 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
     @Output('sortPreismeldungen') sortPreismeldungen$ = new EventEmitter();
     @Output('recordSortPreismeldungen') recordSortPreismeldungen$ = new EventEmitter();
-    @Output('filteredPreismeldungen') filteredPreismeldungen$: Observable<(P.PreismeldungBag & { marked: boolean })[]>;
+    @Output('filteredPreismeldungen') filteredPreismeldungen$: Observable<
+        (P.PreismeldungBag & { marked: boolean; dragable: boolean; lastUploaded: boolean })[]
+    >;
+    @Output('saveOrder') saveOrder$: Observable<P.Models.PmsPreismeldungenSortProperties>;
 
     @ViewChild(PefVirtualScrollComponent, { static: true }) private virtualScroll: any;
+    @ViewChild('pmList', { static: true, read: ElementRef }) private pmList: ElementRef;
 
     public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     public selectNextPreismeldung$ = new EventEmitter();
@@ -78,15 +88,21 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public completedCount$: Observable<string>;
     public isReorderingActive$: Observable<boolean>;
 
-    public filterText$ = new EventEmitter<string>();
+    private drake: dragula.Drake;
+    private scroll: any;
 
+    public filterText$ = new EventEmitter<string>();
     public selectFilterClicked$ = new EventEmitter<Filters>();
+    public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
+    public onDrag$ = new EventEmitter();
 
     public selectFilter$: Observable<Filters>;
     public filterTodoColor$: Observable<string>;
     public filterCompletedColor$: Observable<string>;
     public filterAllColor$: Observable<string>;
     public filterFavoritesColor$: Observable<string>;
+    public canReorder$: Observable<boolean>;
+    public filterByFavorites$: Observable<boolean>;
 
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle').pipe(
         publishReplay(1),
@@ -139,8 +155,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             withLatestFrom(markedPreismeldungen$),
             map(([bag, markedIds]) => (bag ? { ...bag, marked: markedIds.some(id => id === bag.pmId) } : null)),
         );
-        const [filterFavorites$, filterStatus$] = this.getFilters();
-        this.filterFavoritesColor$ = filterFavorites$.pipe(map(x => (x ? 'blue-chill' : 'wild-sand')));
 
         this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
             combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
@@ -148,8 +162,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             ),
             combineLatest(
                 this.filterText$.pipe(startWith('')),
-                filterStatus$,
-                filterFavorites$,
+                this.selectFilter$,
+                this.filterByFavorites$,
                 this.currentLanguage$,
                 (preismeldungen, filterText, filterStatus, filterFavorites, currentLanguage) => {
                     let filteredPreismeldungen = preismeldungen;
@@ -181,9 +195,62 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     ? [currentPreismeldung, ...preismeldungen]
                     : preismeldungen;
             }),
+            map(preismeldungen => {
+                const firstDragableIndex = findLastIndex(preismeldungen, bag => !!bag.preismeldung.uploadRequestedAt);
+                return preismeldungen.map((bag, i) => ({
+                    ...bag,
+                    dragable: i >= firstDragableIndex,
+                    lastUploaded: i === firstDragableIndex,
+                }));
+            }),
             debounceTime(100),
             publishReplay(1),
             refCount(),
+        );
+
+        this.saveOrder$ = this.dropPreismeldung$.pipe(
+            withLatestFrom(this.filteredPreismeldungen$),
+            takeUntil(this.onDestroy$),
+            map(([dropPm, preismeldungen]) => {
+                const { dropBeforePmId, preismeldungPmId } = dropPm;
+
+                const prioritizedPm = orderBy(preismeldungen, x => x.sortierungsnummer).map((pm, i) => ({
+                    ...pm,
+                    priority: i + 1,
+                }));
+                const dropPreismeldungBeforePriority = !dropBeforePmId
+                    ? Number.MAX_VALUE
+                    : prioritizedPm.find(b => b.pmId === dropBeforePmId).priority;
+
+                const preismeldungenTemp = prioritizedPm.map(b =>
+                    b.pmId === preismeldungPmId ? { ...b, priority: dropPreismeldungBeforePriority - 0.1 } : b,
+                );
+
+                let minSortNummer = minBy(prioritizedPm, pm => pm.sortierungsnummer).sortierungsnummer;
+                const sortedPm = orderBy(preismeldungenTemp, x => x.priority);
+                const lastSaisonalPmIndex = takeWhile(sortedPm, x => x.sortierungsnummer === 0).length - 1;
+
+                // If the last saisonal pm has been moved use sortnummer 1
+                if (minSortNummer === 0 && sortedPm[0] && sortedPm[0].sortierungsnummer !== 0) {
+                    minSortNummer = 1;
+                }
+
+                return {
+                    sortOrder: sortedPm.map((b, i) => {
+                        const pm =
+                            i > lastSaisonalPmIndex
+                                ? {
+                                      pmId: b.pmId,
+                                      sortierungsnummer:
+                                          Math.round(minSortNummer) +
+                                          i -
+                                          (lastSaisonalPmIndex > 0 ? lastSaisonalPmIndex : 0),
+                                  }
+                                : b;
+                        return { pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer };
+                    }),
+                };
+            }),
         );
 
         const selectFirstPreismeldung$ = this.filteredPreismeldungen$.pipe(
@@ -318,44 +385,89 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         return `${item.pmId}_${item.preismeldung.modifiedAt || ''}`;
     }
 
+    public ngOnInit() {
+        const thatDrake = (this.drake = dragula(
+            [this.pmList.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content')],
+            {
+                moves: (el, container) =>
+                    el.classList.contains('dragable-item') && container.parentElement.classList.contains('can-reorder'),
+                accepts: (_el, _target, _source, sibling) => {
+                    return (
+                        !sibling ||
+                        (sibling.classList.contains('dragable-item') &&
+                            !sibling.classList.contains('last-uploaded-item'))
+                    );
+                },
+            },
+        ));
+        thatDrake.on('drop', (el, _target, _source, sibling) => {
+            const siblingPmId = !!sibling ? sibling.dataset.pmid : null;
+            console.log('dropped', el, sibling);
+            this.dropPreismeldung$.emit({ preismeldungPmId: el.dataset.pmid, dropBeforePmId: siblingPmId });
+        });
+        thatDrake.on('drag', () => {
+            return this.onDrag$.emit();
+        });
+        thatDrake.on('dragend', () => {
+            this.pmList.nativeElement.classList.remove('is-dragging');
+        });
+        this.scroll = autoScroll([this.pmList.nativeElement], {
+            margin: 30,
+            maxSpeed: 25,
+            scrollWhenOutside: true,
+            autoScroll: function() {
+                return this.down && thatDrake.dragging;
+            },
+        });
+    }
+
     ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
     }
 
     ngOnDestroy() {
         this.onDestroy$.next();
+        this.drake.destroy();
+        this.scroll.destroy();
     }
 
     private handleFilters() {
-        this.selectFilter$ = this.selectFilterClicked$.pipe(
-            startWith('ALL' as Filters),
-            publishReplay(1),
-            refCount(),
-        );
+        const [selectFilter$, favoritesFilter$] = partition(
+            this.selectFilterClicked$.pipe(
+                startWith('ALL' as Filters),
+                publishReplay(1),
+                refCount(),
+            ),
+            f => f !== 'FAVORITES',
+        ) as [Observable<Exclude<Filters, 'FAVORITES'>>, Observable<boolean>];
         const { ALL, COMPLETED, TODO } = (['ALL', 'COMPLETED', 'TODO'] as Filters[]).reduce(
             (filters, f) => ({
                 ...filters,
-                [f]: this.selectFilter$.pipe(
-                    filter(x => x !== 'FAVORITES'),
+                [f]: selectFilter$.pipe(
                     startWith(false),
-                    map(x => (x === f ? 'blue-chill' : 'wild-sand')),
+                    map(x => x === f),
                 ),
             }),
-            {} as Record<Filters, Observable<string>>,
+            {} as Record<Filters, Observable<boolean>>,
         );
-        this.filterTodoColor$ = TODO;
-        this.filterCompletedColor$ = COMPLETED;
-        this.filterAllColor$ = ALL;
-    }
 
-    private getFilters() {
-        const [favorites$, statusFilters$] = partition(this.selectFilter$, filters => filters === 'FAVORITES');
-        return [
-            favorites$.pipe(
-                scan(acc => !acc, false),
-                startWith(false),
-            ),
-            statusFilters$,
-        ] as [Observable<boolean>, Observable<Exclude<Filters, 'FAVORITES'>>];
+        const toColor = (x: boolean) => (x ? 'blue-chill' : 'wild-sand');
+        this.selectFilter$ = selectFilter$;
+        this.filterTodoColor$ = TODO.pipe(map(toColor));
+        this.filterCompletedColor$ = COMPLETED.pipe(map(toColor));
+        this.filterAllColor$ = ALL.pipe(map(toColor));
+
+        this.filterByFavorites$ = favoritesFilter$.pipe(
+            scan(acc => !acc, false),
+            startWith(false),
+            publishReplay(1),
+            refCount(),
+        );
+        this.filterFavoritesColor$ = this.filterByFavorites$.pipe(map(toColor));
+        this.canReorder$ = ALL.pipe(
+            combineLatest(this.filterByFavorites$, (all, favorites) => all && !favorites),
+            publishReplay(1),
+            refCount(),
+        );
     }
 }

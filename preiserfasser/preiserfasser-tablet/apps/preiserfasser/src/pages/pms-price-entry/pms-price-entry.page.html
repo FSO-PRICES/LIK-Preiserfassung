@@ -78,6 +78,7 @@
                 (sortPreismeldungen)="navigateToPmsSort$.emit()"
                 (recordSortPreismeldungen)="recordSortPreismeldungen$.emit()"
                 (filteredPreismeldungen)="filteredPreismeldungen$.emit($event)"
+                (saveOrder)="saveOrder$.emit($event)"
                 [currentLanguage]="currentLanguage$ | async"
                 [requestSelectNextPreismeldung]="selectNextPreismeldungRequested$ | async"
                 [isDesktop]="isDesktop$ | async"

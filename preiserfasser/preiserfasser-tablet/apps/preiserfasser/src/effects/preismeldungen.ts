@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { assign, flatMap as arrayFlatMap, isEqual, maxBy, sortBy } from 'lodash';
+import { assign, flatMap as arrayFlatMap, isEqual, sortBy } from 'lodash';
 import { defer } from 'rxjs';
 import {
     combineLatest,
@@ -18,6 +18,7 @@ import {
 import {
     copyPreismeldungPropertiesFromRefPreismeldung,
     createVorReduktionProperties,
+    getNextIndexForRecMode,
     messagesFromCurrentPreismeldung,
     preismeldestelleId,
     PreismeldungAction,
@@ -379,22 +380,36 @@ export class PreismeldungenEffects {
             })),
             filter(({ isInRecordMode }) => isInRecordMode),
             map(({ preismeldungen }) => {
-                const lastSortierungsnummer = maxBy(preismeldungen, x =>
-                    !!x.preismeldung.erfasstAt ? x.sortierungsnummer : 0,
-                ).sortierungsnummer;
+                const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
                 const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
-                const newIndex = preismeldungen.some(x => !!x.preismeldung.erfasstAt)
-                    ? preismeldungen.findIndex(pm => pm.sortierungsnummer === lastSortierungsnummer)
-                    : -1;
+                let newIndex = getNextIndexForRecMode(sortedPreismeldungen);
+                sortedPreismeldungen.forEach((pm, i) => {
+                    if (pm.sortierungsnummer === 0 && i >= newIndex) {
+                        newIndex = i + 1;
+                    }
+                });
+                if (newIndex === -1) {
+                    newIndex = 0;
+                }
                 if (currentIndex !== newIndex) {
-                    const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
+                    const lastSortNumber = preismeldungen[newIndex - (newIndex === 0 ? 0 : 1)].sortierungsnummer;
                     return [
-                        ...sortedPreismeldungen.slice(0, newIndex + 1),
-                        currentPreismeldung,
-                        ...sortedPreismeldungen.slice(newIndex + 1),
+                        ...sortedPreismeldungen.slice(0, newIndex),
+                        { ...currentPreismeldung, sortierungsnummer: lastSortNumber + (newIndex === 0 ? 0 : 1) },
+                        ...sortedPreismeldungen.slice(newIndex),
                     ]
                         .filter((_, i) => i !== currentIndex + (currentIndex > newIndex ? 1 : 0))
-                        .map((pm, i) => ({ ...pm, sortierungsnummer: i + 1 }));
+                        .map((pm, i) => ({
+                            ...pm,
+                            sortierungsnummer:
+                                i >= newIndex
+                                    ? lastSortNumber +
+                                      i -
+                                      newIndex +
+                                      (newIndex === 0 ? 0 : 1) +
+                                      (currentIndex < newIndex ? 1 : 0)
+                                    : pm.sortierungsnummer,
+                        }));
                 }
                 return preismeldungen;
             }),

@@ -74,6 +74,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
     selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     save$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
+    saveOrder$ = new EventEmitter<P.Models.PmsPreismeldungenSortProperties>();
     updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     updatePreismeldungAttributes$ = new EventEmitter<string[]>();
@@ -228,6 +229,18 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
             )
             // why do I need this setTimeout - is it an Ionic bug? requires two touches on tablet to register 'SAVE_AND_MOVE_TO_NEXT'
             .subscribe(payload => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload })));
+
+        this.saveOrder$
+            .pipe(
+                withLatestFrom(params$),
+                takeUntil(this.onDestroy$),
+            )
+            .subscribe(([sortOrderDoc, { pmsNummer }]) =>
+                this.store.dispatch({
+                    type: 'PREISMELDUNGEN_SORT_SAVE',
+                    payload: { pmsNummer, sortOrderDoc },
+                }),
+            );
 
         this.currentPreismeldung$
             .pipe(
