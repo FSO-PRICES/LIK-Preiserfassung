@@ -1,0 +1,246 @@
+@import './mixins.scss';
+@import './_variables.scss';
+
+.gu-mirror,
+.delay-drag-lifted {
+    position: fixed !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    opacity: 0.8;
+    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';
+    filter: alpha(opacity=80);
+    &.multiple-selected {
+        .when-dragging {
+            display: flex;
+        }
+        .when-not-dragging {
+            display: none;
+        }
+    }
+}
+.gu-hide {
+    display: none !important;
+}
+.gu-unselectable {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+.gu-transit {
+    opacity: 0.2;
+    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=20)';
+    filter: alpha(opacity=20);
+}
+
+.scrollable-content {
+    .adv-preismeldung-item-draggable {
+        min-height: 3.5em;
+
+        ion-item {
+            padding-left: 0;
+            border-bottom-width: 0;
+            --min-height: 3.5em;
+            --background: transparent;
+            --ripple-color: transparent;
+            @include set-margin-bottom(0.25);
+        }
+        &.selected {
+            ion-item {
+                background-color: $surfie-green;
+                color: white;
+                .preismeldung-position-number,
+                .preismeldung-description .text {
+                    color: white;
+                }
+            }
+        }
+        &.marked {
+            ion-item {
+                background-color: $egg-white;
+            }
+            &.selected {
+                ion-item {
+                    background-color: $bright-sun;
+                }
+            }
+        }
+        .preismeldung-wrapper {
+            margin: 0;
+            display: flex;
+            height: 100%;
+            align-items: center;
+            align-content: center;
+            font-size: 1em;
+            flex: 1;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .preismeldung-position-number {
+            max-width: 4em;
+            flex: 0 0 4em;
+            color: $blue-chill;
+            font-weight: 500;
+        }
+        .preismeldung-description {
+            width: calc(100% - 9em);
+            max-width: calc(100% - 9em);
+            flex: 0 0 calc(100% - 9em);
+            display: flex;
+            flex-direction: column;
+            span {
+                display: inline-block;
+                text-overflow: ellipsis;
+                width: 100%;
+                overflow: hidden;
+                line-height: 1.25em;
+                &.text {
+                    color: $blue-chill;
+                    font-weight: 500;
+                }
+            }
+        }
+        .preismeldung-status-todo {
+            max-width: 5em;
+            flex: 0 0 5em;
+            height: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            pef-icon {
+                margin-right: 0.5em;
+            }
+            .status-bar {
+                flex: 0 0 8px;
+                background-color: $bright-sun;
+                height: 100%;
+            }
+        }
+        .preismeldung-status-done {
+            max-width: 5em;
+            flex: 0 0 5em;
+            display: flex;
+            flex-direction: column;
+            .code {
+                margin-right: 8px;
+                text-align: right;
+                color: orange;
+                font-weight: bold;
+            }
+            .percentage {
+                margin-right: 8px;
+                text-align: right;
+            }
+        }
+        &:hover:not(.selected) {
+            .preismeldung-position-number,
+            .preismeldung-description .text,
+            .preismeldung-description .artikel-text {
+                color: $blue-chill;
+            }
+        }
+    }
+
+    .preismeldung-item-draggable {
+        display: flex;
+        align-items: center;
+        min-height: 3.5em;
+        @include set-margin-bottom(0.25);
+
+        .when-dragging {
+            display: none;
+            flex: 0 0 100%;
+            min-height: 3.5em;
+            padding-left: 3.5em;
+            .inner-part {
+                padding-left: calc(3.5em + 8px);
+                flex: 1 1 100%;
+                min-width: 100%;
+                background-color: white;
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        .when-not-dragging {
+            flex: 0 0 100%;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .selection-button {
+            font-size: 1em;
+            color: $outer-space;
+            background-color: white;
+            box-shadow: none;
+            margin: 0 1em 0 0;
+            flex: 0 0 2.5em;
+            width: 2.5em;
+            max-width: 2.5em;
+            padding: 0;
+            &:hover {
+                background-color: $egg-white;
+            }
+            &.active {
+                background-color: $egg-white;
+            }
+        }
+
+        .box-part {
+            flex: 0 0 calc(100% - 3.5em);
+            max-width: calc(100% - 3.5em);
+            width: calc(100% - 3.5em);
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding-left: 8px;
+        }
+        .preismeldung-position-number {
+            max-width: 4em;
+            flex: 0 0 4em;
+            color: $blue-chill;
+            font-weight: 500;
+        }
+        .preismeldung-description {
+            width: calc(100% - 7.5em);
+            max-width: calc(100% - 7.5em);
+            flex: 0 0 calc(100% - 7.5em);
+            display: flex;
+            flex-direction: column;
+            span {
+                display: inline-block;
+                text-overflow: ellipsis;
+                width: 100%;
+                overflow: hidden;
+                line-height: 1.25em;
+                white-space: nowrap;
+                &.text {
+                    color: $blue-chill;
+                    font-weight: 500;
+                }
+                .artikel-text {
+                    display: inline-block;
+                    text-overflow: ellipsis;
+                    width: 100%;
+                    overflow: hidden;
+                    line-height: 1.25em;
+                }
+            }
+        }
+        .drag-handle {
+            background-color: transparent;
+            width: 50px;
+            max-width: 50px;
+            flex: 0 0 50px;
+            display: flex;
+            height: 50px;
+            margin-left: auto;
+            justify-content: center;
+        }
+        &.gu-mirror {
+            font-size: 1.6rem;
+        }
+    }
+}

@@ -16,7 +16,7 @@ import { ItemReorderEventDetail } from '@ionic/core';
 import { addDays, isAfter, isBefore, subMilliseconds } from 'date-fns';
 import autoScroll from 'dom-autoscroller';
 import dragula from 'dragula';
-import { assign, findLastIndex, minBy, orderBy, reverse, takeWhile } from 'lodash';
+import { findLastIndex, minBy, orderBy, takeWhile } from 'lodash';
 import { Observable, Subject } from 'rxjs';
 import {
     combineLatest,
@@ -30,7 +30,6 @@ import {
     scan,
     startWith,
     takeUntil,
-    tap,
     withLatestFrom,
 } from 'rxjs/operators';
 
@@ -402,7 +401,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
         ));
         thatDrake.on('drop', (el, _target, _source, sibling) => {
             const siblingPmId = !!sibling ? sibling.dataset.pmid : null;
-            console.log('dropped', el, sibling);
             this.dropPreismeldung$.emit({ preismeldungPmId: el.dataset.pmid, dropBeforePmId: siblingPmId });
         });
         thatDrake.on('drag', () => {

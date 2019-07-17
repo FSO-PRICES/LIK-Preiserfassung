@@ -51,7 +51,6 @@ type MultiSelectIndexMap = { [pmId: string]: number };
 export class PmsSortComponent extends ReactiveComponent implements OnChanges, OnDestroy, OnInit, AfterViewInit {
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() isDesktop: boolean;
-    isDesktop$ = this.observePropertyCurrentValue<boolean>('isDesktop');
 
     @Output('cancel') cancel$ = new EventEmitter();
     @Output('save') public save$ = new EventEmitter();

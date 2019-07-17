@@ -44,7 +44,9 @@
         #pmList
     >
         <ion-item-sliding
-            [delay-drag]="500"
+            class="adv-preismeldung-item-draggable"
+            [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
+            [class.marked]="bag.marked"
             *ngFor="let bag of scrollList; trackBy: trackByFn; let i = index"
             [attr.data-pmid]="bag.pmId"
             #slidingList
@@ -53,11 +55,8 @@
         >
             <ion-item
                 [button]="true"
-                class="preismeldung-item"
                 (press)="activateReordering$.emit($event)"
                 (click)="selectClickedPreismeldung$.emit(bag)"
-                [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
-                [class.marked]="bag.marked"
             >
                 <div class="preismeldung-wrapper">
                     <div class="preismeldung-position-number">

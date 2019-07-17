@@ -22,7 +22,7 @@
                 [items]="preismeldungen$ | async"
                 (update)="scrollList = $event"
                 pef-perfect-scrollbar
-                [enabled]="isDesktop$ | async"
+                [enabled]="isDesktop"
             >
                 <div
                     *ngFor="let bag of scrollList"
