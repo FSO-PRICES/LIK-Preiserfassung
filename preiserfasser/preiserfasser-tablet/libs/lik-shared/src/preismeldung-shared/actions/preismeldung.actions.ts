@@ -117,7 +117,10 @@ export type PreismeldungAction =
           payload: { preismeldung: P.Models.Preismeldung; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort };
       }
     | { type: 'RESET_PREISMELDUNG_SUCCESS'; payload: P.Models.Preismeldung }
-    | { type: 'DELETE_PREISMELDUNG_SUCCESS'; payload: string }
+    | {
+          type: 'DELETE_PREISMELDUNG_SUCCESS';
+          payload: { pmId: string; pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort };
+      }
     | { type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS'; payload: P.Models.Preismeldung }
     | { type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS'; payload: P.Models.Preismeldung }
     | {

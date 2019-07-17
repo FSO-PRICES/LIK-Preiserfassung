@@ -4,16 +4,8 @@ import { Store } from '@ngrx/store';
 import { startOfMonth } from 'date-fns';
 import { assign, cloneDeep, flatMap, isEqual, maxBy, sortBy } from 'lodash';
 import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
 
-import {
-    getDatabase,
-    getAllDocumentsForPrefix,
-    getAllDocumentsForPrefixFromDb,
-    getDatabaseAsObservable,
-    getDocumentWithFallback,
-} from './pouchdb-utils';
-import * as fromRoot from '../reducers';
-import * as P from '../common-models';
 import {
     preismeldungCompareFn,
     SavePreismeldungPriceSaveActionCommentsType,
@@ -26,8 +18,18 @@ import {
     preismeldestelleId,
     PreismeldungAction,
     copyPreismeldungPropertiesFromRefPreismeldung,
+    getNextIndexForRecMode,
 } from 'lik-shared';
-import { of } from 'rxjs/observable/of';
+
+import {
+    getDatabase,
+    getAllDocumentsForPrefix,
+    getAllDocumentsForPrefixFromDb,
+    getDatabaseAsObservable,
+    getDocumentWithFallback,
+} from './pouchdb-utils';
+import * as fromRoot from '../reducers';
+import * as P from '../common-models';
 
 @Injectable()
 export class PreismeldungenEffects {
@@ -312,11 +314,19 @@ export class PreismeldungenEffects {
                         .get(P.pmsSortId(bag.preismeldung.pmsNummer))
                         .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
                             const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
-                                sortOrder: pmsPreismeldungenSort.sortOrder.filter(x => x.pmId !== bag.pmId),
+                                sortOrder: [
+                                    ...pmsPreismeldungenSort.sortOrder.filter(
+                                        x => x.sortierungsnummer < bag.sortierungsnummer
+                                    ),
+                                    ...pmsPreismeldungenSort.sortOrder
+                                        .filter(x => x.sortierungsnummer > bag.sortierungsnummer)
+                                        .map(x => ({ pmId: x.pmId, sortierungsnummer: x.sortierungsnummer - 1 })),
+                                ],
                             });
                             return db.put(newPmsPreismeldungsSort).then(() => db);
                         })
-                        .then(() => bag.preismeldung._id)
+                        .then(() => db.get<P.Models.PmsPreismeldungenSort>(P.pmsSortId(bag.preismeldung.pmsNummer)))
+                        .then(pmsPreismeldungenSort => ({ pmId: bag.preismeldung._id, pmsPreismeldungenSort }))
                 )
         )
         .map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload }));
@@ -326,17 +336,15 @@ export class PreismeldungenEffects {
         .flatMap(({ payload }) => this.savePreismeldungenSort(payload))
         .subscribe();
 
-    savePreismeldung(
+    async savePreismeldung(
         currentPreismeldungBag: P.CurrentPreismeldungBag,
         copyFns: ((bag: P.CurrentPreismeldungBag) => any)[]
     ) {
-        return getDatabase()
-            .then(db => db.get(currentPreismeldungBag.preismeldung._id).then(doc => ({ db, doc })))
-            .then(({ db, doc }) => {
-                const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
-                return db.put(assign({}, doc, ...copyObjects)).then(() => db);
-            })
-            .then(db => db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
+        const db = await getDatabase();
+        const doc = await db.get(currentPreismeldungBag.preismeldung._id);
+        const copyObjects = copyFns.map(x => x(currentPreismeldungBag));
+        await db.put(assign({}, doc, ...copyObjects));
+        return await (db.get(currentPreismeldungBag.preismeldung._id) as Promise<P.Models.Preismeldung>);
     }
 
     savePreismeldungMessages(currentPreismeldungBag: P.CurrentPreismeldungBag) {
@@ -363,21 +371,36 @@ export class PreismeldungenEffects {
             }))
             .filter(({ isInRecordMode }) => isInRecordMode)
             .map(({ preismeldungen }) => {
-                const lastSortierungsnummer = maxBy(
-                    preismeldungen,
-                    x => (!!x.preismeldung.erfasstAt ? x.sortierungsnummer : 0)
-                ).sortierungsnummer;
+                const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
                 const currentIndex = preismeldungen.findIndex(pm => pm.pmId === currentPreismeldung.pmId);
-                const newIndex = preismeldungen.findIndex(pm => pm.sortierungsnummer === lastSortierungsnummer);
+                let newIndex = getNextIndexForRecMode(sortedPreismeldungen);
+                sortedPreismeldungen.forEach((pm, i) => {
+                    if (pm.sortierungsnummer === 0 && i >= newIndex) {
+                        newIndex = i + 1;
+                    }
+                });
+                if (newIndex === -1) {
+                    newIndex = 0;
+                }
                 if (currentIndex !== newIndex) {
-                    const sortedPreismeldungen = sortBy(preismeldungen, pm => pm.sortierungsnummer);
+                    const lastSortNumber = preismeldungen[newIndex - (newIndex === 0 ? 0 : 1)].sortierungsnummer;
                     return [
-                        ...sortedPreismeldungen.slice(0, newIndex + 1),
-                        currentPreismeldung,
-                        ...sortedPreismeldungen.slice(newIndex + 1),
+                        ...sortedPreismeldungen.slice(0, newIndex),
+                        { ...currentPreismeldung, sortierungsnummer: lastSortNumber + (newIndex === 0 ? 0 : 1) },
+                        ...sortedPreismeldungen.slice(newIndex),
                     ]
                         .filter((_, i) => i !== currentIndex + (currentIndex > newIndex ? 1 : 0))
-                        .map((pm, i) => ({ ...pm, sortierungsnummer: i + 1 }));
+                        .map((pm, i) => ({
+                            ...pm,
+                            sortierungsnummer:
+                                i >= newIndex
+                                    ? lastSortNumber +
+                                      i -
+                                      newIndex +
+                                      (newIndex === 0 ? 0 : 1) +
+                                      (currentIndex < newIndex ? 1 : 0)
+                                    : pm.sortierungsnummer,
+                        }));
                 }
                 return preismeldungen;
             })

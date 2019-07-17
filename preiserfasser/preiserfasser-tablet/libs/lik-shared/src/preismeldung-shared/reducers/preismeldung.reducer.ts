@@ -1,8 +1,9 @@
-import { assign, cloneDeep, initial, keys, last, omit, sortBy, uniq } from 'lodash';
+import { assign, cloneDeep, keys, last, maxBy, omit, sortBy, uniq } from 'lodash';
 import { createSelector } from 'reselect';
 
 import { preismeldungId, priceCountId, priceCountIdByPm } from '../../common/helper-functions';
 import { createCountMapOf, createMapOf } from '../../common/map-functions';
+import { getNextIndexForRecMode } from '../../common/preismeldung-functions';
 import { PreismeldungAction } from '../actions/preismeldung.actions';
 import * as P from '../models';
 
@@ -23,7 +24,7 @@ export interface CurrentPreismeldungBagMessages {
     bemerkungen: string;
 }
 
-export type CurrentPreismeldungBag = PreismeldungBag & {
+export type CurrentPreismeldungBag = P.PreismeldungBag & {
     isModified: boolean;
     isMessagesModified: boolean;
     isAttributesModified: boolean;
@@ -55,7 +56,7 @@ export interface State {
     isInRecordMode: boolean;
     pmsNummer: string;
     preismeldungIds: string[];
-    entities: { [pmNummer: string]: PreismeldungBag };
+    entities: { [pmNummer: string]: P.PreismeldungBag };
     currentPreismeldung: CurrentPreismeldungBag;
     priceCountStatuses: PriceCountStatusMap;
     status: string;
@@ -397,9 +398,16 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 { isModified: false, isNew: false },
             );
             const preismeldungIds = action.payload.pmsPreismeldungenSort.sortOrder.map(x => x.pmId);
-            const entities = assign({}, state.entities, {
+            let entities = assign({}, state.entities, {
                 [currentPreismeldung.pmId]: assign({}, currentPreismeldung),
             });
+            entities = action.payload.pmsPreismeldungenSort.sortOrder.reduce(
+                (e, sort) => ({
+                    ...e,
+                    ...{ [sort.pmId]: { ...entities[sort.pmId], sortierungsnummer: sort.sortierungsnummer } },
+                }),
+                {},
+            );
 
             return assign({}, state, {
                 currentPreismeldung,
@@ -426,8 +434,15 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         }
 
         case 'DELETE_PREISMELDUNG_SUCCESS': {
-            const { payload: pmId } = action;
-            const entities = omit(state.entities, pmId) as { [pmNummer: string]: PreismeldungBag };
+            const { pmId, pmsPreismeldungenSort } = action.payload;
+            let entities = omit(state.entities, pmId) as { [pmNummer: string]: P.PreismeldungBag };
+            entities = pmsPreismeldungenSort.sortOrder.reduce(
+                (e, sort) => ({
+                    ...e,
+                    ...{ [sort.pmId]: { ...entities[sort.pmId], sortierungsnummer: sort.sortierungsnummer } },
+                }),
+                {},
+            );
             const priceCountStatuses = createPriceCountStatuses(entities);
             const preismeldungIds = state.preismeldungIds.filter(x => x !== pmId);
             return assign({}, state, { currentPreismeldung: null, entities, priceCountStatuses, preismeldungIds });
@@ -514,9 +529,8 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
         case 'DUPLICATE_PREISMELDUNG': {
             const allPreismeldungen = getAll(state);
-            const allErfasstePreismeldungen = allPreismeldungen.filter(pm => !!pm.preismeldung.erfasstAt);
             const currentPreismeldung = action.payload.preismeldungToDuplicate;
-            const preismeldungen = getAll(state).filter(
+            const preismeldungen = allPreismeldungen.filter(
                 x =>
                     x.warenkorbPosition.gliederungspositionsnummer ===
                     currentPreismeldung.warenkorbPosition.gliederungspositionsnummer,
@@ -524,10 +538,6 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             const nextLaufnummer = `${preismeldungen.map(x => +x.preismeldung.laufnummer).sort((x, y) => x - y)[
                 preismeldungen.length - 1
             ] + 1}`;
-            const sortierungsnummer =
-                allErfasstePreismeldungen.length !== 0
-                    ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
-                    : 1;
             const newPmId = preismeldungId(
                 currentPreismeldung.preismeldung.pmsNummer,
                 currentPreismeldung.preismeldung.epNummer,
@@ -547,7 +557,11 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     {
                         pmId: newPmId,
                         refPreismeldung: null,
-                        sortierungsnummer,
+                        sortierungsnummer: getNextDuplicateSortierungsnummer(
+                            state.isInRecordMode,
+                            allPreismeldungen,
+                            currentPreismeldung,
+                        ),
                         preismeldung: newPreismeldung,
                         warenkorbPosition: currentPreismeldung.warenkorbPosition,
                     },
@@ -568,8 +582,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
 
         case 'NEW_PREISMELDUNG': {
             const allPreismeldungen = getAll(state);
-            const allErfasstePreismeldungen = allPreismeldungen.filter(pm => !!pm.preismeldung.erfasstAt);
-            const preismeldungen = getAll(state).filter(
+            const preismeldungen = allPreismeldungen.filter(
                 x =>
                     x.warenkorbPosition.gliederungspositionsnummer ===
                     action.payload.warenkorbPosition.gliederungspositionsnummer,
@@ -586,10 +599,6 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 action.payload.warenkorbPosition.gliederungspositionsnummer,
                 nextLaufnummer,
             );
-            const sortierungsnummer =
-                allErfasstePreismeldungen.length !== 0
-                    ? allErfasstePreismeldungen[allErfasstePreismeldungen.length - 1].sortierungsnummer + 1
-                    : 1;
             const priceCountStatus =
                 state.priceCountStatuses[
                     priceCountId(action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer)
@@ -610,7 +619,11 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     {
                         pmId: newPmId,
                         refPreismeldung: null,
-                        sortierungsnummer,
+                        sortierungsnummer: getNextNewSortierungsnummer(
+                            state.isInRecordMode,
+                            allPreismeldungen,
+                            action.payload.warenkorbPosition.gliederungspositionsnummer,
+                        ),
                         preismeldung: newPreismeldung,
                         warenkorbPosition: action.payload.warenkorbPosition,
                     },
@@ -635,6 +648,38 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         default:
             return state;
     }
+}
+
+function getNextDuplicateSortierungsnummer(
+    isInRecordMode: boolean,
+    preismeldungen: P.PreismeldungBag[],
+    currentPreismeldung: CurrentPreismeldungBag | null,
+) {
+    if (isInRecordMode) {
+        const nextIndex = getNextIndexForRecMode(preismeldungen);
+        return nextIndex !== -1 ? preismeldungen[nextIndex].sortierungsnummer : 1;
+    }
+    const nextSortierungsnummer = currentPreismeldung.sortierungsnummer + 1;
+    return nextSortierungsnummer <=
+        maxBy(preismeldungen, bag => bag.preismeldung.uploadRequestedAt + bag.preismeldung.erfasstAt).sortierungsnummer
+        ? maxBy(preismeldungen, bag => bag.sortierungsnummer).sortierungsnummer + 1
+        : nextSortierungsnummer;
+}
+
+function getNextNewSortierungsnummer(
+    isInRecordMode: boolean,
+    preismeldungen: P.PreismeldungBag[],
+    epNummer: string = null,
+) {
+    if (isInRecordMode) {
+        const nextIndex = getNextIndexForRecMode(preismeldungen);
+        return nextIndex !== -1 ? preismeldungen[nextIndex].sortierungsnummer : 1;
+    }
+    const epPreismeldungen = preismeldungen.filter(bag => bag.preismeldung.epNummer === epNummer);
+    const lastEpIndex = epPreismeldungen.indexOf(maxBy(epPreismeldungen, bag => bag.sortierungsnummer));
+    return lastEpIndex !== -1
+        ? epPreismeldungen[lastEpIndex].sortierungsnummer + 1
+        : last(preismeldungen).sortierungsnummer + 1;
 }
 
 // tslint:disable-next-line:no-unused-variable
@@ -1051,9 +1096,9 @@ function createPercentages(
     return { percentages, hasPriceWarning, textzeile };
 }
 
-function createPriceCountStatuses(entities: { [pmsNummer: string]: PreismeldungBag }) {
+function createPriceCountStatuses(entities: { [pmsNummer: string]: P.PreismeldungBag }) {
     const preismeldungBags = keys(entities).map(id => entities[id]);
-    const getPreisId = ({ preismeldung: pm }: PreismeldungBag) => preismeldungId(pm.pmsNummer, pm.epNummer);
+    const getPreisId = ({ preismeldung: pm }: P.PreismeldungBag) => preismeldungId(pm.pmsNummer, pm.epNummer);
     const activePricesPerPmsAndEp = createCountMapOf(
         preismeldungBags.filter(bag => bag.preismeldung.bearbeitungscode !== 0),
         pmBag => getPreisId(pmBag),
@@ -1139,7 +1184,7 @@ const calcHasAttributeWarning = (attributes: string[], productMerkmaleFromWarenk
     return !!productMerkmaleFromWarenkorb ? !productMerkmaleFromWarenkorb.every((x, i) => !!attributes[i]) : false;
 };
 
-function calcWarningAndTextzeile(bag: PreismeldungBag) {
+function calcWarningAndTextzeile(bag: P.PreismeldungBag) {
     const {
         d_DPToVP,
         d_DPToVPVorReduktion,

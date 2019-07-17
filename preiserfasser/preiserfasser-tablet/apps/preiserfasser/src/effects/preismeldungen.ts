@@ -5,6 +5,7 @@ import { assign, flatMap as arrayFlatMap, isEqual, maxBy, sortBy } from 'lodash'
 import { defer } from 'rxjs';
 import {
     combineLatest,
+    defaultIfEmpty,
     filter,
     flatMap,
     map,
@@ -12,7 +13,6 @@ import {
     refCount,
     take,
     withLatestFrom,
-    defaultIfEmpty,
 } from 'rxjs/operators';
 
 import {

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnDestroy, Input, ViewChild, OnChanges, SimpleChange, ChangeDetectionStrategy, ElementRef, AfterViewInit, OnInit, Inject, Output } from '@angular/core';
 import { ReactiveComponent, PefVirtualScrollComponent } from 'lik-shared';
+import { findLastIndex, minBy, sortBy, takeWhile } from 'lodash';
 
 import dragula from 'dragula';
 import autoScroll from 'dom-autoscroller';
@@ -55,10 +56,16 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     constructor(private el: ElementRef, @Inject('windowObject') private window: any, private translateService: TranslateService) {
         super();
 
-        const preismeldungen$ = this.ngAfterViewInit$
+        const allPreismeldungen$ = this.ngAfterViewInit$
             .delay(100)
             .flatMap(() => this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen'))
-            .publishReplay(1).refCount();
+            .map(preismeldungen => sortBy(preismeldungen, pm => pm.sortierungsnummer))
+            .publishReplay(1)
+            .refCount();
+
+        const preismeldungen$ = allPreismeldungen$.map(preismeldungen =>
+            preismeldungen.slice(findLastIndex(preismeldungen, pm => !!pm.preismeldung.uploadRequestedAt) + 1)
+        );
 
         this.multiSelectMode$ = this.multiSelectClick$
             .scan((agg, _) => !agg, false)
@@ -89,29 +96,53 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
             .scan((agg, v) => {
                 if (v.preismeldungenOrderAction.type === 'RESET') return v.preismeldungenOrderAction.payload;
                 const { dropBeforePmId, preismeldungPmId } = v.preismeldungenOrderAction.payload;
-                const dropPreismeldungBeforeSortierungsNummer = !dropBeforePmId ? Number.MAX_VALUE : agg.find(b => b.pmId === dropBeforePmId).sortierungsnummer;
-                let preismeldungenTemp: P.PreismeldungBag[];
+                const prioritizedPm = orderBy(agg, x => x.sortierungsnummer).map((pm, i) => ({ ...pm, priority: i + 1 }));
+
+                const dropPreismeldungBeforePriority = !dropBeforePmId ? Number.MAX_VALUE : prioritizedPm.find(b => b.pmId === dropBeforePmId).priority;
+                let preismeldungenTemp: (P.PreismeldungBag & { priority: number })[];
                 if (!v.multiSelectMode) {
-                    preismeldungenTemp = agg.map((b, i) => b.pmId === preismeldungPmId ? assign({}, b, { sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - 0.1 }) : b)
+                    preismeldungenTemp = prioritizedPm.map((b, i) => b.pmId === preismeldungPmId ? assign({}, b, { priority: dropPreismeldungBeforePriority - 0.1 }) : b)
                 } else {
                     const preismeldungenToMove = orderBy(keys(v.multiselectIndexes).filter(k => !!v.multiselectIndexes[k]).map(pmId => ({ pmId, selectionIndex: v.multiselectIndexes[pmId] })), x => x.selectionIndex, 'desc');
-                    const preismeldungenToMoveOrdered = preismeldungenToMove.map((x, i) => ({ pmId: x.pmId, sortierungsnummer: dropPreismeldungBeforeSortierungsNummer - ((i + 1) * 0.0001) }));
-                    preismeldungenTemp = agg.map((b, i) => {
+                    const preismeldungenToMoveOrdered = preismeldungenToMove.map((x, i) => ({ pmId: x.pmId, priority: dropPreismeldungBeforePriority - ((i + 1) * 0.0001) }));
+                    preismeldungenTemp = prioritizedPm.map((b, i) => {
                         const pmWithNewOrder = preismeldungenToMoveOrdered.find(x => x.pmId === b.pmId);
-                        return !!pmWithNewOrder ? assign({}, b, { sortierungsnummer: pmWithNewOrder.sortierungsnummer }) : b;
+                        return !!pmWithNewOrder ? assign({}, b, { priority: pmWithNewOrder.priority }) : b;
                     });
                 }
-                return orderBy(preismeldungenTemp, x => x.sortierungsnummer).map((b, i) => {
-                    const pm = b.sortierungsnummer !== i + 1 ? assign({}, b, { sortierungsnummer: i + 1 }) : b;
+
+                let minSortNummer = minBy(prioritizedPm, pm => pm.sortierungsnummer).sortierungsnummer;
+                const sortedPm = orderBy(preismeldungenTemp, x => x.priority);
+                const lastSaisonalPmIndex = takeWhile(sortedPm, x => x.sortierungsnummer === 0).length - 1;
+
+                // If the last saisonal pm has been moved use sortnummer 1
+                if (minSortNummer === 0 && sortedPm[0] && sortedPm[0].sortierungsnummer !== 0) {
+                    minSortNummer = 1;
+                }
+                return sortedPm.map((b, i) => {
+                    const pm = i > lastSaisonalPmIndex  ? assign({}, b, { sortierungsnummer: Math.round(minSortNummer) + i - (lastSaisonalPmIndex > 0 ? lastSaisonalPmIndex : 0) }) : b;
                     return assign({}, pm, { selectionIndex: null });
                 });
-            }, [] as P.PreismeldungBag[]);
+            }, [] as P.PreismeldungBag[])
+            .publishReplay(1)
+            .refCount();
 
         this.subscriptions.push(this.preismeldungen$.filter(x => !!x.length).take(1).delay(100).subscribe(() => this.virtualScroll.refresh()));
 
         this.preismeldungSortSave$ = this.save$
-            .withLatestFrom(this.preismeldungen$, (_, preismeldungen) => preismeldungen)
-            .map(preismeldungen => ({ sortOrder: preismeldungen.map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })) }));
+            .withLatestFrom(this.preismeldungen$, allPreismeldungen$, (_, preismeldungen, allPreismeldungen) => ({
+                preismeldungen,
+                allPreismeldungen,
+            }))
+            .map(({ preismeldungen, allPreismeldungen }) => ({
+                    sortOrder: [
+                        ...allPreismeldungen
+                            .slice(0, findLastIndex(allPreismeldungen, pm => !!pm.preismeldung.uploadRequestedAt) + 1)
+                            .map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })),
+                        ...preismeldungen.map(pm => ({ pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer })),
+                    ],
+                })
+            );
 
         this.isModified$ = Observable.merge(this.preismeldungSortSave$.startWith().mapTo(false), this.onDrag$.mapTo(true));
 
