@@ -63,8 +63,6 @@ export class SettingsPage implements OnDestroy {
                 refCount(),
             );
 
-        const loadingText$ = translateService.get('text_saving-settings');
-
         this.canLeave$ = this.currentSettings$.pipe(
             map(areSettingsValid),
             startWith(false),
@@ -142,9 +140,10 @@ export class SettingsPage implements OnDestroy {
 
             save$
                 .pipe(
-                    withLatestFrom(loadingText$, (_, loadingText) => loadingText),
-                    flatMap(loadingText =>
-                        this.pefDialogService.displayLoading(loadingText, { requestDismiss$: settingsSaved$ }),
+                    flatMap(() =>
+                        this.pefDialogService.displayLoading(translateService.instant('text_saving-settings'), {
+                            requestDismiss$: settingsSaved$,
+                        }),
                     ),
                 )
                 .subscribe(() => {
