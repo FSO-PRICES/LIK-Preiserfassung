@@ -417,6 +417,19 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             });
         }
 
+        case 'PREISMELDUNGEN_SORT_SAVE_SUCCESS': {
+            const { payload } = action;
+            const preismeldungIds = payload.sortOrder.map(x => x.pmId);
+            const entities = payload.sortOrder.reduce(
+                (e, sort) => ({
+                    ...e,
+                    ...{ [sort.pmId]: { ...state.entities[sort.pmId], sortierungsnummer: sort.sortierungsnummer } },
+                }),
+                {},
+            );
+            return { ...state, entities, preismeldungIds };
+        }
+
         case 'RESET_PREISMELDUNG_SUCCESS': {
             const resettedEntity = assign({}, state.entities[action.payload._id], { preismeldung: action.payload });
             const entities = assign({}, state.entities, { [action.payload._id]: assign({}, resettedEntity) });

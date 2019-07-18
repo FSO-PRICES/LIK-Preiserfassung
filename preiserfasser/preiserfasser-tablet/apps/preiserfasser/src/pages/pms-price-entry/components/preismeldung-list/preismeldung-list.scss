@@ -32,6 +32,14 @@
         --border-radius: 2px;
     }
 
+    .preismeldung-list-filter {
+        display: flex;
+        .pms-search {
+            flex: 1;
+            margin-left: 5px;
+        }
+    }
+
     .preismeldung-list-filter,
     .preismeldung-list-check-filter {
         @include set-margin-bottom(0.5);

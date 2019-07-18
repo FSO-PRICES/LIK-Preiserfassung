@@ -253,6 +253,7 @@ export interface PropertyTranslation {
 }
 
 export interface WarenkorbTreeItemBase {
+    index: number;
     gliederungspositionsnummer: string;
     parentGliederungspositionsnummer: string;
     produktecode: string;

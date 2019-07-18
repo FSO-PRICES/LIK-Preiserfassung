@@ -1,5 +1,12 @@
 <div class="preismeldung-list-flex-container">
     <div class="preismeldung-list-filter">
+        <ion-button
+            class="icon-only"
+            [color]="sortErhebungsschemaColor$ | async"
+            (click)="sortErhebungsschemaClicked$.emit('ALL')"
+        >
+            <pef-icon name="archive"></pef-icon>
+        </ion-button>
         <pef-search-input class="pms-search" (valueChanges)="filterText$.emit($event)"></pef-search-input>
     </div>
     <div class="preismeldung-list-check-filter">

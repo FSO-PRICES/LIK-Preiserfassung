@@ -338,10 +338,11 @@ export class PreismeldungenEffects {
         map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload })),
     );
 
-    preismeldungenSortSave = this.actions$
-        .ofType('PREISMELDUNGEN_SORT_SAVE')
-        .pipe(flatMap((action: any) => this.savePreismeldungenSort(action.payload)))
-        .subscribe();
+    @Effect()
+    preismeldungenSortSave = this.actions$.ofType('PREISMELDUNGEN_SORT_SAVE').pipe(
+        flatMap((action: any) => this.savePreismeldungenSort(action.payload)),
+        map(payload => ({ type: 'PREISMELDUNGEN_SORT_SAVE_SUCCESS', payload })),
+    );
 
     savePreismeldung(
         currentPreismeldungBag: P.CurrentPreismeldungBag,

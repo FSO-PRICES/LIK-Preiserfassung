@@ -16,7 +16,7 @@ import { ItemReorderEventDetail } from '@ionic/core';
 import { addDays, isAfter, isBefore, subMilliseconds } from 'date-fns';
 import autoScroll from 'dom-autoscroller';
 import dragula from 'dragula';
-import { findLastIndex, minBy, orderBy, takeWhile } from 'lodash';
+import { findLastIndex, minBy, orderBy, sortBy, takeWhile } from 'lodash';
 import { Observable, Subject } from 'rxjs';
 import {
     combineLatest,
@@ -45,6 +45,7 @@ import {
 import * as P from '../../../../common-models';
 
 type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
+type SelectFilters = Exclude<Filters, 'FAVORITES'>;
 type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
 
 @Component({
@@ -92,16 +93,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
 
     public filterText$ = new EventEmitter<string>();
     public selectFilterClicked$ = new EventEmitter<Filters>();
+    public sortErhebungsschemaClicked$ = new EventEmitter();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
     public onDrag$ = new EventEmitter();
 
-    public selectFilter$: Observable<Filters>;
     public filterTodoColor$: Observable<string>;
     public filterCompletedColor$: Observable<string>;
     public filterAllColor$: Observable<string>;
     public filterFavoritesColor$: Observable<string>;
     public canReorder$: Observable<boolean>;
-    public filterByFavorites$: Observable<boolean>;
+    public sortErhebungsschemaColor$: Observable<string>;
 
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle').pipe(
         publishReplay(1),
@@ -148,21 +149,74 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
             startWith([]),
         );
 
-        this.handleFilters();
+        const [selectFilter$, favoritesFilter$] = partition(
+            this.selectFilterClicked$.pipe(
+                startWith('ALL' as Filters),
+                publishReplay(1),
+                refCount(),
+            ),
+            f => f !== 'FAVORITES',
+        ) as [Observable<SelectFilters>, Observable<boolean>];
+        const isFilter = (f: SelectFilters) =>
+            selectFilter$.pipe(
+                startWith(false),
+                map(x => x === f),
+            );
+        const filterAll$ = isFilter('ALL');
+        const filterCompleted$ = isFilter('COMPLETED');
+        const filterTodo$ = isFilter('TODO');
+
+        const filterByFavorites$ = favoritesFilter$.pipe(
+            scan(acc => !acc, false),
+            startWith(false),
+            publishReplay(1),
+            refCount(),
+        );
+
+        this.filterTodoColor$ = filterTodo$.pipe(map(toColor));
+        this.filterCompletedColor$ = filterCompleted$.pipe(map(toColor));
+        this.filterAllColor$ = filterAll$.pipe(map(toColor));
+        this.filterFavoritesColor$ = filterByFavorites$.pipe(map(toColor));
 
         const currentPreismeldung$ = this.currentPreismeldung$.pipe(
             withLatestFrom(markedPreismeldungen$),
             map(([bag, markedIds]) => (bag ? { ...bag, marked: markedIds.some(id => id === bag.pmId) } : null)),
         );
 
+        const sortByErhebungsschema$ = this.sortErhebungsschemaClicked$.pipe(
+            scan((x, _) => !x, false),
+            startWith(false),
+            publishReplay(1),
+            refCount(),
+        );
+        this.sortErhebungsschemaColor$ = sortByErhebungsschema$.pipe(map(toColor));
+
+        this.canReorder$ = filterAll$.pipe(
+            combineLatest(
+                filterByFavorites$,
+                sortByErhebungsschema$,
+                (all, favorites, sortByErhebungsschema) => all && !favorites && !sortByErhebungsschema,
+            ),
+            publishReplay(1),
+            refCount(),
+        );
+
         this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
+            combineLatest(sortByErhebungsschema$, (preismeldungen, sortByErhebungsschema) =>
+                sortByErhebungsschema
+                    ? sortBy(
+                          preismeldungen,
+                          bag => bag.warenkorbPosition.index + parseInt(bag.preismeldung.laufnummer, 10) * 0.01,
+                      )
+                    : preismeldungen,
+            ),
             combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
                 preismeldungen.map(bag => ({ ...bag, marked: markedIds.lastIndexOf(bag.pmId) !== -1 })),
             ),
             combineLatest(
                 this.filterText$.pipe(startWith('')),
-                this.selectFilter$,
-                this.filterByFavorites$,
+                selectFilter$,
+                filterByFavorites$,
                 this.currentLanguage$,
                 (preismeldungen, filterText, filterStatus, filterFavorites, currentLanguage) => {
                     let filteredPreismeldungen = preismeldungen;
@@ -379,9 +433,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
         return 'green';
     }
 
-    trackByFn(index: number, item: P.PreismeldungBag) {
-        if (item) return index;
-        return `${item.pmId}_${item.preismeldung.modifiedAt || ''}`;
+    trackByFn(_index: number, item: P.PreismeldungBag) {
+        return item.pmId;
     }
 
     public ngOnInit() {
@@ -428,44 +481,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
         this.drake.destroy();
         this.scroll.destroy();
     }
-
-    private handleFilters() {
-        const [selectFilter$, favoritesFilter$] = partition(
-            this.selectFilterClicked$.pipe(
-                startWith('ALL' as Filters),
-                publishReplay(1),
-                refCount(),
-            ),
-            f => f !== 'FAVORITES',
-        ) as [Observable<Exclude<Filters, 'FAVORITES'>>, Observable<boolean>];
-        const { ALL, COMPLETED, TODO } = (['ALL', 'COMPLETED', 'TODO'] as Filters[]).reduce(
-            (filters, f) => ({
-                ...filters,
-                [f]: selectFilter$.pipe(
-                    startWith(false),
-                    map(x => x === f),
-                ),
-            }),
-            {} as Record<Filters, Observable<boolean>>,
-        );
-
-        const toColor = (x: boolean) => (x ? 'blue-chill' : 'wild-sand');
-        this.selectFilter$ = selectFilter$;
-        this.filterTodoColor$ = TODO.pipe(map(toColor));
-        this.filterCompletedColor$ = COMPLETED.pipe(map(toColor));
-        this.filterAllColor$ = ALL.pipe(map(toColor));
-
-        this.filterByFavorites$ = favoritesFilter$.pipe(
-            scan(acc => !acc, false),
-            startWith(false),
-            publishReplay(1),
-            refCount(),
-        );
-        this.filterFavoritesColor$ = this.filterByFavorites$.pipe(map(toColor));
-        this.canReorder$ = ALL.pipe(
-            combineLatest(this.filterByFavorites$, (all, favorites) => all && !favorites),
-            publishReplay(1),
-            refCount(),
-        );
-    }
 }
+
+const toColor = (x: boolean) => (x ? 'blue-chill' : 'wild-sand');
