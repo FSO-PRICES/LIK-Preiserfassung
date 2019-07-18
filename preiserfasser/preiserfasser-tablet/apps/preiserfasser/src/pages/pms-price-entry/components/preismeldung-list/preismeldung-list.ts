@@ -47,6 +47,7 @@ import * as P from '../../../../common-models';
 type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
 type SelectFilters = Exclude<Filters, 'FAVORITES'>;
 type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
+const DRAGABLE_CLASS = 'dragable-item';
 
 @Component({
     selector: 'preismeldung-list',
@@ -81,6 +82,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
     public selectNextPreismeldung$ = new EventEmitter();
     public selectPrevPreismeldung$ = new EventEmitter();
     public activateReordering$ = new EventEmitter<HammerInput>();
+    public startDrag$ = new EventEmitter<MouseEvent | TouchEvent>();
     public reordered$ = new EventEmitter<CustomEvent<ItemReorderEventDetail>>();
 
     public viewPortItems: P.Models.Preismeldung[];
@@ -200,6 +202,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
             publishReplay(1),
             refCount(),
         );
+        this.startDrag$.pipe(takeUntil(this.onDestroy$)).subscribe(evt => {
+            console.log('starting drag?', evt);
+            (this.drake as any).grab(evt);
+        });
 
         this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
             combineLatest(sortByErhebungsschema$, (preismeldungen, sortByErhebungsschema) =>
@@ -442,15 +448,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
             [this.pmList.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content')],
             {
                 moves: (el, container) =>
-                    el.classList.contains('dragable-item') && container.parentElement.classList.contains('can-reorder'),
+                    el.classList.contains(DRAGABLE_CLASS) && container.parentElement.classList.contains('can-reorder'),
                 accepts: (_el, _target, _source, sibling) => {
                     return (
                         !sibling ||
-                        (sibling.classList.contains('dragable-item') &&
+                        (sibling.classList.contains(DRAGABLE_CLASS) &&
                             !sibling.classList.contains('last-uploaded-item'))
                     );
                 },
-            },
+                dragDelay: 500,
+            } as dragula.DragulaOptions,
         ));
         thatDrake.on('drop', (el, _target, _source, sibling) => {
             const siblingPmId = !!sibling ? sibling.dataset.pmid : null;

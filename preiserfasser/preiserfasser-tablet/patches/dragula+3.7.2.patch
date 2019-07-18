@@ -1,0 +1,20 @@
+diff --git a/node_modules/dragula/dragula.js b/node_modules/dragula/dragula.js
+index 4f73231..5507e00 100644
+--- a/node_modules/dragula/dragula.js
++++ b/node_modules/dragula/dragula.js
+@@ -43,6 +43,7 @@ function dragula (initialContainers, options) {
+   var drake = emitter({
+     containers: o.containers,
+     start: manualStart,
++    grab: grab,
+     end: end,
+     cancel: cancel,
+     remove: remove,
+@@ -65,7 +66,6 @@ function dragula (initialContainers, options) {
+ 
+   function events (remove) {
+     var op = remove ? 'remove' : 'add';
+-    touchy(documentElement, op, 'mousedown', grab);
+     touchy(documentElement, op, 'mouseup', release);
+   }
+ 

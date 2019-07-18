@@ -1,4 +1,4 @@
-import { Directive, HostBinding, HostListener, Inject, Input } from '@angular/core';
+import { Directive, EventEmitter, HostListener, Inject, Input, Output } from '@angular/core';
 import { WINDOW } from 'ngx-window-token';
 
 @Directive({
@@ -6,55 +6,68 @@ import { WINDOW } from 'ngx-window-token';
 })
 export class DelayDragDirective {
     @Input('delay-drag') public dragDelay: number;
+    @Output('startDrag') public startDrag$ = new EventEmitter<MouseEvent | TouchEvent>();
 
     private touchTimeout: number;
+    private clickPosition: { x: number; y: number };
 
-    @HostBinding('class.delay-drag-lifted') private draggable = false;
+    private draggable = false;
 
     constructor(@Inject(WINDOW) private wndw: Window) {}
-
-    // private get draggable(): boolean {
-    //     return this.el.nativeElement.draggable;
-    // }
-    // private set draggable(value: boolean) {
-    //     this.el.nativeElement.draggable = value;
-    // }
 
     get delay() {
         return typeof this.dragDelay === 'number' ? this.dragDelay : 200;
     }
 
     @HostListener('touchstart', ['$event'])
-    public onTouchStart(evt: Event): void {
-        console.log('onTouchStart');
+    public onTouchStart(evt: TouchEvent): void {
         if (this.touchTimeout) {
             clearTimeout(this.touchTimeout);
         }
-        this.touchTimeout = this.wndw.setTimeout(() => {
-            // console.log('setting draggable = true');
-            this.draggable = true;
-            // this.setDraggable(true);
-        }, this.delay);
+        if (evt.isTrusted) {
+            this.touchTimeout = this.wndw.setTimeout(() => {
+                this.startDrag$.emit(evt);
+                this.draggable = true;
+            }, this.delay);
+        }
+    }
+    @HostListener('mousedown', ['$event'])
+    public onMouseDown(evt: MouseEvent): void {
+        this.clickPosition = { x: evt.clientX, y: evt.clientY };
+        if (this.touchTimeout) {
+            clearTimeout(this.touchTimeout);
+        }
+        if (evt.isTrusted) {
+            this.touchTimeout = this.wndw.setTimeout(() => {
+                console.log('start drag', evt);
+                this.startDrag$.emit(evt);
+                this.draggable = true;
+            }, this.delay);
+        }
     }
 
     @HostListener('touchmove', ['$event'])
-    public onTouchMove(evt: Event): void {
+    public onTouchMove(evt: TouchEvent): void {
         if (!this.draggable) {
             evt.stopPropagation();
             clearTimeout(this.touchTimeout);
         }
     }
-
-    @HostListener('touchend', ['$event'])
-    public onTouchEnd(evt: Event): void {
-        clearTimeout(this.touchTimeout);
-        // console.log('setting draggable = false');
-        this.draggable = false;
-        // this.setDraggable(false);
+    @HostListener('mousemove', ['$event'])
+    public onMouseMove(evt: MouseEvent): void {
+        if (!this.draggable && !samePosition(evt, this.clickPosition)) {
+            clearTimeout(this.touchTimeout);
+        }
     }
 
-    // private setDraggable(value: boolean) {
-    //     this.draggable = value;
-    //     // this.el.nativeElement.draggable = value;
-    // }
+    @HostListener('touchend', ['$event'])
+    @HostListener('mouseup', ['$event'])
+    public onMouseUpOrTouchEnd(evt): void {
+        clearTimeout(this.touchTimeout);
+        this.draggable = false;
+    }
+}
+
+function samePosition(evt: MouseEvent, lastPosition: { x: number; y: number }) {
+    return !lastPosition || (evt.clientX === lastPosition.x && evt.clientY === lastPosition.y);
 }

@@ -51,6 +51,8 @@
         #pmList
     >
         <ion-item-sliding
+            [delay-drag]="1000"
+            (startDrag)="startDrag$.emit($event)"
             class="adv-preismeldung-item-draggable"
             [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
             [class.marked]="bag.marked"

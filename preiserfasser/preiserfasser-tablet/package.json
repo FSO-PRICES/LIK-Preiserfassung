@@ -5,6 +5,7 @@
     "homepage": "https://www.lambda-it.ch",
     "description": "BFS - Preiserfassungs APP",
     "scripts": {
+        "prepare": "patch-package",
         "ng": "ng",
         "start": "ng serve",
         "build": "ng build",
@@ -77,6 +78,7 @@
         "ngrx-store-freeze": "^0.2.4",
         "ngrx-store-logger": "^0.2.2",
         "ngx-window-token": "^2.0.1",
+        "patch-package": "^6.1.2",
         "perfect-scrollbar": "^0.6.16",
         "pouchdb": "^6.4.3",
         "pouchdb-all-dbs": "^1.0.2",
