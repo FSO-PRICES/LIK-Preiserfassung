@@ -131,10 +131,6 @@ ion-select {
     margin-bottom: 2px;
 }
 
-ion-label.sc-ion-label-md-h.md {
-    font-size: 1.2rem;
-}
-
 form.form-show-validation-hints {
     .item.md.pef-item.ion-invalid {
         ion-label {
@@ -514,12 +510,13 @@ ion-list[radio-group] {
     @include set-margin(0.5625, 0.625, 0.5625, 0);
 }
 
-ion-modal.login-modal {
-    --width: calc(1920px / 3 + 38px);
-}
-
 ion-radio-group .item.md ion-label {
     font-size: 1em;
+}
+ion-item.item-radio-checked {
+    ion-label.sc-ion-label-md-h {
+        --color: #{$blue-chill};
+    }
 }
 
 .radio-md.radio-disabled,

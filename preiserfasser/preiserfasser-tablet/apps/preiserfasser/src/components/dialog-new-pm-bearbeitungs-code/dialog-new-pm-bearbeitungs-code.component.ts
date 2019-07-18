@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding } from '@angular/core';
+import { PopoverController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-dialog-new-pm-bearbeitungs-code',
-  templateUrl: './dialog-new-pm-bearbeitungs-code.component.html',
-  styleUrls: ['./dialog-new-pm-bearbeitungs-code.component.scss'],
+    selector: 'dialog-new-pm-bearbeitungs-code',
+    templateUrl: 'dialog-new-pm-bearbeitungs-code.component.html',
+    styleUrls: ['./dialog-new-pm-bearbeitungs-code.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DialogNewPmBearbeitungsCodeComponent implements OnInit {
+export class DialogNewPmBearbeitungsCodeComponent {
+    @HostBinding('class') classes = 'pef-dialog';
+    public bearbeitungscode = 3;
 
-  constructor() { }
-
-  ngOnInit() {}
-
+    constructor(public popoverCtrl: PopoverController) {}
 }

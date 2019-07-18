@@ -27,6 +27,7 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         TranslateModule,
     ],
+    entryComponents: [DialogNewPmBearbeitungsCodeComponent],
     declarations: [NewPriceSeriesPage, ChooseFromWarenkorbComponent, DialogNewPmBearbeitungsCodeComponent],
 })
 export class NewPriceSeriesPageModule {}

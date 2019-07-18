@@ -39,6 +39,13 @@
     }
 }
 
+ion-modal.login-modal {
+    --width: calc(1920px / 3 + 38px);
+}
+ion-popover.new-pm-bearbeitungs-code-popover {
+    --width: 574px;
+}
+
 @media screen and (max-width: $pef-app-max-width) {
     .pef-dialog-message {
         width: 50vw;

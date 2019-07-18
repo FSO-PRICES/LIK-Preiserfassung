@@ -1,0 +1,15 @@
+:host {
+    ion-radio {
+        margin-right: calc(0.625 * 16px);
+    }
+    ion-radio-group ion-item.item ion-label {
+        font-size: 1.5rem;
+    }
+    .button-container {
+        display: flex;
+        justify-content: flex-end;
+        button {
+            min-width: 10em;
+        }
+    }
+}

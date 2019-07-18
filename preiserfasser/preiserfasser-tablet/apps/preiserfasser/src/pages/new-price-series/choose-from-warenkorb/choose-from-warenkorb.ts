@@ -422,7 +422,11 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
             pefMessageDialogService.displayDialogYesNo('dialogText_ausreichend-artikel').pipe(map(x => x.data)),
         );
         const dialogNewPmbearbeitungsCode$ = defer(() =>
-            pefDialogService.displayDialog(DialogNewPmBearbeitungsCodeComponent).pipe(map(x => x.data)),
+            pefDialogService
+                .displayDialog(DialogNewPmBearbeitungsCodeComponent, {
+                    dialogOptions: { cssClass: 'new-pm-bearbeitungs-code-popover' },
+                })
+                .pipe(map(x => x.data)),
         );
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.pipe(
