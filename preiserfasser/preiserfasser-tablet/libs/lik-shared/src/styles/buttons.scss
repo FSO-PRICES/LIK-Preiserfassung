@@ -35,6 +35,13 @@ ion-button {
         pef-icon {
             fill: $blue-chill;
         }
+        &.on-dark {
+            --color: #{$white};
+            --color-hover: #{$white};
+            pef-icon {
+                fill: $white;
+            }
+        }
     }
     &.close-page {
         pef-icon {

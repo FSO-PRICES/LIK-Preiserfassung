@@ -11,4 +11,5 @@ export class PefItemWrapper {
     @Input() invalid = false;
     @HostBinding('class') classNames =
         'pef-item on-dark item md in-list ion-focusable hydrated item-label item-label-stacked item-interactive item-input';
+    @Input() @HostBinding('class.on-dark') onDark = false;
 }
