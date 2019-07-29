@@ -82,7 +82,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
 
     private subscriptions = [];
 
-    constructor(translateService: TranslateService, @Inject(WINDOW) wndw: Window, private el: ElementRef) {
+    constructor(translateService: TranslateService, @Inject(WINDOW) wndw: Window, private el: ElementRef<HTMLElement>) {
         super();
 
         const allPreismeldungen$ = this.ngAfterViewInit$.pipe(
@@ -260,33 +260,51 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     }
 
     public ngOnInit() {
-        const thatDrake = (this.drake = dragula(
-            [this.el.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content')],
-            {
-                moves: (el, _container, handle) => {
-                    let searchElement = handle;
-                    while (searchElement !== el && searchElement.className !== 'drag-handle') {
-                        searchElement = searchElement.parentElement;
-                    }
-                    return searchElement.className === 'drag-handle';
-                },
+        let scrollable = true;
+        const scrollContainer = this.el.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content');
+        document.addEventListener(
+            'touchmove',
+            e => {
+                console.log('touchmoving', scrollable);
+                if (!scrollable) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    e.returnValue = false;
+                }
             },
-        ));
+            true,
+        );
+        const thatDrake = (this.drake = dragula([scrollContainer], {
+            moves: (el, _container, handle) => {
+                let searchElement = handle;
+                while (searchElement !== el && searchElement.className !== 'drag-handle') {
+                    searchElement = searchElement.parentElement;
+                }
+                return searchElement.className === 'drag-handle';
+            },
+            markerSelector: '.box-part',
+        } as dragula.DragulaOptions));
         thatDrake.on('drop', (el, _target, _source, sibling) => {
             const siblingPmId = !!sibling ? sibling.dataset.pmid : null;
             this.dropPreismeldung$.emit({ preismeldungPmId: el.dataset.pmid, dropBeforePmId: siblingPmId });
         });
-        thatDrake.on('drag', e => {
-            console.log('on drag', e);
+        thatDrake.on('drag', () => {
+            if (scrollable !== false) {
+                console.log('setting scrollable false');
+                scrollable = false;
+            }
             return this.onDrag$.emit();
         });
-        thatDrake.on('dragend', () =>
-            this.el.nativeElement.querySelector('pef-virtual-scroll').classList.remove('is-dragging'),
-        );
+        thatDrake.on('dragend', () => {
+            console.log('setting scrollable true');
+            scrollable = true;
+            this.el.nativeElement.querySelector('pef-virtual-scroll').classList.remove('is-dragging');
+        });
         this.scroll = autoScroll([this.el.nativeElement.querySelector('pef-virtual-scroll')], {
             margin: 30,
             maxSpeed: 25,
             scrollWhenOutside: true,
+            syncMove: true,
             autoScroll: function() {
                 return this.down && thatDrake.dragging;
             },

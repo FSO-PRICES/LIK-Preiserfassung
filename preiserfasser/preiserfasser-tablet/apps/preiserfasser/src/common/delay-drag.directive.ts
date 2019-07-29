@@ -39,7 +39,6 @@ export class DelayDragDirective {
         }
         if (evt.isTrusted) {
             this.touchTimeout = this.wndw.setTimeout(() => {
-                console.log('start drag', evt);
                 this.startDrag$.emit(evt);
                 this.draggable = true;
             }, this.delay);

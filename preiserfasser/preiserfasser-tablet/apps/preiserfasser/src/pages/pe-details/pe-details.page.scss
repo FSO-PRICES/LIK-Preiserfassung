@@ -53,10 +53,6 @@
         form {
             display: flex;
             flex-direction: column;
-            ion-label {
-                color: $white;
-                font-size: 1em;
-            }
         }
 
         .pef-item .input-wrapper {
@@ -64,9 +60,12 @@
         }
     }
 
-    ion-input[readonly] {
-        background-color: transparent !important;
-        border-bottom-color: transparent !important;
-        color: $white;
+    .item.md {
+        ::ng-deep {
+            ion-label.label-stacked.sc-ion-label-md-h {
+                font-size: 1em;
+                margin-bottom: 0;
+            }
+        }
     }
 }

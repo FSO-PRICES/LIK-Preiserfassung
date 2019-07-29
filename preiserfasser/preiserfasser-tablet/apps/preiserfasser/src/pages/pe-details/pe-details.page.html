@@ -43,20 +43,15 @@
                                 <ion-label position="stacked">{{ 'label_preiserheber_surname' | translate }}</ion-label>
                                 <ion-input type="text" formControlName="surname"></ion-input>
                             </ion-item>
-                            <ion-item class="pef-item on-dark">
-                                <ion-label
-                                    position="stacked"
-                                    [class.target-ng-invalid]="form.controls.languageCode.invalid"
-                                    >{{ 'label_preiserheber_languageCode' | translate }}</ion-label
-                                >
-                                <ion-select interface="popover" formControlName="languageCode">
-                                    <ion-select-option
+                            <pef-item-wrapper [labelText]="'label_preiserheber_languageCode' | translate">
+                                <select formControlName="languageCode">
+                                    <option
                                         *ngFor="let language of (languages$ | async)"
                                         [value]="language.languageCode"
-                                        >{{ language.name }}</ion-select-option
+                                        >{{ language.name }}</option
                                     >
-                                </ion-select>
-                            </ion-item>
+                                </select>
+                            </pef-item-wrapper>
                             <ion-item class="pef-item on-dark">
                                 <ion-label position="stacked">{{
                                     'label_preiserheber_telephone' | translate

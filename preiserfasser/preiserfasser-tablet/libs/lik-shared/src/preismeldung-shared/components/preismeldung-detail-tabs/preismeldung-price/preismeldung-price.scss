@@ -410,7 +410,7 @@
         }
     }
 
-    .product-detail-row.row-4 {
+    .product-detail-row.row-4.columns {
         display: none;
         justify-content: flex-end;
         @include set-padding-top(2);

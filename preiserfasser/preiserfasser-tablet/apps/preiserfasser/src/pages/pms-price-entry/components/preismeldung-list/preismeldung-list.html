@@ -45,6 +45,7 @@
         [childHeight]="itemHeight"
         (update)="scrollList = $event"
         (pef-detect-ion-list-item-height)="ionItemHeight$.emit($event)"
+        itemTagName="ion-item-sliding"
         pef-perfect-scrollbar
         [enabled]="isDesktop"
         [class.can-reorder]="canReorder$ | async"

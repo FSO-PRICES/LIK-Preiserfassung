@@ -32,6 +32,9 @@
             &.selected {
                 --background: #{$surfie-green};
             }
+            pef-icon {
+                fill: $white;
+            }
         }
         &:hover:not(.disable-hover) {
             opacity: 1;

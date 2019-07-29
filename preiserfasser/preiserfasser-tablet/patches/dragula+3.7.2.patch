@@ -1,8 +1,14 @@
 diff --git a/node_modules/dragula/dragula.js b/node_modules/dragula/dragula.js
-index 4f73231..5507e00 100644
+index 4f73231..c6af2b8 100644
 --- a/node_modules/dragula/dragula.js
 +++ b/node_modules/dragula/dragula.js
-@@ -43,6 +43,7 @@ function dragula (initialContainers, options) {
+@@ -39,10 +39,13 @@ function dragula (initialContainers, options) {
+   if (o.direction === void 0) { o.direction = 'vertical'; }
+   if (o.ignoreInputTextSelection === void 0) { o.ignoreInputTextSelection = true; }
+   if (o.mirrorContainer === void 0) { o.mirrorContainer = doc.body; }
++  if (o.delayedGrab === void 0) { o.delayedGrab = false; }
++  if (o.markerSelector === void 0) { o.markerSelector = null }
+ 
    var drake = emitter({
      containers: o.containers,
      start: manualStart,
@@ -10,11 +16,68 @@ index 4f73231..5507e00 100644
      end: end,
      cancel: cancel,
      remove: remove,
-@@ -65,7 +66,6 @@ function dragula (initialContainers, options) {
+@@ -65,7 +68,9 @@ function dragula (initialContainers, options) {
  
    function events (remove) {
      var op = remove ? 'remove' : 'add';
 -    touchy(documentElement, op, 'mousedown', grab);
++    if (!o.delayedGrab) {
++      touchy(documentElement, op, 'mousedown', grab);
++    }
      touchy(documentElement, op, 'mouseup', release);
    }
  
+@@ -303,6 +308,8 @@ function dragula (initialContainers, options) {
+ 
+   function cleanup () {
+     var item = _copy || _item;
++    setMarking(_currentSibling, 'top', false, o.markerSelector);
++    setMarking(_currentSibling, 'bottom', false, o.markerSelector);
+     ungrab();
+     removeMirrorImage();
+     if (item) {
+@@ -399,12 +406,22 @@ function dragula (initialContainers, options) {
+     }
+     if (
+       (reference === null && changed) ||
+-      reference !== item &&
+-      reference !== nextEl(item)
++      reference !== item
+     ) {
++      if (reference) {
++        if (_currentSibling) {
++          setMarking(_currentSibling, 'top', false, o.markerSelector);
++          setMarking(_currentSibling, 'bottom', false, o.markerSelector);
++        }
++        setMarking(reference, 'top', true, o.markerSelector);
++      }
++      else {
++        if (_currentSibling) {
++          setMarking(_currentSibling, 'top', false, o.markerSelector);
++          setMarking(_currentSibling, 'bottom', true, o.markerSelector);
++        }
++      }
+       _currentSibling = reference;
+-      dropTarget.insertBefore(item, reference);
+-      drake.emit('shadow', item, dropTarget, _source);
+     }
+     function moved (type) { drake.emit(type, item, _lastDropTarget, _source); }
+     function over () { if (changed) { moved('over'); } }
+@@ -605,4 +622,17 @@ function getCoord (coord, e) {
+   return host[coord];
+ }
+ 
++/**
++ * @param {HTMLElement} element
++ * @param {'top'|'bottom'} position
++ * @param {boolean} active
++ * @param {string} selector
++ */
++function setMarking(element, position, active, selector) {
++  var target = selector ? element.querySelector(selector) : element;
++  if (target) {
++    target.style[position === 'top' ? 'borderTop' : 'borderBottom'] = active ? '3px solid rgba(14, 141, 203, 0.5)' : 'none';
++  }
++}
++
+ module.exports = dragula;

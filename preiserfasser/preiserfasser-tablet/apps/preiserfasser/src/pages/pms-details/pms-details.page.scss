@@ -21,14 +21,27 @@
         }
     }
 
+    .item.md {
+        --min-height: 38px;
+        ::ng-deep {
+            ion-label,
+            ion-checkbox,
+            ion-input {
+                margin: 0;
+            }
+        }
+
+        ion-radio + ion-label,
+        ion-checkbox + ion-label {
+            margin-left: calc(0.625 * 16px);
+        }
+    }
+
     .inline {
         display: flex;
         flex-direction: row;
         align-items: center;
-        height: 37px;
-        ion-checkbox {
-            margin-right: 10px;
-        }
+        height: 30px;
     }
 
     .header {
@@ -156,7 +169,11 @@
         margin-bottom: 2px;
     }
 
-    ion-textarea > textarea {
-        height: 4.8em;
+    ion-textarea {
+        ::ng-deep {
+            .native-textarea {
+                height: 4.8em;
+            }
+        }
     }
 }

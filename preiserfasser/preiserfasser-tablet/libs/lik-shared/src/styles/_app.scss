@@ -77,45 +77,81 @@ ion-label {
     font-weight: 500;
 }
 
-ion-item.pef-item {
+.item.md {
+    --border-width: 0;
+    --border-style: none;
+    --border-color: transparent;
+}
+
+.item.md.pef-item {
     --highlight-color-focused: transparent;
     --highlight-color-valid: transparent;
     --highlight-color-invalid: transparent;
     --ion-safe-area-left: 0px;
     --ion-safe-area-right: 0px;
     --padding-start: 0px;
+    // &.item.md .item-inner {
+    //     padding-right: 0;
+    //     border-bottom-width: 0;
+    // }
 
     ion-label {
         margin-left: 0;
         margin-right: 8px;
         margin-top: 13px;
         margin-bottom: 13px;
-    }
-    .label-stacked.sc-ion-label-md-h {
         padding-left: 8px;
-        margin-top: 13px;
-        margin-right: 8px;
-        height: 28px;
-        min-height: 28px;
+        font-weight: 500;
+        color: $oslo-gray;
+        line-height: 1.75em;
+        &.label-stacked.sc-ion-label-md-h {
+            padding-left: 8px;
+            margin-top: 13px;
+            margin-right: 8px;
+            font-size: 1.2rem;
+            height: 28px;
+            min-height: 28px;
+            transform: none;
+        }
     }
-    ion-select {
-        background-color: $white;
+    .native-input {
+        margin: 6px 0;
+        height: calc(2.75 * 1em);
     }
-    ion-input.sc-ion-input-md-h {
-        background-color: $white;
+    .pef-item-wrapper {
+        padding-right: 16px;
+        select {
+            width: 100%;
+            height: 35px;
+            border: none;
+            background-color: $white;
+            color: $black;
+        }
+    }
+    ion-input {
+        --padding-bottom: 0;
+        --padding-top: 0;
+    }
+    ion-input,
+    ion-textarea {
         --background: #{$white};
-        --padding-start: 8px;
         --padding-end: 8px;
-        &.readonly {
+        --padding-start: 8px;
+        background-color: $white;
+        border-bottom: 2px solid $hit-gray;
+        padding-left: 8px;
+        padding-right: 8px;
+        ::selection {
+            background-color: $scooter;
+            color: $outer-space;
+        }
+        &.readonly,
+        &[readonly] {
+            border-bottom: none;
+            margin-bottom: 2px;
             background-color: $alto;
             --background: #{$alto};
         }
-    }
-    .label-stacked.sc-ion-label-md-h {
-        transform: none;
-    }
-    .item-native {
-        height: calc(2.75 * 1em);
     }
     &.pef-item-compact {
         --background: transparent;
@@ -123,22 +159,63 @@ ion-item.pef-item {
             height: 36px;
         }
     }
+    &.item-has-focus {
+        ion-input,
+        ion-textarea {
+            border-bottom-color: $blue-chill;
+        }
+        // .item-inner {
+        //     box-shadow: none;
+        // }
+        // &:last-child {
+        //     box-shadow: none;
+        // }
+    }
+    &.on-dark {
+        --background-focused: transparent;
+        ion-label {
+            color: white;
+        }
+    }
+    &.item-has-focus.on-dark {
+        ion-label {
+            color: $bright-sun;
+        }
+        ion-input,
+        ion-textarea {
+            border-bottom-color: $bright-sun;
+        }
+    }
+    // input {
+    //     outline: none;
+    // }
+}
+.stacked-form {
+    .item.md.pef-item {
+        .native-input {
+            height: 18px;
+        }
+    }
+}
+
+ion-textarea.sc-ion-textarea-md-h {
+    --background: #{$white};
 }
 
 ion-input,
 ion-textarea,
-ion-select {
+select {
     margin-bottom: 2px;
 }
 
 form.form-show-validation-hints {
     .item.md.pef-item.ion-invalid {
         ion-label {
-            color: $outer-space;
+            color: $alizarin-crimson;
         }
         ion-input,
         ion-textarea,
-        ion-select {
+        select {
             border-bottom: 2px solid $alizarin-crimson;
             margin-bottom: 0px;
         }
@@ -149,7 +226,7 @@ form.form-show-validation-hints {
         }
         ion-input,
         ion-textarea,
-        ion-select {
+        select {
             border-bottom-color: $flamingo;
         }
     }
@@ -174,7 +251,7 @@ form.form-show-validation-hints {
     /* perfect-scrollbar v0.6.15 */
     position: relative;
 
-    ion-item {
+    .item.md {
         touch-action: auto !important;
     }
     &.ps-container {
@@ -393,81 +470,6 @@ ion-content.md {
     font-size: 1.2rem;
 }
 
-.item.md {
-    --border-width: 0;
-    --border-style: none;
-    --border-color: transparent;
-}
-
-form.stacked-form {
-    .pef-select {
-        display: flex;
-        flex: 1;
-        align-self: stretch;
-    }
-}
-
-// ion-item.item.md.pef-item {
-//     padding-left: 0;
-//     background-color: transparent;
-//     ::ng-deep {
-//         .input-wrapper {
-//             height: calc(2.75 * 1em);
-//         }
-//         &.item.md .item-inner {
-//             padding-right: 0;
-//             border-bottom-width: 0;
-//         }
-//         ion-label {
-//             padding-left: 8px;
-//             font-weight: 500;
-//             color: $oslo-gray;
-//             line-height: 1.75em;
-//         }
-//         .native-input {
-//             margin: 6px 0;
-//         }
-//         ion-input,
-//         ion-textarea {
-//             background-color: white;
-//             border-bottom: 2px solid $hit-gray;
-//             padding-left: 8px;
-//             padding-right: 8px;
-//             ::selection {
-//                 background-color: $scooter;
-//                 color: $outer-space;
-//             }
-//             &.readonly {
-//                 background-color: $alto;
-//             }
-//         }
-//         &.item-has-focus {
-//             ion-input,
-//             ion-textarea {
-//                 border-bottom-color: $blue-chill;
-//             }
-//             .item-inner {
-//                 box-shadow: none;
-//             }
-//             &:last-child {
-//                 box-shadow: none;
-//             }
-//         }
-//         &.item-has-focus.on-dark {
-//             ion-label {
-//                 color: $bright-sun;
-//             }
-//             ion-input,
-//             ion-textarea {
-//                 border-bottom-color: $bright-sun;
-//             }
-//         }
-//         input {
-//             outline: none;
-//         }
-//     }
-// }
-
 // .list-md .item-input:last-child {
 //     border-bottom: 0;
 // }
@@ -513,7 +515,7 @@ ion-list[radio-group] {
 ion-radio-group .item.md ion-label {
     font-size: 1em;
 }
-ion-item.item-radio-checked {
+.item.md.item-radio-checked {
     ion-label.sc-ion-label-md-h {
         --color: #{$blue-chill};
     }

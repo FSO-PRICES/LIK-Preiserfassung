@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     Component,
     ElementRef,
@@ -6,7 +7,6 @@ import {
     Input,
     OnChanges,
     OnDestroy,
-    OnInit,
     Output,
     SimpleChange,
     ViewChild,
@@ -47,6 +47,7 @@ import * as P from '../../../../common-models';
 type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
 type SelectFilters = Exclude<Filters, 'FAVORITES'>;
 type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
+type AdvancedPreismeldungBag = P.PreismeldungBag & { marked: boolean; dragable: boolean; lastUploaded: boolean };
 const DRAGABLE_CLASS = 'dragable-item';
 
 @Component({
@@ -55,7 +56,7 @@ const DRAGABLE_CLASS = 'dragable-item';
     styleUrls: ['preismeldung-list.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PreismeldungListComponent extends ReactiveComponent implements OnInit, OnChanges, OnDestroy {
+export class PreismeldungListComponent extends ReactiveComponent implements OnChanges, OnDestroy, AfterViewInit {
     @ViewChild(IonContent, { static: true }) content: IonContent;
     @ViewChild(IonContent, { read: ElementRef, static: true }) contentElementRef: ElementRef;
     @Input() isDesktop: boolean;
@@ -70,9 +71,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
     @Output('sortPreismeldungen') sortPreismeldungen$ = new EventEmitter();
     @Output('recordSortPreismeldungen') recordSortPreismeldungen$ = new EventEmitter();
-    @Output('filteredPreismeldungen') filteredPreismeldungen$: Observable<
-        (P.PreismeldungBag & { marked: boolean; dragable: boolean; lastUploaded: boolean })[]
-    >;
+    @Output('filteredPreismeldungen') filteredPreismeldungen$: Observable<AdvancedPreismeldungBag[]>;
     @Output('saveOrder') saveOrder$: Observable<P.Models.PmsPreismeldungenSortProperties>;
 
     @ViewChild(PefVirtualScrollComponent, { static: true }) private virtualScroll: any;
@@ -86,7 +85,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
     public reordered$ = new EventEmitter<CustomEvent<ItemReorderEventDetail>>();
 
     public viewPortItems: P.Models.Preismeldung[];
-    public scrollList: P.PreismeldungBag[];
+    public scrollList: AdvancedPreismeldungBag[];
     public completedCount$: Observable<string>;
     public isReorderingActive$: Observable<boolean>;
 
@@ -125,7 +124,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
 
     public ionItemHeight$ = new EventEmitter<number>();
     public favorite$ = new EventEmitter<P.PreismeldungBag & { marked: boolean }>();
-    public itemHeight = 50;
+    public itemHeight = 60;
 
     private onDestroy$ = new Subject();
 
@@ -202,10 +201,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
             publishReplay(1),
             refCount(),
         );
-        this.startDrag$.pipe(takeUntil(this.onDestroy$)).subscribe(evt => {
-            console.log('starting drag?', evt);
-            (this.drake as any).grab(evt);
-        });
+        this.startDrag$.pipe(takeUntil(this.onDestroy$)).subscribe(evt => (this.drake as any).grab(evt));
 
         this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
             combineLatest(sortByErhebungsschema$, (preismeldungen, sortByErhebungsschema) =>
@@ -406,6 +402,15 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
                 }
             });
 
+        this.onDrag$
+            .pipe(
+                delay(0),
+                takeUntil(this.onDestroy$),
+            )
+            .subscribe(() => {
+                this.pmList.nativeElement.classList.add('is-dragging');
+            });
+
         this.completedCount$ = this.preismeldungen$.pipe(
             map(x => `${x.filter(y => y.preismeldung.istAbgebucht).length}/${x.length}`),
         );
@@ -443,7 +448,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
         return item.pmId;
     }
 
-    public ngOnInit() {
+    public ngAfterViewInit() {
         const thatDrake = (this.drake = dragula(
             [this.pmList.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content')],
             {
@@ -456,7 +461,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
                             !sibling.classList.contains('last-uploaded-item'))
                     );
                 },
-                dragDelay: 500,
+                delayedGrab: true,
+                markerSelector: '.item.md',
             } as dragula.DragulaOptions,
         ));
         thatDrake.on('drop', (el, _target, _source, sibling) => {
@@ -473,6 +479,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnIn
             margin: 30,
             maxSpeed: 25,
             scrollWhenOutside: true,
+            syncMove: true,
             autoScroll: function() {
                 return this.down && thatDrake.dragging;
             },

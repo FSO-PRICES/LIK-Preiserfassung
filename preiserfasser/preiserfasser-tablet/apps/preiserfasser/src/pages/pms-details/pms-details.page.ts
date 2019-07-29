@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 import { assign, range } from 'lodash';
 import { Observable, Subscription } from 'rxjs';
 import {
+    combineLatest,
     distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
@@ -15,6 +16,7 @@ import {
     publishReplay,
     refCount,
     scan,
+    tap,
     withLatestFrom,
 } from 'rxjs/operators';
 
@@ -142,7 +144,7 @@ export class PmsDetailsPage implements OnDestroy {
                 .select(fromRoot.getPreismeldestellen)
                 .pipe(
                     filter(x => !!x && x.length > 0),
-                    withLatestFrom(pmsNummerParam$),
+                    combineLatest(pmsNummerParam$),
                 )
                 .subscribe(([, pmsNummer]) => {
                     this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: pmsNummer });

@@ -133,7 +133,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
             if (offsetTop !== undefined && offsetTop !== children[itemsPerRow].offsetTop) break;
             offsetTop = children[itemsPerRow].offsetTop;
         }
-        return itemsPerRow;
+        return 1;
     }
 
     private calculateDimensions() {
@@ -146,7 +146,7 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         let viewHeight = el.clientHeight - this.scrollbarHeight;
 
         let contentDimensions;
-        if (this.childWidth === undefined || this.childHeight === undefined) {
+        if (this.childWidth == undefined || this.childHeight == undefined) {
             contentDimensions = content.children[0]
                 ? content.children[0].getBoundingClientRect()
                 : {
@@ -208,10 +208,12 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         let maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
         let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
 
-        this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
-
         start = !isNaN(start) ? start : -1;
         end = !isNaN(end) ? end : -1;
+        start = Math.max(start - 5, 0);
+        end = Math.min(end + 5, items.length);
+        this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
+
         if (start !== this.previousStart || end !== this.previousEnd) {
             // update the scroll list
             this.update.emit(items.slice(start, end));

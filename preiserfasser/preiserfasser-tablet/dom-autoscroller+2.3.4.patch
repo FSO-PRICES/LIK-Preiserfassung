@@ -1,0 +1,33 @@
+Useful for debugging autoscroller
+
+diff --git a/node_modules/dom-autoscroller/dist/bundle.js b/node_modules/dom-autoscroller/dist/bundle.js
+index 294113f..58a7854 100644
+--- a/node_modules/dom-autoscroller/dist/bundle.js
++++ b/node_modules/dom-autoscroller/dist/bundle.js
+@@ -251,9 +251,26 @@ function AutoScroller(elements, options){
+
+     }
+
++    function paintDebug(id, color, left, top, bottom, offset, margin) {
++        var debug = document.getElementById('DEBUG-autoscroll' + id);
++        if (!debug) {
++            debug = document.createElement('div');
++            debug.id = 'DEBUG-autoscroll' + id;
++            debug.style.position = 'absolute';
++            debug.style.backgroundColor = color;
++            debug.style.opacity = 0.3;
++            debug.style.width = '5px';
++            document.body.appendChild(debug);
++        }
++        debug.style.left = (left + margin || 0) - offset + 'px';
++        debug.style.top = (top + margin || 0) + 'px';
++        debug.style.height = (bottom - margin || 0) - (top + margin || 0) + 'px';
++    }
+
+     function autoScroll(el){
+         var rect = domPlane.getClientRect(el), scrollx, scrolly;
++        paintDebug(1, 'blue', rect.left, rect.top, rect.bottom, 0, self.margin);
++        paintDebug(2, 'red', rect.left, point.y, point.y + 5, 3, 0);
+
+         if(point.x < rect.left + self.margin){
+             scrollx = Math.floor(

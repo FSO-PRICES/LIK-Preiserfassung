@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgxLetModule } from '@ngx-utilities/ngx-let';
 
 import { PefDialogService } from '../common/pef-dialog-service';
 import { PefLanguageService } from '../common/pef-language.service';
@@ -39,7 +40,7 @@ import { ElectronService } from './services/electron.service';
         PreismeldungReadonlyHeader,
         PreismeldungToolbarComponent,
     ],
-    imports: [CommonModule, ReactiveFormsModule, IonicModule, PefComponentsModule, TranslateModule],
+    imports: [CommonModule, ReactiveFormsModule, IonicModule, NgxLetModule, PefComponentsModule, TranslateModule],
     entryComponents: [DialogCancelEditComponent, DialogChoosePercentageReductionComponent],
     exports: [
         BearbeitungsTypeComponent,

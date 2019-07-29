@@ -45,6 +45,9 @@ ion-modal.login-modal {
 ion-popover.new-pm-bearbeitungs-code-popover {
     --width: 574px;
 }
+ion-popover.sc-ion-popover-md-h {
+    --width: auto;
+}
 
 @media screen and (max-width: $pef-app-max-width) {
     .pef-dialog-message {

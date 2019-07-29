@@ -1,12 +1,13 @@
-import { Directive, ElementRef, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { WINDOW } from 'ngx-window-token';
 import { interval, of as observableOf } from 'rxjs';
-import { flatMap, retry, take } from 'rxjs/operators';
+import { flatMap, publishReplay, refCount, retry, take } from 'rxjs/operators';
 
 @Directive({
     selector: '[pef-detect-ion-list-item-height]',
 })
 export class PefDetectIonListItemHeightDirective implements OnInit {
+    @Input() itemTagName = 'ion-input';
     @Output('pef-detect-ion-list-item-height') ionItemHeight = new EventEmitter<number>();
 
     constructor(private elementRef: ElementRef, @Inject(WINDOW) private wndw: Window) {}
@@ -24,7 +25,7 @@ export class PefDetectIonListItemHeightDirective implements OnInit {
     }
 
     getIonItemElement() {
-        const ionItem = this.elementRef.nativeElement.getElementsByTagName('ion-item')[0] as HTMLElement;
+        const ionItem = this.elementRef.nativeElement.getElementsByTagName(this.itemTagName)[0] as HTMLElement;
         if (!ionItem) {
             throw new Error('No Item found');
         }

@@ -71,20 +71,15 @@
                                         <ion-label position="stacked">{{ 'label_internetlink' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="internetLink"></ion-input>
                                     </ion-item>
-                                    <ion-item class="pef-item">
-                                        <ion-label
-                                            position="stacked"
-                                            [class.target-ng-invalid]="form.controls.languageCode.invalid"
-                                            >{{ 'label_pms_language-code' | translate }}</ion-label
-                                        >
-                                        <ion-select interface="popover" formControlName="languageCode">
-                                            <ion-select-option
+                                    <pef-item-wrapper [labelText]="'label_pms_language-code' | translate" [invalid]="form.controls['kontaktpersons'].at(0).controls['languageCode'].invalid">
+                                        <select formControlName="languageCode">
+                                            <option
                                                 *ngFor="let language of (languages$ | async)"
                                                 [value]="language.languageCode"
-                                                >{{ language.name }}</ion-select-option
+                                                >{{ language.name }}</option
                                             >
-                                        </ion-select>
-                                    </ion-item>
+                                        </select>
+                                    </pef-item-wrapper>
                                 </ion-list>
                             </div>
                         </div>
@@ -104,20 +99,15 @@
                                         <ion-label position="stacked">{{ 'label_pms_kontaktperson_person-function' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="personFunction"></ion-input>
                                     </ion-item>
-                                    <ion-item class="pef-item">
-                                        <ion-label
-                                            position="stacked"
-                                            [class.target-ng-invalid]="form.controls.languageCode.invalid"
-                                            >{{ 'label_pms_language-code' | translate }}</ion-label
-                                        >
-                                        <ion-select interface="popover" formControlName="languageCode">
-                                            <ion-select-option
+                                    <pef-item-wrapper [labelText]="'label_pms_language-code' | translate" [invalid]="form.controls['kontaktpersons'].at(1).controls['languageCode'].invalid">
+                                        <select formControlName="languageCode">
+                                            <option
                                                 *ngFor="let language of (languages$ | async)"
                                                 [value]="language.languageCode"
-                                                >{{ language.name }}</ion-select-option
+                                                >{{ language.name }}</option
                                             >
-                                        </ion-select>
-                                    </ion-item>
+                                        </select>
+                                    </pef-item-wrapper>
                                     <ion-item class="pef-item">
                                         <ion-label position="stacked">{{ 'label_pms_telephone' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="telephone"></ion-input>
@@ -151,20 +141,15 @@
                                         <ion-label position="stacked">{{ 'label_pms_kontaktperson_person-function' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="personFunction"></ion-input>
                                     </ion-item>
-                                    <ion-item class="pef-item">
-                                        <ion-label
-                                            position="stacked"
-                                            [class.target-ng-invalid]="form.controls.languageCode.invalid"
-                                            >{{ 'label_pms_language-code' | translate }}</ion-label
-                                        >
-                                        <ion-select interface="popover" formControlName="languageCode">
-                                            <ion-select-option
+                                    <pef-item-wrapper [labelText]="'label_pms_language-code' | translate" [invalid]="form.controls['languageCode'].invalid">
+                                        <select formControlName="languageCode">
+                                            <option
                                                 *ngFor="let language of (languages$ | async)"
                                                 [value]="language.languageCode"
-                                                >{{ language.name }}</ion-select-option
+                                                >{{ language.name }}</option
                                             >
-                                        </ion-select>
-                                    </ion-item>
+                                        </select>
+                                    </pef-item-wrapper>
                                     <ion-item class="pef-item">
                                         <ion-label position="stacked">{{ 'label_pms_telephone' | translate }}</ion-label>
                                         <ion-input type="text" formControlName="telephone"></ion-input>
@@ -200,28 +185,28 @@
                                 <h5>{{ 'label_pms_erhebungsart' | translate}}</h5>
                                 <ion-list formGroupName="erhebungsarten">
                                     <ion-item>
-                                        <ion-label>{{ 'label_pms_erhebungsart_vor-ort-app' | translate}}</ion-label>
                                         <ion-checkbox formControlName="tablet"></ion-checkbox>
+                                        <ion-label>{{ 'label_pms_erhebungsart_vor-ort-app' | translate}}</ion-label>
                                     </ion-item>
                                     <ion-item>
-                                        <ion-label>{{ 'label_pms_erhebungsart_telephone' | translate}}</ion-label>
                                         <ion-checkbox formControlName="telefon"></ion-checkbox>
+                                        <ion-label>{{ 'label_pms_erhebungsart_telephone' | translate}}</ion-label>
                                     </ion-item>
                                     <ion-item>
-                                        <ion-label>{{ 'label_pms_erhebungsart_email' | translate}}</ion-label>
                                         <ion-checkbox formControlName="email"></ion-checkbox>
+                                        <ion-label>{{ 'label_pms_erhebungsart_email' | translate}}</ion-label>
                                     </ion-item>
                                     <ion-item>
-                                        <ion-label>{{ 'label_pms_erhebungsart_internet' | translate}}</ion-label>
                                         <ion-checkbox formControlName="internet"></ion-checkbox>
+                                        <ion-label>{{ 'label_pms_erhebungsart_internet' | translate}}</ion-label>
                                     </ion-item>
                                     <ion-item>
-                                        <ion-label>{{ 'label_pms_erhebungsart_persoenlich' | translate}}</ion-label>
                                         <ion-checkbox formControlName="papierlisteVorOrt"></ion-checkbox>
+                                        <ion-label>{{ 'label_pms_erhebungsart_persoenlich' | translate}}</ion-label>
                                     </ion-item>
                                     <ion-item>
-                                        <ion-label>{{ 'label_pms_erhebungsart_abgegeben' | translate}}</ion-label>
                                         <ion-checkbox formControlName="papierlisteAbgegeben"></ion-checkbox>
+                                        <ion-label>{{ 'label_pms_erhebungsart_abgegeben' | translate}}</ion-label>
                                     </ion-item>
                                 </ion-list>
                             </div>
@@ -230,20 +215,20 @@
                                 <ion-list class="padding-to-header">
                                     <ion-radio-group formControlName="pmsGeschlossen">
                                         <ion-item>
-                                            <ion-label>{{ 'label_pms_pmsGeschlossen_1' | translate}}</ion-label>
                                             <ion-radio value="1" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                                            <ion-label>{{ 'label_pms_pmsGeschlossen_1' | translate}}</ion-label>
                                         </ion-item>
                                         <ion-item>
-                                            <ion-label>{{ 'label_pms_pmsGeschlossen_2' | translate}}</ion-label>
                                             <ion-radio value="2" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                                            <ion-label>{{ 'label_pms_pmsGeschlossen_2' | translate}}</ion-label>
                                         </ion-item>
                                         <ion-item>
-                                            <ion-label>{{ 'label_pms_pmsGeschlossen_3' | translate}}</ion-label>
                                             <ion-radio value="3" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                                            <ion-label>{{ 'label_pms_pmsGeschlossen_3' | translate}}</ion-label>
                                         </ion-item>
                                         <ion-item>
-                                            <ion-label>{{ 'label_pms_pmsGeschlossen_4' | translate}}</ion-label>
                                             <ion-radio value="4" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                                            <ion-label>{{ 'label_pms_pmsGeschlossen_4' | translate}}</ion-label>
                                         </ion-item>
                                     </ion-radio-group>
                                 </ion-list>

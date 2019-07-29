@@ -20,6 +20,7 @@
             </div>
             <pef-virtual-scroll
                 [items]="preismeldungen$ | async"
+                [childHeight]="60"
                 (update)="scrollList = $event"
                 pef-perfect-scrollbar
                 [enabled]="isDesktop"
@@ -41,12 +42,13 @@
                         </div>
                     </div>
                     <div class="when-not-dragging">
-                        <ion-button
+                        <button
                             class="selection-button active"
                             [class.visibility-hidden]="!(multiSelectMode$ | async)"
                             (click)="selectForMultiselect$.emit(bag.pmId)"
-                            >{{ (multiselectIndexes$ | async)[bag.pmId] }}</ion-button
                         >
+                            {{ (multiselectIndexes$ | async)[bag.pmId] }}
+                        </button>
                         <div class="box-part">
                             <div class="preismeldung-position-number">{{ bag.preismeldung.epNummer }}<br />&nbsp;</div>
                             <div class="preismeldung-description">
