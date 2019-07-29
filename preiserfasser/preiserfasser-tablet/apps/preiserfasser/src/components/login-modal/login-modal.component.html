@@ -1,24 +1,20 @@
-<form>
+<form [formGroup]="loginForm" (ngSubmit)="login()">
     <div class="header">
         <h3>{{ 'heading_login' | translate }}</h3>
     </div>
     <ion-item class="pef-item">
         <ion-label position="stacked">{{ 'label_login_username' | translate }}</ion-label>
-        <ion-input
-            type="text"
-            [(ngModel)]="username"
-            [ngModelOptions]="{ standalone: true }"
-            autocapitalize="none"
-        ></ion-input>
+        <!-- https://github.com/ionic-team/ionic/issues/15136#issuecomment-444388085 -->
+        <ion-input type="text" formControlName="username" autocapitalize="none" (keyup.enter)="login()"></ion-input>
     </ion-item>
     <ion-item class="pef-item">
         <ion-label position="stacked">{{ 'label_login_password' | translate }}</ion-label>
-        <ion-input type="password" [(ngModel)]="password" [ngModelOptions]="{ standalone: true }"></ion-input>
+        <ion-input type="password" formControlName="password" (keyup.enter)="login()"></ion-input>
     </ion-item>
     <div class="actions">
         <a (click)="navigateToSettings()" href="javascript:">
             {{ 'a_navigate-to-settings' | translate }}
         </a>
-        <ion-button type="submit" (click)="login()">{{ 'btn_login' | translate }}</ion-button>
+        <ion-button type="submit">{{ 'btn_login' | translate }}</ion-button>
     </div>
 </form>

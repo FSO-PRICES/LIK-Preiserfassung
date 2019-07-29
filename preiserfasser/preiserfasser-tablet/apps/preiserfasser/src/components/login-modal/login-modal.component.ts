@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -7,13 +8,21 @@ import { ModalController } from '@ionic/angular';
     styleUrls: ['login-modal.component.scss'],
 })
 export class LoginModalComponent {
-    public username: string;
-    public password: string;
+    public loginForm: FormGroup;
 
-    constructor(private modalController: ModalController) {}
+    constructor(private modalController: ModalController, private formBuilder: FormBuilder) {
+        this.loginForm = this.formBuilder.group({
+            username: [''],
+            password: [''],
+        });
+    }
 
     login() {
-        this.modalController.dismiss({ username: this.username, password: this.password, navigateTo: null });
+        this.modalController.dismiss({
+            username: this.loginForm.value.username,
+            password: this.loginForm.value.password,
+            navigateTo: null,
+        });
     }
 
     navigateToSettings() {

@@ -39,6 +39,16 @@
     }
 }
 
+ion-modal {
+    .modal-wrapper {
+        --height: auto;
+    }
+    .ion-page {
+        position: relative;
+        contain: content;
+    }
+}
+
 ion-modal.login-modal {
     --width: calc(1920px / 3 + 38px);
 }

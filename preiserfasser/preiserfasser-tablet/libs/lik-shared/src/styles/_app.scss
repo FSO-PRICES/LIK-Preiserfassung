@@ -87,6 +87,7 @@ ion-label {
     --highlight-color-focused: transparent;
     --highlight-color-valid: transparent;
     --highlight-color-invalid: transparent;
+    --background-focused: transparent;
     --ion-safe-area-left: 0px;
     --ion-safe-area-right: 0px;
     --padding-start: 0px;
@@ -114,10 +115,6 @@ ion-label {
             transform: none;
         }
     }
-    .native-input {
-        margin: 6px 0;
-        height: calc(2.75 * 1em);
-    }
     .pef-item-wrapper {
         padding-right: 16px;
         select {
@@ -129,8 +126,9 @@ ion-label {
         }
     }
     ion-input {
-        --padding-bottom: 0;
-        --padding-top: 0;
+        --padding-bottom: 7px;
+        --padding-top: 7px;
+        --height: calc(2.75 * 1em);
     }
     ion-input,
     ion-textarea {
@@ -189,13 +187,6 @@ ion-label {
     // input {
     //     outline: none;
     // }
-}
-.stacked-form {
-    .item.md.pef-item {
-        .native-input {
-            height: 18px;
-        }
-    }
 }
 
 ion-textarea.sc-ion-textarea-md-h {
