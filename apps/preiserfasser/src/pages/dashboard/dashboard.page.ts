@@ -143,7 +143,9 @@ export class DashboardPage implements OnDestroy {
 
         const loginDialogDismissed$ = this.loginClicked$.pipe(
             flatMap(() =>
-                pefDialogService.displayModal(LoginModalComponent, { dialogOptions: { cssClass: 'login-modal' } }),
+                pefDialogService.displayModal(LoginModalComponent, {
+                    dialogOptions: { backdropDismiss: false, cssClass: 'login-modal' },
+                }),
             ),
             publishReplay(1),
             refCount(),
@@ -163,6 +165,8 @@ export class DashboardPage implements OnDestroy {
         const dismissSyncLoading$ = this.isSyncing$.pipe(
             skip(1),
             filter(x => x === false),
+            publishReplay(1),
+            refCount(),
         );
         const dismissLoginLoading$ = this.isSyncing$.pipe(
             skip(1),
@@ -248,7 +252,7 @@ export class DashboardPage implements OnDestroy {
                     flatMap(payload =>
                         pefDialogService
                             .displayLoading(translateService.instant('text_synchronizing-data'), {
-                                requestDismiss$: dismissSyncLoading$,
+                                requestDismiss$: dismissLoginLoading$,
                             })
                             .pipe(map(() => payload)),
                     ),
