@@ -23,6 +23,18 @@
         }
     }
 
+    .is-dragging {
+        :not(.selected) ion-item {
+            background-color: $wild-sand;
+        }
+
+        .dragable-to-item {
+            ion-item {
+                background-color: $white;
+            }
+        }
+    }
+
     ion-item {
         --inner-padding-end: 0;
         background-color: #{$white};

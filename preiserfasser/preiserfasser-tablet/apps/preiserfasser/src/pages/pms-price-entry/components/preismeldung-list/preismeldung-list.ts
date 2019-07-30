@@ -48,8 +48,14 @@ import * as P from '../../../../common-models';
 type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
 type SelectFilters = Exclude<Filters, 'FAVORITES'>;
 type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
-type AdvancedPreismeldungBag = P.PreismeldungBag & { marked: boolean; dragable: boolean; lastUploaded: boolean };
+type AdvancedPreismeldungBag = P.PreismeldungBag & {
+    marked: boolean;
+    dragable: boolean;
+    dragableTo: boolean;
+    lastUploaded: boolean;
+};
 const DRAGABLE_CLASS = 'dragable-item';
+const DRAGTOABLE_CLASS = 'dragable-to-item';
 
 @Component({
     selector: 'preismeldung-list',
@@ -97,7 +103,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectFilterClicked$ = new EventEmitter<Filters>();
     public sortErhebungsschemaClicked$ = new EventEmitter();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
-    public onDrag$ = new EventEmitter();
 
     public filterTodoColor$: Observable<string>;
     public filterCompletedColor$: Observable<string>;
@@ -252,11 +257,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     : preismeldungen;
             }),
             map(preismeldungen => {
-                const firstDragableIndex = findLastIndex(preismeldungen, bag => !!bag.preismeldung.uploadRequestedAt);
+                const firstDragableToIndex = findLastIndex(preismeldungen, bag => !!bag.preismeldung.uploadRequestedAt);
                 return preismeldungen.map((bag, i) => ({
                     ...bag,
-                    dragable: i >= firstDragableIndex,
-                    lastUploaded: i === firstDragableIndex,
+                    dragable: !bag.preismeldung.uploadRequestedAt,
+                    dragableTo: i > firstDragableToIndex,
+                    lastUploaded: i === firstDragableToIndex,
                 }));
             }),
             debounceTime(100),
@@ -267,10 +273,14 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.saveOrder$ = this.dropPreismeldung$.pipe(
             withLatestFrom(this.filteredPreismeldungen$),
             takeUntil(this.onDestroy$),
-            map(([dropPm, preismeldungen]) => {
-                const { dropBeforePmId, preismeldungPmId } = dropPm;
-
-                const prioritizedPm = orderBy(preismeldungen, x => x.sortierungsnummer).map((pm, i) => ({
+            map(([{ dropBeforePmId, preismeldungPmId }, preismeldungen]) => {
+                const dropedPm = preismeldungen.find(pm => pm.pmId === preismeldungPmId);
+                const allPm = orderBy(preismeldungen, x => x.sortierungsnummer).filter(
+                    pm => pm.pmId !== preismeldungPmId,
+                );
+                const dropIndex = !dropBeforePmId ? allPm.length : allPm.findIndex(pm => pm.pmId === dropBeforePmId);
+                const listBeforeDrop = allPm.slice(0, dropIndex - 1);
+                const prioritizedPm = [dropedPm, ...allPm.slice(dropIndex - 1)].map((pm, i) => ({
                     ...pm,
                     priority: i + 1,
                 }));
@@ -282,7 +292,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     b.pmId === preismeldungPmId ? { ...b, priority: dropPreismeldungBeforePriority - 0.1 } : b,
                 );
 
-                let minSortNummer = minBy(prioritizedPm, pm => pm.sortierungsnummer).sortierungsnummer;
+                let minSortNummer = minBy(
+                    prioritizedPm.filter(pm => pm.pmId !== preismeldungPmId),
+                    pm => pm.sortierungsnummer,
+                ).sortierungsnummer;
                 const sortedPm = orderBy(preismeldungenTemp, x => x.priority);
                 const lastSaisonalPmIndex = takeWhile(sortedPm, x => x.sortierungsnummer === 0).length - 1;
 
@@ -292,19 +305,22 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 }
 
                 return {
-                    sortOrder: sortedPm.map((b, i) => {
-                        const pm =
-                            i > lastSaisonalPmIndex
-                                ? {
-                                      pmId: b.pmId,
-                                      sortierungsnummer:
-                                          Math.round(minSortNummer) +
-                                          i -
-                                          (lastSaisonalPmIndex > 0 ? lastSaisonalPmIndex : 0),
-                                  }
-                                : b;
-                        return { pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer };
-                    }),
+                    sortOrder: [
+                        ...listBeforeDrop.map(({ pmId, sortierungsnummer }) => ({ pmId, sortierungsnummer })),
+                        ...sortedPm.map((b, i) => {
+                            const pm =
+                                i > lastSaisonalPmIndex
+                                    ? {
+                                          pmId: b.pmId,
+                                          sortierungsnummer:
+                                              Math.round(minSortNummer) +
+                                              i -
+                                              (lastSaisonalPmIndex > 0 ? lastSaisonalPmIndex : 0),
+                                      }
+                                    : b;
+                            return { pmId: pm.pmId, sortierungsnummer: pm.sortierungsnummer };
+                        }),
+                    ],
                 };
             }),
         );
@@ -403,15 +419,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 }
             });
 
-        this.onDrag$
-            .pipe(
-                delay(0),
-                takeUntil(this.onDestroy$),
-            )
-            .subscribe(() => {
-                this.pmList.nativeElement.classList.add('is-dragging');
-            });
-
         this.completedCount$ = this.preismeldungen$.pipe(
             map(x => `${x.filter(y => y.preismeldung.istAbgebucht).length}/${x.length}`),
         );
@@ -457,14 +464,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 moves: (el, container) =>
                     el.classList.contains(DRAGABLE_CLASS) && container.parentElement.classList.contains('can-reorder'),
                 accepts: (_el, _target, _source, sibling) => {
-                    return (
-                        !sibling ||
-                        (sibling.classList.contains(DRAGABLE_CLASS) &&
-                            !sibling.classList.contains('last-uploaded-item'))
-                    );
+                    return !sibling || sibling.classList.contains(DRAGTOABLE_CLASS);
                 },
             },
-            onDragstart: () => this.onDrag$.emit(),
             onDrop: args => this.dropPreismeldung$.emit(args),
         });
     }

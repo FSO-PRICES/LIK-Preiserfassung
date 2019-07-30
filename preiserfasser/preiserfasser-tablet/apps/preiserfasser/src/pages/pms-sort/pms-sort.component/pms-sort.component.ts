@@ -261,7 +261,6 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         const scrollContainer = this.el.nativeElement.querySelector('pef-virtual-scroll') as HTMLElement;
         [this.drake, this.scroll] = initDragula(scrollContainer, {
             markerSelector: '.box-part',
-            delayedGrab: false,
             dragulaOptions: {
                 moves: (el, _container, handle) => {
                     let searchElement = handle;
