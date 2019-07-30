@@ -33,7 +33,7 @@ import {
     withLatestFrom,
 } from 'rxjs/operators';
 
-import { initDragula, PefVirtualScrollComponent, ReactiveComponent } from '@lik-shared';
+import { DropPreismeldungArg, initDragula, PefVirtualScrollComponent, ReactiveComponent } from '@lik-shared';
 
 import * as P from '../../../common-models';
 
