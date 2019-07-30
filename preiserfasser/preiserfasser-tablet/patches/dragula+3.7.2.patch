@@ -1,5 +1,5 @@
 diff --git a/node_modules/dragula/dragula.js b/node_modules/dragula/dragula.js
-index 4f73231..c6af2b8 100644
+index 4f73231..fa8a567 100644
 --- a/node_modules/dragula/dragula.js
 +++ b/node_modules/dragula/dragula.js
 @@ -39,10 +39,13 @@ function dragula (initialContainers, options) {
@@ -27,16 +27,26 @@ index 4f73231..c6af2b8 100644
      touchy(documentElement, op, 'mouseup', release);
    }
  
-@@ -303,6 +308,8 @@ function dragula (initialContainers, options) {
+@@ -104,6 +109,7 @@ function dragula (initialContainers, options) {
+     if (!context) {
+       return;
+     }
++    drake.emit('grab');
+     _grabbed = context;
+     eventualMovements();
+     if (e.type === 'mousedown') {
+@@ -303,6 +309,10 @@ function dragula (initialContainers, options) {
  
    function cleanup () {
      var item = _copy || _item;
-+    setMarking(_currentSibling, 'top', false, o.markerSelector);
-+    setMarking(_currentSibling, 'bottom', false, o.markerSelector);
++    _source.childNodes.forEach(c => {
++      setMarking(c, 'top', false, o.markerSelector);
++      setMarking(c, 'bottom', false, o.markerSelector);
++    })
      ungrab();
      removeMirrorImage();
      if (item) {
-@@ -399,12 +406,22 @@ function dragula (initialContainers, options) {
+@@ -399,12 +409,22 @@ function dragula (initialContainers, options) {
      }
      if (
        (reference === null && changed) ||
@@ -63,7 +73,7 @@ index 4f73231..c6af2b8 100644
      }
      function moved (type) { drake.emit(type, item, _lastDropTarget, _source); }
      function over () { if (changed) { moved('over'); } }
-@@ -605,4 +622,17 @@ function getCoord (coord, e) {
+@@ -605,4 +625,20 @@ function getCoord (coord, e) {
    return host[coord];
  }
  
@@ -74,6 +84,9 @@ index 4f73231..c6af2b8 100644
 + * @param {string} selector
 + */
 +function setMarking(element, position, active, selector) {
++  if (!element || !element.querySelector) {
++      return;
++  }
 +  var target = selector ? element.querySelector(selector) : element;
 +  if (target) {
 +    target.style[position === 'top' ? 'borderTop' : 'borderBottom'] = active ? '3px solid rgba(14, 141, 203, 0.5)' : 'none';

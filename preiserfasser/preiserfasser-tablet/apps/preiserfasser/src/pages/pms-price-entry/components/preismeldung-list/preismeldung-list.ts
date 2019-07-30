@@ -35,6 +35,7 @@ import {
 
 import {
     formatPercentageChange,
+    initDragula,
     parseDate,
     partition,
     pefSearch,
@@ -75,7 +76,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('saveOrder') saveOrder$: Observable<P.Models.PmsPreismeldungenSortProperties>;
 
     @ViewChild(PefVirtualScrollComponent, { static: true }) private virtualScroll: any;
-    @ViewChild('pmList', { static: true, read: ElementRef }) private pmList: ElementRef;
+    @ViewChild('pmList', { static: true, read: ElementRef }) private pmList: ElementRef<HTMLElement>;
 
     public selectClickedPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     public selectNextPreismeldung$ = new EventEmitter();
@@ -449,9 +450,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     }
 
     public ngAfterViewInit() {
-        const thatDrake = (this.drake = dragula(
-            [this.pmList.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content')],
-            {
+        [this.drake, this.scroll] = initDragula(this.pmList.nativeElement, {
+            markerSelector: '.item.md',
+            delayedGrab: true,
+            dragulaOptions: {
                 moves: (el, container) =>
                     el.classList.contains(DRAGABLE_CLASS) && container.parentElement.classList.contains('can-reorder'),
                 accepts: (_el, _target, _source, sibling) => {
@@ -461,28 +463,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                             !sibling.classList.contains('last-uploaded-item'))
                     );
                 },
-                delayedGrab: true,
-                markerSelector: '.item.md',
-            } as dragula.DragulaOptions,
-        ));
-        thatDrake.on('drop', (el, _target, _source, sibling) => {
-            const siblingPmId = !!sibling ? sibling.dataset.pmid : null;
-            this.dropPreismeldung$.emit({ preismeldungPmId: el.dataset.pmid, dropBeforePmId: siblingPmId });
-        });
-        thatDrake.on('drag', () => {
-            return this.onDrag$.emit();
-        });
-        thatDrake.on('dragend', () => {
-            this.pmList.nativeElement.classList.remove('is-dragging');
-        });
-        this.scroll = autoScroll([this.pmList.nativeElement], {
-            margin: 30,
-            maxSpeed: 25,
-            scrollWhenOutside: true,
-            syncMove: true,
-            autoScroll: function() {
-                return this.down && thatDrake.dragging;
             },
+            onDragstart: () => this.onDrag$.emit(),
+            onDrop: args => this.dropPreismeldung$.emit(args),
         });
     }
 

@@ -14,7 +14,6 @@ import {
     ViewChild,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import autoScroll from 'dom-autoscroller';
 import dragula from 'dragula';
 import { assign, findLastIndex, keys, max, minBy, orderBy, sortBy, takeWhile } from 'lodash';
 import { WINDOW } from 'ngx-window-token';
@@ -34,12 +33,11 @@ import {
     withLatestFrom,
 } from 'rxjs/operators';
 
-import { PefVirtualScrollComponent, ReactiveComponent } from '@lik-shared';
+import { initDragula, PefVirtualScrollComponent, ReactiveComponent } from '@lik-shared';
 
 import * as P from '../../../common-models';
 
 // type SelectablePreismeldungBag = P.PreismeldungBag & { selectionIndex: number };
-type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
 type MultiSelectIndexMap = { [pmId: string]: number };
 
 @Component({
@@ -109,7 +107,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         type MultiselectAction = { type: 'RESET' } | { type: 'TOGGLE_PM'; payload: string };
         this.multiselectIndexes$ = preismeldungen$.pipe(
             merge(this.multiSelectResetClick$, this.multiSelectMode$),
-            map(payload => ({ type: 'RESET' })),
+            map(() => ({ type: 'RESET' })),
             merge(this.selectForMultiselect$.pipe(map(payload => ({ type: 'TOGGLE_PM', payload })))),
             scan((agg: MultiSelectIndexMap, v: MultiselectAction) => {
                 if (v.type === 'RESET') return {};
@@ -157,7 +155,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                         : prioritizedPm.find(b => b.pmId === dropBeforePmId).priority;
                     let preismeldungenTemp: (P.PreismeldungBag & { priority: number })[];
                     if (!v.multiSelectMode) {
-                        preismeldungenTemp = prioritizedPm.map((b, i) =>
+                        preismeldungenTemp = prioritizedPm.map(b =>
                             b.pmId === preismeldungPmId
                                 ? assign({}, b, { priority: dropPreismeldungBeforePriority - 0.1 })
                                 : b,
@@ -174,7 +172,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                             pmId: x.pmId,
                             priority: dropPreismeldungBeforePriority - (i + 1) * 0.0001,
                         }));
-                        preismeldungenTemp = prioritizedPm.map((b, i) => {
+                        preismeldungenTemp = prioritizedPm.map(b => {
                             const pmWithNewOrder = preismeldungenToMoveOrdered.find(x => x.pmId === b.pmId);
                             return !!pmWithNewOrder ? assign({}, b, { priority: pmWithNewOrder.priority }) : b;
                         });
@@ -260,54 +258,21 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     }
 
     public ngOnInit() {
-        let scrollable = true;
-        const scrollContainer = this.el.nativeElement.querySelector('pef-virtual-scroll > div.scrollable-content');
-        document.addEventListener(
-            'touchmove',
-            e => {
-                console.log('touchmoving', scrollable);
-                if (!scrollable) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    e.returnValue = false;
-                }
-            },
-            true,
-        );
-        const thatDrake = (this.drake = dragula([scrollContainer], {
-            moves: (el, _container, handle) => {
-                let searchElement = handle;
-                while (searchElement !== el && searchElement.className !== 'drag-handle') {
-                    searchElement = searchElement.parentElement;
-                }
-                return searchElement.className === 'drag-handle';
-            },
+        const scrollContainer = this.el.nativeElement.querySelector('pef-virtual-scroll') as HTMLElement;
+        [this.drake, this.scroll] = initDragula(scrollContainer, {
             markerSelector: '.box-part',
-        } as dragula.DragulaOptions));
-        thatDrake.on('drop', (el, _target, _source, sibling) => {
-            const siblingPmId = !!sibling ? sibling.dataset.pmid : null;
-            this.dropPreismeldung$.emit({ preismeldungPmId: el.dataset.pmid, dropBeforePmId: siblingPmId });
-        });
-        thatDrake.on('drag', () => {
-            if (scrollable !== false) {
-                console.log('setting scrollable false');
-                scrollable = false;
-            }
-            return this.onDrag$.emit();
-        });
-        thatDrake.on('dragend', () => {
-            console.log('setting scrollable true');
-            scrollable = true;
-            this.el.nativeElement.querySelector('pef-virtual-scroll').classList.remove('is-dragging');
-        });
-        this.scroll = autoScroll([this.el.nativeElement.querySelector('pef-virtual-scroll')], {
-            margin: 30,
-            maxSpeed: 25,
-            scrollWhenOutside: true,
-            syncMove: true,
-            autoScroll: function() {
-                return this.down && thatDrake.dragging;
+            delayedGrab: false,
+            dragulaOptions: {
+                moves: (el, _container, handle) => {
+                    let searchElement = handle;
+                    while (searchElement !== el && searchElement.className !== 'drag-handle') {
+                        searchElement = searchElement.parentElement;
+                    }
+                    return searchElement.className === 'drag-handle';
+                },
             },
+            onDragstart: () => this.onDrag$.emit(),
+            onDrop: args => this.dropPreismeldung$.emit(args),
         });
     }
 
