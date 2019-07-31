@@ -5,8 +5,8 @@
     "newProjectRoot": "",
     "projects": {
         "preiserfasser": {
-            "root": "apps\\preiserfasser",
-            "sourceRoot": "apps\\preiserfasser\\src",
+            "root": "apps/preiserfasser",
+            "sourceRoot": "apps/preiserfasser/src",
             "projectType": "application",
             "prefix": "app",
             "schematics": {},
@@ -14,11 +14,11 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
-                        "outputPath": "dist\\apps\\preiserfasser",
+                        "outputPath": "dist/apps/preiserfasser",
                         "index": "apps/preiserfasser/src/index.html",
                         "main": "apps/preiserfasser/src/main.ts",
                         "polyfills": "apps/preiserfasser/src/polyfills.ts",
-                        "tsConfig": "apps\\preiserfasser\\tsconfig.app.json",
+                        "tsConfig": "apps/preiserfasser/tsconfig.app.json",
                         "assets": [
                             {
                                 "glob": "**/*",
@@ -128,8 +128,8 @@
                     "options": {
                         "main": "apps/preiserfasser/src/test.ts",
                         "polyfills": "apps/preiserfasser/src/polyfills.ts",
-                        "tsConfig": "apps\\preiserfasser\\tsconfig.spec.json",
-                        "karmaConfig": "apps\\preiserfasser\\karma.conf.js",
+                        "tsConfig": "apps/preiserfasser/tsconfig.spec.json",
+                        "karmaConfig": "apps/preiserfasser/karma.conf.js",
                         "styles": [],
                         "scripts": [],
                         "assets": [
@@ -156,8 +156,8 @@
                     "builder": "@angular-devkit/build-angular:tslint",
                     "options": {
                         "tsConfig": [
-                            "apps\\preiserfasser\\tsconfig.app.json",
-                            "apps\\preiserfasser\\tsconfig.spec.json"
+                            "apps/preiserfasser/tsconfig.app.json",
+                            "apps/preiserfasser/tsconfig.spec.json"
                         ],
                         "exclude": [
                             "**/node_modules/**"
