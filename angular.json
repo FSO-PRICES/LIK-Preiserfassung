@@ -14,7 +14,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
-                        "outputPath": "dist/apps/preiserfasser",
+                        "outputPath": "apps/preiserfasser/www",
                         "index": "apps/preiserfasser/src/index.html",
                         "main": "apps/preiserfasser/src/main.ts",
                         "polyfills": "apps/preiserfasser/src/polyfills.ts",
@@ -46,35 +46,7 @@
                         "es5BrowserSupport": true
                     },
                     "configurations": {
-                        "ionic": {
-                            "outputPath": "www"
-                        },
                         "production": {
-                            "fileReplacements": [
-                                {
-                                    "replace": "apps/preiserfasser/src/environments/environment.ts",
-                                    "with": "apps/preiserfasser/src/environments/environment.prod.ts"
-                                }
-                            ],
-                            "optimization": true,
-                            "outputHashing": "all",
-                            "sourceMap": false,
-                            "extractCss": true,
-                            "namedChunks": false,
-                            "aot": true,
-                            "extractLicenses": true,
-                            "vendorChunk": false,
-                            "buildOptimizer": true,
-                            "budgets": [
-                                {
-                                    "type": "initial",
-                                    "maximumWarning": "2mb",
-                                    "maximumError": "5mb"
-                                }
-                            ]
-                        },
-                        "ionic-production": {
-                            "outputPath": "www",
                             "fileReplacements": [
                                 {
                                     "replace": "apps/preiserfasser/src/environments/environment.ts",
@@ -172,17 +144,6 @@
                     "configurations": {
                         "production": {
                             "browserTarget": "preiserfasser:build:production"
-                        }
-                    }
-                },
-                "ionic-cordova-build-www": {
-                    "builder": "@ionic/angular-toolkit:cordova-build",
-                    "options": {
-                        "browserTarget": "preiserfasser:build:ionic"
-                    },
-                    "configurations": {
-                        "production": {
-                            "browserTarget": "preiserfasser:build:ionic-production"
                         }
                     }
                 },

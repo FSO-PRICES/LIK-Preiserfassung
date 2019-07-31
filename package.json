@@ -20,7 +20,6 @@
         "affected:lint": "nx affected:lint",
         "affected:dep-graph": "nx affected:dep-graph",
         "affected": "nx affected",
-        "ionic:build": "ng run preiserfasser:ionic-cordova-build-www --configuration=production --platform=android",
         "format": "nx format:write",
         "format:write": "nx format:write",
         "format:check": "nx format:check",
