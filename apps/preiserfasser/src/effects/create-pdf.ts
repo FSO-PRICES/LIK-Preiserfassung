@@ -42,47 +42,29 @@ export class CreatePdfEffects {
                             skip(1),
                             filter(x => x.length > 0),
                             take(1),
-                            map(preismeldungen => ({ preismeldestelle, erhebungsmonat, preismeldungen })),
                             withLatestFrom(
                                 this.store.select(fromRoot.getPriceCountStatuses),
-                                this.store.select(fromRoot.getWarenkorb),
                                 this.pefLanguageService.currentLanguage$,
-                                (data, priceCountStatuses, warenkorb, currentLanguage) => ({
-                                    ...data,
-                                    priceCountStatuses,
-                                    warenkorb,
-                                    currentLanguage,
-                                }),
                             ),
-                            flatMap(
-                                ({
-                                    preismeldungen,
-                                    erhebungsmonat,
+                            flatMap(([preismeldungen, priceCountStatuses, currentLanguage]) => {
+                                const translateFn = (key: string) => this.translateService.instant(key);
+                                const data = mapData(
                                     preismeldestelle,
+                                    preismeldungen,
                                     priceCountStatuses,
-                                    warenkorb,
                                     currentLanguage,
-                                }) => {
-                                    const translateFn = key => this.translateService.instant(key);
-                                    const data = mapData(
-                                        preismeldestelle,
-                                        preismeldungen,
-                                        priceCountStatuses,
-                                        warenkorb,
-                                        currentLanguage,
-                                        translateFn,
-                                    );
-                                    return toPdf(
-                                        data,
-                                        this.file as any,
-                                        preismeldestelle,
-                                        this.platform,
-                                        erhebungsmonat,
-                                        currentLanguage,
-                                        translateFn,
-                                    );
-                                },
-                            ),
+                                    translateFn,
+                                );
+                                return toPdf(
+                                    data,
+                                    this.file,
+                                    preismeldestelle,
+                                    this.platform,
+                                    erhebungsmonat,
+                                    currentLanguage,
+                                    translateFn,
+                                );
+                            }),
                             map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo })),
                         ),
                     ),
@@ -102,7 +84,7 @@ function parseCode(code: number) {
 }
 
 function trunc(doc: jsPDF, text: string, maxLength: number, fontSize = 10) {
-    let truncated = doc.splitTextToSize(text, maxLength - doc.getStringUnitWidth('…', { fontSize }) - 5, {
+    const truncated = doc.splitTextToSize(text, maxLength - doc.getStringUnitWidth('…', { fontSize }) - 5, {
         fontSize,
     }) as string[];
     return truncated[0] !== text ? truncated[0].concat('…') : text;
@@ -112,7 +94,6 @@ function mapData(
     preismeldestelle: P.Models.Preismeldestelle,
     preismeldungen: P.PreismeldungBag[],
     priceCountStatuses: { [pmsNummer: string]: P.PriceCountStatus },
-    warenkorb: P.WarenkorbInfo[],
     currentLanguage: string,
     translateFn: (key: string) => string,
 ) {
@@ -242,7 +223,7 @@ function formatPrice(price: number) {
 }
 
 function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: number, isPlaceholder: boolean = false) {
-    const docA = doc as any;
+    const docA = doc as jsPDF & { autoTable: Function; autoTableText: Function; autoTableEndPosY: Function };
     docA.autoTable(
         [
             { title: '', dataKey: 'col1' },
@@ -335,7 +316,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                     return false;
                 }
             },
-            drawRow: function(row, opts) {
+            drawRow: function(row, _opts) {
                 if (row.index === rawData.length - 1) {
                     row.height = 7;
                 }
@@ -361,8 +342,8 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
     return docA.autoTableEndPosY();
 }
 
-function toPdf(
-    data,
+async function toPdf(
+    data: any,
     file: File,
     preismeldestelle: P.Models.Preismeldestelle,
     platform: Platform,
@@ -491,23 +472,22 @@ function toPdf(
             array[i] = pdfOutput.charCodeAt(i);
         }
 
-        if (file.externalRootDirectory)
-            return file
-                .writeFile(file.externalRootDirectory, `PDF_${pmsNummer}_${+new Date()}.pdf`, buffer)
-                .then(() => 'DOCUMENT_LOCATION')
-                .catch(x =>
-                    file
-                        .writeFile(
-                            file.externalApplicationStorageDirectory,
-                            `PDF_${pmsNummer}_${+new Date()}.pdf`,
-                            buffer,
-                        )
-                        .then(() => 'APPLICATION_LOCATION'),
+        if (file.externalRootDirectory) {
+            try {
+                await file.writeFile(file.externalRootDirectory, `PDF_${pmsNummer}_${+new Date()}.pdf`, buffer);
+                return 'DOCUMENT_LOCATION';
+            } catch (x) {
+                await file.writeFile(
+                    file.externalApplicationStorageDirectory,
+                    `PDF_${pmsNummer}_${+new Date()}.pdf`,
+                    buffer,
                 );
+                return 'APPLICATION_LOCATION';
+            }
+        }
 
-        return file
-            .writeFile(file.externalApplicationStorageDirectory, `PDF_${pmsNummer}_${+new Date()}.pdf`, buffer)
-            .then(() => 'APPLICATION_LOCATION');
+        await file.writeFile(file.externalApplicationStorageDirectory, `PDF_${pmsNummer}_${+new Date()}.pdf`, buffer);
+        return 'APPLICATION_LOCATION';
     } else {
         doc.save(`PDF_${pmsNummer}_${+new Date()}.pdf`);
         return Promise.resolve(null);
