@@ -188,6 +188,126 @@
                     }
                 }
             }
+        },
+        "backoffice": {
+            "projectType": "application",
+            "schematics": {},
+            "root": "apps/backoffice",
+            "sourceRoot": "apps/backoffice/src",
+            "prefix": "app",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "outputPath": "apps/backoffice/www",
+                        "index": "apps/backoffice/src/index.html",
+                        "main": "apps/backoffice/src/main.ts",
+                        "polyfills": "apps/backoffice/src/polyfills.ts",
+                        "tsConfig": "apps/backoffice/tsconfig.app.json",
+                        "assets": [
+                            "apps/backoffice/src/favicon.ico",
+                            "apps/backoffice/src/assets"
+                        ],
+                        "styles": [
+                            {
+                                "input": "apps/backoffice/src/theme/variables.scss"
+                            },
+                            {
+                                "input": "apps/backoffice/src/global.scss"
+                            },
+                            {
+                                "input": "apps/backoffice/src/app/app.scss"
+                            }
+                        ],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/backoffice/src/environments/environment.ts",
+                                    "with": "apps/backoffice/src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "aot": true,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "browserTarget": "backoffice:build"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "backoffice:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "backoffice:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "apps/backoffice/src/test.ts",
+                        "polyfills": "apps/backoffice/src/polyfills.ts",
+                        "tsConfig": "apps/backoffice/tsconfig.spec.json",
+                        "karmaConfig": "apps/backoffice/karma.conf.js",
+                        "assets": [
+                            "apps/backoffice/src/favicon.ico",
+                            "apps/backoffice/src/assets"
+                        ],
+                        "styles": [
+                            "apps/backoffice/src/styles.css"
+                        ],
+                        "scripts": []
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/backoffice/tsconfig.app.json",
+                            "apps/backoffice/tsconfig.spec.json",
+                            "apps/backoffice/e2e/tsconfig.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**"
+                        ]
+                    }
+                },
+                "e2e": {
+                    "builder": "@angular-devkit/build-angular:protractor",
+                    "options": {
+                        "protractorConfig": "apps/backoffice/e2e/protractor.conf.js",
+                        "devServerTarget": "backoffice:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "backoffice:serve:production"
+                        }
+                    }
+                }
+            }
         }
     },
     "cli": {

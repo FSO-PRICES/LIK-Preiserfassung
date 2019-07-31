@@ -8,6 +8,9 @@
         "nx.json": "*"
     },
     "projects": {
+        "backoffice": {
+            "tags": []
+        },
         "preiserfasser": {
             "tags": []
         },

@@ -138,6 +138,7 @@ function _syncDatabase(url: string, username: string, params: { push: boolean; p
                         .then(x =>
                             getDocumentByKeyFromDb<{ username: string }>(pouch, 'preiserheber')
                                 .catch(() => ({ username: null }))
+                                // tslint:disable-next-line:no-shadowed-variable
                                 .then(({ username }) => assign(x, { username })),
                         ),
                 );

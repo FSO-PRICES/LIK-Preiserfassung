@@ -1,9 +1,9 @@
-import { cloneDeep } from 'lodash';
 import { format, startOfMonth } from 'date-fns';
+import { cloneDeep } from 'lodash';
 import * as P from '../models';
 
 export function createVorReduktionProperties(
-    bag: P.PreismeldungBag
+    bag: P.PreismeldungBag,
 ): { preisVorReduktion: string; mengeVorReduktion: string; datumVorReduktion: string } {
     const today = format(new Date(), 'DD.MM.YYYY');
     const firstDayOfMonth = format(startOfMonth(new Date()), 'DD.MM.YYYY');
@@ -48,7 +48,7 @@ export function createVorReduktionProperties(
     throw new Error(
         `Error in createVorReduktionProperties. Action: ${bag.preismeldung.aktion}, Bearbeitungscode: ${
             bag.preismeldung.bearbeitungscode
-        }`
+        }`,
     );
 }
 
