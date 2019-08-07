@@ -22,6 +22,11 @@ ion-button {
         pef-icon {
             fill: $white;
         }
+        &.pef-icon-secondary {
+            pef-icon {
+                fill: $blue-chill;
+            }
+        }
     }
     &.button-disabled {
         pef-icon {
