@@ -1,3 +1,5 @@
+@import './variables.scss';
+
 .hidden {
     visibility: hidden;
 }
@@ -47,7 +49,11 @@
         .header {
             display: flex;
             justify-content: space-between;
-            h1, h2, h3, h4, h5 {
+            h1,
+            h2,
+            h3,
+            h4,
+            h5 {
                 flex: 0;
             }
             button {
@@ -217,7 +223,8 @@
         &.selected {
             background-color: $surfie-green;
             color: $white;
-            .pef-item-title, .pef-item-description .text {
+            .pef-item-title,
+            .pef-item-description .text {
                 color: $white;
             }
         }
@@ -275,7 +282,9 @@
         }
         &[tappable]:hover:not(.selected) {
             background-color: $blue-chill;
-            .pef-item-title, .pef-item-description .text, .pef-item-description .artikel-text {
+            .pef-item-title,
+            .pef-item-description .text,
+            .pef-item-description .artikel-text {
                 color: $white;
             }
         }

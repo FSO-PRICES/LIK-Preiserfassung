@@ -19,11 +19,18 @@ export async function loginToDatabase(credentials: {
     password: string;
 }): Promise<PouchDB.Database<{}>> {
     const settings = await getSettings();
-    const couch = new PouchDB(`${settings.serverConnection.url}/${dbNames.users}`);
-    const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
+    let couch = new PouchDB(`${settings.serverConnection.url}/${dbNames.users}`, { skip_setup: true });
 
-    await login(credentials.username, credentials.password);
+    const debugthis = x => console.log('debugging::::', x);
+
+    await couch.logIn(credentials.username, credentials.password).then(debugthis);
+    // const login = bluebird.promisify((couch as any).login, { context: couch }) as Function;
+    // await login(credentials.username, credentials.password);
+
     setCouchLoginTime(+new Date());
+    console.log('getting session');
+    const test = await couch.getSession().then(debugthis);
+    console.log('values?????', test);
     return couch;
 }
 

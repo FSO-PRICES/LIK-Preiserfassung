@@ -1,0 +1,12 @@
+<div class="pef-dialog-message">
+    <h3>
+        <pef-icon name="warning"></pef-icon>
+        Wollen sie diese Entität wirklich löschen?
+    </h3>
+    <p>{{ message }}</p>
+</div>
+
+<div class="pef-dialog-button-row">
+    <ion-button (click)="viewCtrl.dismiss('ABBORT_DELETE')" color="primary">Abbrechen</ion-button>
+    <ion-button class="danger" (click)="viewCtrl.dismiss('CONFIRM_DELETE')" color="secondary">Löschen</ion-button>
+</div>

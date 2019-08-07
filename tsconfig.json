@@ -15,6 +15,7 @@
         "typeRoots": ["node_modules/@types"],
         "lib": ["es2018", "dom"],
         "paths": {
+            "@lik-shared/*": ["libs/lik-shared/src/*"],
             "@lik-shared": ["libs/lik-shared/index.ts"]
         }
     }

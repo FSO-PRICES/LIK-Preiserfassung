@@ -1,0 +1,248 @@
+<form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
+    <h1 class="large">Angaben zur Preismeldestelle</h1>
+    <div class="actions">
+        <ion-button type="button" color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(preismeldestelle$ | async).isModified">Speichern</ion-button>
+        <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
+    </div>
+    <ion-row>
+        <ion-col>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">PMSno</ion-label>
+                    <ion-input readonly type="text" [value]="(preismeldestelle$ | async).pmsNummer"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Name</ion-label>
+                    <ion-input type="text" formControlName="name"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Zusatzname</ion-label>
+                    <ion-input type="text" formControlName="supplement"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Strasse</ion-label>
+                    <ion-input type="text" formControlName="street"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">PLZ</ion-label>
+                    <ion-input type="text" formControlName="postcode"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Ort</ion-label>
+                    <ion-input type="text" formControlName="town"></ion-input>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+        <ion-col>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">PMS erhoben durch</ion-label>
+                    <ion-input readonly type="text" formControlName="supplement" value="{{preiserheber?.firstName}} {{preiserheber?.surname}}"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Telefon</ion-label>
+                    <ion-input type="text" formControlName="telephone"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">E-Mail</ion-label>
+                    <ion-input type="text" formControlName="email"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Internet-Link</ion-label>
+                    <ion-input type="text" formControlName="internetLink"></ion-input>
+                </ion-item>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label position="stacked" [class.target-ng-invalid]="form.controls.languageCode.invalid">Sprache</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="languageCode">
+                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label position="stacked" [class.target-ng-invalid]="form.controls.erhebungsregion.invalid">Region</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="erhebungsregion">
+                                    <option *ngFor="let erhebungsregion of erhebungsregionen$ | async" [value]="erhebungsregion">{{erhebungsregion}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ion-list>
+        </ion-col>
+    </ion-row>
+    <ion-row formArrayName="kontaktpersons">
+        <ion-col [formGroupName]="0">
+            <h5>1. Kontaktperson</h5>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Vorname</ion-label>
+                    <ion-input type="text" formControlName="firstName"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Name</ion-label>
+                    <ion-input type="text" formControlName="surname"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Funktion</ion-label>
+                    <ion-input type="text" formControlName="personFunction"></ion-input>
+                </ion-item>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label position="stacked">Sprache</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="languageCode" class="text-input text-input-md">
+                                    <option value="">Nicht angegeben</option>
+                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Telefon</ion-label>
+                    <ion-input type="text" formControlName="telephone"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Mobile</ion-label>
+                    <ion-input type="text" formControlName="mobile"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Fax</ion-label>
+                    <ion-input type="text" formControlName="fax"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">E-Mail</ion-label>
+                    <ion-input type="text" formControlName="email"></ion-input>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+        <ion-col [formGroupName]="1">
+            <h5>2. Kontaktperson</h5>
+            <ion-list no-lines>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Vorname</ion-label>
+                    <ion-input type="text" formControlName="firstName"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Name</ion-label>
+                    <ion-input type="text" formControlName="surname"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Funktion</ion-label>
+                    <ion-input type="text" formControlName="personFunction"></ion-input>
+                </ion-item>
+                <div class="pef-item item item-block item-md item-label-stacked item-input">
+                    <div class="item-inner">
+                        <div class="input-wrapper">
+                            <ion-label position="stacked">Sprache</ion-label>
+                            <div class="input input-md pef-select">
+                                <select formControlName="languageCode" class="text-input text-input-md">
+                                    <option value="">Nicht angegeben</option>
+                                    <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Telefon</ion-label>
+                    <ion-input type="text" formControlName="telephone"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Mobile</ion-label>
+                    <ion-input type="text" formControlName="mobile"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Fax</ion-label>
+                    <ion-input type="text" formControlName="fax"></ion-input>
+                </ion-item>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">E-Mail</ion-label>
+                    <ion-input type="text" formControlName="email"></ion-input>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <h5>Zusatzinformationen zur Preismeldestelle</h5>
+            <ion-list class="padding-to-header">
+                <ion-item class="pef-item">
+                    <ion-textarea formControlName="zusatzInformationen"></ion-textarea>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+    </ion-row>
+
+    <ion-row>
+        <ion-col>
+            <h5 [class.label-validation-error]="this.form.errors && this.form.errors['erhebungsart_required']">Erhebungsart</h5>
+            <ion-list class="padding-to-header" formGroupName="erhebungsart">
+                <ion-item>
+                    <ion-label>Tablet vor Ort</ion-label>
+                    <ion-checkbox formControlName="tablet"></ion-checkbox>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Telefon</ion-label>
+                    <ion-checkbox formControlName="telefon"></ion-checkbox>
+                </ion-item>
+                <ion-item>
+                    <ion-label>eMail</ion-label>
+                    <ion-checkbox formControlName="email"></ion-checkbox>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Internet</ion-label>
+                    <ion-checkbox formControlName="internet"></ion-checkbox>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Papierliste vor Ort</ion-label>
+                    <ion-checkbox formControlName="papierlisteVorOrt"></ion-checkbox>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Papierliste durch PMS ausgefüllt</ion-label>
+                    <ion-checkbox formControlName="papierlisteAbgegeben"></ion-checkbox>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+        <ion-col>
+            <h5>Grund der nicht erhobenen PMS</h5>
+            <ion-list radio-group class="padding-to-header" formControlName="pmsGeschlossen">
+                <ion-item>
+                    <ion-label>Ferien</ion-label>
+                    <ion-radio value="1" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>geschlossen (temporär)</ion-label>
+                    <ion-radio value="2" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Geschäftsaufgabe</ion-label>
+                    <ion-radio value="3" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>anderes (bitte unter Zusatzinformation erläutern)</ion-label>
+                    <ion-radio value="4" (click)="pmsGeschlossenClicked$.next()"></ion-radio>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <h5>Bemerkungen zur Erhebungsart</h5>
+            <ion-list class="padding-to-header">
+                <ion-item class="pef-item">
+                    <ion-textarea formControlName="erhebungsartComment"></ion-textarea>
+                </ion-item>
+            </ion-list>
+        </ion-col>
+    </ion-row>
+</form>

@@ -91,7 +91,7 @@ export class PreiserheberEffects {
                 .then(db =>
                     !!currentPreiserheber._rev
                         ? db.get(currentPreiserheber._id).then(doc => ({ db, doc }))
-                        : Promise.resolve({ db, doc: {} }),
+                        : Promise.resolve({ db, doc: {} as P.Erheber }),
                 )
                 .then(({ db, doc }) => {
                     // Create or update the erheber

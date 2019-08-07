@@ -1,0 +1,58 @@
+@import '../../../../theme/imports.scss';
+
+:host {
+    ion-grid.grid {
+        padding: 0;
+
+        ion-row {
+            padding-bottom: 0;
+
+            ion-col {
+                h2 {
+                    margin: 0;
+                }
+                padding-right: 0;
+                padding-left: 0;
+            }
+        }
+    }
+
+    .spacer-col {
+        max-width: 61.5px;
+    }
+
+    .actions-container {
+        padding: 0 1em;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .zuweisung-list {
+        display: flex;
+        flex: 1;
+        flex-direction: row;
+
+        h2 {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pef-advanced-item-flex-container {
+            flex: 1 1 0;
+        }
+
+        .pef-advanced-item-flex-container {
+            display: flex;
+            flex-direction: column;
+
+            ion-content {
+                flex: 1;
+            }
+            .actions {
+                @include set-margin(4, 0.25, 0, 0.25);
+                flex: 0;
+            }
+        }
+    }
+}

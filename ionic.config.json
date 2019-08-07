@@ -1,6 +1,15 @@
 {
   "defaultProject": "preiserfasser",
   "projects": {
+    "backoffice": {
+      "name": "LIK-PreisAdmin",
+      "integrations": {
+        "cordova": {},
+        "capacitor": {}
+      },
+      "type": "angular",
+      "root": "apps/backoffice"
+    },
     "preiserfasser": {
       "name": "LIK-Preiserfasser",
       "integrations": {

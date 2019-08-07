@@ -1,0 +1,36 @@
+<header pef-menu></header>
+<div class="page-wrapper">
+    <div class="page-content">
+        <div class="load-report-data">
+            <ion-button
+                type="button"
+                class="load-data"
+                (click)="loadData$.emit('monthly')"
+                [disabled]="reportExecuting$ | async"
+            >
+                Preiserhebung
+            </ion-button>
+            <ion-button
+                type="button"
+                class="load-data"
+                (click)="loadData$.emit('organisation')"
+                [disabled]="reportExecuting$ | async"
+            >
+                Organisation
+            </ion-button>
+            <ion-button
+                type="button"
+                class="load-data"
+                (click)="loadData$.emit('pmsProblems')"
+                [disabled]="reportExecuting$ | async"
+            >
+                PMS-Probleme
+            </ion-button>
+        </div>
+        <div class="reports">
+            <monthly-report [reportData]="monthlyReportData$ | async"></monthly-report>
+            <organisation-report [reportData]="organisationReportData$ | async"></organisation-report>
+            <pms-probleme-report [reportData]="pmsProblemeReportData$ | async"></pms-probleme-report>
+        </div>
+    </div>
+</div>

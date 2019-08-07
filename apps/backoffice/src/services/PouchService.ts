@@ -12,6 +12,7 @@ import { Models as P, preismeldestelleId, preismeldungId, preismeldungRefId } fr
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
 
+// TODO: Remove or update and replace all references to common\pouchdb-utils\*
 @Injectable()
 export class PouchService {
     public dbNames = {
@@ -28,8 +29,6 @@ export class PouchService {
     };
 
     constructor() {
-        PouchDBAllDbs(PouchDB);
-        PouchDB.plugin(pouchDbAuthentication);
         this.dropLocalDatabase(this.dbNames.emptyDb);
     }
 

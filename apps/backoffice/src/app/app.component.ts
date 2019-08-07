@@ -22,10 +22,11 @@ import * as fromRoot from '../reducers';
 import { AppService } from '../services/app-service';
 
 @Component({
+    selector: 'app-root',
     templateUrl: 'app.component.html',
 })
 export class Backoffice implements OnInit {
-    @HostBinding('class') classes = 'app-root pef-desktop';
+    @HostBinding('class') classes = 'pef-desktop';
     @HostBinding('class.fullscreen') fullscreen = false;
 
     public initialized = false;

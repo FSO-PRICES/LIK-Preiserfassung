@@ -1,10 +1,11 @@
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
-import { flatMap, map } from 'rxjs/operators';
+import { flatMap, map, reduce } from 'rxjs/operators';
 
 import { Models as P } from '@lik-shared';
 
 import { getDatabase, getDatabaseAsObservable, getSettings, listAllDatabases } from './database';
+import { getAllDocumentsForPrefixFromDbName } from './documents';
 
 export function createOrUpdateUser(erheber: P.Erheber, password: string) {
     return getDatabaseAsObservable('_users').pipe(
@@ -132,4 +133,23 @@ async function createRequestAsync(path: string, method: 'GET' | 'POST' | 'PUT' |
             }
         });
     });
+}
+
+export function getAllDocumentsForPrefixFromUserDbsKeyed<T extends P.CouchProperties>(
+    prefix: string,
+): Observable<{ [username: string]: T[] }> {
+    return listUserDatabases().pipe(
+        flatMap(dbnames =>
+            from(dbnames).pipe(
+                flatMap(dbname =>
+                    getAllDocumentsForPrefixFromDbName<T>(dbname, prefix).pipe(
+                        map(docs => ({
+                            [dbname.substr(5)]: docs,
+                        })),
+                    ),
+                ),
+                reduce((acc, docs) => ({ ...acc, ...docs }), {}),
+            ),
+        ),
+    );
 }

@@ -1,5 +1,3 @@
-import { EffectsModule } from '@ngrx/effects';
-
 import { CockpitEffects } from './cockpit';
 import { ControllingEffects } from './controlling';
 import { ExporterEffects } from './exporter';
@@ -16,18 +14,18 @@ import { SettingEffects } from './setting';
 import { WarenkorbEffects } from './warenkorb';
 
 export const BO_EFFECTS = [
-    EffectsModule.run(CockpitEffects),
-    EffectsModule.run(ControllingEffects),
-    EffectsModule.run(ExporterEffects),
-    EffectsModule.run(ImporterEffects),
-    EffectsModule.run(LoginEffects),
-    EffectsModule.run(OnOfflineEffects),
-    EffectsModule.run(PreiserheberEffects),
-    EffectsModule.run(PreismeldestelleEffects),
-    EffectsModule.run(PreismeldungEffects),
-    EffectsModule.run(PreismeldungenStatusEffects),
-    EffectsModule.run(PreiszuweisungEffects),
-    EffectsModule.run(ReportingEffects),
-    EffectsModule.run(SettingEffects),
-    EffectsModule.run(WarenkorbEffects),
+    CockpitEffects,
+    ControllingEffects,
+    ExporterEffects,
+    ImporterEffects,
+    LoginEffects,
+    OnOfflineEffects,
+    PreiserheberEffects,
+    PreismeldestelleEffects,
+    PreismeldungEffects,
+    PreismeldungenStatusEffects,
+    PreiszuweisungEffects,
+    ReportingEffects,
+    SettingEffects,
+    WarenkorbEffects,
 ];

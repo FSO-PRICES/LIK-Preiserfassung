@@ -1,0 +1,34 @@
+<div class="toolbar toolbar-md" [class.danger-zone]="dangerZone$ | async">
+    <ion-buttons>
+        <ion-button
+            *ngFor="let entry of pages"
+            fill="clear"
+            (click)="navigateToPage(entry.page)"
+            [id]="'page_' + entry.name"
+            [class.active]="isCurrentPage(entry.page)"
+        >
+            {{ entry.name }}
+        </ion-button>
+        <ion-button fill="clear" (click)="navigateToPage('settings')" [class.active]="isCurrentPage('settings')">
+            <pef-icon name="settings"></pef-icon>
+        </ion-button>
+        <ion-button size="large" fill="clear" class="fullscreen" (click)="toggleFullscreenClicked$.emit()">
+            <pef-icon [name]="(isFullscreen$ | async) ? 'collapse' : 'expand'"></pef-icon>
+        </ion-button>
+    </ion-buttons>
+
+    <ion-title>
+        LIK PreisAdmin
+    </ion-title>
+    <ion-button class="on-off-line with-shadow" (click)="onOffLineClicked$.emit()">{{
+        (isOffline$ | async) ? 'OFF-LINE' : 'ON-LINE'
+    }}</ion-button>
+    <ion-button class="reload with-shadow" (click)="reloadClicked$.emit()">Login refresh</ion-button>
+    <pef-icon
+        item-right
+        name="wifi"
+        class="connectivity"
+        [class.error]="(canConnectToDatabase$ | async) === false"
+        [class.ok]="(canConnectToDatabase$ | async) === true"
+    ></pef-icon>
+</div>

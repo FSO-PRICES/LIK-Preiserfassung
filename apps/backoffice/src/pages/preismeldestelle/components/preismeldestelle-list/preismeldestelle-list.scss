@@ -1,0 +1,11 @@
+.pms-list-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+ion-grid {
+    padding: 0;
+}
+ion-row:last-child .item {
+    padding-bottom: 10px;
+}

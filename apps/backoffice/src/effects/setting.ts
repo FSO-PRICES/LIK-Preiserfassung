@@ -36,7 +36,7 @@ export class SettingEffects {
                     if (!!currentSetting._rev) {
                         return db.get(currentSetting._id).then(doc => ({ db, doc }));
                     }
-                    return Promise.resolve({ db, doc: {} });
+                    return Promise.resolve({ db, doc: {} as P.CouchProperties });
                 })
                 .then(({ db, doc }) => {
                     // Create or update the setting
@@ -51,7 +51,7 @@ export class SettingEffects {
                     });
                     return (create ? db.post(setting) : db.put(setting)).then(response => ({ db, id: response.id }));
                 })
-                .then<CurrentSetting>(({ db, id }) =>
+                .then(({ db, id }) =>
                     db.get(id).then(setting => Object.assign({}, setting, { isModified: false, isSaved: true })),
                 ),
         ),

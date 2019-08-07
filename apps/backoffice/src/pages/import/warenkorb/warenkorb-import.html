@@ -1,0 +1,15 @@
+<div class="header">
+    <h1 class="large">Warenkorb</h1>
+</div>
+<div class="row">
+    <div class="column">
+        <label>Erhebungsschema Import</label>
+    </div>
+    <div class="column">
+        <input class="file-select-btn" type="file" (change)="warenkorbSelected$.emit($event)" [value]="(resetInputValue$ | async)?.value" required
+        />
+    </div>
+</div>
+<div class="actions">
+    <span *ngIf="isWarenkorbImported$ | async" ion-text color="primary">Warenkorb wurde erfolgreich importiert. {{warenkorbImportedCount$ | async}} Einträge wurden hinzugefügt</span>
+</div>

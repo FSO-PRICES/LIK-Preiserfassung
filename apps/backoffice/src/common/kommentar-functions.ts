@@ -1,4 +1,4 @@
-import * as translations from 'lik-shared/translations';
+import * as translations from '@lik-shared/translations';
 
 export function translateKommentare(kommentar: string) {
     const kommentare = kommentar.split('¶');

@@ -1,5 +1,5 @@
 import { compose } from '@ngrx/core/compose';
-import { ActionReducer, combineReducers } from '@ngrx/store';
+import { ActionReducer, combineReducers, MetaReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from 'ngrx-store-logger';
 import { createSelector } from 'reselect';
@@ -44,7 +44,7 @@ export interface AppState {
     filterOptions: fromFilterOptions.State;
 }
 
-const reducers = {
+export const reducers = {
     cockpit: fromCockpit.reducer,
     controlling: fromControlling.reducer,
     errors: fromError.reducer,
@@ -64,20 +64,10 @@ const reducers = {
     filterOptions: fromFilterOptions.reducer,
 };
 
-const developmentReducer: ActionReducer<AppState> = compose(
-    storeLogger(),
-    storeFreeze,
-    combineReducers,
-)(reducers);
-const productionReducer: ActionReducer<AppState> = combineReducers(reducers);
-
-export function reducer(state: AppState, action: any): AppState {
-    if (environment.production) {
-        return productionReducer(state, action);
-    } else {
-        return developmentReducer(state, action);
-    }
-}
+export const metaReducers: MetaReducer<AppState>[] = [
+    ...(!environment.production ? [storeLogger()] : []),
+    ...(!environment.production ? [storeFreeze] : []),
+];
 
 export const getControllingState = (state: AppState) => state.controlling;
 export const getStichtagPreismeldungenUpdated = createSelector(

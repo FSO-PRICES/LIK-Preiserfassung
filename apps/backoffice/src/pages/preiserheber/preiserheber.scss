@@ -1,0 +1,59 @@
+@import '../../theme/imports.scss';
+
+.preiserheber-list-container.container {
+    flex: 1 1;
+    display: flex;
+    flex-direction: column;
+    .header {
+        display: block;
+        margin-bottom: 3px;
+        h1 {
+            margin-bottom: 0.5em;
+        }
+        .title {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            .count {
+                align-self: flex-end;
+                margin-bottom: 0.5em;
+                line-height: 1.9em;
+            }
+        }
+    }
+    @include set-margin(0, 0.5, 0, 0);
+    @include set-padding(1, 1, 1, 1);
+}
+
+.preiserheber-detail-container {
+    flex: 1 1;
+    display: flex;
+    flex-direction: column;
+    @include set-margin(0, 0.5, 0, 0.5);
+    @include set-padding(1, 1, 1, 1);
+}
+
+.preiserheber-preiszuweisung-container {
+    flex: 2 1;
+    display: flex;
+    flex-direction: column;
+    @include set-margin(0, 0, 0, 0.5);
+    @include set-padding(1, 1, 1, 1);
+}
+
+preiserheber-list {
+    display: flex;
+    flex: 1 0 0;
+    ion-grid {
+        padding: 0;
+    }
+    ion-row:last-child .item {
+        padding-bottom: 10px;
+    }
+}
+
+preiserheber-preiszuweisung {
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: column;
+}

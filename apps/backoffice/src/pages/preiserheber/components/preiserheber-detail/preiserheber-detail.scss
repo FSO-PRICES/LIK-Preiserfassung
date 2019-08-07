@@ -1,0 +1,9 @@
+:host {
+    h1 {
+        margin-bottom: 0.5em;
+    }
+
+    ion-list.list-md :first-child ion-label {
+        margin-top: 0;
+    }
+}

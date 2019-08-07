@@ -1,0 +1,17 @@
+@import '../../theme/imports.scss';
+
+:host {
+    .error {
+        color: $alizarin-crimson;
+    }
+
+    pef-icon {
+        fill: $blue-chill;
+    }
+
+    .pef-dialog-login-button-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+}

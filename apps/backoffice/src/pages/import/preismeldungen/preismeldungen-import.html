@@ -1,0 +1,15 @@
+<div class="header">
+    <h1 class="large">Preismeldungen</h1>
+</div>
+<div class="row">
+    <div class="column">
+        <label>Preismeldungen Import</label>
+    </div>
+    <div class="column">
+        <input class="file-select-btn" type="file" (change)="preismeldungenSelected$.emit($event)" [value]="(resetInputValue$ | async)?.value" required
+        />
+    </div>
+</div>
+<div class="actions">
+    <span *ngIf="arePreismeldungenImported$ | async" ion-text color="primary">Preismeldungen wurden erfolgreich importiert. {{preismeldungenImportedCount$ | async}} Einträge wurden hinzugefügt</span>
+</div>
