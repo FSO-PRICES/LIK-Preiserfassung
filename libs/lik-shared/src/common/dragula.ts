@@ -10,11 +10,15 @@ type PefDragulaOptions = {
     markerSelector: string;
     dragulaOptions: DragulaOptions;
     delayedGrab?: boolean;
-    onDrop: (args: DropPreismeldungArg) => void;
+    onGrab?: () => void;
     onDragstart?: () => void;
+    onDrop: (args: DropPreismeldungArg) => void;
 };
 export function initDragula(scrollContainer: HTMLElement, options: PefDragulaOptions) {
-    const { markerSelector, dragulaOptions, delayedGrab, onDrop, onDragstart } = { ...defaultOptions, ...options };
+    const { markerSelector, dragulaOptions, delayedGrab, onGrab, onDragstart, onDrop } = {
+        ...defaultOptions,
+        ...options,
+    };
     let scrollable = true;
     const setScrolling = (s: boolean) => {
         scrollContainer.style.overflowY = s ? 'auto' : 'hidden';
@@ -34,7 +38,14 @@ export function initDragula(scrollContainer: HTMLElement, options: PefDragulaOpt
         if (scrollable !== false) {
             setScrolling(false);
             scrollable = false;
-            scrollContainer.classList.add('is-dragging');
+            if (onGrab) {
+                return onGrab();
+            }
+        }
+    });
+    drake.on('drag', () => {
+        scrollContainer.classList.add('is-dragging');
+        if (onDragstart) {
             return onDragstart();
         }
     });

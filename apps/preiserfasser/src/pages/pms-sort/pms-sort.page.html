@@ -10,7 +10,6 @@
         <pms-sort
             [preismeldungen]="preismeldungen$ | async"
             [isDesktop]="isDesktop$ | async"
-            (cancel)="closeClicked$.emit()"
             (preismeldung-sort-save)="save$.emit($event)"
         ></pms-sort>
     </ion-content>

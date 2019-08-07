@@ -50,7 +50,6 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
     @Input() preismeldungen: P.PreismeldungBag[];
     @Input() isDesktop: boolean;
 
-    @Output('cancel') cancel$ = new EventEmitter();
     @Output('save') public save$ = new EventEmitter();
     @Output('preismeldung-sort-save') public preismeldungSortSave$: Observable<
         P.Models.PmsPreismeldungenSortProperties
@@ -71,6 +70,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
 
     public multiSelectClick$ = new EventEmitter();
     public multiSelectResetClick$ = new EventEmitter();
+    public cancel$ = new EventEmitter();
     public onDrag$ = new EventEmitter();
     public multiSelectMode$: Observable<boolean>;
     public multipleSelected$: Observable<boolean>;
@@ -98,7 +98,8 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         );
 
         this.multiSelectMode$ = this.multiSelectClick$.pipe(
-            scan((agg, _) => !agg, false),
+            merge(this.cancel$.pipe(mapTo(true))),
+            scan((agg, cancelClicked) => !agg && !cancelClicked, false),
             startWith(false),
             publishReplay(1),
             refCount(),
@@ -125,11 +126,16 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         );
 
         this.multipleSelected$ = this.multiselectIndexes$.pipe(map(x => keys(x).filter(k => !!x[k]).length > 1));
+        const resetPreismeldungenList$ = this.cancel$.pipe(
+            withLatestFrom(preismeldungen$),
+            map(([, preismeldungen]) => preismeldungen),
+        );
 
         type PreismeldungenOrderAction =
             | { type: 'RESET'; payload: P.PreismeldungBag[] }
             | { type: 'DROP_PREISMELDUNG'; payload: DropPreismeldungArg };
         this.preismeldungen$ = preismeldungen$.pipe(
+            merge(resetPreismeldungenList$),
             map(payload => ({ type: 'RESET', payload })),
             merge(this.dropPreismeldung$.pipe(map(payload => ({ type: 'DROP_PREISMELDUNG', payload })))),
             withLatestFrom(
@@ -231,12 +237,10 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         );
 
         this.isModified$ = observableMerge(
-            this.preismeldungSortSave$.pipe(
-                startWith(),
-                mapTo(false),
-            ),
+            this.cancel$.pipe(mapTo(false)),
+            this.preismeldungSortSave$.pipe(mapTo(false)),
             this.onDrag$.pipe(mapTo(true)),
-        );
+        ).pipe(startWith(false));
 
         this.subscriptions.push(
             this.onDrag$
@@ -248,10 +252,14 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                     delay(0),
                 )
                 .subscribe(numPreismeldungenSelected => {
-                    if (numPreismeldungenSelected > 1)
-                        wndw.document.querySelector('.gu-mirror').classList.add('multiple-selected');
-                    wndw.document.querySelector('.gu-mirror .message').innerHTML = `${numPreismeldungenSelected ||
-                        1} ${translateService.instant('label_preismeldungen')}`;
+                    const guMirror = wndw.document.querySelector('.gu-mirror');
+                    if (guMirror) {
+                        if (numPreismeldungenSelected > 1) {
+                            guMirror.classList.add('multiple-selected');
+                        }
+                        wndw.document.querySelector('.gu-mirror .message').innerHTML = `${numPreismeldungenSelected ||
+                            1} ${translateService.instant('label_preismeldungen')}`;
+                    }
                     this.el.nativeElement.querySelector('pef-virtual-scroll').classList.add('is-dragging');
                 }),
         );

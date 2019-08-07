@@ -74,8 +74,10 @@
     </div>
     <div class="button-container">
         <ion-button color="primary" (click)="save$.emit()" [disabled]="!(isModified$ | async)">{{
-            'btn_order-save' | translate
+            'btn_save' | translate
         }}</ion-button>
-        <ion-button color="secondary" (click)="cancel$.emit()">{{ 'btn_cancel' | translate }}</ion-button>
+        <ion-button color="secondary" [disabled]="!(isModified$ | async)" (click)="cancel$.emit()">{{
+            'btn_cancel' | translate
+        }}</ion-button>
     </div>
 </div>
