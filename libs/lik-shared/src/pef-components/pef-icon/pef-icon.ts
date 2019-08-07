@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
     selector: 'pef-icon',
@@ -8,6 +8,7 @@ import { Component, Input } from '@angular/core';
             <use [attr.xlink:href]="'#' + name" />
         </svg>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PefIcon {
     @Input() name: string;

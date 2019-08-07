@@ -1,3 +1,4 @@
+export * from './common/dialog';
 export * from './common/dragula';
 export * from './common/erhebungsart-functions';
 export * from './common/formatting-functions';

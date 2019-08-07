@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    Output,
+    SimpleChange,
+} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { assign, keys } from 'lodash';
 import { Observable } from 'rxjs';
@@ -42,6 +51,7 @@ import * as P from '../../../models';
             </form>
         </ion-content>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.Models.Preismeldung;

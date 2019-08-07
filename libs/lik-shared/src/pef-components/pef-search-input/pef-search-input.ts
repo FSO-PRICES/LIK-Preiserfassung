@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    Output,
+    SimpleChange,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { mapTo, merge, takeUntil } from 'rxjs/operators';
 
@@ -8,6 +17,7 @@ import { ReactiveComponent } from '../../common/ReactiveComponent';
     selector: 'pef-search-input',
     styleUrls: ['./pef-search-input.scss'],
     templateUrl: 'pef-search-input.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PefSearchInput extends ReactiveComponent implements OnChanges, OnDestroy {
     public filterText = new FormControl();

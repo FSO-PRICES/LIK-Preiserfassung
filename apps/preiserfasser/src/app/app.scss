@@ -1,1 +1,5 @@
 @import '../../../../libs/lik-shared/src/styles/_app.scss';
+
+ion-button {
+    --box-shadow: none;
+}

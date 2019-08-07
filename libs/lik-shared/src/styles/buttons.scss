@@ -7,7 +7,6 @@ ion-button {
     transition: opacity 150ms;
     letter-spacing: normal;
     --ripple-color: transparent;
-    --box-shadow: none;
 
     &:hover:not(.disable-hover) {
         opacity: 0.7;

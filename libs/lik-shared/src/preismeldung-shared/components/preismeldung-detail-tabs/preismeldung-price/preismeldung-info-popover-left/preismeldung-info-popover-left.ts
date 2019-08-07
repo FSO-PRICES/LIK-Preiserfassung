@@ -1,4 +1,14 @@
-import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, Output, SimpleChange } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Inject,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChange,
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { WINDOW } from 'ngx-window-token';
 import { Observable, of as observableOf } from 'rxjs';
@@ -16,6 +26,7 @@ import * as P from '../../../../models';
     selector: 'preismeldung-info-popover-left',
     styleUrls: ['./preismeldung-info-popover-left.scss'],
     templateUrl: 'preismeldung-info-popover-left.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungInfoPopoverLeft extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;

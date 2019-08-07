@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, SimpleChange } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Inject,
+    Input,
+    OnChanges,
+    OnDestroy,
+    SimpleChange,
+} from '@angular/core';
 import { WINDOW } from 'ngx-window-token';
 import { Observable } from 'rxjs';
 import { map, publishReplay, refCount, withLatestFrom } from 'rxjs/operators';
@@ -10,6 +19,7 @@ import * as P from '../../../models';
     selector: 'preismeldung-readonly-header',
     styleUrls: ['./preismeldung-readonly-header.scss'],
     templateUrl: 'preismeldung-readonly-header.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungReadonlyHeader extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() preismeldung: P.PreismeldungBag;

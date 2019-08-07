@@ -1,0 +1,128 @@
+.item.md {
+    --border-width: 0;
+    --border-style: none;
+    --border-color: transparent;
+}
+
+.item.md.pef-item {
+    --highlight-color-focused: transparent;
+    --highlight-color-valid: transparent;
+    --highlight-color-invalid: transparent;
+    --background-focused: transparent;
+    --ion-safe-area-left: 0px;
+    --ion-safe-area-right: 0px;
+    --padding-start: 0px;
+    // &.item.md .item-inner {
+    //     padding-right: 0;
+    //     border-bottom-width: 0;
+    // }
+
+    ion-label {
+        margin-left: 0;
+        margin-right: 8px;
+        margin-top: 13px;
+        margin-bottom: 13px;
+        padding-left: 8px;
+        font-weight: 500;
+        color: $oslo-gray;
+        line-height: 1.75em;
+        &.label-stacked.sc-ion-label-md-h {
+            padding-left: 8px;
+            margin-top: 13px;
+            margin-right: 8px;
+            font-size: 1.2rem;
+            height: 28px;
+            min-height: 28px;
+            transform: none;
+        }
+    }
+    .pef-item-wrapper {
+        padding-right: 16px;
+        select {
+            width: 100%;
+            height: 35px;
+            border: none;
+            background-color: $white;
+            color: $black;
+        }
+    }
+    ion-input {
+        --padding-bottom: 7px;
+        --padding-top: 7px;
+        --height: calc(2.75 * 1em);
+    }
+    ion-input,
+    ion-textarea {
+        --background: #{$white};
+        --padding-end: 8px;
+        --padding-start: 8px;
+        background-color: $white;
+        border-bottom: 2px solid $hit-gray;
+        padding-left: 8px;
+        padding-right: 8px;
+        ::selection {
+            background-color: $scooter;
+            color: $outer-space;
+        }
+        &.readonly,
+        &[readonly] {
+            border-bottom: none;
+            margin-bottom: 2px;
+            background-color: $alto;
+            --background: #{$alto};
+        }
+    }
+    &.pef-item-compact {
+        --background: transparent;
+        ion-input {
+            height: 36px;
+        }
+    }
+    &.item-has-focus {
+        ion-input,
+        ion-textarea {
+            border-bottom-color: $blue-chill;
+        }
+        // .item-inner {
+        //     box-shadow: none;
+        // }
+        // &:last-child {
+        //     box-shadow: none;
+        // }
+    }
+    &.on-dark {
+        --background-focused: transparent;
+        ion-label {
+            color: white;
+        }
+    }
+    &.item-has-focus.on-dark {
+        ion-label {
+            color: $bright-sun;
+        }
+        ion-input,
+        ion-textarea {
+            border-bottom-color: $bright-sun;
+        }
+    }
+    // input {
+    //     outline: none;
+    // }
+}
+
+.compact-list {
+    .item.md {
+        ion-label,
+        ion-checkbox,
+        ion-input {
+            margin: 0;
+        }
+
+        --min-height: 38px;
+
+        ion-radio + ion-label,
+        ion-checkbox + ion-label {
+            margin-left: calc(0.625 * 16px);
+        }
+    }
+}

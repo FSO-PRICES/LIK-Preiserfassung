@@ -21,22 +21,6 @@
         }
     }
 
-    .item.md {
-        --min-height: 38px;
-        ::ng-deep {
-            ion-label,
-            ion-checkbox,
-            ion-input {
-                margin: 0;
-            }
-        }
-
-        ion-radio + ion-label,
-        ion-checkbox + ion-label {
-            margin-left: calc(0.625 * 16px);
-        }
-    }
-
     .inline {
         display: flex;
         flex-direction: row;

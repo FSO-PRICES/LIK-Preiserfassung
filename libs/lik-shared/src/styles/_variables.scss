@@ -95,3 +95,93 @@ $radio-md-disabled-opacity: 1;
 $popover-md-box-shadow: $whiteframe-shadow-2dp;
 
 $toolbar-md-title-font-size: 1em;
+
+// Ionicons
+// --------------------------------------------------
+// The premium icon font for Ionic. For more info, please see:
+// http://ionicframework.com/docs/v2/ionicons/
+
+// $ionicons-font-path: "../assets/fonts";
+// @import "ionicons";
+:root {
+    --ion-color-primary: #15aabf;
+    --ion-color-primary-rgb: 21, 170, 191;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #1296a8;
+    --ion-color-primary-tint: #2cb3c5;
+
+    --ion-color-secondary: #3bc9db;
+    --ion-color-secondary-rgb: 59, 201, 219;
+    --ion-color-secondary-contrast: #ffffff;
+    --ion-color-secondary-contrast-rgb: 0, 0, 0;
+    --ion-color-secondary-shade: #34b1c1;
+    --ion-color-secondary-tint: #4fcedf;
+
+    --ion-color-tertiary: #0b7285;
+    --ion-color-tertiary-rgb: 11, 114, 133;
+    --ion-color-tertiary-contrast: #ffffff;
+    --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+    --ion-color-tertiary-shade: #0a6475;
+    --ion-color-tertiary-tint: #238091;
+
+    --ion-color-mercury: #eaeaea;
+    --ion-color-mercury-rgb: 234, 234, 234;
+    --ion-color-mercury-contrast: #0b7587;
+    --ion-color-mercury-contrast-rgb: 0, 0, 0;
+    --ion-color-mercury-shade: #cecece;
+    --ion-color-mercury-tint: #ececec;
+
+    --ion-color-blue-chill: #0c8599;
+    --ion-color-blue-chill-rgb: 12, 133, 153;
+    --ion-color-blue-chill-contrast: #ffffff;
+    --ion-color-blue-chill-contrast-rgb: 255, 255, 255;
+    --ion-color-blue-chill-shade: #0b7587;
+    --ion-color-blue-chill-tint: #2491a3;
+
+    --ion-color-wild-sand: #f5f5f5;
+    --ion-color-wild-sand-rgb: 245, 245, 245;
+    --ion-color-wild-sand-contrast: #0b7587;
+    --ion-color-wild-sand-contrast-rgb: 0, 0, 0;
+    --ion-color-wild-sand-shade: #d8d8d8;
+    --ion-color-wild-sand-tint: #f6f6f6;
+
+    --ion-color-java: #15aabf;
+    --ion-color-java-rgb: 21, 170, 191;
+    --ion-color-java-contrast: #ffffff;
+    --ion-color-java-contrast-rgb: 255, 255, 255;
+    --ion-color-java-shade: #1296a8;
+    --ion-color-java-tint: #2cb3c5;
+}
+.ion-color-mercury {
+    --ion-color-base: var(--ion-color-mercury);
+    --ion-color-base-rgb: var(--ion-color-mercury-rgb);
+    --ion-color-contrast: var(--ion-color-mercury-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-mercury-contrast-rgb);
+    --ion-color-shade: var(--ion-color-mercury-shade);
+    --ion-color-tint: var(--ion-color-mercury-tint);
+}
+.ion-color-blue-chill {
+    --ion-color-base: var(--ion-color-blue-chill);
+    --ion-color-base-rgb: var(--ion-color-blue-chill-rgb);
+    --ion-color-contrast: var(--ion-color-blue-chill-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-blue-chill-contrast-rgb);
+    --ion-color-shade: var(--ion-color-blue-chill-shade);
+    --ion-color-tint: var(--ion-color-blue-chill-tint);
+}
+.ion-color-wild-sand {
+    --ion-color-base: var(--ion-color-wild-sand);
+    --ion-color-base-rgb: var(--ion-color-wild-sand-rgb);
+    --ion-color-contrast: var(--ion-color-wild-sand-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-wild-sand-contrast-rgb);
+    --ion-color-shade: var(--ion-color-wild-sand-shade);
+    --ion-color-tint: var(--ion-color-wild-sand-tint);
+}
+.ion-color-java {
+    --ion-color-base: var(--ion-color-java);
+    --ion-color-base-rgb: var(--ion-color-java-rgb);
+    --ion-color-contrast: var(--ion-color-java-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-java-contrast-rgb);
+    --ion-color-shade: var(--ion-color-java-shade);
+    --ion-color-tint: var(--ion-color-java-tint);
+}

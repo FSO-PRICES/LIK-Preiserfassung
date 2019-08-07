@@ -1,5 +1,4 @@
-import { compose } from '@ngrx/core/compose';
-import { ActionReducer, combineReducers, MetaReducer } from '@ngrx/store';
+import { MetaReducer } from '@ngrx/store';
 import { isBefore } from 'date-fns';
 import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from 'ngrx-store-logger';

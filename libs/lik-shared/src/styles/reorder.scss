@@ -34,6 +34,7 @@
 
 ion-item-sliding.adv-preismeldung-item-draggable {
     min-height: 3.5em;
+    @include set-margin-bottom(0.25);
 
     &.gu-mirror {
         background-color: white;
@@ -47,7 +48,6 @@ ion-item-sliding.adv-preismeldung-item-draggable {
         --min-height: 3.5em;
         --background: transparent;
         --ripple-color: transparent;
-        @include set-margin-bottom(0.25);
     }
     &.selected {
         ion-item {

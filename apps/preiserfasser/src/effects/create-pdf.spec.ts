@@ -1,5 +1,5 @@
 import { Actions } from '@ngrx/effects';
-import { Platform } from 'ionic-angular';
+import { Platform } from '@ionic/angular';
 import { Observable } from 'rxjs/Rx';
 import { marbles } from 'rxjs-marbles';
 
@@ -29,7 +29,7 @@ xdescribe('PDF Effects', () => {
                             type: 'CREATE_PMS_PDF',
                             payload: { preismeldestelle: null, erhebungsmonat: '2018-02-01' },
                         } as pdfActions.Action,
-                    })
+                    }),
                 );
 
                 const expected = m.cold('-ab', {
@@ -48,11 +48,11 @@ xdescribe('PDF Effects', () => {
                     translateServiceStub as any,
                     storeStub as any,
                     nativeFileStub as any,
-                    new Platform()
+                    new Platform(),
                 );
 
                 m.expect(effects.pmsToPdf$).toBeObservable(expected);
-            })
+            }),
         );
     });
 });

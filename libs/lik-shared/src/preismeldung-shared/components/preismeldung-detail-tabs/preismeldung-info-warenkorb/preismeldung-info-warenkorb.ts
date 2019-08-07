@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChange } from '@angular/core';
 import { reverse } from 'lodash';
 import { Observable } from 'rxjs';
 import { combineLatest, filter, publishReplay, refCount } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import * as P from '../../../models';
     selector: 'preismeldung-info-warenkorb',
     styleUrls: ['./preismeldung-info-warenkorb.scss'],
     templateUrl: 'preismeldung-info-warenkorb.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungInfoWarenkorbComponent extends ReactiveComponent implements OnChanges {
     @Input() preismeldung: P.PreismeldungBag;

@@ -31,6 +31,7 @@ export interface PreismeldungenLoadPayload {
     alreadyExported: string[];
 }
 
+export type StatusFilter = 'erhebung' | 'prüfung' | 'exportiert';
 export interface PmsFilter {
     statusFilter: 'erhebung' | 'prüfung' | 'exportiert';
     pmsNummers: string[];
