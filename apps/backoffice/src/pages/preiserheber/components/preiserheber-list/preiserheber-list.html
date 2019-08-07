@@ -1,0 +1,24 @@
+<div class="pef-advanced-item-flex-container">
+    <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
+    <!-- <ion-content pef-perfect-virtualscroll-scrollbar enabled="true"> -->
+    <ion-content>
+        <ion-virtual-scroll
+            [items]="filteredPreiserhebers$ | async"
+            approxItemHeight="50px"
+            [class.hidden]="(filteredPreiserhebers$ | async).length === 0"
+        >
+            <ion-item
+                class="pef-advanced-item"
+                *virtualItem="let preiserheber"
+                (click)="selectPreiserheber$.emit(preiserheber._id)"
+                [class.selected]="preiserheber._rev == (current$ | async)?._rev"
+                tappable
+            >
+                <div class="pef-item-description">
+                    <span class="text">{{ preiserheber.firstName }} {{ preiserheber.surname }}</span>
+                    <span class="artikel-text">{{ preiserheber.erhebungsregion }}</span>
+                </div>
+            </ion-item>
+        </ion-virtual-scroll>
+    </ion-content>
+</div>

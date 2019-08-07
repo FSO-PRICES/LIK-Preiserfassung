@@ -1,0 +1,314 @@
+@import './variables.scss';
+
+.hidden {
+    visibility: hidden;
+}
+
+.ion-page {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    ion-header {
+        flex: 0;
+        position: relative;
+    }
+
+    .pef-item.item-label-stacked {
+        --inner-padding-end: 0;
+    }
+
+    .item.md.pef-item ion-label.label-stacked.sc-ion-label-md-h {
+        margin-bottom: 0;
+        height: auto;
+        min-height: auto;
+    }
+
+    .app-title {
+        font-weight: bold;
+        padding-right: 2em;
+    }
+
+    .page-wrapper {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        background-color: $alto;
+        @include set-padding-vert-horiz(1, 1.5);
+    }
+
+    .app-name {
+        font-weight: bold;
+        letter-spacing: 1px;
+        @include set-padding-top-bottom(2.25, 1.25);
+        display: flex;
+        justify-content: center;
+    }
+
+    .page-content {
+        display: flex;
+        flex-direction: row;
+        flex: 1;
+
+        .container {
+            background-color: $mercury;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            h1,
+            h2,
+            h3,
+            h4,
+            h5 {
+                flex: 0;
+            }
+            button {
+                flex: 0 0 25%;
+            }
+        }
+    }
+
+    .flex-container {
+        display: flex;
+    }
+
+    .header-line {
+        display: flex;
+
+        h3 {
+            flex: 1;
+        }
+    }
+
+    .text-info {
+        color: $trout;
+    }
+
+    .current-time {
+        align-self: flex-end;
+        font-weight: 500;
+        line-height: 1.25em;
+        margin: 0 0 1em 0;
+    }
+
+    .pms-search {
+        @include set-margin-bottom(1.25);
+    }
+
+    .preismeldungen-scroll {
+        flex: 1;
+    }
+
+    .pms-scroll-container {
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
+
+    .pms-header-table {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .pms-header-row {
+        display: table-row;
+    }
+
+    .pms-header-cell {
+        @include set-height(3.5);
+        display: table-cell;
+        @include set-padding-bottom(0.25);
+
+        &.pms-name {
+            .pms-header-cell-content {
+                @include set-padding-left(1);
+            }
+        }
+    }
+
+    .pms-header-cell-content {
+        background-color: $alto;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        color: $trout;
+    }
+
+    .pms-detail-link {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-size: 1em;
+        .button-inner {
+            justify-content: flex-start;
+        }
+        pef-icon {
+            width: 30px;
+            @include set-margin-right(1);
+        }
+    }
+
+    .pms-table {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .pms-row {
+        display: table-row;
+    }
+
+    .pms-cell {
+        @include set-height(3.5);
+        max-height: 56px; // TODO
+        display: table-cell;
+
+        &.pms-name {
+            width: 30%;
+            .pms-cell-content {
+                @include set-padding-left(1);
+                color: $blue-chill;
+                font-weight: 500;
+            }
+        }
+        &.erfassung-starten {
+            width: 70%;
+            .pms-cell-content {
+                @include set-padding-right(1);
+                justify-content: flex-end;
+            }
+        }
+        position: relative;
+    }
+
+    .pms-cell-content {
+        background-color: $white;
+        position: absolute;
+        top: 0;
+        height: calc(100% - 4px);
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .button-md.price-entry-button {
+        @include button-color($scooter, $white);
+    }
+
+    .preismeldungen {
+        flex: 0 1 33.3%;
+        @include set-margin-left(0.75);
+        @include set-padding-vert-horiz(1.5, 1);
+        background-color: $mercury;
+    }
+
+    h2 {
+        font-size: 1em;
+        margin: 0 0 1em 0;
+    }
+
+    .pef-advanced-item-flex-container {
+        flex: 1;
+        background-color: $mercury;
+        display: flex;
+        flex-direction: column;
+        align-content: stretch;
+
+        pef-virtual-scroll {
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    .pef-advanced-item {
+        padding-left: 0;
+        border-bottom-width: 0;
+        min-height: 3.5em;
+        --padding-start: calc(0.5 * 16px);
+        --min-height: 3.5em;
+        --ion-background-color: #{$white};
+        @include set-margin-bottom(0.25);
+        &.selected {
+            background-color: $surfie-green;
+            --ion-background-color: #{$surfie-green};
+            color: $white;
+            .pef-item-title,
+            .pef-item-description .text {
+                color: $white;
+            }
+        }
+        &.item-md.item-block .item-inner {
+            @include set-padding(0, 0, 0, 0.5);
+        }
+        ion-label {
+            margin: 0;
+            display: flex;
+            height: 100%;
+            align-items: center;
+            align-content: center;
+            font-size: 1em;
+        }
+        .pef-item-title {
+            max-width: 4em;
+            flex: 0 0 4em;
+            color: $blue-chill;
+            font-weight: 500;
+        }
+        .pef-item-description {
+            width: calc(100% - 4.5em);
+            max-width: calc(100% - 4.5em);
+            flex: 0 0 calc(100% - 4.5em);
+            display: flex;
+            flex-direction: column;
+            font-weight: 400;
+            span {
+                display: inline-block;
+                text-overflow: ellipsis;
+                width: 100%;
+                overflow: hidden;
+                line-height: 1.25em;
+                &.text {
+                    color: $blue-chill;
+                    font-weight: 500;
+                }
+            }
+        }
+        .pef-item-actions {
+            max-width: 5em;
+            height: 100%;
+            flex: 0 0 5em;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            button {
+                height: 100%;
+                margin: 0;
+            }
+            .status-bar {
+                flex: 0 0 8px;
+                background-color: $bright-sun;
+                height: 3.5em;
+            }
+        }
+        &[tappable]:hover:not(.selected) {
+            background-color: $blue-chill;
+            --ion-background-color: #{$blue-chill};
+            .pef-item-title,
+            .pef-item-description .text,
+            .pef-item-description .artikel-text {
+                color: $white;
+            }
+        }
+    }
+    .pef-item-left {
+        .pef-item-actions {
+            flex: 0 0 3em;
+            justify-content: flex-start;
+        }
+    }
+}

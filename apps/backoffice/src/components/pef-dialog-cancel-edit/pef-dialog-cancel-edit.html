@@ -1,0 +1,19 @@
+<div class="pef-dialog-message">
+    <h3>
+        <pef-icon name="warning"></pef-icon>
+        Noch nicht gespeicherte Daten vorhanden!
+    </h3>
+    <p>
+        Auf «Weiter bearbeiten» klicken um bei dieser Ansicht zu bleiben <br />
+        (Dateineingabe bleibt bestehen).
+    </p>
+    <p>
+        Auf «Änderungen verwerfen» klicken um diese Ansicht zu verlassen <br />
+        (Dateneingabe geht verloren).
+    </p>
+</div>
+
+<div class="pef-dialog-button-row">
+    <ion-button (click)="viewCtrl.dismiss('KEEP_WORKING')" color="primary">Weiter bearbeiten</ion-button>
+    <ion-button (click)="viewCtrl.dismiss('THROW_CHANGES')" color="secondary">Änderungen verwerfen</ion-button>
+</div>

@@ -1,0 +1,16 @@
+<header pef-menu></header>
+<div class="page-wrapper">
+    <ion-content class="page-content">
+        <cockpit-report
+            [reportExecuting]="reportExecuting$ | async"
+            [cockpitReportData]="cockpitReportData$ | async"
+            [selectedPreiserheber]="cockpitSelectedPreiserheber$ | async"
+            [statusMissingCount]="preismeldungenStatusMapMissingCount$ | async"
+            [statusUpdatedCount]="preismeldungenStatusMapUpdatedCount$ | async"
+            [initializingPreismeldungenStatus]="initializingPreismeldungenStatus$ | async"
+            (loadData)="loadData$.next()"
+            (initPreismeldungenStatus)="initPreismeldungenStatus$.emit()"
+            (preiserheberSelected)="preiserheberSelected$.emit($event)"
+        ></cockpit-report>
+    </ion-content>
+</div>

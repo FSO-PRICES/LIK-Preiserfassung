@@ -1,0 +1,96 @@
+@import '../../theme/imports.scss';
+
+:host {
+    .toolbar {
+        background-color: $java;
+        margin: 0;
+        padding: 0;
+        min-height: initial;
+        display: flex;
+        overflow: hidden;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        contain: content;
+
+        &.danger-zone {
+            background-color: $alizarin-crimson;
+        }
+    }
+
+    ion-title {
+        flex: 0;
+        color: $white;
+    }
+
+    .on-off-line {
+        margin-left: 1em;
+    }
+
+    ion-buttons {
+        flex: 1;
+        order: 4;
+        height: 3em;
+        margin: 0;
+        padding: 0;
+        place-content: flex-end;
+        text-align: right;
+        color: $white;
+
+        ion-button {
+            color: $white;
+            --fill: #{$white};
+            --color: #{$white};
+            --color-hover: #{$white};
+            --border-radius: none;
+            --padding-start: 15px;
+            --padding-end: 15px;
+            &:hover {
+                opacity: 1;
+                --opacity: 1;
+            }
+        }
+
+        .button.md.button-clear {
+            margin: 0;
+            height: 100%;
+
+            &.active {
+                background-color: $blue-chill;
+            }
+            &:hover:not(.disable-hover) {
+                background-color: $scooter;
+            }
+            &.disabled {
+                opacity: 0.4;
+                &:hover:not(.disable-hover) {
+                    background-color: transparent;
+                }
+            }
+        }
+    }
+
+    .fullscreen {
+        pef-icon {
+            width: 1.7em;
+            height: 1.7em;
+        }
+    }
+
+    pef-icon.connectivity {
+        margin: 0 0 0 0.5em;
+        stroke: transparent;
+        fill: $white;
+        &.error {
+            fill: $alizarin-crimson;
+        }
+        &.ok {
+            fill: $emerald;
+        }
+    }
+
+    pef-icon {
+        stroke: $white;
+    }
+}

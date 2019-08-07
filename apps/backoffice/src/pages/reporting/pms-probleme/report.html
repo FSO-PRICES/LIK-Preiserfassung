@@ -1,0 +1,40 @@
+<div class="container-wrapper" *ngIf="reportData">
+    <div class="container">
+        <div *ngIf="reportData">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>LIK-Monatsbericht</th>
+                        <th>PMS-Probleme</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Erhebungsmonat</td>
+                        <td>{{ reportData.zeitpunkt.erhebungsmonat }}</td>
+                    </tr>
+                    <tr>
+                        <td>Erstellungsdatum</td>
+                        <td>{{ reportData.zeitpunkt.erstellungsdatum }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Preismeldestellen geschlossen</th>
+                        <th>Grund</th>
+                        <th>Zusatzinfo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let pmsGeschlossen of reportData.pmsGeschlossen">
+                        <td>{{ pmsGeschlossen.name }}</td>
+                        <td>{{ pmsGeschlossen.grund }}</td>
+                        <td class="no-wrap">{{ pmsGeschlossen.zusatzinfo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

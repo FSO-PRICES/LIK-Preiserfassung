@@ -1,0 +1,41 @@
+@import '../../theme/imports.scss';
+
+:host {
+    input[type='range'] {
+        width: 2em;
+        -webkit-appearance: none;
+        background-color: transparent;
+        cursor: pointer;
+        &[disabled] {
+            opacity: 0.5;
+        }
+    }
+    input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 1em;
+        width: 0.6em;
+        background-color: $foam;
+    }
+    input[type='range'] {
+        &[value='0']::-webkit-slider-runnable-track {
+            background-color: $trout;
+        }
+        &[value='1']::-webkit-slider-runnable-track {
+            background-color: $bittersweet;
+        }
+        &[value='2']::-webkit-slider-runnable-track {
+            background-color: $sea-green;
+        }
+    }
+    input[type='range'][disabled]::-webkit-slider-runnable-track {
+        background-color: $oslo-gray;
+    }
+    button.button-md {
+        height: 16px;
+        width: 32px;
+        margin: 0;
+        vertical-align: top;
+        box-shadow: none;
+        background-color: $hit-gray;
+    }
+}

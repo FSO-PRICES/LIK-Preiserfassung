@@ -1,0 +1,139 @@
+<div class="cockpit-actions">
+    <ion-button type="button" (click)="loadData$.emit()" [disabled]="reportExecuting$ | async"
+        >Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</ion-button
+    >
+    <ion-button
+        type="button"
+        (click)="initPreismeldungenStatus$.emit()"
+        [disabled]="initializingPreismeldungenStatus$ | async"
+        >Prüfstatus zuweisen</ion-button
+    >
+    <ion-text *ngIf="statusMissingCount != null" color="primary"
+        >{{ statusMissingCount }} Preismeldungen ohne Prüfstatus</ion-text
+    >
+</div>
+
+<div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)">
+    <div class="container">
+        <form [formGroup]="form" class="stacked-form">
+            <ion-item class="pef-item">
+                <ion-label position="stacked">Erhebungszeitpunkt</ion-label>
+                <select formControlName="erhebungsZeitpunkt">
+                    <option value="indifferent">Indifferent</option>
+                    <option value="stichtag1">Stichtag 1</option>
+                    <option value="stichtag2">Stichtag 2</option>
+                    <option value="woche1">Woche 1</option>
+                    <option value="woche2">Woche 2</option>
+                    <option value="keinStichdatum">Kein Stichdatum</option>
+                </select>
+            </ion-item>
+            <ion-item class="pef-item">
+                <ion-label position="stacked">Preiserheber</ion-label>
+                <ion-input type="text" formControlName="preiserheberFilter"></ion-input>
+            </ion-item>
+        </form>
+        <div class="list-header">
+            <div class="labels">
+                <div class="name"></div>
+                <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
+                    <pef-icon name="download"></pef-icon>
+                </div>
+                <div class="offen-nicht-erfasst" title="#Preise auf Tablet zu erfassen">
+                    <pef-icon name="todo"></pef-icon>
+                </div>
+                <div class="offen-erfasst" title="#Prerise auf Tablet erfasst aber nicht hochgeladen">
+                    <pef-icon name="checkmark"></pef-icon>
+                </div>
+                <div class="hochgeladene" title="#Preise von Tablet hochgeladen">
+                    <pef-icon name="upload"></pef-icon>
+                </div>
+            </div>
+            <div class="summary">
+                <div class="name"></div>
+                <div class="heruntergeladene">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).synced"
+                        >{{ (filteredSummary$ | async).total }} /
+                        {{ (filteredSummary$ | async).newPreismeldungen }}</span
+                    >
+                </div>
+                <div class="offen-nicht-erfasst">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).nothingTodo">{{
+                        (filteredSummary$ | async).todo
+                    }}</span>
+                </div>
+                <div class="offen-erfasst">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).nothingToUpload">{{
+                        (filteredSummary$ | async).doneButNotUploaded
+                    }}</span>
+                </div>
+                <div class="hochgeladene">
+                    <span class="status-number" [class.good]="(filteredSummary$ | async).uploadedAll">{{
+                        (filteredSummary$ | async).uploaded
+                    }}</span>
+                </div>
+            </div>
+        </div>
+        <pef-virtual-scroll
+            [items]="filteredPreiserheber$ | async"
+            (update)="updateScrollList($event)"
+            pef-perfect-scrollbar
+            [enabled]="true"
+        >
+            <ion-item
+                class="pef-advanced-item cockpit-preiserheber"
+                *ngFor="let preiserheber of scrollList"
+                (click)="selectPreiserheber$.emit(preiserheber)"
+                [class.selected]="(selectedPreiserheber$ | async)?.username == preiserheber.username"
+                tappable
+                [class.unassigned]="preiserheber.username === 'unassigned'"
+            >
+                <ion-label>
+                    <div class="pef-item-description">
+                        <span class="text"
+                            >{{ preiserheber.erheber.firstName }} {{ preiserheber.erheber.surname }}</span
+                        >
+                        <span class="artikel-text">{{ preiserheber.erheber.erhebungsregion }}</span>
+                    </div>
+                    <div class="preiserheber-summary">
+                        <div class="heruntergeladene">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].synced"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].total }} /
+                                {{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen }}
+                            </span>
+                        </div>
+                        <div class="offen-nicht-erfasst">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingTodo"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}
+                            </span>
+                        </div>
+                        <div class="offen-erfasst">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingToUpload"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded }}</span
+                            >
+                        </div>
+                        <div class="hochgeladene">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].uploaded }}</span
+                            >
+                        </div>
+                    </div>
+                </ion-label>
+            </ion-item>
+        </pef-virtual-scroll>
+    </div>
+
+    <div class="container">
+        <cockpit-report-detail
+            [preiserheber]="selectedPreiserheber$ | async"
+            [erhebungsZeitpunktKey]="erhebungsZeitpunkt$ | async"
+        ></cockpit-report-detail>
+    </div>
+</div>
