@@ -3,6 +3,7 @@
 :host {
     .pef-label {
         background-color: transparent;
+        --background-color: transparent;
         padding-left: 8px;
         min-height: auto;
         ion-label {
@@ -22,22 +23,21 @@
         height: 44px;
         margin-bottom: 0;
     }
-    .pef-search {
-        &ion-item.item.md {
-            height: 3em;
-            border-radius: 2px;
-            box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.24);
-        }
-        &.item.md.item-block .item-inner {
+    ion-item.item.md.pef-search {
+        height: 3em;
+        --min-height: 3em;
+        --ion-background-color: #{$white};
+        --border-width: 0 0 0 0;
+        border-radius: 2px;
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.24);
+
+        &.item-block .item-inner {
             border-bottom-width: 0;
         }
-        &.item.md.item-input.input-has-focus .item-inner {
+        &.item-input.input-has-focus .item-inner {
             box-shadow: none;
         }
-        button.button-clear {
-            background-color: transparent;
-        }
-        & pef-icon {
+        pef-icon {
             width: 2em;
         }
     }

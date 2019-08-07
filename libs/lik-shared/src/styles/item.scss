@@ -36,20 +36,17 @@
             transform: none;
         }
     }
-    .pef-item-wrapper {
-        padding-right: 16px;
-        select {
-            width: 100%;
-            height: 35px;
-            border: none;
-            background-color: $white;
-            color: $black;
-        }
-    }
     ion-input {
         --padding-bottom: 7px;
         --padding-top: 7px;
         --height: calc(2.75 * 1em);
+    }
+    select {
+        width: 100%;
+        height: 35px;
+        border: none;
+        background-color: $white;
+        color: $black;
     }
     ion-input,
     ion-textarea {

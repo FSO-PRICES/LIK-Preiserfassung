@@ -3,6 +3,7 @@
 :host {
     flex: 1;
     display: flex;
+    min-height: 0;
 
     h3 {
         word-spacing: -0.25em;
@@ -11,10 +12,16 @@
         }
     }
 
+    pef-virtual-scroll {
+        flex: 1;
+        min-height: 0;
+    }
+
     .pms-section {
         flex: 1;
         display: flex;
         flex-direction: column;
+        min-height: 0;
     }
 
     .pms-summary-header,

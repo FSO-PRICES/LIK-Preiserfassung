@@ -346,7 +346,7 @@ ion-content.md {
     overflow-y: scroll;
 }
 
-.label-md {
+.label.md {
     font-size: 1.2rem;
 }
 
@@ -439,7 +439,7 @@ ion-list {
         }
     }
     .item-checkbox {
-        ion-label.label-md:not(.pef-checkbox-label) {
+        ion-label.label.md:not(.pef-checkbox-label) {
             font-size: 1em;
             font-weight: 500;
             margin-top: 5px;
@@ -452,7 +452,7 @@ ion-list {
             }
         }
         &.item-checkbox-checked {
-            ion-label.label-md {
+            ion-label.label.md {
                 color: $java;
             }
             .checkbox-icon {

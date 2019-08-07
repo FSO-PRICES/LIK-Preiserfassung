@@ -15,6 +15,16 @@
         position: relative;
     }
 
+    .pef-item.item-label-stacked {
+        --inner-padding-end: 0;
+    }
+
+    .item.md.pef-item ion-label.label-stacked.sc-ion-label-md-h {
+        margin-bottom: 0;
+        height: auto;
+        min-height: auto;
+    }
+
     .app-title {
         font-weight: bold;
         padding-right: 2em;
@@ -219,9 +229,13 @@
         padding-left: 0;
         border-bottom-width: 0;
         min-height: 3.5em;
+        --padding-start: calc(0.5 * 16px);
+        --min-height: 3.5em;
+        --ion-background-color: #{$white};
         @include set-margin-bottom(0.25);
         &.selected {
             background-color: $surfie-green;
+            --ion-background-color: #{$surfie-green};
             color: $white;
             .pef-item-title,
             .pef-item-description .text {
@@ -251,6 +265,7 @@
             flex: 0 0 calc(100% - 4.5em);
             display: flex;
             flex-direction: column;
+            font-weight: 400;
             span {
                 display: inline-block;
                 text-overflow: ellipsis;
@@ -282,6 +297,7 @@
         }
         &[tappable]:hover:not(.selected) {
             background-color: $blue-chill;
+            --ion-background-color: #{$blue-chill};
             .pef-item-title,
             .pef-item-description .text,
             .pef-item-description .artikel-text {

@@ -1,15 +1,25 @@
 <div class="header">
     <h1 class="large">Preismeldestellen</h1>
 </div>
-<div class="row">
-    <div class="column">
-        <label>Preismeldestellen Import</label>
-    </div>
-    <div class="column">
-        <input class="file-select-btn" type="file" (change)="preismeldestellenSelected$.emit($event)" [value]="(resetInputValue$ | async)?.value" required
-        />
-    </div>
-</div>
+<ion-grid>
+    <ion-row>
+        <ion-col>
+            <label>Preismeldestellen Import</label>
+        </ion-col>
+        <ion-col>
+            <input
+                class="file-select-btn"
+                type="file"
+                (change)="preismeldestellenSelected$.emit($event)"
+                [value]="(resetInputValue$ | async)?.value"
+                required
+            />
+        </ion-col>
+    </ion-row>
+</ion-grid>
 <div class="actions">
-    <span *ngIf="arePreismeldestellenImported$ | async" ion-text color="primary">Preismeldestellen wurden erfolgreich importiert. {{preismeldestellenImportedCount$ | async}} Einträge wurden hinzugefügt</span>
+    <span *ngIf="(arePreismeldestellenImported$ | async)" ion-text color="primary"
+        >Preismeldestellen wurden erfolgreich importiert. {{ preismeldestellenImportedCount$ | async }} Einträge wurden
+        hinzugefügt</span
+    >
 </div>

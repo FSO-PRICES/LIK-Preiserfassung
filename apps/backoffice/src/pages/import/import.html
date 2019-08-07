@@ -2,69 +2,71 @@
 <div class="page-wrapper">
     <ion-content class="page-content">
         <form>
-            <div class="row container">
-                <div class="column">
-                    <warenkorb-import
-                        (fileSelected)="warenkorbFileSelected$.emit($event)"
-                        (import)="warenkorbStartImport$.emit($event)"
-                        [parsed]="warenkorbFileParsed$ | async"
-                        [importedCount]="warenkorbImportedCount$ | async"
-                        [resetFileInput]="resetFileInputs$ | async"
-                    >
-                    </warenkorb-import>
-                </div>
-                <div class="column info-column">
-                    <div class="text-info" *ngIf="!!(warenkorbErhebungsmonat$ | async)">
-                        Aktueller Erhebungsmonat: {{ warenkorbErhebungsmonat$ | async | date: 'MMM y' }}
-                    </div>
-                </div>
-            </div>
-            <div class="row container">
-                <div class="column">
-                    <preismeldestellen-import
-                        (fileSelected)="preismeldestelleFileSelected$.emit($event)"
-                        (import)="preismeldestellenStartImport$.emit($event)"
-                        [parsed]="preismeldestelleFileParsed$ | async"
-                        [importedCount]="preismeldestellenImportedCount$ | async"
-                        [resetFileInput]="resetFileInputs$ | async"
-                    >
-                    </preismeldestellen-import>
-                </div>
-                <div class="column info-column">
-                    <div class="text-info" *ngIf="!!(preismeldestellenErhebungsmonat$ | async)">
-                        Aktueller Erhebungsmonat: {{ preismeldestellenErhebungsmonat$ | async | date: 'MMM y' }}
-                    </div>
-                </div>
-            </div>
-            <div class="row container">
-                <div class="column">
-                    <preismeldungen-import
-                        (fileSelected)="preismeldungFileSelected$.emit($event)"
-                        (import)="preismeldungenStartImport$.emit($event)"
-                        [parsed]="preismeldungFileParsed$ | async"
-                        [importedCount]="preismeldungenImportedCount$ | async"
-                        [resetFileInput]="resetFileInputs$ | async"
-                    >
-                    </preismeldungen-import>
-                </div>
-                <div class="column info-column">
-                    <div class="text-info" *ngIf="!!(preismeldungenErhebungsmonat$ | async)">
-                        Aktueller Erhebungsmonat: {{ preismeldungenErhebungsmonat$ | async | date: 'MMM y' }}
-                    </div>
-                </div>
-            </div>
-            <div class="row import-row">
-                <div class="column">
-                    <ion-button type="button" (click)="import$.emit()" [disabled]="!(canImport$ | async)"
-                        >Importieren</ion-button
-                    >
-                </div>
-                <div class="column info-column">
-                    <div class="text-info" *ngIf="!!(getImportedAllDataAt$ | async)">
-                        Zuletzt importiert am: {{ getImportedAllDataAt$ | async | date: 'dd MMMM yyyy, HH:mm' }}
-                    </div>
-                </div>
-            </div>
+            <ion-grid>
+                <ion-row class="container">
+                    <ion-col>
+                        <warenkorb-import
+                            (fileSelected)="warenkorbFileSelected$.emit($event)"
+                            (import)="warenkorbStartImport$.emit($event)"
+                            [parsed]="warenkorbFileParsed$ | async"
+                            [importedCount]="warenkorbImportedCount$ | async"
+                            [resetFileInput]="resetFileInputs$ | async"
+                        >
+                        </warenkorb-import>
+                    </ion-col>
+                    <ion-col class="info-column">
+                        <div class="text-info" *ngIf="!!(warenkorbErhebungsmonat$ | async)">
+                            Aktueller Erhebungsmonat: {{ warenkorbErhebungsmonat$ | async | date: 'MMM y' }}
+                        </div>
+                    </ion-col>
+                </ion-row>
+                <ion-row class="container">
+                    <ion-col>
+                        <preismeldestellen-import
+                            (fileSelected)="preismeldestelleFileSelected$.emit($event)"
+                            (import)="preismeldestellenStartImport$.emit($event)"
+                            [parsed]="preismeldestelleFileParsed$ | async"
+                            [importedCount]="preismeldestellenImportedCount$ | async"
+                            [resetFileInput]="resetFileInputs$ | async"
+                        >
+                        </preismeldestellen-import>
+                    </ion-col>
+                    <ion-col class="info-column">
+                        <div class="text-info" *ngIf="!!(preismeldestellenErhebungsmonat$ | async)">
+                            Aktueller Erhebungsmonat: {{ preismeldestellenErhebungsmonat$ | async | date: 'MMM y' }}
+                        </div>
+                    </ion-col>
+                </ion-row>
+                <ion-row class="container">
+                    <ion-col>
+                        <preismeldungen-import
+                            (fileSelected)="preismeldungFileSelected$.emit($event)"
+                            (import)="preismeldungenStartImport$.emit($event)"
+                            [parsed]="preismeldungFileParsed$ | async"
+                            [importedCount]="preismeldungenImportedCount$ | async"
+                            [resetFileInput]="resetFileInputs$ | async"
+                        >
+                        </preismeldungen-import>
+                    </ion-col>
+                    <ion-col class=" info-column">
+                        <div class="text-info" *ngIf="!!(preismeldungenErhebungsmonat$ | async)">
+                            Aktueller Erhebungsmonat: {{ preismeldungenErhebungsmonat$ | async | date: 'MMM y' }}
+                        </div>
+                    </ion-col>
+                </ion-row>
+                <ion-row class="import-row">
+                    <ion-col>
+                        <ion-button type="button" (click)="import$.emit()" [disabled]="!(canImport$ | async)"
+                            >Importieren</ion-button
+                        >
+                    </ion-col>
+                    <ion-col class="info-column">
+                        <div class="text-info" *ngIf="!!(getImportedAllDataAt$ | async)">
+                            Zuletzt importiert am: {{ getImportedAllDataAt$ | async | date: 'dd MMMM yyyy, HH:mm' }}
+                        </div>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
             <div
                 *ngIf="(importErrors$ | async); let errors"
                 ion-text

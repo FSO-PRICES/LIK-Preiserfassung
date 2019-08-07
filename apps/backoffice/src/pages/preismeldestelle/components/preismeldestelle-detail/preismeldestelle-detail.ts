@@ -52,7 +52,6 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     public preismeldestelle$: Observable<P.Preismeldestelle>;
     public languages$: Observable<P.Language[]>;
     public saveClicked$ = new EventEmitter<Event>();
-    public pmsGeschlossenClicked$ = new EventEmitter();
     public erhebungsregionen$: Observable<string[]>;
 
     public showValidationHints$: Observable<boolean>;
@@ -154,22 +153,6 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                     { onlySelf: true, emitEvent: false },
                 );
             }),
-
-            this.pmsGeschlossenClicked$
-                .pipe(
-                    mapTo(null),
-                    merge(distinctPreismeldestelle$),
-                    scan((pmsGeschlossen, p) => {
-                        if (!!p) return p.pmsGeschlossen;
-                        return pmsGeschlossen === this.form.value.pmsGeschlossen
-                            ? null
-                            : this.form.value.pmsGeschlossen;
-                    }, 0),
-                    filter(pmsGeschlossen => !pmsGeschlossen),
-                )
-                .subscribe(x => {
-                    this.form.patchValue({ pmsGeschlossen: 0 });
-                }),
         ];
     }
 

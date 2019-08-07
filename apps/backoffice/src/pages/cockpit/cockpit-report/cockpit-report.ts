@@ -60,7 +60,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
     public erhebungsZeitpunkt$: Observable<string>;
     public scrollList: Observable<P.CockpitPreiserheberSummary[]>;
 
-    private form: FormGroup;
+    public form: FormGroup;
 
     private ngOnInit$ = new EventEmitter();
 

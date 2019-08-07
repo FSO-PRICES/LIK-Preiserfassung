@@ -16,23 +16,17 @@
 <div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)">
     <div class="container">
         <form [formGroup]="form" class="stacked-form">
-            <div class="pef-item item item-block item-md item-label-stacked item-input">
-                <div class="item-inner">
-                    <div class="input-wrapper">
-                        <ion-label position="stacked">Erhebungszeitpunkt</ion-label>
-                        <div class="input input-md pef-select">
-                            <select formControlName="erhebungsZeitpunkt">
-                                <option value="indifferent">Indifferent</option>
-                                <option value="stichtag1">Stichtag 1</option>
-                                <option value="stichtag2">Stichtag 2</option>
-                                <option value="woche1">Woche 1</option>
-                                <option value="woche2">Woche 2</option>
-                                <option value="keinStichdatum">Kein Stichdatum</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <ion-item class="pef-item">
+                <ion-label position="stacked">Erhebungszeitpunkt</ion-label>
+                <select formControlName="erhebungsZeitpunkt">
+                    <option value="indifferent">Indifferent</option>
+                    <option value="stichtag1">Stichtag 1</option>
+                    <option value="stichtag2">Stichtag 2</option>
+                    <option value="woche1">Woche 1</option>
+                    <option value="woche2">Woche 2</option>
+                    <option value="keinStichdatum">Kein Stichdatum</option>
+                </select>
+            </ion-item>
             <ion-item class="pef-item">
                 <ion-label position="stacked">Preiserheber</ion-label>
                 <ion-input type="text" formControlName="preiserheberFilter"></ion-input>
@@ -93,41 +87,45 @@
                 tappable
                 [class.unassigned]="preiserheber.username === 'unassigned'"
             >
-                <div class="pef-item-description">
-                    <span class="text">{{ preiserheber.erheber.firstName }} {{ preiserheber.erheber.surname }}</span>
-                    <span class="artikel-text">{{ preiserheber.erheber.erhebungsregion }}</span>
-                </div>
-                <div class="preiserheber-summary">
-                    <div class="heruntergeladene">
-                        <span
-                            class="status-number"
-                            [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].synced"
-                            >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].total }} /
-                            {{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen }}
-                        </span>
-                    </div>
-                    <div class="offen-nicht-erfasst">
-                        <span
-                            class="status-number"
-                            [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingTodo"
-                            >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}
-                        </span>
-                    </div>
-                    <div class="offen-erfasst">
-                        <span
-                            class="status-number"
-                            [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingToUpload"
-                            >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded }}</span
+                <ion-label>
+                    <div class="pef-item-description">
+                        <span class="text"
+                            >{{ preiserheber.erheber.firstName }} {{ preiserheber.erheber.surname }}</span
                         >
+                        <span class="artikel-text">{{ preiserheber.erheber.erhebungsregion }}</span>
                     </div>
-                    <div class="hochgeladene">
-                        <span
-                            class="status-number"
-                            [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll"
-                            >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].uploaded }}</span
-                        >
+                    <div class="preiserheber-summary">
+                        <div class="heruntergeladene">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].synced"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].total }} /
+                                {{ preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen }}
+                            </span>
+                        </div>
+                        <div class="offen-nicht-erfasst">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingTodo"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}
+                            </span>
+                        </div>
+                        <div class="offen-erfasst">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingToUpload"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded }}</span
+                            >
+                        </div>
+                        <div class="hochgeladene">
+                            <span
+                                class="status-number"
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll"
+                                >{{ preiserheber.summary[form.value.erhebungsZeitpunkt].uploaded }}</span
+                            >
+                        </div>
                     </div>
-                </div>
+                </ion-label>
             </ion-item>
         </pef-virtual-scroll>
     </div>

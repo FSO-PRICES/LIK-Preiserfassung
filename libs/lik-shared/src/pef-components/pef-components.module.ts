@@ -17,7 +17,6 @@ import { PefFormatNumberPipe } from './pef-format-number-pipe/pef-format-number-
 import { PefFormatNumber } from './pef-format-number/pef-format-number';
 import { PefHighlightOnFocus } from './pef-highlight-on-focus/pef-highlight-on-focus';
 import { PefIcon } from './pef-icon/pef-icon';
-import { PefItemWrapper } from './pef-item-wrapper/pef-item-wrapper';
 import { PefMessageDialogComponent } from './pef-message-dialog/pef-message-dialog';
 import { PefMonthTranslatePipe } from './pef-month-translate-pipe/pef-month-translate-pipe';
 import { PefNoBreakString } from './pef-no-break-string-pipe/pef-no-break-string-pipe';
@@ -41,7 +40,6 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefFormatNumberPipe,
         PefHighlightOnFocus,
         PefIcon,
-        PefItemWrapper,
         PefMessageDialogComponent,
         PefMonthTranslatePipe,
         PefNoBreakString,
@@ -65,7 +63,6 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefFormatNumberPipe,
         PefHighlightOnFocus,
         PefIcon,
-        PefItemWrapper,
         PefMessageDialogComponent,
         PefMonthTranslatePipe,
         PefNoBreakString,

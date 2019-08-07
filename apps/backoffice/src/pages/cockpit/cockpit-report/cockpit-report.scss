@@ -17,6 +17,7 @@
     .container-wrapper {
         flex: 1;
         display: flex;
+        min-height: 0;
 
         .container {
             display: flex;
@@ -83,7 +84,7 @@
         flex: 1;
     }
 
-    ion-item.pef-advanced-item ion-label.label.label-md {
+    ion-item.pef-advanced-item ion-label.md {
         display: flex;
         .pef-item-description {
             flex: 0 0 40%;

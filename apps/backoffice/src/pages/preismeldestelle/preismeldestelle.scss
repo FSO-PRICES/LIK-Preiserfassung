@@ -17,6 +17,10 @@
         @include set-padding(1, 1, 1, 1);
     }
 
+    .content {
+        display: flex;
+    }
+
     preismeldestelle-list {
         display: flex;
         flex: 1 0 0;

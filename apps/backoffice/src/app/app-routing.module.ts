@@ -40,6 +40,11 @@ const routes: Routes = [
         component: PreismeldungPage,
     },
     {
+        path: 'pm/:pmsNummer',
+        canActivate: [AppGuard],
+        component: PreismeldungPage,
+    },
+    {
         path: 'controlling',
         canActivate: [AppGuard],
         component: ControllingPage,

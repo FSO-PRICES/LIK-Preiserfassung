@@ -23,34 +23,18 @@
         .text-info {
             margin-top: 50px;
         }
-
-        .column {
-            flex: 1;
-            align-self: center;
-
-            &.info-column {
-                align-self: flex-start;
-            }
-        }
-    }
-
-    .import-row {
-        display: flex;
-
-        .column {
-            flex: 1;
-            align-self: center;
-        }
     }
 
     ion-content.content-md {
         background-color: transparent;
     }
 
-    input {
-        width: 100%;
-        &:invalid {
-            color: transparent;
+    ::ng-deep {
+        input {
+            width: 100%;
+            &:invalid {
+                color: transparent;
+            }
         }
     }
 }
