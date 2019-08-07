@@ -46,7 +46,6 @@ import {
 import * as P from '../../../../common-models';
 
 type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
-type SelectFilters = Exclude<Filters, 'FAVORITES'>;
 type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
 type AdvancedPreismeldungBag = P.PreismeldungBag & {
     marked: boolean;
@@ -108,6 +107,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public filterCompletedColor$: Observable<string>;
     public filterAllColor$: Observable<string>;
     public filterFavoritesColor$: Observable<string>;
+    public noFavorites$: Observable<boolean>;
     public canReorder$: Observable<boolean>;
     public sortErhebungsschemaColor$: Observable<string>;
 
@@ -156,15 +156,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             startWith([]),
         );
 
-        const [selectFilter$, favoritesFilter$] = partition(
-            this.selectFilterClicked$.pipe(
-                startWith('ALL' as Filters),
-                publishReplay(1),
-                refCount(),
-            ),
-            f => f !== 'FAVORITES',
-        ) as [Observable<SelectFilters>, Observable<boolean>];
-        const isFilter = (f: SelectFilters) =>
+        const selectFilter$ = this.selectFilterClicked$.pipe(
+            startWith('ALL' as Filters),
+            publishReplay(1),
+            refCount(),
+        );
+        const isFilter = (f: Filters) =>
             selectFilter$.pipe(
                 startWith(false),
                 map(x => x === f),
@@ -172,18 +169,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         const filterAll$ = isFilter('ALL');
         const filterCompleted$ = isFilter('COMPLETED');
         const filterTodo$ = isFilter('TODO');
-
-        const filterByFavorites$ = favoritesFilter$.pipe(
-            scan(acc => !acc, false),
-            startWith(false),
-            publishReplay(1),
-            refCount(),
-        );
+        const filterFavorites$ = isFilter('FAVORITES');
 
         this.filterTodoColor$ = filterTodo$.pipe(map(toColor));
         this.filterCompletedColor$ = filterCompleted$.pipe(map(toColor));
         this.filterAllColor$ = filterAll$.pipe(map(toColor));
-        this.filterFavoritesColor$ = filterByFavorites$.pipe(map(toColor));
+        this.filterFavoritesColor$ = filterFavorites$.pipe(map(toColor));
 
         const currentPreismeldung$ = this.currentPreismeldung$.pipe(
             withLatestFrom(markedPreismeldungen$),
@@ -200,7 +191,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.canReorder$ = filterAll$.pipe(
             combineLatest(
-                filterByFavorites$,
+                filterFavorites$,
                 sortByErhebungsschema$,
                 (all, favorites, sortByErhebungsschema) => all && !favorites && !sortByErhebungsschema,
             ),
@@ -224,9 +215,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             combineLatest(
                 this.filterText$.pipe(startWith('')),
                 selectFilter$,
-                filterByFavorites$,
                 this.currentLanguage$,
-                (preismeldungen, filterText, filterStatus, filterFavorites, currentLanguage) => {
+                (preismeldungen, filterText, filterStatus, currentLanguage) => {
                     let filteredPreismeldungen = preismeldungen;
 
                     if (filterText && filterText.length > 0) {
@@ -237,14 +227,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                         ]);
                     }
 
-                    if (filterFavorites) filteredPreismeldungen = filteredPreismeldungen.filter(bag => bag.marked);
-
-                    if (filterStatus === 'ALL') return filteredPreismeldungen;
-
-                    if (filterStatus === 'COMPLETED')
-                        return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
-
-                    if (filterStatus === 'TODO') return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
+                    switch (filterStatus) {
+                        case 'FAVORITES':
+                            return filteredPreismeldungen.filter(bag => bag.marked);
+                        case 'COMPLETED':
+                            return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
+                        case 'TODO':
+                            return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
+                        case 'ALL':
+                            return filteredPreismeldungen;
+                    }
 
                     return [];
                 },
@@ -268,6 +260,11 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             debounceTime(100),
             publishReplay(1),
             refCount(),
+        );
+
+        this.noFavorites$ = this.filteredPreismeldungen$.pipe(
+            map(preismeldungen => preismeldungen.filter(bag => bag.marked).length === 0),
+            startWith(true),
         );
 
         this.saveOrder$ = this.dropPreismeldung$.pipe(

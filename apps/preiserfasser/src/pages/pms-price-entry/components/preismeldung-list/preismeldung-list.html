@@ -30,6 +30,7 @@
             </ion-button>
             <ion-button
                 class="icon-only"
+                [disabled]="noFavorites$ | async"
                 [color]="filterFavoritesColor$ | async"
                 (click)="selectFilterClicked$.emit('FAVORITES')"
             >
