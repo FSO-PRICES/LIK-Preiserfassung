@@ -1,4 +1,0 @@
-<div>
-    <ion-button color="primary" (click)="setZoom$.emit(0.1)" [disabled]="(zoomLevel$ | async) >= max">+</ion-button>
-    <ion-button color="primary" (click)="setZoom$.emit(-0.1)" [disabled]="(zoomLevel$ | async) <= min">-</ion-button>
-</div>
