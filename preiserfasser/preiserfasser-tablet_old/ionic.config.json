@@ -1,8 +1,0 @@
-{
-  "name": "preiserfasser-table-ionic-3",
-  "app_id": "",
-  "type": "ionic-angular",
-  "integrations": {
-    "cordova": {}
-  }
-}
