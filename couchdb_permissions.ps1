@@ -1,6 +1,8 @@
+$ErrorActionPreference = "Stop"
+$progressPreference = 'silentlyContinue'
 
-$url=$args[0]
-$adminUsername=$args[1]
+$url = $args[0]
+$adminUsername = $args[1]
 $secPassword = Read-Host -assecurestring "Please enter your password"
 $password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secPassword))
 
@@ -29,7 +31,7 @@ $encodedCredentials = [System.Convert]::ToBase64String([System.Text.Encoding]::A
 $headers = @{ Authorization = "Basic $encodedCredentials" }
 
 
-$adminDbs=@(
+$adminDbs = @(
     "warenkorb",
     "preiserheber",
     "preismeldestellen",
@@ -40,7 +42,7 @@ $adminDbs=@(
     "imports",
     "exports"
 )
-$allDbs=(Invoke-WebRequest "$($url)/_all_dbs" -Headers $headers ).Content | ConvertFrom-Json
+$allDbs = (Invoke-WebRequest "$($url)/_all_dbs" -Headers $headers ).Content | ConvertFrom-Json
 
 
 function CheckAndFixAdminPermissions($db) {
@@ -48,9 +50,7 @@ function CheckAndFixAdminPermissions($db) {
 
     if (!$permission -OR !$permission.members -OR !$permission.members.names -OR !$permission.members.names.Contains($adminUsername)) {
         Write-Output """$db"" has incorrect permission, fixing..."
-        $ProgressPreference = "SilentlyContinue"
-        Invoke-WebRequest - -Method PUT -Body "{""members"":{""names"":[""$adminUsername""]}}" "$($url)/$($db)/_security" -Headers $headers
-        $progressPreference = 'Continue'
+        Invoke-WebRequest -Method PUT -Body "{""members"":{""names"":[""$adminUsername""]}}" "$($url)/$($db)/_security" -Headers $headers | Out-Null
     }
 }
 
@@ -60,7 +60,7 @@ function CheckAndFixUserPermissions([String] $db) {
 
     if (!$permission -OR !$permission.members -OR !$permission.members.names -OR !$permission.members.names.Contains($user)) {
         Write-Output """$db"" has no user asigned, fixing..."
-        Invoke-WebRequest - -Method PUT -Body "{""members"":{""names"":[""$user""]}}" "$($url)/$($db)/_security" -Headers $headers
+        Invoke-WebRequest -Method PUT -Body "{""members"":{""names"":[""$user""]}}" "$($url)/$($db)/_security" -Headers $headers | Out-Null
     }
 }
 

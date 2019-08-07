@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 url=$1
 adminUsername=$2
 echo -n "Password: "
@@ -40,21 +42,27 @@ erheberDbs=`curl -s --user $auth ${url}/_all_dbs | grep -o user_\[^\"\]\*`
 
 check_and_fix_admin_permissions() {
     db=$1
+    set +e
     curl -s --user $auth ${url}/$db/_security | grep "$adminUsername" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
+        set -e
         echo "\"$db\" has incorrect permission, fixing..."
-        curl -s --user $auth ${url}/$db/_security -H 'Content-Type: application/json' -X PUT -d "{\"members\":{\"names\":[\"$adminUsername\"]}}" > /dev/null 2>&1
+        curl --user $auth ${url}/$db/_security -H 'Content-Type: application/json' -X PUT -d "{\"members\":{\"names\":[\"$adminUsername\"]}}" || echo "Error while update"
     fi
+    set -e
 }
 
 check_and_fix_user_permissions() {
     db=$1
     user=`echo $db | sed s/user_//`
+    set +e
     curl -s --user $auth ${url}/$db/_security | grep "\"$user\"" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
+        set -e
         echo "\"$db\" has no user asigned, fixing..."
-        curl -s --user $auth ${url}/$db/_security -H 'Content-Type: application/json' -X PUT -d "{\"members\":{\"names\":[\"$user\"]}}" > /dev/null 2>&1
+        curl -s --user $auth ${url}/$db/_security -H 'Content-Type: application/json' -X PUT -d "{\"members\":{\"names\":[\"$user\"]}}" > /dev/null
     fi
+    set -e
 }
 
 # Check and fix admin permissions
