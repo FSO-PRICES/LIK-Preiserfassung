@@ -84,6 +84,7 @@
             &.readonly {
                 background-color: $alto;
                 --background: #{$alto};
+                margin-bottom: 0;
             }
         }
     }
