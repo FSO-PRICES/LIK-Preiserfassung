@@ -231,9 +231,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                         case 'FAVORITES':
                             return filteredPreismeldungen.filter(bag => bag.marked);
                         case 'COMPLETED':
-                            return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
-                        case 'TODO':
                             return filteredPreismeldungen.filter(p => p.preismeldung.istAbgebucht);
+                        case 'TODO':
+                            return filteredPreismeldungen.filter(p => !p.preismeldung.istAbgebucht);
                         case 'ALL':
                             return filteredPreismeldungen;
                     }
