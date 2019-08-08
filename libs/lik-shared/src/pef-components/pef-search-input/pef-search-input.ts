@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     EventEmitter,
+    HostBinding,
     Input,
     OnChanges,
     OnDestroy,
@@ -24,6 +25,7 @@ export class PefSearchInput extends ReactiveComponent implements OnChanges, OnDe
     @Input() reset: any;
     @Input() label: string;
     @Input() value: string;
+    @Input() @HostBinding('class.no-padding') noPadding: boolean;
     @Output() valueChanges = this.filterText.valueChanges;
 
     private onDestroy$ = new EventEmitter();

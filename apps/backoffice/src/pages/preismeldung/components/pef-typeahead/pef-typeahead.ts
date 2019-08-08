@@ -57,9 +57,11 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     filteredSuggestions$: Observable<TypeaheadData[]>;
     selectedIndex$: Observable<number>;
     private onDestroy$ = new EventEmitter();
+    public scrollList: TypeaheadData[];
 
     keyup$ = new EventEmitter<{ event: KeyboardEvent; input: string }>();
     keydown$ = new EventEmitter<KeyboardEvent>();
+    onClickedOutside$ = new EventEmitter();
     inputFocus$ = new EventEmitter<boolean>();
     selectSuggestion$ = new EventEmitter<TypeaheadData>();
     removeSuggestion$ = new EventEmitter<TypeaheadData>();
@@ -75,7 +77,6 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
         const arrowKeyNavigation = { 38: -1, 40: 1 };
         const applyKey = 13;
         this.setFocus$.pipe(takeUntil(this.onDestroy$)).subscribe();
-        this.triggerSubmit$ = this.submitSingleTag$.pipe(filter(x => x.keyCode === applyKey));
 
         const initialValues$ = this.observePropertyCurrentValue<any[]>('initialValues').pipe(
             filter(x => !!x && !!x.length),
@@ -152,8 +153,24 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
                 ).filter(x => !selectedSuggestions.find(s => s === x));
             }),
             startWith([]),
+            merge(this.onClickedOutside$.pipe(mapTo([]))),
+            merge(
+                this.keydown$.pipe(
+                    filter(e => e.keyCode === 27),
+                    mapTo([]),
+                ),
+            ),
             publishReplay(1),
             refCount(),
+        );
+        this.triggerSubmit$ = this.submitSingleTag$.pipe(
+            filter(x => x.keyCode === applyKey),
+            merge(
+                keyApply$.pipe(
+                    withLatestFrom(this.filteredSuggestions$),
+                    filter(([, suggestions]) => suggestions.length === 0),
+                ),
+            ),
         );
 
         this.selectedIndex$ = keyNavigation$.pipe(
@@ -184,8 +201,11 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
                 }),
                 filter(x => !!x),
                 takeUntil(this.onDestroy$),
+                delay(0), // Handle the other keyApply$ subscriptions first
             )
-            .subscribe(x => this.selectSuggestion$.emit(x));
+            .subscribe(x => {
+                return this.selectSuggestion$.emit(x);
+            });
     }
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {

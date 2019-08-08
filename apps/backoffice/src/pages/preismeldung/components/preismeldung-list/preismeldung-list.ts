@@ -27,6 +27,7 @@ import {
     startWith,
     take,
     takeUntil,
+    tap,
     withLatestFrom,
 } from 'rxjs/operators';
 import * as P from '../../../../common-models';
@@ -75,6 +76,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public resetFilterClicked$ = new EventEmitter();
     public resetFilter$: Observable<any>;
     public resetPmIdSearch$: Observable<any>;
+    public scrollList: P.PreismeldungBag[];
 
     public pmIdSearchChanged$ = new EventEmitter<string>();
     public pmIdSearchApply$ = new EventEmitter<string>();
@@ -189,7 +191,10 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     ]);
                 }),
                 debounceTime(300),
+                tap(x => console.log('pm filtered:', x.map(y => y.preismeldung.epNummer), x.length, x)),
                 startWith([]),
+                publishReplay(1),
+                refCount(),
             );
 
         this.suggestionsPreiserheberIds$ = this.preiserhebers$.pipe(

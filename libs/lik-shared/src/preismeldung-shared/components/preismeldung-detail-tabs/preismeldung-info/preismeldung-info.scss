@@ -3,11 +3,7 @@
 :host {
     display: flex;
     flex-direction: column;
-
-    ion-content.md {
-        flex: 1;
-        background-color: $mercury;
-    }
+    min-height: 0;
 
     .info-table {
         display: table;
@@ -39,4 +35,6 @@
         @include set-margin-top(2);
         align-self: flex-end;
     }
+
+    @import '../common-styles.scss';
 }

@@ -20,6 +20,7 @@ import { PefIcon } from './pef-icon/pef-icon';
 import { PefMessageDialogComponent } from './pef-message-dialog/pef-message-dialog';
 import { PefMonthTranslatePipe } from './pef-month-translate-pipe/pef-month-translate-pipe';
 import { PefNoBreakString } from './pef-no-break-string-pipe/pef-no-break-string-pipe';
+import { PefOnClickOutside } from './pef-on-click-outside/pef-on-click-outside';
 import { PefPerfectScrollbarDirective } from './pef-perfect-scrollbar/pef-perfect-scrollbar';
 import { PefPerfectVirtualscrollScrollbarDirective } from './pef-perfect-virtualscroll-scrollbar/pef-perfect-virtualscroll-scrollbar';
 import { PefPropertyTranslatePipe } from './pef-property-translate-pipe/pef-property-translate-pipe';
@@ -43,6 +44,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefMessageDialogComponent,
         PefMonthTranslatePipe,
         PefNoBreakString,
+        PefOnClickOutside,
         PefPerfectScrollbarDirective,
         PefPerfectVirtualscrollScrollbarDirective,
         PefPropertyTranslatePipe,
@@ -66,6 +68,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefMessageDialogComponent,
         PefMonthTranslatePipe,
         PefNoBreakString,
+        PefOnClickOutside,
         PefPerfectScrollbarDirective,
         PefPerfectVirtualscrollScrollbarDirective,
         PefPropertyTranslatePipe,

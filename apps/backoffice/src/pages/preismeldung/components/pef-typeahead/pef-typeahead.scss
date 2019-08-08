@@ -1,16 +1,20 @@
 @import '../../../../theme/imports.scss';
 
 :host {
-    .pef-label {
-        background-color: transparent;
-        padding-left: 8px;
-        min-height: auto;
-        ion-label {
-            font-weight: 500;
-            color: $oslo-gray;
-            line-height: 1.75em;
-            margin-top: 0;
+    .item.md.pef-item {
+        margin-bottom: 8px;
+
+        ion-input {
+            height: 3em;
             margin-bottom: 0;
+            border-bottom: 0;
+        }
+        .item-input {
+            width: 100%;
+        }
+
+        ion-label.label-stacked.sc-ion-label-md-h {
+            margin-top: 0;
         }
     }
 
@@ -73,34 +77,39 @@
     .tags {
         ion-item {
             padding: 0;
+            --padding-start: 0;
+            --padding-end: 0;
+            --inner-padding-end: 0;
             height: auto;
             min-height: auto;
+            --min-height: auto;
             background-color: transparent;
             margin: 0.25em 0;
             &:first-child {
                 margin-top: 0.5em;
             }
 
+            .tag {
+                width: 100%;
+                height: 100%;
+                border-radius: 2px;
+                font-size: 0.75em;
+                padding: 8px 0;
+                background-color: $oslo-gray;
+                color: $white;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+            .remove {
+                padding-left: 0.5em;
+                cursor: pointer;
+            }
+
             ion-label {
                 margin: 0;
                 font-size: 1em;
                 height: 100%;
-
-                .tag {
-                    height: 100%;
-                    border-radius: 2px;
-                    font-size: 0.75em;
-                    padding: 8px 0;
-                    background-color: $oslo-gray;
-                    color: $white;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                }
-                .remove {
-                    padding-left: 0.5em;
-                    cursor: pointer;
-                }
             }
         }
     }
@@ -110,25 +119,40 @@
 
         .suggestions {
             position: absolute;
-            top: 1px;
+            top: -9px;
             z-index: 9999;
             width: 100%;
             height: 20em;
+            min-height: 0;
 
-            ion-list {
+            .scroll-wrapper {
                 background-color: $white;
+                border-top: 1px solid $alto;
+                box-shadow: 1px 7px 9px $alto;
+                max-height: 100%;
+                min-height: 0;
+                display: flex;
+                flex: 1;
+            }
 
+            pef-virtual-scroll {
+                height: auto;
                 ion-item {
                     margin: 0;
                 }
 
                 .pef-advanced-item {
                     min-height: 2em;
+                    --min-height: 2em;
                     height: 2em;
+                    --height: 2em;
                     color: $black;
 
-                    ion-label .pef-item-title {
+                    .pef-item-description {
+                        white-space: nowrap;
                         font-weight: 400;
+                        max-width: 100%;
+                        flex: 1;
                     }
                 }
             }

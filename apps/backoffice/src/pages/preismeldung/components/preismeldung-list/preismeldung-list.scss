@@ -19,6 +19,10 @@
                 }
             }
         }
+        pef-virtual-scroll {
+            display: block;
+            flex: 1;
+        }
 
         h2 {
             margin: 0;
@@ -36,7 +40,8 @@
                 padding: 0;
                 border-bottom: none;
             }
-            ion-list > {
+            ion-list {
+                padding: 0;
                 .pef-item,
                 pef-typeahead {
                     display: block;
@@ -48,9 +53,11 @@
             padding-right: 0;
         }
     }
+    .content {
+        flex: 1;
+    }
     select.item-md {
         width: 100%;
-        @include set-margin-bottom(1.25);
         height: 48px;
         border: 1px;
         border-radius: 2px;
@@ -87,8 +94,5 @@
         .pef-item-status {
             margin-left: 1em;
         }
-    }
-    pef-search-input .pef-search .item-inner {
-        padding-right: 0;
     }
 }

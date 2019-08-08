@@ -1,10 +1,16 @@
 @import '../../styles/_variables.scss';
 
 :host {
+    &.no-padding {
+        ion-list {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
     .pef-label {
         background-color: transparent;
         --background-color: transparent;
-        padding-left: 8px;
+        --padding-start: 8px;
         min-height: auto;
         ion-label {
             font-weight: 500;
@@ -15,6 +21,7 @@
     }
     ion-item {
         --min-height: auto;
+        --highlight-height: 0;
     }
     ion-label {
         margin: 0;
@@ -22,6 +29,7 @@
     ion-input {
         height: 44px;
         margin-bottom: 0;
+        border-bottom: none;
     }
     ion-item.item.md.pef-search {
         height: 3em;

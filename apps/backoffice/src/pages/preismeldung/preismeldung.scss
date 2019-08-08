@@ -25,6 +25,11 @@
         }
     }
 
+    .content {
+        display: flex;
+        height: 100%;
+    }
+
     preismeldung-list {
         display: flex;
         flex: 2 0 0;

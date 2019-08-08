@@ -7,7 +7,11 @@
         >
             <pef-icon name="archive"></pef-icon>
         </ion-button>
-        <pef-search-input class="pms-search" (valueChanges)="filterText$.emit($event)"></pef-search-input>
+        <pef-search-input
+            class="pms-search"
+            (valueChanges)="filterText$.emit($event)"
+            [noPadding]="true"
+        ></pef-search-input>
     </div>
     <div class="preismeldung-list-check-filter">
         <div class="filter-actions">

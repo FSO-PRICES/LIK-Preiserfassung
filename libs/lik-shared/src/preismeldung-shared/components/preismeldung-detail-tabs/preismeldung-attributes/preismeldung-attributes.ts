@@ -27,7 +27,7 @@ import * as P from '../../../models';
             [isAdminApp]="isAdminApp$ | async"
         ></preismeldung-readonly-header>
 
-        <ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop$ | async">
+        <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
             <form [formGroup]="form">
                 <div class="detail-tab-bottom-part">
                     <h3 class="large">{{ 'heading_preismeldung-attributes' | translate }}</h3>
@@ -49,7 +49,7 @@ import * as P from '../../../models';
                     </ion-list>
                 </div>
             </form>
-        </ion-content>
+        </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

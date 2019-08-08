@@ -39,32 +39,36 @@
             (click)="navigateToPmsEdit(pmsSummary.pms.pmsNummer)"
             tappable
         >
-            <div class="pef-item-description name">
-                <div class="text pms-name" title="[{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}">
-                    [{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}
+            <div class="preismeldung-wrapper">
+                <div class="pef-item-description name">
+                    <div class="text pms-name" title="[{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}">
+                        [{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}
+                    </div>
+                    <div class="artikel-text">{{ pmsSummary.pms.erhebungsregion }}</div>
                 </div>
-                <div class="artikel-text">{{ pmsSummary.pms.erhebungsregion }}</div>
-            </div>
-            <div class="heruntergeladene">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].synced"
-                    >{{ pmsSummary.summary[erhebungsZeitpunktKey].total }} /
-                    {{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}
-                </span>
-            </div>
-            <div class="offen-nicht-erfasst">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingTodo"
-                    >{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}
-                </span>
-            </div>
-            <div class="offen-erfasst">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingToUpload">{{
-                    pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded
-                }}</span>
-            </div>
-            <div class="hochgeladene">
-                <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].uploadedAll">{{
-                    pmsSummary.summary[erhebungsZeitpunktKey].uploaded
-                }}</span>
+                <div class="heruntergeladene">
+                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].synced"
+                        >{{ pmsSummary.summary[erhebungsZeitpunktKey].total }} /
+                        {{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}
+                    </span>
+                </div>
+                <div class="offen-nicht-erfasst">
+                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingTodo"
+                        >{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}
+                    </span>
+                </div>
+                <div class="offen-erfasst">
+                    <span
+                        class="status-number"
+                        [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingToUpload"
+                        >{{ pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded }}</span
+                    >
+                </div>
+                <div class="hochgeladene">
+                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].uploadedAll">{{
+                        pmsSummary.summary[erhebungsZeitpunktKey].uploaded
+                    }}</span>
+                </div>
             </div>
         </ion-item>
     </pef-virtual-scroll>

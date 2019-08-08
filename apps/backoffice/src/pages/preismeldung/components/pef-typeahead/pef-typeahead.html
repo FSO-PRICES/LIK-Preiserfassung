@@ -1,11 +1,8 @@
-<ion-item class="pef-label" *ngIf="!!label">
-    <ion-label>{{ label }}</ion-label>
-</ion-item>
-<ion-item class="pef-search">
-    <div item-left class="filter">
+<ion-item class="pef-item">
+    <ion-label position="stacked" *ngIf="!!label">{{ label }}</ion-label>
+    <div class="item-input">
         <ion-input
-            *ngIf="multi || (!multi && !(selectedSuggestions$ | async)?.length)"
-            item-left
+            *ngIf="multi || (!multi && !(selectedSuggestions$ | async)?.length); else notMulti"
             type="text"
             clearInput
             [attr.autofocus]="setFocus$ | async"
@@ -13,7 +10,7 @@
             (keydown)="keydown$.emit($event)"
             (focus)="inputFocus$.emit(true)"
         ></ion-input>
-        <ng-container *ngIf="!multi">
+        <ng-template #notMulti>
             <div class="single-tag input-md" *ngFor="let suggestion of (selectedSuggestions$ | async)">
                 <div class="tag-label" tabindex="0" #singleTag (keydown)="submitSingleTag$.emit($event)">
                     {{ suggestion.shortLabel || suggestion.label }}
@@ -25,32 +22,43 @@
                     (click)="removeSuggestion$.emit(suggestion)"
                 ></ion-button>
             </div>
-        </ng-container>
+        </ng-template>
     </div>
 </ion-item>
 <div class="dropdown-container">
-    <!-- <ion-content pef-perfect-virtualscroll-scrollbar enabled="true" class="suggestions" [class.hidden]="(filteredSuggestions$ | async).length === 0"> -->
-    <ion-content class="suggestions" [class.hidden]="(filteredSuggestions$ | async).length === 0">
-        <ion-virtual-scroll [items]="filteredSuggestions$ | async" approxItemHeight="32px">
-            <ion-item
-                class="pef-advanced-item"
-                *virtualItem="let suggestion; let i = index"
-                (click)="selectSuggestion$.emit(suggestion)"
-                tappable
-                [class.selected]="(selectedIndex$ | async) === i"
+    <div
+        class="suggestions"
+        *ngIf="(filteredSuggestions$ | async).length !== 0"
+        (pefOnClickOutside)="onClickedOutside$.emit($event)"
+    >
+        <div class="scroll-wrapper">
+            <pef-virtual-scroll
+                [items]="filteredSuggestions$ | async"
+                [childHeight]="32"
+                (update)="scrollList = $event"
+                pef-perfect-scrollbar
+                [enabled]="true"
             >
-                <div class="pef-item-title">
-                    {{ suggestion.label }}
-                </div>
-            </ion-item>
-        </ion-virtual-scroll>
-    </ion-content>
-</div>
-<div *ngIf="multi" class="tags">
-    <ion-item *ngFor="let suggestion of (selectedSuggestions$ | async)">
-        <div class="tag">
-            <span class="remove" (click)="removeSuggestion$.emit(suggestion)">✖</span>
-            {{ suggestion.shortLabel || suggestion.label }}
+                <ion-item
+                    class="pef-advanced-item"
+                    *ngFor="let suggestion of scrollList"
+                    (click)="selectSuggestion$.emit(suggestion)"
+                    tappable
+                    [class.selected]="(selectedIndex$ | async) === i"
+                >
+                    <div class="pef-item-description">
+                        <span class="text">{{ suggestion.label }}</span>
+                    </div>
+                </ion-item>
+            </pef-virtual-scroll>
         </div>
-    </ion-item>
+    </div>
+    <div *ngIf="multi" class="tags">
+        <ion-item *ngFor="let suggestion of (selectedSuggestions$ | async)">
+            <div class="tag">
+                <span class="remove" (click)="removeSuggestion$.emit(suggestion)">✖</span>
+                {{ suggestion.shortLabel || suggestion.label }}
+            </div>
+        </ion-item>
+    </div>
 </div>

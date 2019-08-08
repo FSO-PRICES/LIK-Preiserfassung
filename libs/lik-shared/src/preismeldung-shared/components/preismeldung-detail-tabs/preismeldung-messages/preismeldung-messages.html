@@ -4,7 +4,7 @@
     [isAdminApp]="isAdminApp$ | async"
 ></preismeldung-readonly-header>
 
-<ion-content pef-perfect-virtualscroll-scrollbar [enabled]="isDesktop$ | async">
+<div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
     <form [formGroup]="form" novalidate>
         <div class="detail-tab-bottom-part">
             <h3>{{ 'heading_meine-notiz' | translate }}</h3>
@@ -77,4 +77,4 @@
             </div>
         </div>
     </form>
-</ion-content>
+</div>

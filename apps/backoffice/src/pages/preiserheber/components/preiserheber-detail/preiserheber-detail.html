@@ -3,11 +3,17 @@
         <span *ngSwitchCase="true">Editieren</span>
         <span *ngSwitchDefault>Erfassen</span>
     </h1>
-    <ion-button type="button" color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(preiserheber$ | async)?.isModified">Speichern</ion-button>
+    <ion-button
+        type="button"
+        color="blue-chill"
+        (click)="saveClicked$.emit($event)"
+        [disabled]="!(preiserheber$ | async)?.isModified"
+        >Speichern</ion-button
+    >
     <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
     <ion-list no-lines>
         <div *ngIf="!!(preiserheber$ | async)?.error" class="error-text">
-            <p>{{(preiserheber$ | async)?.error}}</p>
+            <p>{{ (preiserheber$ | async)?.error }}</p>
         </div>
         <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label position="stacked">Benutzername</ion-label>
@@ -15,15 +21,15 @@
         </ion-item>
         <div *ngIf="!(isEditing$ | async)" class="help-text">
             <p>
-                Muss mit einem Buchstaben anfangen, mindestens 3 Zeichen lang sein und darf nur kleine Buchstaben, Zahlen und folgende Zeichen
-                haben: "_ $ , + -"
+                Muss mit einem Buchstaben anfangen, mindestens 3 Zeichen lang sein und darf nur kleine Buchstaben,
+                Zahlen und folgende Zeichen haben: "_ $ , + -"
             </p>
         </div>
         <ion-item class="pef-item" *ngIf="!(isEditing$ | async)">
             <ion-label position="stacked">Initiales Passwort</ion-label>
             <ion-input type="password" formControlName="password" maxlength="35"></ion-input>
         </ion-item>
-        <ion-item class="pef-item" *ngIf="isEditing$ | async">
+        <ion-item class="pef-item" *ngIf="(isEditing$ | async)">
             <p>
                 <a href="javascript:" (click)="resetPasswordClicked$.emit($event)">Passwort zurücksetzen</a>
             </p>
@@ -36,30 +42,30 @@
             <ion-label position="stacked">Nachname</ion-label>
             <ion-input type="text" formControlName="surname"></ion-input>
         </ion-item>
-        <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
-            <div class="item-inner">
-                <div class="input-wrapper">
-                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls.preiserheber.controls.erhebungsregion.invalid">Region</ion-label>
-                    <div class="input input-md pef-select">
-                        <select formControlName="erhebungsregion">
-                            <option *ngFor="let erhebungsregion of erhebungsregionen$ | async" [value]="erhebungsregion">{{erhebungsregion}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div formGroupName="preiserheber" class="pef-item item item-block item-md item-label-stacked item-input">
-            <div class="item-inner">
-                <div class="input-wrapper">
-                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls.preiserheber.controls.languageCode.invalid">Sprache</ion-label>
-                    <div class="input input-md pef-select">
-                        <select formControlName="languageCode">
-                            <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label
+                position="stacked"
+                [class.target-ng-invalid]="form.controls['preiserheber'].controls['erhebungsregion'].invalid"
+                >Region</ion-label
+            >
+            <select formControlName="erhebungsregion">
+                <option *ngFor="let erhebungsregion of (erhebungsregionen$ | async)" [value]="erhebungsregion">{{
+                    erhebungsregion
+                }}</option>
+            </select>
+        </ion-item>
+        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-label
+                position="stacked"
+                [class.target-ng-invalid]="form.controls['preiserheber'].controls['languageCode'].invalid"
+                >Sprache</ion-label
+            >
+            <select formControlName="languageCode">
+                <option *ngFor="let language of (languages$ | async)" [value]="language.languageCode">{{
+                    language.name
+                }}</option>
+            </select>
+        </ion-item>
         <ion-item formGroupName="preiserheber" class="pef-item">
             <ion-label position="stacked">Festnetznummer</ion-label>
             <ion-input type="text" formControlName="telephone"></ion-input>

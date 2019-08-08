@@ -8,7 +8,7 @@
     </div>
     <div class="content">
         <div class="search-row">
-            <pef-search-input (valueChanges)="searchString$.emit($event)"></pef-search-input>
+            <pef-search-input (valueChanges)="searchString$.emit($event)" [noPadding]="true"></pef-search-input>
             <div class="search-summary">
                 <span class="label">{{ 'text_warenkorb_anzahlergebnisse' | translate | pef_no_break_string }}:</span
                 >&nbsp;<span class="number">{{ numberOfEp$ | async }}</span>

@@ -3,11 +3,7 @@
 :host {
     display: flex;
     flex-direction: column;
-
-    ion-content.md {
-        flex: 1;
-        background-color: $mercury;
-    }
+    min-height: 0;
 
     h3:not(:first-child) {
         margin-top: 2em;
@@ -87,4 +83,6 @@
     .message-history:last-of-type {
         margin-bottom: 0.5em;
     }
+
+    @import '../common-styles.scss';
 }

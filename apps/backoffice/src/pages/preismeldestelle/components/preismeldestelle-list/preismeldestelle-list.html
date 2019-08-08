@@ -13,17 +13,19 @@
             [class.selected]="preismeldestelle._id == (current$ | async)?._id"
             tappable
         >
-            <div class="pef-item-title">
-                {{ preismeldestelle.pmsNummer }}
-                <br />&nbsp;
-            </div>
-            <div class="pef-item-description">
-                <span class="text">{{ preismeldestelle.name }}</span>
-                <span class="artikel-text"
-                    >{{ preismeldestelle.postcode }}&nbsp;{{ preismeldestelle.town }}&nbsp;[{{
-                        preismeldestelle.erhebungsregion
-                    }}]</span
-                >
+            <div class="preismeldung-wrapper">
+                <div class="pef-item-title">
+                    {{ preismeldestelle.pmsNummer }}
+                    <br />&nbsp;
+                </div>
+                <div class="pef-item-description">
+                    <span class="text">{{ preismeldestelle.name }}</span>
+                    <span class="artikel-text"
+                        >{{ preismeldestelle.postcode }}&nbsp;{{ preismeldestelle.town }}&nbsp;[{{
+                            preismeldestelle.erhebungsregion
+                        }}]</span
+                    >
+                </div>
             </div>
         </ion-item>
     </ion-virtual-scroll>

@@ -17,6 +17,11 @@
         }
     }
 
+    ion-button {
+        --padding-start: 3.5px;
+        --padding-end: 3.5px;
+    }
+
     .spacer-col {
         max-width: 61.5px;
     }
@@ -40,9 +45,6 @@
 
         .pef-advanced-item-flex-container {
             flex: 1 1 0;
-        }
-
-        .pef-advanced-item-flex-container {
             display: flex;
             flex-direction: column;
 

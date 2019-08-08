@@ -2,20 +2,20 @@
 
 :host {
     display: flex;
+    min-height: 0;
     flex-direction: column;
     background-color: $alto;
 
-    ion-content.md {
-        flex: 1;
-        .item.md.pef-item {
-            margin-bottom: 0.75em;
-            ion-label {
-                font-size: 1em;
-                min-width: 18em;
-                max-width: 18em;
-                padding-left: 0;
-                color: $trout;
-            }
+    .item.md.pef-item {
+        margin-bottom: 0.75em;
+        ion-label {
+            font-size: 1em;
+            min-width: 18em;
+            max-width: 18em;
+            padding-left: 0;
+            color: $trout;
         }
     }
+
+    @import '../common-styles.scss';
 }

@@ -17,51 +17,45 @@
         <form class="stacked-form" #form="ngForm" (ngSubmit)="applyClicked$.emit()">
             <h2>Filter</h2>
             <ion-list no-lines>
-                <div class="pef-item item item-block item-md item-label-stacked item-input">
-                    <div class="item-inner">
-                        <div class="input-wrapper">
-                            <ion-label position="stacked">Preisstatus</ion-label>
-                            <div class="input input-md pef-select">
-                                <select class="item-md" (change)="statusFilterChanged$.emit($event.target.value)">
-                                    <option value="" [selected]="resetFilter$ | async"></option>
-                                    <option value="erhebung">in Erhebung</option>
-                                    <option value="prüfung">in Prüfung</option>
-                                    <option value="exportiert">Exportiert</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <pef-typeahead
-                    [reset]="resetFilter$ | async"
-                    [initialValues]="(initialFilter$ | async)?.preiserheberIds"
-                    label="Preiserheber/in"
-                    [suggestions]="suggestionsPreiserheberIds$ | async"
-                    (selected)="preiserheberIdsFilter$.emit($event)"
-                    (triggerSubmit)="triggerSubmit$.emit()"
-                    [multi]="true"
-                ></pef-typeahead>
-                <pef-typeahead
-                    [reset]="resetFilter$ | async"
-                    [initialValues]="(initialFilter$ | async)?.pmsNummers"
-                    label="PMS"
-                    [suggestions]="suggestionsPmsNummers$ | async"
-                    [multi]="true"
-                    (selected)="pmsNummerFilter$.emit($event)"
-                    (triggerSubmit)="triggerSubmit$.emit()"
-                ></pef-typeahead>
-                <pef-typeahead
-                    [reset]="resetFilter$ | async"
-                    [initialValues]="(initialFilter$ | async)?.epNummers"
-                    label="Erhebungsposition"
-                    [suggestions]="suggestionsEpNummers$ | async"
-                    (selected)="epNummersFilter$.emit($event)"
-                    (triggerSubmit)="triggerSubmit$.emit()"
-                    [multi]="true"
-                ></pef-typeahead>
-                <ion-button type="submit" [disabled]="!(canSearch$ | async)">anwenden</ion-button>
-                <ion-button (click)="resetFilterClicked$.emit($event)">zurücksetzen</ion-button>
+                <ion-item class="pef-item">
+                    <ion-label position="stacked">Preisstatus</ion-label>
+                    <select class="item-md" (change)="statusFilterChanged$.emit($event.target.value)">
+                        <option value="" [selected]="resetFilter$ | async"></option>
+                        <option value="erhebung">in Erhebung</option>
+                        <option value="prüfung">in Prüfung</option>
+                        <option value="exportiert">Exportiert</option>
+                    </select>
+                </ion-item>
             </ion-list>
+            <pef-typeahead
+                [reset]="resetFilter$ | async"
+                [initialValues]="(initialFilter$ | async)?.preiserheberIds"
+                label="Preiserheber/in"
+                [suggestions]="suggestionsPreiserheberIds$ | async"
+                (selected)="preiserheberIdsFilter$.emit($event)"
+                (triggerSubmit)="triggerSubmit$.emit()"
+                [multi]="true"
+            ></pef-typeahead>
+            <pef-typeahead
+                [reset]="resetFilter$ | async"
+                [initialValues]="(initialFilter$ | async)?.pmsNummers"
+                label="PMS"
+                [suggestions]="suggestionsPmsNummers$ | async"
+                [multi]="true"
+                (selected)="pmsNummerFilter$.emit($event)"
+                (triggerSubmit)="triggerSubmit$.emit()"
+            ></pef-typeahead>
+            <pef-typeahead
+                [reset]="resetFilter$ | async"
+                [initialValues]="(initialFilter$ | async)?.epNummers"
+                label="Erhebungsposition"
+                [suggestions]="suggestionsEpNummers$ | async"
+                (selected)="epNummersFilter$.emit($event)"
+                (triggerSubmit)="triggerSubmit$.emit()"
+                [multi]="true"
+            ></pef-typeahead>
+            <ion-button type="submit" [disabled]="!(canSearch$ | async)">anwenden</ion-button>
+            <ion-button (click)="resetFilterClicked$.emit($event)">zurücksetzen</ion-button>
         </form>
         <h2>Suche in Auswahl (gefiltert)</h2>
         <pef-search-input label="Volltext" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
@@ -83,19 +77,22 @@
     </div>
     <div class="pef-advanced-item-flex-container">
         <div *ngIf="!!(status$ | async)">{{ status$ | async }}</div>
-        <ion-content enabled="true">
-            <ion-virtual-scroll
-                [items]="filteredPreismeldungen$ | async"
-                approxItemHeight="50px"
-                [class.hidden]="(filteredPreismeldungen$ | async).length === 0"
+        <pef-virtual-scroll
+            [items]="filteredPreismeldungen$ | async"
+            [childHeight]="60"
+            (update)="scrollList = $event"
+            pef-perfect-scrollbar
+            [enabled]="true"
+        >
+            <!-- [class.hidden]="(filteredPreismeldungen$ | async).length === 0" -->
+            <ion-item
+                class="pef-advanced-item"
+                *ngFor="let bag of scrollList"
+                (click)="selectPreismeldung$.emit(bag)"
+                [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
+                tappable
             >
-                <ion-item
-                    class="pef-advanced-item"
-                    *virtualItem="let bag"
-                    (click)="selectPreismeldung$.emit(bag)"
-                    [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
-                    tappable
-                >
+                <div class="preismeldung-wrapper">
                     <div class="pef-item-title">
                         {{ bag.preismeldung.epNummer }}
                         <br />
@@ -122,8 +119,8 @@
                         ></div>
                         <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
                     </div>
-                </ion-item>
-            </ion-virtual-scroll>
-        </ion-content>
+                </div>
+            </ion-item>
+        </pef-virtual-scroll>
     </div>
 </div>

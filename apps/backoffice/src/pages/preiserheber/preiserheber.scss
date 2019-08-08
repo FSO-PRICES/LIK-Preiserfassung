@@ -41,6 +41,11 @@
     @include set-padding(1, 1, 1, 1);
 }
 
+.content {
+    display: flex;
+    height: 100%;
+}
+
 preiserheber-list {
     display: flex;
     flex: 1 0 0;

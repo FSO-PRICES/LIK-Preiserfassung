@@ -36,10 +36,6 @@
         align-items: center;
     }
 
-    .pms-heading {
-        font-size: 1.25em;
-    }
-
     .product-heading,
     .pms-heading {
         white-space: wrap;
@@ -50,6 +46,11 @@
         overflow-x: hidden;
         padding-bottom: 2px;
         flex: 0 0 50%;
+    }
+
+    .pms-heading {
+        font-size: 1.25em;
+        flex: 1;
     }
 
     .right-column {
