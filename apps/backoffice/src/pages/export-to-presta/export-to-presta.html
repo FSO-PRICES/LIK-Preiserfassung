@@ -10,12 +10,11 @@
                     <ion-row wrap>
                         <ion-col>
                             Preismeldungen Export
-                            <div [hidden]="!(exportedPreismeldungen$ | async)" ion-text color="primary">
+                            <ion-text [hidden]="!(exportedPreismeldungen$ | async)" color="primary">
                                 {{ exportedPreismeldungen$ | async }} Preismeldungen wurden exportiert
-                            </div>
-                            <div
+                            </ion-text>
+                            <ion-text
                                 [hidden]="!(exportErrorPreismeldungen$ | async)"
-                                ion-text
                                 color="danger"
                                 class="error-messages"
                             >
@@ -27,7 +26,7 @@
                                 <div *ngIf="!(exportErrorPreismeldungen$ | async)?.validations">
                                     {{ exportErrorPreismeldungen$ | async }}
                                 </div>
-                            </div>
+                            </ion-text>
                         </ion-col>
                         <ion-col>
                             <ion-button
@@ -48,12 +47,11 @@
                     <ion-row wrap>
                         <ion-col>
                             Preismeldestellen Export
-                            <div [hidden]="!(exportedPreismeldestellen$ | async)" ion-text color="primary">
+                            <ion-text [hidden]="!(exportedPreismeldestellen$ | async)" color="primary">
                                 {{ exportedPreismeldestellen$ | async }} Preismeldestellen wurden exportiert
-                            </div>
-                            <div
+                            </ion-text>
+                            <ion-text
                                 [hidden]="!(exportErrorPreismeldestellen$ | async)"
-                                ion-text
                                 color="danger"
                                 class="error-messages"
                             >
@@ -65,7 +63,7 @@
                                 <div *ngIf="!(exportErrorPreismeldestellen$ | async)?.validations">
                                     {{ exportErrorPreismeldestellen$ | async }}
                                 </div>
-                            </div>
+                            </ion-text>
                         </ion-col>
                         <ion-col>
                             <ion-button
@@ -86,15 +84,14 @@
                     <ion-row wrap>
                         <ion-col>
                             Preiserheber Export
-                            <div [hidden]="!(exportedPreiserheber$ | async)" ion-text color="primary">
+                            <ion-text [hidden]="!(exportedPreiserheber$ | async)" color="primary">
                                 {{ exportedPreiserheber$ | async }} Preiserheber wurden exportiert
-                            </div>
-                            <div [hidden]="isErhebungsorgannummerSet$ | async" ion-text color="danger">
+                            </ion-text>
+                            <div [hidden]="isErhebungsorgannummerSet$ | async" color="danger">
                                 Es ist noch keine Erhebungsorgannummer bei den Einstellungen gesetzt worden.
                             </div>
-                            <div
+                            <ion-text
                                 [hidden]="!(exportErrorPreiserheber$ | async)"
-                                ion-text
                                 color="danger"
                                 class="error-messages"
                             >
@@ -106,7 +103,7 @@
                                 <div *ngIf="!(exportErrorPreiserheber$ | async)?.validations">
                                     {{ exportErrorPreiserheber$ | async }}
                                 </div>
-                            </div>
+                            </ion-text>
                         </ion-col>
                         <ion-col>
                             <ion-button

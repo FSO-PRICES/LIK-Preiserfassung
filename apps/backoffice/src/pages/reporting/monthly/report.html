@@ -1,6 +1,6 @@
 <div class="container-wrapper" *ngIf="reportData">
     <div class="container">
-        <div *ngIf="reportData">
+        <ng-container *ngIf="reportData">
             <table class="report-table">
                 <thead>
                     <tr>
@@ -258,6 +258,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </ng-container>
     </div>
 </div>

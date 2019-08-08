@@ -4,14 +4,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 5;
 
     .close-button {
         align-self: flex-end;
+        height: auto;
+        --padding-start: 0;
+        --padding-end: 0;
+        margin-right: 0;
+        pef-icon {
+            margin-top: -5px;
+            margin-bottom: -5px;
+            margin-right: -11px;
+        }
     }
 
     .edit-preismeldung-wrapper {
         flex: 0 0 85%;
         height: 85%;
+        min-height: 0;
         padding: 0 20px 20px 20px;
         background-color: $alto;
         display: flex;
@@ -21,6 +32,7 @@
     .edit-wrapper {
         flex: 1;
         display: flex;
+        min-height: 0;
     }
 
     preismeldung-toolbar {

@@ -41,7 +41,7 @@
             >
                 <ion-item
                     class="pef-advanced-item"
-                    *ngFor="let suggestion of scrollList"
+                    *ngFor="let suggestion of scrollList; let i = index"
                     (click)="selectSuggestion$.emit(suggestion)"
                     tappable
                     [class.selected]="(selectedIndex$ | async) === i"

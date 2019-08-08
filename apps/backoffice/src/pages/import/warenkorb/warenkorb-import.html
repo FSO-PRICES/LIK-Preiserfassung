@@ -16,7 +16,8 @@
     </ion-col>
 </ion-row>
 <div class="actions">
-    <span *ngIf="(isWarenkorbImported$ | async)" ion-text color="primary"
-        >Warenkorb wurde erfolgreich importiert. {{ warenkorbImportedCount$ | async }} Einträge wurden hinzugefügt</span
+    <ion-text *ngIf="(isWarenkorbImported$ | async)" color="primary"
+        >Warenkorb wurde erfolgreich importiert. {{ warenkorbImportedCount$ | async }} Einträge wurden
+        hinzugefügt</ion-text
     >
 </div>

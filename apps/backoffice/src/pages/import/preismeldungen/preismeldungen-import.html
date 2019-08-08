@@ -16,8 +16,8 @@
     </ion-col>
 </ion-row>
 <div class="actions">
-    <span *ngIf="(arePreismeldungenImported$ | async)" ion-text color="primary"
+    <ion-text *ngIf="(arePreismeldungenImported$ | async)" color="primary"
         >Preismeldungen wurden erfolgreich importiert. {{ preismeldungenImportedCount$ | async }} Einträge wurden
-        hinzugefügt</span
+        hinzugefügt</ion-text
     >
 </div>

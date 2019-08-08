@@ -67,14 +67,9 @@
                     </ion-col>
                 </ion-row>
             </ion-grid>
-            <div
-                *ngIf="(importErrors$ | async); let errors"
-                ion-text
-                color="danger"
-                class="error-messages row import-row"
-            >
+            <ion-text *ngIf="(importErrors$ | async); let errors" color="danger" class="error-messages row import-row">
                 <div *ngFor="let error of errors">{{ error }}</div>
-            </div>
+            </ion-text>
         </form>
     </ion-content>
 </div>

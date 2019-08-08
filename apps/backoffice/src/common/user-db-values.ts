@@ -1,7 +1,7 @@
 import * as bluebird from 'bluebird';
 import { assign, first, flatten, groupBy, intersection, sortBy } from 'lodash';
 import { forkJoin, from, Observable } from 'rxjs';
-import { flatMap, map, reduce, withLatestFrom } from 'rxjs/operators';
+import { flatMap, map, reduce, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Models as P, PmsFilter, pmsSortId, preismeldestelleId, preismeldungId, preismeldungRefId } from '@lik-shared';
 
@@ -46,6 +46,7 @@ export function loadAllPreismeldungenForExport(
                 ),
             ),
         ),
+        tap(x => console.log('exporting 0 ... 1', x)),
         withLatestFrom(getAllPreismeldungenStatus()),
         map(([{ preismeldungen, refPreismeldungen }, preismeldungenStatus]) => ({
             grouped: groupBy(
@@ -59,6 +60,7 @@ export function loadAllPreismeldungenForExport(
             ),
             refPreismeldungen,
         })),
+        tap(x => console.log('exporting 0 ... 2', x)),
         flatMap(({ grouped, refPreismeldungen }) =>
             getAllSortierungenByPmsId(Object.keys(grouped)).pipe(
                 map(sortierung => ({
@@ -68,6 +70,7 @@ export function loadAllPreismeldungenForExport(
                 })),
             ),
         ),
+        tap(x => console.log('exporting 0 ... 3', x)),
         map(({ grouped, refPreismeldungen, sortierung }) =>
             flatten(
                 Object.keys(grouped).reduce(
@@ -83,13 +86,18 @@ export function loadAllPreismeldungenForExport(
                 ),
             ),
         ),
+        tap(x => console.log('exporting 0 ... 4', x)),
     );
 }
 
-const getAllSortierungenByPmsId = (pmsIds: string[]) =>
-    forkJoin(
+const getAllSortierungenByPmsId = (pmsIds: string[]) => {
+    if (pmsIds.length === 0) {
+        throw new Error('Keine Daten zum exportieren vorhanden');
+    }
+    return forkJoin(
         pmsIds.map(pmsNummer =>
             getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).pipe(
+                tap(x => console.log('exporting 1 ... 1', x)),
                 map(list =>
                     list
                         .reduce(
@@ -102,9 +110,19 @@ const getAllSortierungenByPmsId = (pmsIds: string[]) =>
                             [pmId: string]: number;
                         }),
                 ),
+                tap(x => console.log('exporting 1 ... 2', x)),
             ),
         ),
-    ).pipe(map(x => x.reduce((acc, sort) => ({ ...acc, ...sort }), {} as { [pmId: string]: number })));
+    ).pipe(
+        tap(x => console.log('exporting 1 ... 3', x)),
+        map(x =>
+            x.reduce((acc, sort) => ({ ...acc, ...sort }), {} as {
+                [pmId: string]: number;
+            }),
+        ),
+        tap(x => console.log('exporting 1 ... 4', x)),
+    );
+};
 
 const loadUserDbs = async (preiserheberIds: string[]) => {
     if (preiserheberIds.length === 0) {

@@ -16,11 +16,16 @@ export class OrganisationReportComponent extends ReactiveComponent implements On
 
     numberFormatOptions = { integerSeparator: "'" };
     public reportData$ = this.observePropertyCurrentValue<OrganisationReport>('reportData').pipe(
-        map(data => ({
-            erhebungsregionen: this.iterateValues(data.erhebungsregionen),
-            preiserheber: this.iterateValues(data.preiserheber),
-            preismeldungen: this.iterateValues(data.preismeldungen, true),
-        })),
+        map(data =>
+            !!data
+                ? {
+                      erhebungsregionen: this.iterateValues(data.erhebungsregionen),
+                      preiserheber: this.iterateValues(data.preiserheber),
+                      preismeldungen: this.iterateValues(data.preismeldungen, true),
+                      zeitpunkt: data.zeitpunkt,
+                  }
+                : null,
+        ),
     );
 
     constructor() {

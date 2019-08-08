@@ -7,6 +7,9 @@
             padding-bottom: 0;
         }
     }
+    ion-list {
+        --ion-item-background: unset;
+    }
     .pef-label {
         background-color: transparent;
         --background-color: transparent;

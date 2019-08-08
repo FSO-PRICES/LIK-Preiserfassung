@@ -6,34 +6,39 @@
         flex-direction: column;
         overflow: auto;
 
-        .report-table {
-            margin-bottom: 1.5em;
-            user-select: text;
-            text-align: left;
+        ::ng-deep {
+            .container {
+                padding: 10px;
+            }
+            .report-table {
+                margin-bottom: 1.5em;
+                user-select: text;
+                text-align: left;
 
-            .number {
-                text-align: right;
-            }
+                .number {
+                    text-align: right;
+                }
 
-            .align-right {
-                text-align: right;
-            }
+                .align-right {
+                    text-align: right;
+                }
 
-            thead tr,
-            tbody tr:nth-child(even) {
-                background-color: darken($alto, 3%);
-            }
-            th {
-                white-space: nowrap;
-                padding-right: 10px;
-                padding-bottom: 8px;
-            }
+                thead tr,
+                tbody tr:nth-child(even) {
+                    background-color: darken($alto, 3%);
+                }
+                th {
+                    white-space: nowrap;
+                    padding-right: 10px;
+                    padding-bottom: 8px;
+                }
 
-            td {
-                padding-right: 10px;
-            }
-            td:not(.no-wrap) {
-                white-space: nowrap;
+                td {
+                    padding-right: 10px;
+                }
+                td:not(.no-wrap) {
+                    white-space: nowrap;
+                }
             }
         }
     }

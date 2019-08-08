@@ -18,8 +18,8 @@
     </ion-row>
 </ion-grid>
 <div class="actions">
-    <span *ngIf="(arePreismeldestellenImported$ | async)" ion-text color="primary"
+    <ion-text *ngIf="(arePreismeldestellenImported$ | async)" color="primary"
         >Preismeldestellen wurden erfolgreich importiert. {{ preismeldestellenImportedCount$ | async }} Einträge wurden
-        hinzugefügt</span
+        hinzugefügt</ion-text
     >
 </div>

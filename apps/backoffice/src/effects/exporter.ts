@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
 import { assign, flatten, keyBy, orderBy } from 'lodash';
 import { of } from 'rxjs';
-import { catchError, concat, flatMap, map, withLatestFrom } from 'rxjs/operators';
+import { catchError, concat, flatMap, map, tap, withLatestFrom } from 'rxjs/operators';
 
 import { ElectronService, Models as P, preismeldestelleId, PreismeldungAction } from '@lik-shared';
 
@@ -49,9 +49,11 @@ export class ExporterEffects {
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
                 loadAllPreismeldungenForExport().pipe(
+                    tap(x => console.log('exporting ... init', x)),
                     flatMap(preismeldungBags =>
                         getDatabaseAsObservable(dbNames.warenkorb).pipe(
                             flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>),
+                            tap(x => console.log('exporting ... 0', x)),
                             flatMap(warenkorbDoc => {
                                 return getDatabaseAsObservable(dbNames.exports).pipe(
                                     flatMap(db => db.allDocs({ include_docs: true })),
@@ -82,25 +84,31 @@ export class ExporterEffects {
                                     }),
                                 );
                             }),
+                            tap(x => console.log('exporting ... 1', x)),
                             withLatestFrom(this.settings$),
+                            tap(x => console.log('exporting ... 2', x)),
                             flatMap(([filteredPreismeldungBags, settings]) =>
                                 createExportPm(this.electronService, filteredPreismeldungBags, settings),
                             ),
+                            tap(x => console.log('exporting ... 3', x)),
                             map(count => ({ type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count })),
+                            tap(x => console.log('exporting ... 4', x)),
                             concat(
                                 of(createClearControllingAction()),
                                 of({ type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction),
                             ),
-                            catchError(error =>
-                                of({
-                                    type: 'EXPORT_PREISMELDUNGEN_FAILURE',
-                                    payload: error,
-                                } as exporter.Action),
-                            ),
+                            tap(x => console.log('exporting ... 5', x)),
+                            tap(x => console.log('exporting ... 6, error?', x)),
                         ),
                     ),
                 ),
             ),
+        ),
+        catchError(error =>
+            of({
+                type: 'EXPORT_PREISMELDUNGEN_FAILURE',
+                payload: error,
+            } as exporter.Action),
         ),
     );
 

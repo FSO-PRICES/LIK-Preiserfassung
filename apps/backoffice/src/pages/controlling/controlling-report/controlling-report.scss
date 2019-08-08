@@ -9,6 +9,10 @@
         display: flex;
         flex: 0 0 auto;
 
+        h2 {
+            margin: auto;
+        }
+
         .filter {
             display: flex;
             align-self: flex-start;
@@ -19,9 +23,14 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                ion-list {
+                ion-radio-group {
+                    --ion-background-color: transparent;
                     display: flex;
+                    ion-radio {
+                        margin-right: 10px;
+                    }
                     ion-item {
+                        --padding-start: 0;
                         width: auto;
                     }
                 }
@@ -33,6 +42,7 @@
         .actions {
             display: flex;
             align-self: flex-end;
+            align-items: center;
         }
     }
 
@@ -99,7 +109,8 @@
     .edit-pm {
         fill: white;
         margin: 2px 0;
-        padding: 1px;
+        --padding-start: 1px;
+        --padding-end: 1px;
         height: auto;
     }
     .additional-actions {
