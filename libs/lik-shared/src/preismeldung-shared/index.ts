@@ -1,6 +1,5 @@
 export * from './models';
 export * from './effects/preismeldung-effects-fns';
-export * from './services/electron.service';
 
 import * as fromPreismeldungen from './reducers/preismeldung.reducer';
 export { fromPreismeldungen };

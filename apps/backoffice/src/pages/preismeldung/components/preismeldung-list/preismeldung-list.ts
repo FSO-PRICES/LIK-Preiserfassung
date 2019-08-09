@@ -191,7 +191,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     ]);
                 }),
                 debounceTime(300),
-                tap(x => console.log('pm filtered:', x.map(y => y.preismeldung.epNummer), x.length, x)),
                 startWith([]),
                 publishReplay(1),
                 refCount(),

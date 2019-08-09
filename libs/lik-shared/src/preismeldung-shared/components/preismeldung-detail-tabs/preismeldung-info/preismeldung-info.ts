@@ -7,12 +7,12 @@ import {
     Output,
     SimpleChange,
 } from '@angular/core';
+import { ElectronService } from 'ngx-electron';
 import { Observable } from 'rxjs';
 import { filter, map, withLatestFrom } from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../../common/ReactiveComponent';
 import * as P from '../../../models';
-import { ElectronService } from '../../../services/electron.service';
 
 @Component({
     selector: 'preismeldung-info',
@@ -64,7 +64,7 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
         const _internetLink = this.formatInternetLink(internetLink);
         if (this.isDesktop) {
             event.preventDefault();
-            this.electronService.openExternal(_internetLink);
+            this.electronService.shell.openExternal(_internetLink);
         }
     }
 

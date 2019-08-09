@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxLetModule } from '@ngx-utilities/ngx-let';
+import { NgxElectronModule } from 'ngx-electron';
 
 import { PefDialogService } from '../common/pef-dialog-service';
 import { PefLanguageService } from '../common/pef-language.service';
@@ -23,8 +24,6 @@ import { PreismeldungPriceComponent } from './components/preismeldung-detail-tab
 import { PreismeldungReadonlyHeader } from './components/preismeldung-detail-tabs/preismeldung-readonly-header/preismeldung-readonly-header';
 import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/preismeldung-toolbar';
 
-import { ElectronService } from './services/electron.service';
-
 @NgModule({
     declarations: [
         BearbeitungsTypeComponent,
@@ -40,7 +39,15 @@ import { ElectronService } from './services/electron.service';
         PreismeldungReadonlyHeader,
         PreismeldungToolbarComponent,
     ],
-    imports: [CommonModule, ReactiveFormsModule, IonicModule, NgxLetModule, PefComponentsModule, TranslateModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        IonicModule,
+        NgxLetModule,
+        PefComponentsModule,
+        TranslateModule,
+        NgxElectronModule,
+    ],
     entryComponents: [DialogCancelEditComponent, DialogChoosePercentageReductionComponent],
     exports: [
         BearbeitungsTypeComponent,
@@ -54,6 +61,6 @@ import { ElectronService } from './services/electron.service';
         PreismeldungReadonlyHeader,
         PreismeldungToolbarComponent,
     ],
-    providers: [ElectronService, PefDialogService, PefMessageDialogService, PefLanguageService],
+    providers: [PefDialogService, PefMessageDialogService, PefLanguageService],
 })
 export class PreismeldungSharedModule {}

@@ -10,9 +10,7 @@
         "**/.DS_Store": true,
         "**/.git": true,
         "**/.hg": true,
-        "**/.svn": true,
-        "backoffice/**/*": true,
-        "preiserfasser/**/*": true
+        "**/.svn": true
     },
     "editor.codeActionsOnSave": {
         "source.organizeImports": false

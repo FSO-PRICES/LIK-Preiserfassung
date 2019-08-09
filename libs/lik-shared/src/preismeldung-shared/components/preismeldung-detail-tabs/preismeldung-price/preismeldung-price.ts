@@ -12,6 +12,7 @@ import {
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { assign, keys } from 'lodash';
+import { ElectronService } from 'ngx-electron';
 import { WINDOW } from 'ngx-window-token';
 import { defer, iif as observableIif, Observable, of as observableOf, Subscription } from 'rxjs';
 import {
@@ -42,7 +43,6 @@ import {
 } from '../../../../common';
 import { PefDialogValidationErrorsComponent } from '../../../../pef-components';
 import * as P from '../../../models';
-import { ElectronService } from '../../../services/electron.service';
 import { DialogChoosePercentageReductionComponent } from '../../dialog-choose-percentage-reduction/dialog-choose-percentage-reduction';
 
 @Component({
@@ -1123,7 +1123,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             _internetLink = `http://${internetLink}`;
         }
         if (this.isDesktop) {
-            this.electronService.openExternal(_internetLink);
+            this.electronService.shell.openExternal(_internetLink);
         } else {
             this.wndw.open(_internetLink, '_blank');
         }

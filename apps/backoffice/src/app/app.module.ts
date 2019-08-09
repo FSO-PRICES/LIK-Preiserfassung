@@ -9,6 +9,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgxElectronModule } from 'ngx-electron';
 
 import { PefComponentsModule, PefDialogService, PefLanguageService, PefMessageDialogService } from '@lik-shared';
 
@@ -48,6 +49,7 @@ registerLocaleData(localeDe);
         PefMenuModule,
         StoreModule.forRoot(reducers, { metaReducers }),
         TranslateModule.forRoot(),
+        NgxElectronModule,
 
         CockpitModule,
         ControllingModule,

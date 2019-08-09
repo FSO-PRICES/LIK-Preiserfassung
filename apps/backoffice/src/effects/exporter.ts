@@ -3,10 +3,11 @@ import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
 import { assign, flatten, keyBy, orderBy } from 'lodash';
+import { ElectronService } from 'ngx-electron';
 import { of } from 'rxjs';
-import { catchError, concat, flatMap, map, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, concat, flatMap, map, withLatestFrom } from 'rxjs/operators';
 
-import { ElectronService, Models as P, preismeldestelleId, PreismeldungAction } from '@lik-shared';
+import { Models as P, preismeldestelleId, PreismeldungAction } from '@lik-shared';
 
 import { createClearControllingAction } from '../actions/controlling';
 import * as exporter from '../actions/exporter';
@@ -49,11 +50,9 @@ export class ExporterEffects {
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
                 loadAllPreismeldungenForExport().pipe(
-                    tap(x => console.log('exporting ... init', x)),
                     flatMap(preismeldungBags =>
                         getDatabaseAsObservable(dbNames.warenkorb).pipe(
                             flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>),
-                            tap(x => console.log('exporting ... 0', x)),
                             flatMap(warenkorbDoc => {
                                 return getDatabaseAsObservable(dbNames.exports).pipe(
                                     flatMap(db => db.allDocs({ include_docs: true })),
@@ -84,21 +83,15 @@ export class ExporterEffects {
                                     }),
                                 );
                             }),
-                            tap(x => console.log('exporting ... 1', x)),
                             withLatestFrom(this.settings$),
-                            tap(x => console.log('exporting ... 2', x)),
                             flatMap(([filteredPreismeldungBags, settings]) =>
                                 createExportPm(this.electronService, filteredPreismeldungBags, settings),
                             ),
-                            tap(x => console.log('exporting ... 3', x)),
                             map(count => ({ type: 'EXPORT_PREISMELDUNGEN_SUCCESS', payload: count })),
-                            tap(x => console.log('exporting ... 4', x)),
                             concat(
                                 of(createClearControllingAction()),
                                 of({ type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction),
                             ),
-                            tap(x => console.log('exporting ... 5', x)),
-                            tap(x => console.log('exporting ... 6, error?', x)),
                         ),
                     ),
                 ),
@@ -218,6 +211,7 @@ async function createExportPms(electronService: ElectronService, settings: Curre
     const erhebungsmonat = await getDocumentByKeyFromDb<P.Erhebungsmonat>(preismeldestellenDb, 'erhebungsmonat');
     const validations = preparePmsForExport(preismeldestellen, erhebungsmonat.monthAsString);
     const count = preismeldestellen.length;
+    const messageId = await createFiles(electronService, settings, validations);
 
     return count;
 }
@@ -232,6 +226,7 @@ async function createExportPe(
     const erhebungsmonat = await getDocumentByKeyFromDb<P.Erhebungsmonat>(preismeldungenDb, 'erhebungsmonat');
     const validations = preparePreiserheberForExport(preiserheber, erhebungsmonat.monthAsString, erhebungsorgannummer);
     const count = preiserheber.length;
+    const messageId = await createFiles(electronService, settings, validations);
 
     return count;
 }
@@ -273,7 +268,7 @@ async function saveFile(
 ) {
     return new Promise((resolve, reject) => {
         if (electronService.isElectronApp) {
-            const saveResult = electronService.sendSync('save-file', {
+            const saveResult = electronService.ipcRenderer.sendSync('save-file', {
                 content,
                 type,
                 fileName,
