@@ -76,7 +76,8 @@ ion-list.list-md {
     &.pef-item-compact {
         --background: transparent;
         ion-input {
-            height: 36px;
+            margin-top: 2px;
+            height: 38px;
         }
     }
     &.item-has-focus {

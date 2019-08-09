@@ -31,10 +31,16 @@
         }
         ion-label {
             padding-left: 0.7em;
+            font-size: 16px;
         }
     }
 
+    ion-list {
+        padding: 0;
+    }
+
     ion-item {
+        --inner-padding-end: 0;
         [slot='end'] {
             margin: 0;
             padding-left: 0.8em;
@@ -82,6 +88,7 @@
             --padding-top: 6px;
             --padding-bottom: 6px;
             border-bottom: 2px solid $hit-gray;
+            height: 42px;
             &.readonly {
                 background-color: $alto;
                 --background: #{$alto};
@@ -93,6 +100,10 @@
     .header-line {
         display: flex;
         align-items: center;
+        ion-label {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
     }
 
     .pms-heading {
@@ -165,8 +176,6 @@
     }
 
     .product-detail-body {
-        @include set-margin-top(0.25);
-        @include set-padding(1, 1, 0, 1);
         background-color: $mercury;
         flex: 0 0 auto;
         display: flex;

@@ -380,7 +380,6 @@
                                 class="pef-item"
                                 [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async"
                             >
-                                <ion-label>{{ 'text_chf' | translate }}</ion-label>
                                 <ion-input
                                     #preisVPK
                                     type="number"
@@ -395,27 +394,26 @@
                                     [class.readonly]="isReadonly$ | async"
                                     [value]="(preisVPKCurrentValue$ | async)?.value"
                                 ></ion-input>
+                                <ion-label slot="end" class="currency-label">{{ 'text_chf' | translate }}</ion-label>
                             </ion-item>
-                            <div class="unit-item-wrapper">
-                                <ion-item
-                                    class="pef-item"
+                            <ion-item
+                                class="pef-item"
+                                [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async"
+                            >
+                                <ion-input
+                                    #mengeVPK
+                                    type="number"
+                                    step="any"
+                                    pef-highlight-on-focus
+                                    pef-disable-input-number-behaviour
+                                    pef-disable-input-negative-number
                                     [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async"
-                                >
-                                    <ion-input
-                                        #mengeVPK
-                                        type="number"
-                                        step="any"
-                                        pef-highlight-on-focus
-                                        pef-disable-input-number-behaviour
-                                        pef-disable-input-negative-number
-                                        [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async"
-                                        (ionBlur)="mengeVPKChanged$.emit(mengeVPK.value)"
-                                        [readonly]="isReadonly$ | async"
-                                        [class.readonly]="isReadonly$ | async"
-                                        [value]="form.value.mengeVPK"
-                                    ></ion-input>
-                                </ion-item>
-                                <div class="unit-button-wrapper">
+                                    (ionBlur)="mengeVPKChanged$.emit(mengeVPK.value)"
+                                    [readonly]="isReadonly$ | async"
+                                    [class.readonly]="isReadonly$ | async"
+                                    [value]="form.value.mengeVPK"
+                                ></ion-input>
+                                <div slot="end">
                                     <ion-button
                                         class="unit-button"
                                         color="mercury"
@@ -428,7 +426,7 @@
                                         }}
                                     </ion-button>
                                 </div>
-                            </div>
+                            </ion-item>
                         </ion-list>
                     </div>
                 </div>
