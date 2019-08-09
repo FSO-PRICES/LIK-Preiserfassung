@@ -306,6 +306,30 @@
                             "devServerTarget": "backoffice:serve:production"
                         }
                     }
+                },
+                "ionic-cordova-build": {
+                    "builder": "@ionic/angular-toolkit:cordova-build",
+                    "options": {
+                        "browserTarget": "backoffice:build"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "backoffice:build:production"
+                        }
+                    }
+                },
+                "ionic-cordova-serve": {
+                    "builder": "@ionic/angular-toolkit:cordova-serve",
+                    "options": {
+                        "cordovaBuildTarget": "backoffice:ionic-cordova-build",
+                        "devServerTarget": "backoffice:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "cordovaBuildTarget": "backoffice:ionic-cordova-build:production",
+                            "devServerTarget": "backoffice:serve:production"
+                        }
+                    }
                 }
             }
         }
