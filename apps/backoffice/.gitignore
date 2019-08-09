@@ -1,13 +1,5 @@
 # Cordova
-platforms/*
-!platforms/electron/
-platforms/electron/*
-!platforms/electron/platform_www/
-platforms/electron/platform_www/*
-!platforms/electron/platform_www/cdv-electron-main.js
-!platforms/electron/platform_www/resources/
-platforms/electron/platform_www/resources/*
-!platforms/electron/platform_www/resources/splash.png
+platforms/
 plugins/
 plugins/android.json
 plugins/ios.json
