@@ -1,6 +1,5 @@
 {
     "electron": {
-        "linux": {},
         "windows": {}
     }
 }
