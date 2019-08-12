@@ -4,8 +4,7 @@
     "backoffice": {
       "name": "LIK-PreisAdmin",
       "integrations": {
-        "cordova": {},
-        "capacitor": {}
+        "cordova": {}
       },
       "type": "angular",
       "root": "apps/backoffice"
@@ -13,15 +12,13 @@
     "preiserfasser": {
       "name": "LIK-Preiserfasser",
       "integrations": {
-        "cordova": {},
-        "capacitor": {}
+        "cordova": {}
       },
       "type": "angular",
       "root": "apps/preiserfasser"
     }
   },
   "integrations": {
-    "capacitor": {},
     "cordova": {}
   }
 }
