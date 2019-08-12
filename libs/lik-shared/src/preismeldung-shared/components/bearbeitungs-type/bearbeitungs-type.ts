@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { assign } from 'lodash';
-import { Observable } from 'rxjs';
+import { ConnectableObservable, Observable } from 'rxjs';
 import {
     combineLatest,
     distinctUntilChanged,
@@ -107,7 +107,8 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
             })),
             map(x => x.bearbeitungsTypes.find(y => y.code === x.changeFromInput)),
             publishReplay(1),
-        ); //TODO CHECK IF STILL WORKS
+        );
+        (bearbeitungsTypeFromInput$ as ConnectableObservable<BearbeitungsType>).connect();
 
         this.selectedBearbeitungsType$ = this.selectBearbeitungsType$.pipe(
             map(x => x.bearbeitungsType),
@@ -146,7 +147,6 @@ export class BearbeitungsTypeComponent extends ReactiveComponent implements Cont
             scan((agg, v) => (v.type === 'TOGGLE' ? !agg : false), false),
             startWith(false),
             distinctUntilChanged(),
-            // TODO CHECK IF STILL WORKS
             publishReplay(1),
             refCount(),
         );

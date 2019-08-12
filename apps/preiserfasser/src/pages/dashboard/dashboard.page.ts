@@ -38,7 +38,6 @@ import { Action as LoginAction } from '../../actions/login';
 import { Action as PdfAction } from '../../actions/pdf';
 import { Action as StatisticsAction } from '../../actions/statistics';
 import { LoginModalComponent } from '../../components/login-modal';
-import { PreismeldestelleStatistics } from '../../reducers/statistics';
 
 type DashboardPms = P.Preismeldestelle & {
     keinErhebungsart: boolean;
@@ -68,7 +67,7 @@ export class DashboardPage implements OnDestroy {
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$.pipe(
         combineLatest(this.filterTextValueChanges.pipe(startWith('')), (preismeldestellen, filterText) =>
             sortBySelector(
-                pefSearch(filterText, preismeldestellen, [pms => pms.name]),
+                pefSearch(filterText, preismeldestellen, [pms => pms.name, pms => pms.pmsNummer]),
                 pms => `${pms.pmsTop ? 'A' : 'Z'}_${pms.name.toLowerCase()}`,
             ),
         ),
@@ -80,11 +79,22 @@ export class DashboardPage implements OnDestroy {
 
     private subscriptions: Subscription[];
 
-    public isSyncing$ = this.store.select(x => x.database.isDatabaseSyncing);
+    public isSyncing$ = this.store
+        .select(x => x.database.isDatabaseSyncing)
+        .pipe(
+            publishReplay(1),
+            refCount(),
+        );
     public syncError$ = this.store.select(x => x.database.syncError);
     public loginError$ = this.store.select(x => x.login.loginError);
-    public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics);
-    public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat);
+    public preismeldungenStatistics$ = this.store.select(fromRoot.getPreismeldungenStatistics).pipe(
+        publishReplay(1),
+        refCount(),
+    );
+    public erhebungsmonat$ = this.store.select(fromRoot.getErhebungsmonat).pipe(
+        publishReplay(1),
+        refCount(),
+    );
     public lastSyncedAt$ = this.store.select(x => x.database.lastSyncedAt);
     public createdPmsPdf$ = this.store.select(fromRoot.getCreatedPmsPdf).pipe(
         publishReplay(1),
@@ -105,10 +115,14 @@ export class DashboardPage implements OnDestroy {
             statistics,
         })),
         map(x =>
-            x.preismeldestellen.map(preismeldestelle => ({
-                preismeldestelle,
-                statistics: !x.statistics ? {} : x.statistics[preismeldestelle.pmsNummer],
-            })),
+            x.preismeldestellen.map(preismeldestelle => {
+                const statistics = !x.statistics ? ({} as any) : x.statistics[preismeldestelle.pmsNummer];
+                return {
+                    preismeldestelle,
+                    statistics,
+                    isCompleted: statistics.uploadedCount >= statistics.totalCount,
+                };
+            }),
         ),
         debounceTime(300),
         startWith([]),
@@ -121,7 +135,10 @@ export class DashboardPage implements OnDestroy {
         translateService: TranslateService,
         private store: Store<fromRoot.AppState>,
     ) {
-        const settings$ = this.store.select(fromRoot.getSettings);
+        const settings$ = this.store.select(fromRoot.getSettings).pipe(
+            publishReplay(1),
+            refCount(),
+        );
 
         const databaseHasBeenUploaded$ = this.store.select(x => x.database.lastUploadedAt).pipe(distinctUntilChanged());
 
@@ -134,11 +151,21 @@ export class DashboardPage implements OnDestroy {
                 refCount(),
             );
 
-        const loggedInUser$ = this.store.select(fromRoot.getLoggedInUser);
-        const canConnectToDatabase$ = this.store.select(x => x.database.canConnectToDatabase);
+        const loggedInUser$ = this.store.select(fromRoot.getLoggedInUser).pipe(
+            publishReplay(1),
+            refCount(),
+        );
+        const canConnectToDatabase$ = this.store
+            .select(x => x.database.canConnectToDatabase)
+            .pipe(
+                publishReplay(1),
+                refCount(),
+            );
         const isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn).pipe(
             skip(1),
             combineLatest(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect })),
+            publishReplay(1),
+            refCount(),
         );
 
         const loginDialogDismissed$ = this.loginClicked$.pipe(
@@ -160,6 +187,8 @@ export class DashboardPage implements OnDestroy {
             filter(({ isLoggedIn, canConnect }) => isLoggedIn !== null && canConnect !== null),
             map(({ isLoggedIn, canConnect }) => !!isLoggedIn && !!canConnect),
             startWith(false),
+            publishReplay(1),
+            refCount(),
         );
 
         const dismissSyncLoading$ = this.isSyncing$.pipe(
@@ -373,7 +402,4 @@ export class DashboardPage implements OnDestroy {
             isPdf: _erhebungsart.papierlisteVorOrt || _erhebungsart.papierlisteAbgegeben,
         });
     }
-
-    public isPreismeldestelleCompleted = (preismeldestelleStatistics: PreismeldestelleStatistics) =>
-        preismeldestelleStatistics.uploadedCount >= preismeldestelleStatistics.totalCount;
 }

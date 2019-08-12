@@ -923,31 +923,33 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                 return alertsToExecute.length > 0
                     ? (alertsToExecute.reduce((agg, v) => {
                           if (!agg) return v().pipe(map(save => ({ ...saveActionData(saveAction), ...save })));
-                          return (agg as any).flatMap(lastAlertResult => {
-                              if (
-                                  lastAlertResult === 'THROW_CHANGES' ||
-                                  ['CANCEL', 'NO_SAVE_NAVIGATE'].some(x => x === lastAlertResult.type)
-                              )
-                                  return observableOf(lastAlertResult);
-                              return v().pipe(
-                                  map(thisAlertResult => {
-                                      if (
-                                          P.isSavePreismeldungPriceSaveActionSave(lastAlertResult) &&
-                                          P.isSavePreismeldungPriceSaveActionSave(thisAlertResult)
-                                      ) {
-                                          return {
-                                              ...saveActionData(saveAction),
-                                              ...thisAlertResult,
-                                              saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(
-                                                  lastAlertResult.saveWithData,
-                                              ),
-                                          };
-                                      } else {
-                                          return { ...saveActionData(saveAction), ...thisAlertResult };
-                                      }
-                                  }),
-                              );
-                          });
+                          return (agg as any).pipe(
+                              mergeMap((lastAlertResult: any) => {
+                                  if (
+                                      lastAlertResult === 'THROW_CHANGES' ||
+                                      ['CANCEL', 'NO_SAVE_NAVIGATE'].some(x => x === lastAlertResult.type)
+                                  )
+                                      return observableOf(lastAlertResult);
+                                  return v().pipe(
+                                      map(thisAlertResult => {
+                                          if (
+                                              P.isSavePreismeldungPriceSaveActionSave(lastAlertResult) &&
+                                              P.isSavePreismeldungPriceSaveActionSave(thisAlertResult)
+                                          ) {
+                                              return {
+                                                  ...saveActionData(saveAction),
+                                                  ...thisAlertResult,
+                                                  saveWithData: (thisAlertResult as P.SavePreismeldungPriceSaveActionSave).saveWithData.concat(
+                                                      lastAlertResult.saveWithData,
+                                                  ),
+                                              };
+                                          } else {
+                                              return { ...saveActionData(saveAction), ...thisAlertResult };
+                                          }
+                                      }),
+                                  );
+                              }),
+                          );
                       }, null) as Observable<P.SavePreismeldungPriceSaveAction | string>)
                     : observableOf({
                           ...saveActionData(saveAction),

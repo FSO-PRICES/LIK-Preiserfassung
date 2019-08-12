@@ -43,7 +43,7 @@ import * as P from '../../../models';
                             <ion-input
                                 type="text"
                                 [formControlName]="'attribute_' + i"
-                                (blur)="fieldEdited$.emit()"
+                                (ionBlur)="fieldEdited$.emit()"
                             ></ion-input>
                         </ion-item>
                     </ion-list>

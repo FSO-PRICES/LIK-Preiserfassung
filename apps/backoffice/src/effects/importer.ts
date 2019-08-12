@@ -176,8 +176,7 @@ export class ImporterEffects {
         const localPreismeldungenDb = await getLocalDatabase(dbNames.preismeldungen);
         const localPreismeldungenStatusDb = await getLocalDatabase(dbNames.preismeldungen_status);
 
-        // TODO: Check if writeAll should be used
-        const writeAll = await bluebird.all(
+        await bluebird.all(
             chunk(pmInfo.preismeldungen, 6000).map(preismeldungenBatch =>
                 localPreismeldungenDb
                     .bulkDocs(preismeldungenBatch)
@@ -251,7 +250,6 @@ export class ImporterEffects {
             flatMap(preiserheberDb => getAllDocumentsFromDb<P.Erheber>(preiserheberDb)),
             tap(preiserhebers => console.log('DEBUG: PREISERHEBERS:', preiserhebers.map(p => p._id))),
             flatMap(preiserhebers =>
-                // TODO: Check! Previously had this parameter: preiserhebers.map(p => p._id)
                 createUserDbs().pipe(
                     tap(x => console.log('DEBUG: AFTER CREATING USER DBS')),
                     map(error =>

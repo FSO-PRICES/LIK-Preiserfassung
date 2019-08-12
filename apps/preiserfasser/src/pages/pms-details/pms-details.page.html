@@ -47,7 +47,7 @@
                                 </ion-list>
                             </div>
                             <div class="column">
-                                <ion-list no-lines>
+                                <ion-list no-lines class="checkbox-list">
                                     <ion-item class="pef-item">
                                         <ion-label position="stacked">{{ 'label_pms_erhebungsregion' | translate }}</ion-label>
                                         <ion-input readonly type="text" [value]="(pms$ | async)?.erhebungsregion || '&ndash;'"></ion-input>

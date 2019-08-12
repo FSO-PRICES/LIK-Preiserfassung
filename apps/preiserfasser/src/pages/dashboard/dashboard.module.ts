@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgxLetModule } from '@ngx-utilities/ngx-let';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -24,6 +25,7 @@ const routes: Routes = [
         FormsModule,
         IonicModule,
         TranslateModule,
+        NgxLetModule,
         PefComponentsModule,
         LoginModalComponentModule,
         RouterModule.forChild(routes),

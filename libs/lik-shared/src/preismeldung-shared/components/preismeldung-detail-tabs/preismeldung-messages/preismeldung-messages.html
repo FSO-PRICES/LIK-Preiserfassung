@@ -11,7 +11,7 @@
             <ion-item class="pef-textarea-item" [class.readonly]="isReadonly$ | async">
                 <ion-textarea
                     formControlName="notiz"
-                    (blur)="onBlur$.emit()"
+                    (ionBlur)="onBlur$.emit()"
                     [readonly]="isReadonly$ | async"
                     [class.readonly]="isReadonly$ | async"
                 ></ion-textarea>
@@ -33,7 +33,7 @@
             <ion-item class="pef-textarea-item" [class.readonly]="isReadonly$ | async">
                 <ion-textarea
                     formControlName="kommentar"
-                    (blur)="onBlur$.emit()"
+                    (ionBlur)="onBlur$.emit()"
                     [readonly]="isReadonly$ | async"
                     [class.readonly]="isReadonly$ | async"
                 ></ion-textarea>
@@ -55,7 +55,7 @@
             <ion-item class="pef-textarea-item" [class.readonly]="isReadonly$ | async">
                 <ion-textarea
                     formControlName="bemerkungen"
-                    (blur)="onBlur$.emit()"
+                    (ionBlur)="onBlur$.emit()"
                     [class.readonly]="isReadonly$ | async"
                     [readonly]="isReadonly$ | async"
                 ></ion-textarea>

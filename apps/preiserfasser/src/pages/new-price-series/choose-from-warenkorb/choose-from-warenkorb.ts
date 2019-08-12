@@ -202,7 +202,6 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         );
 
         const warenkorbItemEpExpand$ = this.warenkorbItemEpExpand$.pipe(tap(x => x.event.stopPropagation()));
-        // TODO if still works.observeOnZone(zone);
 
         const clickAction$ = this.warenkorbItemClicked$.pipe(
             filter(x => x.warenkorbInfo.warenkorbItem.type === 'BRANCH'),

@@ -1,7 +1,13 @@
 <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
     <h1 class="large">Angaben zur Preismeldestelle</h1>
     <div class="actions">
-        <ion-button type="button" color="blue-chill" (click)="saveClicked$.emit($event)" [disabled]="!(preismeldestelle$ | async).isModified">Speichern</ion-button>
+        <ion-button
+            type="button"
+            color="blue-chill"
+            (click)="saveClicked$.emit($event)"
+            [disabled]="!(preismeldestelle$ | async).isModified"
+            >Speichern</ion-button
+        >
         <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
     </div>
     <ion-row>
@@ -37,7 +43,12 @@
             <ion-list no-lines>
                 <ion-item class="pef-item">
                     <ion-label position="stacked">PMS erhoben durch</ion-label>
-                    <ion-input readonly type="text" formControlName="supplement" value="{{preiserheber?.firstName}} {{preiserheber?.surname}}"></ion-input>
+                    <ion-input
+                        readonly
+                        type="text"
+                        formControlName="supplement"
+                        value="{{ preiserheber?.firstName }} {{ preiserheber?.surname }}"
+                    ></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
                     <ion-label position="stacked">Telefon</ion-label>
@@ -52,15 +63,25 @@
                     <ion-input type="text" formControlName="internetLink"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls['languageCode'].invalid">Sprache</ion-label>
+                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls['languageCode'].invalid"
+                        >Sprache</ion-label
+                    >
                     <select formControlName="languageCode">
-                        <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                        <option *ngFor="let language of (languages$ | async)" [value]="language.languageCode">{{
+                            language.name
+                        }}</option>
                     </select>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls['erhebungsregion'].invalid">Region</ion-label>
+                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls['erhebungsregion'].invalid"
+                        >Region</ion-label
+                    >
                     <select formControlName="erhebungsregion">
-                        <option *ngFor="let erhebungsregion of erhebungsregionen$ | async" [value]="erhebungsregion">{{erhebungsregion}}</option>
+                        <option
+                            *ngFor="let erhebungsregion of (erhebungsregionen$ | async)"
+                            [value]="erhebungsregion"
+                            >{{ erhebungsregion }}</option
+                        >
                     </select>
                 </ion-item>
             </ion-list>
@@ -83,10 +104,18 @@
                     <ion-input type="text" formControlName="personFunction"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls['kontaktpersons'].at(0).controls['languageCode'].invalid">Sprache</ion-label>
+                    <ion-label
+                        position="stacked"
+                        [class.target-ng-invalid]="
+                            form.controls['kontaktpersons'].at(0).controls['languageCode'].invalid
+                        "
+                        >Sprache</ion-label
+                    >
                     <select formControlName="languageCode" class="text-input text-input-md">
                         <option value="">Nicht angegeben</option>
-                        <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                        <option *ngFor="let language of (languages$ | async)" [value]="language.languageCode">{{
+                            language.name
+                        }}</option>
                     </select>
                 </ion-item>
                 <ion-item class="pef-item">
@@ -123,10 +152,18 @@
                     <ion-input type="text" formControlName="personFunction"></ion-input>
                 </ion-item>
                 <ion-item class="pef-item">
-                    <ion-label position="stacked" [class.target-ng-invalid]="form.controls['kontaktpersons'].at(1).controls['languageCode'].invalid">Sprache</ion-label>
+                    <ion-label
+                        position="stacked"
+                        [class.target-ng-invalid]="
+                            form.controls['kontaktpersons'].at(1).controls['languageCode'].invalid
+                        "
+                        >Sprache</ion-label
+                    >
                     <select formControlName="languageCode" class="text-input text-input-md">
                         <option value="">Nicht angegeben</option>
-                        <option *ngFor="let language of languages$ | async" [value]="language.languageCode">{{language.name}}</option>
+                        <option *ngFor="let language of (languages$ | async)" [value]="language.languageCode">{{
+                            language.name
+                        }}</option>
                     </select>
                 </ion-item>
                 <ion-item class="pef-item">
@@ -161,8 +198,10 @@
 
     <ion-row>
         <ion-col>
-            <h5 [class.label-validation-error]="this.form.errors && this.form.errors['erhebungsart_required']">Erhebungsart</h5>
-            <ion-list class="padding-to-header" formGroupName="erhebungsart">
+            <h5 [class.label-validation-error]="this.form.errors && this.form.errors['erhebungsart_required']">
+                Erhebungsart
+            </h5>
+            <ion-list class="padding-to-header checkbox-list" formGroupName="erhebungsart">
                 <ion-item>
                     <ion-label>Tablet vor Ort</ion-label>
                     <ion-checkbox formControlName="tablet"></ion-checkbox>

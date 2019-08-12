@@ -61,9 +61,6 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
     const loadPreismeldungen = async () =>
         await getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).toPromise();
     const loadPreiserheber = async () => await loadAllPreiserheber().toPromise();
-    // TODO: Check if needed
-    const loadWarenkorb = async () =>
-        await (await getDatabase(dbNames.warenkorb)).get<P.WarenkorbDocument>('warenkorb');
     const loadPreiszuweisungen = async () =>
         await getAllDocumentsFromDbName<P.Preiszuweisung>(dbNames.preiszuweisungen).toPromise();
 

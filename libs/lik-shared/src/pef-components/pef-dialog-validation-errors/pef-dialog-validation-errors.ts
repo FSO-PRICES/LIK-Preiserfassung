@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input } from '@angular/core';
-import { ModalController, NavParams } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 
 import { InputP } from '../../common';
 
@@ -26,5 +26,5 @@ export class PefDialogValidationErrorsComponent {
     @HostBinding('class') classes = 'pef-dialog';
     @Input() public errorMessages: InputP<string[]> = [];
 
-    constructor(public viewCtrl: ModalController) {}
+    constructor(public viewCtrl: PopoverController) {}
 }

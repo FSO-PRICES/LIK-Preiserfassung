@@ -164,7 +164,6 @@ function _syncDatabase(url: string, username: string, params: { push: boolean; p
             return Observable.throw('error_user-db-id-mismatch');
         }),
         flatMap(({ couch, pouch }) => {
-            // TODO Test if pull/push config still works
             const sync = pouch.sync(couch, { push: params.push as any, pull: params.pull as any, batch_size: 1000 });
 
             return Observable.create((observer: Observer<{}>) => {

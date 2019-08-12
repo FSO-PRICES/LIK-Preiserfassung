@@ -158,44 +158,6 @@ function parseNumber(s: string, propertyName: string) {
     return number;
 }
 
-// TODO: Remove if rly not needed
-// function createHierarchyRecursive(
-//     parent: P.WarenkorbTreeItem,
-//     currentItemIndex: number,
-//     treeItems: P.WarenkorbTreeItem[],
-// ): P.WarenkorbHierarchicalTreeItem {
-//     if (parent.type === 'LEAF') return parent;
-
-//     const children = [];
-//     let currentItem = treeItems[currentItemIndex];
-//     for (
-//         let i = currentItemIndex;
-//         i < treeItems.length && !!currentItem && currentItem.tiefencode > parent.tiefencode;
-//         i++
-//     ) {
-//         if (currentItem.tiefencode === parent.tiefencode + 1) {
-//             children.push(createHierarchyRecursive(currentItem, i + 1, treeItems));
-//         }
-//         currentItem = treeItems[i + 1];
-//     }
-//     return assign({}, parent, { children });
-// }
-
-// function countHierarchicalItems(item: P.WarenkorbHierarchicalTreeItem): number {
-//     if (item.type === 'LEAF') return 1;
-//     return item.children.reduce((agg, v) => agg + countHierarchicalItems(v), 1);
-// }
-
-// function countHierarchicalLeaves(item: P.WarenkorbHierarchicalTreeItem): number {
-//     if (item.type === 'LEAF') return 1;
-//     return item.children.reduce((agg, v) => agg + countHierarchicalLeaves(v), 0);
-// }
-
-// function countHierarchicalBranches(item: P.WarenkorbHierarchicalTreeItem): number {
-//     if (item.type === 'LEAF') return 0;
-//     return item.children.reduce((agg, v) => agg + countHierarchicalBranches(v), 1);
-// }
-
 function parseBoolean(s: string) {
     return s.toLocaleLowerCase() === 'x';
 }
@@ -207,11 +169,6 @@ function parsePeriodizitaet(periodizitaten: string[]) {
 }
 
 const parseAbweichung = parseNumberOrNull;
-
-// TODO: Remove if rly not needed
-// function parseStringOrEmpty(s: string) {
-//     return !!s ? s.toString() : '';
-// }
 
 function translationsToStringOrNull(line: string[], langIndexes: LanguageIndexes): P.PropertyTranslation {
     const langKeys = Object.keys(langIndexes);

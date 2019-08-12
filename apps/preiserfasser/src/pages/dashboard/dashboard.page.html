@@ -55,7 +55,10 @@
             </div>
             <ion-content pef-perfect-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
                 <div class="pms-table">
-                    <div class="pms-row" *ngFor="let bag of (filteredPreismeldestellenWithStatistics$ | async); trackBy trackByPms">
+                    <div
+                        class="pms-row"
+                        *ngFor="let bag of (filteredPreismeldestellenWithStatistics$ | async); trackBy: trackByPms"
+                    >
                         <div class="pms-cell pms-nummer">
                             <div class="pms-cell-content">
                                 <ion-button
@@ -88,10 +91,7 @@
                             <div class="pms-cell-content">{{ bag.statistics.openSavedCount }}</div>
                         </div>
                         <div class="pms-cell pms-uploaded">
-                            <div
-                                class="pms-cell-content"
-                                [class.completed-pms]="isPreismeldestelleCompleted(bag.preismeldestelle)"
-                            >
+                            <div class="pms-cell-content" [class.completed-pms]="bag.isCompleted">
                                 {{ bag.statistics.uploadedCount }}/{{ bag.statistics.totalCount }}
                             </div>
                         </div>
@@ -119,7 +119,7 @@
                 </div>
             </ion-content>
         </div>
-        <div class="preismeldungen">
+        <div class="preismeldungen" *ngxLet="(preismeldungenStatistics$ | async); let preismeldungenStatistics">
             <div class="header-line">
                 <h3>{{ 'heading_manage-preismeldestelle' | translate }}</h3>
             </div>
@@ -130,31 +130,35 @@
                 <ion-content>
                     <div class="row">
                         <pef-icon name="download"></pef-icon>
-                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.downloadedCount }}</div>
+                        <div class="number">{{ preismeldungenStatistics?.total.downloadedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
                     </div>
                     <div class="row">
                         <pef-icon name="todo"></pef-icon>
-                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openUnsavedCount }}</div>
+                        <div class="number">{{ preismeldungenStatistics?.total.openUnsavedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
                     </div>
                     <div class="row">
                         <pef-icon name="checkmark"></pef-icon>
-                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount }}</div>
+                        <div class="number">{{ preismeldungenStatistics?.total.openSavedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_offen-erfasst' | translate }}</div>
                     </div>
                     <div class="row">
                         <pef-icon name="upload"></pef-icon>
-                        <div class="number">{{ (preismeldungenStatistics$ | async)?.total.uploadedCount }}</div>
+                        <div class="number">{{ preismeldungenStatistics?.total.uploadedCount }}</div>
                         <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
                     </div>
                 </ion-content>
             </div>
-            <div class="actions">
+            <div class="actions" *ngxLet="(isSyncing$ | async); let isSyncing">
                 <div class="status">
-                    <span [hidden]="!(syncError$ | async)" class="error">{{ syncError$ | async | translate }}</span>
-                    <span [hidden]="!(loginError$ | async)" class="error">{{ loginError$ | async }}</span>
-                    <pef-icon name="sorting_arrows" class="syncing" [hidden]="!(isSyncing$ | async)"></pef-icon>
+                    <span *ngxLet="(syncError$ | async); let syncError" [hidden]="!syncError" class="error">{{
+                        syncError | translate
+                    }}</span>
+                    <span *ngxLet="(loginError$ | async); let loginError" [hidden]="!loginError" class="error">{{
+                        loginError
+                    }}</span>
+                    <pef-icon name="sorting_arrows" class="syncing" [hidden]="!isSyncing"></pef-icon>
                     <pef-icon
                         name="wifi"
                         class="connectivity"
@@ -162,14 +166,14 @@
                     ></pef-icon>
                 </div>
                 <div class="row">
-                    <div class="number">{{ (preismeldungenStatistics$ | async)?.total.openSavedCount || 0 }}</div>
+                    <div class="number">{{ preismeldungenStatistics?.total.openSavedCount || 0 }}</div>
                     <div class="text">{{ 'text_preismeldung_erfasste' | translate }}</div>
                 </div>
-                <div class="row" *ngIf="!!(lastSyncedAt$ | async)">
+                <div class="row" *ngIf="!!(lastSyncedAt$ | async); let lastSyncedAt">
                     <div class="number">&nbsp;</div>
                     <div class="text">
                         {{ 'text_database-last-synced-at' | translate }}: <br />
-                        {{ lastSyncedAt$ | async | pefDateTranslate: 'DD MMMM YYYY HH:mm:ss' }}
+                        {{ lastSyncedAt | pefDateTranslate: 'DD MMMM YYYY HH:mm:ss' }}
                     </div>
                 </div>
                 <div class="buttons">
@@ -177,7 +181,7 @@
                         type="button"
                         (click)="loginClicked$.emit($event)"
                         [hidden]="!(showLogin$ | async)"
-                        [disabled]="isSyncing$ | async"
+                        [disabled]="isSyncing"
                     >
                         {{ 'btn_login' | translate }}
                     </ion-button>
@@ -185,7 +189,7 @@
                         type="button"
                         (click)="synchronizeClicked$.emit($event)"
                         [hidden]="!(canSync$ | async)"
-                        [disabled]="isSyncing$ | async"
+                        [disabled]="isSyncing"
                     >
                         {{ 'btn_synchronize' | translate }}
                     </ion-button>
@@ -195,7 +199,7 @@
                         [disabled]="
                             !(canSync$ | async) ||
                             (showLogin$ | async) ||
-                            (isSyncing$ | async) ||
+                            isSyncing ||
                             !(hasOpenSavedPreismeldungen$ | async)
                         "
                     >

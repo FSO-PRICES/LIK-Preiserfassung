@@ -83,7 +83,6 @@ export async function syncDatabaseAsync(dbName: string) {
     return _syncDatabaseAsync(dbName, { push: true, pull: true });
 }
 
-// TODO: Check push pull
 async function _syncDatabaseAsync(dbName: string, params: { push: any; pull: any }, batchSize: number = 1000) {
     const pouchDb = await getLocalCouchDb(dbName);
     const couchDb = await getCouchDb(dbName);
