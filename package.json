@@ -19,6 +19,7 @@
         "prebuild:electron:backoffice": "ionic cordova platform add electron --project backoffice && npm run overwrite-electron:backoffice",
         "build:electron:backoffice": "ionic cordova build electron --project backoffice",
         "run:browser:preiserfasser": "ionic serve --project preiserfasser",
+        "run:browser:backoffice": "ionic serve --project backoffice",
         "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser"
     },
     "private": true,
