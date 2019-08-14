@@ -17,7 +17,7 @@ export class PefDialogLoginComponent implements OnDestroy {
 
     public form: FormGroup;
 
-    public loginClicked$ = new EventEmitter();
+    public login$ = new EventEmitter();
     public loginError$ = this.store.select(fromRoot.getLoginError).pipe(
         publishReplay(1),
         refCount(),
@@ -34,9 +34,9 @@ export class PefDialogLoginComponent implements OnDestroy {
         const loginSuccess$ = this.store.select(fromRoot.getIsLoggedIn).pipe(filter(x => !!x));
 
         this.subscriptions = [
-            this.loginClicked$
+            this.login$
                 .pipe(
-                    map(x => ({ isValid: this.form.valid, credentials: this.form.value })),
+                    map(() => ({ isValid: this.form.valid, credentials: this.form.value })),
                     filter(x => x.isValid),
                 )
                 .subscribe(x => {
