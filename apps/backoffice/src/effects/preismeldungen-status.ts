@@ -111,7 +111,7 @@ async function setPreismeldungStatus({ pmId, status }) {
     return setPreismeldungStatusBulk([{ pmId: pmId, status }]);
 }
 
-async function setPreismeldungStatusBulk(data: { pmId: string; status: P.PreismeldungStatus }[]) {
+async function setPreismeldungStatusBulk(data: P.PreismeldungStatusList) {
     const db = await getLocalDatabase(dbNames.preismeldungen_status);
     const pmStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(db, 'preismeldungen_status');
     data.forEach(({ pmId, status }) => {

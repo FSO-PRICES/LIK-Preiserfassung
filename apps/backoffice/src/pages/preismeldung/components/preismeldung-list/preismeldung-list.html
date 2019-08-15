@@ -55,7 +55,7 @@
                 [multi]="true"
             ></pef-typeahead>
             <ion-button type="submit" [disabled]="!(canSearch$ | async)">anwenden</ion-button>
-            <ion-button (click)="resetFilterClicked$.emit($event)">zurücksetzen</ion-button>
+            <ion-button type="button" (click)="resetFilterClicked$.emit($event)">zurücksetzen</ion-button>
         </form>
         <h2>Suche in Auswahl (gefiltert)</h2>
         <pef-search-input label="Volltext" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
@@ -69,6 +69,9 @@
     <div class="header">
         <h1 class="large">
             <span>Preismeldungen</span>
+            <ion-button class="icon-only" type="button" (click)="updateAllPmStatusClicked$.emit()"
+                ><pef-icon name="checkmark"></pef-icon
+            ></ion-button>
             <div>
                 <span>({{ (filteredPreismeldungen$ | async).length }})</span>
                 <span class="close" (click)="resetPreismeldungen$.emit()">✖</span>

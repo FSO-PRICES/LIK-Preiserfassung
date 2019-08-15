@@ -25,7 +25,7 @@ export type Action =
           payload: { statusMap: PreismeldungenStatusPayload; count?: number };
       }
     | { type: typeof SET_PREISMELDUNGEN_STATUS; payload: { pmId: string; status: P.PreismeldungStatus } }
-    | { type: typeof SET_PREISMELDUNGEN_STATUS_BULK; payload: { pmId: string; status: P.PreismeldungStatus }[] }
+    | { type: typeof SET_PREISMELDUNGEN_STATUS_BULK; payload: P.PreismeldungStatusList }
     | { type: typeof SET_PREISMELDUNGEN_STATUS_SUCCESS; payload: { [pmId: string]: P.PreismeldungStatus } }
     | { type: typeof GET_MISSING_PREISMELDUNGEN_STATUS_COUNT }
     | { type: typeof GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_RESET }
@@ -63,12 +63,7 @@ export const createSetPreismeldungenStatusAction = (payload: {
     type: SET_PREISMELDUNGEN_STATUS,
     payload,
 });
-export const createSetPreismeldungenStatusBulkAction = (
-    payload: {
-        pmId: string;
-        status: P.PreismeldungStatus;
-    }[],
-): Action => ({
+export const createSetPreismeldungenStatusBulkAction = (payload: P.PreismeldungStatusList): Action => ({
     type: SET_PREISMELDUNGEN_STATUS_BULK,
     payload,
 });

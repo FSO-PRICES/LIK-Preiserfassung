@@ -131,6 +131,8 @@ export enum PreismeldungStatusFilter {
     'exportiert' = 3,
 }
 
+export type PreismeldungStatusList = { pmId: string; status: PreismeldungStatus }[];
+
 export interface PreismeldungenStatusProperties {
     statusMap: { [pmId: string]: PreismeldungStatus };
 }

@@ -10,9 +10,16 @@ import {
     ViewChild,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, defer } from 'rxjs';
 
-import { formatPercentageChange, pefSearch, PmsFilter, ReactiveComponent, StatusFilter } from '@lik-shared';
+import {
+    formatPercentageChange,
+    pefSearch,
+    PmsFilter,
+    ReactiveComponent,
+    StatusFilter,
+    PefDialogService,
+} from '@lik-shared';
 
 import {
     combineLatest,
@@ -27,11 +34,12 @@ import {
     startWith,
     take,
     takeUntil,
-    tap,
     withLatestFrom,
+    switchMap,
 } from 'rxjs/operators';
 import * as P from '../../../../common-models';
 import { TypeaheadData } from '../pef-typeahead/pef-typeahead';
+import { PefDialogPmStatusSelectionComponent } from '../../../../components/pef-dialog-pm-status-selection';
 
 @Component({
     selector: 'preismeldung-list',
@@ -52,6 +60,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('applyFilter') public applyFilter$: Observable<PmsFilter>;
     @Output('resetPreismeldungen') public resetPreismeldungen$ = new EventEmitter();
     @Output('selectPreismeldung') public selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
+    @Output('updateAllPmStatus') public updateAllPmStatus$: Observable<P.Models.PreismeldungStatusList>;
 
     @ViewChild('form', { static: true }) form: NgForm;
 
@@ -74,6 +83,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     public applyClicked$ = new EventEmitter();
     public resetFilterClicked$ = new EventEmitter();
+    public updateAllPmStatusClicked$ = new EventEmitter();
     public resetFilter$: Observable<any>;
     public resetPmIdSearch$: Observable<any>;
     public scrollList: P.PreismeldungBag[];
@@ -96,7 +106,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     private onDestroy$ = new EventEmitter();
 
-    constructor() {
+    constructor(pefDialogService: PefDialogService) {
         super();
 
         const pmIdSearchChanged$ = this.pmIdSearchChanged$.pipe(
@@ -110,6 +120,13 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.resetFilter$ = this.resetFilterClicked$.pipe(
             merge(pmIdSearch$),
             map(() => ({})),
+        );
+
+        const confirmUpdateStatusDialog$ = defer(() =>
+            pefDialogService.displayDialog(PefDialogPmStatusSelectionComponent).pipe(
+                map(x => x.data),
+                filter(data => data.type === 'CONFIRM_SAVE'),
+            ),
         );
 
         const statusFilter$ = this.statusFilterChanged$.asObservable().pipe(
@@ -230,6 +247,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             ),
             publishReplay(1),
             refCount(),
+        );
+
+        this.updateAllPmStatus$ = this.updateAllPmStatusClicked$.pipe(
+            switchMap(() => confirmUpdateStatusDialog$),
+            withLatestFrom(this.filteredPreismeldungen$),
+            map(([data, preismeldungen]) =>
+                preismeldungen
+                    .filter(bag => !!bag.preismeldung.uploadRequestedAt)
+                    .map(({ pmId }) => ({ pmId, status: data.value })),
+            ),
         );
     }
 

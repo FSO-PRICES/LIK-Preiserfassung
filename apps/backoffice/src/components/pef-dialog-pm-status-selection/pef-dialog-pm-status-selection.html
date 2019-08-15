@@ -1,0 +1,33 @@
+<div class="pef-dialog-message">
+    <h3>
+        Wählen Sie den neuen Status
+    </h3>
+    <div class="message">
+        <pef-icon name="warning"></pef-icon>
+        <p>
+            Dies betrifft alle angezeigten Preismeldungen, welche von den Preiserheber freigegeben sind.
+        </p>
+    </div>
+
+    <ion-radio-group [(ngModel)]="pmStatus" name="pmStatus">
+        <ion-item>
+            <ion-radio [value]="0"></ion-radio>
+            <ion-label>Ungeprüft</ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-radio [value]="1"></ion-radio>
+            <ion-label>Blockiert</ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-radio [value]="2"></ion-radio>
+            <ion-label>Geprüft</ion-label>
+        </ion-item>
+    </ion-radio-group>
+</div>
+
+<div class="pef-dialog-button-row">
+    <ion-button (click)="viewCtrl.dismiss({ type: 'ABBORT_SAVE' })" color="primary">Abbrechen</ion-button>
+    <ion-button class="danger" (click)="viewCtrl.dismiss({ type: 'CONFIRM_SAVE', value: pmStatus })" color="secondary">
+        Speichern
+    </ion-button>
+</div>

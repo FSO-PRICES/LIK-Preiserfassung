@@ -1,0 +1,16 @@
+:host {
+    .message {
+        display: flex;
+        flex-direction: row;
+        p {
+            padding-left: 0;
+        }
+    }
+    pef-icon {
+        margin-right: 10px;
+        align-self: center;
+    }
+    ion-radio {
+        margin-right: 5px;
+    }
+}
