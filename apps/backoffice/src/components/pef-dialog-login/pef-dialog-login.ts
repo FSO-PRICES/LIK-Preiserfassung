@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostBinding, OnDestroy } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostBinding, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
@@ -14,6 +14,8 @@ import * as fromRoot from '../../reducers';
 })
 export class PefDialogLoginComponent implements OnDestroy {
     @HostBinding('class') classes = 'pef-dialog';
+
+    @ViewChild('username', { read: ElementRef, static: false }) username: ElementRef<HTMLElement>;
 
     public form: FormGroup;
 
@@ -45,6 +47,13 @@ export class PefDialogLoginComponent implements OnDestroy {
 
             loginSuccess$.subscribe(() => viewCtrl.dismiss('LOGGED_IN')),
         ];
+    }
+
+    ionViewDidEnter() {
+        const el = this.username.nativeElement.querySelector('input') as HTMLElement;
+        if (el && el.focus) {
+            el.focus();
+        }
     }
 
     ngOnDestroy() {
