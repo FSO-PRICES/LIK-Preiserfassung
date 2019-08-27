@@ -11,6 +11,19 @@
 
     .actions {
         align-self: flex-start;
+        display: flex;
+    }
+
+    ion-item.snippets-item {
+        margin-left: 20px;
+        display: inline-block;
+        --background: transparent;
+        select {
+            height: 2.5em;
+            &[disabled] {
+                background-color: $wild-sand;
+            }
+        }
     }
 
     ion-item.pef-textarea-item {

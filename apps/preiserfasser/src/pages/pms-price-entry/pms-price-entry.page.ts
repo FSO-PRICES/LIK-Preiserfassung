@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy, OnInit } f
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
+import { TranslateService } from '@ngx-translate/core';
+import { range } from 'lodash';
 import { defer, Observable, of, Subject } from 'rxjs';
 import {
     combineLatest,
@@ -98,12 +100,14 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
     requestPreismeldungQuickEqual$: Observable<{}>;
 
     selectedTab$: Observable<string>;
+    snippets: string[];
 
     public chooseFromWarenkorbDisplayed$: Observable<boolean>;
 
     private onDestroy$ = new Subject<void>();
 
     constructor(
+        translateService: TranslateService,
         activeRoute: ActivatedRoute,
         pefDialogService: PefDialogService,
         pefMessageDialogService: PefMessageDialogService,
@@ -126,6 +130,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
             publishReplay(1),
             refCount(),
         );
+        this.snippets = range(1, 18).map(i => translateService.instant(`kommentar-text_${i}`));
 
         const requestNavigateHome$ = this.toolbarButtonClicked$.pipe(
             filter(x => x === 'HOME'),

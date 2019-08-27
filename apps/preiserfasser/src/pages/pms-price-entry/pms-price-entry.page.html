@@ -42,6 +42,7 @@
                     [preismeldung]="currentPreismeldung$ | async"
                     [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
+                    [snippets]="snippets"
                     [isDesktop]="isDesktop$ | async"
                     (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"
                 ></preismeldung-messages>

@@ -45,6 +45,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() isDesktop: boolean;
     @Input() isAdminApp: boolean;
+    @Input() snippets: string[];
     @Output('preismeldungMessagesPayload') preismeldungMessagesPayload$: Observable<P.PreismeldungMessagesPayload>;
     @Output('kommentarClearClicked') kommentarClearClicked$: Observable<{}>;
 
@@ -76,10 +77,15 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
         super();
 
         this.form = formBuilder.group({
-            notiz: [''],
-            kommentar: [''],
-            bemerkungen: [''],
+            messages: formBuilder.group({
+                notiz: [''],
+                kommentar: [''],
+                bemerkungen: [''],
+            }),
+            snippets: [''],
         });
+        const messagesForm = this.form.controls['messages'];
+        const snippetsControl = this.form.controls['snippets'];
 
         const distinctPreismeldung$ = this.preismeldung$.pipe(
             filter(x => !!x),
@@ -119,30 +125,51 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             refCount(),
         );
 
+        snippetsControl.valueChanges
+            .pipe(
+                filter(snippet => snippet !== ''),
+                takeUntil(this.onDestroy$),
+            )
+            .subscribe(snippet => {
+                const kommentar = messagesForm.get('kommentar').value;
+                messagesForm.patchValue({ kommentar: kommentar + (!!kommentar ? '\n' : '') + snippet });
+                snippetsControl.patchValue('', { emitEvent: false });
+                this.onBlur$.emit();
+            });
+
         distinctPreismeldung$.pipe(takeUntil(this.onDestroy$)).subscribe(bag => {
-            this.form.reset({
+            messagesForm.reset({
                 notiz: bag.messages.notiz.replace(/\\n/g, '\n'),
                 kommentar: bag.messages.kommentar.replace(/\\n/g, '\n'),
                 bemerkungen: bag.messages.bemerkungen.replace(/\\n/g, '\n'),
             });
+            snippetsControl.patchValue('');
+        });
+
+        this.isReadonly$.pipe(takeUntil(this.onDestroy$)).subscribe(readonly => {
+            if (readonly) {
+                snippetsControl.disable();
+            } else {
+                snippetsControl.enable();
+            }
         });
 
         const notizClearDone$ = this.notizClear$.pipe(
             tap(() => {
-                this.form.patchValue({ notiz: '' });
+                messagesForm.patchValue({ notiz: '' });
             }),
         );
 
         const kommentarClearDone$ = this.kommentarClear$.pipe(
             tap(() => {
-                this.form.patchValue({ kommentar: '' });
+                messagesForm.patchValue({ kommentar: '' });
             }),
             share(),
         );
 
         const bemerkungenClearDone$ = this.bemerkungenClear$.pipe(
             tap(() => {
-                this.form.patchValue({ bemerkungen: '' });
+                messagesForm.patchValue({ bemerkungen: '' });
             }),
             share(),
         );
@@ -151,10 +178,10 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
 
         const erledigtDone$ = this.erledigt$.pipe(
             tap(() => {
-                let bemerkungen = this.form.value['bemerkungen'];
+                let bemerkungen = messagesForm.value['bemerkungen'];
                 bemerkungen = !!bemerkungen ? bemerkungen + '\n' : bemerkungen;
                 bemerkungen += '@OK';
-                this.form.patchValue({ bemerkungen });
+                messagesForm.patchValue({ bemerkungen });
             }),
         );
 
@@ -162,12 +189,12 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             merge(kommentarClearDone$, bemerkungenClearDone$, erledigtDone$),
         );
 
-        this.erledigtDisabled$ = this.form.valueChanges.pipe(
+        this.erledigtDisabled$ = messagesForm.valueChanges.pipe(
             map(x => x.bemerkungen.endsWith('@OK')),
             startWith(false),
             withLatestFrom(this.isReadonly$, (disabled, readonly) => disabled || readonly),
         );
-        this.erledigtButtonDisabled$ = this.form.valueChanges.pipe(
+        this.erledigtButtonDisabled$ = messagesForm.valueChanges.pipe(
             map(x => !x.bemerkungen),
             merge(distinctPreismeldung$.pipe(map(x => !x.messages.bemerkungen))),
             startWith(true),
@@ -176,7 +203,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
         this.preismeldungMessagesPayload$ = this.onBlur$.pipe(
             merge(buttonActionDone$),
             withLatestFrom(
-                this.form.valueChanges.pipe(startWith({ notiz: '', kommentar: '', bemerkungen: '' })),
+                messagesForm.valueChanges.pipe(startWith({ notiz: '', kommentar: '', bemerkungen: '' })),
                 (_, formValue) => formValue,
             ),
             debounceTime(100),
