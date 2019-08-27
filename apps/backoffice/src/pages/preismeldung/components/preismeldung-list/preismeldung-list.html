@@ -63,8 +63,8 @@
 </div>
 <div
     class="preismeldung-list-container container"
-    *ngIf="(filteredPreismeldungen$ | async)"
-    [class.hidden]="!(filteredPreismeldungen$ | async)?.length"
+    *ngIf="(filteredPreismeldungen$ | async); let filteredPreismeldungen"
+    [class.hidden]="!filteredPreismeldungen?.length"
 >
     <div class="header">
         <h1 class="large">
@@ -73,7 +73,7 @@
                 ><pef-icon name="checkmark"></pef-icon
             ></ion-button>
             <div>
-                <span>({{ (filteredPreismeldungen$ | async).length }})</span>
+                <span>({{ filteredPreismeldungen.length }})</span>
                 <span class="close" (click)="resetPreismeldungen$.emit()">✖</span>
             </div>
         </h1>
@@ -81,13 +81,12 @@
     <div class="pef-advanced-item-flex-container">
         <div *ngIf="!!(status$ | async)">{{ status$ | async }}</div>
         <pef-virtual-scroll
-            [items]="filteredPreismeldungen$ | async"
+            [items]="filteredPreismeldungen"
             [childHeight]="60"
             (update)="scrollList = $event"
             pef-perfect-scrollbar
             [enabled]="true"
         >
-            <!-- [class.hidden]="(filteredPreismeldungen$ | async).length === 0" -->
             <ion-item
                 class="pef-advanced-item"
                 *ngFor="let bag of scrollList"

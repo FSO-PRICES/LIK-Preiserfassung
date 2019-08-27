@@ -10,15 +10,15 @@ import {
     ViewChild,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Observable, defer } from 'rxjs';
+import { defer, Observable } from 'rxjs';
 
 import {
     formatPercentageChange,
+    PefDialogService,
     pefSearch,
     PmsFilter,
     ReactiveComponent,
     StatusFilter,
-    PefDialogService,
 } from '@lik-shared';
 
 import {
@@ -32,14 +32,14 @@ import {
     publishReplay,
     refCount,
     startWith,
+    switchMap,
     take,
     takeUntil,
     withLatestFrom,
-    switchMap,
 } from 'rxjs/operators';
 import * as P from '../../../../common-models';
-import { TypeaheadData } from '../pef-typeahead/pef-typeahead';
 import { PefDialogPmStatusSelectionComponent } from '../../../../components/pef-dialog-pm-status-selection';
+import { TypeaheadData } from '../pef-typeahead/pef-typeahead';
 
 @Component({
     selector: 'preismeldung-list',

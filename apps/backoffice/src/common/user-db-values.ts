@@ -171,6 +171,11 @@ async function loadPreiszuweisungen() {
 }
 
 export async function loadPreismeldungenAndRefPreismeldungForPms(filterParams: Partial<PmsFilter>) {
+    const notFound = { refPreismeldungen: [], preismeldungen: [], pms: null, alreadyExported: [] };
+    if (!!filterParams.pmIdSearch && parseIdSearchParams(filterParams.pmIdSearch) === null) {
+        return notFound;
+    }
+
     const preiszuweisungen = await loadPreiszuweisungen();
 
     const alreadyExported = await getDatabase(dbNames.exports).then(db =>
@@ -222,7 +227,7 @@ export async function loadPreismeldungenAndRefPreismeldungForPms(filterParams: P
     }
 
     if (preiserheberIds.length === 0) {
-        return { refPreismeldungen: [], preismeldungen: [], pms: null, alreadyExported: [] };
+        return notFound;
     }
     const preismeldungen = await getPreismeldungenByPmsNummers(filterParams, preiserheberIds);
 
@@ -386,14 +391,19 @@ async function loadByExactSearch(
     preiszuweisungen: P.Preiszuweisung[],
     alreadyExported: string[],
 ) {
+    const notFound = { refPreismeldungen: [], preismeldungen: [], pms: null, alreadyExported: [] };
     const filter = parseIdSearchParams(idSearchParams);
+    if (!filter) {
+        return notFound;
+    }
+
     const preiserheberId = first(
         preiszuweisungen
             .filter(pz => pz.preismeldestellenNummern.some(p => p === first(filter.pmsNummers)))
             .map(pz => pz.preiserheberId),
     );
     if (!preiserheberId) {
-        return { refPreismeldungen: [], preismeldungen: [], pms: null, alreadyExported: [] };
+        return notFound;
     }
 
     const refPreismeldungen = await getRefPreismeldungenByPmsNummers(filter);
