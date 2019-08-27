@@ -84,11 +84,16 @@
         ion-textarea {
             margin-top: 0;
             background-color: $white;
+            padding-left: 0;
             --background: #{$white};
-            --padding-top: 6px;
-            --padding-bottom: 6px;
+            --padding-top: 0;
+            --padding-bottom: 0;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 0;
+            padding-right: 0;
             border-bottom: 2px solid $hit-gray;
-            height: 42px;
+            height: 47px;
             &.readonly {
                 background-color: $alto;
                 --background: #{$alto};
