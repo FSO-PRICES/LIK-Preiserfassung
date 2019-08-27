@@ -135,21 +135,24 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             return assign({}, initialState);
 
         case 'SWITCH_TO_PREISMELDUNG_SLOT': {
-            const { pmsNummer, preismeldungIds, entities, currentPreismeldung, priceCountStatuses, status } = state;
+            const getSlottedState = (s: State) => {
+                const { pmsNummer, preismeldungIds, entities, currentPreismeldung, priceCountStatuses, status } = s;
+                return {
+                    pmsNummer,
+                    preismeldungIds,
+                    entities,
+                    currentPreismeldung,
+                    priceCountStatuses,
+                    status,
+                };
+            };
             return {
                 ...state,
                 stateSlots: {
                     ...state.stateSlots,
-                    [state.currentStateSlot]: {
-                        pmsNummer,
-                        preismeldungIds,
-                        entities,
-                        currentPreismeldung,
-                        priceCountStatuses,
-                        status,
-                    },
+                    [state.currentStateSlot]: getSlottedState(state),
                 },
-                ...state.stateSlots[action.payload],
+                ...(state.stateSlots[action.payload] || getSlottedState(initialState)),
                 currentStateSlot: action.payload,
             };
         }
