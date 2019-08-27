@@ -11,3 +11,12 @@ ion-label.sc-ion-label-md-s.md {
 h3 {
     margin-top: 0;
 }
+
+.login-modal .modal-wrapper.sc-ion-modal-md {
+    position: absolute;
+    top: 44px;
+    transform: none;
+}
+.editable-popover .popover-wrapper.sc-ion-popover-md .popover-content {
+    top: 110px !important;
+}

@@ -385,7 +385,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     mergeMap(() =>
                         pefDialogService
                             .displayDialog(DialogChoosePercentageReductionComponent, {
-                                dialogOptions: { backdropDismiss: true },
+                                dialogOptions: { backdropDismiss: true, cssClass: 'editable-popover' },
                             })
                             .pipe(map(x => x.data)),
                     ),
