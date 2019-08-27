@@ -20,37 +20,7 @@ import * as P from '../../../models';
 @Component({
     selector: 'preismeldung-attributes',
     styleUrls: ['./preismeldung-attributes.scss'],
-    template: `
-        <preismeldung-readonly-header
-            [preismeldung]="preismeldung$ | async"
-            [preismeldestelle]="preismeldestelle$ | async"
-            [isAdminApp]="isAdminApp$ | async"
-        ></preismeldung-readonly-header>
-
-        <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
-            <form [formGroup]="form">
-                <div class="detail-tab-bottom-part">
-                    <h3 class="large">{{ 'heading_preismeldung-attributes' | translate }}</h3>
-                    <ion-list>
-                        <ion-item
-                            class="pef-item"
-                            *ngFor="
-                                let att of (preismeldung$ | async)?.warenkorbPosition.productMerkmale;
-                                let i = index
-                            "
-                        >
-                            <ion-label>{{ att | pefPropertyTranslate }}</ion-label>
-                            <ion-input
-                                type="text"
-                                [formControlName]="'attribute_' + i"
-                                (ionBlur)="fieldEdited$.emit()"
-                            ></ion-input>
-                        </ion-item>
-                    </ion-list>
-                </div>
-            </form>
-        </div>
-    `,
+    templateUrl: 'preismeldung-attributes.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges, OnDestroy {

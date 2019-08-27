@@ -1,8 +1,12 @@
 @import '../../../../styles/imports.scss';
 
+ion-content {
+    flex: 1;
+    min-height: 0;
+}
+
 .detail-tab-bottom-part {
     @include set-padding(1, 1, 1, 1);
-    flex: 1 1 auto;
     min-height: 0;
     background-color: $mercury;
     display: flex;

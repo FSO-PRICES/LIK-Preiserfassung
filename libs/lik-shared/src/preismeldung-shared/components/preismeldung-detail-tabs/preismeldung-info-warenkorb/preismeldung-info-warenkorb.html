@@ -4,8 +4,8 @@
     [isAdminApp]="isAdminApp$ | async"
 ></preismeldung-readonly-header>
 
-<div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
-    <div pef-perfect-scrollbar [enabled]="isDesktop$ | async" *ngxLet="(preismeldung$ | async); let preismeldung">
+<ion-content *ngxLet="(preismeldung$ | async); let preismeldung">
+    <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
         <h5 class="large">{{ 'heading_information-about-warenkorbposition' | translate }}</h5>
 
         <div class="info-warenkorb-table">
@@ -151,4 +151,4 @@
             </div>
         </div>
     </div>
-</div>
+</ion-content>
