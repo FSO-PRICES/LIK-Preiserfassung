@@ -4,7 +4,7 @@ import { createCountMapOf, createMapOf, formatPercentageChange, Models as P } fr
 
 import * as controlling from '../actions/controlling';
 import * as preismeldungenStatusActions from '../actions/preismeldungen-status';
-import { translateKommentare } from '../common/kommentar-functions';
+import { formatMessages, translateKommentare } from '../common/kommentar-functions';
 
 const fwith = <T>(o: T, fn: (o: T) => any) => fn(o);
 
@@ -946,8 +946,7 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         normalColumn(p.warenkorbItem.positionsbezeichnung.de),
     [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
         normalColumn(p.preismeldung && p.preismeldung.artikeltext),
-    [columnPreisbezeichnungVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung.artikeltext),
-    [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
+    [columnPreisbezeichnungVP]: (p: ControllingErhebungsPosition) =>
         normalColumn(p.refPreismeldung && p.refPreismeldung.artikeltext),
     [columnPreisVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung && p.refPreismeldung.preis),
     [columnMengeVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung && p.refPreismeldung.menge),
@@ -971,9 +970,13 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         normalColumn(p.preismeldung && p.preismeldung.aktion ? 'A' : undefined),
     [columnMerkmaleVP]: (p: ControllingErhebungsPosition) =>
         htmlColumn(
-            p.warenkorbItem.productMerkmale
-                .map((m, i) => `<b>${m.de}</b>:${!!p.refPreismeldung ? p.refPreismeldung.productMerkmale[i] : ''}`)
-                .join('|'),
+            !!p.refPreismeldung && p.refPreismeldung.productMerkmale.some(m => !!m)
+                ? p.warenkorbItem.productMerkmale
+                      .map(
+                          (m, i) => `<b>${m.de}</b>:${!!p.refPreismeldung ? p.refPreismeldung.productMerkmale[i] : ''}`,
+                      )
+                      .join('|')
+                : '',
         ),
     [columnMerkmaleT]: (p: ControllingErhebungsPosition) =>
         normalColumn(
@@ -985,10 +988,10 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         if (!p.preismeldung || p.preismeldung.kommentar === '\\n') {
             return normalColumn(undefined);
         }
-        return normalColumn(translateKommentare(p.preismeldung.kommentar));
+        return htmlColumn(formatMessages(translateKommentare(p.preismeldung.kommentar)));
     },
     [columnBemerkungenT]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && p.preismeldung.bemerkungen),
+        htmlColumn(formatMessages(p.preismeldung && p.preismeldung.bemerkungen)),
     [columnPeNummer]: (p: ControllingErhebungsPosition) => normalColumn(p.preiserheber && p.preiserheber.peNummer),
     [columnPeName]: (p: ControllingErhebungsPosition) =>
         normalColumn(fwith(p.preiserheber, e => (!!e ? `${e.firstName} ${e.surname}` : null))),
