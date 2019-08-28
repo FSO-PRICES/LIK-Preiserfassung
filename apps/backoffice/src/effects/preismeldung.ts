@@ -106,7 +106,7 @@ export class PreismeldungEffects {
                 map(preismeldung => ({ preismeldung, saveAction })),
             );
         }),
-        map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload })),
+        map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload } as PreismeldungAction)),
     );
 
     @Effect()
@@ -116,7 +116,7 @@ export class PreismeldungEffects {
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
         ),
         flatMap(currentPreismeldung => this.savePreismeldungMessages(currentPreismeldung)),
-        map(payload => ({ type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS', payload })),
+        map(payload => ({ type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS', payload } as PreismeldungAction)),
     );
 
     @Effect()
@@ -126,7 +126,7 @@ export class PreismeldungEffects {
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
         ),
         flatMap(currentPreismeldung => this.savePreismeldungAttributes(currentPreismeldung)),
-        map(payload => ({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS', payload })),
+        map(payload => ({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS', payload } as PreismeldungAction)),
     );
 
     @Effect()
@@ -141,7 +141,7 @@ export class PreismeldungEffects {
                 bag => copyPreismeldungPropertiesFromRefPreismeldung(bag.refPreismeldung),
             ]),
         ),
-        map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload })),
+        map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload } as PreismeldungAction)),
     );
 
     @Effect()
@@ -165,14 +165,14 @@ export class PreismeldungEffects {
                                     const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
                                         sortOrder: pmsPreismeldungenSort.sortOrder.filter(x => x.pmId !== bag.pmId),
                                     });
-                                    return userDb.put(newPmsPreismeldungsSort);
+                                    return userDb.put(newPmsPreismeldungsSort).then(() => newPmsPreismeldungsSort);
                                 })
-                                .then(() => bag.preismeldung._id),
+                                .then(pmsPreismeldungenSort => ({ pmId: bag.preismeldung._id, pmsPreismeldungenSort })),
                         ),
                 ),
             ),
         ),
-        map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload })),
+        map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload } as PreismeldungAction)),
     );
 
     savePreismeldung(

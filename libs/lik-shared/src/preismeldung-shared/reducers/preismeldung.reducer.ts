@@ -394,12 +394,13 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         }
 
         case 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS': {
-            const currentPreismeldung = assign(
-                {},
-                state.currentPreismeldung,
-                { preismeldung: action.payload.preismeldung },
-                { isModified: false, isNew: false },
-            );
+            const currentPreismeldung = {
+                ...state.currentPreismeldung,
+                preismeldung: action.payload.preismeldung,
+                isModified: false,
+                isNew: false,
+                messages: parsePreismeldungMessages(action.payload.preismeldung, state.isAdminApp),
+            };
             const preismeldungIds = action.payload.pmsPreismeldungenSort.sortOrder.map(x => x.pmId);
             let entities = assign({}, state.entities, {
                 [currentPreismeldung.pmId]: assign({}, currentPreismeldung),

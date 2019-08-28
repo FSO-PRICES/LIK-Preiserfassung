@@ -203,11 +203,23 @@ export class PreismeldungenEffects {
     @Effect()
     saveNewPreismeldung$ = this.savePreismeldungPrice$.pipe(
         filter(x => x.currentPreismeldung.isNew),
-        flatMap(({ currentPreismeldung }) =>
+        map(x => {
+            const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
+            let currentPreismeldung = x.currentPreismeldung;
+            const kommentarAutotext = arrayFlatMap(
+                saveAction.saveWithData
+                    .filter(s => s.type === 'COMMENT')
+                    .map((s: SavePreismeldungPriceSaveActionCommentsType) => s.comments),
+            );
+            currentPreismeldung = {
+                ...currentPreismeldung,
+                messages: { ...currentPreismeldung.messages, kommentarAutotext },
+            };
+            return currentPreismeldung;
+        }),
+        flatMap(currentPreismeldung =>
             getDatabase()
-                .then((
-                    db, // save Preismeldung
-                ) =>
+                .then(db =>
                     db
                         .put(
                             assign(
@@ -330,12 +342,12 @@ export class PreismeldungenEffects {
                             const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
                                 sortOrder: pmsPreismeldungenSort.sortOrder.filter(x => x.pmId !== bag.pmId),
                             });
-                            return db.put(newPmsPreismeldungsSort).then(() => db);
+                            return db.put(newPmsPreismeldungsSort).then(() => newPmsPreismeldungsSort);
                         })
-                        .then(() => bag.preismeldung._id),
+                        .then(pmsPreismeldungenSort => ({ pmId: bag.preismeldung._id, pmsPreismeldungenSort })),
                 ),
         ),
-        map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload })),
+        map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload } as PreismeldungAction)),
     );
 
     @Effect()

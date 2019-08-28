@@ -251,7 +251,8 @@
         flex: 0 0 10em;
     }
 
-    .current-period {
+    .current-period,
+    .last-period {
         flex: 0 0 calc(50% - 5em);
         max-width: calc(50% - 5em);
 

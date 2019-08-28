@@ -122,26 +122,28 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             combineLatest(this.preismeldungStatusFilter$, this.preismeldungenStatus$),
             filter(([x]) => !!x && !!x.rows),
             map(([x, statusFilter, preismeldungenStatus]) =>
-                x.rows.filter(r => {
-                    if (ControllingTypesWithoutPmStatus.some(t => t === x.controllingType)) {
-                        return !r.exported;
-                    }
-                    if (x.controllingType === CONTROLLING_0830) {
+                x.rows
+                    .filter(r => {
+                        if (ControllingTypesWithoutPmStatus.some(t => t === x.controllingType)) {
+                            return !r.exported;
+                        }
+                        if (x.controllingType === CONTROLLING_0830) {
+                            return (
+                                !r.exported &&
+                                preismeldungenStatus[r.pmId] != null &&
+                                preismeldungenStatus[r.pmId] <= statusFilter
+                            );
+                        }
+                        if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
+                            return r.exported || preismeldungenStatus[r.pmId] != null;
+                        }
                         return (
                             !r.exported &&
                             preismeldungenStatus[r.pmId] != null &&
                             preismeldungenStatus[r.pmId] <= statusFilter
                         );
-                    }
-                    if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
-                        return r.exported || preismeldungenStatus[r.pmId] != null;
-                    }
-                    return (
-                        !r.exported &&
-                        preismeldungenStatus[r.pmId] != null &&
-                        preismeldungenStatus[r.pmId] <= statusFilter
-                    );
-                }),
+                    })
+                    .map(r => ({ ...r, values: r.values.map(c => ({ ...c, formattedValue: this.formatValue(c) })) })),
             ),
         );
         this.completeAllPreismeldungenStatus$ = this.completeAllPreismeldungenStatusClicked$.pipe(

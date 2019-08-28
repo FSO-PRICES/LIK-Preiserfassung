@@ -72,11 +72,11 @@
                 <th
                     *ngFor="let column of (reportData$ | async)?.columns; let i = index"
                     (click)="toggleColumn$.emit(i)"
-                    class="collapsable"
+                    [ngClass]="['collapsable', column.cssClass]"
                     [class.collapsed]="(hiddenColumns$ | async)[i]"
-                    [title]="column"
+                    [title]="column.name"
                 >
-                    {{ shortColumnNames[column] || column }}
+                    {{ shortColumnNames[column.name] || column.name }}
                 </th>
             </tr>
         </thead>
@@ -100,9 +100,10 @@
                     ></pef-pm-status>
                 </td>
                 <td
-                    *ngFor="let value of row.values; let i = index"
+                    *ngFor="let column of row.values; let i = index"
                     [class.collapsed]="(hiddenColumns$ | async)[i]"
-                    [innerHTML]="formatValue(value)"
+                    [ngClass]="[column.cssClass]"
+                    [innerHTML]="column.formattedValue"
                 ></td>
             </tr>
         </tbody>

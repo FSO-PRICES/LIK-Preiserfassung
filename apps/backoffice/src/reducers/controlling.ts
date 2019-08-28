@@ -1,6 +1,6 @@
 import { orderBy } from 'lodash';
 
-import { createCountMapOf, createMapOf, formatPercentageChange, Models as P } from '@lik-shared';
+import { createCountMapOf, createMapOf, formatPercentageChange, Models as P, preisLabelFormatFn } from '@lik-shared';
 
 import * as controlling from '../actions/controlling';
 import * as preismeldungenStatusActions from '../actions/preismeldungen-status';
@@ -10,7 +10,7 @@ const fwith = <T>(o: T, fn: (o: T) => any) => fn(o);
 
 export interface ControllingReportData {
     controllingType: controlling.CONTROLLING_TYPE;
-    columns: string[];
+    columns: { name: string; cssClass: string }[];
     rows: {
         exported: boolean;
         pmId: string;
@@ -133,13 +133,13 @@ function runReport(
     const controllingConfig = controllingConfigs[controllingType];
     const erhebungsPositionen = filterErhebungsPositionen(controllingConfig, data, preismeldungenStatus);
     const results = erhebungsPositionen.map(x => ({
-        values: controllingConfig.columns.map(v => columnDefinition[v](x)),
+        values: controllingConfig.columns.map(v => columnDefinition[v.name](x)),
         canView: !!x.preismeldung,
         pmId: !!x.preismeldung ? x.preismeldung._id : x.refPreismeldung.pmId,
         ...controllingConfig.sortBy.reduce(
             (acc, v, i) => ({
                 ...acc,
-                [`sort${i}`]: fwith(columnDefinition[v.column](x).value, y => (v.convertToNumber ? +y : y)),
+                [`sort${i}`]: fwith(columnDefinition[v.column.name](x).value, y => (v.convertToNumber ? +y : y)),
             }),
             {},
         ),
@@ -176,38 +176,38 @@ interface ControllingErhebungsPosition {
     numEpForThisPms: number;
 }
 
-const columnErhebungsZeitpunkt = 'ErhebungsZeitpunkt';
-const columnPreisId = 'Preis_ID';
-const columnPmsErhebungsregion = 'PMS_Erhebungsregion';
-const columnPmsNummer = 'PMS_Nummer';
-const columnPmsName = 'PMS_Name';
-const columnEpNummer = 'EP_Nummer';
-const columnLaufnummer = 'Laufnummer';
-const columnPositionsbezeichnung = 'Positionsbezeichnung';
-const columnPreisbezeichnungT = 'Preisbezeichnung_T';
-const columnPreisbezeichnungVP = 'Preisbezeichnung_VP';
-const columnPreisVP = 'Preis_VP';
-const columnMengeVP = 'Menge_VP';
-const columnPreisT = 'Preis_T';
-const columnMengeT = 'Menge_T';
-const columnStandardeinheit = 'Standardeinheit';
-const columnBearbeitungscode = 'Bearbeitungscode';
-const columnAktionscodeVP = 'Actionscode_VP';
-const columnAktionscodeT = 'Actionscode_T';
-const columnMerkmaleVP = 'Merkmale_VP';
-const columnMerkmaleT = 'Merkmale_T';
-const columnDPToVPRaw = '[RAW] Veränderung';
-const columnDPToVP = 'Veränderung';
-const columnDPToVPVorReduktion = 'Veränderung vor Reduktion';
-const columnDPToVPVorReduktionRaw = '[RAW] Veränderung vor Reduktion';
-const columnNumPreiseProEP = '# Preise pro EP';
-const columnKommentarT = 'Kommentar_T';
-const columnBemerkungenT = 'Bemerkungen_T';
-const columnPeNummer = 'PE_Nummer';
-const columnPeName = 'PE_Name';
-const columnPmsGeschlossen = 'PMS_geschlossen';
-const columnWarenkorbIndex = '[Internal] WarenkorbIndex';
-const columnAnzahlPreiseProPMS = 'anzahlPreiseProPMS';
+const columnErhebungsZeitpunkt = { name: 'ErhebungsZeitpunkt', cssClass: '' };
+const columnPreisId = { name: 'Preis_ID', cssClass: '' };
+const columnPmsErhebungsregion = { name: 'PMS_Erhebungsregion', cssClass: '' };
+const columnPmsNummer = { name: 'PMS_Nummer', cssClass: '' };
+const columnPmsName = { name: 'PMS_Name', cssClass: '' };
+const columnEpNummer = { name: 'EP_Nummer', cssClass: '' };
+const columnLaufnummer = { name: 'Laufnummer', cssClass: '' };
+const columnPositionsbezeichnung = { name: 'Positionsbezeichnung', cssClass: '' };
+const columnPreisbezeichnungT = { name: 'Preisbezeichnung_T', cssClass: '' };
+const columnPreisbezeichnungVP = { name: 'Preisbezeichnung_VP', cssClass: '' };
+const columnPreisVP = { name: 'Preis_VP', cssClass: 'align-right' };
+const columnMengeVP = { name: 'Menge_VP', cssClass: 'align-right' };
+const columnPreisT = { name: 'Preis_T', cssClass: 'align-right' };
+const columnMengeT = { name: 'Menge_T', cssClass: 'align-right' };
+const columnStandardeinheit = { name: 'Standardeinheit', cssClass: '' };
+const columnBearbeitungscode = { name: 'Bearbeitungscode', cssClass: '' };
+const columnAktionscodeVP = { name: 'Actionscode_VP', cssClass: '' };
+const columnAktionscodeT = { name: 'Actionscode_T', cssClass: '' };
+const columnMerkmaleVP = { name: 'Merkmale_VP', cssClass: '' };
+const columnMerkmaleT = { name: 'Merkmale_T', cssClass: '' };
+const columnDPToVPRaw = { name: '[RAW] Veränderung', cssClass: 'align-right' };
+const columnDPToVP = { name: 'Veränderung', cssClass: 'align-right' };
+const columnDPToVPVorReduktion = { name: 'Veränderung vor Reduktion', cssClass: 'align-right' };
+const columnDPToVPVorReduktionRaw = { name: '[RAW] Veränderung vor Reduktion', cssClass: 'align-right' };
+const columnNumPreiseProEP = { name: '# Preise pro EP', cssClass: '' };
+const columnKommentarT = { name: 'Kommentar_T', cssClass: '' };
+const columnBemerkungenT = { name: 'Bemerkungen_T', cssClass: '' };
+const columnPeNummer = { name: 'PE_Nummer', cssClass: '' };
+const columnPeName = { name: 'PE_Name', cssClass: '' };
+const columnPmsGeschlossen = { name: 'PMS_geschlossen', cssClass: '' };
+const columnWarenkorbIndex = { name: '[Internal] WarenkorbIndex', cssClass: '' };
+const columnAnzahlPreiseProPMS = { name: 'anzahlPreiseProPMS', cssClass: '' };
 
 export const ShortColumnNames = {
     '# Preise pro EP': 'ist/soll',
@@ -261,8 +261,8 @@ export type ColumnValue =
           parseHtml: true;
       };
 
-const normalColumn = (value: string | number) => ({ value, parseHtml: false } as ColumnValue);
-const htmlColumn = (value: string) => ({ value, parseHtml: true } as ColumnValue);
+const normalColumn = (value: string | number, cssClass = '') => ({ value, parseHtml: false, cssClass } as ColumnValue);
+const htmlColumn = (value: string, cssClass = '') => ({ value, parseHtml: true, cssClass } as ColumnValue);
 
 type ColumnType =
     | typeof columnErhebungsZeitpunkt
@@ -895,7 +895,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0540]: {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && isPositive(x.preismeldung) && x.preismeldung.aktion,
+            !!x.preismeldung && x.preismeldung.d_DPToVP.percentage > 0 && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0600]: report_0600_config,
     [controlling.CONTROLLING_0700]: report_0700_config,
@@ -933,42 +933,65 @@ const renderBearbeitungsCode = (p: ControllingErhebungsPosition) => {
 };
 
 const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => ColumnValue } = {
-    [columnErhebungsZeitpunkt]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.refPreismeldung && p.refPreismeldung.erhebungsZeitpunkt),
-    [columnPreisId]: (p: ControllingErhebungsPosition) =>
-        normalColumn(fwith(preismeldungOrRefPreimeldung(p), x => `${x.pmsNummer}/${x.epNummer}/${x.laufnummer}`)),
-    [columnPmsErhebungsregion]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.erhebungsregion),
-    [columnPmsNummer]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.pmsNummer),
-    [columnPmsName]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.name),
-    [columnEpNummer]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.gliederungspositionsnummer),
-    [columnLaufnummer]: (p: ControllingErhebungsPosition) => normalColumn(preismeldungOrRefPreimeldung(p).laufnummer),
-    [columnPositionsbezeichnung]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.warenkorbItem.positionsbezeichnung.de),
-    [columnPreisbezeichnungT]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && p.preismeldung.artikeltext),
-    [columnPreisbezeichnungVP]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.refPreismeldung && p.refPreismeldung.artikeltext),
-    [columnPreisVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung && p.refPreismeldung.preis),
-    [columnMengeVP]: (p: ControllingErhebungsPosition) => normalColumn(p.refPreismeldung && p.refPreismeldung.menge),
-    [columnDPToVPRaw]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && p.preismeldung.d_DPToVP.percentage),
-    [columnDPToVP]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVP.percentage)),
-    [columnDPToVPVorReduktionRaw]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && p.preismeldung.d_DPToVPVorReduktion.percentage),
-    [columnDPToVPVorReduktion]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVPVorReduktion.percentage)),
-    [columnNumPreiseProEP]: (p: ControllingErhebungsPosition) =>
-        normalColumn(`${p.numEpForThisPms || 0}/${p.warenkorbItem.anzahlPreiseProPMS}`),
-    [columnPreisT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.preis),
-    [columnMengeT]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldung && p.preismeldung.menge),
-    [columnStandardeinheit]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.standardeinheit.de),
-    [columnBearbeitungscode]: (p: ControllingErhebungsPosition) => normalColumn(renderBearbeitungsCode(p)),
-    [columnAktionscodeVP]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.refPreismeldung && p.refPreismeldung.aktion ? 'A' : undefined),
-    [columnAktionscodeT]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && p.preismeldung.aktion ? 'A' : undefined),
-    [columnMerkmaleVP]: (p: ControllingErhebungsPosition) =>
+    [columnErhebungsZeitpunkt.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.refPreismeldung && p.refPreismeldung.erhebungsZeitpunkt, columnErhebungsZeitpunkt.cssClass),
+    [columnPreisId.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(
+            fwith(preismeldungOrRefPreimeldung(p), x => `${x.pmsNummer}/${x.epNummer}/${x.laufnummer}`),
+            columnPreisId.cssClass,
+        ),
+    [columnPmsErhebungsregion.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldestelle.erhebungsregion, columnPmsErhebungsregion.cssClass),
+    [columnPmsNummer.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldestelle.pmsNummer, columnPmsNummer.cssClass),
+    [columnPmsName.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldestelle.name, columnPmsName.cssClass),
+    [columnEpNummer.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.warenkorbItem.gliederungspositionsnummer, columnEpNummer.cssClass),
+    [columnLaufnummer.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(preismeldungOrRefPreimeldung(p).laufnummer, columnLaufnummer.cssClass),
+    [columnPositionsbezeichnung.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.warenkorbItem.positionsbezeichnung.de, columnPositionsbezeichnung.cssClass),
+    [columnPreisbezeichnungT.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldung && p.preismeldung.artikeltext, columnPreisbezeichnungT.cssClass),
+    [columnPreisbezeichnungVP.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.refPreismeldung && p.refPreismeldung.artikeltext, columnPreisbezeichnungVP.cssClass),
+    [columnPreisVP.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(preisLabelFormatFn(p.refPreismeldung && p.refPreismeldung.preis), columnPreisVP.cssClass),
+    [columnMengeVP.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.refPreismeldung && p.refPreismeldung.menge, columnMengeVP.cssClass),
+    [columnDPToVPRaw.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldung && p.preismeldung.d_DPToVP.percentage, columnDPToVPRaw.cssClass),
+    [columnDPToVP.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(
+            p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVP.percentage),
+            columnDPToVP.cssClass,
+        ),
+    [columnDPToVPVorReduktionRaw.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(
+            p.preismeldung && p.preismeldung.d_DPToVPVorReduktion.percentage,
+            columnDPToVPVorReduktionRaw.cssClass,
+        ),
+    [columnDPToVPVorReduktion.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(
+            p.preismeldung && reportFormatPercentageChange(p.preismeldung.d_DPToVPVorReduktion.percentage),
+            columnDPToVPVorReduktion.cssClass,
+        ),
+    [columnNumPreiseProEP.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(`${p.numEpForThisPms || 0}/${p.warenkorbItem.anzahlPreiseProPMS}`, columnNumPreiseProEP.cssClass),
+    [columnPreisT.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(preisLabelFormatFn(p.preismeldung && p.preismeldung.preis), columnPreisT.cssClass),
+    [columnMengeT.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldung && p.preismeldung.menge, columnMengeT.cssClass),
+    [columnStandardeinheit.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.warenkorbItem.standardeinheit.de, columnStandardeinheit.cssClass),
+    [columnBearbeitungscode.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(renderBearbeitungsCode(p), columnBearbeitungscode.cssClass),
+    [columnAktionscodeVP.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.refPreismeldung && p.refPreismeldung.aktion ? 'A' : undefined, columnAktionscodeVP.cssClass),
+    [columnAktionscodeT.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldung && p.preismeldung.aktion ? 'A' : undefined, columnAktionscodeT.cssClass),
+    [columnMerkmaleVP.name]: (p: ControllingErhebungsPosition) =>
         htmlColumn(
             !!p.refPreismeldung && p.refPreismeldung.productMerkmale.some(m => !!m)
                 ? p.warenkorbItem.productMerkmale
@@ -977,27 +1000,33 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
                       )
                       .join('|')
                 : '',
+            columnMerkmaleVP.cssClass,
         ),
-    [columnMerkmaleT]: (p: ControllingErhebungsPosition) =>
+    [columnMerkmaleT.name]: (p: ControllingErhebungsPosition) =>
         normalColumn(
             p.warenkorbItem.productMerkmale
                 .map((m, i) => `<b>${m.de}</b>:${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
                 .join('|'),
+            columnMerkmaleT.cssClass,
         ),
-    [columnKommentarT]: (p: ControllingErhebungsPosition) => {
+    [columnKommentarT.name]: (p: ControllingErhebungsPosition) => {
         if (!p.preismeldung || p.preismeldung.kommentar === '\\n') {
-            return normalColumn(undefined);
+            return normalColumn(undefined, columnKommentarT.cssClass);
         }
-        return htmlColumn(formatMessages(translateKommentare(p.preismeldung.kommentar)));
+        return htmlColumn(formatMessages(translateKommentare(p.preismeldung.kommentar)), columnKommentarT.cssClass);
     },
-    [columnBemerkungenT]: (p: ControllingErhebungsPosition) =>
-        htmlColumn(formatMessages(p.preismeldung && p.preismeldung.bemerkungen)),
-    [columnPeNummer]: (p: ControllingErhebungsPosition) => normalColumn(p.preiserheber && p.preiserheber.peNummer),
-    [columnPeName]: (p: ControllingErhebungsPosition) =>
-        normalColumn(fwith(p.preiserheber, e => (!!e ? `${e.firstName} ${e.surname}` : null))),
-    [columnPmsGeschlossen]: (p: ControllingErhebungsPosition) => normalColumn(p.preismeldestelle.pmsGeschlossen),
-    [columnWarenkorbIndex]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbIndex),
-    [columnAnzahlPreiseProPMS]: (p: ControllingErhebungsPosition) => normalColumn(p.warenkorbItem.anzahlPreiseProPMS),
+    [columnBemerkungenT.name]: (p: ControllingErhebungsPosition) =>
+        htmlColumn(formatMessages(p.preismeldung && p.preismeldung.bemerkungen), columnBemerkungenT.cssClass),
+    [columnPeNummer.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preiserheber && p.preiserheber.peNummer, columnPeNummer.cssClass),
+    [columnPeName.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(fwith(p.preiserheber, e => (!!e ? `${e.firstName} ${e.surname}` : null)), columnPeName.cssClass),
+    [columnPmsGeschlossen.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.preismeldestelle.pmsGeschlossen, columnPmsGeschlossen.cssClass),
+    [columnWarenkorbIndex.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.warenkorbIndex, columnWarenkorbIndex.cssClass),
+    [columnAnzahlPreiseProPMS.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(p.warenkorbItem.anzahlPreiseProPMS, columnAnzahlPreiseProPMS.cssClass),
 };
 
 export const getStichtagPreismeldungenUpdated = (state: State) => state.stichtagPreismeldungenUpdated;
