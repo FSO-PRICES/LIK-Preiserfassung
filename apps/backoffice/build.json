@@ -1,6 +1,13 @@
 {
     "electron": {
         "linux": {},
-        "windows": {}
+        "windows": {
+            "package": [
+                "dir"
+            ],
+            "arch": [
+                "ia32"
+            ]
+        }
     }
 }
