@@ -354,6 +354,9 @@ export interface SettingProperties {
 
 export type Setting = SettingProperties & CouchProperties;
 
+export type DatabaseBackup = { db: string; data: PouchDB.Core.AllDocsResponse<{}> };
+export type DatabaseBackupResult = { counts: { pe: number; pz: number } };
+
 export interface LanguageProperties {
     languageCode: string;
     name: string;

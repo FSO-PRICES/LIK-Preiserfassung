@@ -1,8 +1,10 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { head } from 'lodash';
+import { merge as mergeFollowing, Observable, Subscription } from 'rxjs';
 import {
+    combineLatest,
     distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
@@ -11,11 +13,14 @@ import {
     merge,
     publishReplay,
     refCount,
+    startWith,
+    switchMap,
     withLatestFrom,
 } from 'rxjs/operators';
 
-import { PefDialogService } from '@lik-shared';
+import { Models as P, PefDialogService, PefMessageDialogService } from '@lik-shared';
 
+import * as setting from '../../actions/setting';
 import { environment } from '../../environments/environment';
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
@@ -26,16 +31,24 @@ import { CurrentSetting } from '../../reducers/setting';
 })
 export class SettingsPage implements OnDestroy {
     public currentSettings$ = this.store.select(fromRoot.getCurrentSettings);
+    public isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
+    public canConnectToDatabase$ = this.store.select(fromRoot.getCanConnectToDatabase);
 
     public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
+    public dangerConfirmedClicked$ = new EventEmitter<Event>();
+    public exportDbs$ = new EventEmitter<Event>();
+    public importFileSelected$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
     public settingsSaved$: Observable<CurrentSetting>;
+    public dangerConfirmed$: Observable<boolean>;
+    public resetInput$: Observable<{}>;
+    public dbsExported$ = this.store.select(fromRoot.getHasExportedDatabases);
+    public dbImported$ = this.store.select(fromRoot.getHasImportedDatabase);
 
     public form: FormGroup;
     private subscriptions: Subscription[] = [];
-    private loader: Promise<HTMLIonLoadingElement>;
 
     public version = environment.version;
 
@@ -43,6 +56,7 @@ export class SettingsPage implements OnDestroy {
         formBuilder: FormBuilder,
         private store: Store<fromRoot.AppState>,
         private dialogService: PefDialogService,
+        pefMessageDialogService: PefMessageDialogService,
     ) {
         this.form = formBuilder.group({
             _id: [null],
@@ -95,15 +109,58 @@ export class SettingsPage implements OnDestroy {
             refCount(),
         );
 
-        this.subscriptions = [
-            this.cancelClicked$.subscribe(() => store.dispatch({ type: 'SETTING_LOAD' })),
+        const dangerConfirmedClicked$ = this.dangerConfirmedClicked$.pipe(
+            publishReplay(1),
+            refCount(),
+        );
 
-            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x })),
+        this.dangerConfirmed$ = dangerConfirmedClicked$.pipe(
+            combineLatest(this.isLoggedIn$.pipe(filter(x => !!x))),
+            mapTo(true),
+            startWith(false),
+        );
+
+        const onImport$ = this.importFileSelected$.pipe(
+            switchMap((e: any) => parseInputFile(head(e.target.files))),
+            switchMap(backup =>
+                pefMessageDialogService
+                    .displayDialogYesNoMessage(
+                        `Wollen Sie wirklich die Datenbank '${backup.db}' mit ${
+                            backup.data.total_rows
+                        } Einträgen importieren?`,
+                    )
+                    .pipe(map(answer => ({ answer, backup }))),
+            ),
+            publishReplay(1),
+            refCount(),
+        );
+        this.resetInput$ = mergeFollowing(this.dbImported$, onImport$).pipe(
+            map(() => ({ value: '' })),
+            publishReplay(1),
+            refCount(),
+        );
+
+        this.subscriptions = [
+            this.cancelClicked$.subscribe(() => store.dispatch({ type: 'SETTING_LOAD' } as setting.Action)),
+
+            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x } as setting.Action)),
 
             save$.subscribe(() => {
-                this.presentLoadingScreen();
-                store.dispatch({ type: 'SAVE_SETTING' });
+                this.presentLoadingScreen(this.settingsSaved$);
+                store.dispatch({ type: 'SAVE_SETTING' } as setting.Action);
             }),
+            dangerConfirmedClicked$.subscribe(() => {
+                store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
+            }),
+            this.exportDbs$.subscribe(() => {
+                this.presentLoadingScreen(this.dbsExported$);
+                store.dispatch({ type: 'EXPORT_DATABASES' } as setting.Action);
+            }),
+            onImport$
+                .pipe(filter(({ answer }) => answer.data === 'YES'))
+                .subscribe(({ backup }) =>
+                    this.store.dispatch({ type: 'IMPORT_DATABASE', payload: backup } as setting.Action),
+                ),
 
             this.settingsSaved$.subscribe(() => {
                 store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' });
@@ -138,9 +195,39 @@ export class SettingsPage implements OnDestroy {
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
-    private presentLoadingScreen() {
+    private presentLoadingScreen(dismiss$: Observable<any>) {
         this.dialogService.displayLoading('Datensynchronisierung. Bitte warten...', {
-            requestDismiss$: this.settingsSaved$,
+            requestDismiss$: dismiss$,
         });
     }
+}
+
+async function parseInputFile(file: File): Promise<P.DatabaseBackup> {
+    return JSON.parse(await readFile(file));
+}
+
+async function readFile(file: File) {
+    let reader = new FileReader();
+    const cleanupReader = () => {
+        reader.onload = null;
+        reader.onerror = null;
+        reader = null;
+    };
+    return new Promise<string>((resolve, reject) => {
+        reader.readAsText(file, 'UTF-8');
+        reader.onload = (evt: any) => {
+            resolve(evt.target.result as string);
+        };
+        reader.onerror = () => {
+            reject('Die Datei konnte nicht eingelesen werden.');
+        };
+    })
+        .then(content => {
+            cleanupReader();
+            return content;
+        })
+        .catch(error => {
+            cleanupReader();
+            throw error;
+        });
 }

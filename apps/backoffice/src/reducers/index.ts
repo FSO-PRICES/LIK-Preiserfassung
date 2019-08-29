@@ -134,6 +134,14 @@ export const getIsFullscreen = createSelector(
     getSettingState,
     fromSetting.getIsFullscreen,
 );
+export const getHasExportedDatabases = createSelector(
+    getSettingState,
+    fromSetting.getHasExportedDatabases,
+);
+export const getHasImportedDatabase = createSelector(
+    getSettingState,
+    fromSetting.getHasImportedDatabase,
+);
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
 export const getPreismeldungen = createSelector(
