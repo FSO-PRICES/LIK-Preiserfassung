@@ -3,7 +3,11 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Loading, LoadingController, IonicPage } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
+import { head } from 'lodash';
 
+import { PefDialogService, PefMessageDialogService } from 'lik-shared';
+
+import * as setting from '../../actions/setting';
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
 import { environment } from '../../environments/environment';
@@ -16,11 +20,21 @@ import { environment } from '../../environments/environment';
 })
 export class SettingsPage implements OnDestroy {
     public currentSettings$ = this.store.select(fromRoot.getCurrentSettings);
+    public isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
+    public canConnectToDatabase$ = this.store.select(fromRoot.getCanConnectToDatabase);
 
     public cancelClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
+    public dangerConfirmedClicked$ = new EventEmitter<Event>();
+    public exportDbs$ = new EventEmitter<Event>();
+    public importFileSelected$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
+    public settingsSaved$: Observable<CurrentSetting>;
+    public dangerConfirmed$: Observable<boolean>;
+    public resetInput$: Observable<{}>;
+    public dbsExported$ = this.store.select(fromRoot.getHasExportedDatabases);
+    public dbImported$ = this.store.select(fromRoot.getHasImportedDatabase);
 
     public form: FormGroup;
     private subscriptions: Subscription[] = [];
@@ -31,7 +45,9 @@ export class SettingsPage implements OnDestroy {
     constructor(
         private store: Store<fromRoot.AppState>,
         private loadingCtrl: LoadingController,
-        private formBuilder: FormBuilder
+        private formBuilder: FormBuilder,
+        private dialogService: PefDialogService,
+        pefMessageDialogService: PefMessageDialogService
     ) {
         this.form = formBuilder.group({
             _id: [null],
@@ -59,6 +75,7 @@ export class SettingsPage implements OnDestroy {
             .refCount();
 
         const canSave$ = this.saveClicked$
+            .asObservable()
             .map(x => ({ isValid: this.form.valid }))
             .publishReplay(1)
             .refCount();
@@ -74,20 +91,61 @@ export class SettingsPage implements OnDestroy {
             .mapTo(true)
             .merge(distinctSetting$.mapTo(false));
 
+        const dangerConfirmedClicked$ = this.dangerConfirmedClicked$
+            .asObservable()
+            .publishReplay(1)
+            .refCount();
+
+        this.dangerConfirmed$ = dangerConfirmedClicked$
+            .combineLatest(this.isLoggedIn$.filter(x => !!x))
+            .mapTo(true)
+            .startWith(false);
+
+        const onImport$ = this.importFileSelected$
+            .asObservable()
+            .switchMap((e: any) => parseInputFile(head(e.target.files)))
+            .switchMap(backup =>
+                pefMessageDialogService
+                    .displayDialogYesNoMessage(
+                        `Wollen Sie wirklich die Datenbank '${backup.db}' mit ${backup.data.total_rows} Einträgen importieren?`
+                    )
+                    .map(answer => ({ answer, backup }))
+            )
+            .publishReplay(1)
+            .refCount();
+        this.resetInput$ = Observable.merge(this.dbImported$, onImport$)
+            .map(() => ({ value: '' }))
+            .publishReplay(1)
+            .refCount();
+
         this.subscriptions = [
-            this.cancelClicked$.subscribe(() => store.dispatch({ type: 'SETTING_LOAD' })),
+            this.cancelClicked$.subscribe(() => store.dispatch({ type: 'SETTING_LOAD' } as setting.Action)),
 
-            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x })),
+            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x } as setting.Action)),
 
-            save$.subscribe(password => {
-                this.presentLoadingScreen();
-                store.dispatch({ type: 'SAVE_SETTING' });
+            save$.subscribe(() => {
+                this.presentLoadingScreen(this.settingsSaved$);
+                store.dispatch({ type: 'SAVE_SETTING' } as setting.Action);
             }),
-
-            this.currentSettings$.filter(pe => pe != null && pe.isSaved).subscribe(() => {
-                this.dismissLoadingScreen();
-                store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' });
+            dangerConfirmedClicked$.subscribe(() => {
+                store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
             }),
+            this.exportDbs$.subscribe(() => {
+                this.presentLoadingScreen(this.dbsExported$);
+                store.dispatch({ type: 'EXPORT_DATABASES' } as setting.Action);
+            }),
+            onImport$
+                .filter(({ answer }) => answer.data === 'YES')
+                .subscribe(({ backup }) =>
+                    this.store.dispatch({ type: 'IMPORT_DATABASE', payload: backup } as setting.Action)
+                ),
+
+            this.currentSettings$
+                .filter(pe => pe != null && pe.isSaved)
+                .subscribe(() => {
+                    this.dismissLoadingScreen();
+                    store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' });
+                }),
 
             distinctSetting$.subscribe((settings: CurrentSetting) => {
                 this.form.markAsUntouched();
@@ -121,12 +179,9 @@ export class SettingsPage implements OnDestroy {
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 
-    private presentLoadingScreen() {
+    private presentLoadingScreen(dismiss$: Observable<any>) {
         this.dismissLoadingScreen();
-
-        this.loader = this.loadingCtrl.create({
-            content: 'Datensynchronisierung. Bitte warten...',
-        });
+        this.dialogService.displayLoading('Datensynchronisierung. Bitte warten...', dismiss$);
 
         this.loader.present();
     }
@@ -136,4 +191,34 @@ export class SettingsPage implements OnDestroy {
             this.loader.dismiss();
         }
     }
+}
+
+async function parseInputFile(file: File): Promise<P.DatabaseBackup> {
+    return JSON.parse(await readFile(file));
+}
+
+async function readFile(file: File) {
+    let reader = new FileReader();
+    const cleanupReader = () => {
+        reader.onload = null;
+        reader.onerror = null;
+        reader = null;
+    };
+    return new Promise<string>((resolve, reject) => {
+        reader.readAsText(file, 'UTF-8');
+        reader.onload = (evt: any) => {
+            resolve(evt.target.result as string);
+        };
+        reader.onerror = () => {
+            reject('Die Datei konnte nicht eingelesen werden.');
+        };
+    })
+        .then(content => {
+            cleanupReader();
+            return content;
+        })
+        .catch(error => {
+            cleanupReader();
+            throw error;
+        });
 }

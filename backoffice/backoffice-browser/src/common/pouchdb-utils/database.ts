@@ -39,8 +39,8 @@ export const monthlyDbs: [keyof typeof dbNames] = ['preismeldungen_status', 'exp
 
 export const checkIfDatabaseExists = dbName => _checkIfDatabaseExists(dbName);
 
-export function getDatabase(dbName): Promise<PouchDB.Database<{}>> {
-    return getCouchDb(dbName);
+export function getDatabase(dbName, config: PouchDB.Configuration.DatabaseConfiguration = null): Promise<PouchDB.Database<{}>> {
+    return getCouchDb(dbName, config);
 }
 
 export function checkConnectivity(url) {
@@ -145,9 +145,12 @@ export function getSettings() {
     );
 }
 
-function getCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
+function getCouchDb(
+    dbName: string,
+    config: PouchDB.Configuration.DatabaseConfiguration = null,
+): Promise<PouchDB.Database<{}>> {
     return getSettings()
-        .then(settings => new PouchDB(`${settings.serverConnection.url}/${dbName}`))
+        .then(settings => new PouchDB(`${settings.serverConnection.url}/${dbName}`, config))
         .catch(err => new PouchDB(dbNames.emptyDb));
 }
 
@@ -155,8 +158,9 @@ function getLocalCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
     return Promise.resolve(new PouchDB(dbName));
 }
 
-function _checkIfDatabaseExists(dbName) {
-    return getDatabase(dbName)
+function _checkIfDatabaseExists(dbName: string) {
+    return getDatabase(dbName, { skip_setup: true })
+        .then(db => db.info())
         .then(() => true)
         .catch(() => false);
 }

@@ -9,7 +9,7 @@
                     class="stacked-form"
                     [class.form-show-validation-hints]="showValidationHints$ | async"
                 >
-                    <h1 class="large"><div>Serververbindung</div></h1>
+                    <h1 class="large">Serververbindung</h1>
                     <ion-list no-lines>
                         <ion-item class="pef-item" formGroupName="serverConnection">
                             <ion-label stacked>URL</ion-label>
@@ -20,7 +20,7 @@
                             <ion-input type="text" formControlName="erhebungsorgannummer"></ion-input>
                         </ion-item>
                     </ion-list>
-                    <h1 class="large"><div>Transfereinstellungen (Sedex)</div></h1>
+                    <h1 class="large">Transfereinstellungen (Sedex)</h1>
                     <ion-list formGroupName="transportRequestSettings" no-lines>
                         <ion-item class="pef-item">
                             <ion-label stacked>Sender ID</ion-label>
@@ -41,6 +41,39 @@
                         Speichern
                     </button>
                     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
+                    <h1 class="large"><pef-icon name="warning"></pef-icon>Datenbank Backup/Recovery (CouchDB)</h1>
+                    <button ion-button
+                        [class.not-shown]="(dangerConfirmed$ | async)"
+                        [disabled]="!(canConnectToDatabase$ | async)"
+                        type="button"
+                        color="danger"
+                        (click)="dangerConfirmedClicked$.emit()"
+                    >
+                        Datenbank Verwaltung anzeigen
+                    </button ion-button>
+                    <div [class.not-shown]="!(dangerConfirmed$ | async)">
+                        <button ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
+                            Export
+                        </button ion-button>
+                        <button ion-button type="button" (click)="file.click()">
+                            Import
+                            <input
+                                #file
+                                class="file-select-btn"
+                                type="file"
+                                (change)="importFileSelected$.emit($event)"
+                                [value]="(resetInput$ | async)?.value"
+                                required
+                            />
+                        </button ion-button>
+                    </div>
+                    <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
+                        {{ dbsExported.counts.pe }} Preiserheber und {{ dbsExported.counts.pz }} Preiszuweisungen
+                        wurden exportiert.
+                    </ion-text>
+                    <ion-text *ngIf="(dbImported$ | async); let dbImported" color="primary">
+                        {{ dbImported.count }} Einträge wurden importiert.
+                    </ion-text>
                 </form>
             </div>
             <div class="about-app">

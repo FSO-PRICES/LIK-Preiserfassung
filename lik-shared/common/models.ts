@@ -351,6 +351,22 @@ export interface SettingProperties {
 
 export type Setting = SettingProperties & CouchProperties;
 
+interface AllDocsResponse {
+    offset: number;
+    total_rows: number;
+    rows: Array<{
+        doc?: CouchProperties & any;
+        id: string;
+        key: string;
+        value: {
+            rev: string;
+            deleted?: boolean;
+        };
+    }>;
+}
+export type DatabaseBackup = { db: string; data: AllDocsResponse };
+export type DatabaseBackupResult = { counts: { pe: number; pz: number } };
+
 export interface LanguageProperties {
     languageCode: string;
     name: string;
