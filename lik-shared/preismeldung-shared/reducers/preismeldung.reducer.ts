@@ -668,9 +668,12 @@ function getNextNewSortierungsnummer(
     }
     const epPreismeldungen = preismeldungen.filter(bag => bag.preismeldung.epNummer === epNummer);
     const lastEpIndex = epPreismeldungen.indexOf(maxBy(epPreismeldungen, bag => bag.sortierungsnummer));
+    const lastPreismeldung = last(preismeldungen);
     return lastEpIndex !== -1
         ? epPreismeldungen[lastEpIndex].sortierungsnummer + 1
-        : last(preismeldungen).sortierungsnummer + 1;
+        : !!lastPreismeldung
+        ? lastPreismeldung.sortierungsnummer + 1
+        : 1;
 }
 
 // tslint:disable-next-line:no-unused-variable
