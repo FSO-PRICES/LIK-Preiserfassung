@@ -39,7 +39,7 @@
         }
     }
 
-    ion-button {
+    button[ion-button] {
         input[type='file'] {
             width: 0;
             max-width: 0;

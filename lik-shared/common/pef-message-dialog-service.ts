@@ -11,9 +11,7 @@ export class PefMessageDialogService {
         return this.pefDialogService.displayDialog(PefMessageDialogComponent, { message: this.translateService.instant(messageTranslationKey, params), buttons: YesNoButtons }, false);
     }
     displayDialogYesNoMessage(message: string) {
-        return this.pefDialogService.displayDialog(PefMessageDialogComponent, {
-            params: { message: message, buttons: YesNoButtons },
-        });
+        return this.pefDialogService.displayDialog(PefMessageDialogComponent, { message, buttons: YesNoButtons });
     }
 
     displayDialogYesNoEdit(messageTranslationKey: string, params: {} = null) {

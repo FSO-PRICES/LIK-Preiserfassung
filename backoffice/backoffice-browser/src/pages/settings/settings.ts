@@ -6,6 +6,7 @@ import { Observable, Subscription } from 'rxjs';
 import { head } from 'lodash';
 
 import { PefDialogService, PefMessageDialogService } from 'lik-shared';
+import { DatabaseBackup } from 'lik-shared/common/models';
 
 import * as setting from '../../actions/setting';
 import * as fromRoot from '../../reducers';
@@ -30,7 +31,6 @@ export class SettingsPage implements OnDestroy {
     public importFileSelected$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
-    public settingsSaved$: Observable<CurrentSetting>;
     public dangerConfirmed$: Observable<boolean>;
     public resetInput$: Observable<{}>;
     public dbsExported$ = this.store.select(fromRoot.getHasExportedDatabases);
@@ -101,13 +101,20 @@ export class SettingsPage implements OnDestroy {
             .mapTo(true)
             .startWith(false);
 
+        const settingsSaved$ = Observable.defer(() =>
+            this.currentSettings$.skip(1).filter(pe => pe != null && pe.isSaved)
+        );
+        const dismissExportingLoading$ = Observable.defer(() => this.dbsExported$.skip(1));
+
         const onImport$ = this.importFileSelected$
             .asObservable()
-            .switchMap((e: any) => parseInputFile(head(e.target.files)))
+            .switchMap((e: any) => parseInputFile(head(e.target.files as FileList)))
             .switchMap(backup =>
                 pefMessageDialogService
                     .displayDialogYesNoMessage(
-                        `Wollen Sie wirklich die Datenbank '${backup.db}' mit ${backup.data.total_rows} Einträgen importieren?`
+                        `Wollen Sie wirklich die Datenbank '${backup.db}' mit ${
+                            backup.data.total_rows
+                        } Einträgen importieren?`
                     )
                     .map(answer => ({ answer, backup }))
             )
@@ -124,14 +131,14 @@ export class SettingsPage implements OnDestroy {
             update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x } as setting.Action)),
 
             save$.subscribe(() => {
-                this.presentLoadingScreen(this.settingsSaved$);
+                this.presentLoadingScreen(settingsSaved$);
                 store.dispatch({ type: 'SAVE_SETTING' } as setting.Action);
             }),
             dangerConfirmedClicked$.subscribe(() => {
                 store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
             }),
             this.exportDbs$.subscribe(() => {
-                this.presentLoadingScreen(this.dbsExported$);
+                this.presentLoadingScreen(dismissExportingLoading$);
                 store.dispatch({ type: 'EXPORT_DATABASES' } as setting.Action);
             }),
             onImport$
@@ -140,12 +147,9 @@ export class SettingsPage implements OnDestroy {
                     this.store.dispatch({ type: 'IMPORT_DATABASE', payload: backup } as setting.Action)
                 ),
 
-            this.currentSettings$
-                .filter(pe => pe != null && pe.isSaved)
-                .subscribe(() => {
-                    this.dismissLoadingScreen();
-                    store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' });
-                }),
+            settingsSaved$.subscribe(() => {
+                store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' });
+            }),
 
             distinctSetting$.subscribe((settings: CurrentSetting) => {
                 this.form.markAsUntouched();
@@ -180,20 +184,11 @@ export class SettingsPage implements OnDestroy {
     }
 
     private presentLoadingScreen(dismiss$: Observable<any>) {
-        this.dismissLoadingScreen();
         this.dialogService.displayLoading('Datensynchronisierung. Bitte warten...', dismiss$);
-
-        this.loader.present();
-    }
-
-    private dismissLoadingScreen() {
-        if (!!this.loader) {
-            this.loader.dismiss();
-        }
     }
 }
 
-async function parseInputFile(file: File): Promise<P.DatabaseBackup> {
+async function parseInputFile(file: File): Promise<DatabaseBackup> {
     return JSON.parse(await readFile(file));
 }
 

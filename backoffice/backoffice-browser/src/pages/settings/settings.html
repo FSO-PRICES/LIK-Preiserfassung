@@ -42,19 +42,20 @@
                     </button>
                     <button type="button" ion-button (click)="cancelClicked$.emit($event)">Abbrechen</button>
                     <h1 class="large"><pef-icon name="warning"></pef-icon>Datenbank Backup/Recovery (CouchDB)</h1>
-                    <button ion-button
-                        [class.not-shown]="(dangerConfirmed$ | async)"
+                    <button
+                        ion-button
+                        [class.not-shown]="dangerConfirmed$ | async"
                         [disabled]="!(canConnectToDatabase$ | async)"
                         type="button"
                         color="danger"
                         (click)="dangerConfirmedClicked$.emit()"
                     >
                         Datenbank Verwaltung anzeigen
-                    </button ion-button>
+                    </button>
                     <div [class.not-shown]="!(dangerConfirmed$ | async)">
                         <button ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
                             Export
-                        </button ion-button>
+                        </button>
                         <button ion-button type="button" (click)="file.click()">
                             Import
                             <input
@@ -65,15 +66,15 @@
                                 [value]="(resetInput$ | async)?.value"
                                 required
                             />
-                        </button ion-button>
+                        </button>
                     </div>
-                    <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
-                        {{ dbsExported.counts.pe }} Preiserheber und {{ dbsExported.counts.pz }} Preiszuweisungen
-                        wurden exportiert.
-                    </ion-text>
-                    <ion-text *ngIf="(dbImported$ | async); let dbImported" color="primary">
+                    <div ion-text *ngIf="dbsExported$ | async; let dbsExported" color="primary">
+                        {{ dbsExported.counts.pe }} Preiserheber und {{ dbsExported.counts.pz }} Preiszuweisungen wurden
+                        exportiert.
+                    </div>
+                    <div ion-text *ngIf="dbImported$ | async; let dbImported" color="primary">
                         {{ dbImported.count }} Einträge wurden importiert.
-                    </ion-text>
+                    </div>
                 </form>
             </div>
             <div class="about-app">
