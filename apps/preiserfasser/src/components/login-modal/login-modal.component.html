@@ -5,7 +5,14 @@
     <ion-item class="pef-item">
         <ion-label position="stacked">{{ 'label_login_username' | translate }}</ion-label>
         <!-- https://github.com/ionic-team/ionic/issues/15136#issuecomment-444388085 -->
-        <ion-input type="text" formControlName="username" autocapitalize="none" (keyup.enter)="login()"></ion-input>
+        <ion-input
+            type="text"
+            #username
+            formControlName="username"
+            autofocus
+            autocapitalize="none"
+            (keyup.enter)="login()"
+        ></ion-input>
     </ion-item>
     <ion-item class="pef-item">
         <ion-label position="stacked">{{ 'label_login_password' | translate }}</ion-label>

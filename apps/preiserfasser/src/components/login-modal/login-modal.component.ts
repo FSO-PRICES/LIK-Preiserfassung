@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 
@@ -10,11 +10,20 @@ import { ModalController } from '@ionic/angular';
 export class LoginModalComponent {
     public loginForm: FormGroup;
 
+    @ViewChild('username', { read: ElementRef, static: false }) username: ElementRef<HTMLElement>;
+
     constructor(private modalController: ModalController, private formBuilder: FormBuilder) {
         this.loginForm = this.formBuilder.group({
             username: [''],
             password: [''],
         });
+    }
+
+    ionViewDidEnter() {
+        const el = this.username.nativeElement.querySelector('input') as HTMLElement;
+        if (el && el.focus) {
+            el.focus();
+        }
     }
 
     login() {
