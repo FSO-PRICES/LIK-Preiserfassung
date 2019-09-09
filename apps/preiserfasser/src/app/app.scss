@@ -1,5 +1,29 @@
 @import '../../../../libs/lik-shared/src/styles/_app.scss';
 
+.visible-scrollbar {
+    ::-webkit-scrollbar {
+        -webkit-appearance: none;
+    }
+
+    ::-webkit-scrollbar:vertical {
+        width: 7px;
+    }
+
+    ::-webkit-scrollbar:horizontal {
+        height: 7px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border-radius: 7px;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: transparent;
+        border-radius: 7px;
+    }
+}
+
 ion-button {
     --box-shadow: none;
 }

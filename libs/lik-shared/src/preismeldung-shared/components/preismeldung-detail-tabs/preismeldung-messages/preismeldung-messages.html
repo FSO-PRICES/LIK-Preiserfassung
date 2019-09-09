@@ -7,7 +7,7 @@
 <ion-content>
     <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
         <form [formGroup]="form" novalidate>
-            <div class="detail-tab-bottom-part">
+            <div class="detail-tab-bottom-part visible-scrollbar">
                 <h3>{{ 'heading_meine-notiz' | translate }}</h3>
                 <ion-item class="pef-textarea-item" [class.readonly]="isReadonly$ | async" formGroupName="messages">
                     <ion-textarea
