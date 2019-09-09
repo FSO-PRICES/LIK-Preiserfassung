@@ -104,11 +104,6 @@ function createWindow() {
         mainWindow.webContents.send('window-id', mainWindow.id);
     });
 
-    // Open the DevTools.
-    if (cdvElectronSettings.browserWindow.webPreferences.devTools) {
-        mainWindow.webContents.openDevTools();
-    }
-
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
         // Dereference the window object, usually you would store windows
