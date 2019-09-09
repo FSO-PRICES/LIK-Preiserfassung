@@ -53,6 +53,15 @@
             padding-right: 0;
         }
     }
+    form {
+        ion-button {
+            --padding-start: 8px;
+            --padding-end: 8px;
+        }
+        .statuswechsel {
+            font-size: 12.5px;
+        }
+    }
     .content {
         flex: 1;
     }
