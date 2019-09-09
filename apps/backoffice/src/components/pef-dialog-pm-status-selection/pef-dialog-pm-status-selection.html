@@ -26,8 +26,8 @@
 </div>
 
 <div class="pef-dialog-button-row">
-    <ion-button (click)="viewCtrl.dismiss({ type: 'ABBORT_SAVE' })" color="primary">Abbrechen</ion-button>
-    <ion-button class="danger" (click)="viewCtrl.dismiss({ type: 'CONFIRM_SAVE', value: pmStatus })" color="secondary">
+    <ion-button (click)="viewCtrl.dismiss({ type: 'CONFIRM_SAVE', value: pmStatus })" color="primary">
         Speichern
     </ion-button>
+    <ion-button (click)="viewCtrl.dismiss({ type: 'ABBORT_SAVE' })" color="secondary">Abbrechen</ion-button>
 </div>

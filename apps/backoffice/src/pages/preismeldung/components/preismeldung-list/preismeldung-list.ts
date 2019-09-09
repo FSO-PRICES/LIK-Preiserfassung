@@ -123,10 +123,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         );
 
         const confirmUpdateStatusDialog$ = defer(() =>
-            pefDialogService.displayDialog(PefDialogPmStatusSelectionComponent).pipe(
-                map(x => x.data),
-                filter(data => data.type === 'CONFIRM_SAVE'),
-            ),
+            pefDialogService
+                .displayDialog(PefDialogPmStatusSelectionComponent, { dialogOptions: { backdropDismiss: true } })
+                .pipe(
+                    map(x => x.data),
+                    filter(data => !!data && data.type === 'CONFIRM_SAVE'),
+                ),
         );
 
         const statusFilter$ = this.statusFilterChanged$.asObservable().pipe(

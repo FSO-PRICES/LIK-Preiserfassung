@@ -8,6 +8,7 @@
             <pef-search-input
                 class="pms-search"
                 label="PreisID"
+                placeholder="PMSno/EPno/LFno"
                 [reset]="resetPmIdSearch$ | async"
                 [value]="(initialFilter$ | async).pmIdSearch"
                 (valueChanges)="pmIdSearchChanged$.emit($event)"
