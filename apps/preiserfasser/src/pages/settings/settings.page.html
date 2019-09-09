@@ -27,6 +27,7 @@
                 [formGroup]="form"
                 class="stacked-form"
                 [class.form-show-validation-hints]="showValidationHints$ | async"
+                (submit)="saveClicked$.emit($event)"
             >
                 <h3><pef-icon name="server_url"></pef-icon> {{ 'server-connection-url' | translate }}</h3>
                 <ion-list formGroupName="serverConnection">
@@ -41,13 +42,7 @@
                     </ion-item>
                 </ion-list>
                 <div class="actions">
-                    <ion-button
-                        type="button"
-                        color="tertiary"
-                        (click)="saveClicked$.emit($event)"
-                        [disabled]="!(allowToSave$ | async)"
-                        id="save"
-                    >
+                    <ion-button type="submit" color="tertiary" [disabled]="!(allowToSave$ | async)" id="save">
                         {{ 'btn_save' | translate }}
                     </ion-button>
                     <ion-button type="button" (click)="cancelClicked$.emit($event)" [disabled]="!(canLeave$ | async)">

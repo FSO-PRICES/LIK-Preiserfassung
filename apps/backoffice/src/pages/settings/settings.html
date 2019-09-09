@@ -8,36 +8,57 @@
                     [formGroup]="form"
                     class="stacked-form compact-list"
                     [class.form-show-validation-hints]="showValidationHints$ | async"
+                    (submit)="saveClicked$.emit($event)"
                 >
                     <h1 class="large">Serververbindung</h1>
                     <ion-list no-lines>
                         <ion-item class="pef-item" formGroupName="serverConnection">
                             <ion-label position="stacked">URL</ion-label>
-                            <ion-input type="text" formControlName="url"></ion-input>
+                            <ion-input
+                                type="text"
+                                formControlName="url"
+                                (keyup.enter)="saveClicked$.emit()"
+                            ></ion-input>
                         </ion-item>
                         <ion-item class="pef-item" formGroupName="general">
                             <ion-label position="stacked">Erhebungsorgannummer</ion-label>
-                            <ion-input type="text" formControlName="erhebungsorgannummer"></ion-input>
+                            <ion-input
+                                type="text"
+                                formControlName="erhebungsorgannummer"
+                                (keyup.enter)="saveClicked$.emit()"
+                            ></ion-input>
                         </ion-item>
                     </ion-list>
                     <h1 class="large">Transfereinstellungen (Sedex)</h1>
                     <ion-list formGroupName="transportRequestSettings" no-lines>
                         <ion-item class="pef-item">
                             <ion-label position="stacked">Sender ID</ion-label>
-                            <ion-input type="text" formControlName="senderId"></ion-input>
+                            <ion-input
+                                type="text"
+                                formControlName="senderId"
+                                (keyup.enter)="saveClicked$.emit()"
+                            ></ion-input>
                         </ion-item>
                         <ion-item class="pef-item">
                             <ion-label position="stacked">Recipient ID</ion-label>
-                            <ion-input type="text" formControlName="recipientId"></ion-input>
+                            <ion-input
+                                type="text"
+                                formControlName="recipientId"
+                                (keyup.enter)="saveClicked$.emit()"
+                            ></ion-input>
                         </ion-item>
                     </ion-list>
                     <ion-list formGroupName="export" no-lines>
                         <ion-item class="pef-item">
                             <ion-label position="stacked">Exportpfad (Sedex-Daten)</ion-label>
-                            <ion-input type="text" formControlName="targetPath"></ion-input>
+                            <ion-input
+                                type="text"
+                                formControlName="targetPath"
+                                (keyup.enter)="saveClicked$.emit()"
+                            ></ion-input>
                         </ion-item>
                     </ion-list>
-                    <ion-button type="button" color="blue-chill" (click)="saveClicked$.emit($event)" id="save">
+                    <ion-button type="submit" color="blue-chill" id="save">
                         Speichern
                     </ion-button>
                     <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
