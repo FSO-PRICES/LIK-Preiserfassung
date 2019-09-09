@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 
 import * as P from '@lik-shared';
 
-import { filter, map, take, takeUntil } from 'rxjs/operators';
+import { filter, switchMap, take, takeUntil } from 'rxjs/operators';
 import { createLoadReportDataAction, ReportTypes } from '../../actions/report';
 import * as fromRoot from '../../reducers';
 
@@ -25,19 +25,17 @@ export class ReportingPage implements OnDestroy {
         this.reportExecuting$
             .pipe(
                 filter(x => !!x),
-                map(() =>
-                    this.reportExecuting$.pipe(
-                        filter(x => !x),
-                        take(1),
-                    ),
+                switchMap(() =>
+                    this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
+                        requestDismiss$: this.reportExecuting$.pipe(
+                            filter(x => !x),
+                            take(1),
+                        ),
+                    }),
                 ),
                 takeUntil(this.onDestroy$),
             )
-            .subscribe(x =>
-                this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
-                    requestDismiss$: x,
-                }),
-            );
+            .subscribe(() => {});
 
         this.loadData$
             .pipe(takeUntil(this.onDestroy$))
