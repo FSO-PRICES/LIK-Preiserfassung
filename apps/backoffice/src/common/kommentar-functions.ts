@@ -10,7 +10,3 @@ export function translateKommentare(kommentar: string) {
         kommentare.slice(-1)
     );
 }
-
-export function formatMessages(message: string) {
-    return message.replace(new RegExp('(¶|\\\\n)', 'g'), '<br>');
-}

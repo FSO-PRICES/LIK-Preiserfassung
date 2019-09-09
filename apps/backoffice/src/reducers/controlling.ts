@@ -4,7 +4,8 @@ import { createCountMapOf, createMapOf, formatPercentageChange, Models as P, pre
 
 import * as controlling from '../actions/controlling';
 import * as preismeldungenStatusActions from '../actions/preismeldungen-status';
-import { formatMessages, translateKommentare } from '../common/kommentar-functions';
+import { formatArtikeltext, formatMessages } from '../common/controlling-functions';
+import { translateKommentare } from '../common/kommentar-functions';
 
 const fwith = <T>(o: T, fn: (o: T) => any) => fn(o);
 
@@ -953,9 +954,12 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnPositionsbezeichnung.name]: (p: ControllingErhebungsPosition) =>
         normalColumn(p.warenkorbItem.positionsbezeichnung.de, columnPositionsbezeichnung.cssClass),
     [columnPreisbezeichnungT.name]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.preismeldung && p.preismeldung.artikeltext, columnPreisbezeichnungT.cssClass),
+        htmlColumn(formatArtikeltext(p.preismeldung && p.preismeldung.artikeltext), columnPreisbezeichnungT.cssClass),
     [columnPreisbezeichnungVP.name]: (p: ControllingErhebungsPosition) =>
-        normalColumn(p.refPreismeldung && p.refPreismeldung.artikeltext, columnPreisbezeichnungVP.cssClass),
+        htmlColumn(
+            formatArtikeltext(p.refPreismeldung && p.refPreismeldung.artikeltext),
+            columnPreisbezeichnungVP.cssClass,
+        ),
     [columnPreisVP.name]: (p: ControllingErhebungsPosition) =>
         normalColumn(preisLabelFormatFn(p.refPreismeldung && p.refPreismeldung.preis), columnPreisVP.cssClass),
     [columnMengeVP.name]: (p: ControllingErhebungsPosition) =>

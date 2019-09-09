@@ -38,3 +38,11 @@ export function copyUserDbErheberDetailsToPreiserheberDb() {
         ),
     );
 }
+
+export function formatMessages(message: string) {
+    return message.replace(new RegExp('(¶|\\\\n)', 'g'), '<br>');
+}
+
+export function formatArtikeltext(artikeltext: string) {
+    return artikeltext.replace(new RegExp('(\n|\\\\n)', 'g'), '<br>');
+}
