@@ -10,24 +10,27 @@
     }
 
     .actions {
+        max-width: 64rem;
         align-self: flex-start;
         display: flex;
-    }
 
-    ion-item.snippets-item {
-        margin-left: 20px;
-        display: inline-block;
-        --background: transparent;
-        select {
-            height: 2.5em;
-            &[disabled] {
-                background-color: $wild-sand;
+        ion-item.snippets-item {
+            margin-left: 3px;
+            display: inline-block;
+            --inner-padding-end: 0;
+            --background: transparent;
+            select {
+                width: 150px;
+                height: 2.5em;
+                &[disabled] {
+                    background-color: $wild-sand;
+                }
             }
         }
     }
 
     ion-item.pef-textarea-item {
-        max-width: 40em;
+        max-width: 64rem;
         padding-left: 0;
         margin-bottom: 0.5em;
         --padding-start: 0;
