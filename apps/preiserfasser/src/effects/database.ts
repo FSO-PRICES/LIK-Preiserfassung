@@ -32,6 +32,8 @@ export class DatabaseEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     private resetActions = [
+        { type: 'RESET_IS_LOGGED_IN_STATE' } as LoginAction,
+        { type: 'RESET_DATABASE_SYNC_STATE' } as DatabaseAction,
         { type: 'PREISMELDESTELLEN_RESET' } as PreismeldestelleAction,
         { type: 'PREISMELDUNGEN_RESET' } as PreismeldungAction, // Also affects PreismeldestellenAction
         { type: 'WARENKORB_RESET' },
@@ -47,7 +49,10 @@ export class DatabaseEffects {
                     .catch(() => null),
             ),
         ),
-        map(lastSyncedAt => ({ type: 'LOAD_DATABASE_LAST_SYNCED_AT_SUCCESS', payload: lastSyncedAt })),
+        map(
+            (lastSyncedAt: string) =>
+                ({ type: 'LOAD_DATABASE_LAST_SYNCED_AT_SUCCESS', payload: new Date(lastSyncedAt) } as DatabaseAction),
+        ),
     );
 
     @Effect()

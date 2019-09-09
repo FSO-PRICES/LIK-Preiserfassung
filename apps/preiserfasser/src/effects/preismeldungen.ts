@@ -6,6 +6,7 @@ import { defer } from 'rxjs';
 import {
     combineLatest,
     defaultIfEmpty,
+    exhaustMap,
     filter,
     flatMap,
     map,
@@ -49,7 +50,7 @@ export class PreismeldungenEffects {
     @Effect()
     // TODO Fix types
     loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_FOR_PMS').pipe(
-        flatMap((action: any) =>
+        exhaustMap((action: any) =>
             defer(async () => {
                 const db = await getDatabase();
                 return {

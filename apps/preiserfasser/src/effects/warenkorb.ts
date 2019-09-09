@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 
-import { flatMap } from 'rxjs/operators';
+import { exhaustMap, flatMap } from 'rxjs/operators';
 import { getDatabase } from './pouchdb-utils';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class WarenkorbEffects {
 
     @Effect()
     loadPreismeldestellen$ = this.actions$.ofType('LOAD_WARENKORB').pipe(
-        flatMap(() => getDatabase()),
+        exhaustMap(() => getDatabase()),
         flatMap(db =>
             db
                 .get('warenkorb')

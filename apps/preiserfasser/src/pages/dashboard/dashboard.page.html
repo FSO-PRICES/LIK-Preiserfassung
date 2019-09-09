@@ -1,8 +1,12 @@
-<div class="dashboard-content">
+<div class="dashboard-content" *ngxLet="(isSyncing$ | async); let isSyncing">
     <div class="pef-toolbar">
         <div class="app-info-container">
             <div class="app-name">LIK</div>
-            <ion-button class="pef-toolbar-button person-button" (click)="navigateToPreiserheber$.emit()">
+            <ion-button
+                class="pef-toolbar-button person-button"
+                (click)="navigateToPreiserheber$.emit()"
+                [disabled]="isSyncing === syncState.syncing"
+            >
                 <div class="person-icon">
                     <pef-icon name="person"></pef-icon>
                 </div>
@@ -102,6 +106,7 @@
                                     [class.visibility-hidden]="
                                         !bag.preismeldestelle.isPdf || bag.preismeldestelle.keinErhebungsart
                                     "
+                                    [disabled]="isSyncing === syncState.syncing"
                                     (click)="createPmsPdf$.emit(bag.preismeldestelle)"
                                 >
                                     <pef-icon name="pdf"></pef-icon>
@@ -109,6 +114,7 @@
                                 <ion-button
                                     class="price-entry-button icon-only"
                                     [class.visibility-hidden]="bag.preismeldestelle.keinErhebungsart"
+                                    [disabled]="isSyncing === syncState.syncing"
                                     (click)="navigateToPriceEntry$.emit(bag.preismeldestelle)"
                                 >
                                     <pef-icon name="todo"></pef-icon>
@@ -150,7 +156,7 @@
                     </div>
                 </ion-content>
             </div>
-            <div class="actions" *ngxLet="(isSyncing$ | async); let isSyncing">
+            <div class="actions">
                 <div class="status">
                     <span *ngxLet="(syncError$ | async); let syncError" [hidden]="!syncError" class="error">{{
                         syncError | translate
@@ -158,7 +164,11 @@
                     <span *ngxLet="(loginError$ | async); let loginError" [hidden]="!loginError" class="error">{{
                         loginError
                     }}</span>
-                    <pef-icon name="sorting_arrows" class="syncing" [hidden]="!isSyncing"></pef-icon>
+                    <pef-icon
+                        name="sorting_arrows"
+                        class="syncing"
+                        [hidden]="isSyncing !== syncState.syncing"
+                    ></pef-icon>
                     <pef-icon
                         name="wifi"
                         class="connectivity"
@@ -169,7 +179,7 @@
                     <div class="number">{{ preismeldungenStatistics?.total.openSavedCount || 0 }}</div>
                     <div class="text">{{ 'text_preismeldung_erfasste' | translate }}</div>
                 </div>
-                <div class="row" *ngIf="!!(lastSyncedAt$ | async); let lastSyncedAt">
+                <div class="row" *ngIf="(lastSyncedAt$ | async); let lastSyncedAt">
                     <div class="number">&nbsp;</div>
                     <div class="text">
                         {{ 'text_database-last-synced-at' | translate }}: <br />
@@ -181,7 +191,7 @@
                         type="button"
                         (click)="loginClicked$.emit($event)"
                         [hidden]="!(showLogin$ | async)"
-                        [disabled]="isSyncing"
+                        [disabled]="isSyncing === syncState.syncing"
                     >
                         {{ 'btn_login' | translate }}
                     </ion-button>
@@ -189,7 +199,7 @@
                         type="button"
                         (click)="synchronizeClicked$.emit($event)"
                         [hidden]="!(canSync$ | async)"
-                        [disabled]="isSyncing"
+                        [disabled]="isSyncing === syncState.syncing"
                     >
                         {{ 'btn_synchronize' | translate }}
                     </ion-button>
@@ -199,7 +209,7 @@
                         [disabled]="
                             !(canSync$ | async) ||
                             (showLogin$ | async) ||
-                            isSyncing ||
+                            isSyncing === syncState.syncing ||
                             !(hasOpenSavedPreismeldungen$ | async)
                         "
                     >

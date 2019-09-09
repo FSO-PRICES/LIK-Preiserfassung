@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { assign } from 'lodash';
 
 import { preismeldestelleId } from '@lik-shared';
-import { flatMap, map, withLatestFrom } from 'rxjs/operators';
+import { exhaustMap, flatMap, map, withLatestFrom } from 'rxjs/operators';
 import * as fromRoot from '../reducers';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestellen';
 import { getAllDocumentsForPrefix, getDatabase } from './pouchdb-utils';
@@ -18,7 +18,7 @@ export class PreismeldestelleEffects {
 
     @Effect()
     loadPreismeldestellen$ = this.actions$.ofType('PREISMELDESTELLEN_LOAD_ALL').pipe(
-        flatMap(() => getDatabase()),
+        exhaustMap(() => getDatabase()),
         flatMap(db =>
             db.allDocs(Object.assign({}, getAllDocumentsForPrefix(preismeldestelleId()), { include_docs: true })),
         ),

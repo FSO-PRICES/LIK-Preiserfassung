@@ -38,6 +38,7 @@ import { Action as LoginAction } from '../../actions/login';
 import { Action as PdfAction } from '../../actions/pdf';
 import { Action as StatisticsAction } from '../../actions/statistics';
 import { LoginModalComponent } from '../../components/login-modal';
+import { SyncState } from '../../reducers/database';
 
 type DashboardPms = P.Preismeldestelle & {
     keinErhebungsart: boolean;
@@ -79,6 +80,7 @@ export class DashboardPage implements OnDestroy {
 
     private subscriptions: Subscription[];
 
+    public syncState = SyncState;
     public isSyncing$ = this.store
         .select(x => x.database.isDatabaseSyncing)
         .pipe(
@@ -162,7 +164,6 @@ export class DashboardPage implements OnDestroy {
                 refCount(),
             );
         const isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn).pipe(
-            skip(1),
             combineLatest(canConnectToDatabase$, (isLoggedIn, canConnect) => ({ isLoggedIn, canConnect })),
             publishReplay(1),
             refCount(),
@@ -193,13 +194,13 @@ export class DashboardPage implements OnDestroy {
 
         const dismissSyncLoading$ = this.isSyncing$.pipe(
             skip(1),
-            filter(x => x === false),
+            filter(x => x !== SyncState.syncing),
             publishReplay(1),
             refCount(),
         );
         const dismissLoginLoading$ = this.isSyncing$.pipe(
             skip(1),
-            filter(x => x === false),
+            filter(x => x !== SyncState.syncing),
             merge(
                 this.store.select(fromRoot.getIsLoggedIn).pipe(
                     skip(1),
@@ -308,23 +309,18 @@ export class DashboardPage implements OnDestroy {
                 .pipe(startWith(0))
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)),
 
-            this.isSyncing$
-                .pipe(
-                    skip(1),
-                    filter(isSyncing => !isSyncing),
-                )
-                .subscribe(() => {
-                    this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
-                    this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
-                    this.store.dispatch({ type: 'LOAD_WARENKORB' });
-                    this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction);
-                }),
+            this.isSyncing$.pipe(filter(isSyncing => isSyncing === SyncState.ready)).subscribe(() => {
+                this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
+                this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
+                this.store.dispatch({ type: 'LOAD_WARENKORB' });
+                this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction);
+            }),
 
             canConnectToDatabase$
                 .pipe(
                     skip(1),
                     withLatestFrom(this.isSyncing$, (canConnect, isSyncing) => ({ canConnect, isSyncing })),
-                    filter(({ canConnect, isSyncing }) => canConnect && !isSyncing),
+                    filter(({ canConnect, isSyncing }) => canConnect && isSyncing === SyncState.none),
                 )
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' } as LoginAction)),
 

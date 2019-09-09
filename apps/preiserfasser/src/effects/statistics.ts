@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, groupBy, mapValues } from 'lodash';
-import { flatMap, map } from 'rxjs/operators';
+import { exhaustMap, flatMap, map } from 'rxjs/operators';
 
 import { Models as P, preismeldestelleId, preismeldungId } from '@lik-shared';
 
@@ -19,7 +19,7 @@ export class StatisticsEffects {
 
     @Effect()
     loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNG_STATISTICS_LOAD').pipe(
-        flatMap(() => getDatabase()),
+        exhaustMap(() => getDatabase()),
         flatMap(db =>
             loadAllPreismeldungRefs(db).then(pmsRefPreismeldungenTotals => ({ db, pmsRefPreismeldungenTotals })),
         ),
