@@ -460,7 +460,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPK))
             .map(x => ({ value: `${preisFormatFn(x)}` }));
 
-        this.isNew$ = this.distinctPreismeldung$.map(bag => !bag.refPreismeldung);
+        this.isNew$ = this.preismeldung$.filter(x => !!x).map(bag => !bag.refPreismeldung && !bag.preismeldung.erfasstAt);
 
         this.closePopoverRight$ = this.distinctPreismeldung$.merge(
             this.preismeldung$.filter(x => !!x && !x.preismeldung.aktion).map(() => ({}))
