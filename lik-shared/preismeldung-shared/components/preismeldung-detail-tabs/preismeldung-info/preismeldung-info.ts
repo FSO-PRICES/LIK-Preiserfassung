@@ -147,9 +147,9 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
             .filter(([pm]) => !!pm)
             .map(
                 ([pm, isAdminApp]) =>
-                    !isAdminApp
+                    (!isAdminApp
                         ? !pm.preismeldung.uploadRequestedAt
-                        : !!pm.preismeldung.uploadRequestedAt && !pm.exported
+                        : !!pm.preismeldung.uploadRequestedAt && !pm.exported) && !!pm.preismeldung.erfasstAt
             );
     }
 

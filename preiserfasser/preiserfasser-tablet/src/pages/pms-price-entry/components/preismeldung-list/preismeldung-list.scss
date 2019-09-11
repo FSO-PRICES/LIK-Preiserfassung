@@ -11,6 +11,7 @@ preismeldung-list {
         background-color: $mercury;
         display: flex;
         flex-direction: column;
+        min-height: 0;
 
         // ion-content.content-md {
         //     flex: 1;
@@ -19,6 +20,7 @@ preismeldung-list {
 
         pef-virtual-scroll {
             flex: 1;
+            min-height: 0;
         }
     }
 

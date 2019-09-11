@@ -76,6 +76,7 @@ export class PmsPriceEntryPage implements OnDestroy {
     ionViewDidLoad$ = new EventEmitter();
     resetPreismeldung$ = new EventEmitter();
     requestSelectNextPreismeldung$ = new EventEmitter<{}>();
+    cancel$ = new EventEmitter<{}>();
     selectNextPreismeldungRequested$: Observable<{}>;
     requestThrowChanges$ = new EventEmitter<{}>();
     isNotSave$ = new EventEmitter<boolean>();
@@ -229,6 +230,7 @@ export class PmsPriceEntryPage implements OnDestroy {
         requestSelectPreismeldung$
             .takeUntil(this.onDestroy$)
             .filter(x => !x.isCurrentModified)
+            .merge(this.cancel$.asObservable().map(() => ({ selectedPreismeldung: null })))
             .delay(100)
             .subscribe(x =>
                 this.store.dispatch({
@@ -282,9 +284,9 @@ export class PmsPriceEntryPage implements OnDestroy {
             )
             .flatMap(
                 ({ priceCountStatus, currentPreismeldung }) =>
-                    priceCountStatus.enough
-                        ? dialogSufficientPreismeldungen$.map((response: string) => ({ response, currentPreismeldung }))
-                        : Observable.of({ response: 'YES', currentPreismeldung })
+                priceCountStatus.enough
+                    ? dialogSufficientPreismeldungen$.map((response: string) => ({ response, currentPreismeldung }))
+                    : Observable.of({ response: 'YES', currentPreismeldung })
             )
             .filter(x => x.response === 'YES')
             .map(({ currentPreismeldung }) => ({ source: 'FROM_BUTTON', currentPreismeldung }))

@@ -85,10 +85,12 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                         pmId: preismeldung._id,
                         preismeldung,
                         refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
-                        sortierungsnummer: !!payload.pmsPreismeldungenSort
-                            ? payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
-                                  .sortierungsnummer
-                            : null,
+                        sortierungsnummer:
+                            !!payload.pmsPreismeldungenSort &&
+                            !!payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
+                                ? payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
+                                      .sortierungsnummer
+                                : null,
                         warenkorbPosition,
                         exported: payload.alreadyExported.some(id => id === preismeldung._id),
                     }
@@ -664,7 +666,11 @@ function getNextNewSortierungsnummer(
 ) {
     if (isInRecordMode) {
         const nextIndex = getNextIndexForRecMode(preismeldungen);
-        return nextIndex !== -1 ? preismeldungen[nextIndex].sortierungsnummer : 1;
+        return nextIndex <= preismeldungen.length - 1
+            ? nextIndex !== -1
+                ? preismeldungen[nextIndex].sortierungsnummer
+                : 1
+            : preismeldungen[nextIndex - 1].sortierungsnummer + 1;
     }
     const epPreismeldungen = preismeldungen.filter(bag => bag.preismeldung.epNummer === epNummer);
     const lastEpIndex = epPreismeldungen.indexOf(maxBy(epPreismeldungen, bag => bag.sortierungsnummer));

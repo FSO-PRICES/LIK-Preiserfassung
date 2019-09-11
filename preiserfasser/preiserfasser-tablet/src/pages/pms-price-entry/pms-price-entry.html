@@ -20,7 +20,7 @@
                 <preismeldung-price [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'" [preismeldung]="currentPreismeldung$ | async"
                     [isDesktop]="isDesktop$ | async" [preismeldestelle]="preismeldestelle$ | async" [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async" (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
-                    (duplicatePreismeldung)="duplicatePreismeldung$.emit()" (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
+                    (duplicatePreismeldung)="duplicatePreismeldung$.emit()" (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})" (cancel)="cancel$.emit({})"
                     (requestThrowChanges)="requestThrowChanges$.emit({})" [isAdminApp]="false" (save)="save$.emit($event)" (isSaveLookDisabled)="isNotSave$.emit($event)"
                     (disableQuickEqual)="disableQuickEqual$.emit($event)"></preismeldung-price>
             </div>

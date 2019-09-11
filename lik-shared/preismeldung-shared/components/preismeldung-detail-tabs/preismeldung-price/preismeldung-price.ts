@@ -252,6 +252,7 @@ import * as P from '../../../models';
                             </div>
                             <div class="buttons-container">
                                 <button ion-button color="java" class="save-button" (click)="attemptSave$.emit($event)" [class.look-disabled]="isSaveLookDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
+                                <button ion-button color="java" class="cancel-button" *ngIf="(isNew$ | async)" (click)="cancel$.emit($event)">{{ 'btn_cancel' | translate }}</button>
                                 <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only color="primary" class="next-button" (click)="requestSelectNextPreismeldung$.emit({})">
                                     <pef-icon name="arrow_right"></pef-icon>
                                 </button>
@@ -264,6 +265,7 @@ import * as P from '../../../models';
                         </div>
                         <button ion-button color="primary" class="save-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
                             (click)="attemptSave$.emit($event)" [class.look-disabled]="isSaveLookDisabled$ | async">{{ 'btn_erfassung_speichern' | translate }}</button>
+                        <button ion-button color="java" class="cancel-button" *ngIf="(isNew$ | async)" (click)="cancel$.emit($event)">{{ 'btn_cancel' | translate }}</button>
                         <button *ngIf="!(isAdminApp$ | async)" ion-button icon-only color="primary" class="next-button" [class.with-top-margin]="!(showChainedReplacementFields$ | async)"
                             (click)="requestSelectNextPreismeldung$.emit({})">
                             <pef-icon name="arrow_right"></pef-icon>
@@ -285,6 +287,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('save') save$: Observable<P.SavePreismeldungPriceSaveAction>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
     @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
+    @Output('cancel') cancel$ = new EventEmitter();
     @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
     @Output('isSaveLookDisabled') public isSaveLookDisabled$: Observable<boolean>;
     @Output('disableQuickEqual') disableQuickEqual$: Observable<boolean>;
@@ -332,6 +335,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     public currentPeriodHeading$: Observable<string>;
     public isSaveDisabled$: Observable<boolean>;
+    public isNew$: Observable<boolean>;
 
     public isInternet$: Observable<boolean>;
 
@@ -455,6 +459,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             .map(() => this.form.value.preisVPK)
             .merge(this.distinctPreismeldung$.map(x => x.preismeldung.preisVPK))
             .map(x => ({ value: `${preisFormatFn(x)}` }));
+
+        this.isNew$ = this.distinctPreismeldung$.map(bag => !bag.refPreismeldung);
 
         this.closePopoverRight$ = this.distinctPreismeldung$.merge(
             this.preismeldung$.filter(x => !!x && !x.preismeldung.aktion).map(() => ({}))
