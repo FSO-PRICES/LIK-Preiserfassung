@@ -437,6 +437,7 @@
             padding-right: 2em;
         }
         .save-button,
+        .cancel-button,
         .next-button {
             margin-top: 0;
         }
@@ -448,7 +449,8 @@
         pointer-events: none;
     }
 
-    .save-button {
+    .save-button,
+    .cancel-button {
         margin-bottom: 0;
         &.with-top-margin {
             @include set-margin-top(2);

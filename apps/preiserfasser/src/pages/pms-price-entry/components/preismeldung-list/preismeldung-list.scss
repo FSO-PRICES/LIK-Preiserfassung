@@ -21,6 +21,7 @@
         pef-virtual-scroll {
             display: block;
             flex: 1;
+            min-height: 0;
         }
     }
 
@@ -97,10 +98,14 @@
 
     .preismeldung-list-completed-count {
         text-align: center;
+        span {
+            display: inline-block;
+        }
     }
 
     .preismeldung-list-functions,
     .preismeldung-list-arrows {
+        white-space: nowrap;
         ion-button {
             @include set-margin-right(1);
         }

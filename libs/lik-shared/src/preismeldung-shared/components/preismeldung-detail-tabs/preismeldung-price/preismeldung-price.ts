@@ -62,6 +62,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('save') save$: Observable<P.SavePreismeldungPriceSaveAction | string>;
     @Output('duplicatePreismeldung') duplicatePreismeldung$ = new EventEmitter();
     @Output('requestSelectNextPreismeldung') requestSelectNextPreismeldung$ = new EventEmitter<{}>();
+    @Output('cancel') cancel$ = new EventEmitter();
     @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
     @Output('isSaveLookDisabled') public isSaveLookDisabled$: Observable<boolean>;
     @Output('disableQuickEqual') disableQuickEqual$: Observable<boolean>;
@@ -109,6 +110,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     public currentPeriodHeading$: Observable<string>;
     public isSaveDisabled$: Observable<boolean>;
+    public isNew$: Observable<boolean>;
 
     public isInternet$: Observable<boolean>;
 
@@ -241,6 +243,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             map(() => this.form.value.preisVPK),
             merge(this.distinctPreismeldung$.pipe(map(x => x.preismeldung.preisVPK))),
             map(x => ({ value: `${preisFormatFn(x)}` })),
+        );
+
+        this.isNew$ = this.preismeldung$.pipe(
+            filter(x => !!x),
+            map(bag => !bag.refPreismeldung && !bag.preismeldung.erfasstAt),
         );
 
         this.closePopoverRight$ = this.distinctPreismeldung$.pipe(

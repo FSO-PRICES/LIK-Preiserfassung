@@ -344,13 +344,13 @@
                                     (isReadonly$ | async)
                                 "
                             >
-                                <ion-button
-                                    class="aktion-percent-button"
-                                    color="mercury"
-                                    (click)="chooseReductionPercentage$.emit()"
-                                >
-                                    %
-                                </ion-button>
+                            <ion-button
+                                class="aktion-percent-button"
+                                color="mercury"
+                                (click)="chooseReductionPercentage$.emit()"
+                            >
+                                %
+                            </ion-button>
                             </div>
                             <div
                                 class="code"
@@ -472,6 +472,14 @@
                             {{ 'btn_erfassung_speichern' | translate }}
                         </ion-button>
                         <ion-button
+                            color="java"
+                            class="cancel-button"
+                            *ngIf="(isNew$ | async)"
+                            (click)="cancel$.emit($event)"
+                        >
+                            {{ 'btn_cancel' | translate }}
+                        </ion-button>
+                        <ion-button
                             *ngIf="!(isAdminApp$ | async)"
                             color="primary"
                             class="next-button icon-only"
@@ -496,6 +504,14 @@
                     [class.look-disabled]="isSaveLookDisabled$ | async"
                 >
                     {{ 'btn_erfassung_speichern' | translate }}
+                </ion-button>
+                <ion-button
+                    color="java"
+                    class="cancel-button"
+                    *ngIf="(isNew$ | async)"
+                    (click)="cancel$.emit($event)"
+                >
+                    {{ 'btn_cancel' | translate }}
                 </ion-button>
                 <ion-button
                     *ngIf="!(isAdminApp$ | async)"

@@ -43,8 +43,11 @@ export class PreismeldungInfoComponent extends ReactiveComponent implements OnCh
         this.canReset$ = this.preismeldung$.pipe(
             withLatestFrom(this.isAdminApp$),
             filter(([pm]) => !!pm),
-            map(([pm, isAdminApp]) =>
-                !isAdminApp ? !pm.preismeldung.uploadRequestedAt : !!pm.preismeldung.uploadRequestedAt && !pm.exported,
+            map(
+                ([pm, isAdminApp]) =>
+                    (!isAdminApp
+                        ? !pm.preismeldung.uploadRequestedAt
+                        : !!pm.preismeldung.uploadRequestedAt && !pm.exported) && !!pm.preismeldung.erfasstAt,
             ),
         );
     }

@@ -56,6 +56,7 @@
                     (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
                     (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
+                    (cancel)="cancel$.emit({})"
                     (requestThrowChanges)="requestThrowChanges$.emit({})"
                     [isAdminApp]="false"
                     (save)="save$.emit($event)"

@@ -87,6 +87,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
     ionViewDidLoad$ = new EventEmitter();
     resetPreismeldung$ = new EventEmitter();
     requestSelectNextPreismeldung$ = new EventEmitter<{}>();
+    cancel$ = new EventEmitter<{}>();
     selectNextPreismeldungRequested$: Observable<{}>;
     requestThrowChanges$ = new EventEmitter<{}>();
     isNotSave$ = new EventEmitter<boolean>();
