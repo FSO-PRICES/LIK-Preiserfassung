@@ -653,8 +653,10 @@ function getNextDuplicateSortierungsnummer(
         return nextIndex !== -1 ? preismeldungen[nextIndex].sortierungsnummer : 1;
     }
     const nextSortierungsnummer = currentPreismeldung.sortierungsnummer + 1;
-    return nextSortierungsnummer <=
-        maxBy(preismeldungen, bag => bag.preismeldung.uploadRequestedAt + bag.preismeldung.erfasstAt).sortierungsnummer
+    const lastPmSortierungsnummer = (
+        maxBy(preismeldungen, bag => bag.preismeldung.uploadRequestedAt) || { sortierungsnummer: -1 }
+    ).sortierungsnummer;
+    return nextSortierungsnummer <= lastPmSortierungsnummer
         ? maxBy(preismeldungen, bag => bag.sortierungsnummer).sortierungsnummer + 1
         : nextSortierungsnummer;
 }
