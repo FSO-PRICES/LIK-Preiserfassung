@@ -101,6 +101,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         {
             exported: boolean;
             pmId: string;
+            isEditable: boolean;
             canView: boolean;
             values: ColumnValue[];
         }[]
@@ -143,7 +144,11 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                             preismeldungenStatus[r.pmId] <= statusFilter
                         );
                     })
-                    .map(r => ({ ...r, values: r.values.map(c => ({ ...c, formattedValue: this.formatValue(c) })) })),
+                    .map(r => ({
+                        ...r,
+                        isEditable: preismeldungenStatus[r.pmId] < P.Models.PreismeldungStatus.geprüft,
+                        values: r.values.map(c => ({ ...c, formattedValue: this.formatValue(c) })),
+                    })),
             ),
         );
         this.completeAllPreismeldungenStatus$ = this.completeAllPreismeldungenStatusClicked$.pipe(
