@@ -312,8 +312,14 @@ export class PreismeldungPage {
             .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_MESSAGES', payload }));
 
         this.resetPreismeldung$
-            .pipe(takeUntil(this.ionViewDidLeave$))
-            .subscribe(() => this.store.dispatch({ type: 'RESET_PREISMELDUNG' }));
+            .pipe(
+                withLatestFrom(this.currentPreismeldung$),
+                takeUntil(this.ionViewDidLeave$),
+            )
+            .subscribe(([, pm]) => {
+                this.store.dispatch(status.createRemovePreismeldungStatusAction(pm.pmId));
+                this.store.dispatch({ type: 'RESET_PREISMELDUNG' });
+            });
 
         this.resetPreismeldungen$
             .pipe(takeUntil(this.ionViewDidLeave$))

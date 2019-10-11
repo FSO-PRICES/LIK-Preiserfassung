@@ -41,6 +41,15 @@ export class PreismeldungenStatusEffects {
     );
 
     @Effect()
+    removePreismeldungStatus$ = this.actions$.ofType(preismeldungenStatus.REMOVE_PREISMELDUNG_STATUS).pipe(
+        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        flatMap(action => removePreismeldungStatus(action.payload)),
+        map(status => preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(status.statusMap)),
+        publishReplay(1),
+        refCount(),
+    );
+
+    @Effect()
     loadPreismeldungenStatusData$ = this.actions$.ofType(preismeldungenStatus.LOAD_PREISMELDUNGEN_STATUS).pipe(
         continueEffectOnlyIfTrue(this.isLoggedIn$),
         flatMap(() =>
@@ -105,6 +114,14 @@ export class PreismeldungenStatusEffects {
             ),
         ),
     );
+}
+
+async function removePreismeldungStatus(pmId: string) {
+    const db = await getLocalDatabase(dbNames.preismeldungen_status);
+    const pmStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(db, 'preismeldungen_status');
+    delete pmStatus.statusMap[pmId];
+    await db.put(pmStatus);
+    return pmStatus;
 }
 
 async function setPreismeldungStatus({ pmId, status }) {

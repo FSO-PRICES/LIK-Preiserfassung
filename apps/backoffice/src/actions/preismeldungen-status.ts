@@ -8,6 +8,7 @@ export const GET_MISSING_PREISMELDUNGEN_STATUS_COUNT = 'GET_MISSING_PREISMELDUNG
 export const GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_RESET = 'GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_RESET';
 export const GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_SUCCESS = 'GET_MISSING_PREISMELDUNGEN_STATUS_COUNT_SUCCESS';
 export const SET_PREISMELDUNGEN_STATUS = 'SET_PREISMELDUNGEN_STATUS';
+export const REMOVE_PREISMELDUNG_STATUS = 'REMOVE_PREISMELDUNG_STATUS';
 export const SET_PREISMELDUNGEN_STATUS_BULK = 'SET_PREISMELDUNGEN_STATUS_BULK';
 export const SET_PREISMELDUNGEN_STATUS_SUCCESS = 'SET_PREISMELDUNGEN_STATUS_SUCCESS';
 export const INITIALIZE_PREISMELDUNGEN_STATUS = 'INITIALIZE_PREISMELDUNGEN_STATUS';
@@ -25,6 +26,7 @@ export type Action =
           payload: { statusMap: PreismeldungenStatusPayload; count?: number };
       }
     | { type: typeof SET_PREISMELDUNGEN_STATUS; payload: { pmId: string; status: P.PreismeldungStatus } }
+    | { type: typeof REMOVE_PREISMELDUNG_STATUS; payload: string }
     | { type: typeof SET_PREISMELDUNGEN_STATUS_BULK; payload: P.PreismeldungStatusList }
     | { type: typeof SET_PREISMELDUNGEN_STATUS_SUCCESS; payload: { [pmId: string]: P.PreismeldungStatus } }
     | { type: typeof GET_MISSING_PREISMELDUNGEN_STATUS_COUNT }
@@ -61,6 +63,10 @@ export const createSetPreismeldungenStatusAction = (payload: {
     status: P.PreismeldungStatus;
 }): Action => ({
     type: SET_PREISMELDUNGEN_STATUS,
+    payload,
+});
+export const createRemovePreismeldungStatusAction = (payload: string): Action => ({
+    type: REMOVE_PREISMELDUNG_STATUS,
     payload,
 });
 export const createSetPreismeldungenStatusBulkAction = (payload: P.PreismeldungStatusList): Action => ({
