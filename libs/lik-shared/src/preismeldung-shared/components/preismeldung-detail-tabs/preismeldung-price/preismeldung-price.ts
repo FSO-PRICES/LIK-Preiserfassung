@@ -596,7 +596,9 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     filter(x => x.bag.hasAttributeWarning),
                     mergeMap(() =>
                         pefDialogService.displayDialog(PefDialogValidationErrorsComponent, {
-                            params: { errorMessages: translateService.instant('validation_produktMerkmale_erfassen') },
+                            params: {
+                                errorMessages: [translateService.instant('validation_produktMerkmale_erfassen')],
+                            },
                             dialogOptions: { backdropDismiss: true },
                         }),
                     ),
@@ -621,7 +623,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         observable: () =>
                             pefDialogService
                                 .displayDialog(PefDialogValidationErrorsComponent, {
-                                    params: { errorMessages: translateService.instant('validation_frage-antworten') },
+                                    params: { errorMessages: [translateService.instant('validation_frage-antworten')] },
                                     dialogOptions: { backdropDismiss: true },
                                 })
                                 .pipe(
