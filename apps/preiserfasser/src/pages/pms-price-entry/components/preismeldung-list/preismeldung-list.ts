@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
+import { TranslateService } from '@ngx-translate/core';
 import { addDays, isAfter, isBefore, subMilliseconds } from 'date-fns';
 import autoScroll from 'dom-autoscroller';
 import dragula from 'dragula';
@@ -103,6 +104,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public sortErhebungsschemaClicked$ = new EventEmitter();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
 
+    public noPreismeldungen$: Observable<string>;
     public filterTodoColor$: Observable<string>;
     public filterCompletedColor$: Observable<string>;
     public filterAllColor$: Observable<string>;
@@ -134,7 +136,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     private onDestroy$ = new Subject();
 
-    constructor() {
+    constructor(translateService: TranslateService) {
         super();
 
         this.ionItemHeight$.asObservable().subscribe(itemHeight => (this.itemHeight = itemHeight));
@@ -260,6 +262,15 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             debounceTime(100),
             publishReplay(1),
             refCount(),
+        );
+        this.noPreismeldungen$ = this.filteredPreismeldungen$.pipe(
+            withLatestFrom(this.preismeldungen$, (filtered, preismeldungen) =>
+                filtered.length === 0 && preismeldungen.length === 0
+                    ? translateService.instant('label_no_preismeldung-available')
+                    : filtered.length === 0
+                    ? translateService.instant('label_no_preismeldung-with-current-filter')
+                    : '',
+            ),
         );
 
         this.noFavorites$ = this.filteredPreismeldungen$.pipe(

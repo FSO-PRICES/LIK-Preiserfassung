@@ -45,6 +45,7 @@
             <span> {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }} </span>
         </div>
     </div>
+    <ion-text *ngIf="(noPreismeldungen$ | async); let noPreismeldungen">{{ noPreismeldungen }}</ion-text>
     <pef-virtual-scroll
         [items]="filteredPreismeldungen$ | async"
         [childHeight]="itemHeight"

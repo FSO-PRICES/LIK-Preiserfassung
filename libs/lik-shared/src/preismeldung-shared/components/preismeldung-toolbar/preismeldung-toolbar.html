@@ -1,10 +1,10 @@
 <ion-button *ngIf="!(isAdminApp$ | async)" class="pef-tab-button icon-only" (click)="otherButtonClicked$.emit('HOME')">
     <pef-icon name="home"></pef-icon>
 </ion-button>
-<div class="preismeldung-buttons" *ngIf="!!preismeldung">
+<div class="preismeldung-buttons">
     <ion-button
         class="pef-tab-button icon-only"
-        [disabled]="(selectedTab$ | async) == 'INFO_WARENKORB'"
+        [disabled]="!preismeldung || (selectedTab$ | async) == 'INFO_WARENKORB'"
         [class.selected]="(selectedTab$ | async) == 'INFO_WARENKORB'"
         (click)="selectTab$.emit('INFO_WARENKORB')"
     >
@@ -12,7 +12,7 @@
     </ion-button>
     <ion-button
         class="pef-tab-button icon-only"
-        [disabled]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
+        [disabled]="!preismeldung || (selectedTab$ | async) == 'PREISMELDUNG_INFO'"
         [class.selected]="(selectedTab$ | async) == 'PREISMELDUNG_INFO'"
         (click)="selectTab$.emit('PREISMELDUNG_INFO')"
     >
@@ -20,7 +20,7 @@
     </ion-button>
     <ion-button
         class="pef-tab-button icon-only"
-        [disabled]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES' || !(hasAttributes$ | async)"
+        [disabled]="!preismeldung || (selectedTab$ | async) == 'PRODUCT_ATTRIBUTES' || !(hasAttributes$ | async)"
         [class.selected]="(selectedTab$ | async) == 'PRODUCT_ATTRIBUTES'"
         (click)="selectTab$.emit('PRODUCT_ATTRIBUTES')"
     >
@@ -29,29 +29,33 @@
             <pef-icon
                 class="warning-icon"
                 [name]="'warning'"
-                *ngIf="(preismeldung$ | async).hasAttributeWarning"
+                *ngIf="!!preismeldung && (preismeldung$ | async).hasAttributeWarning"
             ></pef-icon>
         </div>
     </ion-button>
     <ion-button
         class="pef-tab-button icon-only"
-        [disabled]="(selectedTab$ | async) == 'MESSAGES'"
+        [disabled]="!preismeldung || (selectedTab$ | async) == 'MESSAGES'"
         [class.selected]="(selectedTab$ | async) == 'MESSAGES'"
         (click)="selectTab$.emit('MESSAGES')"
     >
         <div class="tab-icon-with-warning">
             <pef-icon name="produkteigenschaften"></pef-icon>
-            <pef-icon class="info-icon" [name]="'info'" *ngIf="(preismeldung$ | async).hasMessageNotiz"></pef-icon>
+            <pef-icon
+                class="info-icon"
+                [name]="'info'"
+                *ngIf="!!preismeldung && (preismeldung$ | async).hasMessageNotiz"
+            ></pef-icon>
             <pef-icon
                 class="warning-icon"
                 [name]="'warning'"
-                *ngIf="(preismeldung$ | async).hasMessageToCheck"
+                *ngIf="!!preismeldung && (preismeldung$ | async).hasMessageToCheck"
             ></pef-icon>
         </div>
     </ion-button>
     <ion-button
         class="pef-tab-button icon-only"
-        [disabled]="(selectedTab$ | async) == 'PREISMELDUNG'"
+        [disabled]="!preismeldung || (selectedTab$ | async) == 'PREISMELDUNG'"
         [class.selected]="(selectedTab$ | async) == 'PREISMELDUNG'"
         (click)="selectTab$.emit('PREISMELDUNG')"
     >
@@ -60,11 +64,12 @@
             <pef-icon
                 class="warning-icon"
                 [name]="'warning'"
-                *ngIf="(preismeldung$ | async).hasPriceWarning"
+                *ngIf="!!preismeldung && (preismeldung$ | async).hasPriceWarning"
             ></pef-icon>
         </div>
     </ion-button>
     <ion-button
+        *ngIf="!!preismeldung"
         class="pef-toolbar-button icon-only"
         (click)="otherButtonClicked$.emit('PREISMELDUNG_QUICK_EQUAL')"
         [class.hidden]="(selectedTab$ | async) != 'PREISMELDUNG' || (requestPreismeldungQuickEqualDisabled$ | async)"
@@ -75,7 +80,7 @@
         </div>
     </ion-button>
     <ion-button
-        *ngIf="!(isAdminApp$ | async)"
+        *ngIf="!!preismeldung && !(isAdminApp$ | async)"
         class="pef-toolbar-button icon-only"
         (click)="saveButtonClicked$.emit()"
         [class.hidden]="(selectedTab$ | async) != 'PREISMELDUNG'"
