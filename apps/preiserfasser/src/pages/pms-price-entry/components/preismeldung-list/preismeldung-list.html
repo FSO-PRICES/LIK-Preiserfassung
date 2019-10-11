@@ -3,9 +3,9 @@
         <ion-button
             class="icon-only"
             [color]="sortErhebungsschemaColor$ | async"
-            (click)="sortErhebungsschemaClicked$.emit('ALL')"
+            (click)="sortErhebungsschemaClicked$.emit()"
         >
-            <pef-icon name="archive"></pef-icon>
+            <pef-icon name="list-by-erhebungsschema"></pef-icon>
         </ion-button>
         <pef-search-input
             class="pms-search"
