@@ -8,7 +8,18 @@ import {
     SimpleChange,
 } from '@angular/core';
 import { Observable } from 'rxjs';
-import { delay, filter, map, merge, publishReplay, refCount, scan, startWith, withLatestFrom } from 'rxjs/operators';
+import {
+    delay,
+    filter,
+    map,
+    mapTo,
+    merge,
+    publishReplay,
+    refCount,
+    scan,
+    startWith,
+    withLatestFrom,
+} from 'rxjs/operators';
 
 import { ReactiveComponent } from '@lik-shared';
 import * as P from '../../../common-models';
@@ -72,6 +83,11 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
                                 | P.SavePreismeldungPriceSaveActionSaveNavigateTab,
                         ) => x.tabName,
                     ),
+                ),
+                this.resetPreismeldung$.pipe(
+                    withLatestFrom(this.currentPreismeldung$),
+                    filter(([, pm]) => !pm.refPreismeldung),
+                    mapTo('PREISMELDUNG'),
                 ),
             ),
             startWith('PREISMELDUNG'),

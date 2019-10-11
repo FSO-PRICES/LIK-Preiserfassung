@@ -11,6 +11,7 @@ import {
     filter,
     flatMap,
     map,
+    mapTo,
     merge,
     publishReplay,
     refCount,
@@ -125,6 +126,11 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
                 this.save$.pipe(
                     filter(x => x.type === 'NO_SAVE_NAVIGATE' || x.type === 'SAVE_AND_NAVIGATE_TAB'),
                     map((x: P.SavePreismeldungPriceSaveActionNavigate) => x.tabName),
+                ),
+                this.resetPreismeldung$.pipe(
+                    withLatestFrom(this.currentPreismeldung$),
+                    filter(([, pm]) => !pm.refPreismeldung),
+                    mapTo('PREISMELDUNG'),
                 ),
             ),
             startWith('PREISMELDUNG'),

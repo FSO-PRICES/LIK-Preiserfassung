@@ -157,6 +157,11 @@ export class PreismeldungPage {
                     filter(x => x.type === 'NO_SAVE_NAVIGATE' || x.type === 'SAVE_AND_NAVIGATE_TAB'),
                     map((x: P.SavePreismeldungPriceSaveActionNavigate) => x.tabName),
                 ),
+                this.resetPreismeldung$.pipe(
+                    withLatestFrom(this.currentPreismeldung$),
+                    filter(([, pm]) => !pm.refPreismeldung),
+                    mapTo('PREISMELDUNG'),
+                ),
             ),
             startWith('PREISMELDUNG'),
             publishReplay(1),
