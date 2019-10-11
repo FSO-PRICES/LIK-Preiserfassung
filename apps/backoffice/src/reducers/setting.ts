@@ -15,7 +15,7 @@ export interface State {
     currentSettings: CurrentSetting;
     isFullscreen: boolean;
     hasExportedDatabases: P.DatabaseBackupResult;
-    hasImportedDatabase: { count: number };
+    hasImportedDatabase: P.DatabaseImportResult;
 }
 
 const initialState: State = {
@@ -73,7 +73,7 @@ export function reducer(state = initialState, action: setting.Action): State {
         }
 
         case 'IMPORT_DATABASE_SUCCESS': {
-            return { ...state, hasImportedDatabase: { count: action.payload }, hasExportedDatabases: undefined };
+            return { ...state, hasImportedDatabase: action.payload, hasExportedDatabases: undefined };
         }
 
         case 'TOGGLE_FULLSCREEN': {
@@ -88,6 +88,6 @@ export function reducer(state = initialState, action: setting.Action): State {
 export const getSettings = (state: State) => state.settings;
 export const getCurrentSettings = (state: State) => state.currentSettings;
 export const getHasExportedDatabases = (state: State) => state.hasExportedDatabases;
-export const getHasImportedDatabase = (state: State) => state.hasImportedDatabase;
+export const getHasImportedDatabases = (state: State) => state.hasImportedDatabase;
 
 export const getIsFullscreen = (state: State) => state.isFullscreen;

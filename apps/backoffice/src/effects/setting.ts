@@ -89,26 +89,37 @@ export class SettingEffects {
     );
 }
 
-async function importDbBackup(backup: P.DatabaseBackup): Promise<number> {
-    if (await checkIfDatabaseExists(backup.db)) {
-        const preImportBackup = await getDbBackup(backup.db);
-        const preDb = await getDatabase(`${backup.db}_backup_${+new Date()}`);
-        await preDb.bulkDocs(preImportBackup.data.rows.map(r => clearRev(r.doc)));
-        await dropRemoteCouchDatabase(backup.db);
+async function importDbBackup(backups: P.DatabaseBackupResult): Promise<P.DatabaseImportResult> {
+    const dbsToImport = Object.keys(backups);
+    const importResult: P.DatabaseImportResult = {};
+    for (let i = 0; i < dbsToImport.length; i++) {
+        const backup = backups[dbsToImport[i]];
+        if (await checkIfDatabaseExists(backup.db)) {
+            const preImportBackup = await getDbBackup(backup.db);
+            const preDb = await getDatabase(
+                // _users_backup... is an invalid name, use users_backup... instead
+                `${backup.db.indexOf('_') === 0 ? backup.db.substr(1) : backup.db}_backup_${+new Date()}`,
+            );
+            await preDb.bulkDocs(preImportBackup.data.rows.map(r => clearRev(r.doc)));
+            await dropRemoteCouchDatabase(backup.db);
+        }
+        const db = await getDatabase(backup.db);
+        importResult[backup.db] = (await db.bulkDocs(backup.data.rows.map(r => clearRev(r.doc)))).length;
     }
-    const db = await getDatabase(backup.db);
-    const result = await db.bulkDocs(backup.data.rows.map(r => clearRev(r.doc)));
-    return result.length;
+    return importResult;
 }
 
 async function createDbBackups(electronService: ElectronService): Promise<P.DatabaseBackupResult> {
-    const docsPe = await getDbBackup(dbNames.preiserheber);
-    await createFile(electronService, docsPe, 'preiserheber.json');
+    const dbsToExport = [dbNames.users, dbNames.preiserheber, dbNames.preiszuweisungen];
+    const exported: P.DatabaseBackupResult = {};
 
-    const docsPz = await getDbBackup(dbNames.preiszuweisungen);
-    await createFile(electronService, docsPz, 'preiszuweisungen.json');
+    for (let i = 0; i < dbsToExport.length; i++) {
+        exported[dbsToExport[i]] = await getDbBackup(dbsToExport[i]);
+    }
 
-    return { counts: { pe: docsPe.data.total_rows, pz: docsPz.data.total_rows } };
+    await createFile(electronService, exported, `export_${new Date().toISOString()}.json`);
+
+    return exported;
 }
 
 async function getDbBackup(dbName: string): Promise<P.DatabaseBackup> {

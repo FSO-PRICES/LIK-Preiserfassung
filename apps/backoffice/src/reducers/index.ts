@@ -138,9 +138,9 @@ export const getHasExportedDatabases = createSelector(
     getSettingState,
     fromSetting.getHasExportedDatabases,
 );
-export const getHasImportedDatabase = createSelector(
+export const getHasImportedDatabases = createSelector(
     getSettingState,
-    fromSetting.getHasImportedDatabase,
+    fromSetting.getHasImportedDatabases,
 );
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;

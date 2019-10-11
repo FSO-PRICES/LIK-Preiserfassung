@@ -44,8 +44,22 @@ export class SettingsPage implements OnDestroy {
     public settingsSaved$: Observable<CurrentSetting>;
     public dangerConfirmed$: Observable<boolean>;
     public resetInput$: Observable<{}>;
-    public dbsExported$ = this.store.select(fromRoot.getHasExportedDatabases);
-    public dbImported$ = this.store.select(fromRoot.getHasImportedDatabase);
+    public dbsExported$ = this.store.select(fromRoot.getHasExportedDatabases).pipe(
+        filter(exported => !!exported),
+        map(exported =>
+            Object.keys(exported)
+                .map(db => `${exported[db].data.total_rows} Einträge von '${db}' wurden exportiert`)
+                .join('\n'),
+        ),
+    );
+    public dbsImported$ = this.store.select(fromRoot.getHasImportedDatabases).pipe(
+        filter(imported => !!imported),
+        map(imported =>
+            Object.keys(imported)
+                .map(db => `${imported[db]} Einträge wurden in '${db}' importiert`)
+                .join('\n'),
+        ),
+    );
 
     public form: FormGroup;
     private subscriptions: Subscription[] = [];
@@ -125,16 +139,17 @@ export class SettingsPage implements OnDestroy {
             switchMap(backup =>
                 pefMessageDialogService
                     .displayDialogYesNoMessage(
-                        `Wollen Sie wirklich die Datenbank '${backup.db}' mit ${
-                            backup.data.total_rows
-                        } Einträgen importieren?`,
+                        'Wollen Sie wirklich die folgenden Datenbanken importieren?\n' +
+                            Object.keys(backup)
+                                .map(db => `'${db}' (${backup[db].data.total_rows} Einträge)`)
+                                .join(', '),
                     )
                     .pipe(map(answer => ({ answer, backup }))),
             ),
             publishReplay(1),
             refCount(),
         );
-        this.resetInput$ = mergeFollowing(this.dbImported$, onImport$).pipe(
+        this.resetInput$ = mergeFollowing(this.dbsImported$, onImport$).pipe(
             map(() => ({ value: '' })),
             publishReplay(1),
             refCount(),
@@ -202,7 +217,7 @@ export class SettingsPage implements OnDestroy {
     }
 }
 
-async function parseInputFile(file: File): Promise<P.DatabaseBackup> {
+async function parseInputFile(file: File): Promise<P.DatabaseBackupResult> {
     return JSON.parse(await readFile(file));
 }
 

@@ -90,11 +90,10 @@
                             </ion-button>
                         </div>
                         <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
-                            {{ dbsExported.counts.pe }} Preiserheber und {{ dbsExported.counts.pz }} Preiszuweisungen
-                            wurden exportiert.
+                            <pre>{{ dbsExported }}</pre>
                         </ion-text>
-                        <ion-text *ngIf="(dbImported$ | async); let dbImported" color="primary">
-                            {{ dbImported.count }} Einträge wurden importiert.
+                        <ion-text *ngIf="(dbsImported$ | async); let dbsImported" color="primary">
+                            <pre>{{ dbsImported }}</pre>
                         </ion-text>
                     </ng-container>
                 </form>
