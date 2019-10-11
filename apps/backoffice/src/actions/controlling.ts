@@ -7,6 +7,7 @@ export const RUN_CONTROLLING_DATA_READY = 'RUN_CONTROLLING_DATA_READY';
 export const SELECT_CONTROLLING_PM = 'SELECT_CONTROLLING_PM';
 export const SELECT_CONTROLLING_PM_WITH_BAG = 'SELECT_CONTROLLING_PM_WITH_BAG';
 export const RESET_PREISMELDUNG_SUCCESS = 'RESET_PREISMELDUNG_SUCCESS';
+export const DELETE_PREISMELDUNG_SUCCESS = 'DELETE_PREISMELDUNG_SUCCESS';
 export const SAVE_PREISMELDUNG_PRICE_SUCCESS = 'SAVE_PREISMELDUNG_PRICE_SUCCESS';
 export const SAVE_PREISMELDUNG_MESSAGES_SUCCESS = 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS';
 export const SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS = 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS';
@@ -97,6 +98,10 @@ export type ControllingAction =
     | { type: typeof SELECT_CONTROLLING_PM; payload: string }
     | { type: typeof SELECT_CONTROLLING_PM_WITH_BAG; payload: PreismeldungBag }
     | { type: typeof RESET_PREISMELDUNG_SUCCESS; payload: P.Preismeldung }
+    | {
+          type: typeof DELETE_PREISMELDUNG_SUCCESS;
+          payload: { pmId: string; pmsPreismeldungenSort: P.PmsPreismeldungenSort };
+      }
     | { type: typeof SAVE_PREISMELDUNG_PRICE_SUCCESS; payload: { preismeldung: P.Preismeldung } }
     | { type: typeof SAVE_PREISMELDUNG_MESSAGES_SUCCESS; payload: P.Preismeldung }
     | { type: typeof SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS; payload: P.Preismeldung };
