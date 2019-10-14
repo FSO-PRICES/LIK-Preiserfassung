@@ -118,7 +118,10 @@ export class DashboardPage implements OnDestroy {
         })),
         map(x =>
             x.preismeldestellen.map(preismeldestelle => {
-                const statistics = !x.statistics ? ({} as any) : x.statistics[preismeldestelle.pmsNummer];
+                const statistics =
+                    !x.statistics || !x.statistics[preismeldestelle.pmsNummer]
+                        ? ({} as any)
+                        : x.statistics[preismeldestelle.pmsNummer];
                 return {
                     preismeldestelle,
                     statistics,
