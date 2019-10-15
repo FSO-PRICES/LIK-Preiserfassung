@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { NgxLetModule } from '@ngx-utilities/ngx-let';
 
 import { PefComponentsModule, PreismeldungSharedModule } from '@lik-shared';
 
@@ -16,6 +17,7 @@ import { PefZoomModule } from '../../components/pef-zoom';
     imports: [
         CommonModule,
         IonicModule,
+        NgxLetModule,
         PefComponentsModule,
         PreismeldungSharedModule,
         PefMenuModule,

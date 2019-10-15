@@ -1,12 +1,12 @@
-<div class="edit-preismeldung-wrapper">
+<div class="edit-preismeldung-wrapper" *ngxLet="(currentPreismeldung$ | async); let currentPreismeldung">
     <ion-button size="large" fill="clear" class="close-button" color="white" (click)="_closeClicked$.emit($event)">
         {{ 'btn_close' | translate }}
         <pef-icon name="close_screen"></pef-icon>
     </ion-button>
     <div class="edit-wrapper">
         <preismeldung-toolbar
-            *ngIf="!!(currentPreismeldung$ | async); let currentPreismeldung"
-            [preismeldung]="currentPreismeldung$ | async"
+            *ngIf="!!currentPreismeldung"
+            [preismeldung]="currentPreismeldung"
             [selectedTab]="selectedTab$ | async"
             (selectTab)="selectTab$.emit($event)"
             [isAdminApp]="true"
@@ -14,11 +14,11 @@
             [disableQuickEqual]="quickEqualDisabled$ | async"
         >
         </preismeldung-toolbar>
-        <div class="tab-container" *ngIf="!!(currentPreismeldung$ | async)">
+        <div class="tab-container" *ngIf="!!currentPreismeldung">
             <preismeldung-info-warenkorb
                 [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
                 [isDesktop]="true"
-                [preismeldung]="currentPreismeldung$ | async"
+                [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
                 [warenkorb]="warenkorb$ | async"
                 [priceCountStatus]="currentPriceCountStatus$ | async"
@@ -29,7 +29,7 @@
             <preismeldung-info
                 [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
                 [isDesktop]="true"
-                [preismeldung]="currentPreismeldung$ | async"
+                [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
                 [priceCountStatus]="currentPriceCountStatus$ | async"
                 (resetClicked)="resetPreismeldung$.emit()"
@@ -39,7 +39,7 @@
             </preismeldung-info>
             <preismeldung-attributes
                 [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
-                [preismeldung]="currentPreismeldung$ | async"
+                [preismeldung]="currentPreismeldung"
                 [isDesktop]="true"
                 [preismeldestelle]="preismeldestelle"
                 [priceCountStatus]="currentPriceCountStatus$ | async"
@@ -51,7 +51,7 @@
             <preismeldung-messages
                 [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
                 [isActive]="(selectedTab$ | async) == 'MESSAGES'"
-                [preismeldung]="currentPreismeldung$ | async"
+                [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
                 [priceCountStatus]="currentPriceCountStatus$ | async"
                 [isDesktop]="true"
@@ -63,7 +63,7 @@
             </preismeldung-messages>
             <preismeldung-price
                 [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'"
-                [preismeldung]="currentPreismeldung$ | async"
+                [preismeldung]="currentPreismeldung"
                 [isDesktop]="true"
                 [preismeldestelle]="preismeldestelle"
                 [requestPreismeldungSave]="requestPreismeldungSave$ | async"
