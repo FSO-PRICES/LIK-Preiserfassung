@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { MenuController, NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
 import { interval, Observable, Subject } from 'rxjs';
 import { filter, flatMap, map, publishReplay, refCount, startWith, take, takeUntil } from 'rxjs/operators';
@@ -37,7 +37,12 @@ export class PefMenuComponent implements OnDestroy {
 
     private onDestroy$ = new Subject();
 
-    constructor(store: Store<fromRoot.AppState>, private navCtrl: NavController, private router: Router) {
+    constructor(
+        store: Store<fromRoot.AppState>,
+        private navCtrl: NavController,
+        private router: Router,
+        private menu: MenuController,
+    ) {
         this.dangerZone$ = store.select(fromRoot.getSettings).pipe(
             filter(settings => !!settings && !!settings.serverConnection && !!settings.serverConnection.url),
             map(settings => settings.serverConnection.url.indexOf('bfs-lik.lambda-it.ch') !== -1),
@@ -76,6 +81,7 @@ export class PefMenuComponent implements OnDestroy {
 
     navigateToPage(page: string) {
         if (page === null) return;
+        this.menu.close();
         this.navCtrl.navigateRoot(page).catch(error => {
             if (error === false) return; // If the error is just a "false" it is that the page cannot be left
             throw error;

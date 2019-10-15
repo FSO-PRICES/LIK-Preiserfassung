@@ -3,6 +3,19 @@
 @import '../theme/pages.scss';
 @import '../theme/forms.scss';
 
-.app-root.pef-desktop.fullscreen {
-    max-width: none;
+app-root.pef-desktop {
+    &.fullscreen {
+        header[pef-menu],
+        ion-router-outlet {
+            max-width: none;
+        }
+    }
+    header[pef-menu] {
+        max-width: $pef-app-max-width;
+        width: 100%;
+        margin: 0 auto;
+    }
+    ion-router-outlet {
+        margin-top: 48px;
+    }
 }

@@ -318,3 +318,16 @@
         }
     }
 }
+
+.shown-on-smaller-screen {
+    display: none;
+}
+
+@media (max-width: 1189px) {
+    .hidden-on-smaller-screen {
+        display: none;
+    }
+    .shown-on-smaller-screen {
+        display: block;
+    }
+}

@@ -28,6 +28,20 @@
         margin-left: 1em;
     }
 
+    .placeholder {
+        flex: 1;
+    }
+    ion-item {
+        cursor: pointer;
+        &.active {
+            background-color: $blue-chill;
+            color: white;
+        }
+    }
+    pef-icon {
+        fill: white;
+        stroke: transparent;
+    }
     ion-buttons {
         flex: 1;
         order: 4;

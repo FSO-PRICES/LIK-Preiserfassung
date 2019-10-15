@@ -1,5 +1,5 @@
 <div class="toolbar toolbar-md" [class.danger-zone]="dangerZone$ | async">
-    <ion-buttons>
+    <ion-buttons class="hidden-on-smaller-screen">
         <ion-button
             *ngFor="let entry of pages"
             fill="clear"
@@ -31,4 +31,24 @@
         [class.error]="(canConnectToDatabase$ | async) === false"
         [class.ok]="(canConnectToDatabase$ | async) === true"
     ></pef-icon>
+    <div class="shown-on-smaller-screen placeholder"></div>
+    <ion-menu-button class="shown-on-smaller-screen" [autoHide]="false">
+        <pef-icon name="menu"></pef-icon>
+    </ion-menu-button>
 </div>
+
+<ion-menu side="end" contentId="content1" type="overlay">
+    <ion-content>
+        <ion-list>
+            <ion-item
+                *ngFor="let entry of pages"
+                (click)="navigateToPage(entry.page)"
+                [class.active]="isCurrentPage(entry.page)"
+                >{{ entry.name }}</ion-item
+            >
+            <ion-item (click)="navigateToPage('settings')" [class.active]="isCurrentPage('settings')">
+                Einstellungen
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-menu>
