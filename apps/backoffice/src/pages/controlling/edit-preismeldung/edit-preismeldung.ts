@@ -53,6 +53,7 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('currentPreismeldung');
     public warenkorb$ = this.observePropertyCurrentValue<P.fromWarenkorb.WarenkorbInfo[]>('warenkorb');
     public toolbarButtonClicked$ = new EventEmitter<string>();
+    public requestPreismeldungQuickEqual$: Observable<{}>;
     public selectedTab$: Observable<string>;
     public _closeClicked$ = new EventEmitter();
     public disableQuickEqual$ = new EventEmitter<boolean>();
@@ -111,6 +112,11 @@ export class EditPreismeldungComponent extends ReactiveComponent implements OnCh
                     ),
                 ),
             );
+
+        this.requestPreismeldungQuickEqual$ = this.toolbarButtonClicked$.pipe(
+            filter(x => x === 'PREISMELDUNG_QUICK_EQUAL'),
+            map(() => new Date()),
+        );
 
         this.savePreismeldungMessages$ = createTabLeaveObservable('MESSAGES').pipe(
             withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung),
