@@ -329,9 +329,12 @@ app-root {
     height: 100%;
 }
 app-root.pef-desktop {
-    max-width: $pef-app-max-width;
-    margin: 0 auto;
     position: relative;
+
+    ion-router-outlet {
+        max-width: $pef-app-max-width;
+        margin: 0 auto;
+    }
 
     ion-content .scroll-content {
         overflow-y: auto;
