@@ -60,6 +60,7 @@ export class SettingsPage implements OnDestroy {
                 .join('\n'),
         ),
     );
+    public isModified$ = this.currentSettings$.pipe(map(x => !!x && x.isModified));
 
     public form: FormGroup;
     private subscriptions: Subscription[] = [];
