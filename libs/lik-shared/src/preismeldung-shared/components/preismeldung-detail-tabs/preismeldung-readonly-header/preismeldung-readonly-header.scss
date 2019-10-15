@@ -24,16 +24,27 @@
     }
     ion-textarea {
         margin-top: 0;
-        background-color: $alto;
-        --background: #{$alto};
-        --padding-top: 6px;
-        --padding-bottom: 6px;
+        background-color: $white;
+        padding-left: 0;
+        --background: #{$white};
+        --padding-top: 0;
+        --padding-bottom: 0;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 0;
+        padding-right: 0;
         border-bottom: 2px solid $hit-gray;
+        height: 47px;
+        margin-bottom: 0 !important;
     }
 
     .header-line {
         display: flex;
         align-items: center;
+        ion-label {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
     }
 
     .product-heading,
