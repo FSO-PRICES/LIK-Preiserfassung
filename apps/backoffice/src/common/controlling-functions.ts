@@ -44,5 +44,5 @@ export function formatMessages(message: string) {
 }
 
 export function formatArtikeltext(artikeltext: string) {
-    return artikeltext.replace(new RegExp('(\n|\\\\n)', 'g'), '<br>');
+    return artikeltext ? artikeltext.replace(new RegExp('(\n|\\\\n)', 'g'), '<br>') : '';
 }
