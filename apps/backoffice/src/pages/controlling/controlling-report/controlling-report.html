@@ -1,66 +1,76 @@
 <div class="top-section">
-    <div class="filter">
-        <div class="status">
-            <ion-radio-group>
-                <ion-item>
-                    <ion-radio
-                        [disabled]="hasStatusInputDisabled$ | async"
-                        value="1"
-                        [checked]="!(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 1"
-                        (ionSelect)="setPreismeldungStatusFilter$.emit(1)"
-                    ></ion-radio>
-                    <ion-label>In Prüfung (unbestätigt)</ion-label>
-                </ion-item>
-                <ion-item>
-                    <ion-radio
-                        [disabled]="hasStatusInputDisabled$ | async"
-                        value="2"
-                        [checked]="!(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 2"
-                        (ionSelect)="setPreismeldungStatusFilter$.emit(2)"
-                    ></ion-radio>
-                    <ion-label>In Prüfung (alle)</ion-label>
-                </ion-item>
-                <ion-item>
-                    <ion-radio
-                        [disabled]="hasStatusInputDisabled$ | async"
-                        value="3"
-                        [checked]="!(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 3"
-                        (ionSelect)="setPreismeldungStatusFilter$.emit(3)"
-                    ></ion-radio>
-                    <ion-label>Alle Preise</ion-label>
-                </ion-item>
-            </ion-radio-group>
-            <h2>({{ (preismeldungen$ | async)?.length || 0 }})</h2>
-        </div>
-        <div class="controlling">
-            <select
-                #controllingSelect
-                class="controlling-selected"
-                (change)="controllingTypeSelected$.emit($event.target.value)"
-            >
-                <option
-                    *ngFor="let controlling of controllings"
-                    [value]="controlling.name"
-                    [selected]="(controllingType$ | async) === controlling.name"
-                    >{{ controlling.label }}</option
+    <ion-grid>
+        <ion-row>
+            <ion-col class="filter">
+                <div class="status">
+                    <ion-radio-group>
+                        <ion-item>
+                            <ion-radio
+                                [disabled]="hasStatusInputDisabled$ | async"
+                                value="1"
+                                [checked]="
+                                    !(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 1
+                                "
+                                (ionSelect)="setPreismeldungStatusFilter$.emit(1)"
+                            ></ion-radio>
+                            <ion-label>In Prüfung (unbestätigt)</ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <ion-radio
+                                [disabled]="hasStatusInputDisabled$ | async"
+                                value="2"
+                                [checked]="
+                                    !(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 2
+                                "
+                                (ionSelect)="setPreismeldungStatusFilter$.emit(2)"
+                            ></ion-radio>
+                            <ion-label>In Prüfung (alle)</ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <ion-radio
+                                [disabled]="hasStatusInputDisabled$ | async"
+                                value="3"
+                                [checked]="
+                                    !(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 3
+                                "
+                                (ionSelect)="setPreismeldungStatusFilter$.emit(3)"
+                            ></ion-radio>
+                            <ion-label>Alle Preise</ion-label>
+                        </ion-item>
+                    </ion-radio-group>
+                    <h2>({{ (preismeldungen$ | async)?.length || 0 }})</h2>
+                </div>
+                <div class="controlling">
+                    <select
+                        #controllingSelect
+                        class="controlling-selected"
+                        (change)="controllingTypeSelected$.emit($event.target.value)"
+                    >
+                        <option
+                            *ngFor="let controlling of controllings"
+                            [value]="controlling.name"
+                            [selected]="(controllingType$ | async) === controlling.name"
+                            >{{ controlling.label }}</option
+                        >
+                    </select>
+                </div>
+            </ion-col>
+            <ion-col class="actions">
+                <ion-button type="button" class="btn-execute" (click)="runReport$.emit(controllingSelect.value)"
+                    >ausführen</ion-button
                 >
-            </select>
-        </div>
-    </div>
-    <div class="actions">
-        <ion-button type="button" class="btn-execute" (click)="runReport$.emit(controllingSelect.value)"
-            >ausführen</ion-button
-        >
-        <ng-content *ngIf="!(reportData$ | async)"></ng-content>
-        <ion-button
-            *ngIf="!!(reportData$ | async)"
-            type="button"
-            class="btn-execute"
-            (click)="completeAllPreismeldungenStatusClicked$.emit()"
-            >Alle angezeigten Preismeldungen als geprüft markieren</ion-button
-        >
-        <pef-zoom *ngIf="!!(reportData$ | async)" (zoomLevel)="zoomLevel$.emit($event)"></pef-zoom>
-    </div>
+                <ng-content *ngIf="!(reportData$ | async)"></ng-content>
+                <ion-button
+                    *ngIf="!!(reportData$ | async)"
+                    type="button"
+                    class="btn-execute"
+                    (click)="completeAllPreismeldungenStatusClicked$.emit()"
+                    >Alle angezeigten Preismeldungen als geprüft markieren</ion-button
+                >
+                <pef-zoom *ngIf="!!(reportData$ | async)" (zoomLevel)="zoomLevel$.emit($event)"></pef-zoom>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </div>
 
 <div class="table-wrapper" *ngIf="!!(reportData$ | async)">
