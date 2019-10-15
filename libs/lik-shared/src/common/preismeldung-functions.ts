@@ -16,13 +16,14 @@ export function preismeldungCompareFn(a: PreismeldungSortShape, b: PreismeldungS
     );
 }
 
-export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungReference): Partial<Preismeldung> {
+export function copyPreismeldungPropertiesFromRefPreismeldung(
+    rpm: PreismeldungReference,
+    beendet = false,
+): Partial<Preismeldung> {
     return {
         pmsNummer: rpm.pmsNummer,
         epNummer: rpm.epNummer,
         laufnummer: rpm.laufnummer,
-        preis: '',
-        menge: '',
         preisVPK: '',
         mengeVPK: '',
         fehlendePreiseR: '',
@@ -34,22 +35,28 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(rpm: PreismeldungR
         artikeltext: rpm.artikeltext,
         bemerkungen: '',
         notiz: rpm.notiz,
-        erfasstAt: null,
         erhebungsZeitpunkt: rpm.erhebungsZeitpunkt,
         kommentar: '',
         productMerkmale: rpm.productMerkmale,
         modifiedAt: format(new Date()),
-        bearbeitungscode: 99,
         uploadRequestedAt: null,
         istAbgebucht: false,
-        d_DPToVP: createInitialPercentageWithWarning(),
-        d_DPToVPVorReduktion: createInitialPercentageWithWarning(),
-        d_DPToVPK: createInitialPercentageWithWarning(),
-        d_VPKToVPAlterArtikel: createInitialPercentageWithWarning(),
-        d_VPKToVPVorReduktion: createInitialPercentageWithWarning(),
-        d_DPVorReduktionToVPVorReduktion: createInitialPercentageWithWarning(),
-        d_DPVorReduktionToVP: createInitialPercentageWithWarning(),
         internetLink: rpm.internetLink,
+        ...(beendet
+            ? {}
+            : {
+                  preis: '',
+                  menge: '',
+                  bearbeitungscode: 99,
+                  erfasstAt: null,
+                  d_DPToVP: createInitialPercentageWithWarning(),
+                  d_DPToVPVorReduktion: createInitialPercentageWithWarning(),
+                  d_DPToVPK: createInitialPercentageWithWarning(),
+                  d_VPKToVPAlterArtikel: createInitialPercentageWithWarning(),
+                  d_VPKToVPVorReduktion: createInitialPercentageWithWarning(),
+                  d_DPVorReduktionToVPVorReduktion: createInitialPercentageWithWarning(),
+                  d_DPVorReduktionToVP: createInitialPercentageWithWarning(),
+              }),
     };
 }
 

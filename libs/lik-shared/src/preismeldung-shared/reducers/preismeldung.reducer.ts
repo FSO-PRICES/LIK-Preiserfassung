@@ -353,7 +353,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             );
 
             const saveAction = action.payload.saveAction;
-            let nextPreismeldung: P.PreismeldungBag;
+            let nextPreismeldung: CurrentPreismeldungBag;
             if (saveAction.type === 'SAVE_AND_MOVE_TO_NEXT') {
                 const index = !!saveAction.nextId ? state.preismeldungIds.findIndex(x => x === saveAction.nextId) : 0;
                 const nextId = state.preismeldungIds[index];
@@ -363,9 +363,12 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     state.isAdminApp,
                 );
             } else {
-                nextPreismeldung = assign(cloneDeep(currentPreismeldung), {
+                nextPreismeldung = {
+                    ...cloneDeep(currentPreismeldung),
                     messages: parsePreismeldungMessages(currentPreismeldung.preismeldung, state.isAdminApp),
-                });
+                    attributes: cloneDeep(currentPreismeldung.preismeldung.productMerkmale),
+                    ...(saveAction.type === 'JUST_SAVE' ? { resetEvent: new Date().getTime() } : {}),
+                };
             }
 
             let entities = assign({}, state.entities, {
@@ -383,12 +386,13 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 preismeldungIds = action.payload.sortierung.sortOrder.map(sort => sort.pmId);
             }
 
-            return assign({}, state, {
+            return {
+                ...state,
                 currentPreismeldung: nextPreismeldung,
                 entities,
                 preismeldungIds,
                 priceCountStatuses: createPriceCountStatuses(entities),
-            });
+            };
         }
 
         case 'PREISMELDUNGEN_TOGGLE_RECORD_MODE': {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { assign, flatMap as arrayFlatMap, isEqual, sortBy } from 'lodash';
+import { assign, cloneDeep, flatMap as arrayFlatMap, isEqual, sortBy } from 'lodash';
 import { defer } from 'rxjs';
 import {
     combineLatest,
@@ -186,13 +186,27 @@ export class PreismeldungenEffects {
                           }),
                       }
                     : null;
-            currentPreismeldung = assign(
-                {},
-                x.currentPreismeldung,
-                { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext }) },
-                setAktion,
-            );
-            return this.savePreismeldungPrice(currentPreismeldung).then(preismeldung => ({
+            const attributes = cloneDeep(x.currentPreismeldung.refPreismeldung.productMerkmale);
+            currentPreismeldung =
+                x.currentPreismeldung.preismeldung.bearbeitungscode === 0
+                    ? {
+                          ...x.currentPreismeldung,
+                          preismeldung: {
+                              ...x.currentPreismeldung.preismeldung,
+                              ...copyPreismeldungPropertiesFromRefPreismeldung(
+                                  x.currentPreismeldung.refPreismeldung,
+                                  true,
+                              ),
+                          },
+                          attributes,
+                      }
+                    : assign(
+                          {},
+                          x.currentPreismeldung,
+                          { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext }) },
+                          setAktion,
+                      );
+            return this.savePreismeldungPrice(currentPreismeldung, true).then(preismeldung => ({
                 preismeldung,
                 sortierung: x.sortierung,
                 saveAction,
@@ -378,10 +392,11 @@ export class PreismeldungenEffects {
         return this.savePreismeldung(currentPreismeldungBag, [bag => productMerkmaleFromCurrentPreismeldung(bag)]);
     }
 
-    savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag) {
+    savePreismeldungPrice(currentPreismeldungBag: P.CurrentPreismeldungBag, saveMerkmale = false) {
         return this.savePreismeldung(currentPreismeldungBag, [
             bag => propertiesFromCurrentPreismeldung(bag),
             bag => messagesFromCurrentPreismeldung(bag),
+            ...(saveMerkmale ? [(bag: P.CurrentPreismeldungBag) => productMerkmaleFromCurrentPreismeldung(bag)] : []),
         ]);
     }
 
