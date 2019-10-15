@@ -51,7 +51,7 @@
         <ion-button type="button" class="btn-execute" (click)="runReport$.emit(controllingSelect.value)"
             >ausführen</ion-button
         >
-        <ng-content *ngIf="!(reportData$ | async)" select=".additional-actions"></ng-content>
+        <ng-content *ngIf="!(reportData$ | async)"></ng-content>
         <ion-button
             *ngIf="!!(reportData$ | async)"
             type="button"

@@ -2,7 +2,9 @@
     [preismeldung]="preismeldung$ | async"
     [preismeldestelle]="preismeldestelle$ | async"
     [isAdminApp]="isAdminApp$ | async"
-></preismeldung-readonly-header>
+>
+    <ng-content></ng-content>
+</preismeldung-readonly-header>
 
 <ion-content *ngxLet="(preismeldung$ | async); let preismeldung">
     <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
