@@ -51,44 +51,20 @@
                 </div>
                 <div class="info-warenkorb-cell value">
                     {{ 'label_info-warenkorb_preismeldung-wird-erhoben-im' | translate }}:
-                    <ul class="month-list">
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 0)">
-                            {{ 1 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 1)">
-                            {{ 2 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 2)">
-                            {{ 3 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 3)">
-                            {{ 4 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 4)">
-                            {{ 5 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 5)">
-                            {{ 6 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 6)">
-                            {{ 7 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 7)">
-                            {{ 8 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 8)">
-                            {{ 9 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 9)">
-                            {{ 10 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 10)">
-                            {{ 11 | pefMonthTranslate }}
-                        </li>
-                        <li *ngIf="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, 11)">
-                            {{ 12 | pefMonthTranslate }}
-                        </li>
-                    </ul>
+                    <table class="month-list">
+                        <tr>
+                            <th *ngFor="let month of months">{{ month | pefMonthTranslate }}</th>
+                        </tr>
+                        <tr>
+                            <td *ngFor="let month of months">
+                                <input
+                                    type="checkbox"
+                                    [checked]="ifMonth(preismeldung?.warenkorbPosition.periodizitaetMonat, month - 1)"
+                                    (click)="$event.preventDefault()"
+                                />
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
             <div class="info-warenkorb-row">

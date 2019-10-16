@@ -34,8 +34,13 @@
     }
 
     .month-list {
-        margin-top: 0;
-        margin-bottom: 0;
+        th {
+            width: 35px;
+        }
+        th,
+        td {
+            text-align: center;
+        }
     }
 
     @import '../common-styles.scss';

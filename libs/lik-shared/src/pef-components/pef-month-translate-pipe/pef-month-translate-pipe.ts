@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform, OnDestroy } from '@angular/core';
+import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
 import { format } from 'date-fns';
 
 import * as deLocale from 'date-fns/locale/de';
@@ -20,7 +20,7 @@ export class PefMonthTranslatePipe implements PipeTransform, OnDestroy {
     transform(value: string, _formatOptions: any) {
         if (!value) return undefined;
 
-        return format(`2000-${value}-01`, 'MMMM', { locale: this.getLocale() });
+        return format(`2000-${value}-01`, 'MMM', { locale: this.getLocale() });
     }
 
     getLocale() {

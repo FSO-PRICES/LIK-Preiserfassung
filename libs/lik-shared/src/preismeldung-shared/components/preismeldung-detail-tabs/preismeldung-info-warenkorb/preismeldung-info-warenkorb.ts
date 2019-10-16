@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChange } from '@angular/core';
-import { reverse } from 'lodash';
+import { range, reverse } from 'lodash';
 import { Observable } from 'rxjs';
 import { combineLatest, filter, publishReplay, refCount } from 'rxjs/operators';
 
@@ -30,6 +30,7 @@ export class PreismeldungInfoWarenkorbComponent extends ReactiveComponent implem
         refCount(),
     );
 
+    public months = range(1, 12);
     public parentHierarchy$: Observable<P.WarenkorbInfo[]>;
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
