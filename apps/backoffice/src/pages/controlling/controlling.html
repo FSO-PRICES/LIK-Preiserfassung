@@ -5,7 +5,7 @@
         [reportData]="controllingReportData$ | async"
         (editPreismeldungId)="editPreismeldungId$.emit($event)"
         (setPreismeldungStatus)="setPreismeldungStatus$.emit($event)"
-        (completeAllPreismeldungenStatus)="completeAllPreismeldungenStatus$.emit($event)"
+        (updateAllPmStatus)="updateAllPmStatus$.emit($event)"
     >
     </controlling-report>
     <edit-preismeldung

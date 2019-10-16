@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { first } from 'lodash';
-import { Observable } from 'rxjs';
+import { defer, Observable } from 'rxjs';
 import {
     combineLatest,
     filter,
@@ -11,13 +11,15 @@ import {
     refCount,
     scan,
     startWith,
+    switchMap,
     withLatestFrom,
 } from 'rxjs/operators';
 
-import { ReactiveComponent } from '@lik-shared';
+import { PefDialogService, ReactiveComponent } from '@lik-shared';
 
 import { CONTROLLING_0830, CONTROLLING_TYPE, ControllingTypesWithoutPmStatus } from '../../../actions/controlling';
 import * as P from '../../../common-models';
+import { PefDialogPmStatusSelectionComponent } from '../../../components/pef-dialog-pm-status-selection';
 import { ColumnValue, ShortColumnNames } from '../../../reducers/controlling';
 
 @Component({
@@ -32,9 +34,9 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
     @Output('runReport') runReport$ = new EventEmitter<string>();
     @Output('editPreismeldungId') editPreismeldungId$ = new EventEmitter<string>();
-    @Output('completeAllPreismeldungenStatus') completeAllPreismeldungenStatus$: Observable<string[]>;
+    @Output('updateAllPmStatus') public updateAllPmStatus$: Observable<P.Models.PreismeldungStatusList>;
 
-    public completeAllPreismeldungenStatusClicked$ = new EventEmitter();
+    public updateAllPmStatusClicked$ = new EventEmitter();
     public setPreismeldungStatusFilter$ = new EventEmitter<number>();
     public preismeldungStatusFilter$: Observable<number>;
     public controllingTypeSelected$ = new EventEmitter<CONTROLLING_TYPE>();
@@ -107,7 +109,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         }[]
     >;
 
-    constructor(private domSanitizer: DomSanitizer) {
+    constructor(private domSanitizer: DomSanitizer, pefDialogService: PefDialogService) {
         super();
 
         this.controllingType$ = this.reportData$.pipe(
@@ -151,12 +153,6 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                     })),
             ),
         );
-        this.completeAllPreismeldungenStatus$ = this.completeAllPreismeldungenStatusClicked$.pipe(
-            withLatestFrom(this.preismeldungen$, this.preismeldungenStatus$),
-            map(([_, preismeldungen, preismeldungenStatus]) =>
-                preismeldungen.filter(pm => pm.canView && preismeldungenStatus[pm.pmId] != null).map(pm => pm.pmId),
-            ),
-        );
 
         this.hiddenColumns$ = this.toggleColumn$.asObservable().pipe(
             scan(
@@ -182,6 +178,25 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             map(type => ControllingTypesWithoutPmStatus.some(x => x === type)),
             publishReplay(1),
             refCount(),
+        );
+
+        const confirmUpdateStatusDialog$ = defer(() =>
+            pefDialogService
+                .displayDialog(PefDialogPmStatusSelectionComponent, { dialogOptions: { backdropDismiss: true } })
+                .pipe(
+                    map(x => x.data),
+                    filter(data => !!data && data.type === 'CONFIRM_SAVE'),
+                ),
+        );
+
+        this.updateAllPmStatus$ = this.updateAllPmStatusClicked$.pipe(
+            switchMap(() => confirmUpdateStatusDialog$),
+            withLatestFrom(this.preismeldungen$, this.preismeldungenStatus$),
+            map(([data, preismeldungen, preismeldungenStatus]) =>
+                preismeldungen
+                    .filter(pm => pm.canView && preismeldungenStatus[pm.pmId] != null)
+                    .map(({ pmId }) => ({ pmId, status: data.value })),
+            ),
         );
     }
 

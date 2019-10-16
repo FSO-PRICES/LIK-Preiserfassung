@@ -61,7 +61,7 @@ export class ControllingPage implements OnDestroy {
         refCount(),
     );
 
-    public completeAllPreismeldungenStatus$ = new EventEmitter<string[]>();
+    public updateAllPmStatus$ = new EventEmitter<P.Models.PreismeldungStatusList>();
     public updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     public updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     public updatePreismeldungAttributes$ = new EventEmitter<string[]>();
@@ -131,15 +131,9 @@ export class ControllingPage implements OnDestroy {
             .pipe(takeUntil(this.onDestroy$))
             .subscribe(payload => this.store.dispatch(status.createSetPreismeldungenStatusAction(payload)));
 
-        this.completeAllPreismeldungenStatus$
+        this.updateAllPmStatus$
             .pipe(takeUntil(this.onDestroy$))
-            .subscribe(pmIds =>
-                this.store.dispatch(
-                    status.createSetPreismeldungenStatusBulkAction(
-                        pmIds.map(pmId => ({ pmId, status: P.Models.PreismeldungStatus.geprüft })),
-                    ),
-                ),
-            );
+            .subscribe(payload => this.store.dispatch(status.createSetPreismeldungenStatusBulkAction(payload)));
 
         this.kommentarClearClicked$
             .pipe(takeUntil(this.onDestroy$))

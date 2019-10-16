@@ -64,8 +64,8 @@
                     *ngIf="!!(reportData$ | async)"
                     type="button"
                     class="btn-execute"
-                    (click)="completeAllPreismeldungenStatusClicked$.emit()"
-                    >Alle angezeigten Preismeldungen als geprüft markieren</ion-button
+                    (click)="updateAllPmStatusClicked$.emit()"
+                    >Prüf-Status aller angezeigten Preismeldungen anpassen</ion-button
                 >
                 <pef-zoom *ngIf="!!(reportData$ | async)" (zoomLevel)="zoomLevel$.emit($event)"></pef-zoom>
             </ion-col>
