@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { interval, Observable, Subject } from 'rxjs';
 import { filter, flatMap, map, publishReplay, refCount, startWith, take, takeUntil } from 'rxjs/operators';
 
+import * as status from '../../actions/preismeldungen-status';
 import * as fromRoot from '../../reducers';
 
 type Page = { page: string; name: string };
@@ -32,6 +33,7 @@ export class PefMenuComponent implements OnDestroy {
     public reloadClicked$ = new EventEmitter();
     public onOffLineClicked$ = new EventEmitter();
     public toggleFullscreenClicked$ = new EventEmitter();
+    public savePreismeldungStatuses$ = new EventEmitter();
     public isOffline$: Observable<boolean>;
     public isFullscreen$: Observable<boolean>;
 
@@ -66,6 +68,10 @@ export class PefMenuComponent implements OnDestroy {
 
         this.reloadClicked$.pipe(takeUntil(this.onDestroy$)).subscribe(() => {
             store.dispatch({ type: 'LOGOUT' });
+        });
+
+        this.savePreismeldungStatuses$.pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+            store.dispatch(status.createApplyPreismeldungenStatusAction());
         });
 
         store

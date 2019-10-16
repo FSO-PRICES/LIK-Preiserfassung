@@ -24,6 +24,13 @@
         (isOffline$ | async) ? 'OFF-LINE' : 'ON-LINE'
     }}</ion-button>
     <ion-button class="reload with-shadow" (click)="reloadClicked$.emit()">Login refresh</ion-button>
+    <ion-button
+        class="save-status icon-only"
+        title="Prüfungs-Status speichern"
+        (click)="savePreismeldungStatuses$.emit()"
+    >
+        <pef-icon name="save"></pef-icon>
+    </ion-button>
     <pef-icon
         item-right
         name="wifi"

@@ -42,6 +42,28 @@
         fill: white;
         stroke: transparent;
     }
+    .save-status {
+        pef-icon {
+            fill: $blue-chill;
+        }
+    }
+
+    ion-button {
+        color: $white;
+        --fill: #{$white};
+        --color: #{$white};
+        --color-hover: #{$white};
+        --background-hover: #{$blue-chill};
+        --padding-start: 15px;
+        --padding-end: 15px;
+        &:hover {
+            opacity: 1;
+            --opacity: 1;
+        }
+        pef-icon {
+            stroke: transparent;
+        }
+    }
     ion-buttons {
         flex: 1;
         order: 4;
@@ -53,17 +75,7 @@
         color: $white;
 
         ion-button {
-            color: $white;
-            --fill: #{$white};
-            --color: #{$white};
-            --color-hover: #{$white};
             --border-radius: none;
-            --padding-start: 15px;
-            --padding-end: 15px;
-            &:hover {
-                opacity: 1;
-                --opacity: 1;
-            }
         }
 
         .button.md.button-clear {
