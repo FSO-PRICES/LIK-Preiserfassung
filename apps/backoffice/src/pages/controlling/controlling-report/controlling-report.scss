@@ -17,6 +17,7 @@
             display: flex;
             align-self: flex-start;
             flex-direction: column;
+            flex: 0;
 
             .status {
                 flex: 1;
