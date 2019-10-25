@@ -65,8 +65,10 @@
                     type="button"
                     class="btn-execute"
                     (click)="updateAllPmStatusClicked$.emit()"
-                    >Prüf-Status aller angezeigten Preismeldungen anpassen</ion-button
                 >
+                    <span class="statuswechsel">Statuswechsel</span>
+                    <pef-icon name="checkmark"></pef-icon>
+                </ion-button>
                 <pef-zoom *ngIf="!!(reportData$ | async)" (zoomLevel)="zoomLevel$.emit($event)"></pef-zoom>
             </ion-col>
         </ion-row>
