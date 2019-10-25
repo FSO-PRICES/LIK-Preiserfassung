@@ -65,6 +65,7 @@ export class DashboardPage implements OnDestroy {
 
     public showLogin$: Observable<boolean>;
     public canSync$: Observable<boolean>;
+    private hasSyncedOnce = false;
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$.pipe(
         combineLatest(this.filterTextValueChanges.pipe(startWith('')), (preismeldestellen, filterText) =>
             sortBySelector(
@@ -312,12 +313,15 @@ export class DashboardPage implements OnDestroy {
                 .pipe(startWith(0))
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)),
 
-            this.isSyncing$.pipe(filter(isSyncing => isSyncing === SyncState.ready)).subscribe(() => {
-                this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
-                this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
-                this.store.dispatch({ type: 'LOAD_WARENKORB' });
-                this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction);
-            }),
+            this.isSyncing$
+                .pipe(filter(isSyncing => !this.hasSyncedOnce || isSyncing === SyncState.ready))
+                .subscribe(() => {
+                    this.hasSyncedOnce = true;
+                    this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
+                    this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
+                    this.store.dispatch({ type: 'LOAD_WARENKORB' });
+                    this.store.dispatch({ type: 'PREISMELDUNG_STATISTICS_LOAD' } as StatisticsAction);
+                }),
 
             canConnectToDatabase$
                 .pipe(
