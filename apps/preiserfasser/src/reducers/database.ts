@@ -13,6 +13,7 @@ export enum SyncState {
     none = 0,
     syncing = 1,
     ready = 2,
+    error = 3,
 }
 
 const initialState: State = {
@@ -42,7 +43,7 @@ export function reducer(state = initialState, action: database.Actions): State {
             return Object.assign({}, state, { isDatabaseSyncing: SyncState.syncing, syncError: null });
 
         case 'SYNC_DATABASE_FAILURE':
-            return Object.assign({}, state, { isDatabaseSyncing: SyncState.none, syncError: action.payload });
+            return Object.assign({}, state, { isDatabaseSyncing: SyncState.error, syncError: action.payload });
 
         case 'SYNC_DATABASE_SUCCESS':
             return Object.assign({}, state, {

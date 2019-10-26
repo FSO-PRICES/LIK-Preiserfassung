@@ -65,7 +65,7 @@ export class DashboardPage implements OnDestroy {
 
     public showLogin$: Observable<boolean>;
     public canSync$: Observable<boolean>;
-    private hasSyncedOnce = false;
+    private hasLoadedDataOnce = false;
     public filteredPreismeldestellen$: Observable<DashboardPms[]> = this.preismeldestellen$.pipe(
         combineLatest(this.filterTextValueChanges.pipe(startWith('')), (preismeldestellen, filterText) =>
             sortBySelector(
@@ -314,9 +314,15 @@ export class DashboardPage implements OnDestroy {
                 .subscribe(() => this.store.dispatch({ type: 'CHECK_CONNECTIVITY_TO_DATABASE' } as DatabaseAction)),
 
             this.isSyncing$
-                .pipe(filter(isSyncing => !this.hasSyncedOnce || isSyncing === SyncState.ready))
+                .pipe(
+                    filter(
+                        isSyncing =>
+                            isSyncing === SyncState.ready || (isSyncing === SyncState.error && !this.hasLoadedDataOnce),
+                    ),
+                    merge(canConnectToDatabase$.pipe(filter(canConnect => !canConnect && !this.hasLoadedDataOnce))),
+                )
                 .subscribe(() => {
-                    this.hasSyncedOnce = true;
+                    this.hasLoadedDataOnce = true;
                     this.store.dispatch({ type: 'LOAD_PREISERHEBER' });
                     this.store.dispatch({ type: 'PREISMELDESTELLEN_LOAD_ALL' });
                     this.store.dispatch({ type: 'LOAD_WARENKORB' });

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, groupBy, mapValues } from 'lodash';
-import { exhaustMap, flatMap, map } from 'rxjs/operators';
+import { filter, map, switchMap } from 'rxjs/operators';
 
 import { Models as P, preismeldestelleId, preismeldungId } from '@lik-shared';
 
@@ -19,11 +19,22 @@ export class StatisticsEffects {
 
     @Effect()
     loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNG_STATISTICS_LOAD').pipe(
-        exhaustMap(() => getDatabase()),
-        flatMap(db =>
+        switchMap(() =>
+            getDatabase().then(db =>
+                db
+                    // Used to prevent errors which lead to unsubscription of PREISMELDUNG_STATISTICS_LOAD
+                    // TODO: Find a better way
+                    .get('erhebungsmonat')
+                    .then(() => true)
+                    .catch(() => false),
+            ),
+        ),
+        filter(hasDb => hasDb),
+        switchMap(() => getDatabase()),
+        switchMap(db =>
             loadAllPreismeldungRefs(db).then(pmsRefPreismeldungenTotals => ({ db, pmsRefPreismeldungenTotals })),
         ),
-        flatMap(({ db, pmsRefPreismeldungenTotals }) =>
+        switchMap(({ db, pmsRefPreismeldungenTotals }) =>
             getAllDocumentsForPrefixFromDb(db, preismeldungId())
                 .then((allPreismeldungen: P.Preismeldung[]) => {
                     const pmsPreismeldungen = groupBy(allPreismeldungen, p => p.pmsNummer);
@@ -56,7 +67,7 @@ export class StatisticsEffects {
                 })
                 .then(preismeldestelleStatistics => ({ db, preismeldestelleStatistics })),
         ),
-        flatMap(({ db, preismeldestelleStatistics }) =>
+        switchMap(({ db, preismeldestelleStatistics }) =>
             db
                 .get('erhebungsmonat')
                 .then((doc: P.Erhebungsmonat) => ({ monthAsString: doc.monthAsString, preismeldestelleStatistics })),
