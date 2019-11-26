@@ -30,7 +30,7 @@ export class PreismeldungInfoWarenkorbComponent extends ReactiveComponent implem
         refCount(),
     );
 
-    public months = range(1, 12);
+    public months = range(1, 13);
     public parentHierarchy$: Observable<P.WarenkorbInfo[]>;
 
     public numberFormattingOptions = { padRight: 2, truncate: 2, integerSeparator: '' };
