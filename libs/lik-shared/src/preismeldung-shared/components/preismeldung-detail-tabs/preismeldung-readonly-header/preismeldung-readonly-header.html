@@ -3,8 +3,8 @@
 </div>
 <div class="header-line" *ngIf="!!(preismeldung$ | async)">
     <div class="product-heading">
-        {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }}
-        {{ (preismeldung$ | async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
+        {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ |
+        async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
     </div>
     <ion-item class="pef-item pef-item-compact on-dark" *ngIf="!(isInternet$ | async)">
         <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
@@ -33,17 +33,14 @@
         <pef-icon name="server_url"></pef-icon>
     </ion-button>
     <div
+        *ngxLet="(preismeldung$ | async)?.priceCountStatus; let priceCountStatus"
         class="right-column price-count-status"
         [ngClass]="{
-            ok: (preismeldung$ | async)?.priceCountStatus?.ok,
-            'not-ok': !(preismeldung$ | async)?.priceCountStatus?.ok
+            ok: priceCountStatus?.ok,
+            'not-ok': !priceCountStatus?.ok
         }"
     >
-        <span
-            >{{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}/{{
-                (preismeldung$ | async)?.priceCountStatus.anzahlPreiseProPMS
-            }}</span
-        >
+        <span>{{ priceCountStatus?.numActivePrices }}/{{ priceCountStatus?.anzahlPreiseProPMS }}</span>
     </div>
 </div>
 <div class="header-line" *ngIf="!!(preismeldung$ | async)">
