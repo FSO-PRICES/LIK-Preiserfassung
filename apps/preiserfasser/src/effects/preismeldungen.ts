@@ -186,7 +186,9 @@ export class PreismeldungenEffects {
                           }),
                       }
                     : null;
-            const attributes = cloneDeep(x.currentPreismeldung.refPreismeldung.productMerkmale);
+            const attributes = x.currentPreismeldung.refPreismeldung
+                ? cloneDeep(x.currentPreismeldung.refPreismeldung.productMerkmale)
+                : x.currentPreismeldung.attributes;
             currentPreismeldung =
                 x.currentPreismeldung.preismeldung.bearbeitungscode === 0
                     ? {
