@@ -467,8 +467,17 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 {},
             );
             const priceCountStatuses = createPriceCountStatuses(entities);
+            const preismeldungIndex = state.preismeldungIds.findIndex(x => x === pmId);
             const preismeldungIds = state.preismeldungIds.filter(x => x !== pmId);
-            return assign({}, state, { currentPreismeldung: null, entities, priceCountStatuses, preismeldungIds });
+            const nextPm = entities[preismeldungIds[preismeldungIndex]] || null;
+            return assign({}, state, {
+                currentPreismeldung: nextPm
+                    ? createCurrentPreismeldungBag(nextPm, state.priceCountStatuses, state.isAdminApp)
+                    : null,
+                entities,
+                priceCountStatuses,
+                preismeldungIds,
+            });
         }
 
         case 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS': {
