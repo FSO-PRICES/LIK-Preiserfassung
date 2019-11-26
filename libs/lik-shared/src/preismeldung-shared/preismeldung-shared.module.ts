@@ -7,7 +7,6 @@ import { NgxLetModule } from '@ngx-utilities/ngx-let';
 import { NgxElectronModule } from 'ngx-electron';
 
 import { PefDialogService } from '../common/pef-dialog-service';
-import { PefLanguageService } from '../common/pef-language.service';
 import { PefMessageDialogService } from '../common/pef-message-dialog-service';
 import { PefComponentsModule } from '../pef-components/';
 
@@ -61,6 +60,6 @@ import { PreismeldungToolbarComponent } from './components/preismeldung-toolbar/
         PreismeldungReadonlyHeader,
         PreismeldungToolbarComponent,
     ],
-    providers: [PefDialogService, PefMessageDialogService, PefLanguageService],
+    providers: [PefDialogService, PefMessageDialogService],
 })
 export class PreismeldungSharedModule {}

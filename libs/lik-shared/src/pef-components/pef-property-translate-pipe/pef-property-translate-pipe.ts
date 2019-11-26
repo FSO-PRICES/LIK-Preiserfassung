@@ -1,6 +1,7 @@
-import { Pipe, PipeTransform, OnDestroy } from '@angular/core';
+import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
+
+import { Languages, PropertyTranslation } from '../../common/models';
 import { PefLanguageService } from '../../common/pef-language.service';
-import { PropertyTranslation, Languages } from '../../common/models';
 
 @Pipe({ name: 'pefPropertyTranslate' })
 export class PefPropertyTranslatePipe implements PipeTransform, OnDestroy {
@@ -12,7 +13,7 @@ export class PefPropertyTranslatePipe implements PipeTransform, OnDestroy {
         this.subscriptions.push(pefLanguageService.currentLanguage$.subscribe(lang => (this.currentLanguage = lang)));
     }
 
-    transform(value: PropertyTranslation, formatOptions: any) {
+    transform(value: PropertyTranslation, _formatOptions: any) {
         if (!value) return undefined;
 
         return value[this.currentLanguage] != null

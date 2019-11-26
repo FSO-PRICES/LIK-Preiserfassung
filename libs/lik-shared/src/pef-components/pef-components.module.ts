@@ -5,7 +5,6 @@ import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { PefDialogService } from '../common/pef-dialog-service';
-import { PefLanguageService } from '../common/pef-language.service';
 import { PefMessageDialogService } from '../common/pef-message-dialog-service';
 
 import { PefDateTranslatePipe } from './pef-date-translate-pipe/pef-date-translate-pipe';
@@ -54,7 +53,7 @@ import { PefVirtualScrollComponent } from './pef-virtual-scroll/pef-virtual-scro
         PefVirtualScrollComponent,
     ],
     entryComponents: [PefDialogValidationErrorsComponent, PefMessageDialogComponent],
-    providers: [PefDialogService, PefMessageDialogService, PefLanguageService],
+    providers: [PefDialogService, PefMessageDialogService],
     exports: [
         PefDateTranslatePipe,
         PefDetectIonListItemHeightDirective,

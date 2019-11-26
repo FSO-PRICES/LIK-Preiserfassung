@@ -11,7 +11,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { PefComponentsModule, PefHammerGestureConfig } from '@lik-shared';
+import { PefComponentsModule, PefHammerGestureConfig, PefLanguageService } from '@lik-shared';
 
 import { PEF_EFFECTS } from '../effects';
 import { DashboardPageModule } from '../pages/dashboard/dashboard.module';
@@ -22,6 +22,7 @@ import { PmsPriceEntryPageModule } from '../pages/pms-price-entry/pms-price-entr
 import { PmsSortPageModule } from '../pages/pms-sort/pms-sort.module';
 import { SettingsPageModule } from '../pages/settings/settings.module';
 import { metaReducers, reducers } from '../reducers';
+import { PreiserfasserTabletPefLanguageService } from '../services/preiserfasser-tablet-pef-language.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
@@ -52,6 +53,7 @@ import { AppComponent } from './app.component';
         File,
         { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
         { provide: HAMMER_GESTURE_CONFIG, useClass: PefHammerGestureConfig },
+        { provide: PefLanguageService, useClass: PreiserfasserTabletPefLanguageService },
         ScreenOrientation,
     ],
     bootstrap: [AppComponent],
