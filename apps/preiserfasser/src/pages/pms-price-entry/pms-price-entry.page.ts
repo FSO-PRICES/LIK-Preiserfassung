@@ -348,7 +348,20 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
             merge(
                 cancelEditReponse$.pipe(
                     filter(x => x.dialogCode === 'SAVE'),
-                    map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' } as P.SavePreismeldungPriceSaveAction)),
+                    withLatestFrom(filteredPreismeldungen$, this.currentPreismeldung$),
+                    map(
+                        ([, preismeldungen, currentPreismeldung]) =>
+                            ({
+                                type: 'SAVE_AND_MOVE_TO_NEXT',
+                                nextId: (
+                                    preismeldungen[
+                                        preismeldungen.findIndex(p => p.pmId === currentPreismeldung.pmId) + 1
+                                    ] || {
+                                        pmId: null,
+                                    }
+                                ).pmId,
+                            } as P.SavePreismeldungPriceSaveAction),
+                    ),
                 ),
             ),
             merge(
