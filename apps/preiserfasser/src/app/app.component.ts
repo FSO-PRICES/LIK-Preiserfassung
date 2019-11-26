@@ -32,7 +32,8 @@ export class AppComponent implements OnInit {
             const isMobile = platform.is('hybrid');
             if (isMobile) {
                 // remember when testing, this will fail on the desktop with "cannot read property 'apply' of undefined"
-                screenOrientation.lock(screenOrientation.ORIENTATIONS.LANDSCAPE);
+                // As specified by Stefan the portrait mode should be also available https://github.com/Lambda-IT/lik-studio/issues/461
+                // screenOrientation.lock(screenOrientation.ORIENTATIONS.LANDSCAPE);
             }
             this.store.dispatch({ type: 'SET_VERSION', payload: environment.version });
             this.isDesktop = !isMobile;
