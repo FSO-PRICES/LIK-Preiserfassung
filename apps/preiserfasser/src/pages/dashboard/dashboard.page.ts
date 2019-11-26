@@ -390,6 +390,10 @@ export class DashboardPage implements OnDestroy {
         ];
     }
 
+    public ionViewDidEnter() {
+        this.store.dispatch({ type: 'RESET_MARKED_PREISMELDUNGEN' });
+    }
+
     public ngOnDestroy() {
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }

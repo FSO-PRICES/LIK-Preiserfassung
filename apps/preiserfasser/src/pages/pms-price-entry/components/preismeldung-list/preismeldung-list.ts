@@ -74,11 +74,13 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() currentPreismeldung: P.CurrentPreismeldungBag;
     @Input() requestSelectNextPreismeldung: {};
     @Input() isInRecordMode: boolean;
+    @Input() markedPreismeldungen: string[];
     @Output('selectPreismeldung') selectPreismeldung$: Observable<P.PreismeldungBag>;
     @Output('addNewPreisreihe') addNewPreisreihe$ = new EventEmitter();
     @Output('sortPreismeldungen') sortPreismeldungen$ = new EventEmitter();
     @Output('recordSortPreismeldungen') recordSortPreismeldungen$ = new EventEmitter();
     @Output('filteredPreismeldungen') filteredPreismeldungen$: Observable<AdvancedPreismeldungBag[]>;
+    @Output('markPreismeldung') markPreismeldung$ = new EventEmitter<string>();
     @Output('saveOrder') saveOrder$: Observable<P.Models.PmsPreismeldungenSortProperties>;
 
     @ViewChild(PefVirtualScrollComponent, { static: true }) private virtualScroll: any;
@@ -129,9 +131,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         refCount(),
     );
     private preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
+    private markedPreismeldungen$ = this.observePropertyCurrentValue<string[]>('markedPreismeldungen');
 
     public ionItemHeight$ = new EventEmitter<number>();
-    public favorite$ = new EventEmitter<P.PreismeldungBag & { marked: boolean }>();
     public itemHeight = 60;
 
     private onDestroy$ = new Subject();
@@ -150,13 +152,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         );
         this.reordered$.pipe(takeUntil(this.onDestroy$)).subscribe(x => x.detail.complete());
 
-        const markedPreismeldungen$ = this.favorite$.asObservable().pipe(
-            scan(
-                (markedIds, bag) => (bag.marked ? markedIds.filter(id => id !== bag.pmId) : [...markedIds, bag.pmId]),
-                [] as string[],
-            ),
-            startWith([]),
-        );
+        const markedPreismeldungen$ = this.markedPreismeldungen$.pipe(startWith([]));
 
         const selectFilter$ = this.selectFilterClicked$.pipe(
             startWith('ALL' as Filters),

@@ -139,4 +139,6 @@ export type PreismeldungAction =
     | { type: 'SELECT_CONTROLLING_PM_WITH_BAG'; payload: P.PreismeldungBag }
     | { type: 'CLEAR_AUTOTEXTS' }
     | { type: 'SWITCH_TO_PREISMELDUNG_SLOT'; payload: string }
-    | { type: 'PREISMELDUNGEN_SORT_SAVE_SUCCESS'; payload: P.Models.PmsPreismeldungenSortProperties };
+    | { type: 'PREISMELDUNGEN_SORT_SAVE_SUCCESS'; payload: P.Models.PmsPreismeldungenSortProperties }
+    | { type: 'TOGGLE_MARK_PREISMELDUNG'; payload: string }
+    | { type: 'RESET_MARKED_PREISMELDUNGEN'; payload: null };

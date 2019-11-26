@@ -109,7 +109,7 @@
                     </div>
                 </div>
             </ion-item>
-            <ion-item-options (ionSwipe)="favorite$.emit(bag); slidingList.closeOpened()" side="end">
+            <ion-item-options (ionSwipe)="markPreismeldung$.emit(bag.pmId); slidingList.closeOpened()" side="end">
             </ion-item-options>
         </ion-item-sliding>
     </pef-virtual-scroll>

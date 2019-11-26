@@ -64,6 +64,7 @@ export interface State {
     stateSlots: {
         [index: string]: Partial<State>;
     };
+    markedPreismeldungen: string[];
 }
 
 export const initialState: State = {
@@ -77,6 +78,7 @@ export const initialState: State = {
     status: null,
     currentStateSlot: '__original',
     stateSlots: {},
+    markedPreismeldungen: [],
 };
 
 export function reducer(state = initialState, action: PreismeldungAction): State {
@@ -134,7 +136,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         }
 
         case 'PREISMELDUNGEN_RESET':
-            return assign({}, initialState);
+            return { ...initialState, markedPreismeldungen: state.markedPreismeldungen };
 
         case 'SWITCH_TO_PREISMELDUNG_SLOT': {
             const getSlottedState = (s: State) => {
@@ -675,6 +677,24 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     messages: parsePreismeldungMessages(newCurrentPreismeldung.preismeldung, state.isAdminApp),
                 }),
             });
+        }
+
+        case 'RESET_MARKED_PREISMELDUNGEN': {
+            return {
+                ...state,
+                markedPreismeldungen: [],
+            };
+        }
+
+        case 'TOGGLE_MARK_PREISMELDUNG': {
+            const pmIdToToggle = action.payload;
+            return {
+                ...state,
+                markedPreismeldungen:
+                    state.markedPreismeldungen.indexOf(pmIdToToggle) !== -1
+                        ? state.markedPreismeldungen.filter(pmId => pmId !== pmIdToToggle)
+                        : [...state.markedPreismeldungen, pmIdToToggle],
+            };
         }
 
         default:
@@ -1256,6 +1276,7 @@ export const getPriceCountStatuses = (state: State) => state.priceCountStatuses;
 export const getPreismeldungenCurrentPmsNummer = (state: State) => state.pmsNummer;
 export const getPreismeldungenStatus = (state: State) => state.status;
 export const getPreismeldungenIsInRecordMode = (state: State) => state.isInRecordMode;
+export const getMarkedPreismeldungen = (state: State) => state.markedPreismeldungen;
 
 export const getAll = createSelector(
     getEntities,

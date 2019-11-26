@@ -74,6 +74,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
             !currentPreismeldung ? null : priceCountStatuses[priceCountIdByPm(currentPreismeldung.preismeldung)],
         ),
     );
+    markedPreismeldungen$ = this.store.select(fromRoot.getMarkedPreismeldungen);
 
     selectPreismeldung$ = new EventEmitter<P.PreismeldungBag>();
     save$ = new EventEmitter<P.SavePreismeldungPriceSaveAction>();
@@ -94,6 +95,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
     isNotSave$ = new EventEmitter<boolean>();
     disableQuickEqual$ = new EventEmitter<boolean>();
     filteredPreismeldungen$ = new EventEmitter<P.PreismeldungBag[]>();
+    markPreismeldung$ = new EventEmitter<string>();
 
     selectTab$ = new EventEmitter<string>();
     toolbarButtonClicked$ = new EventEmitter<string>();
@@ -458,6 +460,13 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
                 withLatestFrom(params$),
             )
             .subscribe(([, params]) => this.navigateToPmsSort(params.pmsNummer));
+
+        this.markPreismeldung$.asObservable().subscribe(pmId =>
+            this.store.dispatch({
+                type: 'TOGGLE_MARK_PREISMELDUNG',
+                payload: pmId,
+            }),
+        );
 
         this.ionViewDidLoad$
             .pipe(

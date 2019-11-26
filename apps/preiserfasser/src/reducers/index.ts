@@ -94,6 +94,10 @@ export const getPreismeldungenCurrentPmsNummer = createSelector(
     getPreismeldungenState,
     fromPreismeldungen.getPreismeldungenCurrentPmsNummer,
 );
+export const getMarkedPreismeldungen = createSelector(
+    getPreismeldungenState,
+    fromPreismeldungen.getMarkedPreismeldungen,
+);
 
 export const getTimeState = (state: AppState) => state.time;
 export const getCurrentTime = createSelector(
