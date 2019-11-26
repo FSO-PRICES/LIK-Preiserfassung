@@ -6,7 +6,7 @@
         {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ |
         async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
     </div>
-    <ion-item class="pef-item pef-item-compact on-dark" *ngIf="!(isInternet$ | async)">
+    <ion-item class="pef-item pef-item-compact on-dark">
         <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
         <ion-input
             type="text"
@@ -15,23 +15,6 @@
             [value]="(preismeldung$ | async)?.preismeldung.artikelnummer"
         ></ion-input>
     </ion-item>
-    <ion-item class="pef-item pef-item-compact on-dark" *ngIf="(isInternet$ | async)">
-        <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
-        <ion-input
-            type="text"
-            [readonly]="true"
-            [class.readonly]="true"
-            [value]="(preismeldung$ | async)?.preismeldung.internetLink"
-        ></ion-input>
-    </ion-item>
-    <ion-button
-        class="pef-icon-secondary server-url-button icon-only"
-        (click)="navigateToInternetLink$.emit()"
-        [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink"
-        *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'"
-    >
-        <pef-icon name="server_url"></pef-icon>
-    </ion-button>
     <div
         *ngxLet="(preismeldung$ | async)?.priceCountStatus; let priceCountStatus"
         class="right-column price-count-status"
@@ -56,4 +39,23 @@
     <div class="right-column">
         <ng-content></ng-content>
     </div>
+</div>
+<div class="header-line" *ngIf="!!(preismeldung$ | async) && (isInternet$ | async)">
+    <ion-item class="pef-item pef-item-compact on-dark">
+        <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
+        <ion-input
+            type="text"
+            [readonly]="true"
+            [class.readonly]="true"
+            [value]="(preismeldung$ | async)?.preismeldung.internetLink"
+        ></ion-input>
+    </ion-item>
+    <ion-button
+        class="pef-icon-secondary server-url-button icon-only"
+        (click)="navigateToInternetLink$.emit()"
+        [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink"
+        *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'"
+    >
+        <pef-icon name="server_url"></pef-icon>
+    </ion-button>
 </div>
