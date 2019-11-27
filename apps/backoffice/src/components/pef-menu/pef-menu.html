@@ -1,11 +1,11 @@
 <div class="toolbar toolbar-md" [class.danger-zone]="dangerZone$ | async">
     <ion-buttons class="hidden-on-smaller-screen">
         <ion-button
-            *ngFor="let entry of pages"
+            *ngFor="let entry of (pages$ | async); trackBy: trackByPageName"
             fill="clear"
             (click)="navigateToPage(entry.page)"
             [id]="'page_' + entry.name"
-            [class.active]="isCurrentPage(entry.page)"
+            [class.active]="entry.active"
         >
             {{ entry.name }}
         </ion-button>

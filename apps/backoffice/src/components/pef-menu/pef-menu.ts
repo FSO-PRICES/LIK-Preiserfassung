@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Event, NavigationEnd, Router } from '@angular/router';
 import { MenuController, NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
 import { interval, Observable, Subject } from 'rxjs';
@@ -36,6 +36,8 @@ export class PefMenuComponent implements OnDestroy {
     public savePreismeldungStatuses$ = new EventEmitter();
     public isOffline$: Observable<boolean>;
     public isFullscreen$: Observable<boolean>;
+
+    public pages$: Observable<(Page & { active: boolean })[]>;
 
     private onDestroy$ = new Subject();
 
@@ -74,6 +76,11 @@ export class PefMenuComponent implements OnDestroy {
             store.dispatch(status.createApplyPreismeldungenStatusAction());
         });
 
+        this.pages$ = this.router.events.pipe(
+            filter(isNavigationEnd),
+            map(e => this.pages.map(p => ({ ...p, active: e.url.indexOf(`/${p.page}`) === 0 }))),
+        );
+
         store
             .select(fromRoot.getSettings)
             .pipe(
@@ -95,10 +102,18 @@ export class PefMenuComponent implements OnDestroy {
     }
 
     isCurrentPage(page: string) {
-        return this.router.url.indexOf(page) >= 0;
+        return `/${page}`.indexOf(this.router.url) === 0;
+    }
+
+    trackByPageName(page: Page) {
+        return page.name;
     }
 
     ngOnDestroy(): void {
         this.onDestroy$.next();
     }
+}
+
+function isNavigationEnd(e: Event): e is NavigationEnd {
+    return e instanceof NavigationEnd;
 }
