@@ -182,6 +182,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             withLatestFrom(currentFilter$, (_, filter) => filter),
             merge(pmIdSearch$.pipe(map(pmIdSearch => ({ pmIdSearch })))),
             merge(this.initialPmsNummer$.pipe(map(x => ({ pmsNummers: [x] })))),
+            merge(this.resetFilterClicked$.pipe(mapTo({}))),
             publishReplay(1),
             refCount(),
         );
