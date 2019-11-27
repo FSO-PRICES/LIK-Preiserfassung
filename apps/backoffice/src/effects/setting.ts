@@ -117,7 +117,7 @@ async function createDbBackups(electronService: ElectronService): Promise<P.Data
         exported[dbsToExport[i]] = await getDbBackup(dbsToExport[i]);
     }
 
-    await createFile(electronService, exported, `export_${new Date().toISOString()}.json`);
+    await createFile(electronService, exported, `export_${toDateString(new Date())}.json`);
 
     return exported;
 }
@@ -150,4 +150,17 @@ async function saveFile(electronService: ElectronService, content: string, fileN
             resolve();
         }
     });
+}
+
+function toDateString(date: Date) {
+    return (
+        date.getUTCFullYear() +
+        '-' +
+        (date.getUTCMonth() + 1).toString().padStart(2, '0') +
+        '-' +
+        date
+            .getUTCDate()
+            .toString()
+            .padStart(2, '0')
+    );
 }
