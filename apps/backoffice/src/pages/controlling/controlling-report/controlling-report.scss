@@ -40,6 +40,10 @@
                 align-self: flex-start;
             }
         }
+        ion-button {
+            --padding-start: 8px;
+            --padding-end: 8px;
+        }
         .actions {
             display: flex;
             align-self: flex-end;
