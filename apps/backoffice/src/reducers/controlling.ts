@@ -65,22 +65,26 @@ export function reducer(
         }
 
         case controlling.DELETE_PREISMELDUNG_SUCCESS: {
-            const deletedPmId = action.payload.pmId;
-            const cachedPreismeldung = state.rawCachedData.preismeldungen.find(x => x._id === deletedPmId);
-            if (!cachedPreismeldung) return state;
-            const rawCachedData = {
-                ...state.rawCachedData,
-                preismeldungen: state.rawCachedData.preismeldungen.filter(x => x._id !== deletedPmId),
-            };
-            const rows = state.controllingReport.rows.filter(x => x.pmId !== deletedPmId);
-            return {
-                ...state,
-                rawCachedData,
-                controllingReport: {
-                    ...state.controllingReport,
-                    rows,
-                },
-            };
+            if (state.rawCachedData) {
+                const deletedPmId = action.payload.pmId;
+                const cachedPreismeldung = state.rawCachedData.preismeldungen.find(x => x._id === deletedPmId);
+                if (!cachedPreismeldung) return state;
+                const rawCachedData = {
+                    ...state.rawCachedData,
+                    preismeldungen: state.rawCachedData.preismeldungen.filter(x => x._id !== deletedPmId),
+                };
+                const rows = state.controllingReport.rows.filter(x => x.pmId !== deletedPmId);
+                return {
+                    ...state,
+                    rawCachedData,
+                    controllingReport: {
+                        ...state.controllingReport,
+                        rows,
+                    },
+                };
+            } else {
+                return state;
+            }
         }
 
         case controlling.RESET_PREISMELDUNG_SUCCESS:
