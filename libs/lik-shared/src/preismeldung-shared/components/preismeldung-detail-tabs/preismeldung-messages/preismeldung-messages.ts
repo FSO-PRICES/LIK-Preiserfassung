@@ -61,6 +61,7 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
 
     public isReadonly$: Observable<boolean>;
     public bemerkungenHistory$: Observable<string>;
+    public kommentarAutotext$: Observable<{ prefix: string; message: string }[]>;
 
     public onBlur$ = new EventEmitter();
     public notizClear$ = new EventEmitter();
@@ -123,6 +124,11 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
             ),
             publishReplay(1),
             refCount(),
+        );
+
+        this.kommentarAutotext$ = this.preismeldung$.pipe(
+            filter(pm => !!pm),
+            map(pm => prepareKommentarAutotext(pm.messages.kommentarAutotext)),
         );
 
         snippetsControl.valueChanges
@@ -224,4 +230,11 @@ export class PreismeldungMessagesComponent extends ReactiveComponent implements 
     ngOnDestroy() {
         this.onDestroy$.next();
     }
+}
+
+function prepareKommentarAutotext(texte: string[]) {
+    return texte.map(text => {
+        const [prefix, message] = text.indexOf('Admin: ') === 0 ? [text.slice(0, 7), text.slice(7)] : ['', text];
+        return { prefix, message };
+    });
 }

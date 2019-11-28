@@ -29,9 +29,9 @@
                 </div>
                 <h3>{{ 'heading_kommentar-zum-aktuellen-monat' | translate }}</h3>
                 <div class="kommentar-autotext">
-                    <span *ngFor="let text of (preismeldung$ | async)?.messages.kommentarAutotext">{{
-                        (text | translate) + '\u0020'
-                    }}</span>
+                    <span *ngFor="let text of kommentarAutotext$ | async"
+                        >{{ text.prefix + (text.message | translate) + '\u0020' }}</span
+                    >
                 </div>
                 <ion-item class="pef-textarea-item" [class.readonly]="isReadonly$ | async" formGroupName="messages">
                     <ion-textarea

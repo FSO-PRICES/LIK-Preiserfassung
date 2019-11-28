@@ -637,7 +637,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                 ),
                     },
                     {
-                        condition: () => !isAdminApp && bag.hasPriceWarning,
+                        condition: () => bag.hasPriceWarning,
                         observable: () =>
                             observableIif(
                                 () => !bag.messages.kommentar,
@@ -678,7 +678,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     },
                     {
                         condition: () =>
-                            !isAdminApp &&
                             [1, 7].some(code => code === this.form.value.bearbeitungscode) &&
                             bag.refPreismeldung.artikeltext === this.form.value.artikeltext &&
                             bag.refPreismeldung.artikelnummer === this.form.value.artikelnummer,
@@ -707,7 +706,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         // Falls mehrmals hintereinander A gesetzt wird, kann Preis theoretisch höher, gleich oder unter VP-Meldung liegen. Normalfall ist im Ausverkauf jedoch, dass die „Aktion“ unverändert oder tiefer als VP zu liegen kommt.
                         // -> Falls Aktionspreis/ Menge in T über VP: Warnmeldung im Sinne von „Ist der Preis noch in Aktion ? Bitte überprüfen und [zurück zur Eingabe] / [verwerfen] / [bestätigen]“.
                         condition: () =>
-                            !isAdminApp &&
                             [99, 1].some(x => x === this.form.value.bearbeitungscode) &&
                             this.form.value.aktion &&
                             bag.refPreismeldung.aktion &&
@@ -744,7 +742,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         // Falls Preis/Menge in T gleich/kleiner Aktionspreis/Menge VP, jedoch kein Flag A in T gesetzt ist, Message: „Ist Artikel aktuell in Aktion?“
                         // [JA](Flag A in T schreiben/Speichern/Forward) / [NEIN](Bemerkung: „Nicht mehr Aktion bei unverändertem Preis“/Speichern/Forward)
                         condition: () =>
-                            !isAdminApp &&
                             [99, 1].some(x => x === this.form.value.bearbeitungscode) &&
                             !this.form.value.aktion &&
                             !!bag.refPreismeldung &&
@@ -784,7 +781,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         // Falls Aktionspreis/Menge in T grösser/gleich Preis/Menge VP, jedoch kein Aktionsflag in VP gesetzt ist, Dialog öffnen: „Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?“ mit [JA]
                         // -> autotext / [EDIT] / [Kommentar] -> falls möglich direkt zu Kommentarfeld wechseln (oder falls aufwändig zurück zur normalen Maske, also EDIT)
                         condition: () =>
-                            !isAdminApp &&
                             [99, 1].some(x => x === this.form.value.bearbeitungscode) &&
                             this.form.value.aktion &&
                             !!bag.refPreismeldung &&
@@ -830,7 +826,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                         // Falls Aktionspreis/Menge in T grösser/gleich Preis/Menge VPK, Dialog öffnen: „Aktueller Aktionspreis ist gleich oder grösser als Normalpreis in VP. Stimmt der erfasste Preis?“ mit [JA]
                         // -> autotext / [EDIT] / [Kommentar] -> falls möglich direkt zu Kommentarfeld wechseln (oder falls aufwändig zurück zur normalen Maske, also EDIT)
                         condition: () =>
-                            !isAdminApp &&
                             [2, 7].some(x => x === this.form.value.bearbeitungscode) &&
                             this.form.value.aktion &&
                             bag.preismeldung.d_DPToVPK.percentage >= 0,

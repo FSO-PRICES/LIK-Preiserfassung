@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { assign } from 'lodash';
+import { assign, flatMap as arrayFlatMap } from 'lodash';
 import { filter, flatMap } from 'rxjs/operators';
 
 import {
@@ -13,6 +13,7 @@ import {
     productMerkmaleFromCurrentPreismeldung,
     propertiesFromCurrentPreismeldung,
     SavePreismeldungPriceSaveActionAktionType,
+    SavePreismeldungPriceSaveActionCommentsType,
     SavePreismeldungPriceSaveActionSave,
 } from '@lik-shared';
 
@@ -81,7 +82,12 @@ export class PreismeldungEffects {
         flatMap(x => {
             const saveAction = x.payload as SavePreismeldungPriceSaveActionSave;
             let currentPreismeldung = x.currentPreismeldung;
-            const kommentarAutotext = x.currentPreismeldung.messages.kommentarAutotext;
+            // const kommentarAutotext = x.currentPreismeldung.messages.kommentarAutotext;
+            const kommentarAutotext = arrayFlatMap(
+                saveAction.saveWithData
+                    .filter(s => s.type === 'COMMENT')
+                    .map((s: SavePreismeldungPriceSaveActionCommentsType) => s.comments),
+            ).map(message => `Admin: ${message}`);
             const aktionAtions = saveAction.saveWithData.filter(
                 y => y.type === 'AKTION',
             ) as SavePreismeldungPriceSaveActionAktionType[];
