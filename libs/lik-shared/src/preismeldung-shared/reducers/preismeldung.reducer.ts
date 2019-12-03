@@ -304,19 +304,22 @@ export function reducer(state = initialState, action: PreismeldungAction): State
         }
 
         case 'CLEAR_AUTOTEXTS': {
-            return !state.isAdminApp
-                ? state
-                : {
-                      ...state,
-                      currentPreismeldung: {
-                          ...state.currentPreismeldung,
-                          messages: {
-                              ...state.currentPreismeldung.messages,
-                              kommentarAutotext: [],
-                          },
-                          isMessagesModified: true,
-                      },
-                  };
+            return state; // Deactivated because Preisadmin now updates the validation comments.
+            // https://github.com/Lambda-IT/lik-studio/issues/438
+
+            // return !state.isAdminApp
+            //     ? state
+            //     : {
+            //           ...state,
+            //           currentPreismeldung: {
+            //               ...state.currentPreismeldung,
+            //               messages: {
+            //                   ...state.currentPreismeldung.messages,
+            //                   kommentarAutotext: [],
+            //               },
+            //               isMessagesModified: true,
+            //           },
+            //       };
         }
 
         case 'UPDATE_PREISMELDUNG_MESSAGES': {
