@@ -114,5 +114,20 @@
             color: $blue-chill;
             font-weight: 500;
         }
+
+        @media (max-width: 899px) {
+            font-size: 1.5em;
+            --min-height: 30px;
+
+            .icon {
+                flex: 0 0 calc(2.5 * 0.9em);
+            }
+            .code-name {
+                flex: 0 0 calc(7 * 0.6em);
+            }
+            .description {
+                flex: 1 0 calc(18 * 0.4em);
+            }
+        }
     }
 }

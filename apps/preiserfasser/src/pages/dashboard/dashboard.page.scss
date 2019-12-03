@@ -365,6 +365,20 @@
         font-size: 1em;
         margin: 0 0 1em 0;
     }
+    @media (max-width: 899px) {
+        .work-area {
+            flex-direction: column;
+        }
+        .preismeldestellen {
+            margin: 0;
+            padding-bottom: 0;
+        }
+        .preismeldungen {
+            margin: 0;
+            flex: 1;
+            padding-top: 0;
+        }
+    }
 }
 
 @media print {

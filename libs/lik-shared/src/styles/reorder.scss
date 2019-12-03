@@ -248,3 +248,9 @@ ion-item-sliding.adv-preismeldung-item-draggable {
         font-size: 1.6rem;
     }
 }
+
+@media (max-width: 899px) {
+    ion-item-sliding.adv-preismeldung-item-draggable .preismeldung-wrapper {
+        font-size: 2rem;
+    }
+}

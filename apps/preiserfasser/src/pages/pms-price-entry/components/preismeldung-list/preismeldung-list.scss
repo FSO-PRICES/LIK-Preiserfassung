@@ -63,6 +63,7 @@
     .preismeldung-list-check-filter {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         ion-button {
             @include set-margin-right(1);
             flex: 0 0 2.25em;
@@ -93,7 +94,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
         @include set-padding-top(0.625);
+    }
+
+    .spacer {
+        flex: 1;
     }
 
     .preismeldung-list-completed-count {
@@ -109,6 +115,10 @@
         ion-button {
             @include set-margin-right(1);
         }
+    }
+    .preismeldung-list-arrows {
+        display: flex;
+        flex: 1;
     }
 
     .record {

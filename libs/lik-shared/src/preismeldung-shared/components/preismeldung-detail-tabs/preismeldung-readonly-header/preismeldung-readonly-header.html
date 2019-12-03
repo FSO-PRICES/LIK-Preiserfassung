@@ -26,6 +26,27 @@
         <span>{{ priceCountStatus?.numActivePrices }}/{{ priceCountStatus?.anzahlPreiseProPMS }}</span>
     </div>
 </div>
+<div class="header-line" *ngIf="!!(preismeldung$ | async) && (isInternet$ | async)">
+    <ion-item class="pef-item pef-item-compact on-dark">
+        <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
+        <ion-input
+            type="text"
+            [readonly]="true"
+            [class.readonly]="true"
+            [value]="(preismeldung$ | async)?.preismeldung.internetLink"
+        ></ion-input>
+    </ion-item>
+    <div class="right-column">
+        <ion-button
+            class="pef-icon-secondary server-url-button icon-only"
+            (click)="navigateToInternetLink$.emit()"
+            [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink"
+            *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'"
+        >
+            <pef-icon name="server_url"></pef-icon>
+        </ion-button>
+    </div>
+</div>
 <div class="header-line" *ngIf="!!(preismeldung$ | async)">
     <ion-item class="pef-item on-dark">
         <ion-label>{{ 'label_artikeltext' | translate }}<span style="visibility: hidden">&nbsp;*</span> </ion-label>
@@ -39,23 +60,4 @@
     <div class="right-column">
         <ng-content></ng-content>
     </div>
-</div>
-<div class="header-line" *ngIf="!!(preismeldung$ | async) && (isInternet$ | async)">
-    <ion-item class="pef-item pef-item-compact on-dark">
-        <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
-        <ion-input
-            type="text"
-            [readonly]="true"
-            [class.readonly]="true"
-            [value]="(preismeldung$ | async)?.preismeldung.internetLink"
-        ></ion-input>
-    </ion-item>
-    <ion-button
-        class="pef-icon-secondary server-url-button icon-only"
-        (click)="navigateToInternetLink$.emit()"
-        [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink"
-        *ngIf="(preismeldestelle$ | async)?.erhebungsart == 'internet'"
-    >
-        <pef-icon name="server_url"></pef-icon>
-    </ion-button>
 </div>

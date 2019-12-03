@@ -133,28 +133,26 @@
                 {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | pefDateTranslate: 'MMMM YYYY' }}
             </div>
             <div class="statistics">
-                <ion-content>
-                    <div class="row">
-                        <pef-icon name="download"></pef-icon>
-                        <div class="number">{{ preismeldungenStatistics?.total.downloadedCount }}</div>
-                        <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
-                    </div>
-                    <div class="row">
-                        <pef-icon name="todo"></pef-icon>
-                        <div class="number">{{ preismeldungenStatistics?.total.openUnsavedCount }}</div>
-                        <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
-                    </div>
-                    <div class="row">
-                        <pef-icon name="checkmark"></pef-icon>
-                        <div class="number">{{ preismeldungenStatistics?.total.openSavedCount }}</div>
-                        <div class="text">{{ 'text_preismeldung_offen-erfasst' | translate }}</div>
-                    </div>
-                    <div class="row">
-                        <pef-icon name="upload"></pef-icon>
-                        <div class="number">{{ preismeldungenStatistics?.total.uploadedCount }}</div>
-                        <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
-                    </div>
-                </ion-content>
+                <div class="row">
+                    <pef-icon name="download"></pef-icon>
+                    <div class="number">{{ preismeldungenStatistics?.total.downloadedCount }}</div>
+                    <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
+                </div>
+                <div class="row">
+                    <pef-icon name="todo"></pef-icon>
+                    <div class="number">{{ preismeldungenStatistics?.total.openUnsavedCount }}</div>
+                    <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
+                </div>
+                <div class="row">
+                    <pef-icon name="checkmark"></pef-icon>
+                    <div class="number">{{ preismeldungenStatistics?.total.openSavedCount }}</div>
+                    <div class="text">{{ 'text_preismeldung_offen-erfasst' | translate }}</div>
+                </div>
+                <div class="row">
+                    <pef-icon name="upload"></pef-icon>
+                    <div class="number">{{ preismeldungenStatistics?.total.uploadedCount }}</div>
+                    <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
+                </div>
             </div>
             <div class="actions">
                 <div class="status">

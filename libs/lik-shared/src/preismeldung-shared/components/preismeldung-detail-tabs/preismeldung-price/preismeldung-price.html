@@ -32,6 +32,26 @@
                 >
             </div>
         </div>
+        <div class="header-line" *ngIf="(isInternet$ | async)">
+            <ion-item class="pef-item pef-item-compact on-dark">
+                <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
+                <ion-input
+                    type="text"
+                    formControlName="internetLink"
+                    [readonly]="isReadonly$ | async"
+                    [class.readonly]="isReadonly$ | async"
+                ></ion-input>
+            </ion-item>
+            <div class="right-column">
+                <ion-button
+                    class="pef-icon-secondary server-url-button icon-only"
+                    (click)="navigateToInternetLink(form.value.internetLink)"
+                    [disabled]="!form.value.internetLink"
+                >
+                    <pef-icon name="server_url"></pef-icon>
+                </ion-button>
+            </div>
+        </div>
         <div class="header-line">
             <ion-item class="pef-item on-dark">
                 <ion-label>{{ 'label_artikeltext' | translate }}&nbsp;*</ion-label>
@@ -67,24 +87,6 @@
                 </ion-button>
                 <ng-content></ng-content>
             </div>
-        </div>
-        <div class="header-line" *ngIf="(isInternet$ | async)">
-            <ion-item class="pef-item pef-item-compact on-dark">
-                <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
-                <ion-input
-                    type="text"
-                    formControlName="internetLink"
-                    [readonly]="isReadonly$ | async"
-                    [class.readonly]="isReadonly$ | async"
-                ></ion-input>
-            </ion-item>
-            <ion-button
-                class="pef-icon-secondary server-url-button icon-only"
-                (click)="navigateToInternetLink(form.value.internetLink)"
-                [disabled]="!form.value.internetLink"
-            >
-                <pef-icon name="server_url"></pef-icon>
-            </ion-button>
         </div>
     </div>
     <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">

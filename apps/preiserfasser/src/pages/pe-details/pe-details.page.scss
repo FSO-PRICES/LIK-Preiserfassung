@@ -46,7 +46,7 @@
     }
 
     .preiserheber-content {
-        width: 50%;
+        width: 66%;
         color: $white;
         fill: $white;
 
@@ -66,6 +66,11 @@
                 font-size: 1em;
                 margin-bottom: 0;
             }
+        }
+    }
+    @media (max-width: 899px) {
+        .preiserheber-content {
+            width: 80%;
         }
     }
 }
