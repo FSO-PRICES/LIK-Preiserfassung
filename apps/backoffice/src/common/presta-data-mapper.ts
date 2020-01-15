@@ -176,7 +176,7 @@ export function preparePm(
                 preis: parseFloat(cells[importPmFromPrestaIndexes.preisT]),
                 menge: parseFloat(cells[importPmFromPrestaIndexes.mengeT]),
                 aktion: cells[importPmFromPrestaIndexes.aktionsCode] === '1',
-                artikeltext: cells[importPmFromPrestaIndexes.text],
+                artikeltext: parseNewlinesInText(cells[importPmFromPrestaIndexes.text]),
                 artikelnummer: cells[importPmFromPrestaIndexes.artikelNummer],
                 preisGueltigSeitDatum: cells[importPmFromPrestaIndexes.preisGueltigSeitDatum],
                 basisPreis: parseFloat(cells[importPmFromPrestaIndexes.basispreis]),
