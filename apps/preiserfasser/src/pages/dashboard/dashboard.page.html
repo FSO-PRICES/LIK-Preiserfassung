@@ -126,42 +126,46 @@
             </ion-content>
         </div>
         <div class="preismeldungen" *ngxLet="(preismeldungenStatistics$ | async); let preismeldungenStatistics">
-            <div class="header-line">
-                <h3>{{ 'heading_manage-preismeldestelle' | translate }}</h3>
-            </div>
-            <div class="summary">
-                {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | pefDateTranslate: 'MMMM YYYY' }}
-            </div>
-            <div class="statistics">
-                <div class="row">
-                    <pef-icon name="download"></pef-icon>
-                    <div class="number">{{ preismeldungenStatistics?.total.downloadedCount }}</div>
-                    <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
-                </div>
-                <div class="row">
-                    <pef-icon name="todo"></pef-icon>
-                    <div class="number">{{ preismeldungenStatistics?.total.openUnsavedCount }}</div>
-                    <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
-                </div>
-                <div class="row">
-                    <pef-icon name="checkmark"></pef-icon>
-                    <div class="number">{{ preismeldungenStatistics?.total.openSavedCount }}</div>
-                    <div class="text">{{ 'text_preismeldung_offen-erfasst' | translate }}</div>
-                </div>
-                <div class="row">
-                    <pef-icon name="upload"></pef-icon>
-                    <div class="number">{{ preismeldungenStatistics?.total.uploadedCount }}</div>
-                    <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
+            <div class="info">
+                <div class="placement-container">
+                    <div class="header-line">
+                        <h3>{{ 'heading_manage-preismeldestelle' | translate }}</h3>
+                    </div>
+                    <div class="summary">
+                        {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | pefDateTranslate: 'MMMM YYYY' }}
+                    </div>
+                    <div class="statistics">
+                        <div class="row">
+                            <pef-icon name="download"></pef-icon>
+                            <div class="number">{{ preismeldungenStatistics?.total.downloadedCount }}</div>
+                            <div class="text">{{ 'text_preismeldung_heruntergeladene' | translate }}</div>
+                        </div>
+                        <div class="row">
+                            <pef-icon name="todo"></pef-icon>
+                            <div class="number">{{ preismeldungenStatistics?.total.openUnsavedCount }}</div>
+                            <div class="text">{{ 'text_preismeldung_offen-nicht-erfasst' | translate }}</div>
+                        </div>
+                        <div class="row">
+                            <pef-icon name="checkmark"></pef-icon>
+                            <div class="number">{{ preismeldungenStatistics?.total.openSavedCount }}</div>
+                            <div class="text">{{ 'text_preismeldung_offen-erfasst' | translate }}</div>
+                        </div>
+                        <div class="row">
+                            <pef-icon name="upload"></pef-icon>
+                            <div class="number">{{ preismeldungenStatistics?.total.uploadedCount }}</div>
+                            <div class="text">{{ 'text_preismeldung_hochgeladene' | translate }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="actions">
                 <div class="status">
-                    <span *ngxLet="(syncError$ | async); let syncError" [hidden]="!syncError" class="error">{{
-                        syncError | translate
-                    }}</span>
-                    <span *ngxLet="(loginError$ | async); let loginError" [hidden]="!loginError" class="error">{{
-                        loginError
-                    }}</span>
+                    <span *ngxLet="(syncError$ | async); let syncError" [hidden]="!syncError" class="error"
+                        >{{ syncError | translate }}</span
+                    >
+                    <span *ngxLet="(loginError$ | async); let loginError" [hidden]="!loginError" class="error"
+                        >{{ loginError }}</span
+                    >
                     <pef-icon
                         name="sorting_arrows"
                         class="syncing"
@@ -205,11 +209,11 @@
                         type="button"
                         (click)="uploadPreismeldungenClicked$.emit($event)"
                         [disabled]="
-                            !(canSync$ | async) ||
-                            (showLogin$ | async) ||
-                            isSyncing === syncState.syncing ||
-                            !(hasOpenSavedPreismeldungen$ | async)
-                        "
+                        !(canSync$ | async) ||
+                        (showLogin$ | async) ||
+                        isSyncing === syncState.syncing ||
+                        !(hasOpenSavedPreismeldungen$ | async)
+                    "
                     >
                         {{ 'btn_upload-now' | translate }}
                     </ion-button>
