@@ -10,53 +10,57 @@
     .item.md.pef-item ion-label {
         color: white;
     }
-    textarea {
-        resize: none;
-    }
-    ion-item {
-        --inner-padding-end: 0;
-        width: 100%;
-        --background: transparent;
-        --min-height: 0;
-    }
-    ion-input {
-        border-bottom: 2px solid $hit-gray;
-    }
-    ion-textarea {
-        margin-top: 0;
-        background-color: $white;
-        padding-left: 0;
-        --background: #{$white};
-        --padding-top: 0;
-        --padding-bottom: 0;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        padding-left: 0;
-        padding-right: 0;
-        border-bottom: 2px solid $hit-gray;
-        height: 47px;
-        margin-bottom: 0 !important;
-    }
-
     .header-line {
         display: flex;
         align-items: center;
+        place-content: flex-end;
+        margin-bottom: 4px;
+
+        textarea {
+            resize: none;
+        }
+        ion-item {
+            --inner-padding-end: 0;
+            --background: transparent;
+            --min-height: 0;
+            &.item-textarea {
+                flex: 1;
+            }
+        }
+        ion-input {
+            border-bottom: 2px solid $hit-gray;
+            font-weight: 100;
+            font-size: 1.1em;
+        }
+        ion-textarea {
+            margin-top: 0;
+            padding-left: 0;
+            --padding-top: 0;
+            --padding-bottom: 0;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 0;
+            padding-right: 0;
+            border-bottom: 2px solid $hit-gray;
+            height: 54px;
+            font-size: 1.1em;
+            margin-bottom: 0 !important;
+        }
+
         ion-label {
             margin-top: 0;
             margin-bottom: 0;
+            align-self: baseline;
         }
-    }
+        .item-textarea {
+            ion-label {
+                align-self: flex-start;
+            }
+        }
 
-    .product-heading,
-    .pms-heading {
-        white-space: wrap;
-        line-height: 1.25em;
-        max-height: 2.5em;
-        overflow-y: hidden;
-        text-overflow: ellipsis;
-        overflow-x: hidden;
-        padding-bottom: 2px;
-        flex: 0 0 50%;
+        &:last-child {
+            margin-bottom: 0;
+        }
     }
 
     .pms-heading {
@@ -64,10 +68,23 @@
         flex: 1;
     }
 
+    .product-heading,
+    .pms-heading {
+        white-space: wrap;
+        line-height: 1.25em;
+        max-height: 2.5em;
+        padding-bottom: 2px;
+        flex: 1;
+        white-space: nowrap;
+    }
+
     .right-column {
-        flex: 0 0 5em;
+        flex: 0 0 53px;
         display: flex;
         justify-content: flex-end;
+        &.bottom {
+            align-self: flex-end;
+        }
     }
 
     .price-count-status {

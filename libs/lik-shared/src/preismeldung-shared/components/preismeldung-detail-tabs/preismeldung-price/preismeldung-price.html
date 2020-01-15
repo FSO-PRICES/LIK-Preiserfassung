@@ -1,531 +1,535 @@
 <ion-content>
-<form [formGroup]="form" [class.form-show-validation-hints]="showValidationHints$ | async" novalidate>
-    <div class="pm-header">
-        <div class="pms-heading" *ngIf="(isAdminApp$ | async)">
-            {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }}
-        </div>
-        <div class="header-line">
-            <div class="product-heading">
-                {{ (preismeldung$ | async)?.warenkorbPosition.gliederungspositionsnummer }}
-                {{ (preismeldung$ | async)?.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
+    <form [formGroup]="form" [class.form-show-validation-hints]="showValidationHints$ | async" novalidate>
+        <div class="pm-header">
+            <div class="pms-heading" *ngIf="(isAdminApp$ | async)">
+                {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }}
             </div>
-            <ion-item class="pef-item pef-item-compact on-dark">
-                <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
-                <ion-input
-                    type="text"
-                    formControlName="artikelnummer"
-                    [readonly]="isReadonly$ | async"
-                    [class.readonly]="isReadonly$ | async"
-                ></ion-input>
-            </ion-item>
-            <div
-                class="right-column price-count-status"
-                [ngClass]="{
+            <div class="header-line">
+                <div class="product-heading">
+                    {{ (preismeldung$ | async)?.warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ |
+                    async)?.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
+                </div>
+                <ion-item class="pef-item pef-item-compact on-dark">
+                    <ion-label>{{ 'label_artikelnummer' | translate }}</ion-label>
+                    <ion-input
+                        type="text"
+                        formControlName="artikelnummer"
+                        [readonly]="isReadonly$ | async"
+                        [class.readonly]="isReadonly$ | async"
+                    ></ion-input>
+                </ion-item>
+                <div
+                    class="right-column price-count-status"
+                    [ngClass]="{
                     ok: (preismeldung$ | async)?.priceCountStatus?.ok,
                     'not-ok': !(preismeldung$ | async)?.priceCountStatus?.ok
                 }"
-            >
-                <span
-                    >{{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}/{{
-                        (preismeldung$ | async)?.priceCountStatus.anzahlPreiseProPMS
-                    }}</span
                 >
+                    <span
+                        >{{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}/{{ (preismeldung$ |
+                        async)?.priceCountStatus.anzahlPreiseProPMS }}</span
+                    >
+                </div>
+            </div>
+            <div class="header-line">
+                <ion-item class="pef-item on-dark">
+                    <ion-label>{{ 'label_artikeltext' | translate }}&nbsp;*</ion-label>
+                    <ion-textarea
+                        rows="2"
+                        type="text"
+                        formControlName="artikeltext"
+                        [class.validation-error]="true"
+                        [readonly]="isReadonly$ | async"
+                        [class.readonly]="isReadonly$ | async"
+                    ></ion-textarea>
+                </ion-item>
+                <div class="right-column bottom">
+                    <ion-button
+                        *ngIf="!(isAdminApp$ | async)"
+                        class="pef-icon-secondary duplicate icon-only"
+                        (click)="duplicatePreismeldung$.emit()"
+                        [disabled]="(preismeldung$ | async)?.isModified || (preismeldung$ | async)?.isNew"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+                            <g fill="none" fill-rule="evenodd" transform="translate(6 5)">
+                                <polygon
+                                    class="background-plus"
+                                    points="6 6 0 6 0 8 6 8 6 14 8 14 8 8 14 8 14 6 8 6 8 0 6 0"
+                                />
+                                <polygon
+                                    class="foreground-plus"
+                                    points="6 6 0 6 0 8 6 8 6 14 8 14 8 8 14 8 14 6 8 6 8 0 6 0"
+                                    transform="translate(5 5)"
+                                />
+                            </g>
+                        </svg>
+                    </ion-button>
+                    <ng-content></ng-content>
+                </div>
+            </div>
+            <div class="header-line" *ngIf="(isInternet$ | async)">
+                <ion-item class="pef-item pef-item-compact on-dark">
+                    <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
+                    <ion-input
+                        type="text"
+                        formControlName="internetLink"
+                        [readonly]="isReadonly$ | async"
+                        [class.readonly]="isReadonly$ | async"
+                    ></ion-input>
+                </ion-item>
+                <div class="right-column">
+                    <ion-button
+                        class="pef-icon-secondary server-url-button icon-only"
+                        (click)="navigateToInternetLink(form.value.internetLink)"
+                        [disabled]="!form.value.internetLink"
+                    >
+                        <pef-icon name="server_url"></pef-icon>
+                    </ion-button>
+                </div>
             </div>
         </div>
-        <div class="header-line" *ngIf="(isInternet$ | async)">
-            <ion-item class="pef-item pef-item-compact on-dark">
-                <ion-label> {{ 'label_internetlink' | translate }} </ion-label>
-                <ion-input
-                    type="text"
-                    formControlName="internetLink"
-                    [readonly]="isReadonly$ | async"
-                    [class.readonly]="isReadonly$ | async"
-                ></ion-input>
-            </ion-item>
-            <div class="right-column">
-                <ion-button
-                    class="pef-icon-secondary server-url-button icon-only"
-                    (click)="navigateToInternetLink(form.value.internetLink)"
-                    [disabled]="!form.value.internetLink"
-                >
-                    <pef-icon name="server_url"></pef-icon>
-                </ion-button>
-            </div>
-        </div>
-        <div class="header-line">
-            <ion-item class="pef-item on-dark">
-                <ion-label>{{ 'label_artikeltext' | translate }}&nbsp;*</ion-label>
-                <ion-textarea
-                    rows="2"
-                    type="text"
-                    formControlName="artikeltext"
-                    [class.validation-error]="true"
-                    [readonly]="isReadonly$ | async"
-                    [class.readonly]="isReadonly$ | async"
-                ></ion-textarea>
-            </ion-item>
-            <div class="right-column">
-                <ion-button
-                    *ngIf="!(isAdminApp$ | async)"
-                    class="pef-icon-secondary duplicate icon-only"
-                    (click)="duplicatePreismeldung$.emit()"
-                    [disabled]="(preismeldung$ | async)?.isModified || (preismeldung$ | async)?.isNew"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
-                        <g fill="none" fill-rule="evenodd" transform="translate(6 5)">
-                            <polygon
-                                class="background-plus"
-                                points="6 6 0 6 0 8 6 8 6 14 8 14 8 8 14 8 14 6 8 6 8 0 6 0"
-                            />
-                            <polygon
-                                class="foreground-plus"
-                                points="6 6 0 6 0 8 6 8 6 14 8 14 8 8 14 8 14 6 8 6 8 0 6 0"
-                                transform="translate(5 5)"
-                            />
-                        </g>
-                    </svg>
-                </ion-button>
-                <ng-content></ng-content>
-            </div>
-        </div>
-    </div>
-    <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
-        <div class="product-detail-body">
-            <div class="columns product-detail-row row-1">
-                <div class="last-period">
-                    <h5 class="large">{{ 'heading_vorperiode' | translate }}</h5>
-                    <preismeldung-info-popover-left
-                        [class.hidden]="
+        <div class="detail-tab-bottom-part" pef-perfect-scrollbar [enabled]="isDesktop$ | async">
+            <div class="product-detail-body">
+                <div class="columns product-detail-row row-1">
+                    <div class="last-period">
+                        <h5 class="large">{{ 'heading_vorperiode' | translate }}</h5>
+                        <preismeldung-info-popover-left
+                            [class.hidden]="
                             !(preismeldung$ | async)?.refPreismeldung ||
                             !(preismeldung$ | async)?.refPreismeldung.aktion
                         "
-                        [preismeldung]="preismeldung$ | async"
-                        [forceClose]="distinctPreismeldung$ | async"
-                        [extraWidth]="wndw.document.getElementById('row-1-middle-section').offsetWidth + 'px'"
-                        [height]="'0px'"
-                        (popoverActive)="infoPopoverLeftActive$.emit($event)"
-                    ></preismeldung-info-popover-left>
-                </div>
-                <div class="middle-section" id="row-1-middle-section"></div>
-                <div class="current-period" id="row-1-current-period">
-                    <h5 class="large">{{ 'heading_aktuelle_periode' | translate }}</h5>
-                    <preismeldung-info-popover-right
-                        [class.hidden]="
+                            [preismeldung]="preismeldung$ | async"
+                            [forceClose]="distinctPreismeldung$ | async"
+                            [extraWidth]="wndw.document.getElementById('row-1-middle-section').offsetWidth + 'px'"
+                            [height]="'0px'"
+                            (popoverActive)="infoPopoverLeftActive$.emit($event)"
+                        ></preismeldung-info-popover-left>
+                    </div>
+                    <div class="middle-section" id="row-1-middle-section"></div>
+                    <div class="current-period" id="row-1-current-period">
+                        <h5 class="large">{{ 'heading_aktuelle_periode' | translate }}</h5>
+                        <preismeldung-info-popover-right
+                            [class.hidden]="
                             (preismeldung$ | async)?.preismeldung.bearbeitungscode != 1 ||
                             !(preismeldung$ | async)?.preismeldung.aktion
                         "
-                        [preismeldung]="preismeldung$ | async"
-                        [forceClose]="closePopoverRight$ | async"
-                        [popoverLeft]="
+                            [preismeldung]="preismeldung$ | async"
+                            [forceClose]="closePopoverRight$ | async"
+                            [popoverLeft]="
                             wndw.document.getElementById('row-1-middle-section').offsetWidth +
                             'px + ' +
                             wndw.document.getElementById('row-1-current-period').offsetWidth +
                             'px'
                         "
-                        [width]="wndw.document.getElementById('row-1-current-period').offsetWidth + 'px'"
-                        [height]="'0px'"
-                        (popoverActive)="infoPopoverRightActive$.emit($event)"
-                    ></preismeldung-info-popover-right>
-                </div>
-            </div>
-            <div class="columns product-detail-row row-2" [class.info-popover-active]="infoPopoverLeftActive$ | async">
-                <div class="last-period" *ngIf="!(preismeldung$ | async)?.refPreismeldung">
-                    {{ 'text_nicht_zutreffend' | translate }}
-                </div>
-                <div class="last-period" *ngIf="(preismeldung$ | async)?.refPreismeldung" id="row-2-last-period">
-                    <div class="data-input-area" id="last-period-data-input-area">
-                        <h6>
-                            {{
-                                ((infoPopoverLeftActive$ | async)
-                                    ? 'heading_artikel-vor-reduktion'
-                                    : 'heading_artikel') | translate
-                            }}
-                        </h6>
-                        <div class="last-period-price">
-                            <div class="number">
-                                {{
-                                    ((infoPopoverLeftActive$ | async)
-                                        ? (preismeldung$ | async)?.refPreismeldung.preisVorReduktion
-                                        : (preismeldung$ | async)?.refPreismeldung.preis)
-                                        | pefFormatNumber: preisNumberFormattingOptions
-                                }}
-                            </div>
-                            <div class="unit">{{ 'text_chf' | translate }}</div>
-                        </div>
-                        <div class="last-period-quantity">
-                            <div class="number">
-                                {{
-                                    ((infoPopoverLeftActive$ | async)
-                                        ? (preismeldung$ | async)?.refPreismeldung.mengeVorReduktion
-                                        : (preismeldung$ | async)?.refPreismeldung.menge)
-                                        | pefFormatNumber: mengeNumberFormattingOptions
-                                }}
-                            </div>
-                            <div class="unit">
-                                {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
-                            </div>
-                        </div>
-                        <div class="last-period-bottom-row" [class.visibility-hidden]="infoPopoverLeftActive$ | async">
-                            <ion-list>
-                                <ion-radio-group>
-                                    <ion-item>
-                                        <ion-radio
-                                            value="aktion"
-                                            [disabled]="true"
-                                            [checked]="(preismeldung$ | async)?.refPreismeldung?.aktion"
-                                        ></ion-radio>
-                                        <ion-label>{{ 'text_aktion' | translate }}</ion-label>
-                                    </ion-item>
-                                </ion-radio-group>
-                            </ion-list>
-                            <div class="code">
-                                {{ formatFehlendePreiseR((preismeldung$ | async)?.refPreismeldung?.fehlendePreiseR) }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="box-container" [class.visibility-hidden]="!(showVPArtikelNeu$ | async)">
-                        <div class="box">
-                            <div class="percentage-wrapper">
-                                <div [innerHTML]="formatPercentageChange((arrowDown$ | async)?.percentage)"></div>
-                                <pef-floating-icon
-                                    [icon-name]="(arrowDown$ | async)?.warning ? 'warning' : ''"
-                                ></pef-floating-icon>
-                            </div>
-                        </div>
-                        <div class="arrow down"></div>
+                            [width]="wndw.document.getElementById('row-1-current-period').offsetWidth + 'px'"
+                            [height]="'0px'"
+                            (popoverActive)="infoPopoverRightActive$.emit($event)"
+                        ></preismeldung-info-popover-right>
                     </div>
                 </div>
-                <div class="middle-section">
-                    <div class="box-container" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
-                        <div class="box">
-                            <div class="percentage-wrapper">
-                                <div [innerHTML]="formatPercentageChange((arrowRight$ | async)?.percentage)"></div>
-                                <pef-floating-icon
-                                    [icon-name]="(arrowRight$ | async)?.warning ? 'warning' : ''"
-                                ></pef-floating-icon>
-                            </div>
-                        </div>
-                        <div class="arrow right"></div>
+                <div
+                    class="columns product-detail-row row-2"
+                    [class.info-popover-active]="infoPopoverLeftActive$ | async"
+                >
+                    <div class="last-period" *ngIf="!(preismeldung$ | async)?.refPreismeldung">
+                        {{ 'text_nicht_zutreffend' | translate }}
                     </div>
-                </div>
-                <div class="current-period" id="row-2-current-period">
-                    <div class="data-input-area">
-                        <h6 [innerHTML]="currentPeriodHeading$ | async | translate"></h6>
-                        <ion-list *ngIf="!(infoPopoverRightActive$ | async)">
-                            <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('preis') | async">
-                                <ion-input
-                                    #preis
-                                    type="number"
-                                    min="0.00"
-                                    step="0.01"
-                                    pef-highlight-on-focus
-                                    pef-disable-input-number-behaviour
-                                    pef-disable-input-negative-number
-                                    [class.ng-invalid]="createInvalidObservableFor('preis') | async"
-                                    [readonly]="preisAndMengeDisabled$ | async"
-                                    [class.readonly]="preisAndMengeDisabled$ | async"
-                                    (ionBlur)="preisChanged$.emit(preis.value)"
-                                    (ionInput)="preisInput$.emit($event.target.value)"
-                                    [value]="(preisCurrentValue$ | async)?.value"
-                                ></ion-input>
-                                <ion-label slot="end" class="currency-label">{{ 'text_chf' | translate }}</ion-label>
-                            </ion-item>
-                            <ion-item class="pef-item" [class.ng-invalid]="createInvalidObservableFor('menge') | async">
-                                <ion-input
-                                    #menge
-                                    type="number"
-                                    step="any"
-                                    pef-disable-input-number-behaviour
-                                    pef-disable-input-negative-number
-                                    [class.ng-invalid]="createInvalidObservableFor('menge') | async"
-                                    [readonly]="preisAndMengeDisabled$ | async"
-                                    [class.readonly]="preisAndMengeDisabled$ | async"
-                                    (ionBlur)="mengeChanged$.emit(menge.value)"
-                                    [value]="form.value.menge"
-                                    (ionInput)="mengeInput$.emit($event.target.value)"
-                                ></ion-input>
-                                <div slot="end">
-                                    <ion-button
-                                        *ngIf="!(preisAndMengeDisabled$ | async); else readonlyUnit"
-                                        class="unit-button"
-                                        color="mercury"
-                                        (click)="applyUnitQuickEqual$.emit()"
-                                        [disabled]="preisAndMengeDisabled$ | async"
-                                    >
-                                        {{
-                                            (preismeldung$ | async)?.warenkorbPosition.standardeinheit
-                                                | pefPropertyTranslate
-                                        }}
-                                    </ion-button>
-                                    <ng-template #readonlyUnit>
-                                        <span class="readonly-text">{{
-                                            (preismeldung$ | async)?.warenkorbPosition.standardeinheit
-                                                | pefPropertyTranslate
-                                        }}</span>
-                                    </ng-template>
+                    <div class="last-period" *ngIf="(preismeldung$ | async)?.refPreismeldung" id="row-2-last-period">
+                        <div class="data-input-area" id="last-period-data-input-area">
+                            <h6>
+                                {{ ((infoPopoverLeftActive$ | async) ? 'heading_artikel-vor-reduktion' :
+                                'heading_artikel') | translate }}
+                            </h6>
+                            <div class="last-period-price">
+                                <div class="number">
+                                    {{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ |
+                                    async)?.refPreismeldung.preisVorReduktion : (preismeldung$ |
+                                    async)?.refPreismeldung.preis) | pefFormatNumber: preisNumberFormattingOptions }}
                                 </div>
-                            </ion-item>
-                        </ion-list>
-                        <ion-list *ngIf="(infoPopoverRightActive$ | async)">
-                            <ion-item
-                                class="pef-item"
-                                [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async"
+                                <div class="unit">{{ 'text_chf' | translate }}</div>
+                            </div>
+                            <div class="last-period-quantity">
+                                <div class="number">
+                                    {{ ((infoPopoverLeftActive$ | async) ? (preismeldung$ |
+                                    async)?.refPreismeldung.mengeVorReduktion : (preismeldung$ |
+                                    async)?.refPreismeldung.menge) | pefFormatNumber: mengeNumberFormattingOptions }}
+                                </div>
+                                <div class="unit">
+                                    {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate
+                                    }}
+                                </div>
+                            </div>
+                            <div
+                                class="last-period-bottom-row"
+                                [class.visibility-hidden]="infoPopoverLeftActive$ | async"
                             >
-                                <ion-label slot="end" class="currency-label">{{ 'text_chf' | translate }}</ion-label>
-                                <ion-input
-                                    #preisVorReduktion
-                                    type="number"
-                                    min="0.00"
-                                    step="0.01"
-                                    pef-highlight-on-focus
-                                    pef-disable-input-number-behaviour
-                                    pef-disable-input-negative-number
-                                    [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async"
-                                    (ionBlur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)"
-                                    (ionInput)="preisVorReduktionInput$.emit($event.target.value)"
-                                    [readonly]="isReadonly$ | async"
-                                    [class.readonly]="isReadonly$ | async"
-                                    [value]="form.value.preisVorReduktion"
-                                ></ion-input>
-                            </ion-item>
-                            <div class="unit-item-wrapper">
+                                <ion-list>
+                                    <ion-radio-group>
+                                        <ion-item>
+                                            <ion-radio
+                                                value="aktion"
+                                                [disabled]="true"
+                                                [checked]="(preismeldung$ | async)?.refPreismeldung?.aktion"
+                                            ></ion-radio>
+                                            <ion-label>{{ 'text_aktion' | translate }}</ion-label>
+                                        </ion-item>
+                                    </ion-radio-group>
+                                </ion-list>
+                                <div class="code">
+                                    {{ formatFehlendePreiseR((preismeldung$ | async)?.refPreismeldung?.fehlendePreiseR)
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-container" [class.visibility-hidden]="!(showVPArtikelNeu$ | async)">
+                            <div class="box">
+                                <div class="percentage-wrapper">
+                                    <div [innerHTML]="formatPercentageChange((arrowDown$ | async)?.percentage)"></div>
+                                    <pef-floating-icon
+                                        [icon-name]="(arrowDown$ | async)?.warning ? 'warning' : ''"
+                                    ></pef-floating-icon>
+                                </div>
+                            </div>
+                            <div class="arrow down"></div>
+                        </div>
+                    </div>
+                    <div class="middle-section">
+                        <div class="box-container" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                            <div class="box">
+                                <div class="percentage-wrapper">
+                                    <div [innerHTML]="formatPercentageChange((arrowRight$ | async)?.percentage)"></div>
+                                    <pef-floating-icon
+                                        [icon-name]="(arrowRight$ | async)?.warning ? 'warning' : ''"
+                                    ></pef-floating-icon>
+                                </div>
+                            </div>
+                            <div class="arrow right"></div>
+                        </div>
+                    </div>
+                    <div class="current-period" id="row-2-current-period">
+                        <div class="data-input-area">
+                            <h6 [innerHTML]="currentPeriodHeading$ | async | translate"></h6>
+                            <ion-list *ngIf="!(infoPopoverRightActive$ | async)">
                                 <ion-item
                                     class="pef-item"
-                                    [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
+                                    [class.ng-invalid]="createInvalidObservableFor('preis') | async"
                                 >
                                     <ion-input
-                                        #mengeVorReduktion
+                                        #preis
                                         type="number"
-                                        step="any"
+                                        min="0.00"
+                                        step="0.01"
                                         pef-highlight-on-focus
                                         pef-disable-input-number-behaviour
                                         pef-disable-input-negative-number
-                                        [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
-                                        (ionBlur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)"
-                                        (ionInput)="mengeVorReduktionInput$.emit($event.target.value)"
+                                        [class.ng-invalid]="createInvalidObservableFor('preis') | async"
+                                        [readonly]="preisAndMengeDisabled$ | async"
+                                        [class.readonly]="preisAndMengeDisabled$ | async"
+                                        (ionBlur)="preisChanged$.emit(preis.value)"
+                                        (ionInput)="preisInput$.emit($event.target.value)"
+                                        [value]="(preisCurrentValue$ | async)?.value"
+                                    ></ion-input>
+                                    <ion-label slot="end" class="currency-label"
+                                        >{{ 'text_chf' | translate }}</ion-label
+                                    >
+                                </ion-item>
+                                <ion-item
+                                    class="pef-item"
+                                    [class.ng-invalid]="createInvalidObservableFor('menge') | async"
+                                >
+                                    <ion-input
+                                        #menge
+                                        type="number"
+                                        step="any"
+                                        pef-disable-input-number-behaviour
+                                        pef-disable-input-negative-number
+                                        [class.ng-invalid]="createInvalidObservableFor('menge') | async"
+                                        [readonly]="preisAndMengeDisabled$ | async"
+                                        [class.readonly]="preisAndMengeDisabled$ | async"
+                                        (ionBlur)="mengeChanged$.emit(menge.value)"
+                                        [value]="form.value.menge"
+                                        (ionInput)="mengeInput$.emit($event.target.value)"
+                                    ></ion-input>
+                                    <div slot="end">
+                                        <ion-button
+                                            *ngIf="!(preisAndMengeDisabled$ | async); else readonlyUnit"
+                                            class="unit-button"
+                                            color="mercury"
+                                            (click)="applyUnitQuickEqual$.emit()"
+                                            [disabled]="preisAndMengeDisabled$ | async"
+                                        >
+                                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
+                                            pefPropertyTranslate }}
+                                        </ion-button>
+                                        <ng-template #readonlyUnit>
+                                            <span class="readonly-text"
+                                                >{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
+                                                pefPropertyTranslate }}</span
+                                            >
+                                        </ng-template>
+                                    </div>
+                                </ion-item>
+                            </ion-list>
+                            <ion-list *ngIf="(infoPopoverRightActive$ | async)">
+                                <ion-item
+                                    class="pef-item"
+                                    [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async"
+                                >
+                                    <ion-label slot="end" class="currency-label"
+                                        >{{ 'text_chf' | translate }}</ion-label
+                                    >
+                                    <ion-input
+                                        #preisVorReduktion
+                                        type="number"
+                                        min="0.00"
+                                        step="0.01"
+                                        pef-highlight-on-focus
+                                        pef-disable-input-number-behaviour
+                                        pef-disable-input-negative-number
+                                        [class.ng-invalid]="createInvalidObservableFor('preisVorReduktion') | async"
+                                        (ionBlur)="preisVorReduktionChanged$.emit(preisVorReduktion.value)"
+                                        (ionInput)="preisVorReduktionInput$.emit($event.target.value)"
                                         [readonly]="isReadonly$ | async"
                                         [class.readonly]="isReadonly$ | async"
-                                        [value]="form.value.mengeVorReduktion"
+                                        [value]="form.value.preisVorReduktion"
                                     ></ion-input>
-                                    <ion-button
-                                        class="unit-button"
-                                        color="mercury"
-                                        (click)="applyUnitQuickEqual$.emit()"
-                                        [disabled]="preisAndMengeDisabled$ | async"
-                                    >
-                                        {{
-                                            (preismeldung$ | async)?.warenkorbPosition.standardeinheit
-                                                | pefPropertyTranslate
-                                        }}
-                                    </ion-button>
                                 </ion-item>
-                            </div>
-                        </ion-list>
-                        <div class="current-period-aktion-row">
-                            <ion-list
-                                class="reduction-radio-group-list"
-                                [class.visibility-hidden]="infoPopoverRightActive$ | async"
-                            >
-                                <ion-radio-group>
-                                    <ion-item>
-                                        <ion-radio
-                                            [checked]="form.value.aktion"
-                                            (click)="toggleAktion$.emit(!form.value.aktion)"
-                                            [disabled]="aktionDisabled$ | async"
-                                            [class.radio-checked]="form.value.aktion"
-                                        ></ion-radio>
-                                        <ion-label>{{ 'text_aktion' | translate }}</ion-label>
+                                <div class="unit-item-wrapper">
+                                    <ion-item
+                                        class="pef-item"
+                                        [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
+                                    >
+                                        <ion-input
+                                            #mengeVorReduktion
+                                            type="number"
+                                            step="any"
+                                            pef-highlight-on-focus
+                                            pef-disable-input-number-behaviour
+                                            pef-disable-input-negative-number
+                                            [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
+                                            (ionBlur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)"
+                                            (ionInput)="mengeVorReduktionInput$.emit($event.target.value)"
+                                            [readonly]="isReadonly$ | async"
+                                            [class.readonly]="isReadonly$ | async"
+                                            [value]="form.value.mengeVorReduktion"
+                                        ></ion-input>
+                                        <ion-button
+                                            class="unit-button"
+                                            color="mercury"
+                                            (click)="applyUnitQuickEqual$.emit()"
+                                            [disabled]="preisAndMengeDisabled$ | async"
+                                        >
+                                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
+                                            pefPropertyTranslate }}
+                                        </ion-button>
                                     </ion-item>
-                                </ion-radio-group>
+                                </div>
                             </ion-list>
-                            <div
-                                class="aktion-percent-container"
-                                [class.visibility-hidden]="
+                            <div class="current-period-aktion-row">
+                                <ion-list
+                                    class="reduction-radio-group-list"
+                                    [class.visibility-hidden]="infoPopoverRightActive$ | async"
+                                >
+                                    <ion-radio-group>
+                                        <ion-item>
+                                            <ion-radio
+                                                [checked]="form.value.aktion"
+                                                (click)="toggleAktion$.emit(!form.value.aktion)"
+                                                [disabled]="aktionDisabled$ | async"
+                                                [class.radio-checked]="form.value.aktion"
+                                            ></ion-radio>
+                                            <ion-label>{{ 'text_aktion' | translate }}</ion-label>
+                                        </ion-item>
+                                    </ion-radio-group>
+                                </ion-list>
+                                <div
+                                    class="aktion-percent-container"
+                                    [class.visibility-hidden]="
                                     !form.value.aktion ||
                                     !(preismeldung$ | async)?.refPreismeldung ||
                                     (infoPopoverRightActive$ | async) ||
                                     (isReadonly$ | async)
                                 "
-                            >
-                            <ion-button
-                                class="aktion-percent-button"
-                                color="mercury"
-                                (click)="chooseReductionPercentage$.emit()"
-                            >
-                                %
-                            </ion-button>
-                            </div>
-                            <div
-                                class="code"
-                                [class.visibility-hidden]="
-                                    !formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR)
-                                "
-                            >
-                                {{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}
-                            </div>
-                        </div>
-                        <bearbeitungs-type
-                            [class.visibility-hidden]="infoPopoverRightActive$ | async"
-                            formControlName="bearbeitungscode"
-                            (change)="changeBearbeitungscode$.emit($event)"
-                            [codeListType]="codeListType$ | async"
-                            [readonly]="isReadonly$ | async"
-                            [nichtEmpfohleneBc]="(distinctPreismeldung$ | async)?.warenkorbPosition.nichtEmpfohleneBc"
-                        ></bearbeitungs-type>
-                    </div>
-                </div>
-            </div>
-            <div class="columns product-detail-row row-3">
-                <div class="last-period">
-                    <div class="data-input-area" *ngIf="(showVPArtikelNeu$ | async)">
-                        <h6 [innerHTML]="'heading_artikel-neu' | translate"></h6>
-                        <ion-list>
-                            <ion-item
-                                class="pef-item"
-                                [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async"
-                            >
-                                <ion-input
-                                    #preisVPK
-                                    type="number"
-                                    min="0.00"
-                                    step="0.01"
-                                    pef-highlight-on-focus
-                                    pef-disable-input-number-behaviour
-                                    pef-disable-input-negative-number
-                                    [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async"
-                                    (ionBlur)="preisVPKChanged$.emit(preisVPK.value)"
-                                    [readonly]="isReadonly$ | async"
-                                    [class.readonly]="isReadonly$ | async"
-                                    [value]="(preisVPKCurrentValue$ | async)?.value"
-                                ></ion-input>
-                                <ion-label slot="end" class="currency-label">{{ 'text_chf' | translate }}</ion-label>
-                            </ion-item>
-                            <ion-item
-                                class="pef-item"
-                                [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async"
-                            >
-                                <ion-input
-                                    #mengeVPK
-                                    type="number"
-                                    step="any"
-                                    pef-highlight-on-focus
-                                    pef-disable-input-number-behaviour
-                                    pef-disable-input-negative-number
-                                    [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async"
-                                    (ionBlur)="mengeVPKChanged$.emit(mengeVPK.value)"
-                                    [readonly]="isReadonly$ | async"
-                                    [class.readonly]="isReadonly$ | async"
-                                    [value]="form.value.mengeVPK"
-                                ></ion-input>
-                                <div slot="end">
+                                >
                                     <ion-button
-                                        class="unit-button"
+                                        class="aktion-percent-button"
                                         color="mercury"
-                                        (click)="applyUnitQuickEqualVP$.emit()"
-                                        [disabled]="preisAndMengeDisabled$ | async"
+                                        (click)="chooseReductionPercentage$.emit()"
                                     >
-                                        {{
-                                            (preismeldung$ | async)?.warenkorbPosition.standardeinheit
-                                                | pefPropertyTranslate
-                                        }}
+                                        %
                                     </ion-button>
                                 </div>
-                            </ion-item>
-                        </ion-list>
+                                <div
+                                    class="code"
+                                    [class.visibility-hidden]="
+                                    !formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR)
+                                "
+                                >
+                                    {{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}
+                                </div>
+                            </div>
+                            <bearbeitungs-type
+                                [class.visibility-hidden]="infoPopoverRightActive$ | async"
+                                formControlName="bearbeitungscode"
+                                (change)="changeBearbeitungscode$.emit($event)"
+                                [codeListType]="codeListType$ | async"
+                                [readonly]="isReadonly$ | async"
+                                [nichtEmpfohleneBc]="(distinctPreismeldung$ | async)?.warenkorbPosition.nichtEmpfohleneBc"
+                            ></bearbeitungs-type>
+                        </div>
                     </div>
                 </div>
-                <div class="middle-section">
-                    <div class="middle-section-container-wrapper">
-                        <div class="box-container" *ngIf="(showVPArtikelNeu$ | async)">
-                            <div class="arrow up-right"></div>
-                            <div class="box">
-                                <div class="percentage-wrapper">
-                                    <div
-                                        [innerHTML]="
+                <div class="columns product-detail-row row-3">
+                    <div class="last-period">
+                        <div class="data-input-area" *ngIf="(showVPArtikelNeu$ | async)">
+                            <h6 [innerHTML]="'heading_artikel-neu' | translate"></h6>
+                            <ion-list>
+                                <ion-item
+                                    class="pef-item"
+                                    [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async"
+                                >
+                                    <ion-input
+                                        #preisVPK
+                                        type="number"
+                                        min="0.00"
+                                        step="0.01"
+                                        pef-highlight-on-focus
+                                        pef-disable-input-number-behaviour
+                                        pef-disable-input-negative-number
+                                        [class.ng-invalid]="createInvalidObservableFor('preisVPK') | async"
+                                        (ionBlur)="preisVPKChanged$.emit(preisVPK.value)"
+                                        [readonly]="isReadonly$ | async"
+                                        [class.readonly]="isReadonly$ | async"
+                                        [value]="(preisVPKCurrentValue$ | async)?.value"
+                                    ></ion-input>
+                                    <ion-label slot="end" class="currency-label"
+                                        >{{ 'text_chf' | translate }}</ion-label
+                                    >
+                                </ion-item>
+                                <ion-item
+                                    class="pef-item"
+                                    [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async"
+                                >
+                                    <ion-input
+                                        #mengeVPK
+                                        type="number"
+                                        step="any"
+                                        pef-highlight-on-focus
+                                        pef-disable-input-number-behaviour
+                                        pef-disable-input-negative-number
+                                        [class.ng-invalid]="createInvalidObservableFor('mengeVPK') | async"
+                                        (ionBlur)="mengeVPKChanged$.emit(mengeVPK.value)"
+                                        [readonly]="isReadonly$ | async"
+                                        [class.readonly]="isReadonly$ | async"
+                                        [value]="form.value.mengeVPK"
+                                    ></ion-input>
+                                    <div slot="end">
+                                        <ion-button
+                                            class="unit-button"
+                                            color="mercury"
+                                            (click)="applyUnitQuickEqualVP$.emit()"
+                                            [disabled]="preisAndMengeDisabled$ | async"
+                                        >
+                                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
+                                            pefPropertyTranslate }}
+                                        </ion-button>
+                                    </div>
+                                </ion-item>
+                            </ion-list>
+                        </div>
+                    </div>
+                    <div class="middle-section">
+                        <div class="middle-section-container-wrapper">
+                            <div class="box-container" *ngIf="(showVPArtikelNeu$ | async)">
+                                <div class="arrow up-right"></div>
+                                <div class="box">
+                                    <div class="percentage-wrapper">
+                                        <div
+                                            [innerHTML]="
                                             formatPercentageChange(
                                                 (preismeldung$ | async)?.preismeldung.d_DPToVPK.percentage
                                             )
                                         "
-                                    ></div>
-                                    <pef-floating-icon
-                                        [icon-name]="
+                                        ></div>
+                                        <pef-floating-icon
+                                            [icon-name]="
                                             (preismeldung$ | async)?.preismeldung.d_DPToVPK.warning ? 'warning' : ''
                                         "
-                                        [bottom-right]="true"
-                                    ></pef-floating-icon>
+                                            [bottom-right]="true"
+                                        ></pef-floating-icon>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="current-period">
+                        <div class="textzeil" *ngIf="(preismeldung$ | async)?.textzeile?.length">
+                            <span
+                                *ngFor="let textzeil of (preismeldung$ | async)?.textzeile"
+                                [innerHTML]="(textzeil | translate) + '\u00a0'"
+                            ></span>
+                        </div>
+                        <div class="buttons-container">
+                            <ion-button
+                                color="java"
+                                class="save-button"
+                                (click)="attemptSave$.emit($event)"
+                                [class.look-disabled]="isSaveLookDisabled$ | async"
+                            >
+                                {{ 'btn_erfassung_speichern' | translate }}
+                            </ion-button>
+                            <ion-button
+                                color="java"
+                                class="cancel-button"
+                                *ngIf="(isNew$ | async)"
+                                (click)="cancel$.emit($event)"
+                            >
+                                {{ 'btn_cancel' | translate }}
+                            </ion-button>
+                            <ion-button
+                                *ngIf="!(isAdminApp$ | async)"
+                                color="primary"
+                                class="next-button icon-only"
+                                (click)="requestSelectNextPreismeldung$.emit({})"
+                            >
+                                <pef-icon name="arrow_right"></pef-icon>
+                            </ion-button>
+                        </div>
+                    </div>
                 </div>
-                <div class="current-period">
-                    <div class="textzeil" *ngIf="(preismeldung$ | async)?.textzeile?.length">
+                <div class="columns product-detail-row row-4">
+                    <div class="textzeil">
                         <span
                             *ngFor="let textzeil of (preismeldung$ | async)?.textzeile"
                             [innerHTML]="(textzeil | translate) + '\u00a0'"
                         ></span>
                     </div>
-                    <div class="buttons-container">
-                        <ion-button
-                            color="java"
-                            class="save-button"
-                            (click)="attemptSave$.emit($event)"
-                            [class.look-disabled]="isSaveLookDisabled$ | async"
-                        >
-                            {{ 'btn_erfassung_speichern' | translate }}
-                        </ion-button>
-                        <ion-button
-                            color="java"
-                            class="cancel-button"
-                            *ngIf="(isNew$ | async)"
-                            (click)="cancel$.emit($event)"
-                        >
-                            {{ 'btn_cancel' | translate }}
-                        </ion-button>
-                        <ion-button
-                            *ngIf="!(isAdminApp$ | async)"
-                            color="primary"
-                            class="next-button icon-only"
-                            (click)="requestSelectNextPreismeldung$.emit({})"
-                        >
-                            <pef-icon name="arrow_right"></pef-icon>
-                        </ion-button>
-                    </div>
+                    <ion-button
+                        color="primary"
+                        class="save-button with-top-margin"
+                        (click)="attemptSave$.emit($event)"
+                        [class.look-disabled]="isSaveLookDisabled$ | async"
+                    >
+                        {{ 'btn_erfassung_speichern' | translate }}
+                    </ion-button>
+                    <ion-button
+                        color="java"
+                        class="cancel-button"
+                        *ngIf="(isNew$ | async)"
+                        (click)="cancel$.emit($event)"
+                    >
+                        {{ 'btn_cancel' | translate }}
+                    </ion-button>
+                    <ion-button
+                        *ngIf="!(isAdminApp$ | async)"
+                        color="primary"
+                        class="next-button with-top-margin icon-only"
+                        (click)="requestSelectNextPreismeldung$.emit({})"
+                    >
+                        <pef-icon name="arrow_right"></pef-icon>
+                    </ion-button>
                 </div>
-            </div>
-            <div class="columns product-detail-row row-4">
-                <div class="textzeil">
-                    <span
-                        *ngFor="let textzeil of (preismeldung$ | async)?.textzeile"
-                        [innerHTML]="(textzeil | translate) + '\u00a0'"
-                    ></span>
-                </div>
-                <ion-button
-                    color="primary"
-                    class="save-button with-top-margin"
-                    (click)="attemptSave$.emit($event)"
-                    [class.look-disabled]="isSaveLookDisabled$ | async"
-                >
-                    {{ 'btn_erfassung_speichern' | translate }}
-                </ion-button>
-                <ion-button
-                    color="java"
-                    class="cancel-button"
-                    *ngIf="(isNew$ | async)"
-                    (click)="cancel$.emit($event)"
-                >
-                    {{ 'btn_cancel' | translate }}
-                </ion-button>
-                <ion-button
-                    *ngIf="!(isAdminApp$ | async)"
-                    color="primary"
-                    class="next-button with-top-margin icon-only"
-                    (click)="requestSelectNextPreismeldung$.emit({})"
-                >
-                    <pef-icon name="arrow_right"></pef-icon>
-                </ion-button>
             </div>
         </div>
-    </div>
-</form>
+    </form>
 </ion-content>

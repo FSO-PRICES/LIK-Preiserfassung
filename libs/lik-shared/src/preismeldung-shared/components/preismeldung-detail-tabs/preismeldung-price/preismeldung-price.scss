@@ -74,12 +74,16 @@
         }
         ion-item {
             --inner-padding-end: 0;
-            width: 100%;
             --background: transparent;
             --min-height: 0;
+            &.item-textarea {
+                flex: 1;
+            }
         }
         ion-input {
             border-bottom: 2px solid $hit-gray;
+            font-weight: 100;
+            font-size: 1.1em;
         }
         ion-textarea {
             margin-top: 0;
@@ -93,7 +97,8 @@
             padding-left: 0;
             padding-right: 0;
             border-bottom: 2px solid $hit-gray;
-            height: 47px;
+            height: 54px;
+            font-size: 1.1em;
             &.readonly {
                 background-color: $alto;
                 --background: #{$alto};
@@ -105,8 +110,21 @@
     .header-line {
         display: flex;
         align-items: center;
+        place-content: flex-end;
+        margin-bottom: 4px;
+
         ion-label {
             margin-top: 0;
+            margin-bottom: 0;
+            align-self: baseline;
+        }
+        .item-textarea {
+            ion-label {
+                align-self: flex-start;
+            }
+        }
+
+        &:last-child {
             margin-bottom: 0;
         }
     }
@@ -119,17 +137,18 @@
         white-space: wrap;
         line-height: 1.25em;
         max-height: 2.5em;
-        overflow-y: hidden;
-        text-overflow: ellipsis;
-        overflow-x: hidden;
         padding-bottom: 2px;
-        flex: 0 0 50%;
+        flex: 1;
+        white-space: nowrap;
     }
 
     .right-column {
-        flex: 0 0 5em;
+        flex: 0 0 53px;
         display: flex;
         justify-content: flex-end;
+        &.bottom {
+            align-self: flex-end;
+        }
     }
 
     .server-url-button {
