@@ -59,8 +59,11 @@
         }
 
         &:last-child {
-            margin-bottom: 0;
+            margin-bottom: 1px;
         }
+    }
+    .margin-fix {
+        margin-bottom: 5px;
     }
 
     .pms-heading {
@@ -90,6 +93,7 @@
     .price-count-status {
         span {
             font-size: 1.25em;
+            margin-right: 5px;
         }
         &.ok {
             color: $sulu;

@@ -26,9 +26,9 @@
         <span>{{ priceCountStatus?.numActivePrices }}/{{ priceCountStatus?.anzahlPreiseProPMS }}</span>
     </div>
 </div>
-<div class="header-line" *ngIf="!!(preismeldung$ | async)">
+<div class="header-line margin-fix" *ngIf="!!(preismeldung$ | async)">
     <ion-item class="pef-item on-dark">
-        <ion-label>{{ 'label_artikeltext' | translate }}<span style="visibility: hidden">&nbsp;*</span> </ion-label>
+        <ion-label>{{ 'label_artikeltext' | translate }}</ion-label>
         <ion-textarea
             rows="2"
             [readonly]="true"

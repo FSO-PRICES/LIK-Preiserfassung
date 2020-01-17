@@ -98,6 +98,7 @@
             padding-right: 0;
             border-bottom: 2px solid $hit-gray;
             height: 54px;
+            font-weight: 100;
             font-size: 1.1em;
             &.readonly {
                 background-color: $alto;
@@ -146,13 +147,10 @@
         flex: 0 0 53px;
         display: flex;
         justify-content: flex-end;
-        &.bottom {
-            align-self: flex-end;
-        }
     }
 
     .server-url-button {
-        @include set-margin-left(1);
+        width: 37px;
         &:hover {
             fill: white;
         }
@@ -161,6 +159,7 @@
     .price-count-status {
         span {
             font-size: 1.25em;
+            margin-right: 5px;
         }
         &.ok {
             color: $sulu;

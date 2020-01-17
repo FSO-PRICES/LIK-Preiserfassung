@@ -33,7 +33,7 @@
             </div>
             <div class="header-line">
                 <ion-item class="pef-item on-dark">
-                    <ion-label>{{ 'label_artikeltext' | translate }}&nbsp;*</ion-label>
+                    <ion-label>{{ 'label_artikeltext' | translate }}</ion-label>
                     <ion-textarea
                         rows="2"
                         type="text"
@@ -43,7 +43,7 @@
                         [class.readonly]="isReadonly$ | async"
                     ></ion-textarea>
                 </ion-item>
-                <div class="right-column bottom">
+                <div class="right-column">
                     <ion-button
                         *ngIf="!(isAdminApp$ | async)"
                         class="pef-icon-secondary duplicate icon-only"
