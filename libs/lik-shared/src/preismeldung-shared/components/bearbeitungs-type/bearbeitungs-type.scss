@@ -83,8 +83,9 @@
     ion-item.bearbeitungs-type-option {
         padding: 0;
         min-height: 2.5em;
-        --min-height: 38px;
+        --min-height: 2.375em;
         --padding-start: 0.7em;
+        font-size: 1em;
         &:not(:last-of-type) {
             border-bottom: 2px solid $alto;
         }
@@ -113,21 +114,6 @@
             @include set-flex(0, 0, 7);
             color: $blue-chill;
             font-weight: 500;
-        }
-
-        @media (max-width: 899px) {
-            font-size: 1.5em;
-            --min-height: 30px;
-
-            .icon {
-                flex: 0 0 calc(2.5 * 0.9em);
-            }
-            .code-name {
-                flex: 0 0 calc(7 * 0.6em);
-            }
-            .description {
-                flex: 1 0 calc(18 * 0.4em);
-            }
         }
     }
 }

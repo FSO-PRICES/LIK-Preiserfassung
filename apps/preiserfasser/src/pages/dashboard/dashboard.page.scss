@@ -368,37 +368,6 @@
         font-size: 1em;
         margin: 0 0 1em 0;
     }
-    @media (max-width: 899px) {
-        .work-area {
-            flex-direction: column;
-        }
-        .preismeldestellen {
-            margin: 0;
-            padding-bottom: 0;
-        }
-        .info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            .placement-container {
-                min-width: 220px;
-            }
-        }
-        .preismeldungen {
-            margin: 0;
-            flex: 1;
-            padding-top: 0;
-        }
-        .status {
-            position: absolute;
-        }
-        .actions {
-            align-items: flex-end;
-            .row {
-                min-width: 220px;
-            }
-        }
-    }
 }
 
 @media print {

@@ -107,7 +107,7 @@
         width: 5em;
         max-width: 5em;
         margin-right: 0;
-        height: 3.6rem;
+        height: 36px;
         --box-shadow: none;
         &:disabled {
             background-color: $mercury;
@@ -116,11 +116,11 @@
     }
 
     .add-button {
-        min-width: 35px;
-        height: 3.6rem;
+        min-width: 36px;
+        height: 36px;
         pef-icon {
-            margin-top: -7px;
-            margin-left: -5px;
+            margin-top: 0;
+            margin-left: 0;
         }
     }
 
