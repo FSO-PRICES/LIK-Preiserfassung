@@ -90,9 +90,42 @@
             }
         }
 
+        tr {
+            &.behind-marked {
+                background-color: $egg-white;
+                &:nth-child(odd) {
+                    background-color: darken($egg-white, 3%);
+                }
+                input[type='radio'] {
+                    background-color: $bright-sun;
+                }
+            }
+            &.marked {
+                background-color: $bright-sun;
+                input[type='radio']:checked {
+                    background-color: $egg-white;
+                }
+            }
+        }
         td {
             white-space: nowrap;
             padding-right: 10px;
+
+            &.marker {
+                padding-right: 5px;
+            }
+            input[type='radio'] {
+                background-color: $white;
+                appearance: none;
+                display: block;
+                width: 20px;
+                height: 30px;
+                opacity: 0.7;
+                margin: 1px 0;
+                border-radius: 2px;
+                box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+            }
         }
 
         .collapsed {

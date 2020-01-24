@@ -1,15 +1,17 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { first } from 'lodash';
-import { defer, Observable } from 'rxjs';
+import { defer, merge, Observable } from 'rxjs';
 import {
     combineLatest,
     filter,
     map,
-    merge,
+    mapTo,
+    merge as mergeO,
     publishReplay,
     refCount,
     scan,
+    shareReplay,
     startWith,
     switchMap,
     withLatestFrom,
@@ -37,6 +39,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     @Output('updateAllPmStatus') public updateAllPmStatus$: Observable<P.Models.PreismeldungStatusList>;
 
     public updateAllPmStatusClicked$ = new EventEmitter();
+    public marked$ = new EventEmitter<number>();
     public setPreismeldungStatusFilter$ = new EventEmitter<number>();
     public preismeldungStatusFilter$: Observable<number>;
     public controllingTypeSelected$ = new EventEmitter<CONTROLLING_TYPE>();
@@ -46,6 +49,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public hasStatusInputDisabled$: Observable<boolean>;
     public controllingType$: Observable<string>;
     public shortColumnNames = ShortColumnNames;
+    public currentlyMarked$: Observable<number>;
 
     public controllings = [
         { name: 'CONTROLLING_0100', label: '0100: Heizöl, Treibstoffe (Stichtag 1): Vollständigkeit' },
@@ -104,6 +108,8 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             exported: boolean;
             pmId: string;
             isEditable: boolean;
+            behindMarked: boolean;
+            marked: boolean;
             canView: boolean;
             values: ColumnValue[];
         }[]
@@ -121,10 +127,20 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             publishReplay(1),
             refCount(),
         );
+
+        this.currentlyMarked$ = merge(
+            this.marked$,
+            this.preismeldungStatusFilter$.pipe(mapTo(null)),
+            this.reportData$.pipe(mapTo(null)),
+        ).pipe(
+            startWith(null),
+            scan((prev, curr) => (prev === curr ? null : curr), null),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
         this.preismeldungen$ = this.reportData$.pipe(
-            combineLatest(this.preismeldungStatusFilter$, this.preismeldungenStatus$),
+            combineLatest(this.preismeldungStatusFilter$, this.preismeldungenStatus$, this.currentlyMarked$),
             filter(([x]) => !!x && !!x.rows),
-            map(([x, statusFilter, preismeldungenStatus]) =>
+            map(([x, statusFilter, preismeldungenStatus, marked]) =>
                 x.rows
                     .filter(r => {
                         if (ControllingTypesWithoutPmStatus.some(t => t === x.controllingType)) {
@@ -146,10 +162,12 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                             preismeldungenStatus[r.pmId] <= statusFilter
                         );
                     })
-                    .map(r => ({
+                    .map((r, i) => ({
                         ...r,
                         isEditable: preismeldungenStatus[r.pmId] < P.Models.PreismeldungStatus.geprüft,
                         values: r.values.map(c => ({ ...c, formattedValue: this.formatValue(c) })),
+                        behindMarked: i < marked,
+                        marked: i === marked,
                     })),
             ),
         );
@@ -169,7 +187,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
 
         this.hasStatusInputDisabled$ = this.controllingTypeSelected$.pipe(
             startWith(first(this.controllings).name),
-            merge(
+            mergeO(
                 this.reportData$.pipe(
                     filter(x => !!x && !!x.controllingType),
                     map(x => x.controllingType),
@@ -209,5 +227,9 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    public trackByPmId(pm: { pmId: string }) {
+        return pm.pmId;
     }
 }

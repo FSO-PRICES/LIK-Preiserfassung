@@ -81,6 +81,7 @@
             <tr>
                 <th class="align-right">&nbsp;</th>
                 <th class="align-right">&nbsp;</th>
+                <th class="align-right">&nbsp;</th>
                 <th
                     *ngFor="let column of (reportData$ | async)?.columns; let i = index"
                     (click)="toggleColumn$.emit(i)"
@@ -93,7 +94,14 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let row of (preismeldungen$ | async)">
+            <tr
+                *ngFor="let row of (preismeldungen$ | async); trackBy: trackByPmId; let i = index"
+                [class.behind-marked]="row.behindMarked"
+                [class.marked]="row.marked"
+            >
+                <td class="marker">
+                    <input type="radio" name="marker" [value]="i" (click)="marked$.emit(i)" [checked]="row.marked" />
+                </td>
                 <td>
                     <ion-button
                         [class.visibility-hidden]="!row.canView"
