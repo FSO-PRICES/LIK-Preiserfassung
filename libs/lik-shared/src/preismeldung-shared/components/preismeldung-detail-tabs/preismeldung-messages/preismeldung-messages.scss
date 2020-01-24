@@ -17,13 +17,27 @@
         ion-item.snippets-item {
             margin-left: 3px;
             display: inline-block;
+            margin-top: 4px;
+            margin-bottom: 4px;
+            font-size: 0.875em;
+            --min-height: 2.6em;
             --inner-padding-end: 0;
             --background: transparent;
             select {
                 width: 150px;
-                height: 2.5em;
+                height: 100%;
+                border-radius: 4px;
+                padding-left: 6px;
+                font-weight: 500;
+                margin-bottom: 0;
+                outline: none;
+                color: $white;
+                background-color: $java;
+                &:focus {
+                    background-color: $blue-chill;
+                }
                 &[disabled] {
-                    background-color: $wild-sand;
+                    opacity: 0.5;
                 }
             }
         }
@@ -33,6 +47,7 @@
         max-width: 64rem;
         padding-left: 0;
         margin-bottom: 0.5em;
+        font-size: 1em;
         --padding-start: 0;
         --inner-padding-end: 0;
         &.item.md.item-block .item-inner {
