@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign } from 'lodash';
-import { exhaustMap, flatMap, map, withLatestFrom } from 'rxjs/operators';
+import { from, of } from 'rxjs';
+import { catchError, exhaustMap, flatMap, map, withLatestFrom } from 'rxjs/operators';
 
 import { Models as P } from '@lik-shared';
 
@@ -20,8 +21,14 @@ export class PreiserheberEffects {
     @Effect()
     loadPreiserheber$ = this.actions$.ofType('LOAD_PREISERHEBER').pipe(
         exhaustMap(() => getDatabase()),
-        flatMap(db => db.get('preiserheber')),
-        map(erheber => ({ type: 'LOAD_PREISERHEBER_SUCCESS', payload: erheber } as preiserheber.Action)),
+        flatMap(db =>
+            from(db.get('preiserheber')).pipe(
+                map(erheber => ({ type: 'LOAD_PREISERHEBER_SUCCESS', payload: erheber } as preiserheber.Action)),
+                catchError(err => {
+                    return of({ type: 'LOAD_PREISERHEBER_FAIL', payload: err });
+                }),
+            ),
+        ),
     );
 
     @Effect()
