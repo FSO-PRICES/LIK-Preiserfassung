@@ -1,5 +1,7 @@
-import { Component, HostBinding } from '@angular/core';
+import { Component, HostBinding, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+
+import { InputP } from '@lik-shared';
 
 import * as P from '../../common-models';
 
@@ -8,10 +10,17 @@ import * as P from '../../common-models';
     templateUrl: 'pef-dialog-pm-status-selection.html',
     styleUrls: ['./pef-dialog-pm-status-selection.scss'],
 })
-export class PefDialogPmStatusSelectionComponent {
+export class PefDialogPmStatusSelectionComponent implements OnInit {
+    @Input() hasMarker: InputP<boolean>;
     @HostBinding('class') classes = 'pef-dialog';
 
-    public pmStatus: P.Models.PreismeldungStatus;
+    public toMarker = false;
+
+    public pmStatus: P.Models.PreismeldungStatus = null;
 
     constructor(public viewCtrl: PopoverController) {}
+
+    ngOnInit() {
+        this.toMarker = this.hasMarker;
+    }
 }

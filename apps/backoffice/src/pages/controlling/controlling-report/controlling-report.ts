@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { first } from 'lodash';
-import { defer, merge, Observable } from 'rxjs';
+import { defer, merge, Observable, Subject } from 'rxjs';
 import {
     combineLatest,
+    distinctUntilChanged,
     filter,
     map,
     mapTo,
@@ -14,6 +15,7 @@ import {
     shareReplay,
     startWith,
     switchMap,
+    takeUntil,
     withLatestFrom,
 } from 'rxjs/operators';
 
@@ -29,7 +31,7 @@ import { ColumnValue, ShortColumnNames } from '../../../reducers/controlling';
     templateUrl: 'controlling-report.html',
     styleUrls: ['controlling-report.scss'],
 })
-export class ControllingReportComponent extends ReactiveComponent implements OnChanges {
+export class ControllingReportComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() reportData: P.ControllingReportData;
     @Input() preismeldungenStatus: { [pmId: string]: P.Models.PreismeldungStatus };
     @Output('setPreismeldungStatus')
@@ -50,6 +52,9 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public controllingType$: Observable<string>;
     public shortColumnNames = ShortColumnNames;
     public currentlyMarked$: Observable<number>;
+
+    private onDestroy$ = new EventEmitter();
+    private cleanupMarked$ = new Subject();
 
     public controllings = [
         { name: 'CONTROLLING_0100', label: '0100: Heizöl, Treibstoffe (Stichtag 1): Vollständigkeit' },
@@ -118,6 +123,8 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     constructor(private domSanitizer: DomSanitizer, pefDialogService: PefDialogService) {
         super();
 
+        this.reportData$.pipe(takeUntil(this.onDestroy$)).subscribe(this.cleanupMarked$);
+
         this.controllingType$ = this.reportData$.pipe(
             filter(x => x != null),
             map(x => x.controllingType),
@@ -127,12 +134,9 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             publishReplay(1),
             refCount(),
         );
+        this.preismeldungStatusFilter$.pipe(takeUntil(this.onDestroy$)).subscribe(this.cleanupMarked$);
 
-        this.currentlyMarked$ = merge(
-            this.marked$,
-            this.preismeldungStatusFilter$.pipe(mapTo(null)),
-            this.reportData$.pipe(mapTo(null)),
-        ).pipe(
+        this.currentlyMarked$ = merge(this.marked$, this.cleanupMarked$.pipe(mapTo(null))).pipe(
             startWith(null),
             scan((prev, curr) => (prev === curr ? null : curr), null),
             shareReplay({ bufferSize: 1, refCount: true }),
@@ -171,6 +175,14 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                     })),
             ),
         );
+        // Cleanup marked if amount of shown pm has changed
+        this.preismeldungen$
+            .pipe(
+                map(pm => pm && pm.length),
+                distinctUntilChanged(),
+            )
+            .pipe(takeUntil(this.onDestroy$))
+            .subscribe(this.cleanupMarked$);
 
         this.hiddenColumns$ = this.toggleColumn$.asObservable().pipe(
             scan(
@@ -198,23 +210,31 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             refCount(),
         );
 
-        const confirmUpdateStatusDialog$ = defer(() =>
-            pefDialogService
-                .displayDialog(PefDialogPmStatusSelectionComponent, { dialogOptions: { backdropDismiss: true } })
-                .pipe(
-                    map(x => x.data),
-                    filter(data => !!data && data.type === 'CONFIRM_SAVE'),
-                ),
-        );
+        const confirmUpdateStatusDialog$ = (hasMarker: boolean) =>
+            defer(() =>
+                pefDialogService
+                    .displayDialog(PefDialogPmStatusSelectionComponent, {
+                        dialogOptions: { backdropDismiss: true },
+                        params: { hasMarker },
+                    })
+                    .pipe(
+                        map(x => x.data),
+                        filter(data => !!data && data.type === 'CONFIRM_SAVE'),
+                    ),
+            );
 
         this.updateAllPmStatus$ = this.updateAllPmStatusClicked$.pipe(
-            switchMap(() => confirmUpdateStatusDialog$),
-            withLatestFrom(this.preismeldungen$, this.preismeldungenStatus$),
-            map(([data, preismeldungen, preismeldungenStatus]) =>
-                preismeldungen
-                    .filter(pm => pm.canView && preismeldungenStatus[pm.pmId] != null)
-                    .map(({ pmId }) => ({ pmId, status: data.value })),
+            withLatestFrom(this.currentlyMarked$),
+            switchMap(([, marked]) =>
+                confirmUpdateStatusDialog$(marked !== null).pipe(map(data => ({ data, marked }))),
             ),
+            withLatestFrom(this.preismeldungen$, this.preismeldungenStatus$),
+            map(([{ data, marked }, preismeldungen, preismeldungenStatus]) =>
+                (data.value.toMarker ? preismeldungen.slice(0, marked + 1) : preismeldungen)
+                    .filter(pm => pm.canView && preismeldungenStatus[pm.pmId] != null)
+                    .map(({ pmId }) => ({ pmId, status: data.value.pmStatus })),
+            ),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
     }
 
@@ -227,6 +247,10 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
 
     public ngOnChanges(changes: { [key: string]: SimpleChange }) {
         this.baseNgOnChanges(changes);
+    }
+
+    public ngOnDestroy() {
+        this.onDestroy$.next();
     }
 
     public trackByPmId(pm: { pmId: string }) {

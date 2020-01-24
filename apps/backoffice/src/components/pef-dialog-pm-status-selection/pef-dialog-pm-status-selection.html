@@ -5,7 +5,8 @@
     <div class="message">
         <pef-icon name="warning"></pef-icon>
         <p>
-            Dies betrifft alle angezeigten Preismeldungen, welche von den Preiserheber freigegeben sind.
+            Dies betrifft {{ toMarker ? 'alle markierten' : 'alle angezeigten' }} Preismeldungen, welche von den
+            Preiserheber freigegeben sind.
         </p>
     </div>
 
@@ -23,10 +24,18 @@
             <ion-label>Geprüft</ion-label>
         </ion-item>
     </ion-radio-group>
+    <ion-item class="to-marker" *ngIf="hasMarker">
+        <ion-label>Nur bis zu der Markierung?</ion-label>
+        <ion-checkbox [(ngModel)]="toMarker"></ion-checkbox>
+    </ion-item>
 </div>
 
 <div class="pef-dialog-button-row">
-    <ion-button (click)="viewCtrl.dismiss({ type: 'CONFIRM_SAVE', value: pmStatus })" color="primary">
+    <ion-button
+        (click)="viewCtrl.dismiss({ type: 'CONFIRM_SAVE', value: { pmStatus: pmStatus, toMarker: toMarker } })"
+        [disabled]="pmStatus === null"
+        color="primary"
+    >
         Speichern
     </ion-button>
     <ion-button (click)="viewCtrl.dismiss({ type: 'ABBORT_SAVE' })" color="secondary">Abbrechen</ion-button>
