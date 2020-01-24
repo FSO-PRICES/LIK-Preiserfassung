@@ -62,6 +62,8 @@ export type OrganisationReport = {
     preiserheber: {
         [name: string]: {
             pm: number;
+            normal: number;
+            internet: number;
             pms: number;
         };
     };

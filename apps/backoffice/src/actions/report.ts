@@ -17,7 +17,7 @@ export type MonthlyReportData = {
 export type OrganisationReportData = {
     reportType: 'organisation';
     preiserheber: P.Erheber[];
-    preismeldestellen: P.Preismeldestelle[];
+    preismeldestellen: { pms: P.Preismeldestelle; erhebungsarten: P.Erhebungsarten }[];
     preismeldungen: P.Preismeldung[];
     preiszuweisungen: P.Preiszuweisung[];
     alreadyExported: string[];

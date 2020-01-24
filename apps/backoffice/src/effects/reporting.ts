@@ -88,7 +88,10 @@ async function loadDataForReport(reportType: report.ReportTypes): Promise<report
         case 'organisation': {
             return {
                 reportType,
-                preismeldestellen,
+                preismeldestellen: preismeldestellen.map(pms => ({
+                    pms,
+                    erhebungsarten: parseErhebungsarten(pms.erhebungsart),
+                })),
                 preismeldungen: await loadPreismeldungen(),
                 preiszuweisungen: await loadPreiszuweisungen(),
                 preiserheber: await loadPreiserheber(),

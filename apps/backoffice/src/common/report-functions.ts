@@ -141,7 +141,7 @@ export function prepareOrganisationData({
         zeitpunkt: getZeitpunktData(erhebungsmonat),
 
         erhebungsregionen: { 'N/A': { pm: 0, pms: 0 } },
-        preiserheber: { 'N/A': { pm: 0, pms: 0 } },
+        preiserheber: { 'N/A': { pm: 0, normal: 0, internet: 0, pms: 0 } },
         preismeldungen: { 'N/A': { pm: 0, peName: null } },
     };
     const preiserheberNamesById = preiserheber.reduce(
@@ -149,19 +149,20 @@ export function prepareOrganisationData({
         {} as { [peId: string]: string },
     );
     const preismeldestellenNamesById = preismeldestellen.reduce(
-        (acc, pms) => ({ ...acc, [pms.pmsNummer]: `${pms.pmsNummer} ${pms.name}` }),
+        (acc, { pms }) => ({ ...acc, [pms.pmsNummer]: `${pms.pmsNummer} ${pms.name}` }),
         {} as { [peId: string]: string },
     );
     const regionenByPms = preismeldestellen.reduce(
-        (regionenMap, pms) => ({ ...regionenMap, [pms.pmsNummer]: pms.erhebungsregion }),
+        (regionenMap, { pms }) => ({ ...regionenMap, [pms.pmsNummer]: pms.erhebungsregion }),
         {} as { [pmsNummer: string]: string },
     );
+    const pmsOnOffline = mapPmsToZentralDezentral(preismeldestellen);
     const preisereheberByPms = preismeldestellen
-        .filter(pms =>
+        .filter(({ pms }) =>
             preiszuweisungen.some(pz => pz.preismeldestellenNummern.some(pmsNummer => pmsNummer === pms.pmsNummer)),
         )
         .reduce(
-            (peMap, pms) => ({
+            (peMap, { pms }) => ({
                 ...peMap,
                 [pms.pmsNummer]:
                     preiserheberNamesById[
@@ -184,13 +185,18 @@ export function prepareOrganisationData({
         });
     });
 
-    preismeldestellen.forEach(pms => {
+    preismeldestellen.forEach(({ pms }) => {
         if (!map.erhebungsregionen[pms.erhebungsregion || 'N/A']) {
             map.erhebungsregionen[pms.erhebungsregion || 'N/A'] = { pm: 0, pms: 0 };
         }
         map.erhebungsregionen[pms.erhebungsregion || 'N/A'].pms++;
         if (!map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A']) {
-            map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'] = { pm: 0, pms: 0 };
+            map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'] = { pm: 0, normal: 0, internet: 0, pms: 0 };
+        }
+        if (pmsOnOffline[pms.pmsNummer] === 'internetZentral') {
+            map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].internet++;
+        } else {
+            map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].normal++;
         }
         map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].pms++;
     });

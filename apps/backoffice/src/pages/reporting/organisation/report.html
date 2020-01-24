@@ -39,6 +39,8 @@
                 <tr>
                     <th>Preiserheber</th>
                     <th>#Preise</th>
+                    <th>#Normalerhebung</th>
+                    <th>#Internet zentral</th>
                     <th>#PMS</th>
                 </tr>
             </thead>
@@ -46,6 +48,8 @@
                 <tr *ngFor="let preiserheber of reportData.preiserheber">
                     <td>{{ preiserheber.key }}</td>
                     <td class="number">{{ preiserheber.value.pm | pefFormatNumber: numberFormatOptions }}</td>
+                    <td class="number">{{ preiserheber.value.normal | pefFormatNumber: numberFormatOptions }}</td>
+                    <td class="number">{{ preiserheber.value.internet | pefFormatNumber: numberFormatOptions }}</td>
                     <td class="number">{{ preiserheber.value.pms | pefFormatNumber: numberFormatOptions }}</td>
                 </tr>
             </tbody>
