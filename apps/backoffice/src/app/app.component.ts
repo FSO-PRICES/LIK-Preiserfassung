@@ -4,6 +4,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { NavController, Platform } from '@ionic/angular';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
+import { ElectronService } from 'ngx-electron';
 import {
     distinctUntilChanged,
     filter,
@@ -41,6 +42,7 @@ export class Backoffice implements OnInit {
         statusBar: StatusBar,
         translateService: TranslateService,
         splashScreen: SplashScreen,
+        electronService: ElectronService,
     ) {
         this.appService
             .clearLocalDatabases()
@@ -95,6 +97,17 @@ export class Backoffice implements OnInit {
                 this.store.dispatch({ type: 'LOAD_ONOFFLINE' });
                 this.store.dispatch({ type: 'LOAD_WARENKORB' });
             });
+
+        if (electronService.isElectronApp) {
+            const FindInPage = require('electron-find').FindInPage;
+            const findInPage = new FindInPage(electronService.remote.getCurrentWebContents());
+            document.addEventListener('keypress', (ev: KeyboardEvent) => {
+                if (ev.ctrlKey && ev.keyCode === 6) {
+                    // CTRL + F
+                    findInPage.openFindWindow();
+                }
+            });
+        }
     }
 
     public ngOnInit() {}
