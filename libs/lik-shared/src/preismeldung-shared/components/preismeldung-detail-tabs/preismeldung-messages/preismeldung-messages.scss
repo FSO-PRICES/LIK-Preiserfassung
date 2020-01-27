@@ -24,18 +24,13 @@
             --inner-padding-end: 0;
             --background: transparent;
             select {
-                width: 150px;
+                width: 9.5em;
                 height: 100%;
                 border-radius: 4px;
                 padding-left: 6px;
                 font-weight: 500;
                 margin-bottom: 0;
                 outline: none;
-                color: $white;
-                background-color: $java;
-                &:focus {
-                    background-color: $blue-chill;
-                }
                 &[disabled] {
                     opacity: 0.5;
                 }
