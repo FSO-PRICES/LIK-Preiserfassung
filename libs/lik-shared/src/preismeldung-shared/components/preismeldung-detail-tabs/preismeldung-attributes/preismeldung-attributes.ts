@@ -11,7 +11,7 @@ import {
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { assign, keys } from 'lodash';
 import { Observable } from 'rxjs';
-import { filter, withLatestFrom } from 'rxjs/operators';
+import { filter, map, shareReplay, tap, withLatestFrom } from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../../common/ReactiveComponent';
 
@@ -39,6 +39,7 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
     public isAdminApp$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isAdminApp');
+    public produktMerkmale$: Observable<{ attribute: P.Models.PropertyTranslation; initial: string }[]>;
 
     form: FormGroup;
 
@@ -59,14 +60,27 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
             attribute_9: [''],
         });
 
+        const preismeldung$ = this.preismeldung$.pipe(
+            filter(bag => !!bag),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
         this.subscriptions.push(
-            this.preismeldung$.pipe(filter(bag => !!bag)).subscribe(bag => {
+            preismeldung$.subscribe(bag => {
                 const formDef = keys(bag.warenkorbPosition.productMerkmale).reduce(
                     (agg, v) => assign(agg, { [`attribute_${v}`]: !!bag.attributes ? bag.attributes[v] : null }),
                     {},
                 );
                 this.form.reset(formDef);
             }),
+        );
+        this.produktMerkmale$ = preismeldung$.pipe(
+            map(bag => {
+                return bag.warenkorbPosition.productMerkmale.map((attribute, i) => ({
+                    attribute,
+                    initial: initialMerkmal(bag, i, this.form.value[`attribute_${i}`]),
+                }));
+            }),
+            tap(x => console.log('DIFFERENT??', x)),
         );
 
         this.preismeldungAttributesPayload$ = this.fieldEdited$.pipe(
@@ -89,3 +103,10 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
         this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
     }
 }
+
+const initialMerkmal = (bag: P.CurrentPreismeldungBag, index: number, formValue: string) => {
+    if (!bag.refPreismeldung) {
+        return null;
+    }
+    return bag.refPreismeldung.productMerkmale[index] !== formValue ? bag.refPreismeldung.productMerkmale[index] : null;
+};

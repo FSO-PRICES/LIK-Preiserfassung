@@ -12,17 +12,20 @@
             <div class="detail-tab-bottom-part">
                 <h3 class="large">{{ 'heading_preismeldung-attributes' | translate }}</h3>
                 <ion-list>
-                    <ion-item
-                        class="pef-item"
-                        *ngFor="let att of (preismeldung$ | async)?.warenkorbPosition.productMerkmale; let i = index"
-                    >
-                        <ion-label>{{ att | pefPropertyTranslate }}</ion-label>
-                        <ion-input
-                            type="text"
-                            [formControlName]="'attribute_' + i"
-                            (ionBlur)="fieldEdited$.emit()"
-                        ></ion-input>
-                    </ion-item>
+                    <ng-container *ngFor="let merkmal of (produktMerkmale$ | async); let i = index">
+                        <ion-item class="pef-item">
+                            <ion-label></ion-label>
+                            <ion-text>{{merkmal.initial}}</ion-text>
+                        </ion-item>
+                        <ion-item class="pef-item">
+                            <ion-label>{{ merkmal.attribute | pefPropertyTranslate }}</ion-label>
+                            <ion-input
+                                type="text"
+                                [formControlName]="'attribute_' + i"
+                                (ionBlur)="fieldEdited$.emit()"
+                            ></ion-input>
+                        </ion-item>
+                    </ng-container>
                 </ion-list>
             </div>
         </form>

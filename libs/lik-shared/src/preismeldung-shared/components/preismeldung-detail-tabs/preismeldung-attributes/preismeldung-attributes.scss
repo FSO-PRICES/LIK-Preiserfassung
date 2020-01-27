@@ -6,15 +6,25 @@
     flex-direction: column;
     background-color: $alto;
 
-    .item.md.pef-item {
-        margin-bottom: 0.75em;
+    .item.pef-item {
+        --min-height: 1.2em;
+        font-size: inherit;
         ion-label {
             font-size: 1em;
             min-width: 18em;
             max-width: 18em;
             padding-left: 0;
             color: $trout;
+            margin-top: 0;
+            margin-bottom: 0;
         }
+        ion-text {
+            opacity: 0.6;
+        }
+    }
+    .item.md.pef-item:nth-child(even) {
+        margin-bottom: 1em;
+        --min-height: 2.4em;
     }
 
     @import '../common-styles.scss';
