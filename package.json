@@ -16,8 +16,10 @@
         "build:apk:preiserfasser": "ionic cordova build --release --no-daemon android --project preiserfasser",
         "prebuild:electron:preiserfasser": "npm run overwrite-electron:preiserfasser",
         "build:electron:preiserfasser": "ionic cordova build --release electron --project preiserfasser",
+        "build-debug:electron:preiserfasser": "ionic cordova build electron --project preiserfasser",
         "prebuild:electron:backoffice": "npm run overwrite-electron:backoffice",
         "build:electron:backoffice": "ionic cordova build --release electron --project backoffice",
+        "build-debug:electron:backoffice": "ionic cordova build electron --project backoffice",
         "run:browser:preiserfasser": "ionic serve --project preiserfasser",
         "run:browser:backoffice": "ionic serve --project backoffice",
         "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser"
