@@ -294,25 +294,25 @@
                                         [value]="form.value.preisVorReduktion"
                                     ></ion-input>
                                 </ion-item>
-                                <div class="unit-item-wrapper">
-                                    <ion-item
-                                        class="pef-item"
+                                <ion-item
+                                    class="pef-item"
+                                    [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
+                                >
+                                    <ion-input
+                                        #mengeVorReduktion
+                                        type="number"
+                                        step="any"
+                                        pef-highlight-on-focus
+                                        pef-disable-input-number-behaviour
+                                        pef-disable-input-negative-number
                                         [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
-                                    >
-                                        <ion-input
-                                            #mengeVorReduktion
-                                            type="number"
-                                            step="any"
-                                            pef-highlight-on-focus
-                                            pef-disable-input-number-behaviour
-                                            pef-disable-input-negative-number
-                                            [class.ng-invalid]="createInvalidObservableFor('mengeVorReduktion') | async"
-                                            (ionBlur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)"
-                                            (ionInput)="mengeVorReduktionInput$.emit($event.target.value)"
-                                            [readonly]="isReadonly$ | async"
-                                            [class.readonly]="isReadonly$ | async"
-                                            [value]="form.value.mengeVorReduktion"
-                                        ></ion-input>
+                                        (ionBlur)="mengeVorReduktionChanged$.emit(mengeVorReduktion.value)"
+                                        (ionInput)="mengeVorReduktionInput$.emit($event.target.value)"
+                                        [readonly]="isReadonly$ | async"
+                                        [class.readonly]="isReadonly$ | async"
+                                        [value]="form.value.mengeVorReduktion"
+                                    ></ion-input>
+                                    <div slot="end">
                                         <ion-button
                                             class="unit-button"
                                             color="mercury"
@@ -322,8 +322,8 @@
                                             {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
                                             pefPropertyTranslate }}
                                         </ion-button>
-                                    </ion-item>
-                                </div>
+                                    </div>
+                                </ion-item>
                             </ion-list>
                             <div class="current-period-aktion-row">
                                 <ion-list
