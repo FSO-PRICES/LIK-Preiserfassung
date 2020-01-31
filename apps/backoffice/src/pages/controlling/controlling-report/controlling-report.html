@@ -1,133 +1,153 @@
-<div class="top-section">
-    <ion-grid>
-        <ion-row>
-            <ion-col class="filter">
-                <div class="status">
-                    <ion-radio-group>
-                        <ion-item>
-                            <ion-radio
-                                [disabled]="hasStatusInputDisabled$ | async"
-                                value="1"
-                                [checked]="
+<ng-container *ngxLet="reportData$ | async; let reportData;">
+    <ng-container *ngxLet="sameLine$ | async; let sameLine;">
+        <div class="top-section">
+            <ion-grid>
+                <ion-row>
+                    <ion-col class="filter">
+                        <div class="status">
+                            <ion-radio-group>
+                                <ion-item>
+                                    <ion-radio
+                                        [disabled]="hasStatusInputDisabled$ | async"
+                                        value="1"
+                                        [checked]="
                                     !(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 1
                                 "
-                                (ionSelect)="setPreismeldungStatusFilter$.emit(1)"
-                            ></ion-radio>
-                            <ion-label>In Prüfung (unbestätigt)</ion-label>
-                        </ion-item>
-                        <ion-item>
-                            <ion-radio
-                                [disabled]="hasStatusInputDisabled$ | async"
-                                value="2"
-                                [checked]="
+                                        (ionSelect)="setPreismeldungStatusFilter$.emit(1)"
+                                    ></ion-radio>
+                                    <ion-label>In Prüfung (unbestätigt)</ion-label>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-radio
+                                        [disabled]="hasStatusInputDisabled$ | async"
+                                        value="2"
+                                        [checked]="
                                     !(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 2
                                 "
-                                (ionSelect)="setPreismeldungStatusFilter$.emit(2)"
-                            ></ion-radio>
-                            <ion-label>In Prüfung (alle)</ion-label>
-                        </ion-item>
-                        <ion-item>
-                            <ion-radio
-                                [disabled]="hasStatusInputDisabled$ | async"
-                                value="3"
-                                [checked]="
+                                        (ionSelect)="setPreismeldungStatusFilter$.emit(2)"
+                                    ></ion-radio>
+                                    <ion-label>In Prüfung (alle)</ion-label>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-radio
+                                        [disabled]="hasStatusInputDisabled$ | async"
+                                        value="3"
+                                        [checked]="
                                     !(hasStatusInputDisabled$ | async) && (preismeldungStatusFilter$ | async) === 3
                                 "
-                                (ionSelect)="setPreismeldungStatusFilter$.emit(3)"
-                            ></ion-radio>
-                            <ion-label>Alle Preise</ion-label>
-                        </ion-item>
-                    </ion-radio-group>
-                    <h2>({{ (preismeldungen$ | async)?.length || 0 }})</h2>
-                </div>
-                <div class="controlling">
-                    <select
-                        #controllingSelect
-                        class="controlling-selected"
-                        (change)="controllingTypeSelected$.emit($event.target.value)"
-                    >
-                        <option
-                            *ngFor="let controlling of controllings"
-                            [value]="controlling.name"
-                            [selected]="(controllingType$ | async) === controlling.name"
-                            >{{ controlling.label }}</option
+                                        (ionSelect)="setPreismeldungStatusFilter$.emit(3)"
+                                    ></ion-radio>
+                                    <ion-label>Alle Preise</ion-label>
+                                </ion-item>
+                            </ion-radio-group>
+                            <h2>({{ (preismeldungen$ | async)?.length || 0 }})</h2>
+                        </div>
+                        <div class="controlling">
+                            <select
+                                #controllingSelect
+                                class="controlling-selected"
+                                (change)="controllingTypeSelected$.emit($event.target.value)"
+                            >
+                                <option
+                                    *ngFor="let controlling of controllings"
+                                    [value]="controlling.name"
+                                    [selected]="(controllingType$ | async) === controlling.name"
+                                    >{{ controlling.label }}</option
+                                >
+                            </select>
+                        </div>
+                    </ion-col>
+                    <ion-col class="actions">
+                        <ion-button type="button" class="btn-execute" (click)="runReport$.emit(controllingSelect.value)"
+                            >ausführen</ion-button
                         >
-                    </select>
-                </div>
-            </ion-col>
-            <ion-col class="actions">
-                <ion-button type="button" class="btn-execute" (click)="runReport$.emit(controllingSelect.value)"
-                    >ausführen</ion-button
-                >
-                <ng-content *ngIf="!(reportData$ | async)"></ng-content>
-                <ion-button
-                    *ngIf="!!(reportData$ | async)"
-                    type="button"
-                    class="icon-only"
-                    (click)="updateAllPmStatusClicked$.emit()"
-                >
-                    <span class="statuswechsel">Statuswechsel</span>
-                    <pef-icon name="checkmark"></pef-icon>
-                </ion-button>
-                <pef-zoom *ngIf="!!(reportData$ | async)" (zoomLevel)="zoomLevel$.emit($event)"></pef-zoom>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
-</div>
+                        <ng-content *ngIf="!reportData"></ng-content>
+                        <ion-button
+                            *ngIf="!!reportData"
+                            type="button"
+                            class="icon-only"
+                            (click)="updateAllPmStatusClicked$.emit()"
+                        >
+                            <span class="statuswechsel">Statuswechsel</span>
+                            <pef-icon name="checkmark"></pef-icon>
+                        </ion-button>
+                        <pef-zoom *ngIf="!!reportData" (zoomLevel)="zoomLevel$.emit($event)"></pef-zoom>
+                        <ion-button
+                            *ngIf="!!reportData"
+                            type="button"
+                            class="icon-only"
+                            [class.active]="sameLine"
+                            (click)="sameLineClicked$.emit()"
+                        >
+                            \n
+                        </ion-button>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </div>
 
-<div class="table-wrapper" *ngIf="!!(reportData$ | async)">
-    <table class="report-table" [pefZoomable]="zoomLevel$ | async">
-        <thead>
-            <tr>
-                <th class="align-right">&nbsp;</th>
-                <th class="align-right">&nbsp;</th>
-                <th class="align-right">&nbsp;</th>
-                <th
-                    *ngFor="let column of (reportData$ | async)?.columns; let i = index"
-                    (click)="toggleColumn$.emit(i)"
-                    [ngClass]="['collapsable', column.cssClass]"
-                    [class.collapsed]="(hiddenColumns$ | async)[i]"
-                    [title]="column.name"
-                >
-                    {{ shortColumnNames[column.name] || column.name }}
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr
-                *ngFor="let row of (preismeldungen$ | async); trackBy: trackByPmId; let i = index"
-                [class.behind-marked]="row.behindMarked"
-                [class.marked]="row.marked"
-            >
-                <td class="marker">
-                    <input type="radio" name="marker" [value]="i" (click)="marked$.emit(i)" [checked]="row.marked" />
-                </td>
-                <td>
-                    <ion-button
-                        [class.visibility-hidden]="!row.canView"
-                        [disabled]="!row.isEditable"
-                        class="edit-pm"
-                        (click)="editPreismeldungId$.emit(row.pmId)"
+        <div class="table-wrapper" *ngIf="!!reportData">
+            <table class="report-table" [style.font-size]="zoomLevel$ | async" [class.same-line]="sameLine">
+                <thead>
+                    <tr>
+                        <th class="align-right">&nbsp;</th>
+                        <th class="align-right">&nbsp;</th>
+                        <th class="align-right">&nbsp;</th>
+                        <th
+                            *ngFor="let column of reportData?.columns; let i = index"
+                            (click)="toggleColumn$.emit(i)"
+                            [ngClass]="['collapsable', column.cssClass]"
+                            [class.collapsed]="(hiddenColumns$ | async)[i]"
+                            [title]="column.name"
+                        >
+                            {{ shortColumnNames[column.name] || column.name }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        *ngFor="let row of (preismeldungen$ | async); trackBy: trackByPmId; let i = index"
+                        [class.behind-marked]="row.behindMarked"
+                        [class.marked]="row.marked"
                     >
-                        <pef-icon name="todo"></pef-icon>
-                    </ion-button>
-                </td>
-                <td>
-                    <pef-pm-status
-                        [class.visibility-hidden]="!row.canView"
-                        [disabled]="row.exported"
-                        [preismeldungStatus]="preismeldungenStatus[row.pmId]"
-                        (setPreismeldungStatus)="setPreismeldungStatus$.emit({ pmId: row.pmId, status: $event })"
-                    ></pef-pm-status>
-                </td>
-                <td
-                    *ngFor="let column of row.values; let i = index"
-                    [class.collapsed]="(hiddenColumns$ | async)[i]"
-                    [ngClass]="[column.cssClass]"
-                    [innerHTML]="column.formattedValue"
-                ></td>
-            </tr>
-        </tbody>
-    </table>
-    <span>&nbsp;</span>
-</div>
+                        <td class="marker">
+                            <input
+                                type="radio"
+                                name="marker"
+                                [value]="i"
+                                (click)="marked$.emit(i)"
+                                [checked]="row.marked"
+                            />
+                        </td>
+                        <td>
+                            <ion-button
+                                [class.visibility-hidden]="!row.canView"
+                                [disabled]="!row.isEditable"
+                                class="edit-pm"
+                                (click)="editPreismeldungId$.emit(row.pmId)"
+                            >
+                                <pef-icon name="todo"></pef-icon>
+                            </ion-button>
+                        </td>
+                        <td>
+                            <pef-pm-status
+                                [class.visibility-hidden]="!row.canView"
+                                [disabled]="row.exported"
+                                [preismeldungStatus]="preismeldungenStatus[row.pmId]"
+                                (setPreismeldungStatus)="setPreismeldungStatus$.emit({ pmId: row.pmId, status: $event })"
+                            ></pef-pm-status>
+                        </td>
+                        <td
+                            *ngFor="let column of row.values; let i = index"
+                            [class.collapsed]="(hiddenColumns$ | async)[i]"
+                            [attr.title]="column.title"
+                            [ngClass]="[column.cssClass]"
+                            [innerHTML]="column.formattedValue"
+                        ></td>
+                    </tr>
+                </tbody>
+            </table>
+            <span>&nbsp;</span>
+        </div>
+    </ng-container>
+</ng-container>

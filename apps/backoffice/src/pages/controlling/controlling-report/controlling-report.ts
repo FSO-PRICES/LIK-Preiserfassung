@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    Output,
+    SecurityContext,
+    SimpleChange,
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { first } from 'lodash';
 import { defer, merge, Observable, Subject } from 'rxjs';
@@ -41,9 +50,9 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     @Output('updateAllPmStatus') public updateAllPmStatus$: Observable<P.Models.PreismeldungStatusList>;
 
     public updateAllPmStatusClicked$ = new EventEmitter();
+    public sameLineClicked$ = new EventEmitter();
     public marked$ = new EventEmitter<number>();
     public setPreismeldungStatusFilter$ = new EventEmitter<number>();
-    public preismeldungStatusFilter$: Observable<number>;
     public controllingTypeSelected$ = new EventEmitter<CONTROLLING_TYPE>();
     public zoomLevel$ = new EventEmitter<number>();
     public toggleColumn$ = new EventEmitter<number>();
@@ -51,7 +60,6 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public hasStatusInputDisabled$: Observable<boolean>;
     public controllingType$: Observable<string>;
     public shortColumnNames = ShortColumnNames;
-    public currentlyMarked$: Observable<number>;
 
     private onDestroy$ = new EventEmitter();
     private cleanupMarked$ = new Subject();
@@ -107,18 +115,56 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         publishReplay(1),
         refCount(),
     );
+    public preismeldungStatusFilter$ = this.setPreismeldungStatusFilter$.asObservable().pipe(
+        startWith(P.Models.PreismeldungStatusFilter.exportiert),
+        publishReplay(1),
+        refCount(),
+    );
+    public currentlyMarked$ = merge(this.marked$, this.cleanupMarked$.pipe(mapTo(null))).pipe(
+        startWith(null),
+        scan((prev, curr) => (prev === curr ? null : curr), null),
+        shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-    public preismeldungen$: Observable<
-        {
-            exported: boolean;
-            pmId: string;
-            isEditable: boolean;
-            behindMarked: boolean;
-            marked: boolean;
-            canView: boolean;
-            values: ColumnValue[];
-        }[]
-    >;
+    public sameLine$ = this.sameLineClicked$.pipe(
+        scan(prev => !prev, false),
+        startWith(false),
+    );
+
+    public preismeldungen$ = this.reportData$.pipe(
+        combineLatest(this.preismeldungStatusFilter$, this.preismeldungenStatus$, this.currentlyMarked$),
+        filter(([x]) => !!x && !!x.rows),
+        map(([x, statusFilter, preismeldungenStatus, marked]) =>
+            x.rows
+                .filter(r => {
+                    if (ControllingTypesWithoutPmStatus.some(t => t === x.controllingType)) {
+                        return !r.exported;
+                    }
+                    if (x.controllingType === CONTROLLING_0830) {
+                        return (
+                            !r.exported &&
+                            preismeldungenStatus[r.pmId] != null &&
+                            preismeldungenStatus[r.pmId] <= statusFilter
+                        );
+                    }
+                    if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
+                        return r.exported || preismeldungenStatus[r.pmId] != null;
+                    }
+                    return (
+                        !r.exported &&
+                        preismeldungenStatus[r.pmId] != null &&
+                        preismeldungenStatus[r.pmId] <= statusFilter
+                    );
+                })
+                .map((r, i) => ({
+                    ...r,
+                    isEditable: preismeldungenStatus[r.pmId] < P.Models.PreismeldungStatus.geprüft,
+                    values: r.values.map(c => this.enhanceColumn(c)),
+                    behindMarked: i < marked,
+                    marked: i === marked,
+                })),
+        ),
+    );
 
     constructor(private domSanitizer: DomSanitizer, pefDialogService: PefDialogService) {
         super();
@@ -129,52 +175,8 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             filter(x => x != null),
             map(x => x.controllingType),
         );
-        this.preismeldungStatusFilter$ = this.setPreismeldungStatusFilter$.asObservable().pipe(
-            startWith(P.Models.PreismeldungStatusFilter.exportiert),
-            publishReplay(1),
-            refCount(),
-        );
         this.preismeldungStatusFilter$.pipe(takeUntil(this.onDestroy$)).subscribe(this.cleanupMarked$);
 
-        this.currentlyMarked$ = merge(this.marked$, this.cleanupMarked$.pipe(mapTo(null))).pipe(
-            startWith(null),
-            scan((prev, curr) => (prev === curr ? null : curr), null),
-            shareReplay({ bufferSize: 1, refCount: true }),
-        );
-        this.preismeldungen$ = this.reportData$.pipe(
-            combineLatest(this.preismeldungStatusFilter$, this.preismeldungenStatus$, this.currentlyMarked$),
-            filter(([x]) => !!x && !!x.rows),
-            map(([x, statusFilter, preismeldungenStatus, marked]) =>
-                x.rows
-                    .filter(r => {
-                        if (ControllingTypesWithoutPmStatus.some(t => t === x.controllingType)) {
-                            return !r.exported;
-                        }
-                        if (x.controllingType === CONTROLLING_0830) {
-                            return (
-                                !r.exported &&
-                                preismeldungenStatus[r.pmId] != null &&
-                                preismeldungenStatus[r.pmId] <= statusFilter
-                            );
-                        }
-                        if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
-                            return r.exported || preismeldungenStatus[r.pmId] != null;
-                        }
-                        return (
-                            !r.exported &&
-                            preismeldungenStatus[r.pmId] != null &&
-                            preismeldungenStatus[r.pmId] <= statusFilter
-                        );
-                    })
-                    .map((r, i) => ({
-                        ...r,
-                        isEditable: preismeldungenStatus[r.pmId] < P.Models.PreismeldungStatus.geprüft,
-                        values: r.values.map(c => ({ ...c, formattedValue: this.formatValue(c) })),
-                        behindMarked: i < marked,
-                        marked: i === marked,
-                    })),
-            ),
-        );
         // Cleanup marked if amount of shown pm has changed
         this.preismeldungen$
             .pipe(
@@ -236,6 +238,24 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             ),
             shareReplay({ bufferSize: 1, refCount: true }),
         );
+    }
+
+    public enhanceColumn(column: ColumnValue) {
+        const formattedValue = this.formatValue(column);
+        console.log('HTML?', column.value);
+        return {
+            ...column,
+            cssClass:
+                column.size !== null && column.value.toString().length > 0
+                    ? `${column.cssClass} ${column.size}`
+                    : column.cssClass,
+            formattedValue,
+            title: (column.value == null ? '' : column.value)
+                .toString()
+                .replace(/&nbsp;/g, ' ')
+                .replace(/<br>/g, ' | ')
+                .replace(/<.*?>/g, ''),
+        };
     }
 
     public formatValue(column: ColumnValue) {
