@@ -40,7 +40,7 @@ export function copyUserDbErheberDetailsToPreiserheberDb() {
 }
 
 export function formatMessages(message: string) {
-    return message.replace(new RegExp('(¶|\\\\n)', 'g'), '<br>');
+    return (message || '').replace(new RegExp('(¶|\\\\n)', 'g'), '<br>');
 }
 
 export function formatArtikeltext(artikeltext: string) {
