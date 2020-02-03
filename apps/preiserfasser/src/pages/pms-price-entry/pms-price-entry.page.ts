@@ -293,6 +293,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
             .pipe(
                 takeUntil(this.onDestroy$),
                 filter(x => !x.isCurrentModified),
+                merge(this.cancel$.asObservable().pipe(map(() => ({ selectedPreismeldung: null })))),
                 delay(100),
             )
             .subscribe(x =>
