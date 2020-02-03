@@ -1,5 +1,4 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
-import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Platform } from '@ionic/angular';
@@ -26,7 +25,6 @@ export class AppComponent implements OnInit {
         private translate: TranslateService,
         private statusBar: StatusBar,
         private splashScreen: SplashScreen,
-        screenOrientation: ScreenOrientation,
     ) {
         platform.ready().then(() => {
             const isMobile = platform.is('hybrid');
