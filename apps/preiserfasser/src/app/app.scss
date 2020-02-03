@@ -1,6 +1,6 @@
 @import '../../../../libs/lik-shared/src/styles/_app.scss';
 
-:not(.pef-desktop) {
+app-root:not(.pef-desktop) {
     .visible-scroll-bar {
         ::-webkit-scrollbar {
             -webkit-appearance: none;
