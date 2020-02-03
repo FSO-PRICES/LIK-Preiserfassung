@@ -1,26 +1,35 @@
 @import '../../../../libs/lik-shared/src/styles/_app.scss';
 
-.visible-scrollbar {
-    ::-webkit-scrollbar {
-        -webkit-appearance: none;
-    }
+:not(.pef-desktop) {
+    .visible-scroll-bar {
+        ::-webkit-scrollbar {
+            -webkit-appearance: none;
+            background: transparent;
+        }
 
-    ::-webkit-scrollbar:vertical {
-        width: 7px;
-    }
+        ::-webkit-scrollbar:vertical {
+            width: 7px;
+            background-color: transparent;
+        }
 
-    ::-webkit-scrollbar:horizontal {
-        height: 7px;
-    }
+        ::-webkit-scrollbar * {
+            background: transparent;
+        }
 
-    ::-webkit-scrollbar-thumb {
-        border-radius: 7px;
-        background-color: rgba(0, 0, 0, 0.2);
-    }
+        ::-webkit-scrollbar:horizontal {
+            height: 7px;
+            background-color: transparent;
+        }
 
-    ::-webkit-scrollbar-track {
-        background-color: transparent;
-        border-radius: 7px;
+        ::-webkit-scrollbar-thumb {
+            border-radius: 7px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: transparent;
+            border-radius: 7px;
+        }
     }
 }
 

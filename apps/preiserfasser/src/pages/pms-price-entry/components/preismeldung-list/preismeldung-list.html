@@ -1,4 +1,4 @@
-<div class="preismeldung-list-flex-container">
+<div class="preismeldung-list-flex-container visible-scroll-bar">
     <div class="preismeldung-list-filter">
         <ion-button
             class="icon-only"
@@ -81,9 +81,9 @@
                         <br />&nbsp;
                     </div>
                     <div class="preismeldung-description">
-                        <span class="text">{{
-                            bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate
-                        }}</span>
+                        <span class="text"
+                            >{{ bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}</span
+                        >
                         <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
                     </div>
                     <div
