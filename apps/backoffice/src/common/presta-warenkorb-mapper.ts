@@ -3,6 +3,7 @@ import { keys, mapValues, values } from 'lodash';
 import { Models as P } from '@lik-shared';
 
 import { parseCsvText } from '../common/file-extensions';
+import { environment } from '../environments/environment';
 
 type LanguageIndexes = { de: number; fr: number; it: number };
 
@@ -46,7 +47,7 @@ const indexes = {
     produktmerkmale: { de: 46, fr: 47, it: 48 },
 };
 
-export function buildTree(data: string[][]) {
+export function buildTree(data: string[][], erhebungsorgannummer: string) {
     const lastDepthGliederungspositionsnummers: { [index: number]: P.WarenkorbTreeItem } = {
         1: null,
         2: null,
@@ -76,7 +77,7 @@ export function buildTree(data: string[][]) {
                 periodizitaetscode: translationsToStringOrNull(thisLine, indexes.periodizitaetscode),
                 standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
                 standardeinheit: translationsToStringOrNull(thisLine, indexes.standardeinheit),
-                erhebungstyp: thisLine[indexes.erhebungstyp],
+                erhebungstyp: parseErhebungstyp(thisLine[indexes.erhebungstyp], erhebungsorgannummer),
                 anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
                 beispiele: translationsToStringOrNull(thisLine, indexes.beispiele),
                 info: translationsToStringOrNull(thisLine, indexes.info),
@@ -167,6 +168,12 @@ function parsePeriodizitaet(periodizitaten: string[]) {
         return (prev |= parseBoolean(curr) ? <P.PeriodizitaetMonat>(1 << index) : P.PeriodizitaetMonat.None);
     }, P.PeriodizitaetMonat.None);
 }
+
+const parseErhebungstyp = (erhebungstyp: string, erhebungsorgannummer: string) => {
+    return erhebungsorgannummer === environment.masterErhebungsorgannummer
+        ? erhebungstyp.replace('z_', '').replace('z', 'd')
+        : erhebungstyp;
+};
 
 const parseAbweichung = parseNumberOrNull;
 

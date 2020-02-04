@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import * as bluebird from 'bluebird';
 import { chunk } from 'lodash';
 import { concat, from, of } from 'rxjs';
-import { catchError, flatMap, map, take, tap } from 'rxjs/operators';
+import { catchError, flatMap, map, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Models as P } from '@lik-shared';
 
@@ -37,6 +37,7 @@ import * as fromRoot from '../reducers';
 export class ImporterEffects {
     loggedInUser$ = this.store.select(fromRoot.getLoggedInUser);
     isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
+    settings$ = this.store.select(fromRoot.getSettings);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
@@ -64,11 +65,12 @@ export class ImporterEffects {
     import$ = this.actions$.ofType('IMPORT_DATA').pipe(
         continueEffectOnlyIfTrue(this.isLoggedIn$),
         map(action => action.payload),
-        flatMap(data =>
+        withLatestFrom(this.settings$),
+        flatMap(([data, settings]) =>
             of({
                 preismeldungen: preparePm(data.parsedPreismeldungen),
                 preismeldestellen: preparePms(data.parsedPreismeldestellen),
-                warenkorb: buildTree(data.parsedWarenkorb),
+                warenkorb: buildTree(data.parsedWarenkorb, settings.general.erhebungsorgannummer),
             }).pipe(
                 flatMap(({ preismeldungen, preismeldestellen, warenkorb }) =>
                     concat(
