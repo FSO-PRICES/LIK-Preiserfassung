@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
         private splashScreen: SplashScreen,
     ) {
         platform.ready().then(() => {
-            const isMobile = platform.is('hybrid');
+            const isMobile = platform.is('mobile');
             if (isMobile) {
                 // remember when testing, this will fail on the desktop with "cannot read property 'apply' of undefined"
                 // As specified by Stefan the portrait mode should be also available https://github.com/Lambda-IT/lik-studio/issues/461
