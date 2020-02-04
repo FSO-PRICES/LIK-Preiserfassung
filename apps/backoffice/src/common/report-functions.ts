@@ -193,11 +193,6 @@ export function prepareOrganisationData({
         if (!map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A']) {
             map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'] = { pm: 0, normal: 0, internet: 0, pms: 0 };
         }
-        if (pmsOnOffline[pms.pmsNummer] === 'internetZentral') {
-            map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].internet++;
-        } else {
-            map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].normal++;
-        }
         map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].pms++;
     });
 
@@ -208,6 +203,11 @@ export function prepareOrganisationData({
         map.erhebungsregionen[regionenByPms[pm.pmsNummer] || 'N/A'].pm++;
         map.preiserheber[preisereheberByPms[pm.pmsNummer] || 'N/A'].pm++;
         map.preismeldungen[preismeldestellenNamesById[pm.pmsNummer] || 'N/A'].pm++;
+        if (pmsOnOffline[pm.pmsNummer] === 'internetZentral') {
+            map.preiserheber[preisereheberByPms[pm.pmsNummer] || 'N/A'].internet++;
+        } else {
+            map.preiserheber[preisereheberByPms[pm.pmsNummer] || 'N/A'].normal++;
+        }
     });
     return map;
 }
