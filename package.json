@@ -22,7 +22,8 @@
         "build-debug:electron:backoffice": "ionic cordova build electron --project backoffice",
         "run:browser:preiserfasser": "ionic serve --project preiserfasser",
         "run:browser:backoffice": "ionic serve --project backoffice",
-        "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser"
+        "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser",
+        "build:electron:all": "concurrently \"npm run build:electron:backoffice\" \"npm run build:electron:preiserfasser\""
     },
     "private": true,
     "dependencies": {
@@ -109,6 +110,7 @@
         "@types/node": "~12.0.0",
         "@types/pouchdb": "^6.3.3",
         "codelyzer": "^4.5.0",
+        "concurrently": "^5.1.0",
         "cordova": "^9.0.0",
         "cordova-plugin-device": "^2.0.3",
         "cordova-plugin-ionic-keyboard": "^2.1.3",
