@@ -210,8 +210,8 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         requestNavigateHome$
             .pipe(
-                takeUntil(this.onDestroy$),
                 filter(x => x === 'THROW_CHANGES'),
+                takeUntil(this.onDestroy$),
             )
             .subscribe(() =>
                 this.navigateToDashboard().then(() =>
@@ -238,8 +238,8 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         this.save$
             .pipe(
-                takeUntil(this.onDestroy$),
                 filter(x => x.type !== 'NO_SAVE_NAVIGATE'),
+                takeUntil(this.onDestroy$),
             )
             // why do I need this setTimeout - is it an Ionic bug? requires two touches on tablet to register 'SAVE_AND_MOVE_TO_NEXT'
             .subscribe(payload => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload })));
@@ -258,7 +258,6 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         this.currentPreismeldung$
             .pipe(
-                takeUntil(this.onDestroy$),
                 filter(x => !!x && !!x.lastSaveAction && x.lastSaveAction.type === 'SAVE_AND_NAVIGATE_TO_DASHBOARD'),
                 flatMap(() =>
                     this.navController
@@ -267,6 +266,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
                             setTimeout(() => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: null }), 100),
                         ),
                 ),
+                takeUntil(this.onDestroy$),
             )
             .subscribe();
 
@@ -291,10 +291,10 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         requestSelectPreismeldung$
             .pipe(
-                takeUntil(this.onDestroy$),
                 filter(x => !x.isCurrentModified),
                 merge(this.cancel$.asObservable().pipe(map(() => ({ selectedPreismeldung: null })))),
                 delay(100),
+                takeUntil(this.onDestroy$),
             )
             .subscribe(x =>
                 this.store.dispatch({
@@ -305,9 +305,9 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         this.requestThrowChanges$
             .pipe(
-                takeUntil(this.onDestroy$),
                 withLatestFrom(this.currentPreismeldung$, (_, currentPreismeldung) => currentPreismeldung),
                 delay(100),
+                takeUntil(this.onDestroy$),
             )
             .subscribe(currentPreismeldung =>
                 this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: currentPreismeldung.pmId }),
@@ -328,9 +328,9 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         cancelEditReponse$
             .pipe(
-                takeUntil(this.onDestroy$),
                 filter(x => x.dialogCode === 'THROW_CHANGES'),
                 delay(100),
+                takeUntil(this.onDestroy$),
             )
             .subscribe(x => this.store.dispatch({ type: 'SELECT_PREISMELDUNG', payload: x.selectedPreismeldung.pmId }));
 
@@ -417,14 +417,14 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
                 refCount(),
             );
 
-        this.recordSortPreismeldungen$.subscribe(() =>
-            this.store.dispatch({ type: 'PREISMELDUNGEN_TOGGLE_RECORD_MODE' }),
-        );
+        this.recordSortPreismeldungen$
+            .pipe(takeUntil(this.onDestroy$))
+            .subscribe(() => this.store.dispatch({ type: 'PREISMELDUNGEN_TOGGLE_RECORD_MODE' }));
 
         duplicatePreismeldung$
             .pipe(
-                takeUntil(this.onDestroy$),
                 filter(x => x.action === 'OK'),
+                takeUntil(this.onDestroy$),
             )
             .subscribe(({ bearbeitungscode, currentPreismeldung }) =>
                 this.store.dispatch({
@@ -435,8 +435,8 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         duplicatePreismeldung$
             .pipe(
-                takeUntil(this.onDestroy$),
                 filter(x => x.action !== 'OK' && x.source === 'FROM_CODE_0'),
+                takeUntil(this.onDestroy$),
             )
             .subscribe(x =>
                 this.store.dispatch({
@@ -450,8 +450,8 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
 
         this.addNewPreisreihe$
             .pipe(
-                takeUntil(this.onDestroy$),
                 withLatestFrom(params$),
+                takeUntil(this.onDestroy$),
             )
             .subscribe(([, params]) => this.navigateToNewPriceSeries(params.pmsNummer));
 
@@ -462,12 +462,15 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
             )
             .subscribe(([, params]) => this.navigateToPmsSort(params.pmsNummer));
 
-        this.markPreismeldung$.asObservable().subscribe(pmId =>
-            this.store.dispatch({
-                type: 'TOGGLE_MARK_PREISMELDUNG',
-                payload: pmId,
-            }),
-        );
+        this.markPreismeldung$
+            .asObservable()
+            .pipe(takeUntil(this.onDestroy$))
+            .subscribe(pmId =>
+                this.store.dispatch({
+                    type: 'TOGGLE_MARK_PREISMELDUNG',
+                    payload: pmId,
+                }),
+            );
 
         this.ionViewDidLoad$
             .pipe(
