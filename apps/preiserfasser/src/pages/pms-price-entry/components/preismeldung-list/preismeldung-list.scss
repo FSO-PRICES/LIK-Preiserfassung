@@ -81,10 +81,12 @@
 
     .pms-name {
         flex: 1;
+        min-width: 0;
+        text-align: right;
         span {
             @include crop-text();
-            white-space: normal;
-            text-align: right;
+            width: auto;
+            padding: 0 5px;
         }
     }
 

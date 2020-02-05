@@ -42,7 +42,8 @@
             </ion-button>
         </div>
         <div class="pms-name">
-            <span> {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }} </span>
+            <span>{{ (preismeldestelle$ | async)?.pmsNummer }}</span>
+            <span>{{ (preismeldestelle$ | async)?.name }}</span>
         </div>
     </div>
     <ion-text *ngIf="(noPreismeldungen$ | async); let noPreismeldungen">{{ noPreismeldungen }}</ion-text>
