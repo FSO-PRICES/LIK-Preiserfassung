@@ -15,6 +15,7 @@ export interface PreismeldungBag {
     sortierungsnummer: number;
     preismeldung: Models.Preismeldung;
     warenkorbPosition: Models.WarenkorbLeaf;
+    hasPriceWarning: boolean;
     exported?: boolean;
 }
 

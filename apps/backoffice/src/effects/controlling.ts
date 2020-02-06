@@ -94,6 +94,7 @@ export class ControllingEffects {
                     x => x.gliederungspositionsnummer === epNummer,
                 ) as P.WarenkorbLeaf,
                 exported: controllingRawCachedData.alreadyExported.some(id => id === preismeldung._id),
+                hasPriceWarning: false,
             });
         }),
     );

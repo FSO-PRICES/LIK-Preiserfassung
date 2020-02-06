@@ -13,6 +13,7 @@ export interface PreismeldungBag {
     sortierungsnummer: number;
     preismeldung: P.Models.Preismeldung;
     warenkorbPosition: P.Models.WarenkorbLeaf;
+    hasPriceWarning: boolean;
     exported?: boolean;
 }
 
@@ -90,22 +91,24 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 const warenkorbPosition = payload.warenkorb.find(
                     p => p.warenkorbItem.gliederungspositionsnummer === preismeldung.epNummer,
                 ).warenkorbItem as P.Models.WarenkorbLeaf;
-                return assign(
-                    {},
-                    {
-                        pmId: preismeldung._id,
-                        preismeldung,
-                        refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
-                        sortierungsnummer:
-                            !!payload.pmsPreismeldungenSort &&
-                            !!payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
-                                ? payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
-                                      .sortierungsnummer
-                                : null,
-                        warenkorbPosition,
-                        exported: payload.alreadyExported.some(id => id === preismeldung._id),
-                    },
-                );
+                const entity: PreismeldungBag = {
+                    pmId: preismeldung._id,
+                    preismeldung,
+                    refPreismeldung: payload.refPreismeldungen.find(rpm => rpm.pmId === preismeldung._id),
+                    sortierungsnummer:
+                        !!payload.pmsPreismeldungenSort &&
+                        !!payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
+                            ? payload.pmsPreismeldungenSort.sortOrder.find(s => s.pmId === preismeldung._id)
+                                  .sortierungsnummer
+                            : null,
+                    warenkorbPosition,
+                    hasPriceWarning: false,
+                    exported: payload.alreadyExported.some(id => id === preismeldung._id),
+                };
+                return {
+                    ...entity,
+                    hasPriceWarning: calcWarningAndTextzeile(entity).hasPriceWarning,
+                };
             });
 
             const pmsNummer = !!action.payload.pms ? action.payload.pms.pmsNummer : null;
@@ -200,17 +203,19 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 const warenkorbPosition = payload.warenkorb.find(
                     p => p.warenkorbItem.gliederungspositionsnummer === preismeldung.epNummer,
                 ).warenkorbItem as P.Models.WarenkorbLeaf;
-                return assign(
-                    {},
-                    {
-                        pmId: preismeldung._id,
-                        preismeldung,
-                        refPreismeldung: refPreismeldungenById[preismeldung._id],
-                        sortierungsnummer: pmsPreismeldungenSortById[preismeldung._id] || null,
-                        warenkorbPosition,
-                        exported: alreadyExportedById[preismeldung._id] || false,
-                    },
-                );
+                const entity: PreismeldungBag = {
+                    pmId: preismeldung._id,
+                    preismeldung,
+                    refPreismeldung: refPreismeldungenById[preismeldung._id],
+                    sortierungsnummer: pmsPreismeldungenSortById[preismeldung._id] || null,
+                    warenkorbPosition,
+                    exported: alreadyExportedById[preismeldung._id] || false,
+                    hasPriceWarning: false,
+                };
+                return {
+                    ...entity,
+                    hasPriceWarning: calcWarningAndTextzeile(entity).hasPriceWarning,
+                };
             });
             const entities = preismeldungBags.reduce(
                 (agg: { [_id: string]: P.PreismeldungBag }, preismeldungBag: P.PreismeldungBag) =>
@@ -248,7 +253,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                 return state;
             }
 
-            let dataToUpdate = {
+            const dataToUpdate = {
                 preis: payload.preis,
                 menge: payload.menge,
                 aktion: payload.aktion,
@@ -601,6 +606,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                         ),
                         preismeldung: newPreismeldung,
                         warenkorbPosition: currentPreismeldung.warenkorbPosition,
+                        hasPriceWarning: false,
                     },
                     state.priceCountStatuses,
                     state.isAdminApp,
@@ -663,6 +669,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                         ),
                         preismeldung: newPreismeldung,
                         warenkorbPosition: action.payload.warenkorbPosition,
+                        hasPriceWarning: false,
                     },
                     state.priceCountStatuses,
                     state.isAdminApp,

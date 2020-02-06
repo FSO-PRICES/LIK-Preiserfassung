@@ -82,6 +82,7 @@ ion-item-sliding.adv-preismeldung-item-draggable {
         white-space: nowrap;
     }
     .preismeldung-position-number {
+        position: relative;
         max-width: 4em;
         flex: 0 0 4em;
         color: $blue-chill;
@@ -143,6 +144,12 @@ ion-item-sliding.adv-preismeldung-item-draggable {
         .preismeldung-description .artikel-text {
             color: $blue-chill;
         }
+    }
+    pef-floating-icon {
+        top: auto;
+        right: auto;
+        left: 0;
+        bottom: 0;
     }
 }
 
