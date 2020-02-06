@@ -6,6 +6,7 @@
     (click)="buttonClicked$.emit()"
 >
     <pef-icon name="price_tag_info"></pef-icon>
+    <pef-floating-icon *ngIf="hasWarning" icon-name="warning"></pef-floating-icon>
 </ion-button>
 <!--[style.display]="(popoverActive$ | async) ? 'flex' : 'none'"-->
 <div

@@ -923,26 +923,28 @@ function createPercentages(
         switch (bag.preismeldung.bearbeitungscode) {
             case 99: {
                 if (!bag.preismeldung.aktion) {
-                    d_DPToVP.limitType = exceedsLimit(
-                        !bag.refPreismeldung.aktion ? d_DPToVP.percentage : d_DPToVPVorReduktion.percentage,
+                    d_DPToVPVorReduktion.limitType = exceedsLimit(
+                        d_DPToVPVorReduktion.percentage,
                         P.Models.limitNegativeLimite,
                         bag.warenkorbPosition.negativeLimite,
                         P.Models.limitPositiveLimite,
                         bag.warenkorbPosition.positiveLimite,
                     );
-                    d_DPToVP.warning = !!d_DPToVP.limitType;
-                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
-                } else {
-                    d_DPToVP.limitType = exceedsLimit(
-                        d_DPToVP.percentage,
-                        P.Models.limitAbweichungPmUG2,
-                        bag.warenkorbPosition.abweichungPmUG2,
-                        P.Models.limitAbweichungPmOG2,
-                        bag.warenkorbPosition.abweichungPmOG2,
-                    );
-                    d_DPToVP.warning = !!d_DPToVP.limitType;
-                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                    d_DPToVPVorReduktion.warning = !!d_DPToVPVorReduktion.limitType;
+                    d_DPToVPVorReduktion.textzeil = d_DPToVPVorReduktion.warning
+                        ? 'text_textzeil_limitverletzung'
+                        : null;
                 }
+
+                d_DPToVP.limitType = exceedsLimit(
+                    d_DPToVP.percentage,
+                    P.Models.limitAbweichungPmUG2,
+                    bag.warenkorbPosition.abweichungPmUG2,
+                    P.Models.limitAbweichungPmOG2,
+                    bag.warenkorbPosition.abweichungPmOG2,
+                );
+                d_DPToVP.warning = !!d_DPToVP.limitType;
+                d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
                 break;
             }
             case 1: {

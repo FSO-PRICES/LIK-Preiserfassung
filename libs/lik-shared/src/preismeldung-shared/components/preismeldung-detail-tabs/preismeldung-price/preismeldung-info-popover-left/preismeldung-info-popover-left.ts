@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    HostBinding,
     Inject,
     Input,
     OnChanges,
@@ -33,6 +34,7 @@ export class PreismeldungInfoPopoverLeft extends ReactiveComponent implements On
     @Input() forceClose: {};
     @Input() height: string;
     @Input() extraWidth: string;
+    @Input() @HostBinding('class.has-warning') hasWarning = false;
     @Output('popoverActive') popoverActive$: Observable<boolean>;
 
     public preismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('preismeldung');

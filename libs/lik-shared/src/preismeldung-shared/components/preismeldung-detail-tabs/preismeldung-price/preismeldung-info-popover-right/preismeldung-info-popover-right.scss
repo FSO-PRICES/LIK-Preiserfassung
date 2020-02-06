@@ -22,4 +22,14 @@
         z-index: 0;
         @include set-padding(1, 1, 1, 1);
     }
+
+    ion-button {
+        --overflow: visible;
+        position: relative;
+        pef-floating-icon {
+            font-size: 2rem;
+            top: -0.8em;
+            right: -0.8em;
+        }
+    }
 }

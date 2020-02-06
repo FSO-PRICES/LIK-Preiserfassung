@@ -102,6 +102,7 @@
                             [forceClose]="distinctPreismeldung$ | async"
                             [extraWidth]="wndw.document.getElementById('row-1-middle-section').offsetWidth + 'px'"
                             [height]="'0px'"
+                            [hasWarning]="(vpPriceWarning$ | async)"
                             (popoverActive)="infoPopoverLeftActive$.emit($event)"
                         ></preismeldung-info-popover-left>
                     </div>
@@ -123,6 +124,7 @@
                         "
                             [width]="wndw.document.getElementById('row-1-current-period').offsetWidth + 'px'"
                             [height]="'0px'"
+                            [hasWarning]="(dpPriceWarning$ | async)"
                             (popoverActive)="infoPopoverRightActive$.emit($event)"
                         ></preismeldung-info-popover-right>
                     </div>

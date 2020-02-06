@@ -107,6 +107,8 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
 
     public arrowDown$: Observable<P.Models.PercentageWithWarning>;
     public arrowRight$: Observable<P.Models.PercentageWithWarning>;
+    public vpPriceWarning$: Observable<boolean>;
+    public dpPriceWarning$: Observable<boolean>;
 
     public currentPeriodHeading$: Observable<string>;
     public isSaveDisabled$: Observable<boolean>;
@@ -1030,6 +1032,24 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                     ? x.bag.preismeldung.d_VPKToVPVorReduktion
                     : x.bag.preismeldung.d_VPKToVPAlterArtikel,
             ),
+            publishReplay(1),
+            refCount(),
+        );
+
+        this.vpPriceWarning$ = infoPopoverLeftActive$.pipe(
+            combineLatest(this.preismeldung$, (infoPopoverLeftActive, bag) => ({ infoPopoverLeftActive, bag })),
+            filter(x => !!x.bag),
+            map(
+                x =>
+                    x.bag.preismeldung.d_DPToVPVorReduktion.warning || x.bag.preismeldung.d_VPKToVPVorReduktion.warning,
+            ),
+            publishReplay(1),
+            refCount(),
+        );
+        this.dpPriceWarning$ = infoPopoverRightActive$.pipe(
+            combineLatest(this.preismeldung$, (infoPopoverLeftActive, bag) => ({ infoPopoverLeftActive, bag })),
+            filter(x => !!x.bag),
+            map(x => x.bag.preismeldung.d_DPVorReduktionToVP.warning),
             publishReplay(1),
             refCount(),
         );
