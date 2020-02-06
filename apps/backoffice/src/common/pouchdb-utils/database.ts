@@ -124,7 +124,6 @@ export async function dropMonthlyDatabases() {
 export function dropRemoteCouchDatabaseAndSyncLocalToRemote(dbName: string) {
     return dropRemoteCouchDatabase(dbName).then(() => {
         return getSettings().then(settings => {
-            console.log('DEBUG: SETTINGS:', settings);
             const pouch = new PouchDB(`${dbName}`);
             const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
             return pouch.sync(couch, { push: true as any, pull: false as any, batch_size: 1000 }).then(() => true);
