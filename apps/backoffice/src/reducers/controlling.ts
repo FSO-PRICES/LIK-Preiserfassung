@@ -203,6 +203,7 @@ interface ControllingErhebungsPosition {
 type Column = { name: string; cssClass: string; size: ColumnSizes };
 
 const columnErhebungsZeitpunkt: Column = { name: 'ErhebungsZeitpunkt', cssClass: 'fixed', size: null };
+const columnErfassungsZeitpunkt: Column = { name: 'ErfassungsZeiptunk', cssClass: 'fixed', size: null };
 const columnPreisId: Column = { name: 'Preis_ID', cssClass: 'fixed', size: null };
 const columnPmsErhebungsregion: Column = { name: 'PMS_Erhebungsregion', cssClass: '', size: null };
 const columnPmsNummer: Column = { name: 'PMS_Nummer', cssClass: 'fixed', size: 'minimal' };
@@ -253,6 +254,7 @@ export const ShortColumnNames = {
     EP_Nummer: 'EPno',
     Erhebungsenddatum: 'bis',
     ErhebungsZeitpunkt: 'von',
+    ErfassungsZeiptunk: '-',
     'Fehlende_Preise T (R, S)': 'R, S',
     Kommentar_T: 'Kom_T',
     Laufnummer: 'LFno',
@@ -610,7 +612,7 @@ const report_0250_300_config = {
     sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
 };
 
-const base_0310_0320_0400_0405_0410_0420_0430_config = {
+const base_0310_0320_0400_0405_0410_0420_config = {
     columns: [
         columnPreisId,
         columnPmsName,
@@ -630,8 +632,32 @@ const base_0310_0320_0400_0405_0410_0420_0430_config = {
     sortBy: [{ column: columnWarenkorbIndex, convertToNumber: false }] as SortByType[],
 };
 
+const base_0430_config = {
+    columns: [
+        columnPreisId,
+        columnPmsName,
+        columnPositionsbezeichnung,
+        columnPreisbezeichnungT,
+        columnBearbeitungscode,
+        columnAktionscodeVP,
+        columnAktionscodeT,
+        columnMerkmaleVP,
+        columnMerkmaleT,
+        columnKommentarT,
+        columnBemerkungenT,
+        columnPeNummer,
+        columnPeName,
+        columnPmsGeschlossen,
+    ] as ColumnType[],
+    sortBy: [
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+        { column: columnErfassungsZeitpunkt, convertToNumber: true },
+    ] as SortByType[],
+};
+
 const base_0310_0320_config = {
-    ...base_0310_0320_0400_0405_0410_0420_0430_config,
+    ...base_0310_0320_0400_0405_0410_0420_config,
     gliederungspositionnummerRange: {
         type: REPORT_INCLUDE_EP,
         range: [{ lowEpNummer: 3000, highEpNummer: 3999 }],
@@ -858,7 +884,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0400]: {
-        ...base_0310_0320_0400_0405_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3188 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
@@ -867,7 +893,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0405]: {
-        ...base_0310_0320_0400_0405_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
@@ -876,7 +902,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [101, 44].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0410]: {
-        ...base_0310_0320_0400_0405_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
@@ -885,7 +911,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0420]: {
-        ...base_0310_0320_0400_0405_0410_0420_0430_config,
+        ...base_0310_0320_0400_0405_0410_0420_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [],
@@ -894,7 +920,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             !!x.preismeldung && [1, 7].some(c => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0430]: {
-        ...base_0310_0320_0400_0405_0410_0420_0430_config,
+        ...base_0430_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
             range: [],
@@ -977,6 +1003,12 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnErhebungsZeitpunkt.name]: (p: ControllingErhebungsPosition) =>
         normalColumn(
             p.refPreismeldung && p.refPreismeldung.erhebungsZeitpunkt,
+            columnErhebungsZeitpunkt.cssClass,
+            columnErhebungsZeitpunkt.size,
+        ),
+    [columnErfassungsZeitpunkt.name]: (p: ControllingErhebungsPosition) =>
+        normalColumn(
+            p.preismeldung && p.preismeldung.erfasstAt,
             columnErhebungsZeitpunkt.cssClass,
             columnErhebungsZeitpunkt.size,
         ),
