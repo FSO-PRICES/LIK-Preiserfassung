@@ -265,4 +265,45 @@
         font-weight: 500;
         @include set-padding-right(1);
     }
+
+    .is-marked {
+        &.tiefencode-2 {
+            background-color: darken($java, 5%);
+            &:hover {
+                color: darken($surfie-green, 5%);
+                fill: darken($surfie-green, 5%);
+            }
+        }
+        &.tiefencode-3,
+        &.tiefencode-4,
+        &.tiefencode-5,
+        &.tiefencode-6,
+        &.tiefencode-7,
+        &.tiefencode-8,
+        &.tiefencode-9,
+        &.tiefencode-10,
+        &.tiefencode-11 {
+            background-color: darken($white, 5%);
+        }
+        &.tiefencode-3 {
+            background-color: darken($alto, 5%);
+        }
+        &.tiefencode-4 {
+            background-color: darken($wild-sand, 5%);
+        }
+        &.tiefencode-3,
+        &.tiefencode-4,
+        &.tiefencode-5,
+        &.tiefencode-6,
+        &.tiefencode-7,
+        &.tiefencode-8,
+        &.tiefencode-9,
+        &.tiefencode-10,
+        &.tiefencode-11 {
+            &.leaf {
+                color: lighten($outer-space, 30%);
+                background-color: lighten($foam, 3%);
+            }
+        }
+    }
 }

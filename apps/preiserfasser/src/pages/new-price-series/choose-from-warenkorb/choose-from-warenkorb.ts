@@ -11,7 +11,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { IonContent } from '@ionic/angular';
-import { assign } from 'lodash';
+import { assign, flatten, uniq } from 'lodash';
 import { defer, Observable, of } from 'rxjs';
 import {
     combineLatest,
@@ -37,6 +37,7 @@ import { DialogNewPmBearbeitungsCodeComponent } from '../../../components/dialog
 
 interface WarenkorbUiItem {
     isExpanded: boolean;
+    isMarked: boolean;
     showBFS: boolean;
     canSelect: boolean;
     notInSeason: boolean;
@@ -126,7 +127,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 erhebungsInfo$,
                 (warenkorb: P.WarenkorbInfo[], preismeldungen: P.PreismeldungBag[], erhebungsInfo: P.ErhebungsInfo) => {
                     const monthNumber = +/\d{2}\.(\d{2}).\d{4}/.exec(erhebungsInfo.erhebungsmonat)[1] - 1;
-                    return warenkorb.map(warenkorbInfo => {
+                    const warenkorbUi = warenkorb.map(warenkorbInfo => {
                         const notInSeason =
                             warenkorbInfo.warenkorbItem.type === 'LEAF' &&
                             !(warenkorbInfo.warenkorbItem.periodizitaetMonat & (1 << monthNumber));
@@ -138,6 +139,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                             );
                         return {
                             isExpanded: false,
+                            isMarked: false,
                             showBFS:
                                 warenkorbInfo.warenkorbItem.type === 'LEAF' &&
                                 warenkorbInfo.warenkorbItem.erhebungstyp === 'z',
@@ -154,6 +156,26 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                             warenkorbInfo,
                         };
                     });
+                    const usedGliederungspositionen = [
+                        ...preismeldungen.map(pm => pm.warenkorbPosition.gliederungspositionsnummer),
+                        ...uniq(
+                            flatten(
+                                preismeldungen.map(pm =>
+                                    this.findParentsOfWarenkorbItem(
+                                        warenkorbUi,
+                                        pm.warenkorbPosition.parentGliederungspositionsnummer,
+                                    ),
+                                ),
+                            ).map(wui => wui.warenkorbInfo.warenkorbItem.gliederungspositionsnummer),
+                        ),
+                    ];
+                    return warenkorbUi.map(wui => ({
+                        ...wui,
+                        isMarked:
+                            usedGliederungspositionen.indexOf(
+                                wui.warenkorbInfo.warenkorbItem.gliederungspositionsnummer,
+                            ) !== -1,
+                    }));
                 },
             ),
             delay(100),

@@ -13,9 +13,9 @@
                 <span class="label">{{ 'text_warenkorb_anzahlergebnisse' | translate | pef_no_break_string }}:</span
                 >&nbsp;<span class="number">{{ numberOfEp$ | async }}</span>
             </div>
-            <ion-button class="collapse-all" (click)="collapseAllClicked$.emit()">{{
-                'btn_warenkorb_collapse_all' | translate
-            }}</ion-button>
+            <ion-button class="collapse-all" (click)="collapseAllClicked$.emit()"
+                >{{ 'btn_warenkorb_collapse_all' | translate }}</ion-button
+            >
         </div>
         <ion-content>
             <ion-virtual-scroll [items]="warenkorbUiItems$ | async" approxItemHeight="50px">
@@ -27,6 +27,7 @@
                         ' ' +
                         (warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch')
                     "
+                    [class.is-marked]="warenkorbUiItem.isMarked"
                     (click)="warenkorbItemClicked$.emit(warenkorbUiItem)"
                     [attr.tappable]="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? null : true"
                 >
@@ -38,14 +39,13 @@
                     </span>
                     <span class="gliederungspositionsnummer"
                         >{{ warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer }}
-                        <div *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">&nbsp;</div></span
-                    >
+                        <div *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">&nbsp;</div>
+                    </span>
 
                     <span
                         *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
                         class="positionsbezeichnung"
-                        >{{
-                            warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung | pefPropertyTranslate
+                        >{{ warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung | pefPropertyTranslate
                         }}</span
                     >
                     <ion-button
@@ -64,16 +64,12 @@
 
                     <div class="leaf-description" *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">
                         <div class="leaf-positionsbezeichnung">
-                            {{
-                                (warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung
-                                    | pefPropertyTranslate) || '&ndash;'
-                            }}
+                            {{ (warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung | pefPropertyTranslate)
+                            || '&ndash;' }}
                         </div>
                         <div class="leaf-beispiele">
-                            {{
-                                (warenkorbUiItem.warenkorbInfo.warenkorbItem.beispiele | pefPropertyTranslate) ||
-                                    '&ndash;'
-                            }}
+                            {{ (warenkorbUiItem.warenkorbInfo.warenkorbItem.beispiele | pefPropertyTranslate) ||
+                            '&ndash;' }}
                         </div>
                     </div>
                     <div class="bfs-symbol" *ngIf="warenkorbUiItem.showBFS">BFS</div>
@@ -82,8 +78,7 @@
                     </div>
                     <div class="count-status" *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">
                         ({{ warenkorbUiItem.preismeldungCount }}/{{
-                            warenkorbUiItem.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS
-                        }})
+                        warenkorbUiItem.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS }})
                     </div>
                     <ion-button
                         *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'"
