@@ -80,7 +80,6 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
                     initial: initialMerkmal(bag, i, this.form.value[`attribute_${i}`]),
                 }));
             }),
-            tap(x => console.log('DIFFERENT??', x)),
         );
 
         this.preismeldungAttributesPayload$ = this.fieldEdited$.pipe(

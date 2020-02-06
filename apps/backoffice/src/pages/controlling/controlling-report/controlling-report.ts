@@ -242,7 +242,6 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
 
     public enhanceColumn(column: ColumnValue) {
         const formattedValue = this.formatValue(column);
-        console.log('HTML?', column.value);
         return {
             ...column,
             cssClass:
