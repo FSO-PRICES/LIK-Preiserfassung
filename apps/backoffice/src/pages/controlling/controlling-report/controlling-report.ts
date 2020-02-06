@@ -242,14 +242,15 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
 
     public enhanceColumn(column: ColumnValue) {
         const formattedValue = this.formatValue(column);
+        const value = column.value == null ? '' : column.value;
         return {
             ...column,
             cssClass:
-                column.size !== null && column.value.toString().length > 0
+                column.size !== null && value.toString().length > 0
                     ? `${column.cssClass} ${column.size}`
                     : column.cssClass,
             formattedValue,
-            title: (column.value == null ? '' : column.value)
+            title: value
                 .toString()
                 .replace(/&nbsp;/g, ' ')
                 .replace(/<br>/g, ' | ')
