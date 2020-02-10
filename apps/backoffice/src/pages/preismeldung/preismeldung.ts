@@ -63,7 +63,7 @@ export class PreismeldungPage {
     public preismeldestellen$ = this.store.select(fromRoot.getPreismeldestellen);
     public preismeldungenStatus$ = this.store.select(fromRoot.getPreismeldungenStatusMap);
     public erhebungspositions$ = this.store
-        .select(fromRoot.getWarenkorbState)
+        .select(fromRoot.getWarenkorb)
         .pipe(
             map(x =>
                 x.filter(w => w.warenkorbItem.type === 'LEAF').map(w => w.warenkorbItem as P.Models.WarenkorbLeaf),

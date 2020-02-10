@@ -41,7 +41,7 @@ export class ControllingEffects {
         continueEffectOnlyIfTrue(this.isLoggedIn$),
         withLatestFrom(
             this.store.select(fromRoot.getControllingRawCachedData),
-            this.store.select(fromRoot.getWarenkorbState),
+            this.store.select(fromRoot.getWarenkorb),
             (action, rawCachedData, warenkorb) => ({
                 controllingType: action.payload,
                 rawCachedData,

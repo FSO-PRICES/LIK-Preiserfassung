@@ -318,6 +318,10 @@ export const getReportIsExecuting = createSelector(
 );
 
 export const getWarenkorbState = (state: AppState) => state.warenkorb;
+export const getWarenkorb = createSelector(
+    getWarenkorbState,
+    fromWarenkorb.getWarenkorb,
+);
 
 export const getOnOfflineState = (state: AppState) => state.onoffline;
 export const getIsOffline = createSelector(

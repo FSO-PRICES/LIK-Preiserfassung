@@ -392,6 +392,7 @@ export class DashboardPage implements OnDestroy {
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'RESET_MARKED_PREISMELDUNGEN' });
+        this.store.dispatch({ type: 'RESET_WARENKORB_VIEW' });
     }
 
     public ngOnDestroy() {

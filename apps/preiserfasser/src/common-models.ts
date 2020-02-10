@@ -17,7 +17,8 @@ export {
     preismeldungRefId,
     preismeldestelleId,
     pmsSortId,
+    WarenkorbInfo,
+    WarenkorbUiItem,
 } from '@lik-shared';
 
-export { WarenkorbInfo } from './reducers/warenkorb';
 export { ErhebungsInfo } from './reducers/erhebungsinfo';

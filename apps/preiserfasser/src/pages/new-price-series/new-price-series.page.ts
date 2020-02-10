@@ -28,6 +28,8 @@ export class NewPriceSeriesPage implements OnInit, OnDestroy {
         warenkorbPosition: P.Models.WarenkorbLeaf;
         bearbeitungscode: P.Models.Bearbeitungscode;
     }>();
+    hideWarenkorbUiItem$ = new EventEmitter<P.WarenkorbUiItem>();
+    resetView$ = new EventEmitter();
 
     private subscriptions: Subscription[] = [];
 
@@ -65,6 +67,16 @@ export class NewPriceSeriesPage implements OnInit, OnDestroy {
         );
 
         this.subscriptions.push(
+            this.hideWarenkorbUiItem$
+                .asObservable()
+                .subscribe(warenkorbUiItem =>
+                    this.store.dispatch({ type: 'HIDE_WARENKORB_UI_ITEM', payload: warenkorbUiItem }),
+                ),
+            this.resetView$.asObservable().subscribe(() =>
+                this.store.dispatch({
+                    type: 'RESET_WARENKORB_VIEW',
+                }),
+            ),
             this.closeChooseFromWarenkorb$.pipe(withLatestFrom(pmsNummerParam$)).subscribe(([x, pmsNummer]) => {
                 if (!!x) {
                     this.store.dispatch({

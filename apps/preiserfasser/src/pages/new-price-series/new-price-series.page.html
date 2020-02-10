@@ -1,5 +1,7 @@
 <choose-from-warenkorb
     (closeChooseFromWarenkorb)="closeChooseFromWarenkorb$.emit($event)"
+    (hideWarenkorbUiItem)="hideWarenkorbUiItem$.emit($event)"
+    (resetView)="resetView$.emit($event)"
     [isDesktop]="isDesktop$ | async"
     [warenkorb]="warenkorb$ | async"
     [currentLanguage]="currentLanguage$ | async"

@@ -35,25 +35,13 @@ import { pefContains, PefDialogService, PefMessageDialogService, ReactiveCompone
 import * as P from '../../../common-models';
 import { DialogNewPmBearbeitungsCodeComponent } from '../../../components/dialog';
 
-interface WarenkorbUiItem {
-    isExpanded: boolean;
-    isMarked: boolean;
-    showBFS: boolean;
-    canSelect: boolean;
-    notInSeason: boolean;
-    depth: number;
-    preismeldungCount: number;
-    filteredLeafCount: number;
-    warenkorbInfo: P.WarenkorbInfo;
-}
-
 interface ClickType {
     action: 'EXPAND' | 'EXPAND_ALL' | 'COLLAPSE_ALL';
-    warenkorbItemClicked: WarenkorbUiItem;
+    warenkorbItemClicked: P.WarenkorbUiItem;
 }
 
 interface ClickAction {
-    warenkorbUiItems: WarenkorbUiItem[];
+    warenkorbUiItems: P.WarenkorbUiItem[];
     scrollToY?: number;
     scrollToItemIndex?: number;
 }
@@ -78,16 +66,17 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         warenkorbPosition: P.Models.WarenkorbLeaf;
         bearbeitungscode: P.Models.Bearbeitungscode;
     }>;
+    @Output('hideWarenkorbUiItem') hideWarenkorbUiItem$ = new EventEmitter<P.WarenkorbUiItem>();
+    @Output('resetView') public resetClicked$ = new EventEmitter();
 
-    public warenkorbUiItems$: Observable<WarenkorbUiItem[]>;
+    public warenkorbUiItems$: Observable<P.WarenkorbUiItem[]>;
     public numberOfEp$: Observable<number>;
 
-    public warenkorbItemClicked$ = new EventEmitter<WarenkorbUiItem>();
-    public warenkorbItemEpExpand$ = new EventEmitter<{ event: MouseEvent; warenkorbUiItem: WarenkorbUiItem }>();
-    public selectWarenkorbItem$ = new EventEmitter<WarenkorbUiItem>();
+    public warenkorbItemClicked$ = new EventEmitter<P.WarenkorbUiItem>();
+    public warenkorbItemEpExpand$ = new EventEmitter<{ event: MouseEvent; warenkorbUiItem: P.WarenkorbUiItem }>();
+    public selectWarenkorbItem$ = new EventEmitter<P.WarenkorbUiItem>();
     public ngOnInit$ = new EventEmitter();
     public closeClicked$ = new EventEmitter();
-    public collapseAllClicked$ = new EventEmitter();
     public searchString$ = new EventEmitter<string>();
     public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
 
@@ -189,7 +178,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                     startWith(null),
                 ),
                 this.currentLanguage$,
-                (warenkobUiItems: WarenkorbUiItem[], searchString: string, currentLanguage: string) => {
+                (warenkobUiItems: P.WarenkorbUiItem[], searchString: string, currentLanguage: string) => {
                     if (searchString === null) {
                         return warenkobUiItems;
                     }
@@ -233,14 +222,14 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                     map(x => ({ action: 'EXPAND_ALL', warenkorbItemClicked: x.warenkorbUiItem })),
                 ),
             ),
-            merge(this.collapseAllClicked$.pipe(map(() => ({ action: 'COLLAPSE_ALL' })))),
+            merge(this.resetClicked$.pipe(map(() => ({ action: 'COLLAPSE_ALL' })))),
             startWith(null),
             combineLatest(
                 warenkobUiItemsFiltered$,
                 currentPreismeldung$,
                 (
                     clickType: ClickType,
-                    warenkorb: WarenkorbUiItem[],
+                    warenkorb: P.WarenkorbUiItem[],
                     currentPreismeldung: P.CurrentPreismeldungBag,
                 ) => ({ clickType, warenkorb, currentPreismeldung }),
             ),
@@ -482,9 +471,9 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     }
 
     findDescendantsOfWarenkorbItem(
-        warenkorb: WarenkorbUiItem[],
+        warenkorb: P.WarenkorbUiItem[],
         gliederungspositionsnummer: string,
-    ): WarenkorbUiItem[] {
+    ): P.WarenkorbUiItem[] {
         return warenkorb
             .filter(x => x.warenkorbInfo.warenkorbItem.parentGliederungspositionsnummer === gliederungspositionsnummer)
             .reduce(
@@ -501,9 +490,9 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     }
 
     findParentsOfWarenkorbItem(
-        warenkorb: WarenkorbUiItem[],
+        warenkorb: P.WarenkorbUiItem[],
         parentGliederungspositionsnummer: string,
-    ): WarenkorbUiItem[] {
+    ): P.WarenkorbUiItem[] {
         return warenkorb
             .filter(x => x.warenkorbInfo.warenkorbItem.gliederungspositionsnummer === parentGliederungspositionsnummer)
             .reduce(
@@ -517,5 +506,13 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 ],
                 [],
             );
+    }
+
+    trackByItem(_index: number, item: P.WarenkorbUiItem) {
+        return item.warenkorbInfo.warenkorbItem.gliederungspositionsnummer;
+    }
+
+    itemHeight(item: P.WarenkorbUiItem) {
+        return item.warenkorbInfo.warenkorbItem.type === 'LEAF' ? 72 : 48;
     }
 }
