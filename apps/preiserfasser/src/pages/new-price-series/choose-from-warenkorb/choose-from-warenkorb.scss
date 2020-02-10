@@ -78,8 +78,20 @@
         }
     }
 
-    .collapse-all {
+    .action {
         @include set-margin-left(1);
+        align-self: center;
+    }
+
+    .show-erfasste {
+        --padding-start: 0;
+        --padding-end: 0;
+        --background: transparent;
+        --inner-padding-end: 0;
+        color: $trout;
+        ion-checkbox {
+            @include set-margin-left(0.4);
+        }
     }
 
     .warenkorb-item-row {

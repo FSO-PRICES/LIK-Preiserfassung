@@ -78,6 +78,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     public ngOnInit$ = new EventEmitter();
     public closeClicked$ = new EventEmitter();
     public searchString$ = new EventEmitter<string>();
+    public showErfasste$ = new EventEmitter<boolean>();
     public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
 
     private subscriptions = [];
@@ -114,7 +115,13 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
             combineLatest(
                 preismeldungen$,
                 erhebungsInfo$,
-                (warenkorb: P.WarenkorbInfo[], preismeldungen: P.PreismeldungBag[], erhebungsInfo: P.ErhebungsInfo) => {
+                this.showErfasste$.pipe(startWith(true)),
+                (
+                    warenkorb: P.WarenkorbInfo[],
+                    preismeldungen: P.PreismeldungBag[],
+                    erhebungsInfo: P.ErhebungsInfo,
+                    showErfasste: boolean,
+                ) => {
                     const monthNumber = +/\d{2}\.(\d{2}).\d{4}/.exec(erhebungsInfo.erhebungsmonat)[1] - 1;
                     const warenkorbUi = warenkorb.map(warenkorbInfo => {
                         const notInSeason =
@@ -158,13 +165,19 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                             ).map(wui => wui.warenkorbInfo.warenkorbItem.gliederungspositionsnummer),
                         ),
                     ];
-                    return warenkorbUi.map(wui => ({
-                        ...wui,
-                        isMarked:
-                            usedGliederungspositionen.indexOf(
-                                wui.warenkorbInfo.warenkorbItem.gliederungspositionsnummer,
-                            ) !== -1,
-                    }));
+                    return warenkorbUi
+                        .map(wui => ({
+                            ...wui,
+                            isMarked:
+                                usedGliederungspositionen.indexOf(
+                                    wui.warenkorbInfo.warenkorbItem.gliederungspositionsnummer,
+                                ) !== -1 &&
+                                (wui.warenkorbInfo.warenkorbItem.type !== 'LEAF' ||
+                                    wui.preismeldungCount >= wui.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS),
+                        }))
+                        .filter(wui => {
+                            return showErfasste || !wui.isMarked || wui.warenkorbInfo.warenkorbItem.type !== 'LEAF';
+                        });
                 },
             ),
             delay(100),
