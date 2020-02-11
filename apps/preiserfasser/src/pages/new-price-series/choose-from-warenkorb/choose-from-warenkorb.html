@@ -13,12 +13,9 @@
                 <span class="label">{{ 'text_warenkorb_anzahlergebnisse' | translate | pef_no_break_string }}:</span
                 >&nbsp;<span class="number">{{ numberOfEp$ | async }}</span>
             </div>
-            <ion-item class="show-erfasste">
-                <ion-label>
-                    {{ 'label_erfasste-anzeigen' | translate}}
-                </ion-label>
-                <ion-checkbox (ionChange)="showErfasste$.emit($event.detail.checked)" [checked]="true"></ion-checkbox>
-            </ion-item>
+            <ion-button class="icon-only" [color]="onlyTodoColor$ | async" (click)="onlyTodo$.emit({})">
+                <pef-icon name="todo"></pef-icon>
+            </ion-button>
             <ion-button class="action" (click)="resetClicked$.emit()">{{ 'btn_zuruecksetzen' | translate }}</ion-button>
         </div>
         <ion-content>

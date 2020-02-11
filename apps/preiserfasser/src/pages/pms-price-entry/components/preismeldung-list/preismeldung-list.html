@@ -92,10 +92,7 @@
                         class="preismeldung-status-todo"
                         *ngIf="bag.preismeldung.d_DPToVP.percentage == null && !bag.isNew"
                     >
-                        <pef-icon
-                            name="alarmclock_normal"
-                            [svgCssClasses]="calcStichtagStatus(bag, currentDate$ | async)"
-                        ></pef-icon>
+                        <pef-icon name="alarmclock_normal" [svgCssClasses]="bag.stichtagStatus"></pef-icon>
                         <div class="status-bar"></div>
                     </div>
                     <div class="preismeldung-status-done" *ngIf="bag.preismeldung.istAbgebucht">
@@ -104,10 +101,10 @@
                             [innerHTML]="
                                 bag.preismeldung.bearbeitungscode == 99
                                     ? '&nbsp;'
-                                    : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)
+                                    : bag.bearbeitungscodeDescription
                             "
                         ></div>
-                        <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
+                        <div class="percentage" [innerHTML]="bag.percentage"></div>
                     </div>
                 </div>
             </ion-item>

@@ -3,7 +3,6 @@ import {
     Component,
     ElementRef,
     EventEmitter,
-    HostListener,
     Input,
     OnChanges,
     OnDestroy,
@@ -12,8 +11,8 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { of as observableOf, Subject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { fromEvent, Observable } from 'rxjs';
+import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 
 export interface ChangeEvent {
     start?: number;
@@ -58,7 +57,8 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     @ViewChild('content', { read: ElementRef, static: true })
     contentElementRef: ElementRef;
 
-    scroll$: Subject<Event> = new Subject<Event>();
+    scroll$: Observable<Event>;
+    onDestroy$ = new EventEmitter();
 
     onScrollListener: Function;
     topPadding: number;
@@ -67,20 +67,15 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     previousEnd: number;
     startupLoop = true;
 
-    constructor(private element: ElementRef) {}
-
-    @HostListener('scroll')
-    onScroll() {
-        this.scroll$.next();
+    constructor(private element: ElementRef<HTMLElement>) {
+        this.scroll$ = fromEvent(element.nativeElement, 'scroll').pipe(debounceTime(10));
     }
 
     ngOnInit() {
         this.scroll$
             .pipe(
-                switchMap(() => {
-                    this.refresh();
-                    return observableOf();
-                }),
+                switchMap(() => this.refresh()),
+                takeUntil(this.onDestroy$),
             )
             .subscribe();
 
@@ -109,41 +104,35 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
             // this removes the listener
             this.onScrollListener();
         }
+        this.onDestroy$.emit();
     }
 
     refresh() {
-        requestAnimationFrame(() => this.calculateItems());
+        return new Promise(resolve =>
+            requestAnimationFrame(() => {
+                this.calculateItems();
+                resolve();
+            }),
+        );
     }
 
     scrollInto(item: any) {
-        let index: number = (this.items || []).indexOf(item);
+        const index: number = (this.items || []).indexOf(item);
         if (index < 0 || index >= (this.items || []).length) return;
 
-        let d = this.calculateDimensions();
-        this.element.nativeElement.scrollTop =
-            Math.floor(index / d.itemsPerRow) * d.childHeight - Math.max(0, d.itemsPerCol - 1) * d.childHeight;
+        const d = this.calculateDimensions();
+        this.element.nativeElement.scrollTop = index * d.childHeight;
         this.refresh();
     }
 
-    private countItemsPerRow() {
-        let offsetTop;
-        let itemsPerRow;
-        let children = this.contentElementRef.nativeElement.children;
-        for (itemsPerRow = 0; itemsPerRow < children.length; itemsPerRow++) {
-            if (offsetTop !== undefined && offsetTop !== children[itemsPerRow].offsetTop) break;
-            offsetTop = children[itemsPerRow].offsetTop;
-        }
-        return 1;
-    }
-
     private calculateDimensions() {
-        let el = this.element.nativeElement;
-        let content = this.contentElementRef.nativeElement;
+        const el = this.element.nativeElement;
+        const content = this.contentElementRef.nativeElement;
 
-        let items = this.items || [];
-        let itemCount = items.length;
-        let viewWidth = el.clientWidth - this.scrollbarWidth;
-        let viewHeight = el.clientHeight - this.scrollbarHeight;
+        const items = this.items || [];
+        const itemCount = items.length;
+        const viewWidth = el.clientWidth - this.scrollbarWidth;
+        const viewHeight = el.clientHeight - this.scrollbarHeight;
 
         let contentDimensions;
         if (this.childWidth == undefined || this.childHeight == undefined) {
@@ -154,19 +143,8 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
                       height: viewHeight,
                   };
         }
-        let childWidth = this.childWidth || contentDimensions.width;
-        let childHeight = this.childHeight || contentDimensions.height;
-
-        let itemsPerRow = Math.max(1, this.countItemsPerRow());
-        let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
-        let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
-        let scrollTop = Math.max(0, el.scrollTop);
-        if (
-            itemsPerCol === 1 &&
-            Math.floor((scrollTop / this.scrollHeight) * itemCount) + itemsPerRowByCalc >= itemCount
-        ) {
-            itemsPerRow = itemsPerRowByCalc;
-        }
+        const childWidth = this.childWidth || contentDimensions.width;
+        const childHeight = this.childHeight || contentDimensions.height;
 
         return {
             itemCount: itemCount,
@@ -174,18 +152,16 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
             viewHeight: viewHeight,
             childWidth: childWidth,
             childHeight: childHeight,
-            itemsPerRow: itemsPerRow,
-            itemsPerCol: itemsPerCol,
-            itemsPerRowByCalc: itemsPerRowByCalc,
+            itemsPerCol: Math.max(1, Math.floor(viewHeight / childHeight)),
         };
     }
 
     private calculateItems() {
-        let el = this.element.nativeElement;
+        const el = this.element.nativeElement;
 
-        let d = this.calculateDimensions();
-        let items = this.items || [];
-        this.scrollHeight = (d.childHeight * d.itemCount) / d.itemsPerRow;
+        const d = this.calculateDimensions();
+        const items = this.items || [];
+        this.scrollHeight = d.childHeight * d.itemCount;
         if (this.element.nativeElement.scrollTop > this.scrollHeight) {
             this.element.nativeElement.scrollTop = this.scrollHeight;
         }
@@ -193,26 +169,17 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         if (this.scrollHeight < d.viewHeight) {
             this.element.nativeElement.scrollTop = 0;
         }
-        let scrollTop = Math.max(0, el.scrollTop);
-        let indexByScrollTop = ((scrollTop / this.scrollHeight) * d.itemCount) / d.itemsPerRow;
-        let end = Math.min(
-            d.itemCount,
-            Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1),
-        );
+        const scrollTop = Math.max(0, el.scrollTop);
+        const indexByScrollTop = (scrollTop / this.scrollHeight) * d.itemCount;
+        let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) + d.itemsPerCol + 1);
 
-        let maxStartEnd = end;
-        const modEnd = end % d.itemsPerRow;
-        if (modEnd) {
-            maxStartEnd = end + d.itemsPerRow - modEnd;
-        }
-        let maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
-        let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
+        let start = Math.min(Math.max(0, end - d.itemsPerCol), Math.floor(indexByScrollTop));
 
         start = !isNaN(start) ? start : -1;
         end = !isNaN(end) ? end : -1;
         start = Math.max(start - 5, 0);
         end = Math.min(end + 5, items.length);
-        this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
+        this.topPadding = d.childHeight * Math.ceil(start);
 
         if (start !== this.previousStart || end !== this.previousEnd) {
             // update the scroll list

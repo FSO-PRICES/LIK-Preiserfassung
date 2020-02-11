@@ -71,6 +71,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
     public warenkorbUiItems$: Observable<P.WarenkorbUiItem[]>;
     public numberOfEp$: Observable<number>;
+    public onlyTodoColor$: Observable<string>;
 
     public warenkorbItemClicked$ = new EventEmitter<P.WarenkorbUiItem>();
     public warenkorbItemEpExpand$ = new EventEmitter<{ event: MouseEvent; warenkorbUiItem: P.WarenkorbUiItem }>();
@@ -78,7 +79,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
     public ngOnInit$ = new EventEmitter();
     public closeClicked$ = new EventEmitter();
     public searchString$ = new EventEmitter<string>();
-    public showErfasste$ = new EventEmitter<boolean>();
+    public onlyTodo$ = new EventEmitter();
     public currentLanguage$ = this.observePropertyCurrentValue<string>('currentLanguage');
 
     private subscriptions = [];
@@ -111,17 +112,17 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         const erhebungsInfo$ = this.observePropertyCurrentValue<P.ErhebungsInfo>('erhebungsInfo').pipe(
             filter(x => !!x),
         );
+        const filterTodo$ = this.onlyTodo$.pipe(
+            startWith(true),
+            scan(todo => !todo, true),
+        );
+        this.onlyTodoColor$ = filterTodo$.pipe(map(toColor));
         const warenkobUiItems$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('warenkorb').pipe(
             combineLatest(
                 preismeldungen$,
                 erhebungsInfo$,
-                this.showErfasste$.pipe(startWith(true)),
-                (
-                    warenkorb: P.WarenkorbInfo[],
-                    preismeldungen: P.PreismeldungBag[],
-                    erhebungsInfo: P.ErhebungsInfo,
-                    showErfasste: boolean,
-                ) => {
+                filterTodo$,
+                (warenkorb, preismeldungen, erhebungsInfo, filterTodo) => {
                     const monthNumber = +/\d{2}\.(\d{2}).\d{4}/.exec(erhebungsInfo.erhebungsmonat)[1] - 1;
                     const warenkorbUi = warenkorb.map(warenkorbInfo => {
                         const notInSeason =
@@ -176,7 +177,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                                     wui.preismeldungCount >= wui.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS),
                         }))
                         .filter(wui => {
-                            return showErfasste || !wui.isMarked || wui.warenkorbInfo.warenkorbItem.type !== 'LEAF';
+                            return !filterTodo || !wui.isMarked || wui.warenkorbInfo.warenkorbItem.type !== 'LEAF';
                         });
                 },
             ),
@@ -529,3 +530,5 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
         return item.warenkorbInfo.warenkorbItem.type === 'LEAF' ? 72 : 48;
     }
 }
+
+const toColor = (x: boolean) => (x ? 'blue-chill' : 'wild-sand');

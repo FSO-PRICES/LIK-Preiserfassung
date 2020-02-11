@@ -15,7 +15,6 @@ import { IonContent } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addDays, isAfter, isBefore, subMilliseconds } from 'date-fns';
-import autoScroll from 'dom-autoscroller';
 import dragula from 'dragula';
 import { findLastIndex, minBy, orderBy, sortBy, takeWhile } from 'lodash';
 import { Observable, Subject } from 'rxjs';
@@ -29,6 +28,7 @@ import {
     publishReplay,
     refCount,
     scan,
+    shareReplay,
     startWith,
     takeUntil,
     withLatestFrom,
@@ -38,7 +38,6 @@ import {
     formatPercentageChange,
     initDragula,
     parseDate,
-    partition,
     pefSearch,
     PefVirtualScrollComponent,
     ReactiveComponent,
@@ -53,6 +52,9 @@ type AdvancedPreismeldungBag = P.PreismeldungBag & {
     dragable: boolean;
     dragableTo: boolean;
     lastUploaded: boolean;
+    stichtagStatus: string;
+    percentage: string;
+    bearbeitungscodeDescription: string;
 };
 const DRAGABLE_CLASS = 'dragable-item';
 const DRAGTOABLE_CLASS = 'dragable-to-item';
@@ -141,7 +143,9 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     constructor(translateService: TranslateService) {
         super();
 
-        this.ionItemHeight$.asObservable().subscribe(itemHeight => (this.itemHeight = itemHeight));
+        this.ionItemHeight$.asObservable().subscribe(itemHeight => {
+            return (this.itemHeight = itemHeight);
+        });
 
         this.currentDate$.pipe(takeUntil(this.onDestroy$)).subscribe();
         this.isReorderingActive$ = this.activateReordering$.pipe(
@@ -175,8 +179,20 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.filterFavoritesColor$ = filterFavorites$.pipe(map(toColor));
 
         const currentPreismeldung$ = this.currentPreismeldung$.pipe(
-            withLatestFrom(markedPreismeldungen$),
-            map(([bag, markedIds]) => (bag ? { ...bag, marked: markedIds.some(id => id === bag.pmId) } : null)),
+            withLatestFrom(markedPreismeldungen$, this.currentDate$),
+            map(([bag, markedIds, currentDate]) =>
+                bag
+                    ? {
+                          ...bag,
+                          marked: markedIds.some(id => id === bag.pmId),
+                          stichtagStatus: this.calcStichtagStatus(bag, currentDate),
+                          percentage: this.formatPercentageChange(bag.preismeldung),
+                          bearbeitungscodeDescription: this.getBearbeitungscodeDescription(
+                              bag.preismeldung.bearbeitungscode,
+                          ),
+                      }
+                    : null,
+            ),
         );
 
         const sortByErhebungsschema$ = this.sortErhebungsschemaClicked$.pipe(
@@ -198,7 +214,17 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         );
         this.startDrag$.pipe(takeUntil(this.onDestroy$)).subscribe(evt => (this.drake as any).grab(evt));
 
-        this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
+        const filteredPreismeldungen$ = this.preismeldungen$.pipe(
+            withLatestFrom(this.currentDate$),
+            map(([preismeldungen, currentDate]) =>
+                preismeldungen.map(bag => ({
+                    ...bag,
+                    marked: false,
+                    stichtagStatus: this.calcStichtagStatus(bag, currentDate),
+                    percentage: this.formatPercentageChange(bag.preismeldung),
+                    bearbeitungscodeDescription: this.getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode),
+                })),
+            ),
             combineLatest(sortByErhebungsschema$, (preismeldungen, sortByErhebungsschema) =>
                 sortByErhebungsschema
                     ? sortBy(
@@ -206,9 +232,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                           bag => bag.warenkorbPosition.index + parseInt(bag.preismeldung.laufnummer, 10) * 0.01,
                       )
                     : preismeldungen,
-            ),
-            combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
-                preismeldungen.map(bag => ({ ...bag, marked: markedIds.lastIndexOf(bag.pmId) !== -1 })),
             ),
             combineLatest(
                 this.filterText$.pipe(startWith('')),
@@ -258,6 +281,11 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             debounceTime(100),
             publishReplay(1),
             refCount(),
+        );
+        this.filteredPreismeldungen$ = filteredPreismeldungen$.pipe(
+            combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
+                preismeldungen.map(bag => ({ ...bag, marked: markedIds.lastIndexOf(bag.pmId) !== -1 })),
+            ),
         );
         this.noPreismeldungen$ = this.filteredPreismeldungen$.pipe(
             withLatestFrom(this.preismeldungen$, (filtered, preismeldungen) =>
@@ -396,7 +424,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.currentPreismeldung$
             .pipe(
-                combineLatest(this.filteredPreismeldungen$, (bag, filteredPreismeldungen) => ({
+                combineLatest(filteredPreismeldungen$, (bag, filteredPreismeldungen) => ({
                     bag,
                     filteredPreismeldungen,
                 })),
