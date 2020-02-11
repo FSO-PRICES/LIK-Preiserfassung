@@ -1,5 +1,6 @@
 diff --git a/node_modules/dragula/dragula.js b/node_modules/dragula/dragula.js
 index 4f73231..fa8a567 100644
+// This patch allows to delay the dragula grab event
 --- a/node_modules/dragula/dragula.js
 +++ b/node_modules/dragula/dragula.js
 @@ -39,10 +39,13 @@ function dragula (initialContainers, options) {
