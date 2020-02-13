@@ -23,7 +23,7 @@
         "run:browser:preiserfasser": "ionic serve --project preiserfasser",
         "run:browser:backoffice": "ionic serve --project backoffice",
         "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser",
-        "build:electron:all": "concurrently \"npm run build:electron:backoffice\" \"npm run build:electron:preiserfasser\""
+        "build:electron:all": "concurrently \"npm run build:electron:backoffice\" \"sleep 2 && npm run build:electron:preiserfasser\""
     },
     "private": true,
     "dependencies": {
