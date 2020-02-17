@@ -151,11 +151,13 @@ function _syncDatabase(url: string, username: string, params: { push: boolean; p
                         map(newPouch => ({ couch, pouch: newPouch })),
                     );
                 }
-                return (
-                    backupDatabase(pouch, `lik_${pouchErhebungsmonat}_${format(new Date(), 'YYYYMMDDTHHmmss')}`),
+                return backupDatabase(
+                    pouch,
+                    `lik_${pouchErhebungsmonat}_${format(new Date(), 'YYYYMMDDTHHmmss')}`,
+                ).pipe(
                     flatMap(() => from(pouch.destroy())),
                     flatMap(() => getDatabaseAsObservable()),
-                    map(newPouch => ({ couch, pouch: newPouch }))
+                    map(newPouch => ({ couch, pouch: newPouch })),
                 );
             }
             if (pouchUserDbId === couchUserDbId || pouchUserDbId === 'pouchUserDbId-not-found') {
