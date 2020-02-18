@@ -26,7 +26,7 @@ export class ControllingPage implements OnDestroy {
         publishReplay(1),
         refCount(),
     );
-    public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
+    public warenkorb$ = this.store.select(fromRoot.getWarenkorb);
     public preiszuweisungen$ = this.store.select(fromRoot.getPreiszuweisungen);
     public preiserhebers$ = this.store.select(fromRoot.getPreiserhebers);
     public preismeldungenStatus$ = this.store.select(fromRoot.getPreismeldungenStatusMap);

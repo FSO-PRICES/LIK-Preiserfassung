@@ -69,7 +69,7 @@ export class PreismeldungPage {
                 x.filter(w => w.warenkorbItem.type === 'LEAF').map(w => w.warenkorbItem as P.Models.WarenkorbLeaf),
             ),
         );
-    public warenkorb$ = this.store.select(fromRoot.getWarenkorbState);
+    public warenkorb$ = this.store.select(fromRoot.getWarenkorb);
     public status$ = this.store.select(fromRoot.getPreismeldungenStatus);
     public currentPreismeldung$ = this.store
         .select(fromRoot.getCurrentPreismeldungViewBag)
