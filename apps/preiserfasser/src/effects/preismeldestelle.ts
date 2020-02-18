@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-
 import { assign } from 'lodash';
+import { from, of } from 'rxjs';
+import { catchError, exhaustMap, flatMap, map, withLatestFrom } from 'rxjs/operators';
 
 import { preismeldestelleId } from '@lik-shared';
-import { exhaustMap, flatMap, map, withLatestFrom } from 'rxjs/operators';
+
 import * as fromRoot from '../reducers';
 import { CurrentPreismeldestelle } from '../reducers/preismeldestellen';
-import { getAllDocumentsForPrefix, getDatabase } from './pouchdb-utils';
+import { getAllDocumentsForPrefix, getDatabase, getDatabaseAsObservable } from './pouchdb-utils';
 
 @Injectable()
 export class PreismeldestelleEffects {
@@ -18,27 +19,39 @@ export class PreismeldestelleEffects {
 
     @Effect()
     loadPreismeldestellen$ = this.actions$.ofType('PREISMELDESTELLEN_LOAD_ALL').pipe(
-        exhaustMap(() => getDatabase()),
-        flatMap(db =>
-            db.allDocs(Object.assign({}, getAllDocumentsForPrefix(preismeldestelleId()), { include_docs: true })),
+        exhaustMap(() =>
+            getDatabaseAsObservable().pipe(
+                flatMap(db =>
+                    db.allDocs(
+                        Object.assign({}, getAllDocumentsForPrefix(preismeldestelleId()), { include_docs: true }),
+                    ),
+                ),
+                map(allDocs => ({ type: 'PREISMELDESTELLEN_LOAD_SUCCESS', payload: allDocs.rows.map(x => x.doc) })),
+                catchError(payload => of({ type: 'PREISMELDESTELLEN_LOAD_FAILURE', payload })),
+            ),
         ),
-        map(allDocs => ({ type: 'PREISMELDESTELLEN_LOAD_SUCCESS', payload: allDocs.rows.map(x => x.doc) })),
     );
 
     @Effect()
     savePreismeldung$ = this.actions$.ofType('SAVE_PREISMELDESTELLE').pipe(
         withLatestFrom(this.currentPreismeldestelle$, (_, currentPreismeldestelle) => currentPreismeldestelle),
-        flatMap(currentPreismeldestelle => {
-            return getDatabase()
-                .then(db => db.get(preismeldestelleId(currentPreismeldestelle.pmsNummer)).then(doc => ({ db, doc })))
-                .then(({ db, doc }) =>
-                    db
-                        .put(assign({}, doc, this.propertiesFromCurrentPreismeldestelle(currentPreismeldestelle)))
-                        .then(() => db),
-                )
-                .then(db => db.get(preismeldestelleId(currentPreismeldestelle.pmsNummer)));
-        }),
-        map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload })),
+        flatMap(currentPreismeldestelle =>
+            from(
+                getDatabase()
+                    .then(db =>
+                        db.get(preismeldestelleId(currentPreismeldestelle.pmsNummer)).then(doc => ({ db, doc })),
+                    )
+                    .then(({ db, doc }) =>
+                        db
+                            .put(assign({}, doc, this.propertiesFromCurrentPreismeldestelle(currentPreismeldestelle)))
+                            .then(() => db),
+                    )
+                    .then(db => db.get(preismeldestelleId(currentPreismeldestelle.pmsNummer))),
+            ).pipe(
+                map(payload => ({ type: 'SAVE_PREISMELDESTELLE_SUCCESS', payload })),
+                catchError(payload => of({ type: 'SAVE_PREISMELDESTELLE_FAILURE', payload })),
+            ),
+        ),
     );
 
     private propertiesFromCurrentPreismeldestelle(currentPreismeldestelle: CurrentPreismeldestelle) {

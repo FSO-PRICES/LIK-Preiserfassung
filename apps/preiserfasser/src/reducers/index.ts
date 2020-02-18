@@ -11,6 +11,7 @@ import { fromPreismeldungen, fromWarenkorb } from '@lik-shared';
 import * as fromAppConfig from './app-config';
 import * as fromDatabase from './database';
 import * as fromErhebungsInfo from './erhebungsinfo';
+import * as fromError from './error';
 import * as fromLanguages from './languages';
 import * as fromLogin from './login';
 import * as fromPdf from './pdf';
@@ -24,6 +25,7 @@ export interface AppState {
     appConfig: fromAppConfig.State;
     database: fromDatabase.State;
     erhebungsInfo: fromErhebungsInfo.State;
+    error: fromError.State;
     languages: fromLanguages.State;
     login: fromLogin.State;
     preiserheber: fromPreiserheber.State;
@@ -37,6 +39,7 @@ export interface AppState {
 }
 
 export const reducers = {
+    error: fromError.reducer,
     appConfig: fromAppConfig.reducer,
     database: fromDatabase.reducer,
     erhebungsInfo: fromErhebungsInfo.reducer,

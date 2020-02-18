@@ -34,17 +34,20 @@ export class PreiserheberEffects {
     @Effect()
     savePreiserheber$ = this.actions$.ofType('SAVE_PREISERHEBER').pipe(
         withLatestFrom(this.currentPreiserheber$, (_, currentPreiserheber) => currentPreiserheber),
-        flatMap(currentPreiserheber => {
-            return getDatabase()
-                .then(db => db.get(`preiserheber`).then(doc => ({ db, doc })))
-                .then(({ db, doc }) =>
-                    db.put(assign({}, doc, this.propertiesFromCurrentPreiserheber(currentPreiserheber))).then(() => db),
-                )
-                .then(db => db.get(`preiserheber`));
-        }),
-        map(
-            currentPreiserheber =>
-                ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload: currentPreiserheber } as preiserheber.Action),
+        flatMap(currentPreiserheber =>
+            from(
+                getDatabase()
+                    .then(db => db.get(`preiserheber`).then(doc => ({ db, doc })))
+                    .then(({ db, doc }) =>
+                        db
+                            .put(assign({}, doc, this.propertiesFromCurrentPreiserheber(currentPreiserheber)))
+                            .then(() => db),
+                    )
+                    .then(db => db.get(`preiserheber`)),
+            ).pipe(
+                map(payload => ({ type: 'SAVE_PREISERHEBER_SUCCESS', payload: payload } as preiserheber.Action)),
+                catchError(payload => of({ type: 'SAVE_PREISERHEBER_FAILURE', payload })),
+            ),
         ),
     );
 

@@ -43,15 +43,22 @@ export class DatabaseEffects {
     @Effect()
     getLastSyncedAt$ = this.actions$.ofType('LOAD_DATABASE_LAST_SYNCED_AT').pipe(
         flatMap(() =>
-            getDatabase().then(db =>
-                getDocumentByKeyFromDb(db, 'last-synced-at')
-                    .then((doc: any) => doc.value)
-                    .catch(() => null),
+            from(
+                getDatabase().then(db =>
+                    getDocumentByKeyFromDb(db, 'last-synced-at')
+                        .then((doc: any) => doc.value)
+                        .catch(() => null),
+                ),
+            ).pipe(
+                map(
+                    (lastSyncedAt: string) =>
+                        ({
+                            type: 'LOAD_DATABASE_LAST_SYNCED_AT_SUCCESS',
+                            payload: new Date(lastSyncedAt),
+                        } as DatabaseAction),
+                ),
+                catchError(payload => of({ type: 'LOAD_DATABASE_LAST_SYNCED_FAILURE', payload })),
             ),
-        ),
-        map(
-            (lastSyncedAt: string) =>
-                ({ type: 'LOAD_DATABASE_LAST_SYNCED_AT_SUCCESS', payload: new Date(lastSyncedAt) } as DatabaseAction),
         ),
     );
 
@@ -108,7 +115,7 @@ export class DatabaseEffects {
                             ),
                         ),
 
-                        catchError(error => this.convertErrorToActions(this.tryParseError(error))),
+                        catchError(error => from(this.convertErrorToActions(this.tryParseError(error)))),
                     ),
                 ),
             1,
@@ -122,7 +129,7 @@ export class DatabaseEffects {
                 [{ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction],
                 downloadDatabase(action.payload).pipe(
                     map(() => ({ type: 'SYNC_DATABASE_SUCCESS' } as DatabaseAction)),
-                    catchError(error => this.convertErrorToActions(this.tryParseError(error))),
+                    catchError(error => from(this.convertErrorToActions(this.tryParseError(error)))),
                 ),
             ),
         ),
@@ -162,18 +169,26 @@ export class DatabaseEffects {
 
     @Effect()
     checkDatabaseExists$ = this.actions$.ofType('CHECK_DATABASE_EXISTS').pipe(
-        flatMap(() => checkIfDatabaseExists()),
-        flatMap(exists => (!exists ? dropDatabase().then(() => exists) : [exists])), // drop database in case it's the wrong version
-        flatMap(exists => [
-            { type: 'SET_DATABASE_EXISTS', payload: exists },
-            ...(exists ? [] : this.resetActions), // If the database does not exist, reset all data in store
-        ]),
+        flatMap(() =>
+            from(checkIfDatabaseExists()).pipe(
+                flatMap(exists => (!exists ? dropDatabase().then(() => exists) : [exists])), // drop database in case it's the wrong version
+                flatMap(exists => [
+                    { type: 'SET_DATABASE_EXISTS', payload: exists },
+                    ...(exists ? [] : this.resetActions), // If the database does not exist, reset all data in store
+                ]),
+                catchError(payload => of({ type: 'CHECK_DATABASE_FAILURE', payload })),
+            ),
+        ),
     );
 
     @Effect()
     deleteDatabase$ = this.actions$.ofType('DELETE_DATABASE').pipe(
-        flatMap(() => dropDatabase()),
-        flatMap(() => [{ type: 'SET_DATABASE_EXISTS', payload: false }, ...this.resetActions]),
+        flatMap(() =>
+            from(dropDatabase()).pipe(
+                flatMap(() => [{ type: 'SET_DATABASE_EXISTS', payload: false }, ...this.resetActions]),
+                catchError(payload => of({ type: 'DELETE_DATABASE_FAILURE', payload })),
+            ),
+        ),
     );
 
     private convertErrorToActions(errorText: string) {
@@ -197,6 +212,8 @@ export class DatabaseEffects {
         if (!!error && !!error.message) {
             return error.message;
         }
+        console.warn('An unkown couchdb sync error occured:');
+        console.error(error);
         return 'error_synchronize_unknown-error';
     }
 

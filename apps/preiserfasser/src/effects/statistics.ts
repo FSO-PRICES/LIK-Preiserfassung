@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, groupBy, mapValues } from 'lodash';
-import { filter, map, switchMap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap } from 'rxjs/operators';
 
 import { Models as P, preismeldestelleId, preismeldungId } from '@lik-shared';
 
+import { from, of } from 'rxjs';
 import { Action as StatisticsAction } from '../actions/statistics';
 import * as fromRoot from '../reducers';
 import { PreismeldestelleStatisticsMap } from '../reducers/statistics';
@@ -20,61 +21,74 @@ export class StatisticsEffects {
     @Effect()
     loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNG_STATISTICS_LOAD').pipe(
         switchMap(() =>
-            getDatabase().then(db =>
-                db
-                    // Used to prevent errors which lead to unsubscription of PREISMELDUNG_STATISTICS_LOAD
-                    // TODO: Find a better way
-                    .get('erhebungsmonat')
-                    .then(() => true)
-                    .catch(() => false),
-            ),
-        ),
-        filter(hasDb => hasDb),
-        switchMap(() => getDatabase()),
-        switchMap(db =>
-            loadAllPreismeldungRefs(db).then(pmsRefPreismeldungenTotals => ({ db, pmsRefPreismeldungenTotals })),
-        ),
-        switchMap(({ db, pmsRefPreismeldungenTotals }) =>
-            getAllDocumentsForPrefixFromDb(db, preismeldungId())
-                .then((allPreismeldungen: P.Preismeldung[]) => {
-                    const pmsPreismeldungen = groupBy(allPreismeldungen, p => p.pmsNummer);
-                    const pmsPreismeldungenStatistics = mapValues(pmsPreismeldungen, preismeldungen => {
-                        const preismeldungenByUploaded = groupBy(preismeldungen, p =>
-                            !!p.uploadRequestedAt ? 'uploaded' : 'notUploaded',
-                        );
-                        const preismeldungenBySaved = groupBy(preismeldungenByUploaded['notUploaded'], p =>
-                            !!p.istAbgebucht ? 'saved' : 'notSaved',
-                        );
-                        return {
-                            totalCount: preismeldungen.length,
-                            uploadedCount: (preismeldungenByUploaded['uploaded'] || []).length,
-                            openSavedCount: (preismeldungenBySaved['saved'] || []).length,
-                            openUnsavedCount: (preismeldungenBySaved['notSaved'] || []).length,
-                        };
-                    });
+            from(
+                getDatabase().then(db =>
+                    db
+                        // Used to prevent errors which lead to unsubscription of PREISMELDUNG_STATISTICS_LOAD
+                        // TODO: Find a better way
+                        .get('erhebungsmonat')
+                        .then(() => true)
+                        .catch(() => false),
+                ),
+            ).pipe(
+                filter(hasDb => hasDb),
+                switchMap(() => getDatabase()),
+                switchMap(db =>
+                    loadAllPreismeldungRefs(db).then(pmsRefPreismeldungenTotals => ({
+                        db,
+                        pmsRefPreismeldungenTotals,
+                    })),
+                ),
+                switchMap(({ db, pmsRefPreismeldungenTotals }) =>
+                    getAllDocumentsForPrefixFromDb(db, preismeldungId())
+                        .then((allPreismeldungen: P.Preismeldung[]) => {
+                            const pmsPreismeldungen = groupBy(allPreismeldungen, p => p.pmsNummer);
+                            const pmsPreismeldungenStatistics = mapValues(pmsPreismeldungen, preismeldungen => {
+                                const preismeldungenByUploaded = groupBy(preismeldungen, p =>
+                                    !!p.uploadRequestedAt ? 'uploaded' : 'notUploaded',
+                                );
+                                const preismeldungenBySaved = groupBy(preismeldungenByUploaded['notUploaded'], p =>
+                                    !!p.istAbgebucht ? 'saved' : 'notSaved',
+                                );
+                                return {
+                                    totalCount: preismeldungen.length,
+                                    uploadedCount: (preismeldungenByUploaded['uploaded'] || []).length,
+                                    openSavedCount: (preismeldungenBySaved['saved'] || []).length,
+                                    openUnsavedCount: (preismeldungenBySaved['notSaved'] || []).length,
+                                };
+                            });
 
-                    return mapValues(pmsRefPreismeldungenTotals, (v: any, pmsNummer) => {
-                        return pmsPreismeldungenStatistics[pmsNummer]
-                            ? assign({}, v, pmsPreismeldungenStatistics[pmsNummer])
-                            : {
-                                  downloadedCount: v.downloadedCount,
-                                  totalCount: v.downloadedCount,
-                                  uploadedCount: 0,
-                                  openSavedCount: 0,
-                                  openUnsavedCount: v.downloadedCount,
-                              };
-                    }) as PreismeldestelleStatisticsMap;
-                })
-                .then(preismeldestelleStatistics => ({ db, preismeldestelleStatistics })),
-        ),
-        switchMap(({ db, preismeldestelleStatistics }) =>
-            db
-                .get('erhebungsmonat')
-                .then((doc: P.Erhebungsmonat) => ({ monthAsString: doc.monthAsString, preismeldestelleStatistics })),
-        ),
-        map(
-            preismeldungenData =>
-                ({ type: 'PREISMELDUNG_STATISTICS_LOAD_SUCCESS', payload: preismeldungenData } as StatisticsAction),
+                            return mapValues(pmsRefPreismeldungenTotals, (v: any, pmsNummer) => {
+                                return pmsPreismeldungenStatistics[pmsNummer]
+                                    ? assign({}, v, pmsPreismeldungenStatistics[pmsNummer])
+                                    : {
+                                          downloadedCount: v.downloadedCount,
+                                          totalCount: v.downloadedCount,
+                                          uploadedCount: 0,
+                                          openSavedCount: 0,
+                                          openUnsavedCount: v.downloadedCount,
+                                      };
+                            }) as PreismeldestelleStatisticsMap;
+                        })
+                        .then(preismeldestelleStatistics => ({ db, preismeldestelleStatistics })),
+                ),
+                switchMap(({ db, preismeldestelleStatistics }) =>
+                    db.get('erhebungsmonat').then((doc: P.Erhebungsmonat) => ({
+                        monthAsString: doc.monthAsString,
+                        preismeldestelleStatistics,
+                    })),
+                ),
+                map(
+                    preismeldungenData =>
+                        ({
+                            type: 'PREISMELDUNG_STATISTICS_LOAD_SUCCESS',
+                            payload: preismeldungenData,
+                        } as StatisticsAction),
+                ),
+                catchError(err =>
+                    of({ type: 'PREISMELDUNG_STATISTICS_LOAD_FAILURE', payload: err } as StatisticsAction),
+                ),
+            ),
         ),
     );
 }

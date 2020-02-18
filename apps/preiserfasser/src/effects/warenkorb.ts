@@ -15,7 +15,7 @@ export class WarenkorbEffects {
             db
                 .get('warenkorb')
                 .then((warenkorb: any) => ({ type: 'LOAD_WARENKORB_SUCCESS', payload: warenkorb.products }))
-                .catch(() => ({ type: 'LOAD_WARENKORB_FAIL' })),
+                .catch(payload => ({ type: 'LOAD_WARENKORB_FAIL', payload })),
         ),
     );
 }

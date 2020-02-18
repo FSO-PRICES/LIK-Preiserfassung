@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, cloneDeep, flatMap as arrayFlatMap, isEqual, sortBy } from 'lodash';
-import { defer } from 'rxjs';
+import { defer, from, of } from 'rxjs';
 import {
+    catchError,
     combineLatest,
     defaultIfEmpty,
     exhaustMap,
@@ -130,6 +131,7 @@ export class PreismeldungenEffects {
                     }),
                 ),
                 map(payload => ({ type: 'PREISMELDUNGEN_LOAD_SUCCESS', payload } as PreismeldungAction)),
+                catchError(payload => of({ type: 'PREISMELDUNGEN_LOAD_FAILURE', payload })),
             ),
         ),
     );
@@ -159,140 +161,159 @@ export class PreismeldungenEffects {
     savePreismeldung$ = this.savePreismeldungPrice$.pipe(
         filter(x => !x.currentPreismeldung.isNew),
         flatMap(x =>
-            this.applySortierungen(x.currentPreismeldung).pipe(
-                defaultIfEmpty(),
-                map(sortierung => ({ ...x, sortierung })),
-            ),
+            this.applySortierungen(x.currentPreismeldung)
+                .pipe(
+                    defaultIfEmpty(),
+                    map(sortierung => ({ ...x, sortierung })),
+                )
+                .pipe(
+                    flatMap(x => {
+                        const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
+                        let currentPreismeldung = x.currentPreismeldung;
+                        const kommentarAutotext = arrayFlatMap(
+                            saveAction.saveWithData
+                                .filter(s => s.type === 'COMMENT')
+                                .map((s: SavePreismeldungPriceSaveActionCommentsType) => s.comments),
+                        );
+                        const aktionAtions = saveAction.saveWithData.filter(
+                            x => x.type === 'AKTION',
+                        ) as SavePreismeldungPriceSaveActionAktionType[];
+                        if (aktionAtions.length > 1) {
+                            throw new Error(`More than one AKTION: ${JSON.stringify(saveAction)}`);
+                        }
+                        const setAktion =
+                            aktionAtions.length === 1
+                                ? {
+                                      preismeldung: assign({}, x.currentPreismeldung.preismeldung, {
+                                          aktion: aktionAtions[0].value,
+                                      }),
+                                  }
+                                : null;
+                        const attributes = x.currentPreismeldung.refPreismeldung
+                            ? cloneDeep(x.currentPreismeldung.refPreismeldung.productMerkmale)
+                            : x.currentPreismeldung.attributes;
+                        currentPreismeldung =
+                            x.currentPreismeldung.preismeldung.bearbeitungscode === 0
+                                ? {
+                                      ...x.currentPreismeldung,
+                                      preismeldung: {
+                                          ...x.currentPreismeldung.preismeldung,
+                                          ...copyPreismeldungPropertiesFromRefPreismeldung(
+                                              x.currentPreismeldung.refPreismeldung,
+                                              true,
+                                          ),
+                                      },
+                                      attributes,
+                                  }
+                                : assign(
+                                      {},
+                                      x.currentPreismeldung,
+                                      { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext }) },
+                                      setAktion,
+                                  );
+                        return this.savePreismeldungPrice(currentPreismeldung, true).then(preismeldung => ({
+                            preismeldung,
+                            sortierung: x.sortierung,
+                            saveAction,
+                        }));
+                    }),
+                    map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload })),
+                    catchError(payload => of({ type: 'SAVE_PREISMELDUNG_PRICE_FAILURE', payload })),
+                ),
         ),
-        flatMap(x => {
-            const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
-            let currentPreismeldung = x.currentPreismeldung;
-            const kommentarAutotext = arrayFlatMap(
-                saveAction.saveWithData
-                    .filter(s => s.type === 'COMMENT')
-                    .map((s: SavePreismeldungPriceSaveActionCommentsType) => s.comments),
-            );
-            const aktionAtions = saveAction.saveWithData.filter(
-                x => x.type === 'AKTION',
-            ) as SavePreismeldungPriceSaveActionAktionType[];
-            if (aktionAtions.length > 1) {
-                throw new Error(`More than one AKTION: ${JSON.stringify(saveAction)}`);
-            }
-            const setAktion =
-                aktionAtions.length === 1
-                    ? {
-                          preismeldung: assign({}, x.currentPreismeldung.preismeldung, {
-                              aktion: aktionAtions[0].value,
-                          }),
-                      }
-                    : null;
-            const attributes = x.currentPreismeldung.refPreismeldung
-                ? cloneDeep(x.currentPreismeldung.refPreismeldung.productMerkmale)
-                : x.currentPreismeldung.attributes;
-            currentPreismeldung =
-                x.currentPreismeldung.preismeldung.bearbeitungscode === 0
-                    ? {
-                          ...x.currentPreismeldung,
-                          preismeldung: {
-                              ...x.currentPreismeldung.preismeldung,
-                              ...copyPreismeldungPropertiesFromRefPreismeldung(
-                                  x.currentPreismeldung.refPreismeldung,
-                                  true,
-                              ),
-                          },
-                          attributes,
-                      }
-                    : assign(
-                          {},
-                          x.currentPreismeldung,
-                          { messages: assign({}, x.currentPreismeldung.messages, { kommentarAutotext }) },
-                          setAktion,
-                      );
-            return this.savePreismeldungPrice(currentPreismeldung, true).then(preismeldung => ({
-                preismeldung,
-                sortierung: x.sortierung,
-                saveAction,
-            }));
-        }),
-        map(payload => ({ type: 'SAVE_PREISMELDUNG_PRICE_SUCCESS', payload })),
     );
 
     @Effect()
     saveNewPreismeldung$ = this.savePreismeldungPrice$.pipe(
         filter(x => x.currentPreismeldung.isNew),
-        map(x => {
-            const saveAction = x.payload as P.SavePreismeldungPriceSaveActionSave;
-            let currentPreismeldung = x.currentPreismeldung;
-            const kommentarAutotext = arrayFlatMap(
-                saveAction.saveWithData
-                    .filter(s => s.type === 'COMMENT')
-                    .map((s: SavePreismeldungPriceSaveActionCommentsType) => s.comments),
-            );
-            currentPreismeldung = {
-                ...currentPreismeldung,
-                messages: { ...currentPreismeldung.messages, kommentarAutotext },
-            };
-            return currentPreismeldung;
-        }),
-        flatMap(currentPreismeldung =>
-            getDatabase()
-                .then(db =>
-                    db
-                        .put(
-                            assign(
-                                {},
-                                {
-                                    _id: currentPreismeldung.preismeldung._id,
-                                    _rev: null,
-                                    epNummer: currentPreismeldung.preismeldung.epNummer,
-                                    laufnummer: currentPreismeldung.preismeldung.laufnummer,
-                                    pmsNummer: currentPreismeldung.preismeldung.pmsNummer,
-                                },
-                                propertiesFromCurrentPreismeldung(currentPreismeldung),
-                                messagesFromCurrentPreismeldung(currentPreismeldung),
-                                productMerkmaleFromCurrentPreismeldung(currentPreismeldung),
-                            ),
-                        )
-                        .then(() => db),
-                )
-                .then(db =>
-                    getDocumentWithFallback<P.Models.PmsPreismeldungenSort>(
-                        db,
-                        P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer),
-                        { _id: P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer), _rev: null, sortOrder: [] },
-                    )
-                        .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
-                            const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
-                                sortOrder: [
-                                    ...pmsPreismeldungenSort.sortOrder.filter(
-                                        x => x.sortierungsnummer < currentPreismeldung.sortierungsnummer,
-                                    ),
-                                    {
-                                        pmId: currentPreismeldung.pmId,
-                                        sortierungsnummer: currentPreismeldung.sortierungsnummer,
-                                    },
-                                    ...pmsPreismeldungenSort.sortOrder
-                                        .filter(x => x.sortierungsnummer >= currentPreismeldung.sortierungsnummer)
-                                        .map(x => ({ pmId: x.pmId, sortierungsnummer: x.sortierungsnummer + 1 })),
-                                ],
-                            });
-                            return db.put(newPmsPreismeldungsSort).then(() => db);
-                        })
-                        .then(() =>
-                            // reread from db
+        flatMap(pmPrice =>
+            defer(() => {
+                const saveAction = pmPrice.payload as P.SavePreismeldungPriceSaveActionSave;
+                let currentPreismeldung = pmPrice.currentPreismeldung;
+                const kommentarAutotext = arrayFlatMap(
+                    saveAction.saveWithData
+                        .filter(s => s.type === 'COMMENT')
+                        .map((s: SavePreismeldungPriceSaveActionCommentsType) => s.comments),
+                );
+                currentPreismeldung = {
+                    ...currentPreismeldung,
+                    messages: { ...currentPreismeldung.messages, kommentarAutotext },
+                };
+                return of(currentPreismeldung);
+            }).pipe(
+                flatMap(currentPreismeldung =>
+                    getDatabase()
+                        .then(db =>
                             db
-                                .get(currentPreismeldung.preismeldung._id)
-                                .then(res => ({ db, preismeldung: res }))
-                                .then(x =>
-                                    x.db.get(P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer)).then(res => ({
-                                        pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort,
-                                        preismeldung: x.preismeldung,
-                                    })),
+                                .put(
+                                    assign(
+                                        {},
+                                        {
+                                            _id: currentPreismeldung.preismeldung._id,
+                                            _rev: null,
+                                            epNummer: currentPreismeldung.preismeldung.epNummer,
+                                            laufnummer: currentPreismeldung.preismeldung.laufnummer,
+                                            pmsNummer: currentPreismeldung.preismeldung.pmsNummer,
+                                        },
+                                        propertiesFromCurrentPreismeldung(currentPreismeldung),
+                                        messagesFromCurrentPreismeldung(currentPreismeldung),
+                                        productMerkmaleFromCurrentPreismeldung(currentPreismeldung),
+                                    ),
+                                )
+                                .then(() => db),
+                        )
+                        .then(db =>
+                            getDocumentWithFallback<P.Models.PmsPreismeldungenSort>(
+                                db,
+                                P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer),
+                                {
+                                    _id: P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer),
+                                    _rev: null,
+                                    sortOrder: [],
+                                },
+                            )
+                                .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
+                                    const newPmsPreismeldungsSort = assign({}, pmsPreismeldungenSort, {
+                                        sortOrder: [
+                                            ...pmsPreismeldungenSort.sortOrder.filter(
+                                                x => x.sortierungsnummer < currentPreismeldung.sortierungsnummer,
+                                            ),
+                                            {
+                                                pmId: currentPreismeldung.pmId,
+                                                sortierungsnummer: currentPreismeldung.sortierungsnummer,
+                                            },
+                                            ...pmsPreismeldungenSort.sortOrder
+                                                .filter(
+                                                    x => x.sortierungsnummer >= currentPreismeldung.sortierungsnummer,
+                                                )
+                                                .map(x => ({
+                                                    pmId: x.pmId,
+                                                    sortierungsnummer: x.sortierungsnummer + 1,
+                                                })),
+                                        ],
+                                    });
+                                    return db.put(newPmsPreismeldungsSort).then(() => db);
+                                })
+                                .then(() =>
+                                    // reread from db
+                                    db
+                                        .get(currentPreismeldung.preismeldung._id)
+                                        .then(res => ({ db, preismeldung: res }))
+                                        .then(x =>
+                                            x.db
+                                                .get(P.pmsSortId(currentPreismeldung.preismeldung.pmsNummer))
+                                                .then(res => ({
+                                                    pmsPreismeldungenSort: res as P.Models.PmsPreismeldungenSort,
+                                                    preismeldung: x.preismeldung,
+                                                })),
+                                        ),
                                 ),
                         ),
                 ),
+                map(payload => ({ type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload })),
+                catchError(payload => of({ type: 'SAVE_NEW_PREISMELDUNG_PRICE_FAILURE', payload })),
+            ),
         ),
-        map(payload => ({ type: 'SAVE_NEW_PREISMELDUNG_PRICE_SUCCESS', payload })),
     );
 
     @Effect()
@@ -301,8 +322,12 @@ export class PreismeldungenEffects {
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
         ),
-        flatMap(currentPreismeldung => this.savePreismeldungMessages(currentPreismeldung)),
-        map(payload => ({ type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS', payload })),
+        flatMap(currentPreismeldung =>
+            from(this.savePreismeldungMessages(currentPreismeldung)).pipe(
+                map(payload => ({ type: 'SAVE_PREISMELDUNG_MESSAGES_SUCCESS', payload })),
+                catchError(payload => of({ type: 'SAVE_PREISMELDUNG_MESSAGES_FAILURE', payload })),
+            ),
+        ),
     );
 
     @Effect()
@@ -311,8 +336,12 @@ export class PreismeldungenEffects {
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
         ),
-        flatMap(currentPreismeldung => this.savePreismeldungAttributes(currentPreismeldung)),
-        map(payload => ({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS', payload })),
+        flatMap(currentPreismeldung =>
+            from(this.savePreismeldungAttributes(currentPreismeldung)).pipe(
+                map(payload => ({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES_SUCCESS', payload })),
+                catchError(payload => of({ type: 'SAVE_PREISMELDUNG_ATTRIBUTES_FAILURE', payload })),
+            ),
+        ),
     );
 
     @Effect()
@@ -323,11 +352,15 @@ export class PreismeldungenEffects {
         ),
         filter(x => !!x.refPreismeldung),
         flatMap(currentPreismeldung =>
-            this.savePreismeldung(currentPreismeldung, [
-                bag => copyPreismeldungPropertiesFromRefPreismeldung(bag.refPreismeldung),
-            ]),
+            from(
+                this.savePreismeldung(currentPreismeldung, [
+                    bag => copyPreismeldungPropertiesFromRefPreismeldung(bag.refPreismeldung),
+                ]),
+            ).pipe(
+                map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload })),
+                catchError(payload => of({ type: 'RESET_PREISMELDUNG_FAILURE', payload })),
+            ),
         ),
-        map(payload => ({ type: 'RESET_PREISMELDUNG_SUCCESS', payload })),
     );
 
     @Effect()
@@ -338,8 +371,8 @@ export class PreismeldungenEffects {
         ),
         filter(x => !x.refPreismeldung),
         flatMap(bag =>
-            getDatabase()
-                .then(db =>
+            getDatabaseAsObservable().pipe(
+                flatMap(db =>
                     // Try to delete from local db, when none matching preismeldung was found, continue
                     db
                         .get(bag.preismeldung._id)
@@ -351,8 +384,8 @@ export class PreismeldungenEffects {
                             }
                             return db;
                         }),
-                )
-                .then(db =>
+                ),
+                flatMap(db =>
                     db
                         .get(P.pmsSortId(bag.preismeldung.pmsNummer))
                         .then((pmsPreismeldungenSort: P.Models.PmsPreismeldungenSort) => {
@@ -363,14 +396,20 @@ export class PreismeldungenEffects {
                         })
                         .then(pmsPreismeldungenSort => ({ pmId: bag.preismeldung._id, pmsPreismeldungenSort })),
                 ),
+                map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload } as PreismeldungAction)),
+                catchError(payload => of({ type: 'DELETE_PREISMELDUNG_FAILURE', payload })),
+            ),
         ),
-        map(payload => ({ type: 'DELETE_PREISMELDUNG_SUCCESS', payload } as PreismeldungAction)),
     );
 
     @Effect()
     preismeldungenSortSave = this.actions$.ofType('PREISMELDUNGEN_SORT_SAVE').pipe(
-        flatMap((action: any) => this.savePreismeldungenSort(action.payload)),
-        map(payload => ({ type: 'PREISMELDUNGEN_SORT_SAVE_SUCCESS', payload })),
+        flatMap((action: any) =>
+            this.savePreismeldungenSort(action.payload).pipe(
+                map(payload => ({ type: 'PREISMELDUNGEN_SORT_SAVE_SUCCESS', payload })),
+                catchError(payload => of({ type: 'PREISMELDUNGEN_SORT_SAVE_FAILURE', payload })),
+            ),
+        ),
     );
 
     savePreismeldung(

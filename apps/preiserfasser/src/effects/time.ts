@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Effect } from '@ngrx/effects';
 import { differenceInMilliseconds, endOfMinute } from 'date-fns';
-import { Observable, defer, of } from 'rxjs';
+import { defer, of } from 'rxjs';
 import { delay, map, repeat, startWith } from 'rxjs/operators';
 // import * as deLocale from 'date-fns/locale/de';
 // import * as frLocale from 'date-fns/locale/fr';

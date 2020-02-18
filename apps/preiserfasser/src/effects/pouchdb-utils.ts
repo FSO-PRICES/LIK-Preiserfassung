@@ -4,7 +4,7 @@ import PouchDB from 'pouchdb';
 import PouchDBAllDbs from 'pouchdb-all-dbs';
 import pouchDbAuthentication from 'pouchdb-authentication';
 import pouchDBDebug from 'pouchdb-debug';
-import { bindNodeCallback, from, Observable, Observer, of } from 'rxjs';
+import { bindNodeCallback, from, Observable, Observer, of, throwError } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { flatMap, map } from 'rxjs/operators';
 
@@ -163,13 +163,13 @@ function _syncDatabase(url: string, username: string, params: { push: boolean; p
             if (pouchUserDbId === couchUserDbId || pouchUserDbId === 'pouchUserDbId-not-found') {
                 return of({ doSync: true, pouch, couch });
             }
-            return Observable.throw('error_user-db-id-mismatch');
+            return throwError('error_user-db-id-mismatch');
         }),
         flatMap(({ couch, pouch }) => {
             const sync = pouch.sync(couch, { push: params.push as any, pull: params.pull as any, batch_size: 1000 });
 
             return Observable.create((observer: Observer<{}>) => {
-                sync.on('complete', info => {
+                sync.on('complete', () => {
                     observer.next({});
                     observer.complete();
                 });

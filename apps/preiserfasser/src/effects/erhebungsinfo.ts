@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { of } from 'rxjs';
 
-import { map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import * as fromRoot from '../reducers';
 import { getDatabaseAsObservable } from './pouchdb-utils';
 
@@ -12,18 +13,22 @@ export class ErhebungsInfoEffects {
 
     @Effect()
     loadErheubngsInfoEffects$ = this.actions$.ofType('LOAD_ERHEBUNGSINFO').pipe(
-        mergeMap(() => getDatabaseAsObservable()),
-        mergeMap(db =>
-            db
-                .get('erhebungsmonat')
-                .then((erhebungsmonatDoc: any) => ({ db, erhebungsmonat: erhebungsmonatDoc.monthAsString })),
+        mergeMap(() =>
+            getDatabaseAsObservable().pipe(
+                mergeMap(db =>
+                    db
+                        .get('erhebungsmonat')
+                        .then((erhebungsmonatDoc: any) => ({ db, erhebungsmonat: erhebungsmonatDoc.monthAsString })),
+                ),
+                mergeMap(x =>
+                    x.db.get('erhebungsorgannummer').then((erhebungsorgannummerDoc: any) => ({
+                        erhebungsmonat: x.erhebungsmonat,
+                        erhebungsorgannummer: erhebungsorgannummerDoc.value,
+                    })),
+                ),
+                map(payload => ({ type: 'LOAD_ERHEBUNGSINFO_SUCCESS', payload })),
+                catchError(payload => of({ type: 'LOAD_ERHEBUNGSINFO_FAILURE', payload })),
+            ),
         ),
-        mergeMap(x =>
-            x.db.get('erhebungsorgannummer').then((erhebungsorgannummerDoc: any) => ({
-                erhebungsmonat: x.erhebungsmonat,
-                erhebungsorgannummer: erhebungsorgannummerDoc.value,
-            })),
-        ),
-        map(payload => ({ type: 'LOAD_ERHEBUNGSINFO_SUCCESS', payload })),
     );
 }
