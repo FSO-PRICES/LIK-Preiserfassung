@@ -119,7 +119,7 @@
                                 [checked]="row.marked"
                             />
                         </td>
-                        <td>
+                        <td class="edit">
                             <ion-button
                                 [class.visibility-hidden]="!row.canView"
                                 [disabled]="!row.isEditable"
@@ -129,7 +129,7 @@
                                 <pef-icon name="todo"></pef-icon>
                             </ion-button>
                         </td>
-                        <td>
+                        <td class="status">
                             <pef-pm-status
                                 [class.visibility-hidden]="!row.canView"
                                 [disabled]="row.exported"

@@ -204,7 +204,7 @@ type Column = { name: string; cssClass: string; size: ColumnSizes };
 
 const columnErhebungsZeitpunkt: Column = { name: 'ErhebungsZeitpunkt', cssClass: 'fixed', size: null };
 const columnErfassungsZeitpunkt: Column = { name: 'ErfassungsZeiptunk', cssClass: 'fixed', size: null };
-const columnPreisId: Column = { name: 'Preis_ID', cssClass: 'fixed', size: null };
+const columnPreisId: Column = { name: 'Preis_ID', cssClass: 'fixed id', size: null };
 const columnPmsErhebungsregion: Column = { name: 'PMS_Erhebungsregion', cssClass: '', size: null };
 const columnPmsNummer: Column = { name: 'PMS_Nummer', cssClass: 'fixed', size: 'minimal' };
 const columnPmsName: Column = { name: 'PMS_Name', cssClass: '', size: 'small' };

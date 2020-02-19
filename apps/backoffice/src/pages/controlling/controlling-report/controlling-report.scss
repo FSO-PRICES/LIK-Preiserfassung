@@ -137,34 +137,46 @@
         td {
             padding-right: 10px;
 
-            &.large {
+            &.large:not(.collapsed) {
                 min-width: 230px;
             }
-            &.medium {
+            &.medium:not(.collapsed) {
                 min-width: 150px;
             }
-            &.small {
+            &.small:not(.collapsed) {
                 min-width: 100px;
             }
-            &.minimal {
+            &.minimal:not(.collapsed) {
                 min-width: 30px;
             }
             &.marker {
                 position: relative;
-                min-width: 25px;
-                padding: 0;
+                width: 15px;
+                padding: 0 2px 0 0;
+            }
+            &.edit {
+                width: 30px;
+                padding: 0 2px;
+            }
+            &.status {
+                width: 40px;
+                padding: 0 6px 0 2px;
+            }
+            &.id {
+                width: 110px;
+                padding-right: 5px;
             }
             input[type='radio'] {
                 position: absolute;
                 top: 1px;
                 bottom: 1px;
                 left: 0;
-                right: 5px;
+                right: 0px;
                 cursor: cell;
                 background-color: $white;
                 appearance: none;
                 display: block;
-                width: 20px;
+                width: 15px;
                 opacity: 0.6;
                 margin: 1px 0;
                 border-radius: 2px;
@@ -178,7 +190,7 @@
         }
 
         .collapsed {
-            min-width: 15px;
+            width: 15px;
             padding: 0;
             font-size: 0;
             border: 0px solid $trout;
