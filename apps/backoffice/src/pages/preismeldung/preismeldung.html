@@ -36,7 +36,6 @@
                         [preismeldung]="currentPreismeldung$ | async"
                         [preismeldestelle]="preismeldestelle$ | async"
                         [warenkorb]="warenkorb$ | async"
-                        [priceCountStatus]="currentPriceCountStatus$ | async"
                         [isAdminApp]="true"
                     >
                         <ng-container *ngTemplateOutlet="additionalActions"></ng-container>
@@ -46,7 +45,6 @@
                         [isDesktop]="true"
                         [preismeldung]="currentPreismeldung$ | async"
                         [preismeldestelle]="preismeldestelle$ | async"
-                        [priceCountStatus]="currentPriceCountStatus$ | async"
                         (resetClicked)="resetPreismeldung$.emit()"
                         [isAdminApp]="true"
                     >
@@ -57,7 +55,6 @@
                         [preismeldung]="currentPreismeldung$ | async"
                         [isDesktop]="true"
                         [preismeldestelle]="preismeldestelle$ | async"
-                        [priceCountStatus]="currentPriceCountStatus$ | async"
                         (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"
                         [isAdminApp]="true"
                     >
@@ -68,7 +65,6 @@
                         [isActive]="(selectedTab$ | async) == 'MESSAGES'"
                         [preismeldung]="currentPreismeldung$ | async"
                         [preismeldestelle]="preismeldestelle$ | async"
-                        [priceCountStatus]="currentPriceCountStatus$ | async"
                         [isDesktop]="true"
                         (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"
                         (kommentarClearClicked)="kommentarClearClicked$.next()"

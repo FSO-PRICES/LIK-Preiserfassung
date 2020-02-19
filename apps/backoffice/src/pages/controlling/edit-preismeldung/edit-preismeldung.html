@@ -21,7 +21,6 @@
                 [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
                 [warenkorb]="warenkorb$ | async"
-                [priceCountStatus]="currentPriceCountStatus$ | async"
                 [isAdminApp]="true"
             >
                 <ng-container *ngTemplateOutlet="additionalActions"></ng-container>
@@ -31,7 +30,6 @@
                 [isDesktop]="true"
                 [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
-                [priceCountStatus]="currentPriceCountStatus$ | async"
                 (resetClicked)="resetPreismeldung$.emit()"
                 [isAdminApp]="true"
             >
@@ -42,7 +40,6 @@
                 [preismeldung]="currentPreismeldung"
                 [isDesktop]="true"
                 [preismeldestelle]="preismeldestelle"
-                [priceCountStatus]="currentPriceCountStatus$ | async"
                 (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"
                 [isAdminApp]="true"
             >
@@ -53,7 +50,6 @@
                 [isActive]="(selectedTab$ | async) == 'MESSAGES'"
                 [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
-                [priceCountStatus]="currentPriceCountStatus$ | async"
                 [isDesktop]="true"
                 (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"
                 (kommentarClearClicked)="kommentarClearClicked$.emit()"
@@ -66,7 +62,6 @@
                 [preismeldung]="currentPreismeldung"
                 [isDesktop]="true"
                 [preismeldestelle]="preismeldestelle"
-                [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                 [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
                 (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                 (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
