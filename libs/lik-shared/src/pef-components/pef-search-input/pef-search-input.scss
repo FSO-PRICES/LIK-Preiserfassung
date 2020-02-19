@@ -1,7 +1,8 @@
 @import '../../styles/_variables.scss';
 
 :host {
-    &.no-padding {
+    &.no-padding,
+    &.compact {
         ion-list {
             padding-top: 0;
             padding-bottom: 0;
@@ -30,10 +31,10 @@
     ion-label {
         margin: 0;
     }
-    ion-input {
-        height: 44px;
+    .pef-search.item.md ion-input {
         margin-bottom: 0;
-        border-bottom: none;
+        height: 100%;
+        border: none;
     }
     ion-item.item.md.pef-search {
         height: 3em;
@@ -51,6 +52,24 @@
         }
         pef-icon {
             width: 2em;
+        }
+    }
+    &.compact {
+        ion-list {
+            height: 100%;
+            ion-item.item.md.pef-search {
+                height: 100%;
+                --min-height: 100%;
+                --padding-start: 10px;
+                ion-input {
+                    --padding-top: 0;
+                    --padding-bottom: 0;
+                }
+                ion-label {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
         }
     }
 }
