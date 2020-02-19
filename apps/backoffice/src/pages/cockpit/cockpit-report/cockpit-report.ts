@@ -57,6 +57,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
     public hasExecutedOnce$: Observable<boolean>;
     public filteredPreiserheber$: Observable<P.CockpitPreiserheberSummary[]>;
     public filteredSummary$: Observable<P.CockpitPreismeldungSummary>;
+    public notAssigned$: Observable<P.StichtagGroupedCockpitPreismeldungSummary>;
     public erhebungsZeitpunkt$: Observable<string>;
     public scrollList: Observable<P.CockpitPreiserheberSummary[]>;
 
@@ -100,9 +101,19 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
             }),
         );
 
-        this.filteredPreiserheber$ = formValueChange$.pipe(
+        const filteredPreiserheber$ = formValueChange$.pipe(
             startWith({}),
-            combineLatest(this.cockpitReportData$.pipe(filter(x => !!x)), (form, cockpitReportData) => {
+            combineLatest(this.cockpitReportData$.pipe(filter(x => !!x))),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
+        this.notAssigned$ = filteredPreiserheber$.pipe(
+            map(([form, cockpitReportData]) =>
+                !form.preiserheberFilter ? cockpitReportData.unassigned.summary : null,
+            ),
+        );
+
+        this.filteredPreiserheber$ = filteredPreiserheber$.pipe(
+            map(([form, cockpitReportData]) => {
                 const erhebungsZeitpunktKey = this.form.value.erhebungsZeitpunkt;
                 const showAll = erhebungsZeitpunktKey === 'indifferent';
                 const filterStichtage = (preiserhebers: P.CockpitPreiserheberSummary[]) => {
@@ -111,18 +122,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                         : preiserhebers.filter(pe => !!pe.summary && pe.summary[erhebungsZeitpunktKey].total > 0);
                 };
                 if (!form.preiserheberFilter) {
-                    const unassigned = {
-                        username: 'unassigned',
-                        erheber: {
-                            firstName: 'Nicht zugeordnete Preismeldestellen',
-                            surname: '',
-                            erhebungsregion: '',
-                        } as P.Models.Erheber,
-                        lastSyncedAt: '',
-                        summary: cockpitReportData.unassigned.summary,
-                        pmsPreismeldungSummary: cockpitReportData.unassigned.pmsPreismeldungSummary,
-                    } as P.CockpitPreiserheberSummary;
-                    return [unassigned].concat(filterStichtage(cockpitReportData.preiserheber));
+                    return filterStichtage(cockpitReportData.preiserheber);
                 } else {
                     return pefSearch(form.preiserheberFilter, filterStichtage(cockpitReportData.preiserheber), [
                         x => x.erheber.firstName,

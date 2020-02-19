@@ -38,6 +38,7 @@ export class CockpitReportDetailComponent extends ReactiveComponent implements O
             );
         }),
     );
+    public pmsSummaryList: any[];
 
     constructor(private navController: NavController) {
         super();

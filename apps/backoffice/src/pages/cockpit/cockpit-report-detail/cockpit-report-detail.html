@@ -1,75 +1,90 @@
 <div class="pms-section" *ngIf="!!(preiserheber$ | async)">
-    <h3>
-        <span>{{ (preiserheber$ | async).erheber.firstName }} {{ (preiserheber$ | async).erheber.surname }}</span>
-        <span *ngIf="!!(preiserheber$ | async).erheber.erhebungsregion"
-            >, {{ (preiserheber$ | async).erheber.erhebungsregion }}</span
-        >
-    </h3>
-    <div class="last-synced-at">
-        Zuletzt synchronisiert am:
-        <b>{{
-            !(preiserheber$ | async).lastSyncedAt ? '&ndash;' : ((preiserheber$ | async).lastSyncedAt | date: 'medium')
-        }}</b>
-    </div>
-    <div class="pms-summary-header">
-        <div class="name"></div>
-        <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
-            <pef-icon name="download"></pef-icon>
-        </div>
-        <div class="offen-nicht-erfasst" title="#Preise auf Tablet zu erfassen">
-            <pef-icon name="todo"></pef-icon>
-        </div>
-        <div class="offen-erfasst" title="#Prerise auf Tablet erfasst aber nicht hochgeladen">
-            <pef-icon name="checkmark"></pef-icon>
-        </div>
-        <div class="hochgeladene" title="#Preise von Tablet hochgeladen">
-            <pef-icon name="upload"></pef-icon>
-        </div>
-    </div>
-    <pef-virtual-scroll
-        [items]="pmsSummaryList$ | async"
-        (update)="pmsSummaryList = $event"
-        pef-perfect-scrollbar
-        [enabled]="true"
-        [scrollToTop]="pmsSummaryList$ | async"
-    >
-        <ion-item
-            class="pef-advanced-item pms-summary-row"
-            *ngFor="let pmsSummary of pmsSummaryList"
-            (click)="navigateToPmsEdit(pmsSummary.pms.pmsNummer)"
-            tappable
-        >
-            <div class="preismeldung-wrapper">
-                <div class="pef-item-description name">
-                    <div class="text pms-name" title="[{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}">
-                        [{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}
-                    </div>
-                    <div class="artikel-text">{{ pmsSummary.pms.erhebungsregion }}</div>
-                </div>
-                <div class="heruntergeladene">
-                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].synced"
-                        >{{ pmsSummary.summary[erhebungsZeitpunktKey].total }} /
-                        {{ pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}
-                    </span>
-                </div>
-                <div class="offen-nicht-erfasst">
-                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingTodo"
-                        >{{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}
-                    </span>
-                </div>
-                <div class="offen-erfasst">
-                    <span
-                        class="status-number"
-                        [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingToUpload"
-                        >{{ pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded }}</span
-                    >
-                </div>
-                <div class="hochgeladene">
-                    <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].uploadedAll">{{
-                        pmsSummary.summary[erhebungsZeitpunktKey].uploaded
-                    }}</span>
-                </div>
-            </div>
+    <div class="list-header">
+        <ion-item class="heading pef-advanced-item">
+            <span>{{ (preiserheber$ | async).erheber.firstName }} {{ (preiserheber$ | async).erheber.surname }}</span>
+            <span *ngIf="!!(preiserheber$ | async).erheber.erhebungsregion"
+                >, {{ (preiserheber$ | async).erheber.erhebungsregion }}</span
+            >
         </ion-item>
-    </pef-virtual-scroll>
+        <ion-item class="heading pef-advanced-item">
+            Zuletzt synchronisiert am:
+            <b>
+                {{ !(preiserheber$ | async).lastSyncedAt ? '&ndash;' : ((preiserheber$ | async).lastSyncedAt | date:
+                'medium') }}
+            </b>
+        </ion-item>
+        <div class="labels">
+            <div class="name"></div>
+            <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
+                <pef-icon name="download"></pef-icon>
+            </div>
+            <div class="offen-nicht-erfasst" title="#Preise auf Tablet zu erfassen">
+                <pef-icon name="todo"></pef-icon>
+            </div>
+            <div class="offen-erfasst" title="#Prerise auf Tablet erfasst aber nicht hochgeladen">
+                <pef-icon name="checkmark"></pef-icon>
+            </div>
+            <div class="hochgeladene" title="#Preise von Tablet hochgeladen">
+                <pef-icon name="upload"></pef-icon>
+            </div>
+        </div>
+    </div>
+    <div class="viratual-scroll-wrapper">
+        <pef-virtual-scroll
+            [items]="pmsSummaryList$ | async"
+            (update)="pmsSummaryList = $event"
+            [childHeight]="60"
+            pef-perfect-scrollbar
+            [enabled]="true"
+            [scrollToTop]="pmsSummaryList$ | async"
+        >
+            <ion-item
+                class="pef-advanced-item pms-summary-row"
+                *ngFor="let pmsSummary of pmsSummaryList"
+                (click)="navigateToPmsEdit(pmsSummary.pms.pmsNummer)"
+                tappable
+            >
+                <ion-label>
+                    <div class="pef-item-description">
+                        <div class="text pms-name" title="[{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}">
+                            [{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}
+                        </div>
+                        <div class="artikel-text">{{ pmsSummary.pms.erhebungsregion }}</div>
+                    </div>
+                    <div class="entry-summary">
+                        <div class="heruntergeladene">
+                            <span class="status-number" [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].synced">
+                                {{ pmsSummary.summary[erhebungsZeitpunktKey].total }} / {{
+                                pmsSummary.summary[erhebungsZeitpunktKey].newPreismeldungen }}
+                            </span>
+                        </div>
+                        <div class="offen-nicht-erfasst">
+                            <span
+                                class="status-number"
+                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingTodo"
+                            >
+                                {{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}
+                            </span>
+                        </div>
+                        <div class="offen-erfasst">
+                            <span
+                                class="status-number"
+                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingToUpload"
+                            >
+                                {{ pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded }}
+                            </span>
+                        </div>
+                        <div class="hochgeladene">
+                            <span
+                                class="status-number"
+                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].uploadedAll"
+                            >
+                                {{ pmsSummary.summary[erhebungsZeitpunktKey].uploaded }}
+                            </span>
+                        </div>
+                    </div>
+                </ion-label>
+            </ion-item>
+        </pef-virtual-scroll>
+    </div>
 </div>
