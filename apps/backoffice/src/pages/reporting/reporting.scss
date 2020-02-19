@@ -6,6 +6,10 @@
         flex-direction: column;
         overflow: auto;
 
+        .reports {
+            font-size: 16px;
+        }
+
         ::ng-deep {
             .container {
                 padding: 10px;
