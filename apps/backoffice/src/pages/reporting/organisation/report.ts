@@ -41,9 +41,6 @@ export class OrganisationReportComponent extends ReactiveComponent implements On
             .sort(numeric ? sortNumericBeginningText : undefined)
             .filter(x => x !== 'N/A')
             .map(key => ({ key, value: dataMap[key] }));
-        if (dataMap['N/A'] != null) {
-            list.push({ key: 'N/A', value: dataMap['N/A'] });
-        }
         return list;
     }
 }
