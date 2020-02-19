@@ -12,10 +12,18 @@
             flex: 1;
             display: flex;
             justify-content: space-between;
-            div {
+            .right {
                 flex: 0 1 auto;
+                display: flex;
                 .close {
                     cursor: pointer;
+                    background-color: transparent;
+                    display: flex;
+                    pef-icon {
+                        margin: -0.5em;
+                        width: 3em;
+                        height: 3em;
+                    }
                 }
             }
         }

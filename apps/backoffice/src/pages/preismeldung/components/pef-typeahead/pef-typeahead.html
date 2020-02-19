@@ -56,7 +56,9 @@
     <div *ngIf="multi" class="tags">
         <ion-item *ngFor="let suggestion of (selectedSuggestions$ | async)">
             <div class="tag">
-                <span class="remove" (click)="removeSuggestion$.emit(suggestion)">✖</span>
+                <button class="remove" type="button" (click)="removeSuggestion$.emit(suggestion)">
+                    <pef-icon name="close_screen"></pef-icon>
+                </button>
                 {{ suggestion.shortLabel || suggestion.label }}
             </div>
         </ion-item>
