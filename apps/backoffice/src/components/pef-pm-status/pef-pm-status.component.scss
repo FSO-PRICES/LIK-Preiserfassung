@@ -1,6 +1,8 @@
 @import '../../theme/imports.scss';
 
 :host {
+    display: flex;
+
     input[type='range'] {
         width: 2em;
         -webkit-appearance: none;
