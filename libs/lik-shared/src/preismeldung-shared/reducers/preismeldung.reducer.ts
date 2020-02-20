@@ -663,7 +663,7 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                         pmId: newPmId,
                         refPreismeldung: null,
                         sortierungsnummer: getNextNewSortierungsnummer(
-                            state.isInRecordMode,
+                            state.isInRecordMode || !!action.payload.forceRecordMode,
                             allPreismeldungen,
                             action.payload.warenkorbPosition.gliederungspositionsnummer,
                         ),

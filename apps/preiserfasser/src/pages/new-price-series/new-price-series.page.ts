@@ -5,6 +5,8 @@ import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { combineLatest, filter, map, publishReplay, refCount, take, withLatestFrom } from 'rxjs/operators';
 
+import { PreismeldungAction } from '@lik-shared';
+
 import * as P from '../../common-models';
 import * as fromRoot from '../../reducers';
 
@@ -79,12 +81,13 @@ export class NewPriceSeriesPage implements OnInit, OnDestroy {
             ),
             this.closeChooseFromWarenkorb$.pipe(withLatestFrom(pmsNummerParam$)).subscribe(([x, pmsNummer]) => {
                 if (!!x) {
-                    this.store.dispatch({
+                    this.store.dispatch(<PreismeldungAction>{
                         type: 'NEW_PREISMELDUNG',
                         payload: {
                             warenkorbPosition: x.warenkorbPosition,
                             bearbeitungscode: x.bearbeitungscode,
                             pmsNummer,
+                            forceRecordMode: true,
                         },
                     });
                 }

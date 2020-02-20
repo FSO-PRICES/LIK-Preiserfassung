@@ -134,6 +134,7 @@ export type PreismeldungAction =
               pmsNummer: string;
               bearbeitungscode: P.Models.Bearbeitungscode;
               warenkorbPosition: P.Models.WarenkorbLeaf;
+              forceRecordMode?: boolean;
           };
       }
     | { type: 'SELECT_CONTROLLING_PM_WITH_BAG'; payload: P.PreismeldungBag }
