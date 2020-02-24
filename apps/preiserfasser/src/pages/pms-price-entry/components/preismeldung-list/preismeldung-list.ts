@@ -160,8 +160,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         const selectFilter$ = this.selectFilterClicked$.pipe(
             startWith('ALL' as Filters),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
         const isFilter = (f: Filters) =>
             selectFilter$.pipe(
@@ -214,12 +213,18 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         );
         this.startDrag$.pipe(takeUntil(this.onDestroy$)).subscribe(evt => (this.drake as any).grab(evt));
 
-        const filteredPreismeldungen$ = this.preismeldungen$.pipe(
+        const filterChanged$ = this.filterText$.pipe(
+            startWith(''),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
+
+        this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
             withLatestFrom(this.currentDate$),
-            map(([preismeldungen, currentDate]) =>
+            combineLatest(markedPreismeldungen$),
+            map(([[preismeldungen, currentDate], markedIds]) =>
                 preismeldungen.map(bag => ({
                     ...bag,
-                    marked: false,
+                    marked: markedIds.lastIndexOf(bag.pmId) !== -1,
                     stichtagStatus: this.calcStichtagStatus(bag, currentDate),
                     percentage: this.formatPercentageChange(bag.preismeldung),
                     bearbeitungscodeDescription: this.getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode),
@@ -234,7 +239,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                     : preismeldungen,
             ),
             combineLatest(
-                this.filterText$.pipe(startWith('')),
+                filterChanged$,
                 selectFilter$,
                 this.currentLanguage$,
                 (preismeldungen, filterText, filterStatus, currentLanguage) => {
@@ -279,13 +284,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 }));
             }),
             debounceTime(100),
-            publishReplay(1),
-            refCount(),
-        );
-        this.filteredPreismeldungen$ = filteredPreismeldungen$.pipe(
-            combineLatest(markedPreismeldungen$, (preismeldungen, markedIds) =>
-                preismeldungen.map(bag => ({ ...bag, marked: markedIds.lastIndexOf(bag.pmId) !== -1 })),
-            ),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
         this.noPreismeldungen$ = this.filteredPreismeldungen$.pipe(
             withLatestFrom(this.preismeldungen$, (filtered, preismeldungen) =>
@@ -424,29 +423,24 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.currentPreismeldung$
             .pipe(
-                combineLatest(filteredPreismeldungen$, (bag, filteredPreismeldungen) => ({
-                    bag,
-                    filteredPreismeldungen,
-                })),
-                withLatestFrom(this.ionItemHeight$, (x, ionItemHeight: number) => ({
-                    bag: x.bag,
-                    filteredPreismeldungen: x.filteredPreismeldungen,
-                    ionItemHeight,
-                })),
-                delay(100),
+                // combineLatest here is being used as event handlers instead of listening to filteredPreismeldungen$
+                // because this stream also listens to markedPreismeldungen$.
+                combineLatest(this.preismeldungen$, filterChanged$, selectFilter$, sortByErhebungsschema$, bag => bag),
+                delay(200),
+                withLatestFrom(this.filteredPreismeldungen$, this.ionItemHeight$.asObservable()),
                 takeUntil(this.onDestroy$),
             )
-            .subscribe(x => {
-                if (!x.bag) return;
-                const index = x.filteredPreismeldungen.findIndex(y => y.pmId === x.bag.pmId);
+            .subscribe(([bag, filteredPreismeldungen, ionItemHeight]) => {
+                if (!bag) return;
+                const index = filteredPreismeldungen.findIndex(y => y.pmId === bag.pmId);
                 if (index < 0) return;
                 const d = this.virtualScroll.calculateDimensions();
-                if ((index + 1) * x.ionItemHeight > this.virtualScroll.element.nativeElement.scrollTop + d.viewHeight) {
-                    this.virtualScroll.element.nativeElement.scrollTop = (index + 1) * x.ionItemHeight - d.viewHeight;
+                if ((index + 1) * ionItemHeight > this.virtualScroll.element.nativeElement.scrollTop + d.viewHeight) {
+                    this.virtualScroll.element.nativeElement.scrollTop = (index + 1) * ionItemHeight - d.viewHeight;
                     this.virtualScroll.refresh();
                 }
-                if (index * x.ionItemHeight < this.virtualScroll.element.nativeElement.scrollTop) {
-                    this.virtualScroll.element.nativeElement.scrollTop = index * x.ionItemHeight;
+                if (index * ionItemHeight < this.virtualScroll.element.nativeElement.scrollTop) {
+                    this.virtualScroll.element.nativeElement.scrollTop = index * ionItemHeight;
                     this.virtualScroll.refresh();
                 }
             });
