@@ -69,6 +69,9 @@ ion-item-sliding.adv-preismeldung-item-draggable {
             }
         }
     }
+    &.moving {
+        opacity: 0.6;
+    }
     .preismeldung-wrapper {
         margin: 0;
         display: flex;

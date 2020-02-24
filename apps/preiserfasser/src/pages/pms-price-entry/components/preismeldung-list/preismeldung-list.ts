@@ -31,6 +31,7 @@ import {
     shareReplay,
     startWith,
     takeUntil,
+    tap,
     withLatestFrom,
 } from 'rxjs/operators';
 
@@ -49,6 +50,7 @@ type Filters = 'TODO' | 'COMPLETED' | 'ALL' | 'FAVORITES';
 type DropPreismeldungArg = { preismeldungPmId: string; dropBeforePmId: string };
 type AdvancedPreismeldungBag = P.PreismeldungBag & {
     marked: boolean;
+    moving: boolean;
     dragable: boolean;
     dragableTo: boolean;
     lastUploaded: boolean;
@@ -107,6 +109,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectFilterClicked$ = new EventEmitter<Filters>();
     public sortErhebungsschemaClicked$ = new EventEmitter();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
+    public movePreismeldung$ = new EventEmitter<string>();
 
     public noPreismeldungen$: Observable<string>;
     public filterTodoColor$: Observable<string>;
@@ -158,6 +161,28 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         const markedPreismeldungen$ = this.markedPreismeldungen$.pipe(startWith([]));
 
+        type MovePm = { moveTo: DropPreismeldungArg; selected: string };
+        const movePm$ = this.movePreismeldung$.pipe(
+            scan<string, MovePm>(
+                (prev, selected) => {
+                    return prev.selected === null
+                        ? { moveTo: null, selected }
+                        : selected === prev.selected
+                        ? { moveTo: null, selected: null }
+                        : { moveTo: { dropBeforePmId: selected, preismeldungPmId: prev.selected }, selected: null };
+                },
+                { moveTo: null, selected: null },
+            ),
+        );
+        const moveToPm$ = movePm$.pipe(
+            filter(({ moveTo }) => moveTo !== null),
+            map(({ moveTo }) => moveTo),
+        );
+        const markedToMove$ = movePm$.pipe(
+            map(({ selected }) => [selected]),
+            startWith([]),
+        );
+
         const selectFilter$ = this.selectFilterClicked$.pipe(
             startWith('ALL' as Filters),
             shareReplay({ bufferSize: 1, refCount: true }),
@@ -178,12 +203,13 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.filterFavoritesColor$ = filterFavorites$.pipe(map(toColor));
 
         const currentPreismeldung$ = this.currentPreismeldung$.pipe(
-            withLatestFrom(markedPreismeldungen$, this.currentDate$),
-            map(([bag, markedIds, currentDate]) =>
+            withLatestFrom(markedPreismeldungen$, markedToMove$, this.currentDate$),
+            map(([bag, markedIds, markedToMove, currentDate]) =>
                 bag
                     ? {
                           ...bag,
                           marked: markedIds.some(id => id === bag.pmId),
+                          moving: markedToMove.indexOf(bag.pmId) !== -1,
                           stichtagStatus: this.calcStichtagStatus(bag, currentDate),
                           percentage: this.formatPercentageChange(bag.preismeldung),
                           bearbeitungscodeDescription: this.getBearbeitungscodeDescription(
@@ -220,11 +246,12 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.filteredPreismeldungen$ = this.preismeldungen$.pipe(
             withLatestFrom(this.currentDate$),
-            combineLatest(markedPreismeldungen$),
-            map(([[preismeldungen, currentDate], markedIds]) =>
+            combineLatest(markedPreismeldungen$, markedToMove$),
+            map(([[preismeldungen, currentDate], markedIds, markedToMove]) =>
                 preismeldungen.map(bag => ({
                     ...bag,
                     marked: markedIds.lastIndexOf(bag.pmId) !== -1,
+                    moving: markedToMove.indexOf(bag.pmId) !== -1,
                     stichtagStatus: this.calcStichtagStatus(bag, currentDate),
                     percentage: this.formatPercentageChange(bag.preismeldung),
                     bearbeitungscodeDescription: this.getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode),
@@ -302,6 +329,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         );
 
         this.saveOrder$ = this.dropPreismeldung$.pipe(
+            merge(moveToPm$),
             withLatestFrom(this.filteredPreismeldungen$),
             takeUntil(this.onDestroy$),
             map(([{ dropBeforePmId, preismeldungPmId }, preismeldungen]) => {
