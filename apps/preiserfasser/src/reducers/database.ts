@@ -3,7 +3,8 @@ import * as database from '../actions/database';
 export interface State {
     databaseExists?: boolean;
     isDatabaseSyncing: SyncState;
-    canConnectToDatabase: boolean;
+    canConnectToDatabase: boolean | null;
+    isCompatibleToDatabase: boolean | null;
     lastUploadedAt: Date;
     lastSyncedAt: Date;
     syncError: string;
@@ -19,7 +20,8 @@ export enum SyncState {
 const initialState: State = {
     databaseExists: null,
     isDatabaseSyncing: SyncState.none,
-    canConnectToDatabase: false,
+    canConnectToDatabase: null,
+    isCompatibleToDatabase: null,
     lastUploadedAt: null,
     lastSyncedAt: null,
     syncError: null,
@@ -28,39 +30,43 @@ const initialState: State = {
 export function reducer(state = initialState, action: database.Actions): State {
     switch (action.type) {
         case 'SET_DATABASE_LAST_UPLOADED_AT':
-            return Object.assign({}, state, { lastUploadedAt: action.payload });
+            return { ...state, lastUploadedAt: action.payload };
 
         case 'RESET_CONNECTIVITY_TO_DATABASE':
-            return Object.assign({}, state, { canConnectToDatabase: null });
+            return { ...state, canConnectToDatabase: null };
 
         case 'SET_CONNECTIVITY_STATUS':
-            return Object.assign({}, state, { canConnectToDatabase: action.payload });
+            return { ...state, canConnectToDatabase: action.payload };
+
+        case 'SET_COMPATIBILITY_STATUS':
+            return { ...state, isCompatibleToDatabase: action.payload };
 
         case 'RESET_DATABASE_SYNC_STATE':
-            return Object.assign({}, state, { isDatabaseSyncing: SyncState.none, syncError: null });
+            return { ...state, isDatabaseSyncing: SyncState.none, syncError: null };
 
         case 'SET_DATABASE_IS_SYNCING':
-            return Object.assign({}, state, { isDatabaseSyncing: SyncState.syncing, syncError: null });
+            return { ...state, isDatabaseSyncing: SyncState.syncing, syncError: null };
 
         case 'SYNC_DATABASE_FAILURE':
-            return Object.assign({}, state, { isDatabaseSyncing: SyncState.error, syncError: action.payload });
+            return { ...state, isDatabaseSyncing: SyncState.error, syncError: action.payload };
 
         case 'SYNC_DATABASE_SUCCESS':
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 databaseExists: true,
                 isDatabaseSyncing: SyncState.ready,
                 syncError: null,
                 lastSyncedAt: action.payload || state.lastSyncedAt,
-            });
+            };
 
         case 'CHECK_DATABASE_EXISTS':
-            return Object.assign({}, state, { databaseExists: null });
+            return { ...state, databaseExists: null };
 
         case 'SET_DATABASE_EXISTS':
-            return Object.assign({}, state, { databaseExists: action.payload });
+            return { ...state, databaseExists: action.payload };
 
         case 'LOAD_DATABASE_LAST_SYNCED_AT_SUCCESS':
-            return Object.assign({}, state, { lastSyncedAt: action.payload });
+            return { ...state, lastSyncedAt: action.payload };
 
         default:
             return state;

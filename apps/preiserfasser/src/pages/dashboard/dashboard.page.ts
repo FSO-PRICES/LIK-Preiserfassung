@@ -105,6 +105,7 @@ export class DashboardPage implements OnDestroy {
     );
     public hasOpenSavedPreismeldungen$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
+    public isCompatibleToDatabase$: Observable<boolean>;
     public navigateToPriceEntry$ = new EventEmitter<P.Preismeldestelle>();
     public navigateToPreiserheber$ = new EventEmitter();
     public navigateToSettings$ = new EventEmitter();
@@ -161,9 +162,16 @@ export class DashboardPage implements OnDestroy {
             publishReplay(1),
             refCount(),
         );
+        this.isCompatibleToDatabase$ = this.store
+            .select(x => x.database.isCompatibleToDatabase)
+            .pipe(
+                publishReplay(1),
+                refCount(),
+            );
         const canConnectToDatabase$ = this.store
             .select(x => x.database.canConnectToDatabase)
             .pipe(
+                combineLatest(this.isCompatibleToDatabase$, (connectable, compatible) => connectable && compatible),
                 publishReplay(1),
                 refCount(),
             );
@@ -219,14 +227,11 @@ export class DashboardPage implements OnDestroy {
             startWith(false),
         );
 
-        this.canConnectToDatabase$ = this.store
-            .select(x => x.database.canConnectToDatabase)
-            .pipe(
-                filter(x => x !== null),
-                startWith(false),
-                publishReplay(1),
-                refCount(),
-            );
+        this.canConnectToDatabase$ = canConnectToDatabase$.pipe(
+            startWith(false),
+            publishReplay(1),
+            refCount(),
+        );
 
         this.subscriptions = [
             databaseExists$

@@ -6,9 +6,10 @@ import pouchDbAuthentication from 'pouchdb-authentication';
 import pouchDBDebug from 'pouchdb-debug';
 import { bindNodeCallback, from, Observable, Observer, of, throwError } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
-import { flatMap, map } from 'rxjs/operators';
+import { flatMap, map, switchMap } from 'rxjs/operators';
 
 import { Models as P } from '@lik-shared';
+import { environment } from '../environments/environment';
 
 PouchDBAllDbs(PouchDB);
 PouchDB.plugin(pouchDbAuthentication);
@@ -65,7 +66,7 @@ export const checkIfDatabaseExists = (): Promise<boolean> =>
             .then(version => version === P.ExpectedDbSchemaVersion);
     });
 
-export function checkConnectivity(url) {
+export function checkConnectivity(url: string) {
     return ajax({
         url,
         headers: { 'Content-Type': 'application/json' },
@@ -81,6 +82,7 @@ export function checkConnectivity(url) {
                 resp.response['version'].indexOf('2.1') === 0 ||
                 resp.response['version'].indexOf('2.3') === 0,
         ),
+        switchMap(canConnect => isCompatible(url).then(isCompatible => ({ canConnect, isCompatible: isCompatible }))),
     );
 }
 
@@ -216,4 +218,11 @@ export function initialisePouchForDev() {
     (window as any).PouchDB = PouchDB;
     PouchDB.plugin(pouchDBDebug);
     PouchDB.debug.enable('pouchdb:http');
+}
+
+async function isCompatible(url: string) {
+    const couch = new PouchDB(`${url}/compatibility`, { skip_setup: true }) as PouchDB.Database<{}>;
+    return getDocumentByKeyFromDb<P.CompatibleVersions>(couch, 'compatible_versions').then(c =>
+        c.versions.some(v => environment.compatibilityVersion === v),
+    );
 }

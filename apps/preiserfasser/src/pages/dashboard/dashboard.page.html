@@ -166,6 +166,9 @@
                     <span *ngxLet="(loginError$ | async); let loginError" [hidden]="!loginError" class="error"
                         >{{ loginError }}</span
                     >
+                    <span *ngIf="!(isCompatibleToDatabase$ | async)" class="error" translate
+                        >error_incompatible_version</span
+                    >
                     <pef-icon
                         name="sorting_arrows"
                         class="syncing"

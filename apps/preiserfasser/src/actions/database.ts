@@ -10,6 +10,7 @@ export type Actions =
     | { type: 'CHECK_CONNECTIVITY_TO_DATABASE'; payload: null }
     | { type: 'RESET_CONNECTIVITY_TO_DATABASE'; payload: null }
     | { type: 'SET_CONNECTIVITY_STATUS'; payload: boolean }
+    | { type: 'SET_COMPATIBILITY_STATUS'; payload: boolean | null }
     | { type: 'CHECK_DATABASE_EXISTS'; payload: null }
     | { type: 'SET_DATABASE_EXISTS'; payload: boolean }
     | { type: 'CHECK_DATABASE_LAST_UPLOADED_AT'; payload: null }

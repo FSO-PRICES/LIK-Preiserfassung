@@ -414,3 +414,7 @@ export interface OnOfflineStatus {
     isOffline: boolean;
     updatedAt: number;
 }
+
+export interface CompatibleVersions {
+    versions: number[];
+}

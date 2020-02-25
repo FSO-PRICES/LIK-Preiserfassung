@@ -71,10 +71,15 @@ export class DatabaseEffects {
                     take(1),
                     flatMap(settings =>
                         !!settings && !settings.isDefault
-                            ? checkConnectivity(settings.serverConnection.url).pipe(catchError(() => of(false)))
-                            : of(false),
+                            ? checkConnectivity(settings.serverConnection.url).pipe(
+                                  catchError(() => of({ canConnect: false, isCompatible: null })),
+                              )
+                            : of({ canConnect: false, isCompatible: null }),
                     ),
-                    map(isAlive => ({ type: 'SET_CONNECTIVITY_STATUS', payload: isAlive } as DatabaseAction)),
+                    flatMap(connectivity => [
+                        { type: 'SET_CONNECTIVITY_STATUS', payload: connectivity.canConnect } as DatabaseAction,
+                        { type: 'SET_COMPATIBILITY_STATUS', payload: connectivity.isCompatible } as DatabaseAction,
+                    ]),
                 ),
             ),
         ),
