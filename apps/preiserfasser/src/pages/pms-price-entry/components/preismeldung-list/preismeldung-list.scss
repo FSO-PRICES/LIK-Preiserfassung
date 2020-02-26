@@ -25,7 +25,8 @@
         }
     }
 
-    .is-dragging {
+    .is-dragging,
+    .is-moving {
         :not(.selected) ion-item {
             background-color: $wild-sand;
         }

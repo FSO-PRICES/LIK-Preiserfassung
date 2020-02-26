@@ -25,50 +25,62 @@
                 pef-perfect-scrollbar
                 [enabled]="isDesktop"
             >
-                <div
+                <ion-item-sliding
                     *ngFor="let bag of scrollList"
                     class="preismeldung-item-draggable"
+                    [class.marked]="bag.marked"
+                    #slidingList
+                    [disabled]="isDragging$ | async"
                     [attr.data-pmid]="bag.pmId"
                     [class.multi-select]="!!(multiselectIndexes$ | async)[bag.pmId]"
                 >
-                    <div class="when-dragging">
-                        <div class="inner-part">
-                            <div class="message">
-                                Many Preismeldungen
+                    <ion-item>
+                        <div class="when-dragging">
+                            <div class="inner-part">
+                                <div class="message">
+                                    Many Preismeldungen
+                                </div>
+                                <button class="drag-handle">
+                                    <pef-icon name="stroke"></pef-icon>
+                                </button>
                             </div>
-                            <button class="drag-handle">
-                                <pef-icon name="stroke"></pef-icon>
-                            </button>
                         </div>
-                    </div>
-                    <div class="when-not-dragging">
-                        <button
-                            class="selection-button active"
-                            [class.visibility-hidden]="!(multiSelectMode$ | async)"
-                            (click)="selectForMultiselect$.emit(bag.pmId)"
-                        >
-                            {{ (multiselectIndexes$ | async)[bag.pmId] }}
-                        </button>
-                        <div class="box-part">
-                            <div class="preismeldung-position-number">{{ bag.preismeldung.epNummer }}<br />&nbsp;</div>
-                            <div class="preismeldung-description">
-                                <span class="text">{{
-                                    bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate
-                                }}</span>
-                                <span
-                                    class="artikel-text"
-                                    [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"
-                                ></span>
-                            </div>
+                        <div class="when-not-dragging">
                             <button
-                                class="drag-handle"
-                                [disabled]="(multiSelectMode$ | async) && !(multiselectIndexes$ | async)[bag.pmId]"
+                                class="selection-button active"
+                                [class.visibility-hidden]="!(multiSelectMode$ | async)"
+                                (click)="selectForMultiselect$.emit(bag.pmId)"
                             >
-                                <pef-icon name="stroke"></pef-icon>
+                                {{ (multiselectIndexes$ | async)[bag.pmId] }}
                             </button>
+                            <div class="box-part">
+                                <div class="preismeldung-position-number">
+                                    {{ bag.preismeldung.epNummer }}<br />&nbsp;
+                                </div>
+                                <div class="preismeldung-description">
+                                    <span class="text">{{
+                                        bag.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate
+                                    }}</span>
+                                    <span
+                                        class="artikel-text"
+                                        [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"
+                                    ></span>
+                                </div>
+                                <button
+                                    class="drag-handle"
+                                    [disabled]="(multiSelectMode$ | async) && !(multiselectIndexes$ | async)[bag.pmId]"
+                                >
+                                    <pef-icon name="stroke"></pef-icon>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                        <ion-item-options
+                            (ionSwipe)="movePreismeldung$.emit(bag.pmId); slidingList.closeOpened()"
+                            side="end"
+                        >
+                        </ion-item-options>
+                    </ion-item>
+                </ion-item-sliding>
             </pef-virtual-scroll>
         </div>
     </div>

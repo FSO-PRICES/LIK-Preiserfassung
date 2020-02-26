@@ -19,6 +19,7 @@ import { assign, findLastIndex, keys, max, minBy, orderBy, sortBy, takeWhile } f
 import { WINDOW } from 'ngx-window-token';
 import { merge as observableMerge, Observable } from 'rxjs';
 import {
+    combineLatest,
     delay,
     filter,
     flatMap,
@@ -28,6 +29,7 @@ import {
     publishReplay,
     refCount,
     scan,
+    shareReplay,
     startWith,
     take,
     withLatestFrom,
@@ -39,6 +41,10 @@ import * as P from '../../../common-models';
 
 // type SelectablePreismeldungBag = P.PreismeldungBag & { selectionIndex: number };
 type MultiSelectIndexMap = { [pmId: string]: number };
+type SortablePreismeldungBag = P.PreismeldungBag & {
+    marked: boolean;
+    priority: number;
+};
 
 @Component({
     selector: 'pms-sort',
@@ -65,16 +71,18 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
 
     private ngAfterViewInit$ = new EventEmitter();
 
-    public preismeldungen$: Observable<P.PreismeldungBag[]>;
+    public preismeldungen$: Observable<SortablePreismeldungBag[]>;
     public multiselectIndexes$: Observable<MultiSelectIndexMap>;
 
     public multiSelectClick$ = new EventEmitter();
     public multiSelectResetClick$ = new EventEmitter();
     public cancel$ = new EventEmitter();
     public onDrag$ = new EventEmitter();
+    public movePreismeldung$ = new EventEmitter<string>();
     public multiSelectMode$: Observable<boolean>;
     public multipleSelected$: Observable<boolean>;
     public isModified$: Observable<boolean>;
+    public isDragging$: Observable<boolean>;
     public selectForMultiselect$ = new EventEmitter<string>();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
 
@@ -89,6 +97,34 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
             map(preismeldungen => sortBy(preismeldungen, pm => pm.sortierungsnummer)),
             publishReplay(1),
             refCount(),
+        );
+
+        type MovePm = { moveTo: DropPreismeldungArg; selected: string };
+        const movePm$ = this.movePreismeldung$.pipe(
+            merge(this.cancel$.pipe(mapTo(null))),
+            scan<string, MovePm>(
+                (prev, selected) => {
+                    return selected === null || prev.selected === null
+                        ? { moveTo: null, selected }
+                        : selected === prev.selected
+                        ? { moveTo: null, selected: null }
+                        : { moveTo: { dropBeforePmId: selected, preismeldungPmId: prev.selected }, selected: null };
+                },
+                { moveTo: null, selected: null },
+            ),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
+        const moveToPm$ = movePm$.pipe(
+            filter(({ moveTo }) => moveTo !== null),
+            map(({ moveTo }) => moveTo),
+        );
+        const markedToMove$ = movePm$.pipe(
+            map(({ selected }) => [selected]),
+            startWith([] as string[]),
+        );
+        this.isDragging$ = observableMerge(
+            this.onDrag$.asObservable().pipe(mapTo(true)),
+            this.dropPreismeldung$.asObservable().pipe(mapTo(false)),
         );
 
         const preismeldungen$ = allPreismeldungen$.pipe(
@@ -132,12 +168,13 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
         );
 
         type PreismeldungenOrderAction =
-            | { type: 'RESET'; payload: P.PreismeldungBag[] }
+            | { type: 'RESET'; payload: SortablePreismeldungBag[] }
             | { type: 'DROP_PREISMELDUNG'; payload: DropPreismeldungArg };
         this.preismeldungen$ = preismeldungen$.pipe(
             merge(resetPreismeldungenList$),
             map(payload => ({ type: 'RESET', payload })),
             merge(this.dropPreismeldung$.pipe(map(payload => ({ type: 'DROP_PREISMELDUNG', payload })))),
+            merge(moveToPm$.pipe(map(payload => ({ type: 'DROP_PREISMELDUNG', payload })))),
             withLatestFrom(
                 this.multiSelectMode$,
                 this.multiselectIndexes$.pipe(startWith(null)),
@@ -159,7 +196,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                     const dropPreismeldungBeforePriority = !dropBeforePmId
                         ? Number.MAX_VALUE
                         : prioritizedPm.find(b => b.pmId === dropBeforePmId).priority;
-                    let preismeldungenTemp: (P.PreismeldungBag & { priority: number })[];
+                    let preismeldungenTemp: (SortablePreismeldungBag & { priority: number })[];
                     if (!v.multiSelectMode) {
                         preismeldungenTemp = prioritizedPm.map(b =>
                             b.pmId === preismeldungPmId
@@ -195,17 +232,21 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
                     return sortedPm.map((b, i) => {
                         const pm =
                             i > lastSaisonalPmIndex
-                                ? assign({}, b, {
+                                ? {
+                                      ...b,
                                       sortierungsnummer:
                                           Math.round(minSortNummer) +
                                           i -
                                           (lastSaisonalPmIndex > 0 ? lastSaisonalPmIndex : 0),
-                                  })
+                                  }
                                 : b;
-                        return assign({}, pm, { selectionIndex: null });
+                        return { ...pm, selectionIndex: null };
                     });
                 },
-                [] as P.PreismeldungBag[],
+                [] as SortablePreismeldungBag[],
+            ),
+            combineLatest(markedToMove$, (preismeldungen, marked) =>
+                preismeldungen.map(bag => ({ ...bag, marked: marked.indexOf(bag.pmId) !== -1 })),
             ),
             publishReplay(1),
             refCount(),
@@ -240,6 +281,7 @@ export class PmsSortComponent extends ReactiveComponent implements OnChanges, On
             this.cancel$.pipe(mapTo(false)),
             this.preismeldungSortSave$.pipe(mapTo(false)),
             this.onDrag$.pipe(mapTo(true)),
+            moveToPm$.pipe(mapTo(true)),
         ).pipe(startWith(false));
 
         this.subscriptions.push(

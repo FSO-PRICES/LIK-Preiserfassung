@@ -56,6 +56,7 @@
         pef-perfect-scrollbar
         [enabled]="isDesktop"
         [class.can-reorder]="canReorder$ | async"
+        [class.is-moving]="isMoving$ | async"
         #pmList
     >
         <ion-item-sliding
@@ -68,6 +69,7 @@
             *ngFor="let bag of scrollList; trackBy: trackByFn; let i = index"
             [attr.data-pmid]="bag.pmId"
             #slidingList
+            [disabled]="!(canReorder$ | async) || bag.disableMove"
             [class.dragable-item]="bag.dragable"
             [class.dragable-to-item]="bag.dragableTo"
             [class.last-uploaded-item]="bag.lastUploaded"

@@ -76,6 +76,7 @@
                 [currentPreismeldung]="currentPreismeldung$ | async"
                 [isInRecordMode]="isInRecordMode$ | async"
                 [markedPreismeldungen]="markedPreismeldungen$ | async"
+                [saved]="save$ | async"
                 (selectPreismeldung)="selectPreismeldung$.emit($event)"
                 (addNewPreisreihe)="addNewPreisreihe$.emit()"
                 (sortPreismeldungen)="navigateToPmsSort$.emit()"
