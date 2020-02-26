@@ -141,6 +141,13 @@ ion-item-sliding.adv-preismeldung-item-draggable {
             text-align: right;
         }
     }
+    &.selected:hover {
+        .preismeldung-position-number,
+        .preismeldung-description .text,
+        .preismeldung-description .artikel-text {
+            color: $white;
+        }
+    }
     &:hover:not(.selected) {
         .preismeldung-position-number,
         .preismeldung-description .text,
@@ -161,6 +168,19 @@ ion-item-sliding.adv-preismeldung-item-draggable {
     align-items: center;
     min-height: 3.5em;
     @include set-margin-bottom(0.25);
+
+    ion-item {
+        width: 100%;
+        --padding-start: 0;
+        --inner-padding-end: 0;
+    }
+
+    &.marked {
+        .box-part,
+        .inner-part {
+            background-color: $egg-white;
+        }
+    }
 
     .when-dragging {
         display: none;

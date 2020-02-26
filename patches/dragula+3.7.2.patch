@@ -1,6 +1,5 @@
 diff --git a/node_modules/dragula/dragula.js b/node_modules/dragula/dragula.js
-index 4f73231..fa8a567 100644
-// This patch allows to delay the dragula grab event
+index 4f73231..5f8ec58 100644
 --- a/node_modules/dragula/dragula.js
 +++ b/node_modules/dragula/dragula.js
 @@ -39,10 +39,13 @@ function dragula (initialContainers, options) {
@@ -28,7 +27,23 @@ index 4f73231..fa8a567 100644
      touchy(documentElement, op, 'mouseup', release);
    }
  
-@@ -104,6 +109,7 @@ function dragula (initialContainers, options) {
+@@ -86,12 +91,14 @@ function dragula (initialContainers, options) {
+   }
+ 
+   function preventGrabbed (e) {
++    e.stopPropagation();
+     if (_grabbed) {
+       e.preventDefault();
+     }
+   }
+ 
+-  function grab (e) {
++  function grab(e) {
++    e.stopPropagation();
+     _moveX = e.clientX;
+     _moveY = e.clientY;
+ 
+@@ -104,6 +111,7 @@ function dragula (initialContainers, options) {
      if (!context) {
        return;
      }
@@ -36,7 +51,15 @@ index 4f73231..fa8a567 100644
      _grabbed = context;
      eventualMovements();
      if (e.type === 'mousedown') {
-@@ -303,6 +309,10 @@ function dragula (initialContainers, options) {
+@@ -116,6 +124,7 @@ function dragula (initialContainers, options) {
+   }
+ 
+   function startBecauseMouseMoved (e) {
++    e.stopPropagation();
+     if (!_grabbed) {
+       return;
+     }
+@@ -303,6 +312,10 @@ function dragula (initialContainers, options) {
  
    function cleanup () {
      var item = _copy || _item;
@@ -47,7 +70,15 @@ index 4f73231..fa8a567 100644
      ungrab();
      removeMirrorImage();
      if (item) {
-@@ -399,12 +409,22 @@ function dragula (initialContainers, options) {
+@@ -358,6 +371,7 @@ function dragula (initialContainers, options) {
+     if (!_mirror) {
+       return;
+     }
++    e.stopPropagation();
+     e.preventDefault();
+ 
+     var clientX = getCoord('clientX', e);
+@@ -399,12 +413,22 @@ function dragula (initialContainers, options) {
      }
      if (
        (reference === null && changed) ||
@@ -74,7 +105,7 @@ index 4f73231..fa8a567 100644
      }
      function moved (type) { drake.emit(type, item, _lastDropTarget, _source); }
      function over () { if (changed) { moved('over'); } }
-@@ -605,4 +625,20 @@ function getCoord (coord, e) {
+@@ -605,4 +629,20 @@ function getCoord (coord, e) {
    return host[coord];
  }
  
