@@ -115,7 +115,10 @@ function sortAndTransformWarenkorb(
                 }
             },
             sortString: gpMap[w.parentGliederungspositionsnummer]
-                ? `${gpMap[w.parentGliederungspositionsnummer].sortString}_${w.gliederungspositionsnummer}`
+                ? `${gpMap[w.parentGliederungspositionsnummer].sortString}_${w.gliederungspositionsnummer.padStart(
+                      5,
+                      '0',
+                  )}`
                 : `${w.gliederungspositionsnummer.padStart(5, '0')}`,
         };
         if (gpMap[w.parentGliederungspositionsnummer]) {
