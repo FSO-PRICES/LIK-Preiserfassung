@@ -69,9 +69,6 @@ ion-item-sliding.adv-preismeldung-item-draggable {
             }
         }
     }
-    &.moving {
-        opacity: 0.6;
-    }
     .preismeldung-wrapper {
         margin: 0;
         display: flex;
@@ -178,7 +175,7 @@ ion-item-sliding.adv-preismeldung-item-draggable {
     &.marked {
         .box-part,
         .inner-part {
-            background-color: $egg-white;
+            background-color: $foam;
         }
     }
 

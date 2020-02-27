@@ -112,7 +112,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public selectFilterClicked$ = new EventEmitter<Filters>();
     public sortErhebungsschemaClicked$ = new EventEmitter();
     public dropPreismeldung$ = new EventEmitter<DropPreismeldungArg>();
-    public movePreismeldung$ = new EventEmitter<string>();
+    public movePreismeldung$ = new EventEmitter<AdvancedPreismeldungBag>();
 
     public noPreismeldungen$: Observable<string>;
     public filterTodoColor$: Observable<string>;
@@ -165,8 +165,50 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         const markedPreismeldungen$ = this.markedPreismeldungen$.pipe(startWith([]));
         const saved$ = this.observePropertyCurrentValue<{}>('saved');
 
+        const selectFilter$ = this.selectFilterClicked$.pipe(
+            startWith('ALL' as Filters),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
+        const isFilter = (f: Filters) =>
+            selectFilter$.pipe(
+                startWith(false),
+                map(x => x === f),
+            );
+        const filterAll$ = isFilter('ALL');
+        const filterCompleted$ = isFilter('COMPLETED');
+        const filterTodo$ = isFilter('TODO');
+        const filterFavorites$ = isFilter('FAVORITES');
+
+        this.filterTodoColor$ = filterTodo$.pipe(map(toColor));
+        this.filterCompletedColor$ = filterCompleted$.pipe(map(toColor));
+        this.filterAllColor$ = filterAll$.pipe(map(toColor));
+        this.filterFavoritesColor$ = filterFavorites$.pipe(map(toColor));
+
+        const sortByErhebungsschema$ = this.sortErhebungsschemaClicked$.pipe(
+            scan((x, _) => !x, false),
+            startWith(false),
+            publishReplay(1),
+            refCount(),
+        );
+        this.sortErhebungsschemaColor$ = sortByErhebungsschema$.pipe(map(toColor));
+
+        this.canReorder$ = filterAll$.pipe(
+            combineLatest(
+                filterFavorites$,
+                sortByErhebungsschema$,
+                (all, favorites, sortByErhebungsschema) => all && !favorites && !sortByErhebungsschema,
+            ),
+            publishReplay(1),
+            refCount(),
+        );
+
+        const moveAction$ = this.movePreismeldung$.pipe(
+            withLatestFrom(this.canReorder$),
+            filter(([bag, canReorder]) => !bag.disableMove && canReorder),
+            map(([bag]) => bag.pmId),
+        );
         type MovePm = { moveTo: DropPreismeldungArg; selected: string };
-        const movePm$ = this.movePreismeldung$.pipe(
+        const movePm$ = moveAction$.pipe(
             merge(mergeFrom(saved$, this.startDrag$, this.activateReordering$).pipe(mapTo(null))),
             scan<string, MovePm>(
                 (prev, selected) => {
@@ -193,25 +235,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         this.isMoving$ = markedToMove$.pipe(map(list => list.length > 0));
 
-        const selectFilter$ = this.selectFilterClicked$.pipe(
-            startWith('ALL' as Filters),
-            shareReplay({ bufferSize: 1, refCount: true }),
-        );
-        const isFilter = (f: Filters) =>
-            selectFilter$.pipe(
-                startWith(false),
-                map(x => x === f),
-            );
-        const filterAll$ = isFilter('ALL');
-        const filterCompleted$ = isFilter('COMPLETED');
-        const filterTodo$ = isFilter('TODO');
-        const filterFavorites$ = isFilter('FAVORITES');
-
-        this.filterTodoColor$ = filterTodo$.pipe(map(toColor));
-        this.filterCompletedColor$ = filterCompleted$.pipe(map(toColor));
-        this.filterAllColor$ = filterAll$.pipe(map(toColor));
-        this.filterFavoritesColor$ = filterFavorites$.pipe(map(toColor));
-
         const currentPreismeldung$ = this.currentPreismeldung$.pipe(
             withLatestFrom(markedPreismeldungen$, markedToMove$, this.currentDate$),
             map(([bag, markedIds, markedToMove, currentDate]) =>
@@ -230,23 +253,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             ),
         );
 
-        const sortByErhebungsschema$ = this.sortErhebungsschemaClicked$.pipe(
-            scan((x, _) => !x, false),
-            startWith(false),
-            publishReplay(1),
-            refCount(),
-        );
-        this.sortErhebungsschemaColor$ = sortByErhebungsschema$.pipe(map(toColor));
-
-        this.canReorder$ = filterAll$.pipe(
-            combineLatest(
-                filterFavorites$,
-                sortByErhebungsschema$,
-                (all, favorites, sortByErhebungsschema) => all && !favorites && !sortByErhebungsschema,
-            ),
-            publishReplay(1),
-            refCount(),
-        );
         this.startDrag$.pipe(takeUntil(this.onDestroy$)).subscribe(evt => (this.drake as any).grab(evt));
 
         const filterChanged$ = this.filterText$.pipe(

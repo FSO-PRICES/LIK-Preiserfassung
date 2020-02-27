@@ -28,12 +28,22 @@
     .is-dragging,
     .is-moving {
         :not(.selected) ion-item {
-            background-color: $wild-sand;
+            opacity: 0.6;
         }
 
-        .dragable-to-item {
+        :not(.selected).dragable-to-item {
             ion-item {
-                background-color: $white;
+                opacity: 1;
+            }
+        }
+        .moving {
+            ion-item {
+                background-color: $foam;
+            }
+            &.selected {
+                ion-item {
+                    background-color: $scooter;
+                }
             }
         }
     }

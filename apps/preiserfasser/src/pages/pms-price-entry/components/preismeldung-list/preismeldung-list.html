@@ -69,7 +69,6 @@
             *ngFor="let bag of scrollList; trackBy: trackByFn; let i = index"
             [attr.data-pmid]="bag.pmId"
             #slidingList
-            [disabled]="!(canReorder$ | async) || bag.disableMove"
             [class.dragable-item]="bag.dragable"
             [class.dragable-to-item]="bag.dragableTo"
             [class.last-uploaded-item]="bag.lastUploaded"
@@ -111,7 +110,7 @@
                     </div>
                 </div>
             </ion-item>
-            <ion-item-options (ionSwipe)="movePreismeldung$.emit(bag.pmId); slidingList.closeOpened()" side="start">
+            <ion-item-options (ionSwipe)="movePreismeldung$.emit(bag); slidingList.closeOpened()" side="start">
             </ion-item-options>
             <ion-item-options (ionSwipe)="markPreismeldung$.emit(bag.pmId); slidingList.closeOpened()" side="end">
             </ion-item-options>
