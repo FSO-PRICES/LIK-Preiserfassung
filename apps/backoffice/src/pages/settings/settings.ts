@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { head } from 'lodash';
 import { merge as mergeFollowing, Observable, Subscription } from 'rxjs';
@@ -17,9 +17,11 @@ import {
     switchMap,
     withLatestFrom,
 } from 'rxjs/operators';
+import * as semver from 'semver';
 
 import { Models as P, PefDialogService, PefMessageDialogService } from '@lik-shared';
 
+import * as onoffline from '../../actions/onoffline';
 import * as setting from '../../actions/setting';
 import { environment } from '../../environments/environment';
 import * as fromRoot from '../../reducers';
@@ -33,14 +35,18 @@ export class SettingsPage implements OnDestroy {
     public currentSettings$ = this.store.select(fromRoot.getCurrentSettings);
     public isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
     public canConnectToDatabase$ = this.store.select(fromRoot.getCanConnectToDatabase);
+    public minVersion$ = this.store.select(fromRoot.getMinVersion);
 
     public cancelClicked$ = new EventEmitter<Event>();
+    public cancelCompatibilityClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
+    public saveCompatibilityClicked$ = new EventEmitter<Event>();
     public dangerConfirmedClicked$ = new EventEmitter<Event>();
     public exportDbs$ = new EventEmitter<Event>();
     public importFileSelected$ = new EventEmitter<Event>();
 
     public showValidationHints$: Observable<boolean>;
+    public showCompatibilityValidationHints$: Observable<boolean>;
     public settingsSaved$: Observable<CurrentSetting>;
     public dangerConfirmed$: Observable<boolean>;
     public resetInput$: Observable<{}>;
@@ -63,6 +69,7 @@ export class SettingsPage implements OnDestroy {
     public isModified$ = this.currentSettings$.pipe(map(x => !!x && x.isModified));
 
     public form: FormGroup;
+    public compatibilityForm$: Observable<FormGroup>;
     private subscriptions: Subscription[] = [];
 
     public version = environment.version;
@@ -90,6 +97,12 @@ export class SettingsPage implements OnDestroy {
             }),
         });
 
+        this.compatibilityForm$ = this.minVersion$.pipe(
+            map(minVersion => formBuilder.group({ minVersion: [minVersion, semverValidator()] })),
+            publishReplay(1),
+            refCount(),
+        );
+
         const update$ = this.form.valueChanges.pipe(map(() => this.form.value));
 
         const distinctSetting$ = this.currentSettings$.pipe(
@@ -109,10 +122,29 @@ export class SettingsPage implements OnDestroy {
             filter(x => x.isValid),
             publishReplay(1),
             refCount(),
-            withLatestFrom(this.saveClicked$),
         );
 
         this.showValidationHints$ = canSave$.pipe(
+            distinctUntilChanged(),
+            mapTo(true),
+            merge(distinctSetting$.pipe(mapTo(false))),
+        );
+
+        const canSaveCompatibility$ = this.saveCompatibilityClicked$.pipe(
+            withLatestFrom(this.compatibilityForm$),
+            map(([, compatibilityForm]) => ({ isValid: compatibilityForm.valid })),
+            publishReplay(1),
+            refCount(),
+        );
+
+        const saveCompatibility$ = canSaveCompatibility$.pipe(
+            filter(x => x.isValid),
+            withLatestFrom(this.compatibilityForm$, (_, form) => form.get('minVersion').value as string),
+            publishReplay(1),
+            refCount(),
+        );
+
+        this.showCompatibilityValidationHints$ = canSaveCompatibility$.pipe(
             distinctUntilChanged(),
             mapTo(true),
             merge(distinctSetting$.pipe(mapTo(false))),
@@ -164,6 +196,10 @@ export class SettingsPage implements OnDestroy {
             save$.subscribe(() => {
                 this.presentLoadingScreen(this.settingsSaved$);
                 store.dispatch({ type: 'SAVE_SETTING' } as setting.Action);
+            }),
+            saveCompatibility$.subscribe(payload => {
+                this.presentLoadingScreen(this.minVersion$);
+                store.dispatch({ type: 'SAVE_MIN_VERSION', payload } as onoffline.Action);
             }),
             dangerConfirmedClicked$.subscribe(() => {
                 store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
@@ -246,4 +282,9 @@ async function readFile(file: File) {
             cleanupReader();
             throw error;
         });
+}
+
+function semverValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null =>
+        semver.valid(control.value) === null ? { semver: { value: control.value } } : null;
 }

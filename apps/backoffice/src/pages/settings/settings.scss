@@ -46,6 +46,20 @@
         }
     }
 
+    .danger-section {
+        margin-top: 30px;
+    }
+    .confirm-danger {
+        width: 260px;
+    }
+    ion-text {
+        font-size: 0.8em;
+        color: $oslo-gray;
+    }
+    .form-show-validation-hints.ng-invalid ion-text {
+        color: $alizarin-crimson;
+    }
+
     .not-shown {
         display: none;
     }

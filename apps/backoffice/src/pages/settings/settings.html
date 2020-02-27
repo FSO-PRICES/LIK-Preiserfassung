@@ -61,41 +61,73 @@
                         Speichern
                     </ion-button>
                     <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
-                    <h1 class="large"><pef-icon name="warning"></pef-icon>Datenbank Backup/Recovery (CouchDB)</h1>
-                    <ng-container *ngxLet="(dangerConfirmed$ | async); let dangerConfirmed">
-                        <ion-button
-                            [class.not-shown]="dangerConfirmed"
-                            [disabled]="!(canConnectToDatabase$ | async)"
-                            type="button"
-                            color="danger"
-                            (click)="dangerConfirmedClicked$.emit()"
-                        >
-                            Datenbank Verwaltung anzeigen
-                        </ion-button>
-                        <div [class.not-shown]="!dangerConfirmed">
-                            <ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
-                                Export
-                            </ion-button>
-                            <ion-button type="button" (click)="file.click()">
-                                Import
-                                <input
-                                    #file
-                                    class="file-select-btn"
-                                    type="file"
-                                    (change)="importFileSelected$.emit($event)"
-                                    [value]="(resetInput$ | async)?.value"
-                                    required
-                                />
-                            </ion-button>
-                        </div>
-                        <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
-                            <pre>{{ dbsExported }}</pre>
-                        </ion-text>
-                        <ion-text *ngIf="(dbsImported$ | async); let dbsImported" color="primary">
-                            <pre>{{ dbsImported }}</pre>
-                        </ion-text>
-                    </ng-container>
                 </form>
+                <h1 class="large danger-section">
+                    <pef-icon name="warning"></pef-icon>Datenbank Backup/Recovery/Mindestversion (CouchDB)
+                </h1>
+                <ng-container *ngxLet="(dangerConfirmed$ | async); let dangerConfirmed">
+                    <ion-button
+                        [class.not-shown]="dangerConfirmed"
+                        [disabled]="!(canConnectToDatabase$ | async)"
+                        type="button"
+                        class="confirm-danger"
+                        color="danger"
+                        (click)="dangerConfirmedClicked$.emit()"
+                    >
+                        Datenbank Verwaltung anzeigen
+                    </ion-button>
+                    <div [class.not-shown]="!dangerConfirmed">
+                        <ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
+                            Export
+                        </ion-button>
+                        <ion-button type="button" (click)="file.click()">
+                            Import
+                            <input
+                                #file
+                                class="file-select-btn"
+                                type="file"
+                                (change)="importFileSelected$.emit($event)"
+                                [value]="(resetInput$ | async)?.value"
+                                required
+                            />
+                        </ion-button>
+                        <form
+                            *ngIf="compatibilityForm$ | async; let compatibilityForm"
+                            [formGroup]="compatibilityForm"
+                            [class.form-show-validation-hints]="showCompatibilityValidationHints$ | async"
+                            class="stacked-form compact-list"
+                            (submit)="saveCompatibilityClicked$.emit($event)"
+                        >
+                            <h1 class="large">Kompatibilität</h1>
+                            <ion-list no-lines>
+                                <ion-item class="pef-item">
+                                    <ion-label position="stacked">Mindestversion</ion-label>
+                                    <ion-input
+                                        type="text"
+                                        formControlName="minVersion"
+                                        (keyup.enter)="saveCompatibilityClicked$.emit()"
+                                    ></ion-input>
+                                    <ion-text>Muss im Format a.b.c sein, z.B. 2.2.9</ion-text>
+                                </ion-item>
+                            </ion-list>
+                            <ion-button
+                                type="submit"
+                                color="blue-chill"
+                                id="save"
+                                [disabled]="!compatibilityForm.dirty"
+                            >
+                                Speichern
+                            </ion-button>
+                            <ion-button type="reset">Abbrechen</ion-button>
+                        </form>
+                    </div>
+                    <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
+                        <pre>{{ dbsExported }}</pre>
+                    </ion-text>
+                    <ion-text *ngIf="(dbsImported$ | async); let dbsImported" color="primary">
+                        <pre>{{ dbsImported }}</pre>
+                    </ion-text>
+                </ng-container>
             </div>
             <div class="about-app">
                 <div class="about-box">

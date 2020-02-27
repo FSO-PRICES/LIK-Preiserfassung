@@ -40,6 +40,16 @@ export class OnOfflineEffects {
     );
 
     @Effect()
+    saveMinVersion$ = this.actions$.ofType('SAVE_MIN_VERSION').pipe(
+        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        flatMap(({ payload }) => setMinVersion(payload)),
+        flatMap(payload => [
+            { type: 'RESET_MIN_VERSION' } as onoffline.Action,
+            { type: 'LOAD_ONOFFLINE_SUCCESS', payload } as onoffline.Action,
+        ]),
+    );
+
+    @Effect()
     canConnectToDatabase$ = this.actions$.ofType('CHECK_CONNECTIVITY_TO_DATABASE').pipe(
         flatMap(() =>
             this.store.select(fromRoot.getSettings).pipe(
@@ -75,5 +85,12 @@ async function toggleOnOfflineStatus() {
     const onOfflineStatus = await getOnOfflineStatus();
     const db = await getDatabase(dbNames.onoffline);
     await db.put({ ...onOfflineStatus, isOffline: !onOfflineStatus.isOffline, updatedAt: new Date() });
+    return await getOnOfflineStatus();
+}
+
+async function setMinVersion(minVersion: string) {
+    const onOfflineStatus = await getOnOfflineStatus();
+    const db = await getDatabase(dbNames.onoffline);
+    await db.put({ ...onOfflineStatus, minVersion });
     return await getOnOfflineStatus();
 }

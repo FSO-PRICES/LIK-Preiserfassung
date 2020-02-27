@@ -411,10 +411,11 @@ export type LastImportAt = LastImportAtProperties & CouchProperties;
 
 export interface OnOfflineStatus {
     canConnectToDatabase: boolean | null;
+    minVersion: string;
     isOffline: boolean;
     updatedAt: number;
 }
 
 export interface CompatibleVersions {
-    versions: number[];
+    minVersion: string;
 }

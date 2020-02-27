@@ -7,8 +7,10 @@ import pouchDBDebug from 'pouchdb-debug';
 import { bindNodeCallback, from, Observable, Observer, of, throwError } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { flatMap, map, switchMap } from 'rxjs/operators';
+import * as semver from 'semver';
 
 import { Models as P } from '@lik-shared';
+
 import { environment } from '../environments/environment';
 
 PouchDBAllDbs(PouchDB);
@@ -221,8 +223,8 @@ export function initialisePouchForDev() {
 }
 
 async function isCompatible(url: string) {
-    const couch = new PouchDB(`${url}/compatibility`, { skip_setup: true }) as PouchDB.Database<{}>;
-    return getDocumentByKeyFromDb<P.CompatibleVersions>(couch, 'compatible_versions').then(c =>
-        c.versions.some(v => environment.compatibilityVersion === v),
+    const couchOnOffline = new PouchDB(`${url}/onoffline`, { skip_setup: true }) as PouchDB.Database<{}>;
+    return getDocumentByKeyFromDb<P.OnOfflineStatus>(couchOnOffline, 'onoffline_status').then(c =>
+        semver.gte(environment.version, c.minVersion),
     );
 }

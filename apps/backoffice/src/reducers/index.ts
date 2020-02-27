@@ -328,6 +328,10 @@ export const getIsOffline = createSelector(
     getOnOfflineState,
     fromOnOffline.getIsOffline,
 );
+export const getMinVersion = createSelector(
+    getOnOfflineState,
+    fromOnOffline.getMinVersion,
+);
 export const getCanConnectToDatabase = createSelector(
     getOnOfflineState,
     fromOnOffline.getCanConnectToDatabase,
