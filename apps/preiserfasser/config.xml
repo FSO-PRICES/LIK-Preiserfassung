@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="300001" id="io.ionic.starter" ios-CFBundleVersion="299" osx-CFBundleVersion="299" version="2.2.8" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="300001" id="io.ionic.starter" ios-CFBundleVersion="299" osx-CFBundleVersion="299" version="2.2.9" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>LIK-Preiserfasser</name>
     <description>LIK-Preiserfasser</description>
     <author email="info@lambda-it.ch" href="http://lambda-it.ch/">Lambda IT GmbH</author>
