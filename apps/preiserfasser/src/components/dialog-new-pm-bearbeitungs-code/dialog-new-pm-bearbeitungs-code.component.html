@@ -12,7 +12,10 @@
     </ion-radio-group>
 </ion-list>
 <div class="button-container">
-    <ion-button color="primary" (click)="popoverCtrl.dismiss({ action: 'OK', bearbeitungscode: bearbeitungscode })">
+    <ion-button
+        color="primary"
+        (click)="popoverCtrl.dismiss({ action: 'OK', bearbeitungscode: bearbeitungscode || 3 })"
+    >
         {{ 'btn_ok' | translate }}
     </ion-button>
     <ion-button color="secondary" (click)="popoverCtrl.dismiss({ action: 'CANCEL' })">
