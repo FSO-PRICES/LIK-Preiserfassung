@@ -32,6 +32,7 @@ import {
 
 import { pefContains, PefDialogService, PefMessageDialogService, ReactiveComponent } from '@lik-shared';
 
+import { addPmCountToWarenkorb } from '@lik-shared/preismeldung-shared/reducers/warenkorb.reducer';
 import * as P from '../../../common-models';
 import { DialogNewPmBearbeitungsCodeComponent } from '../../../components/dialog';
 
@@ -124,7 +125,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                 filterTodo$,
                 (warenkorb, preismeldungen, erhebungsInfo, filterTodo) => {
                     const monthNumber = +/\d{2}\.(\d{2}).\d{4}/.exec(erhebungsInfo.erhebungsmonat)[1] - 1;
-                    const warenkorbUi = warenkorb.map(warenkorbInfo => {
+                    const warenkorbUi = addPmCountToWarenkorb(warenkorb, preismeldungen).map(warenkorbInfo => {
                         const notInSeason =
                             warenkorbInfo.warenkorbItem.type === 'LEAF' &&
                             !(warenkorbInfo.warenkorbItem.periodizitaetMonat & (1 << monthNumber));
@@ -143,12 +144,6 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                             canSelect,
                             notInSeason,
                             depth: warenkorbInfo.warenkorbItem.tiefencode,
-                            preismeldungCount: preismeldungen.filter(
-                                y =>
-                                    y.preismeldung.epNummer ===
-                                        warenkorbInfo.warenkorbItem.gliederungspositionsnummer &&
-                                    y.preismeldung.bearbeitungscode !== 0,
-                            ).length,
                             filteredLeafCount: warenkorbInfo.leafCount,
                             warenkorbInfo,
                         };
@@ -174,7 +169,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
                                     wui.warenkorbInfo.warenkorbItem.gliederungspositionsnummer,
                                 ) !== -1 &&
                                 (wui.warenkorbInfo.warenkorbItem.type !== 'LEAF' ||
-                                    wui.preismeldungCount >= wui.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS),
+                                    wui.warenkorbInfo.erhoben >= wui.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS),
                         }))
                         .filter(wui => {
                             return !filterTodo || !wui.isMarked || wui.warenkorbInfo.warenkorbItem.type !== 'LEAF';
@@ -455,8 +450,7 @@ export class ChooseFromWarenkorbComponent extends ReactiveComponent implements O
 
         this.closeChooseFromWarenkorb$ = this.selectWarenkorbItem$.pipe(
             flatMap(warenkorbUiItem =>
-                (warenkorbUiItem.preismeldungCount >=
-                (warenkorbUiItem.warenkorbInfo.warenkorbItem as P.Models.WarenkorbLeaf).anzahlPreiseProPMS
+                (warenkorbUiItem.warenkorbInfo.erhoben >= warenkorbUiItem.warenkorbInfo.soll
                     ? dialogSufficientPreismeldungen$
                     : of('YES')
                 ).pipe(map(x => ({ answer: x, warenkorbUiItem }))),

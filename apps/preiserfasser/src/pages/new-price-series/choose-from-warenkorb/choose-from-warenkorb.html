@@ -49,19 +49,6 @@
                             >{{ warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung | pefPropertyTranslate
                             }}</span
                         >
-                        <ion-button
-                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
-                            color="mercury"
-                            class="ep-expand-button"
-                            (click)="warenkorbItemEpExpand$.emit({ event: $event, warenkorbUiItem: warenkorbUiItem })"
-                            [disabled]="warenkorbUiItem.filteredLeafCount == 0"
-                            >{{ warenkorbUiItem.filteredLeafCount }} EP</ion-button
-                        >
-                        <pef-icon
-                            class="open-close"
-                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
-                            [name]="warenkorbUiItem.isExpanded ? 'dropdown_close' : 'dropdown_open'"
-                        ></pef-icon>
 
                         <div
                             class="leaf-description"
@@ -80,10 +67,22 @@
                         <div class="season-icon" *ngIf="warenkorbUiItem.notInSeason">
                             <pef-icon name="not_in_season"></pef-icon>
                         </div>
-                        <div class="count-status" *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">
-                            ({{ warenkorbUiItem.preismeldungCount }}/{{
-                            warenkorbUiItem.warenkorbInfo.warenkorbItem.anzahlPreiseProPMS }})
+                        <div class="count-status">
+                            ({{ warenkorbUiItem.warenkorbInfo.erhoben }}/{{ warenkorbUiItem.warenkorbInfo.soll }})
                         </div>
+                        <ion-button
+                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
+                            color="mercury"
+                            class="ep-expand-button"
+                            (click)="warenkorbItemEpExpand$.emit({ event: $event, warenkorbUiItem: warenkorbUiItem })"
+                            [disabled]="warenkorbUiItem.filteredLeafCount == 0"
+                            >{{ warenkorbUiItem.filteredLeafCount }} EP</ion-button
+                        >
+                        <pef-icon
+                            class="open-close"
+                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
+                            [name]="warenkorbUiItem.isExpanded ? 'dropdown_close' : 'dropdown_open'"
+                        ></pef-icon>
                         <ion-button
                             *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'"
                             class="add-button icon-only"

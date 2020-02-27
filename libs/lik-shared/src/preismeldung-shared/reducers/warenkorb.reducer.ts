@@ -5,6 +5,9 @@ export type WarenkorbInfo = {
     warenkorbItem: P.Models.WarenkorbTreeItem;
     hasChildren: boolean;
     leafCount: number;
+    sortString: string;
+    erhoben: number;
+    soll: number;
 };
 
 export interface WarenkorbUiItem {
@@ -14,7 +17,6 @@ export interface WarenkorbUiItem {
     canSelect: boolean;
     notInSeason: boolean;
     depth: number;
-    preismeldungCount: number;
     filteredLeafCount: number;
     warenkorbInfo: P.WarenkorbInfo;
 }
@@ -85,6 +87,13 @@ type Item = {
     sortString: string;
 };
 
+type ItemWithSollIst = {
+    warenkorbItem: P.Models.WarenkorbTreeItem;
+    erhoben: number;
+    soll: number;
+    addPmCount: (erhoben: number, soll: number) => void;
+};
+
 function sortAndTransformWarenkorb(
     warenkorb: P.Models.WarenkorbTreeItem[],
     hiddenWarenkorbUiItems: WarenkorbUiItem[],
@@ -123,6 +132,55 @@ function sortAndTransformWarenkorb(
                 hasChildren: x.hasChildren,
                 leafCount: x.leafCount,
                 sortString: x.sortString,
+                erhoben: 0,
+                soll: 0,
+            };
+        });
+    });
+    return sortBy(result.map(r => r()), r => r.sortString);
+}
+
+export function addPmCountToWarenkorb(
+    warenkorb: WarenkorbInfo[],
+    preismeldungen: P.PreismeldungBag[],
+): WarenkorbInfo[] {
+    const result: (() => WarenkorbInfo)[] = [];
+    const gpMap: Record<string, ItemWithSollIst> = {};
+    const erhobenMap: Record<string, number> = preismeldungen.reduce(
+        (acc, bag) => ({
+            ...acc,
+            [bag.preismeldung.epNummer]:
+                (acc[bag.preismeldung.epNummer] || 0) + (bag.preismeldung.bearbeitungscode !== 0 ? 1 : 0),
+        }),
+        {},
+    );
+    warenkorb.forEach(w => {
+        const item: ItemWithSollIst = {
+            warenkorbItem: w.warenkorbItem,
+            erhoben: 0,
+            soll: 0,
+            addPmCount: (erhoben, soll) => {
+                const parent = gpMap[item.warenkorbItem.parentGliederungspositionsnummer];
+                if (parent) {
+                    parent.erhoben += erhoben;
+                    parent.soll += soll;
+                    parent.addPmCount(erhoben, soll);
+                }
+            },
+        };
+        const epNummer = w.warenkorbItem.gliederungspositionsnummer;
+        if (w.warenkorbItem.type === 'LEAF') {
+            item.erhoben = erhobenMap[epNummer] || 0;
+            item.soll = w.warenkorbItem.anzahlPreiseProPMS;
+            item.addPmCount(item.erhoben, item.soll);
+        }
+        gpMap[epNummer] = item;
+        result.push(() => {
+            const info = gpMap[epNummer];
+            return {
+                ...w,
+                erhoben: info.erhoben,
+                soll: info.soll,
             };
         });
     });
