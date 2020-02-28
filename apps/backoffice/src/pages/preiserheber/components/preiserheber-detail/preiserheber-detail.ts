@@ -52,7 +52,8 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     public showValidationHints$: Observable<boolean>;
 
     private subscriptions: Subscription[] = [];
-    public form: FormGroup;
+    public _form: FormGroup;
+    public form: any;
 
     constructor(formBuilder: FormBuilder) {
         super();
@@ -61,7 +62,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
         this.erhebungsregionen$ = this.observePropertyCurrentValue<string[]>('erhebungsregionen');
 
-        this.form = formBuilder.group({
+        this._form = formBuilder.group({
             preiserheber: formBuilder.group({
                 username: [
                     null,
@@ -86,6 +87,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
             }),
             password: [null, Validators.compose([Validators.required, Validators.maxLength(35)])],
         });
+        this.form = this._form;
 
         const distinctPreiserheber$ = this.preiserheber$.pipe(distinctUntilKeyChanged('_id'));
 
@@ -123,7 +125,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
             filter(isValid => isValid),
             publishReplay(1),
             refCount(),
-            map(x => this.form.get('password').value),
+            map(x => this._form.get('password').value),
         );
 
         this.showValidationHints$ = canSave$.pipe(
@@ -140,9 +142,9 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
 
         this.subscriptions = [
             distinctPreiserheber$.subscribe((erheber: CurrentPreiserheber) => {
-                this.form.markAsUntouched();
-                this.form.markAsPristine();
-                this.form.get('password').patchValue(null);
+                this._form.markAsUntouched();
+                this._form.markAsPristine();
+                this._form.get('password').patchValue(null);
                 this.getPreiserheberForm().patchValue(
                     {
                         username: erheber._id,
@@ -174,7 +176,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     }
 
     public getPreiserheberForm() {
-        return this.form.get('preiserheber');
+        return this._form.get('preiserheber');
     }
 
     public hasChanges() {

@@ -18,7 +18,7 @@ export class PefDialogResetPasswordComponent implements OnDestroy {
     public form: FormGroup;
 
     public resetPasswordClicked$ = new EventEmitter();
-    public pesetPasswordError$ = this.store.select(fromRoot.getResetPasswordError).pipe(
+    public resetPasswordError$ = this.store.select(fromRoot.getResetPasswordError).pipe(
         publishReplay(1),
         refCount(),
     );

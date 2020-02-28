@@ -58,7 +58,8 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
     private subscriptions: Subscription[];
 
-    public form: FormGroup;
+    public _form: FormGroup;
+    public form: any;
 
     constructor(private formBuilder: FormBuilder) {
         super();
@@ -67,7 +68,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
         this.erhebungsregionen$ = this.observePropertyCurrentValue<string[]>('erhebungsregionen');
 
-        this.form = formBuilder.group(
+        this._form = formBuilder.group(
             {
                 kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),
                 name: [null, Validators.required],
@@ -95,15 +96,16 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             },
             { validator: this.formLevelValidationFactory() },
         );
+        this.form = this._form;
 
-        this.update$ = this.form.valueChanges.pipe(
+        this.update$ = this._form.valueChanges.pipe(
             withLatestFrom(this.preismeldestelle$, (formValue, preismeldestelle) => ({ formValue, preismeldestelle })),
             map(({ formValue, preismeldestelle }) => {
                 return assign(
                     {},
                     formValue,
                     { _id: preismeldestelleId(preismeldestelle.pmsNummer) },
-                    { erhebungsart: encodeErhebungsartFromForm(this.form.value.erhebungsart) },
+                    { erhebungsart: encodeErhebungsartFromForm(this._form.value.erhebungsart) },
                 );
             }),
         );
@@ -111,7 +113,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         const distinctPreismeldestelle$ = this.preismeldestelle$.pipe(distinctUntilKeyChanged('_id'));
 
         const canSave$ = this.saveClicked$.pipe(
-            map(() => ({ isValid: this.form.valid })),
+            map(() => ({ isValid: this._form.valid })),
             publishReplay(1),
             refCount(),
         );
@@ -130,9 +132,9 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
 
         this.subscriptions = [
             distinctPreismeldestelle$.subscribe((preismeldestelle: CurrentPreismeldestelle) => {
-                this.form.markAsUntouched();
-                this.form.markAsPristine();
-                this.form.patchValue(
+                this._form.markAsUntouched();
+                this._form.markAsPristine();
+                this._form.patchValue(
                     {
                         kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                         name: preismeldestelle.name,
