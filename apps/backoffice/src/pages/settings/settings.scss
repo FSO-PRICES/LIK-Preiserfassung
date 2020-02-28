@@ -32,22 +32,26 @@
     }
     form {
         h1 {
-            margin: 3em 0 0 0;
+            margin: 1em 0 0 0;
         }
         h1:first-child {
-            margin-top: 1.5em;
+            margin-top: 0;
         }
+    }
+
+    ion-list {
+        padding: 0;
     }
 
     ion-button {
         input[type='file'] {
-            width: 0;
-            max-width: 0;
+            -webkit-appearance: none;
+            display: none;
         }
     }
 
     .danger-section {
-        margin-top: 30px;
+        margin-top: 1em;
     }
     .confirm-danger {
         width: 260px;
@@ -62,5 +66,9 @@
 
     .not-shown {
         display: none;
+    }
+
+    .actions {
+        margin-top: 1em;
     }
 }

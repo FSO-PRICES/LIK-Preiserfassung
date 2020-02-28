@@ -2,7 +2,6 @@
     <ion-content class="page-content">
         <div class="settings-container container">
             <div class="subcontent">
-                <div class="header"><h1 class="large">Einstellungen</h1></div>
                 <form
                     [formGroup]="form"
                     class="stacked-form compact-list"
@@ -57,14 +56,14 @@
                             ></ion-input>
                         </ion-item>
                     </ion-list>
-                    <ion-button type="submit" color="blue-chill" id="save" [disabled]="!(isModified$ | async)">
-                        Speichern
-                    </ion-button>
-                    <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
+                    <div class="actions">
+                        <ion-button type="submit" color="blue-chill" id="save" [disabled]="!(isModified$ | async)">
+                            Speichern
+                        </ion-button>
+                        <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
+                    </div>
                 </form>
-                <h1 class="large danger-section">
-                    <pef-icon name="warning"></pef-icon>Datenbank Backup/Recovery/Mindestversion (CouchDB)
-                </h1>
+                <h1 class="large danger-section"><pef-icon name="warning"></pef-icon>Datenbank (CouchDB)</h1>
                 <ng-container *ngxLet="(dangerConfirmed$ | async); let dangerConfirmed">
                     <ion-button
                         [class.not-shown]="dangerConfirmed"
@@ -77,20 +76,6 @@
                         Datenbank Verwaltung anzeigen
                     </ion-button>
                     <div [class.not-shown]="!dangerConfirmed">
-                        <ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
-                            Export
-                        </ion-button>
-                        <ion-button type="button" (click)="file.click()">
-                            Import
-                            <input
-                                #file
-                                class="file-select-btn"
-                                type="file"
-                                (change)="importFileSelected$.emit($event)"
-                                [value]="(resetInput$ | async)?.value"
-                                required
-                            />
-                        </ion-button>
                         <form
                             *ngIf="compatibilityForm$ | async; let compatibilityForm"
                             [formGroup]="compatibilityForm"
@@ -98,7 +83,7 @@
                             class="stacked-form compact-list"
                             (submit)="saveCompatibilityClicked$.emit($event)"
                         >
-                            <h1 class="large">Kompatibilität</h1>
+                            <h1 class="large">Kompatibilität (Preiserfasser-App)</h1>
                             <ion-list no-lines>
                                 <ion-item class="pef-item">
                                     <ion-label position="stacked">Mindestversion</ion-label>
@@ -110,23 +95,46 @@
                                     <ion-text>Muss im Format a.b.c sein, z.B. 2.2.9</ion-text>
                                 </ion-item>
                             </ion-list>
-                            <ion-button
-                                type="submit"
-                                color="blue-chill"
-                                id="save"
-                                [disabled]="!compatibilityForm.dirty"
-                            >
-                                Speichern
-                            </ion-button>
-                            <ion-button type="reset">Abbrechen</ion-button>
+                            <div class="actions">
+                                <ion-button
+                                    type="submit"
+                                    color="blue-chill"
+                                    id="save"
+                                    [disabled]="!compatibilityForm.dirty"
+                                >
+                                    Speichern
+                                </ion-button>
+                                <ion-button type="reset">Abbrechen</ion-button>
+                            </div>
                         </form>
+                        <div class="actions">
+                            <div>
+                                <ion-text>
+                                    Import/Export der definierten Preiserheber und PMS-Zuordnungen (.json-Format)
+                                </ion-text>
+                            </div>
+                            <ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
+                                Export
+                            </ion-button>
+                            <ion-button type="button" (click)="file.click()">
+                                Import
+                                <input
+                                    #file
+                                    class="file-select-btn"
+                                    type="file"
+                                    (change)="importFileSelected$.emit($event)"
+                                    [value]="(resetInput$ | async)?.value"
+                                    required
+                                />
+                            </ion-button>
+                        </div>
+                        <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
+                            <pre>{{ dbsExported }}</pre>
+                        </ion-text>
+                        <ion-text *ngIf="(dbsImported$ | async); let dbsImported" color="primary">
+                            <pre>{{ dbsImported }}</pre>
+                        </ion-text>
                     </div>
-                    <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
-                        <pre>{{ dbsExported }}</pre>
-                    </ion-text>
-                    <ion-text *ngIf="(dbsImported$ | async); let dbsImported" color="primary">
-                        <pre>{{ dbsImported }}</pre>
-                    </ion-text>
                 </ng-container>
             </div>
             <div class="about-app">
