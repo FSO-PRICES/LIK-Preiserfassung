@@ -13,7 +13,7 @@
         "overwrite-electron:preiserfasser": "cpx \"apps/preiserfasser/electron-overwrites/**/*\" apps/preiserfasser/platforms/electron/platform_www/",
         "overwrite-electron:backoffice": "cpx \"apps/backoffice/electron-overwrites/**/*\" apps/backoffice/platforms/electron/platform_www/",
         "prebuild:apk:preiserfasser": "ionic cordova platform add android --project preiserfasser",
-        "build:apk:preiserfasser": "ionic cordova build --release --no-daemon android --project preiserfasser",
+        "build:apk:preiserfasser": "ionic cordova build --release --no-daemon android --project preiserfasser --prod",
         "prebuild:electron:preiserfasser": "npm run overwrite-electron:preiserfasser",
         "build:electron:preiserfasser": "ionic cordova build --release electron --project preiserfasser",
         "build-debug:electron:preiserfasser": "ionic cordova build electron --project preiserfasser",
