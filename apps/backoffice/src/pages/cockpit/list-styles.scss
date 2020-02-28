@@ -1,6 +1,16 @@
 @import '../../theme/imports.scss';
 
 @mixin list-styles() {
+    .status-number {
+        white-space: nowrap;
+        display: inline-block;
+        padding: 0.25em 0.5em;
+        font-weight: 500;
+        &.good {
+            background-color: $emerald;
+        }
+    }
+
     .list-header {
         pef-icon {
             display: inline-block;
@@ -18,7 +28,11 @@
         }
         .name {
             flex: 0 0 40%;
-            @include crop-text();
+            &,
+            & div {
+                @include crop-text();
+                display: block;
+            }
         }
         .heruntergeladene,
         .offen-nicht-erfasst,
@@ -66,6 +80,18 @@
         .hochgeladene {
             flex: 0 0 25%;
             text-align: right;
+        }
+    }
+
+    @media (max-width: 1150px) {
+        ion-item {
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 950px) {
+        ion-item {
+            font-size: 12px;
         }
     }
 }

@@ -1,20 +1,23 @@
-<div class="pms-section" *ngIf="!!(preiserheber$ | async)">
+<div class="pms-section" *ngIf="(preiserheber$ | async); let preiserheber">
     <div class="list-header">
-        <ion-item class="heading pef-advanced-item">
-            <span>{{ (preiserheber$ | async).erheber.firstName }} {{ (preiserheber$ | async).erheber.surname }}</span>
-            <span *ngIf="!!(preiserheber$ | async).erheber.erhebungsregion"
-                >, {{ (preiserheber$ | async).erheber.erhebungsregion }}</span
-            >
-        </ion-item>
-        <ion-item class="heading pef-advanced-item">
-            Zuletzt synchronisiert am:
-            <b>
-                {{ !(preiserheber$ | async).lastSyncedAt ? '&ndash;' : ((preiserheber$ | async).lastSyncedAt | date:
-                'medium') }}
-            </b>
-        </ion-item>
         <div class="labels">
-            <div class="name"></div>
+            <div class="name">
+                <div>
+                    {{ preiserheber.erheber.firstName }} {{ preiserheber.erheber.surname }}
+                    <ng-container *ngIf="!!preiserheber.erheber.erhebungsregion"
+                        >, {{ preiserheber.erheber.erhebungsregion }}</ng-container
+                    >
+                </div>
+                <div
+                    [title]="!preiserheber.lastSyncedAt ? '&ndash;' : (preiserheber.lastSyncedAt |
+                date: 'medium')"
+                >
+                    synchronisiert:
+                    <b>
+                        {{ !preiserheber.lastSyncedAt ? '&ndash;' : (preiserheber.lastSyncedAt | date: 'medium') }}
+                    </b>
+                </div>
+            </div>
             <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
                 <pef-icon name="download"></pef-icon>
             </div>

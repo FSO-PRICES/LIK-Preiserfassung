@@ -39,13 +39,5 @@
         color: $blue-chill;
     }
 
-    .status-number {
-        padding: 0.25em 0.5em;
-        font-weight: 500;
-        &.good {
-            background-color: $emerald;
-        }
-    }
-
     @include list-styles();
 }
