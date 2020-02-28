@@ -42,7 +42,7 @@ export class PefSearchInput extends ReactiveComponent implements ControlValueAcc
     private onChange = (value: string) => {};
     private onTouched = () => {};
 
-    private onTouched$ = new EventEmitter();
+    public onTouched$ = new EventEmitter();
     private onDestroy$ = new EventEmitter();
 
     constructor() {

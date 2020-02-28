@@ -45,7 +45,8 @@ export class PmsDetailsPage implements OnDestroy {
 
     private subscriptions: Subscription[];
 
-    public form: FormGroup;
+    private _form: FormGroup;
+    public form: any; // To prevent the problem of casting AbstractForm to FormArray
 
     constructor(
         activeRoute: ActivatedRoute,
@@ -54,7 +55,7 @@ export class PmsDetailsPage implements OnDestroy {
         private formBuilder: FormBuilder,
     ) {
         store.dispatch({ type: 'RESET_SELECTED_PREISMELDESTELLE' } as preismeldestellenAction);
-        this.form = formBuilder.group(
+        this._form = formBuilder.group(
             {
                 kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),
                 name: [null, Validators.required],
@@ -81,6 +82,7 @@ export class PmsDetailsPage implements OnDestroy {
             },
             { validator: this.formLevelValidationFactory() },
         );
+        this.form = this._form;
 
         const pmsNummerParam$ = activeRoute.params.pipe(map(({ pmsNummer }) => pmsNummer));
 
@@ -92,7 +94,7 @@ export class PmsDetailsPage implements OnDestroy {
         );
 
         const canSave$ = this.saveClicked$.pipe(
-            map(() => ({ isValid: this.form.valid })),
+            map(() => ({ isValid: this._form.valid })),
             publishReplay(1),
             refCount(),
         );
@@ -116,9 +118,9 @@ export class PmsDetailsPage implements OnDestroy {
 
         this.subscriptions = [
             distinctPreismeldestelle$.subscribe((preismeldestelle: P.Preismeldestelle) => {
-                this.form.markAsUntouched();
-                this.form.markAsPristine();
-                this.form.patchValue(
+                this._form.markAsUntouched();
+                this._form.markAsPristine();
+                this._form.patchValue(
                     {
                         kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                         name: preismeldestelle.name,
@@ -152,11 +154,11 @@ export class PmsDetailsPage implements OnDestroy {
 
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
-            this.form.valueChanges
+            this._form.valueChanges
                 .pipe(
                     map(() =>
-                        assign({}, this.form.value, {
-                            erhebungsart: encodeErhebungsartFromForm(this.form.value.erhebungsarten),
+                        assign({}, this._form.value, {
+                            erhebungsart: encodeErhebungsartFromForm(this._form.value.erhebungsarten),
                         }),
                     ),
                 )
@@ -170,14 +172,14 @@ export class PmsDetailsPage implements OnDestroy {
                     merge(distinctPreismeldestelle$),
                     scan((pmsGeschlossen, p) => {
                         if (!!p) return p.pmsGeschlossen;
-                        return pmsGeschlossen === this.form.value.pmsGeschlossen
+                        return pmsGeschlossen === this._form.value.pmsGeschlossen
                             ? null
-                            : this.form.value.pmsGeschlossen;
+                            : this._form.value.pmsGeschlossen;
                     }, 0),
                     filter(pmsGeschlossen => !pmsGeschlossen),
                 )
                 .subscribe(x => {
-                    this.form.patchValue({ pmsGeschlossen: 0 });
+                    this._form.patchValue({ pmsGeschlossen: 0 });
                 }),
 
             save$.subscribe(() => store.dispatch({ type: 'SAVE_PREISMELDESTELLE' } as preismeldestellenAction)),
@@ -189,7 +191,7 @@ export class PmsDetailsPage implements OnDestroy {
     }
 
     public getFormErrors() {
-        return Object.keys(this.form.errors || {}).map(errorType => `validation_${errorType}`);
+        return Object.keys(this._form.errors || {}).map(errorType => `validation_${errorType}`);
     }
 
     private initKontaktpersonGroup() {
