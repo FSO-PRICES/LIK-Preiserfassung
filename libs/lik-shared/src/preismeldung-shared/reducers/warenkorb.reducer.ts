@@ -115,11 +115,10 @@ function sortAndTransformWarenkorb(
                 }
             },
             sortString: gpMap[w.parentGliederungspositionsnummer]
-                ? `${gpMap[w.parentGliederungspositionsnummer].sortString}_${w.gliederungspositionsnummer.padStart(
-                      5,
-                      '0',
-                  )}`
-                : `${w.gliederungspositionsnummer.padStart(5, '0')}`,
+                ? `${
+                      gpMap[w.parentGliederungspositionsnummer].sortString
+                  }_${w.gliederungspositionsnummer.toString().padStart(5, '0')}`
+                : w.gliederungspositionsnummer.toString().padStart(5, '0'),
         };
         if (gpMap[w.parentGliederungspositionsnummer]) {
             gpMap[w.parentGliederungspositionsnummer].hasChildren = true;
