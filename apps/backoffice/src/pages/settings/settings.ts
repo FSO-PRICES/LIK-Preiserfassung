@@ -98,6 +98,9 @@ export class SettingsPage implements OnDestroy {
         });
 
         this.compatibilityForm$ = this.minVersion$.pipe(
+            merge(
+                this.cancelCompatibilityClicked$.pipe(withLatestFrom(this.minVersion$, (_, minVersion) => minVersion)),
+            ),
             map(minVersion => formBuilder.group({ minVersion: [minVersion, semverValidator()] })),
             publishReplay(1),
             refCount(),

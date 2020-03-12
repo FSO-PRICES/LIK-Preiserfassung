@@ -60,7 +60,13 @@
                         <ion-button type="submit" color="blue-chill" id="save" [disabled]="!(isModified$ | async)">
                             Speichern
                         </ion-button>
-                        <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
+                        <ion-button
+                            type="button"
+                            (click)="cancelClicked$.emit($event)"
+                            [disabled]="!(isModified$ | async)"
+                        >
+                            Abbrechen
+                        </ion-button>
                     </div>
                 </form>
                 <h1 class="large danger-section"><pef-icon name="warning"></pef-icon>Datenbank (CouchDB)</h1>
@@ -104,7 +110,13 @@
                                 >
                                     Speichern
                                 </ion-button>
-                                <ion-button type="reset">Abbrechen</ion-button>
+                                <ion-button
+                                    type="button"
+                                    (click)="cancelCompatibilityClicked$.emit($event)"
+                                    [disabled]="!compatibilityForm.dirty"
+                                >
+                                    Abbrechen
+                                </ion-button>
                             </div>
                         </form>
                         <div class="actions">
