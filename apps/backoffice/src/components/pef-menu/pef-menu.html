@@ -20,10 +20,17 @@
     <ion-title>
         LIK PreisAdmin
     </ion-title>
-    <ion-button class="on-off-line with-shadow" (click)="onOffLineClicked$.emit()">{{
-        (isOffline$ | async) ? 'OFF-LINE' : 'ON-LINE'
-    }}</ion-button>
-    <ion-button class="reload with-shadow" (click)="reloadClicked$.emit()">Login refresh</ion-button>
+    <ion-button class="on-off-line with-shadow" (click)="onOffLineClicked$.emit()">
+        {{ (isOffline$ | async) ? 'OFF-LINE' : 'ON-LINE' }}
+    </ion-button>
+    <ion-button
+        class="write-permission with-shadow"
+        [disabled]="!(canToggleWritePermission$ | async)"
+        (click)="writePermissionClicked$.emit()"
+    >
+        {{ (hasWritePermission$ | async) ? '✓' : '✗' }} 🖉
+    </ion-button>
+    <ion-button class="reload with-shadow" (click)="reloadClicked$.emit()">Login <span>&nbsp;↻</span></ion-button>
     <ion-button
         class="save-status icon-only"
         title="Prüfungs-Status speichern"

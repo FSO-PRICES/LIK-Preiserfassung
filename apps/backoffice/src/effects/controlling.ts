@@ -9,7 +9,11 @@ import { Models as P, PreismeldungAction, preismeldungId, preismeldungRefId } fr
 import { concatMap, delay, flatMap, map, withLatestFrom } from 'rxjs/operators';
 import * as controlling from '../actions/controlling';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+    blockIfNotLoggedIn,
+} from '../common/effects-extensions';
 import {
     dbNames,
     getAllDocumentsForPrefixFromDb,
@@ -25,20 +29,18 @@ import * as fromRoot from '../reducers';
 
 @Injectable()
 export class ControllingEffects {
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
-
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     preControllingTasks$ = this.actions$.ofType('RUN_PRE-CONTROLLING_TASKS').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store, true),
         flatMap(() => copyUserDbErheberDetailsToPreiserheberDb()),
         map(() => ({ type: 'RUN_PRE-CONTROLLING_TASKS_SUCCESS' })),
     );
 
     @Effect()
     runControlling$ = this.actions$.ofType(controlling.RUN_CONTROLLING).pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         withLatestFrom(
             this.store.select(fromRoot.getControllingRawCachedData),
             this.store.select(fromRoot.getWarenkorb),

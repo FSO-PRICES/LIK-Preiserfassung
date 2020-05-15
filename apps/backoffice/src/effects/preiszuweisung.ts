@@ -6,20 +6,19 @@ import { filter, flatMap, map } from 'rxjs/operators';
 import { Models as P } from '@lik-shared';
 
 import * as preiszuweisung from '../actions/preiszuweisung';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import { blockIfNotLoggedIn } from '../common/effects-extensions';
 import { dbNames, getDatabase } from '../common/pouchdb-utils';
 import * as fromRoot from '../reducers';
 
 @Injectable()
 export class PreiszuweisungEffects {
     currentPreiszuweisung$ = this.store.select(fromRoot.getCurrentPreiszuweisung);
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadPreiszuweisung$ = this.actions$.ofType('PREISZUWEISUNG_LOAD').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() => getDatabase(dbNames.preiszuweisungen).then(db => ({ db }))),
         filter(({ db }) => db != null),
         flatMap(x =>

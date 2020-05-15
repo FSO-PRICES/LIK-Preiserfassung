@@ -58,6 +58,7 @@ const cdvElectronSettings = require('./cdv-electron-settings.json');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let hasWritePermission = false;
 
 function setCookiesPersistent() {
     const cookies = session.defaultSession.cookies;
@@ -100,8 +101,21 @@ function createWindow() {
     // and load the index.html of the app.
     // TODO: possibly get this data from config.xml
     mainWindow.loadURL(`file://${__dirname}/index.html`);
+    mainWindow.webContents.openDevTools();
     mainWindow.webContents.on('did-finish-load', function() {
         mainWindow.webContents.send('window-id', mainWindow.id);
+    });
+
+    mainWindow.on('close', function() {
+        if (hasWritePermission) {
+            mainWindow.webContents.send('app-is-closing', true);
+            require('electron').dialog.showMessageBox(this, {
+                type: 'question',
+                buttons: ['Ok'],
+                title: 'Bitte warten...',
+                message: 'Bitte warten Sie bis die Schreibberechtigung zurückgesetzt wurde.',
+            });
+        }
     });
 
     // Emitted when the window is closed.
@@ -141,6 +155,14 @@ app.on('activate', () => {
     }
 });
 
+ipcMain.on('update-has-write-permission', (event, updateWritePermission) => {
+    if (typeof updateWritePermission === 'boolean') {
+        hasWritePermission = updateWritePermission;
+    }
+
+    event.returnValue = 0;
+    return;
+});
 ipcMain.on('save-file', (event, fileSaveOptions) => {
     const { content, targetPath, fileName } = fileSaveOptions;
     const saveFile = fileName => {

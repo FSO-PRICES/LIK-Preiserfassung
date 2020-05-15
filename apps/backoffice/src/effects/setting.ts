@@ -8,7 +8,11 @@ import { flatMap, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Models as P } from '@lik-shared';
 
 import * as setting from '../actions/setting';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedIn,
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+} from '../common/effects-extensions';
 import {
     checkIfDatabaseExists,
     clearRev,
@@ -24,7 +28,6 @@ import { CurrentSetting } from '../reducers/setting';
 @Injectable()
 export class SettingEffects {
     currentSetting$ = this.store.select(fromRoot.getCurrentSettings);
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(
         private actions$: Actions,
@@ -76,14 +79,14 @@ export class SettingEffects {
 
     @Effect()
     exportDbs$ = this.actions$.ofType('EXPORT_DATABASES').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         switchMap(() => createDbBackups(this.electronService)),
         map(payload => ({ type: 'EXPORT_DATABASES_SUCCESS', payload } as setting.Action)),
     );
 
     @Effect()
     importDb$ = this.actions$.ofType('IMPORT_DATABASE').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         switchMap(action => importDbBackup(action.payload)),
         map(payload => ({ type: 'IMPORT_DATABASE_SUCCESS', payload } as setting.Action)),
     );

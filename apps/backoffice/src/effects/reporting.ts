@@ -8,7 +8,7 @@ import { flatMap, map } from 'rxjs/operators';
 import { Models as P, parseErhebungsarten, PreismeldungBag, preismeldungId, preismeldungRefId } from '@lik-shared';
 
 import * as report from '../actions/report';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import { blockIfNotLoggedIn } from '../common/effects-extensions';
 import {
     dbNames,
     getAllDocumentsForPrefixFromDb,
@@ -24,13 +24,11 @@ import * as fromRoot from '../reducers';
 
 @Injectable()
 export class ReportingEffects {
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
-
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadReportData$ = this.actions$.ofType('LOAD_REPORT_DATA').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(action =>
             concat(
                 [{ type: 'LOAD_REPORT_DATA_EXECUTING' }],

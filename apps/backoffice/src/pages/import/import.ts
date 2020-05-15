@@ -20,6 +20,7 @@ import { parseDate, PefDialogService } from '@lik-shared';
 
 import * as importer from '../../actions/importer';
 import * as fromRoot from '../../reducers';
+import { blockIfNotLoggedInOrHasNoWritePermission } from '../../common/effects-extensions';
 
 @Component({
     selector: 'import-page',
@@ -151,6 +152,7 @@ export class ImportPage implements OnDestroy {
 
         importRequested$
             .pipe(
+                blockIfNotLoggedInOrHasNoWritePermission(this.store),
                 flatMap(() =>
                     this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', {
                         requestDismiss$: this.getImportedAllDataAt$.pipe(

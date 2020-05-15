@@ -12,7 +12,7 @@ import { Models as P, preismeldestelleId, PreismeldungAction } from '@lik-shared
 import { createClearControllingAction } from '../actions/controlling';
 import * as exporter from '../actions/exporter';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
-import { continueEffectOnlyIfTrue, resetAndContinueWith } from '../common/effects-extensions';
+import { resetAndContinueWith, blockIfNotLoggedIn } from '../common/effects-extensions';
 import { createEnvelope, createMesageId, MessageTypes } from '../common/envelope-extensions';
 import { toCsv } from '../common/file-extensions';
 import {
@@ -34,7 +34,6 @@ import { CurrentSetting } from '../reducers/setting';
 
 @Injectable()
 export class ExporterEffects {
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
     settings$ = this.store.select(fromRoot.getSettings);
 
     constructor(
@@ -45,7 +44,7 @@ export class ExporterEffects {
 
     @Effect()
     exportPreismeldungen$ = this.actions$.ofType('EXPORT_PREISMELDUNGEN').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() =>
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
@@ -107,7 +106,7 @@ export class ExporterEffects {
 
     @Effect()
     exportPreismeldestellen$ = this.actions$.ofType('EXPORT_PREISMELDESTELLEN').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() =>
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDESTELLEN_RESET' } as exporter.Action,
@@ -133,7 +132,7 @@ export class ExporterEffects {
 
     @Effect()
     exportPreiserheber$ = this.actions$.ofType('EXPORT_PREISERHEBER').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(({ payload }) => copyUserDbErheberDetailsToPreiserheberDb().pipe(map(() => payload))),
         flatMap(payload =>
             resetAndContinueWith(

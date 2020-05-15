@@ -19,7 +19,11 @@ import {
 
 import { map, withLatestFrom } from 'rxjs/operators';
 import * as P from '../common-models';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedIn,
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+} from '../common/effects-extensions';
 import { dbNames, getAllDocumentsFromDb, getDatabaseAsObservable } from '../common/pouchdb-utils';
 import { loadPreismeldungenAndRefPreismeldungForPms } from '../common/user-db-values';
 import * as fromRoot from '../reducers';
@@ -27,13 +31,12 @@ import * as fromRoot from '../reducers';
 @Injectable()
 export class PreismeldungEffects {
     currentPreismeldung$ = this.store.select(fromRoot.getCurrentPreismeldungViewBag);
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadPreismeldungenForPms$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_FOR_PMS').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(({ payload: pmsNummer }) => loadPreismeldungenAndRefPreismeldungForPms({ pmsNummers: [pmsNummer] })),
         withLatestFrom(this.store.select(fromRoot.getWarenkorb), (x, warenkorb) =>
             assign({ ...x, warenkorb, pmsPreismeldungenSort: null }),
@@ -49,7 +52,7 @@ export class PreismeldungEffects {
 
     @Effect()
     loadPreismeldungenForId$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_BY_FILTER').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(({ payload }) => loadPreismeldungenAndRefPreismeldungForPms(payload)),
         withLatestFrom(this.store.select(fromRoot.getWarenkorb), (x, warenkorb) =>
             assign({ ...x, warenkorb, pmsPreismeldungenSort: null }),
@@ -66,6 +69,7 @@ export class PreismeldungEffects {
     @Effect()
     // TODO Fix types
     savePreismeldungPrice$ = this.actions$.ofType('SAVE_PREISMELDUNG_PRICE').pipe(
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreismeldung$, (action: any, currentPreismeldung: P.CurrentPreismeldungBag) => ({
             currentPreismeldung,
             payload: action.payload,
@@ -117,6 +121,7 @@ export class PreismeldungEffects {
 
     @Effect()
     savePreismeldungMessages$ = this.actions$.ofType('SAVE_PREISMELDUNG_MESSAGES').pipe(
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
@@ -127,6 +132,7 @@ export class PreismeldungEffects {
 
     @Effect()
     savePreismeldungAttributes$ = this.actions$.ofType('SAVE_PREISMELDUNG_ATTRIBUTES').pipe(
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
@@ -137,6 +143,7 @@ export class PreismeldungEffects {
 
     @Effect()
     resetPreismeldung$ = this.actions$.ofType('RESET_PREISMELDUNG').pipe(
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
@@ -152,6 +159,7 @@ export class PreismeldungEffects {
 
     @Effect()
     deletePreismeldung$ = this.actions$.ofType('RESET_PREISMELDUNG').pipe(
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,

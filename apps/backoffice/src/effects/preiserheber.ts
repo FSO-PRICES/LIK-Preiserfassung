@@ -9,7 +9,11 @@ import { assign, has } from 'lodash';
 import { Action } from '../actions/preiserheber';
 import * as preiszuweisungActions from '../actions/preiszuweisung';
 import { Models as P } from '../common-models';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedIn,
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+} from '../common/effects-extensions';
 import {
     createOrUpdateUser,
     dbNames,
@@ -28,7 +32,6 @@ import * as fromRoot from '../reducers';
 export class PreiserheberEffects {
     currentPreiserheber$ = this.store.select(fromRoot.getCurrentPreiserheber);
     currentPreiszuweisung$ = this.store.select(fromRoot.getCurrentPreiszuweisung);
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     private errorCodes: { [code: string]: string } = {
         '409': 'Es gibt schon ein Preiserheber mit diesem Benutzernamen.',
@@ -38,14 +41,14 @@ export class PreiserheberEffects {
 
     @Effect()
     loadPreiserheber$ = this.actions$.ofType('PREISERHEBER_LOAD').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() => loadAllPreiserheber()),
         map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as Action)),
     );
 
     @Effect()
     resetPassword$ = this.actions$.ofType('RESET_PASSWORD').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreiserheber$, (action, preiserheber) => ({
             password: action.payload,
             preiserheber,
@@ -64,7 +67,7 @@ export class PreiserheberEffects {
 
     @Effect()
     deletePreiserheber$ = this.actions$.ofType('DELETE_PREISERHEBER').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(action =>
             deletePreiserheber(action.payload).then(success => ({
                 preiserheberId: action.payload._id as string,
@@ -81,7 +84,7 @@ export class PreiserheberEffects {
 
     @Effect()
     savePreiserheber$ = this.actions$.ofType('SAVE_PREISERHEBER').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber) => ({
             password: action.payload,
             currentPreiserheber,

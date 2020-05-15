@@ -63,6 +63,14 @@
         pef-icon {
             stroke: transparent;
         }
+        &.icon-only {
+            min-width: 3em;
+            --padding-start: 0;
+            --padding-end: 0;
+        }
+    }
+    .reload span {
+        font-size: 20px;
     }
     ion-buttons {
         flex: 1;
@@ -108,6 +116,7 @@
         margin: 0 0 0 0.5em;
         stroke: transparent;
         fill: $white;
+        flex: 0 0 auto;
         &.error {
             fill: $alizarin-crimson;
         }

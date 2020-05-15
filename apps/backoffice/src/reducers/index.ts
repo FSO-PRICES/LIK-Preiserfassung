@@ -22,6 +22,7 @@ import * as fromPreismeldestelle from './preismeldestelle';
 import * as fromPreismeldungenStatus from './preismeldungen-status';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromReport from './report';
+import * as fromWritePermission from './write-permission';
 import * as fromSetting from './setting';
 
 export interface AppState {
@@ -41,6 +42,7 @@ export interface AppState {
     report: fromReport.State;
     settings: fromSetting.State;
     warenkorb: fromWarenkorb.State;
+    writePermission: fromWritePermission.State;
     filterOptions: fromFilterOptions.State;
 }
 
@@ -61,6 +63,7 @@ export const reducers = {
     report: fromReport.reducer,
     settings: fromSetting.reducer,
     warenkorb: fromWarenkorb.reducer,
+    writePermission: fromWritePermission.reducer,
     filterOptions: fromFilterOptions.reducer,
 };
 
@@ -335,6 +338,16 @@ export const getMinVersion = createSelector(
 export const getCanConnectToDatabase = createSelector(
     getOnOfflineState,
     fromOnOffline.getCanConnectToDatabase,
+);
+
+export const getWritePermissionState = (state: AppState) => state.writePermission;
+export const hasWritePermission = createSelector(
+    getWritePermissionState,
+    fromWritePermission.hasWritePermission,
+);
+export const canToggleWritePermission = createSelector(
+    getWritePermissionState,
+    fromWritePermission.canToggleWritePermission,
 );
 
 export const getCurrentPreismeldungViewBag = createSelector(

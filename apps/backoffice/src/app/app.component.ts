@@ -1,4 +1,4 @@
-import { Component, HostBinding, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit, NgZone } from '@angular/core';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { NavController, Platform } from '@ionic/angular';
@@ -14,10 +14,13 @@ import {
     refCount,
     take,
     withLatestFrom,
+    startWith,
 } from 'rxjs/operators';
+import { interval } from 'rxjs';
 
 import { PefDialogService, translations } from '@lik-shared';
 
+import { getOrCreateClientId } from '../common/local-storage-utils';
 import { PefDialogLoginComponent } from '../components/pef-dialog-login/pef-dialog-login';
 import * as fromRoot from '../reducers';
 import { AppService } from '../services/app-service';
@@ -43,6 +46,7 @@ export class Backoffice implements OnInit {
         translateService: TranslateService,
         splashScreen: SplashScreen,
         electronService: ElectronService,
+        zone: NgZone,
     ) {
         this.appService
             .clearLocalDatabases()
@@ -75,6 +79,18 @@ export class Backoffice implements OnInit {
                     this.fullscreen = isFullscreen;
                 });
 
+                if (electronService.isElectronApp) {
+                    store.select(fromRoot.hasWritePermission).subscribe(hasWritePermission => {
+                        electronService.ipcRenderer.sendSync('update-has-write-permission', hasWritePermission);
+                    });
+
+                    electronService.ipcRenderer.on('app-is-closing', () => {
+                        zone.run(() => {
+                            store.dispatch({ type: 'TOGGLE_WRITE_PERMISSION', payload: { force: false } });
+                        });
+                    });
+                }
+
                 settings$
                     .pipe(
                         filter(setting => !!setting && setting.isDefault),
@@ -93,9 +109,22 @@ export class Backoffice implements OnInit {
 
                 translateService.setTranslation('de', translations.de);
                 translateService.use('de');
+                this.store.dispatch({ type: 'SET_CURRENT_CLIENT_ID', payload: getOrCreateClientId() });
                 this.store.dispatch({ type: 'SETTING_LOAD' });
                 this.store.dispatch({ type: 'LOAD_ONOFFLINE' });
+                this.store.dispatch({ type: 'LOAD_WRITE_PERMISSION' });
                 this.store.dispatch({ type: 'LOAD_WARENKORB' });
+
+                store
+                    .select(fromRoot.getSettings)
+                    .pipe(
+                        filter(
+                            settings => !!settings && !!settings.serverConnection && !!settings.serverConnection.url,
+                        ),
+                        take(1),
+                        flatMap(() => interval(10000).pipe(startWith(0))),
+                    )
+                    .subscribe(() => store.dispatch({ type: 'LOAD_WRITE_PERMISSION' }));
             });
 
         if (electronService.isElectronApp) {

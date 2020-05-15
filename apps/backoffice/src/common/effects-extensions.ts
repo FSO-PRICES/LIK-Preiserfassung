@@ -1,5 +1,8 @@
 import { Observable, Observer, of } from 'rxjs';
-import { concat, filter, map, switchMap, take } from 'rxjs/operators';
+import { concat, filter, map, switchMap, take, withLatestFrom, tap } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../reducers';
 
 /** Emits "resetAction" first and after that, emits the results of "continuedObservable" */
 export function resetAndContinueWith<T>(resetAction: SimpleAction, continuedObservable: Observable<T>) {
@@ -37,6 +40,39 @@ export function continueOnlyIfTrue<T>(checkingObservable$: Observable<boolean>) 
 
 export function continueEffectOnlyIfTrue(checkingObservable$: Observable<boolean>) {
     return continueOnlyIfTrue<SimpleAction>(checkingObservable$);
+}
+
+export function blockIfNotLoggedIn(store: Store<fromRoot.AppState>) {
+    return (observable: Observable<SimpleAction>) =>
+        observable.pipe(
+            switchMap(action =>
+                store.select(fromRoot.getIsLoggedIn).pipe(
+                    filter(isLoggedIn => !!isLoggedIn),
+                    take(1),
+                    map(() => action),
+                ),
+            ),
+        );
+}
+
+export function blockIfNotLoggedInOrHasNoWritePermission<T>(store: Store<fromRoot.AppState>, silent = false) {
+    return (observable: Observable<T>) =>
+        observable.pipe(
+            switchMap(action =>
+                store.select(fromRoot.getIsLoggedIn).pipe(
+                    withLatestFrom(store.select(fromRoot.hasWritePermission)),
+                    filter(([isLoggedIn]) => isLoggedIn),
+                    take(1),
+                    tap(([, hasWritePermission]) => {
+                        if (!hasWritePermission && !silent) {
+                            alert('Dieser Client ist nicht berechtigt Anpassungen an der Datenbank zu tätigen.');
+                        }
+                    }),
+                    filter(([isLoggedIn, hasWritePermission]) => isLoggedIn && hasWritePermission),
+                    map(() => action),
+                ),
+            ),
+        );
 }
 
 export interface Action<T> {

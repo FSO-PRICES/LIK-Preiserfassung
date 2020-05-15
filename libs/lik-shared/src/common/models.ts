@@ -416,6 +416,11 @@ export interface OnOfflineStatus {
     updatedAt: number;
 }
 
+export interface WritePermissionStatus {
+    clientId: string;
+    updatedAt: number;
+}
+
 export interface CompatibleVersions {
     minVersion: string;
 }

@@ -7,7 +7,11 @@ import { debounceTime, flatMap, map, merge, publishReplay, refCount } from 'rxjs
 import { Models as P, preismeldungId } from '@lik-shared';
 
 import * as preismeldungenStatus from '../actions/preismeldungen-status';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedIn,
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+} from '../common/effects-extensions';
 import {
     dbNames,
     getAllPreismeldungenStatus,
@@ -22,19 +26,17 @@ import * as fromRoot from '../reducers';
 
 @Injectable()
 export class PreismeldungenStatusEffects {
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
-
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     setPreismeldungStatus$ = this.actions$.ofType(preismeldungenStatus.SET_PREISMELDUNGEN_STATUS).pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(action => setPreismeldungStatus(action.payload)),
         publishReplay(1),
         refCount(),
     );
 
     setPreismeldungStatusBulk$ = this.actions$.ofType(preismeldungenStatus.SET_PREISMELDUNGEN_STATUS_BULK).pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(action => setPreismeldungStatusBulk(action.payload)),
         publishReplay(1),
         refCount(),
@@ -42,7 +44,7 @@ export class PreismeldungenStatusEffects {
 
     @Effect()
     removePreismeldungStatus$ = this.actions$.ofType(preismeldungenStatus.REMOVE_PREISMELDUNG_STATUS).pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(action => removePreismeldungStatus(action.payload)),
         map(status => preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(status.statusMap)),
         publishReplay(1),
@@ -51,7 +53,7 @@ export class PreismeldungenStatusEffects {
 
     @Effect()
     loadPreismeldungenStatusData$ = this.actions$.ofType(preismeldungenStatus.LOAD_PREISMELDUNGEN_STATUS).pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() =>
             getAllPreismeldungenStatus().then(payload =>
                 preismeldungenStatus.createLoadPreismeldungenStatusSuccessAction(payload.statusMap),
@@ -63,7 +65,7 @@ export class PreismeldungenStatusEffects {
     getMissingPreismeldungenStatusCount$ = this.actions$
         .ofType(preismeldungenStatus.GET_MISSING_PREISMELDUNGEN_STATUS_COUNT)
         .pipe(
-            continueEffectOnlyIfTrue(this.isLoggedIn$),
+            blockIfNotLoggedIn(this.store),
             flatMap(() =>
                 concat(
                     [preismeldungenStatus.createGetMissingPreismeldungenStatusCountResetAction()],
@@ -88,6 +90,7 @@ export class PreismeldungenStatusEffects {
     setPreismeldungenStatusInitializing$ = this.actions$
         .ofType(preismeldungenStatus.INITIALIZE_PREISMELDUNGEN_STATUS)
         .pipe(
+            blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
             flatMap(() =>
                 concat(
                     [preismeldungenStatus.createSetPreismeldungenStatusAreInitializingAction()],
@@ -107,6 +110,7 @@ export class PreismeldungenStatusEffects {
 
     @Effect()
     syncStatuses$ = this.actions$.ofType(preismeldungenStatus.APPLY_PREISMELDUNGEN_STATUS).pipe(
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store, true),
         debounceTime(1000),
         flatMap(() =>
             uploadPreismeldungStatuses().then(() =>

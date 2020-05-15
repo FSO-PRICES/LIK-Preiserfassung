@@ -4,24 +4,28 @@ import { Store } from '@ngrx/store';
 import { from, of } from 'rxjs';
 import { catchError, flatMap, map, take } from 'rxjs/operators';
 
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+    blockIfNotLoggedIn,
+} from '../common/effects-extensions';
 
 import { Models as P } from '@lik-shared';
 
 import * as onoffline from '../actions/onoffline';
 import { checkConnectivity, dbNames, getDatabase } from '../common/pouchdb-utils';
 import * as fromRoot from '../reducers';
+import { getOrCreateClientId } from '../common/local-storage-utils';
 
 @Injectable()
 export class OnOfflineEffects {
     currentSetting$ = this.store.select(fromRoot.getCurrentSettings);
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadOnOffline$ = this.actions$.ofType('LOAD_ONOFFLINE').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() =>
             from(getOnOfflineStatus()).pipe(
                 map(payload => ({ type: 'LOAD_ONOFFLINE_SUCCESS', payload } as onoffline.Action)),
@@ -31,7 +35,7 @@ export class OnOfflineEffects {
 
     @Effect()
     toggleOnOffline$ = this.actions$.ofType('TOGGLE_ONOFFLINE').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(() =>
             from(toggleOnOfflineStatus()).pipe(
                 map(payload => ({ type: 'LOAD_ONOFFLINE_SUCCESS', payload } as onoffline.Action)),
@@ -40,8 +44,28 @@ export class OnOfflineEffects {
     );
 
     @Effect()
+    loadWritePermission$ = this.actions$.ofType('LOAD_WRITE_PERMISSION').pipe(
+        blockIfNotLoggedIn(this.store),
+        flatMap(() =>
+            from(getWritePermissionStatus()).pipe(
+                map(payload => ({ type: 'LOAD_WRITE_PERMISSION_SUCCESS', payload } as onoffline.Action)),
+            ),
+        ),
+    );
+
+    @Effect()
+    toggleWritePermission$ = this.actions$.ofType('TOGGLE_WRITE_PERMISSION').pipe(
+        blockIfNotLoggedIn(this.store),
+        flatMap(({ payload: { force } }) =>
+            from(toggleWritePermissionStatus(force)).pipe(
+                map(payload => ({ type: 'LOAD_WRITE_PERMISSION_SUCCESS', payload } as onoffline.Action)),
+            ),
+        ),
+    );
+
+    @Effect()
     saveMinVersion$ = this.actions$.ofType('SAVE_MIN_VERSION').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(({ payload }) => setMinVersion(payload)),
         flatMap(payload => [
             { type: 'RESET_MIN_VERSION' } as onoffline.Action,
@@ -81,11 +105,48 @@ async function getOnOfflineStatus() {
     return onOfflineStatus;
 }
 
+const writePermissionDocName = 'write_permission';
+async function getWritePermissionStatus() {
+    const db = await getDatabase(dbNames.onoffline);
+    let writePermissionStatus: P.WritePermissionStatus;
+    try {
+        writePermissionStatus = await db.get<P.WritePermissionStatus>(writePermissionDocName);
+    } catch (err) {
+        // document does not exist, ignore and handle below
+    }
+    if (!writePermissionStatus) {
+        await db.put({ _id: writePermissionDocName, clientId: null, updatedAt: new Date() });
+        writePermissionStatus = await db.get<P.WritePermissionStatus>(writePermissionDocName);
+    }
+    return writePermissionStatus;
+}
+
 async function toggleOnOfflineStatus() {
     const onOfflineStatus = await getOnOfflineStatus();
     const db = await getDatabase(dbNames.onoffline);
     await db.put({ ...onOfflineStatus, isOffline: !onOfflineStatus.isOffline, updatedAt: new Date() });
     return await getOnOfflineStatus();
+}
+
+async function toggleWritePermissionStatus(force: boolean = null) {
+    const writePermissionStatus = await getWritePermissionStatus();
+    const currentClientId = getOrCreateClientId();
+    const db = await getDatabase(dbNames.onoffline);
+    if (!writePermissionStatus.clientId || currentClientId === writePermissionStatus.clientId) {
+        await db.put({
+            ...writePermissionStatus,
+            clientId:
+                force === null
+                    ? !writePermissionStatus.clientId
+                        ? currentClientId
+                        : null
+                    : force
+                    ? currentClientId
+                    : null,
+            updatedAt: new Date(),
+        });
+    }
+    return await getWritePermissionStatus();
 }
 
 async function setMinVersion(minVersion: string) {

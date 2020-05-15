@@ -25,6 +25,7 @@ import { PefDialogConfirmDeleteComponent } from '../../components/pef-dialog-con
 import { PefDialogResetPasswordComponent } from '../../components/pef-dialog-reset-password/pef-dialog-reset-password';
 import * as fromRoot from '../../reducers';
 import { CurrentPreiszuweisung } from '../../reducers/preiszuweisung';
+import { blockIfNotLoggedInOrHasNoWritePermission } from '../../common/effects-extensions';
 
 @Component({
     selector: 'preiserheber',
@@ -216,6 +217,7 @@ export class PreiserheberPage implements OnDestroy {
 
             this.savePreiserheber$
                 .pipe(
+                    blockIfNotLoggedInOrHasNoWritePermission(this.store),
                     flatMap(password =>
                         this.pefDialogService
                             .displayLoading('Daten werden gespeichert, bitte warten...', {

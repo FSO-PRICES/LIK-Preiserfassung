@@ -8,7 +8,7 @@ import { flatMap, map } from 'rxjs/operators';
 import { Models as P, preismeldungRefId } from '@lik-shared';
 
 import * as cockpit from '../actions/cockpit';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import { blockIfNotLoggedIn } from '../common/effects-extensions';
 import {
     dbNames,
     getAllDocumentsForPrefixFromDbName,
@@ -16,17 +16,14 @@ import {
 } from '../common/pouchdb-utils';
 import { getAllAssignedPreismeldungen, loadAllPreiserheber, loadAllPreismeldestellen } from '../common/user-db-values';
 import * as fromRoot from '../reducers';
-import { PouchService } from '../services/PouchService';
 
 @Injectable()
 export class CockpitEffects {
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
-
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadCockpitData$ = this.actions$.ofType('LOAD_COCKPIT_DATA').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() =>
             concat(
                 [{ type: 'LOAD_COCKPIT_DATA_EXECUTING' }],

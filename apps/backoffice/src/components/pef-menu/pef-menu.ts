@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy } from '@an
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { MenuController, NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
-import { interval, Observable, Subject } from 'rxjs';
+import { interval, Observable, Subject, of } from 'rxjs';
 import { filter, flatMap, map, publishReplay, refCount, startWith, take, takeUntil } from 'rxjs/operators';
 
 import * as status from '../../actions/preismeldungen-status';
@@ -29,9 +29,12 @@ export class PefMenuComponent implements OnDestroy {
     ];
 
     public canConnectToDatabase$: Observable<boolean>;
+    public hasWritePermission$: Observable<boolean>;
+    public canToggleWritePermission$: Observable<boolean>;
     public dangerZone$: Observable<boolean>;
     public reloadClicked$ = new EventEmitter();
     public onOffLineClicked$ = new EventEmitter();
+    public writePermissionClicked$ = new EventEmitter();
     public toggleFullscreenClicked$ = new EventEmitter();
     public savePreismeldungStatuses$ = new EventEmitter();
     public isOffline$: Observable<boolean>;
@@ -57,11 +60,17 @@ export class PefMenuComponent implements OnDestroy {
             publishReplay(1),
             refCount(),
         );
+        this.hasWritePermission$ = store.select(fromRoot.hasWritePermission);
+        this.canToggleWritePermission$ = store.select(fromRoot.canToggleWritePermission);
         this.isOffline$ = store.select(fromRoot.getIsOffline);
         this.isFullscreen$ = store.select(fromRoot.getIsFullscreen);
 
         this.onOffLineClicked$.pipe(takeUntil(this.onDestroy$)).subscribe(() => {
             store.dispatch({ type: 'TOGGLE_ONOFFLINE' });
+        });
+
+        this.writePermissionClicked$.pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+            store.dispatch({ type: 'TOGGLE_WRITE_PERMISSION', payload: { force: null } });
         });
 
         this.toggleFullscreenClicked$.pipe(takeUntil(this.onDestroy$)).subscribe(() => {

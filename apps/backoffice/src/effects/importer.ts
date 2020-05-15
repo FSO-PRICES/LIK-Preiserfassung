@@ -9,7 +9,11 @@ import { catchError, flatMap, map, take, tap, withLatestFrom } from 'rxjs/operat
 import { Models as P } from '@lik-shared';
 
 import * as importer from '../actions/importer';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedIn,
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+} from '../common/effects-extensions';
 import { parseCsvAsObservable } from '../common/file-extensions';
 import {
     dbNames,
@@ -63,7 +67,7 @@ export class ImporterEffects {
 
     @Effect()
     import$ = this.actions$.ofType('IMPORT_DATA').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         map(action => action.payload),
         withLatestFrom(this.settings$),
         flatMap(([data, settings]) =>
@@ -118,13 +122,13 @@ export class ImporterEffects {
 
     @Effect()
     loadLatestImportedAt$ = this.actions$.ofType('LOAD_LATEST_IMPORTED_AT').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() => this.loadLatestImportedAt()),
     );
 
     @Effect()
     loadErhebungsmonate$ = this.actions$.ofType('LOAD_ERHEBUNGSMONATE').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() => loaderhebungsMonateAction()),
     );
 

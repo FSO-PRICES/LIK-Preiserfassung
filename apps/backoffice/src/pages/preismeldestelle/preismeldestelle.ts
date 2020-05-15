@@ -23,6 +23,7 @@ import { Action as PreismeldestelleAction } from '../../actions/preismeldestelle
 import { Action as PreiszuweisungAction } from '../../actions/preiszuweisung';
 import { PefDialogCancelEditComponent } from '../../components/pef-dialog-cancel-edit/pef-dialog-cancel-edit';
 import * as fromRoot from '../../reducers';
+import { blockIfNotLoggedInOrHasNoWritePermission } from '../../common/effects-extensions';
 
 @Component({
     selector: 'preismeldestelle',
@@ -131,6 +132,7 @@ export class PreismeldestellePage implements OnDestroy {
 
             this.savePreismeldestelle$
                 .pipe(
+                    blockIfNotLoggedInOrHasNoWritePermission(this.store),
                     flatMap(() =>
                         this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', {
                             requestDismiss$: this.currentPreismeldestelle$.pipe(

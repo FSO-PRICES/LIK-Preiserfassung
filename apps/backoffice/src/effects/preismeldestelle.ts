@@ -8,7 +8,11 @@ import { flatMap, map, withLatestFrom } from 'rxjs/operators';
 import { Models as P } from '@lik-shared';
 
 import * as preismeldestelle from '../actions/preismeldestelle';
-import { continueEffectOnlyIfTrue } from '../common/effects-extensions';
+import {
+    blockIfNotLoggedIn,
+    blockIfNotLoggedInOrHasNoWritePermission,
+    SimpleAction,
+} from '../common/effects-extensions';
 import {
     dbNames,
     getAllDocumentsFromDb,
@@ -23,20 +27,19 @@ import { CurrentPreismeldestelle } from '../reducers/preismeldestelle';
 @Injectable()
 export class PreismeldestelleEffects {
     currentPreismeldestelle$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
-    isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
     loadPreismeldestelle$ = this.actions$.ofType('PREISMELDESTELLE_LOAD').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedIn(this.store),
         flatMap(() => loadAllPreismeldestellen()),
         map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action)),
     );
 
     @Effect()
     savePreismeldestelle$ = this.actions$.ofType('SAVE_PREISMELDESTELLE').pipe(
-        continueEffectOnlyIfTrue(this.isLoggedIn$),
+        blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreismeldestelle$, (_, currentPreismeldestelle: CurrentPreismeldestelle) => ({
             currentPreismeldestelle,
         })),
