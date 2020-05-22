@@ -28,6 +28,15 @@ export async function loginToDatabase(credentials: {
     return couch;
 }
 
+export async function logoutOfDatabase(): Promise<PouchDB.Database<{}>> {
+    const settings = await getSettings();
+    const couch = new PouchDB(`${settings.serverConnection.url}/${dbNames.users}`, { skip_setup: true });
+
+    couch.logOut(() => {});
+
+    return couch;
+}
+
 export function checkServerConnection() {
     return from(getSettings()).pipe(
         flatMap(settings =>

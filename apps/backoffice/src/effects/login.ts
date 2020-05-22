@@ -2,11 +2,17 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
-import { catchError, concat, filter, flatMap, map, take } from 'rxjs/operators';
+import { catchError, concat, filter, flatMap, map, take, tap } from 'rxjs/operators';
 
 import * as login from '../actions/login';
 import { getCurrentLoggedInUser, resetCurrentLoggedInUser, setCurrentLoggedInUser } from '../common/login-extensions';
-import { checkServerConnection, dbNames, getDatabase, loginToDatabase, logout } from '../common/pouchdb-utils';
+import {
+    checkServerConnection,
+    dbNames,
+    getDatabase,
+    loginToDatabase,
+    logoutOfDatabase,
+} from '../common/pouchdb-utils';
 import * as fromRoot from '../reducers';
 
 @Injectable()
@@ -84,7 +90,8 @@ export class LoginEffects {
 
     @Effect()
     logout$ = this.actions$.ofType('LOGOUT').pipe(
-        flatMap(() => logout()),
+        flatMap(() => logoutOfDatabase()),
+        tap(() => resetCurrentLoggedInUser()),
         map(() => ({ type: 'SET_IS_LOGGED_OUT' } as login.Action)),
     );
 }

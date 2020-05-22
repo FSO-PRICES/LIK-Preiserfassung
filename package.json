@@ -70,6 +70,7 @@
         "dom-autoscroller": "^2.3.4",
         "dragula": "^3.7.2",
         "electron": "^6.0.1",
+        "electron-find": "^1.0.6",
         "es6-promise-plugin": "^4.2.2",
         "file-saver": "^2.0.2",
         "format-number": "^2.0.2",
