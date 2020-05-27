@@ -12,7 +12,7 @@ import { Models as P, preismeldestelleId, PreismeldungAction } from '@lik-shared
 import { createClearControllingAction } from '../actions/controlling';
 import * as exporter from '../actions/exporter';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
-import { resetAndContinueWith, blockIfNotLoggedIn } from '../common/effects-extensions';
+import { blockIfNotLoggedIn, resetAndContinueWith } from '../common/effects-extensions';
 import { createEnvelope, createMesageId, MessageTypes } from '../common/envelope-extensions';
 import { toCsv } from '../common/file-extensions';
 import {
@@ -93,14 +93,14 @@ export class ExporterEffects {
                             ),
                         ),
                     ),
+                    catchError(error =>
+                        of({
+                            type: 'EXPORT_PREISMELDUNGEN_FAILURE',
+                            payload: error,
+                        } as exporter.Action),
+                    ),
                 ),
             ),
-        ),
-        catchError(error =>
-            of({
-                type: 'EXPORT_PREISMELDUNGEN_FAILURE',
-                payload: error,
-            } as exporter.Action),
         ),
     );
 

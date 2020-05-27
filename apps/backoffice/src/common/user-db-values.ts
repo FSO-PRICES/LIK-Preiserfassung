@@ -1,7 +1,7 @@
 import * as bluebird from 'bluebird';
 import { assign, first, flatten, groupBy, intersection, sortBy } from 'lodash';
-import { forkJoin, from, Observable } from 'rxjs';
-import { flatMap, map, reduce, withLatestFrom } from 'rxjs/operators';
+import { concat, from, Observable } from 'rxjs';
+import { flatMap, map, reduce, toArray, withLatestFrom } from 'rxjs/operators';
 
 import { Models as P, PmsFilter, pmsSortId, preismeldestelleId, preismeldungId, preismeldungRefId } from '@lik-shared';
 
@@ -90,13 +90,18 @@ const getAllSortierungenByPmsId = (pmsIds: string[]) => {
     if (pmsIds.length === 0) {
         throw new Error('Keine Daten zum exportieren vorhanden');
     }
-    return forkJoin(
-        pmsIds.map(pmsNummer =>
+    return concat(
+        ...pmsIds.map(pmsNummer =>
             getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).pipe(
                 map(list =>
                     list
                         .reduce(
-                            (acc, sort) => [...acc, ...sort.sortOrder.reduce((sublist, x) => [...sublist, x], [])],
+                            (acc, sort) => [
+                                ...acc,
+                                ...sort.sortOrder.reduce((sublist, x) => [...sublist, x], [] as ({
+                                    pmId: string;
+                                } & P.PreismeldungSortProperties)[]),
+                            ],
                             [] as ({
                                 pmId: string;
                             } & P.PreismeldungSortProperties)[],
@@ -108,6 +113,7 @@ const getAllSortierungenByPmsId = (pmsIds: string[]) => {
             ),
         ),
     ).pipe(
+        toArray(),
         map(x =>
             x.reduce((acc, sort) => ({ ...acc, ...sort }), {} as {
                 [pmId: string]: number;
@@ -121,8 +127,9 @@ const loadUserDbs = async (preiserheberIds: string[]) => {
         return [];
     }
     return await bluebird.reduce(
-        preiserheberIds.map(async preiserheberId => await getDatabase(getUserDatabaseName(preiserheberId))),
-        (acc, x) => [...acc, x],
+        preiserheberIds,
+        (acc, preiserheberId) =>
+            getDatabase(getUserDatabaseName(preiserheberId)).then(x => [...acc, x] as PouchDB.Database<{}>[]),
         [] as PouchDB.Database<{}>[],
     );
 };
