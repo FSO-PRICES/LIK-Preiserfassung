@@ -1,6 +1,6 @@
 import { assign, flatten } from 'lodash';
-import { forkJoin, from, of } from 'rxjs';
-import { catchError, flatMap, map, mapTo, tap } from 'rxjs/operators';
+import { concat, forkJoin, from, of } from 'rxjs';
+import { catchError, flatMap, map, mapTo, tap, toArray } from 'rxjs/operators';
 
 import {
     allPropertiesExeceptIdAndRev,
@@ -52,16 +52,20 @@ export function createUserDbs() {
         flatMap(x =>
             x.preiserhebers.length === 0
                 ? of(null)
-                : forkJoin(x.preiserhebers.map(preiserheber => _createUserDb(assign({}, x.data, { preiserheber })))),
+                : concat(
+                      ...x.preiserhebers.map(preiserheber => _createUserDb(assign({}, x.data, { preiserheber }))),
+                  ).pipe(toArray()),
         ),
-        tap(() => console.log('DEBUG: AFTER _CREATEUSERDB')),
+        tap(x => console.log('DEBUG: AFTER _CREATEUSERDB', x)),
     );
 }
 
 function backupAndDeleteAllMonthDatabases() {
     return listAllDatabases().pipe(
         map(dbs => dbs.filter(db => db.startsWith('user_') || db === dbNames.orphaned_erfasste_preismeldungen)),
-        flatMap(dbs => (dbs.length === 0 ? of({}) : forkJoin(dbs.map(dbName => backupAndDeleteDatabase(dbName))))),
+        flatMap(dbs =>
+            dbs.length === 0 ? of({}) : concat(...dbs.map(dbName => backupAndDeleteDatabase(dbName))).pipe(toArray()),
+        ),
     );
 }
 
@@ -169,8 +173,8 @@ function createPmsDocsBasedOnZuweisung(
                 flatMap(x =>
                     !toCreate.length
                         ? of(x.docs)
-                        : forkJoin(
-                              toCreate.map(pmsNummer =>
+                        : concat(
+                              ...toCreate.map(pmsNummer =>
                                   from(
                                       getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
                                           x.db,
@@ -179,6 +183,7 @@ function createPmsDocsBasedOnZuweisung(
                                   ),
                               ),
                           ).pipe(
+                              toArray(),
                               map(preismeldungenArray =>
                                   flatten(preismeldungenArray).map(pm => clearRev<P.PreismeldungReference>(pm)),
                               ),
@@ -191,21 +196,27 @@ function createPmsDocsBasedOnZuweisung(
                         ? of({ forUserDb: docs, forBackupDb: [] })
                         : getDatabaseAsObservable(dbNames.orphaned_erfasste_preismeldungen).pipe(
                               flatMap(db =>
-                                  forkJoin([
-                                      ...toCreate.map(pmsNummer =>
-                                          from(
-                                              getAllDocumentsForPrefixFromDb<P.Preismeldung>(
-                                                  db,
-                                                  preismeldungId(pmsNummer),
+                                  concat(
+                                      ...[
+                                          ...toCreate.map(pmsNummer =>
+                                              from(
+                                                  getAllDocumentsForPrefixFromDb<P.Preismeldung>(
+                                                      db,
+                                                      preismeldungId(pmsNummer),
+                                                  ),
                                               ),
                                           ),
-                                      ),
-                                      ...toCreate.map(pmsNummer =>
-                                          from(
-                                              getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, pmsSortId(pmsNummer)),
+                                          ...toCreate.map(pmsNummer =>
+                                              from(
+                                                  getAllDocumentsForPrefixFromDb<P.Preismeldung>(
+                                                      db,
+                                                      pmsSortId(pmsNummer),
+                                                  ),
+                                              ),
                                           ),
-                                      ),
-                                  ]).pipe(
+                                      ],
+                                  ).pipe(
+                                      toArray(),
                                       map(preismeldungenArray => flatten(preismeldungenArray)),
                                       map(pmDocs => ({
                                           forUserDb: [...docs, ...pmDocs.map(pm => clearRev<P.CouchProperties>(pm))],
@@ -221,11 +232,12 @@ function createPmsDocsBasedOnZuweisung(
                         ? of(docs)
                         : getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).pipe(
                               flatMap(db =>
-                                  forkJoin(
-                                      toRemove.map(pmsNummer =>
+                                  concat(
+                                      ...toRemove.map(pmsNummer =>
                                           from(getAllIdRevsForPrefixFromDb(db, preismeldungRefId(pmsNummer))),
                                       ),
                                   ).pipe(
+                                      toArray(),
                                       map(preismeldungenArray =>
                                           flatten(preismeldungenArray).map(pm => assign({}, pm, { _deleted: true })),
                                       ),
@@ -243,21 +255,27 @@ function createPmsDocsBasedOnZuweisung(
                         ? of(docs)
                         : getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).pipe(
                               flatMap(db =>
-                                  forkJoin([
-                                      ...toRemove.map(pmsNummer =>
-                                          from(
-                                              getAllDocumentsForPrefixFromDb<P.Preismeldung>(
-                                                  db,
-                                                  preismeldungId(pmsNummer),
+                                  concat(
+                                      ...[
+                                          ...toRemove.map(pmsNummer =>
+                                              from(
+                                                  getAllDocumentsForPrefixFromDb<P.Preismeldung>(
+                                                      db,
+                                                      preismeldungId(pmsNummer),
+                                                  ),
                                               ),
                                           ),
-                                      ),
-                                      ...toRemove.map(pmsNummer =>
-                                          from(
-                                              getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, pmsSortId(pmsNummer)),
+                                          ...toRemove.map(pmsNummer =>
+                                              from(
+                                                  getAllDocumentsForPrefixFromDb<P.Preismeldung>(
+                                                      db,
+                                                      pmsSortId(pmsNummer),
+                                                  ),
+                                              ),
                                           ),
-                                      ),
-                                  ]).pipe(
+                                      ],
+                                  ).pipe(
+                                      toArray(),
                                       map(preismeldungenArray => flatten(preismeldungenArray)),
                                       map(preismeldungen => ({
                                           forUserDb: [
