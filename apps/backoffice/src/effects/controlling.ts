@@ -10,9 +10,9 @@ import { concatMap, delay, flatMap, map, withLatestFrom } from 'rxjs/operators';
 import * as controlling from '../actions/controlling';
 import { copyUserDbErheberDetailsToPreiserheberDb } from '../common/controlling-functions';
 import {
+    blockIfNotLoggedIn,
     blockIfNotLoggedInOrHasNoWritePermission,
     SimpleAction,
-    blockIfNotLoggedIn,
 } from '../common/effects-extensions';
 import {
     dbNames,
