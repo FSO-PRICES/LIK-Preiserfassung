@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { first } from 'lodash';
 import { Observable } from 'rxjs';
-import { filter, map, publishReplay, refCount, take, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { filter, flatMap, map, publishReplay, refCount, take, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import * as P from '@lik-shared';
 
@@ -87,13 +87,14 @@ export class ControllingPage implements OnDestroy {
                         take(1),
                     ),
                 ),
+                flatMap(dismiss$ =>
+                    this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
+                        requestDismiss$: dismiss$,
+                    }),
+                ),
                 takeUntil(this.onDestroy$),
             )
-            .subscribe(dismiss$ =>
-                this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
-                    requestDismiss$: dismiss$,
-                }),
-            );
+            .subscribe();
 
         this.runControllingReport$
             .pipe(takeUntil(this.onDestroy$))
