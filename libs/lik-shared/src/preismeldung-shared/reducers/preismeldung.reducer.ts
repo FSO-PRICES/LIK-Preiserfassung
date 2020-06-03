@@ -741,6 +741,8 @@ function getNextNewSortierungsnummer(
             ? nextIndex !== -1
                 ? preismeldungen[nextIndex].sortierungsnummer
                 : 1
+            : nextIndex === 0
+            ? 1
             : preismeldungen[nextIndex - 1].sortierungsnummer + 1;
     }
     const epPreismeldungen = preismeldungen.filter(bag => bag.preismeldung.epNummer === epNummer);
