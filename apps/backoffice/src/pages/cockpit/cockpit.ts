@@ -1,8 +1,10 @@
 import { Component, EventEmitter } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
+import { filter, flatMap, skip, take, takeUntil } from 'rxjs/operators';
 
-import { takeUntil } from 'rxjs/operators';
+import { PefDialogService } from '@lik-shared';
+
 import * as controlling from '../../actions/controlling';
 import * as preismeldungenStatusActions from '../../actions/preismeldungen-status';
 import * as P from '../../common-models';
@@ -27,11 +29,24 @@ export class CockpitPage {
 
     private ionViewDidLeave$ = new Subject();
 
-    constructor(private store: Store<fromRoot.AppState>) {
-        this.loadData$.pipe(takeUntil(this.ionViewDidLeave$)).subscribe(() => {
-            this.store.dispatch({ type: 'LOAD_COCKPIT_DATA' });
-            this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction());
-        });
+    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
+        this.loadData$
+            .pipe(
+                flatMap(() =>
+                    this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
+                        requestDismiss$: this.cockpitReportData$.pipe(
+                            skip(1),
+                            filter(data => !!data),
+                            take(1),
+                        ),
+                    }),
+                ),
+                takeUntil(this.ionViewDidLeave$),
+            )
+            .subscribe(() => {
+                this.store.dispatch({ type: 'LOAD_COCKPIT_DATA' });
+                this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction());
+            });
         this.preiserheberSelected$
             .pipe(takeUntil(this.ionViewDidLeave$))
             .subscribe(pe =>
