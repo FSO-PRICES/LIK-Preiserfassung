@@ -206,11 +206,15 @@
     }
 
     .edit-pm {
+        display: flex;
+        justify-content: center;
         fill: white;
+        background-color: $java;
+        border-radius: 2px;
+        height: 25px;
+        width: 25px;
+        padding: 0;
         margin: 2px 0;
-        --padding-start: 1px;
-        --padding-end: 1px;
-        height: auto;
     }
     .additional-actions {
         margin-left: 20px;

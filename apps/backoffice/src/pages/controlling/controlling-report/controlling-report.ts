@@ -1,13 +1,4 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnDestroy,
-    Output,
-    SecurityContext,
-    SimpleChange,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { first } from 'lodash';
 import { defer, merge, Observable, Subject } from 'rxjs';
@@ -106,24 +97,29 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     ];
 
     public reportData$ = this.observePropertyCurrentValue<P.ControllingReportData>('reportData').pipe(
+        distinctUntilChanged(),
         publishReplay(1),
         refCount(),
     );
     public preismeldungenStatus$ = this.observePropertyCurrentValue<{ [pmId: string]: P.Models.PreismeldungStatus }>(
         'preismeldungenStatus',
     ).pipe(
+        distinctUntilChanged(),
         publishReplay(1),
         refCount(),
     );
     public preismeldungStatusFilter$ = this.setPreismeldungStatusFilter$.asObservable().pipe(
         startWith(P.Models.PreismeldungStatusFilter.exportiert),
+        distinctUntilChanged(),
         publishReplay(1),
         refCount(),
     );
-    public currentlyMarked$ = merge(this.marked$, this.cleanupMarked$.pipe(mapTo(null))).pipe(
+    public currentlyMarked$: Observable<number> = merge(this.marked$, this.cleanupMarked$.pipe(mapTo(null))).pipe(
         startWith(null),
         scan((prev, curr) => (prev === curr ? null : curr), null),
-        shareReplay({ bufferSize: 1, refCount: true }),
+        distinctUntilChanged(),
+        publishReplay(1),
+        refCount(),
     );
 
     public sameLine$ = this.sameLineClicked$.pipe(
@@ -164,6 +160,8 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                     marked: i === marked,
                 })),
         ),
+        publishReplay(1),
+        refCount(),
     );
 
     constructor(private domSanitizer: DomSanitizer, pefDialogService: PefDialogService) {
