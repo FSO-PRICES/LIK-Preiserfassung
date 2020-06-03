@@ -76,7 +76,7 @@ export function checkConnectivity(url: string) {
         withCredentials: true,
         responseType: 'json',
         method: 'GET',
-        timeout: 1000,
+        timeout: 10000,
     }).pipe(
         map(
             resp =>
@@ -112,8 +112,14 @@ function _syncDatabase(url: string, username: string, params: { push: boolean; p
     const ts = new Date().valueOf();
     return getDatabaseAsObservable().pipe(
         flatMap(pouch => {
-            const couchOnOffline = new PouchDB(`${url}/onoffline`, { skip_setup: true }) as PouchDB.Database<{}>;
-            const couch = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<{}>;
+            const couchOnOffline = new PouchDB(`${url}/onoffline`, {
+                ajax: { timeout: 50000 },
+                skip_setup: true,
+            } as any) as PouchDB.Database<{}>;
+            const couch = new PouchDB(`${url}/user_${username}`, {
+                ajax: { timeout: 50000 },
+                skip_setup: true,
+            } as any) as PouchDB.Database<{}>;
             return getDocumentByKeyFromDb<P.OnOfflineStatus>(couchOnOffline, 'onoffline_status')
                 .then(onofflineStatus => {
                     if (onofflineStatus.isOffline) throw new Error('DB OFFLINE');
@@ -195,7 +201,10 @@ function backupDatabase(db: PouchDB.Database<{}>, newDatabaseName) {
 export function getLoggedInUser(url: string, username: string) {
     return getDatabaseAsObservable().pipe(
         flatMap(pouch => {
-            const db = new PouchDB(`${url}/user_${username}`, { skip_setup: true }) as PouchDB.Database<{}>;
+            const db = new PouchDB(`${url}/user_${username}`, {
+                ajax: { timeout: 50000 },
+                skip_setup: true,
+            } as any) as PouchDB.Database<{}>;
             return from(
                 db
                     .get('preiserheber')
@@ -209,7 +218,10 @@ export function getLoggedInUser(url: string, username: string) {
 export function loginIntoDatabase(data: { url: string; username: string; password: string }) {
     return getOrCreateDatabaseAsObservable().pipe(
         flatMap(() => {
-            const couch = new PouchDB(`${data.url}/user_${data.username}`, { skip_setup: true });
+            const couch = new PouchDB(`${data.url}/user_${data.username}`, {
+                ajax: { timeout: 50000 },
+                skip_setup: true,
+            } as any);
             const login = bindNodeCallback(couch.logIn.bind(couch));
             return login(data.username, data.password);
         }),
@@ -223,7 +235,10 @@ export function initialisePouchForDev() {
 }
 
 async function isCompatible(url: string) {
-    const couchOnOffline = new PouchDB(`${url}/onoffline`, { skip_setup: true }) as PouchDB.Database<{}>;
+    const couchOnOffline = new PouchDB(`${url}/onoffline`, {
+        ajax: { timeout: 50000 },
+        skip_setup: true,
+    } as any) as PouchDB.Database<{}>;
     return getDocumentByKeyFromDb<P.OnOfflineStatus>(couchOnOffline, 'onoffline_status').then(c =>
         semver.gte(environment.version, c.minVersion),
     );

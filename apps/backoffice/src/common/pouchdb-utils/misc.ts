@@ -44,6 +44,7 @@ export function checkServerConnection() {
                 url: settings.serverConnection.url,
                 method: 'GET',
                 crossDomain: true,
+                timeout: 10000,
             }),
         ),
     );

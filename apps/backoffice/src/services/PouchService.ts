@@ -67,6 +67,7 @@ export class PouchService {
                     withCredentials: true,
                     responseType: 'json',
                     method: 'PUT',
+                    timeout: 50000,
                 }),
             ),
         ).pipe(flatMap(x => x));
@@ -217,6 +218,7 @@ export class PouchService {
                     url: settings.serverConnection.url,
                     method: 'GET',
                     crossDomain: true,
+                    timeout: 10000,
                 }),
             ),
         );
@@ -232,6 +234,7 @@ export class PouchService {
                     withCredentials: true,
                     responseType: 'json',
                     method: 'GET',
+                    timeout: 50000,
                 }).pipe(
                     map(x => x.response as string[]),
                     catchError(() => of([])),

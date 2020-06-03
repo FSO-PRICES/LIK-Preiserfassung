@@ -57,7 +57,7 @@ export function checkConnectivity(url: string) {
         withCredentials: true,
         responseType: 'json',
         method: 'GET',
-        timeout: 1000,
+        timeout: 10000,
     }).pipe(
         map(
             resp =>
@@ -125,7 +125,9 @@ export function dropRemoteCouchDatabaseAndSyncLocalToRemote(dbName: string) {
     return dropRemoteCouchDatabase(dbName).then(() => {
         return getSettings().then(settings => {
             const pouch = new PouchDB(`${dbName}`);
-            const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
+            const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`, {
+                ajax: { timeout: 50000 },
+            } as any);
             return pouch.sync(couch, { push: true as any, pull: false as any, batch_size: 1000 }).then(() => true);
         });
     });
@@ -141,6 +143,7 @@ export function listAllDatabases() {
                 withCredentials: true,
                 responseType: 'json',
                 method: 'GET',
+                timeout: 50000,
             }).pipe(
                 map(x => x.response as string[]),
                 catchError(() => of(<string[]>[])),
@@ -159,8 +162,17 @@ function getCouchDb(
     dbName: string,
     config: PouchDB.Configuration.DatabaseConfiguration = null,
 ): Promise<PouchDB.Database<{}>> {
+    const ajaxOptions = {
+        ajax: { timeout: 50000 },
+    } as any;
     return getSettings()
-        .then(settings => new PouchDB(`${settings.serverConnection.url}/${dbName}`, config))
+        .then(
+            settings =>
+                new PouchDB(
+                    `${settings.serverConnection.url}/${dbName}`,
+                    config ? { ...config, ...ajaxOptions } : ajaxOptions,
+                ),
+        )
         .catch(() => new PouchDB(dbNames.emptyDb));
 }
 

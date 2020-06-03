@@ -74,6 +74,7 @@ export function putUserToDatabase(dbName, users: P.CouchSecurity) {
                 withCredentials: true,
                 responseType: 'json',
                 method: 'PUT',
+                timeout: 50000,
             }),
         ),
     ).pipe(flatMap(x => x));
