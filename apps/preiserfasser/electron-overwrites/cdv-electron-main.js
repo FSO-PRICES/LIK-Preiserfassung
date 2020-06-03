@@ -84,6 +84,9 @@ function setCookiesPersistent() {
             });
             cookies.flushStore(() => {});
         }
+        if (removed) {
+            cookies.remove(`http://${cookie.domain}`, cookie.name, () => {});
+        }
     });
 }
 
