@@ -446,7 +446,7 @@ const base_0100_0200_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => 
         range: [{ lowEpNummer: 4090, highEpNummer: 4100 }, { lowEpNummer: 7106, highEpNummer: 7111 }],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        x.refPreismeldung.erhebungsZeitpunkt === erhebungsZeitpunkt && !x.preismeldung,
+        !!x.refPreismeldung && x.refPreismeldung.erhebungsZeitpunkt === erhebungsZeitpunkt && !x.preismeldung,
     columns: [
         columnPreisId,
         columnPmsName,
