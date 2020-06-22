@@ -43,6 +43,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
     @Input() selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;
     @Output('loadData') loadData$ = new EventEmitter();
     @Output('initPreismeldungenStatus') initPreismeldungenStatus$ = new EventEmitter();
+    @Output('checkPreismeldungStatus') checkPreismeldungStatus$ = new EventEmitter();
     @Output('preiserheberSelected') preiserheberSelected$: Observable<P.CockpitPreiserheberSummary>;
 
     public selectPreiserheber$ = new EventEmitter<P.CockpitPreiserheberSummary>();

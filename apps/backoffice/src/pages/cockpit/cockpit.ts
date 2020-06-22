@@ -26,6 +26,7 @@ export class CockpitPage {
     public loadData$ = new EventEmitter();
     public initPreismeldungenStatus$ = new EventEmitter();
     public preiserheberSelected$ = new EventEmitter<P.CockpitPreiserheberSummary>();
+    public checkPreismeldungStatus$ = new EventEmitter();
 
     private ionViewDidLeave$ = new Subject();
 
@@ -47,6 +48,11 @@ export class CockpitPage {
                 this.store.dispatch({ type: 'LOAD_COCKPIT_DATA' });
                 this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction());
             });
+        this.checkPreismeldungStatus$
+            .pipe(takeUntil(this.ionViewDidLeave$))
+            .subscribe(() =>
+                this.store.dispatch(preismeldungenStatusActions.createGetMissingPreismeldungenStatusCountAction()),
+            );
         this.preiserheberSelected$
             .pipe(takeUntil(this.ionViewDidLeave$))
             .subscribe(pe =>

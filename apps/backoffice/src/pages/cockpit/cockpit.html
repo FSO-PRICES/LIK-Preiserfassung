@@ -8,6 +8,7 @@
             [statusUpdatedCount]="preismeldungenStatusMapUpdatedCount$ | async"
             [initializingPreismeldungenStatus]="initializingPreismeldungenStatus$ | async"
             (loadData)="loadData$.next()"
+            (checkPreismeldungStatus)="checkPreismeldungStatus$.emit()"
             (initPreismeldungenStatus)="initPreismeldungenStatus$.emit()"
             (preiserheberSelected)="preiserheberSelected$.emit($event)"
         ></cockpit-report>

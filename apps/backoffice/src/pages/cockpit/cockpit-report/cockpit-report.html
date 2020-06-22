@@ -2,13 +2,16 @@
     <ion-button type="button" (click)="loadData$.emit()" [disabled]="reportExecuting$ | async"
         >Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</ion-button
     >
+    <ion-button type="button" (click)="checkPreismeldungStatus$.emit()" [disabled]="statusMissingCount === null"
+        >Preise ohne Prüfstatus suchen</ion-button
+    >
     <ion-button
         type="button"
         (click)="initPreismeldungenStatus$.emit()"
         [disabled]="initializingPreismeldungenStatus$ | async"
         >Prüfstatus zuweisen</ion-button
     >
-    <ion-text *ngIf="statusMissingCount != null" color="primary">
+    <ion-text *ngIf="statusMissingCount !== null" color="primary">
         {{ statusMissingCount }} Preismeldungen ohne Prüfstatus
     </ion-text>
 </div>
