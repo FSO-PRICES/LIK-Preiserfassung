@@ -116,16 +116,28 @@ function createWindow() {
     });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-    createWindow();
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
-    // The session cookie doesn't persist, transforming it into a cookie with expiration date marks it persistent
-    setCookiesPersistent();
-});
+if (!app.requestSingleInstanceLock()) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        // Someone tried to run a second instance, we should focus our window.
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+
+    // This method will be called when Electron has finished
+    // initialization and is ready to create browser windows.
+    // Some APIs can only be used after this event occurs.
+    app.on('ready', () => {
+        createWindow();
+        const menu = Menu.buildFromTemplate(template);
+        Menu.setApplicationMenu(menu);
+        // The session cookie doesn't persist, transforming it into a cookie with expiration date marks it persistent
+        setCookiesPersistent();
+    });
+}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
