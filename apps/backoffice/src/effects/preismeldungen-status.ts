@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { concat } from 'rxjs';
-import { debounceTime, flatMap, map, merge, publishReplay, refCount } from 'rxjs/operators';
+import { debounceTime, flatMap, map, merge, publishReplay, refCount, filter } from 'rxjs/operators';
 
 import { Models as P, preismeldungId } from '@lik-shared';
 
@@ -11,6 +11,7 @@ import {
     blockIfNotLoggedIn,
     blockIfNotLoggedInOrHasNoWritePermission,
     SimpleAction,
+    toNullOnConflict,
 } from '../common/effects-extensions';
 import {
     dbNames,
@@ -30,14 +31,14 @@ export class PreismeldungenStatusEffects {
 
     setPreismeldungStatus$ = this.actions$.ofType(preismeldungenStatus.SET_PREISMELDUNGEN_STATUS).pipe(
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
-        flatMap(action => setPreismeldungStatus(action.payload)),
+        flatMap(action => setPreismeldungStatus(action.payload).catch(toNullOnConflict)),
         publishReplay(1),
         refCount(),
     );
 
     setPreismeldungStatusBulk$ = this.actions$.ofType(preismeldungenStatus.SET_PREISMELDUNGEN_STATUS_BULK).pipe(
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
-        flatMap(action => setPreismeldungStatusBulk(action.payload)),
+        flatMap(action => setPreismeldungStatusBulk(action.payload).catch(toNullOnConflict)),
         publishReplay(1),
         refCount(),
     );
@@ -45,7 +46,7 @@ export class PreismeldungenStatusEffects {
     @Effect()
     removePreismeldungStatus$ = this.actions$.ofType(preismeldungenStatus.REMOVE_PREISMELDUNG_STATUS).pipe(
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
-        flatMap(action => removePreismeldungStatus(action.payload)),
+        flatMap(action => removePreismeldungStatus(action.payload).catch(toNullOnConflict)),
         map(status => preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(status.statusMap)),
         publishReplay(1),
         refCount(),
@@ -79,6 +80,7 @@ export class PreismeldungenStatusEffects {
     @Effect()
     setPreismeldungStatusSuccess$ = this.setPreismeldungStatus$.pipe(
         merge(this.setPreismeldungStatusBulk$),
+        filter(status => status !== null),
         map(status => preismeldungenStatus.createSetPreismeldungenStatusSuccessAction(status.statusMap)),
     );
 

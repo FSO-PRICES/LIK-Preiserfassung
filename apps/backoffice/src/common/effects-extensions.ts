@@ -75,6 +75,16 @@ export function blockIfNotLoggedInOrHasNoWritePermission<T>(store: Store<fromRoo
         );
 }
 
+export function toNullOnConflict(error: { status?: number }): null | never {
+    if (error) {
+        if (error.status === 409) {
+            return null;
+        }
+        console.error('Unhandled error:', error);
+    }
+    throw new Error('Unhandled error');
+}
+
 export interface Action<T> {
     type: string;
     payload: T;
