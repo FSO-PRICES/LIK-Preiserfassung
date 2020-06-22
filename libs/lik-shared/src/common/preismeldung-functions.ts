@@ -30,7 +30,7 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(
         preisVorReduktion: '',
         mengeVorReduktion: '',
         datumVorReduktion: '',
-        aktion: false,
+        aktion: rpm.aktion,
         artikelnummer: rpm.artikelnummer,
         artikeltext: rpm.artikeltext,
         bemerkungen: '',
