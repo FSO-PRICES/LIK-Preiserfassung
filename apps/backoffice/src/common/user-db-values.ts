@@ -1,7 +1,7 @@
 import * as bluebird from 'bluebird';
 import { assign, first, flatten, groupBy, intersection, sortBy } from 'lodash';
 import { concat, from, Observable } from 'rxjs';
-import { flatMap, map, reduce, toArray, withLatestFrom } from 'rxjs/operators';
+import { flatMap, map, reduce, tap, toArray, withLatestFrom } from 'rxjs/operators';
 
 import { Models as P, PmsFilter, pmsSortId, preismeldestelleId, preismeldungId, preismeldungRefId } from '@lik-shared';
 
@@ -318,6 +318,42 @@ export function getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>
             ),
         ),
     );
+}
+
+export function createIndexes() {
+    return listUserDatabases().pipe(
+        flatMap(dbnames =>
+            from(dbnames).pipe(
+                flatMap(dbname => getDatabaseAsObservable(dbname)),
+                flatMap(db =>
+                    concat([
+                        db.createIndex({ index: { fields: ['_id'] } }),
+                        db.createIndex({ index: { fields: ['uploadRequestedAt'] } }),
+                    ]),
+                ),
+            ),
+        ),
+    );
+}
+
+export function getAllUploadedPm() {
+    return listUserDatabases()
+        .pipe(
+            flatMap(dbnames =>
+                from(dbnames).pipe(
+                    flatMap(dbname => getDatabaseAsObservable(dbname)),
+                    flatMap(db =>
+                        db.find({
+                            limit: Number.MAX_SAFE_INTEGER,
+                            selector: { _id: { $gt: 'pm_', $lt: 'pm_\uffff' }, uploadRequestedAt: { $ne: null } },
+                            fields: ['_id'],
+                        }),
+                    ),
+                    reduce((acc, docs) => [...acc, ...docs.docs], []),
+                ),
+            ),
+        )
+        .toPromise();
 }
 
 export async function getAllAssignedPreismeldungen() {

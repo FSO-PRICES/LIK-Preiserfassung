@@ -69,12 +69,8 @@ export class PreismeldungenStatusEffects {
             flatMap(() =>
                 concat(
                     [preismeldungenStatus.createGetMissingPreismeldungenStatusCountResetAction()],
-                    getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).pipe(
-                        flatMap(preismeldungen =>
-                            getMissingPreismeldungenStatusCount(preismeldungen).then(count =>
-                                preismeldungenStatus.createGetMissingPreismeldungenStatusCountSuccessAction(count),
-                            ),
-                        ),
+                    getMissingPreismeldungenStatusCount().then(count =>
+                        preismeldungenStatus.createGetMissingPreismeldungenStatusCountSuccessAction(count),
                     ),
                 ),
             ),

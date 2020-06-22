@@ -1,10 +1,11 @@
-import { Component, HostBinding, OnInit, NgZone } from '@angular/core';
+import { Component, HostBinding, NgZone, OnInit } from '@angular/core';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { NavController, Platform } from '@ionic/angular';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { ElectronService } from 'ngx-electron';
+import { interval } from 'rxjs';
 import {
     distinctUntilChanged,
     filter,
@@ -12,15 +13,15 @@ import {
     map,
     publishReplay,
     refCount,
+    startWith,
     take,
     withLatestFrom,
-    startWith,
 } from 'rxjs/operators';
-import { interval } from 'rxjs';
 
 import { PefDialogService, translations } from '@lik-shared';
 
 import { getOrCreateClientId } from '../common/local-storage-utils';
+import { createIndexes } from '../common/user-db-values';
 import { PefDialogLoginComponent } from '../components/pef-dialog-login/pef-dialog-login';
 import * as fromRoot from '../reducers';
 import { AppService } from '../services/app-service';
@@ -106,6 +107,15 @@ export class Backoffice implements OnInit {
                 loginDialog$
                     .pipe(filter(dialogCode => dialogCode === 'NAVIGATE_TO_SETTINGS'))
                     .subscribe(() => this.navigateToSettings());
+
+                this.store
+                    .select(fromRoot.getIsLoggedIn)
+                    .pipe(
+                        filter(loggedIn => loggedIn),
+                        take(1),
+                        flatMap(() => createIndexes()),
+                    )
+                    .subscribe();
 
                 translateService.setTranslation('de', translations.de);
                 translateService.use('de');

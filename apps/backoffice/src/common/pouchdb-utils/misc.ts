@@ -7,6 +7,7 @@ import PouchDB from './pouchdb';
 import { Models as P } from '@lik-shared';
 
 import { environment } from '../../environments/environment';
+import { getAllUploadedPm } from '../user-db-values';
 import { dbNames, downloadDatabaseAsync, getLocalDatabase, getSettings, uploadDatabaseAsync } from './database';
 import { getDocumentByKeyFromDb } from './documents';
 
@@ -86,18 +87,13 @@ export async function updateMissingPreismeldungenStatus(preismeldungen: P.Preism
     return { currentPreismeldungenStatus, count };
 }
 
-export async function getMissingPreismeldungenStatusCount(preismeldungen: P.Preismeldung[]) {
+export async function getMissingPreismeldungenStatusCount() {
+    const preismeldungen = await getAllUploadedPm();
     await downloadDatabaseAsync(dbNames.preismeldungen_status);
     const db = await getLocalDatabase(dbNames.preismeldungen_status);
     const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
         db,
         'preismeldungen_status',
     );
-    let count = 0;
-    preismeldungen.forEach(pm => {
-        if (!!pm.uploadRequestedAt && currentPreismeldungenStatus.statusMap[pm._id] == null) {
-            count++;
-        }
-    });
-    return count;
+    return preismeldungen.filter(pm => currentPreismeldungenStatus.statusMap[pm._id] == null).length;
 }
