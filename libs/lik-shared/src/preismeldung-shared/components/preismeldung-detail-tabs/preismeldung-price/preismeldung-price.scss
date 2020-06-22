@@ -140,12 +140,13 @@
     }
     .pms-heading,
     .product-heading {
-        white-space: wrap;
         line-height: 1.25em;
         max-height: 2.5em;
         padding-bottom: 2px;
         flex: 1;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .right-column {
