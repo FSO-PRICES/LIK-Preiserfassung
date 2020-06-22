@@ -21,7 +21,7 @@
         "build:electron:backoffice": "ionic cordova build --release --prod electron --project backoffice",
         "prebuild-debug:electron:backoffice": "npm run overwrite-electron:backoffice",
         "build-debug:electron:backoffice": "ionic cordova build electron --project backoffice",
-        "run:browser:preiserfasser": "ionic serve --project preiserfasser",
+        "run:browser:preiserfasser": "ionic serve --project preiserfasser --port 8101",
         "run:browser:backoffice": "ionic serve --project backoffice",
         "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser",
         "build:electron:all": "concurrently \"npm run build:electron:backoffice\" \"sleep 2 && npm run build:electron:preiserfasser\"",
