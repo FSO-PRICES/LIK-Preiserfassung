@@ -48,7 +48,13 @@ export class ExporterEffects {
         flatMap(() =>
             resetAndContinueWith(
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
-                loadAllPreismeldungenForExport().pipe(
+                getDatabaseAsObservable(dbNames.exports).pipe(
+                    flatMap(db => db.allDocs({ include_docs: true })),
+                    flatMap(pm =>
+                        loadAllPreismeldungenForExport(
+                            flatten(pm.rows.map((row: any) => (row.doc.preismeldungIds as any[]) || [])),
+                        ),
+                    ),
                     flatMap(preismeldungBags =>
                         getDatabaseAsObservable(dbNames.warenkorb).pipe(
                             flatMap(db => db.get('warenkorb') as Promise<P.WarenkorbDocument>),
@@ -56,9 +62,6 @@ export class ExporterEffects {
                                 return getDatabaseAsObservable(dbNames.exports).pipe(
                                     flatMap(db => db.allDocs({ include_docs: true })),
                                     map(x => {
-                                        const alreadyExportedPreismeldungIds = flatten(
-                                            x.rows.map((row: any) => (row.doc.preismeldungIds as any[]) || []),
-                                        );
                                         // code for re-exporting an existing export
                                         // const xxx = (x.rows as any[]).find(row => row.id === '1515069593977').doc
                                         //     .preismeldungIds;
@@ -66,12 +69,9 @@ export class ExporterEffects {
                                         //     pm => pm.istAbgebucht && xxx.some(y => y === pm._id)
                                         // );
                                         // comment out the following line when re-exporting
-                                        const preismeldungenToExport = preismeldungBags.filter(
-                                            bag => !alreadyExportedPreismeldungIds.some(y => y === bag.pm._id),
-                                        );
-                                        if (preismeldungenToExport.length === 0)
+                                        if (preismeldungBags.length === 0)
                                             throw new Error('Keine neue abgebuchte Preismeldungen vorhanden.');
-                                        return orderBy(preismeldungenToExport, [
+                                        return orderBy(preismeldungBags, [
                                             bag =>
                                                 warenkorbDoc.products.findIndex(
                                                     p => bag.pm.epNummer === p.gliederungspositionsnummer,

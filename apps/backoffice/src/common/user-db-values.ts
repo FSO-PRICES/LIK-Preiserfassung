@@ -17,6 +17,11 @@ import {
     listUserDatabases,
 } from '../common/pouchdb-utils';
 
+type FindSelector<T> = PouchDB.Find.CombinationOperators &
+    { [V in keyof T]: PouchDB.Find.Selector | PouchDB.Find.Selector[] | PouchDB.Find.ConditionOperators | T[V] } & {
+        _id?: PouchDB.Find.ConditionOperators;
+    };
+
 export function loadAllPreismeldestellen() {
     return getAllDocumentsForPrefixFromUserDbs<P.Preismeldestelle>(preismeldestelleId()).pipe(
         flatMap((preismeldestellen: any[]) =>
@@ -34,13 +39,13 @@ export function loadAllPreismeldestellen() {
 }
 
 export function loadAllPreismeldungenForExport(
-    pmsNummer: string = '',
+    alreadyExported: string[],
 ): Observable<{ pm: P.Preismeldung; refPreismeldung: P.PreismeldungReference; sortierungsnummer: number }[]> {
-    return getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).pipe(
+    return from(getAllUnexportedPm(alreadyExported)).pipe(
         flatMap(preismeldungen =>
             getDatabaseAsObservable(dbNames.preismeldungen).pipe(
                 flatMap(db =>
-                    getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId(pmsNummer)).then(
+                    getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(db, preismeldungRefId()).then(
                         refPreismeldungen => ({ refPreismeldungen, preismeldungen }),
                     ),
                 ),
@@ -50,10 +55,7 @@ export function loadAllPreismeldungenForExport(
         map(([{ preismeldungen, refPreismeldungen }, preismeldungenStatus]) => ({
             grouped: groupBy(
                 preismeldungen.filter(
-                    pm =>
-                        pm.istAbgebucht &&
-                        !!pm.uploadRequestedAt &&
-                        (preismeldungenStatus.statusMap[pm._id] || 0) >= P.PreismeldungStatus['geprüft'],
+                    pm => (preismeldungenStatus.statusMap[pm._id] || 0) >= P.PreismeldungStatus['geprüft'],
                 ),
                 pm => pm.pmsNummer,
             ),
@@ -90,11 +92,20 @@ const getAllSortierungenByPmsId = (pmsIds: string[]) => {
     if (pmsIds.length === 0) {
         throw new Error('Keine Daten zum exportieren vorhanden');
     }
-    return concat(
-        ...pmsIds.map(pmsNummer =>
-            getAllDocumentsForPrefixFromUserDbs<P.PmsPreismeldungenSort>(pmsSortId(pmsNummer)).pipe(
-                map(list =>
-                    list
+    return listUserDatabases().pipe(
+        flatMap(dbnames =>
+            from(dbnames).pipe(
+                flatMap(dbname => getDatabaseAsObservable(dbname)),
+                flatMap(db =>
+                    db.find({
+                        limit: Number.MAX_SAFE_INTEGER,
+                        selector: <FindSelector<P.PmsPreismeldungenSort>>{
+                            _id: { $in: pmsIds.map(pmsSortId) },
+                        },
+                    }),
+                ),
+                map((list: PouchDB.Find.FindResponse<P.PmsPreismeldungenSort>) =>
+                    list.docs
                         .reduce(
                             (acc, sort) => [
                                 ...acc,
@@ -110,14 +121,13 @@ const getAllSortierungenByPmsId = (pmsIds: string[]) => {
                             [pmId: string]: number;
                         }),
                 ),
+                toArray(),
+                map(x =>
+                    x.reduce((acc, sort) => ({ ...acc, ...sort }), {} as {
+                        [pmId: string]: number;
+                    }),
+                ),
             ),
-        ),
-    ).pipe(
-        toArray(),
-        map(x =>
-            x.reduce((acc, sort) => ({ ...acc, ...sort }), {} as {
-                [pmId: string]: number;
-            }),
         ),
     );
 };
@@ -326,10 +336,11 @@ export function createIndexes() {
             from(dbnames).pipe(
                 flatMap(dbname => getDatabaseAsObservable(dbname)),
                 flatMap(db =>
-                    concat([
-                        db.createIndex({ index: { fields: ['_id'] } }),
-                        db.createIndex({ index: { fields: ['uploadRequestedAt'] } }),
-                    ]),
+                    concat(
+                        (<(keyof P.Preismeldung)[]>['_id', 'istAbgebucht', 'uploadRequestedAt']).map(key =>
+                            db.createIndex({ index: { fields: [key] } }),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -345,8 +356,34 @@ export function getAllUploadedPm() {
                     flatMap(db =>
                         db.find({
                             limit: Number.MAX_SAFE_INTEGER,
-                            selector: { _id: { $gt: 'pm_', $lt: 'pm_\uffff' }, uploadRequestedAt: { $ne: null } },
-                            fields: ['_id'],
+                            selector: <FindSelector<P.Preismeldung>>{
+                                _id: { $gt: 'pm_', $lt: 'pm_\uffff' },
+                                uploadRequestedAt: { $ne: null },
+                            },
+                            fields: <(keyof P.Preismeldung)[]>['_id'],
+                        }),
+                    ),
+                    reduce((acc, docs) => [...acc, ...docs.docs], []),
+                ),
+            ),
+        )
+        .toPromise();
+}
+
+export function getAllUnexportedPm(alreadyExported: string[]) {
+    return listUserDatabases()
+        .pipe(
+            flatMap(dbnames =>
+                from(dbnames).pipe(
+                    flatMap(dbname => getDatabaseAsObservable(dbname)),
+                    flatMap(db =>
+                        db.find({
+                            limit: Number.MAX_SAFE_INTEGER,
+                            selector: <FindSelector<P.Preismeldung>>{
+                                _id: { $nin: alreadyExported },
+                                istAbgebucht: true,
+                                uploadRequestedAt: { $ne: null },
+                            },
                         }),
                     ),
                     reduce((acc, docs) => [...acc, ...docs.docs], []),
