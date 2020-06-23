@@ -3,7 +3,7 @@ import { assign } from 'lodash';
 import * as pdf from '../actions/pdf';
 
 export interface State {
-    createdPmsPdf: { message?: string; error?: any } | null;
+    createdPmsPdf: { message?: string; error?: { error: any; messageKey?: string } } | null;
 }
 
 const initialState: State = {
@@ -17,7 +17,7 @@ export function reducer(state = initialState, action: pdf.Action): State {
         case 'PDF_CREATED_PMS':
             return assign({}, state, { createdPmsPdf: { message: action.payload } });
         case 'PDF_CREATION_FAILED':
-            return assign({}, state, { createdPmsPdf: { error: action.payload } });
+            return { ...state, createdPmsPdf: { error: action.payload } };
 
         default:
             return state;

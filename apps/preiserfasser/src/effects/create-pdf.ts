@@ -6,11 +6,12 @@ import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { of, Subject } from 'rxjs';
-import { catchError, concat, filter, flatMap, map, skip, take, withLatestFrom } from 'rxjs/operators';
+import { of, Subject, partition, defer, merge } from 'rxjs';
+import { catchError, concat, flatMap, map, skip, take, withLatestFrom } from 'rxjs/operators';
 
 import * as P from '../common-models';
 import * as fromRoot from '../reducers';
+import { Action as pdfActions } from '../actions/pdf';
 
 import { formatDate, mengeFormatFn, PefLanguageService, preisFormatFn, priceCountId } from '@lik-shared';
 
@@ -38,40 +39,60 @@ export class CreatePdfEffects {
             }) =>
                 of({ type: 'PDF_RESET_PMS' }).pipe(
                     concat(
-                        this.store.select(fromRoot.getPreismeldungen).pipe(
-                            skip(1),
-                            filter(x => x.length > 0),
-                            take(1),
-                            withLatestFrom(
-                                this.store.select(fromRoot.getPriceCountStatuses),
-                                this.pefLanguageService.currentLanguage$,
-                            ),
-                            flatMap(([preismeldungen, priceCountStatuses, currentLanguage]) => {
-                                const translateFn = (key: string) => this.translateService.instant(key);
-                                const data = mapData(
-                                    preismeldestelle,
-                                    preismeldungen,
-                                    priceCountStatuses,
-                                    currentLanguage,
-                                    translateFn,
-                                );
-                                return toPdf(
-                                    data,
-                                    this.file,
-                                    preismeldestelle,
-                                    this.platform,
-                                    erhebungsmonat,
-                                    currentLanguage,
-                                    translateFn,
-                                );
-                            }),
-                            map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo })),
-                        ),
+                        defer(() => {
+                            const [noPdfPossible$, preismeldungen$] = partition(
+                                this.store.select(fromRoot.getPreismeldungen).pipe(
+                                    skip(1),
+                                    take(1),
+                                ),
+                                preismeldungen => preismeldungen.length === 0,
+                            );
+                            return merge(
+                                preismeldungen$.pipe(
+                                    withLatestFrom(
+                                        this.store.select(fromRoot.getPriceCountStatuses),
+                                        this.pefLanguageService.currentLanguage$,
+                                    ),
+                                    flatMap(([preismeldungen, priceCountStatuses, currentLanguage]) => {
+                                        const translateFn = (key: string) => this.translateService.instant(key);
+                                        const data = mapData(
+                                            preismeldestelle,
+                                            preismeldungen,
+                                            priceCountStatuses,
+                                            currentLanguage,
+                                            translateFn,
+                                        );
+                                        return toPdf(
+                                            data,
+                                            this.file,
+                                            preismeldestelle,
+                                            this.platform,
+                                            erhebungsmonat,
+                                            currentLanguage,
+                                            translateFn,
+                                        );
+                                    }),
+                                    map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo })),
+                                ),
+                                noPdfPossible$.pipe(
+                                    map(
+                                        () =>
+                                            ({
+                                                type: 'PDF_CREATION_FAILED',
+                                                payload: {
+                                                    error: 'No entries',
+                                                    messageKey: 'label_no_preismeldung-available',
+                                                },
+                                            } as pdfActions),
+                                    ),
+                                ),
+                            );
+                        }),
                     ),
 
                     catchError(error => {
                         console.log('PDF CREATION ERROR', error);
-                        return of({ type: 'PDF_CREATION_FAILED', payload: error });
+                        return of({ type: 'PDF_CREATION_FAILED', payload: { error } } as pdfActions);
                     }),
                 ),
         ),

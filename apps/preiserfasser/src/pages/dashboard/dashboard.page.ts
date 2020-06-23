@@ -371,13 +371,15 @@ export class DashboardPage implements OnDestroy {
             this.createdPmsPdf$
                 .pipe(
                     skip(1),
-                    filter(x => !!x && (!!x.message || x.error)),
+                    filter(x => !!x && (!!x.message || x.error.error)),
                     flatMap(({ message: location, error }) =>
                         this.pefMessageDialogService
                             .displayDialogOneButton(
                                 'btn_ok',
                                 error
-                                    ? 'dialogText_pdf-create-error'
+                                    ? error.messageKey
+                                        ? error.messageKey
+                                        : 'dialogText_pdf-create-error'
                                     : location === 'DOCUMENT_LOCATION'
                                     ? 'dialogText_pdf-saved-at-documents'
                                     : 'dialogText_pdf-saved-at-application',
