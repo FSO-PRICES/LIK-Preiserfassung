@@ -41,8 +41,8 @@
             </ion-item>
         </form>
         <div class="list-header">
-            <div class="labels">
-                <div class="name"></div>
+            <ion-item class="heading pef-advanced-item">
+                <div class="name"><strong>Preismeldungen</strong></div>
                 <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
                     <pef-icon name="download"></pef-icon>
                 </div>
@@ -55,10 +55,10 @@
                 <div class="hochgeladene" title="#Preise von Tablet hochgeladen">
                     <pef-icon name="upload"></pef-icon>
                 </div>
-            </div>
+            </ion-item>
             <ion-item class="heading pef-advanced-item" *ngxLet="filteredSummary$ | async; let filteredSummary">
                 <div class="name">
-                    Importierte Preismeldungen
+                    zugeordnet
                 </div>
                 <div class="heruntergeladene">
                     <span class="status-number" [class.good]="filteredSummary.synced">
@@ -83,7 +83,7 @@
             </ion-item>
             <ion-item class="heading pef-advanced-item" *ngIf="notAssigned$ | async; let notAssigned">
                 <div class="name">
-                    Nicht zugeordnete Preismeldungen
+                    Nicht zugeordnet
                 </div>
                 <div class="heruntergeladene">
                     <span class="status-number" [class.good]="notAssigned[form.value.erhebungsZeitpunkt].synced">

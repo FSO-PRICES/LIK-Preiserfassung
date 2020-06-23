@@ -35,7 +35,7 @@
     form.stacked-form {
         display: flex;
         flex: 0 0 auto;
-        margin-bottom: 1em;
+        margin-bottom: 4px;
         justify-content: space-between;
 
         .spacer {
@@ -47,8 +47,12 @@
 
         select {
             height: 2.5em;
+            margin-bottom: 0;
         }
 
+        .item.md.pef-item ion-label.label-stacked.sc-ion-label-md-h {
+            margin-top: 0;
+        }
         ion-input {
             height: 2.5em;
 
