@@ -202,45 +202,45 @@ interface ControllingErhebungsPosition {
 
 type Column = { name: string; cssClass: string; size: ColumnSizes };
 
-const columnErhebungsZeitpunkt: Column = { name: 'ErhebungsZeitpunkt', cssClass: 'fixed', size: null };
-const columnErfassungsZeitpunkt: Column = { name: 'ErfassungsZeiptunk', cssClass: 'fixed', size: null };
-const columnPreisId: Column = { name: 'Preis_ID', cssClass: 'fixed id', size: null };
-const columnPmsErhebungsregion: Column = { name: 'PMS_Erhebungsregion', cssClass: '', size: null };
-const columnPmsNummer: Column = { name: 'PMS_Nummer', cssClass: 'fixed', size: 'minimal' };
-const columnPmsName: Column = { name: 'PMS_Name', cssClass: '', size: 'small' };
-const columnEpNummer: Column = { name: 'EP_Nummer', cssClass: 'fixed', size: null };
-const columnLaufnummer: Column = { name: 'Laufnummer', cssClass: 'fixed', size: null };
-const columnPositionsbezeichnung: Column = { name: 'Positionsbezeichnung', cssClass: '', size: null };
-const columnPreisbezeichnungT: Column = { name: 'Preisbezeichnung_T', cssClass: '', size: 'medium' };
-const columnPreisbezeichnungVP: Column = { name: 'Preisbezeichnung_VP', cssClass: '', size: 'medium' };
-const columnPreisVP: Column = { name: 'Preis_VP', cssClass: 'fixed align-right', size: null };
-const columnMengeVP: Column = { name: 'Menge_VP', cssClass: 'fixed align-right', size: null };
-const columnPreisT: Column = { name: 'Preis_T', cssClass: 'fixed align-right', size: null };
-const columnMengeT: Column = { name: 'Menge_T', cssClass: 'fixed align-right', size: null };
-const columnStandardeinheit: Column = { name: 'Standardeinheit', cssClass: 'fixed', size: null };
-const columnBearbeitungscode: Column = { name: 'Bearbeitungscode', cssClass: 'fixed', size: null };
-const columnAktionscodeVP: Column = { name: 'Actionscode_VP', cssClass: 'fixed', size: null };
-const columnAktionscodeT: Column = { name: 'Actionscode_T', cssClass: 'fixed', size: null };
-const columnMerkmaleVP: Column = { name: 'Merkmale_VP', cssClass: '', size: 'small' };
-const columnMerkmaleT: Column = { name: 'Merkmale_T', cssClass: '', size: 'small' };
+const columnErhebungsZeitpunkt: Column = { name: 'ErhebungsZeitpunkt', cssClass: 'fixed', size: { fixed: 12 } };
+const columnErfassungsZeitpunkt: Column = { name: 'ErfassungsZeiptunk', cssClass: 'fixed', size: { fixed: 12 } };
+const columnPreisId: Column = { name: 'Preis_ID', cssClass: 'fixed id', size: { fixed: 14 } };
+const columnPmsErhebungsregion: Column = { name: 'PMS_Erhebungsregion', cssClass: '', size: { fixed: 12 } };
+const columnPmsNummer: Column = { name: 'PMS_Nummer', cssClass: 'fixed', size: { fixed: 6 } };
+const columnPmsName: Column = { name: 'PMS_Name', cssClass: '', size: { min: 12 } };
+const columnEpNummer: Column = { name: 'EP_Nummer', cssClass: 'fixed', size: { fixed: 6 } };
+const columnLaufnummer: Column = { name: 'Laufnummer', cssClass: 'fixed', size: { fixed: 6 } };
+const columnPositionsbezeichnung: Column = { name: 'Positionsbezeichnung', cssClass: '', size: { min: 12 } };
+const columnPreisbezeichnungT: Column = { name: 'Preisbezeichnung_T', cssClass: '', size: { min: 24 } };
+const columnPreisbezeichnungVP: Column = { name: 'Preisbezeichnung_VP', cssClass: '', size: { min: 24 } };
+const columnPreisVP: Column = { name: 'Preis_VP', cssClass: 'fixed align-right', size: { fixed: 12 } };
+const columnMengeVP: Column = { name: 'Menge_VP', cssClass: 'fixed align-right', size: { fixed: 12 } };
+const columnPreisT: Column = { name: 'Preis_T', cssClass: 'fixed align-right', size: { fixed: 12 } };
+const columnMengeT: Column = { name: 'Menge_T', cssClass: 'fixed align-right', size: { fixed: 12 } };
+const columnStandardeinheit: Column = { name: 'Standardeinheit', cssClass: 'fixed', size: { fixed: 12 } };
+const columnBearbeitungscode: Column = { name: 'Bearbeitungscode', cssClass: 'fixed', size: { fixed: 6 } };
+const columnAktionscodeVP: Column = { name: 'Actionscode_VP', cssClass: 'fixed', size: { fixed: 6 } };
+const columnAktionscodeT: Column = { name: 'Actionscode_T', cssClass: 'fixed', size: { fixed: 6 } };
+const columnMerkmaleVP: Column = { name: 'Merkmale_VP', cssClass: '', size: { min: 36 } };
+const columnMerkmaleT: Column = { name: 'Merkmale_T', cssClass: '', size: { min: 36 } };
 const columnDPToVPRaw: Column = { name: '[RAW] Veränderung', cssClass: 'fixed align-right', size: null };
-const columnDPToVP: Column = { name: 'Veränderung', cssClass: 'fixed align-right', size: 'small' };
+const columnDPToVP: Column = { name: 'Veränderung', cssClass: 'fixed align-right', size: { fixed: 12 } };
 const columnDPToVPVorReduktion: Column = {
     name: 'Veränderung vor Reduktion',
     cssClass: 'fixed align-right',
-    size: null,
+    size: { fixed: 12 },
 };
 const columnDPToVPVorReduktionRaw: Column = {
     name: '[RAW] Veränderung vor Reduktion',
     cssClass: 'fixed align-right',
     size: null,
 };
-const columnNumPreiseProEP: Column = { name: '# Preise pro EP', cssClass: 'fixed', size: null };
-const columnKommentarT: Column = { name: 'Kommentar_T', cssClass: '', size: 'large' };
-const columnBemerkungenT: Column = { name: 'Bemerkungen_T', cssClass: '', size: 'large' };
-const columnPeNummer: Column = { name: 'PE_Nummer', cssClass: 'fixed', size: null };
-const columnPeName: Column = { name: 'PE_Name', cssClass: '', size: null };
-const columnPmsGeschlossen: Column = { name: 'PMS_geschlossen', cssClass: 'fixed', size: null };
+const columnNumPreiseProEP: Column = { name: '# Preise pro EP', cssClass: 'fixed', size: { fixed: 6 } };
+const columnKommentarT: Column = { name: 'Kommentar_T', cssClass: '', size: { min: 36 } };
+const columnBemerkungenT: Column = { name: 'Bemerkungen_T', cssClass: '', size: { min: 36 } };
+const columnPeNummer: Column = { name: 'PE_Nummer', cssClass: 'fixed', size: { fixed: 12 } };
+const columnPeName: Column = { name: 'PE_Name', cssClass: '', size: { min: 12 } };
+const columnPmsGeschlossen: Column = { name: 'PMS_geschlossen', cssClass: 'fixed', size: { fixed: 6 } };
 const columnWarenkorbIndex: Column = { name: '[Internal] WarenkorbIndex', cssClass: 'fixed', size: null };
 const columnAnzahlPreiseProPMS: Column = { name: 'anzahlPreiseProPMS', cssClass: 'fixed', size: null };
 
@@ -300,7 +300,7 @@ export type ColumnValue =
           cssClass: string;
           size: ColumnSizes;
       };
-export type ColumnSizes = null | 'large' | 'medium' | 'small' | 'minimal';
+export type ColumnSizes = { min?: number; fixed?: number };
 
 const normalColumn = (value: string | number, cssClass = '', size: ColumnSizes = null) =>
     ({ value, parseHtml: false, cssClass, size } as ColumnValue);

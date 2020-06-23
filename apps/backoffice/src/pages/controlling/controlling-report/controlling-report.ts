@@ -243,10 +243,14 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         const value = column.value == null ? '' : column.value;
         return {
             ...column,
-            cssClass:
-                column.size !== null && value.toString().length > 0
-                    ? `${column.cssClass} ${column.size}`
-                    : column.cssClass,
+            width:
+                column.size != null && column.size.fixed != null && value.toString().length > 0
+                    ? this.domSanitizer.bypassSecurityTrustStyle(`calc(${column.size.fixed}ch + 11px)`)
+                    : null,
+            minWidth:
+                column.size != null && column.size.min != null && value.toString().length > 0
+                    ? this.domSanitizer.bypassSecurityTrustStyle(`calc(${column.size.min}ch + 11px)`)
+                    : null,
             formattedValue,
             title: value
                 .toString()

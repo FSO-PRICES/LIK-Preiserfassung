@@ -140,7 +140,8 @@
                                     *ngFor="let column of row.values; let i = index"
                                     [class.collapsed]="hiddenColumns[i]"
                                     [attr.title]="column.title"
-                                    [ngClass]="[column.cssClass]"
+                                    [style.width]="column.width"
+                                    [style.minWidth]="column.minWidth"
                                     [innerHTML]="column.formattedValue"
                                 ></td>
                             </tr>
