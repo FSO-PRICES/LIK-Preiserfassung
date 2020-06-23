@@ -257,8 +257,19 @@ export class PreismeldungPage {
             refCount(),
         );
 
+        const showSavingDialog$ = defer(() =>
+            this.pefDialogService.displayLoading('Daten werden gespeichert, bitte warten...', {
+                requestDismiss$: this.currentPreismeldung$.pipe(
+                    skip(1),
+                    filter(x => !x.isModified),
+                    take(1),
+                ),
+            }),
+        );
+
         this.requestPreismeldungSave$ = cancelEditReponse$.pipe(
             filter(x => x.dialogCode === 'SAVE'),
+            flatMap(() => showSavingDialog$),
             map(() => ({ type: 'SAVE_AND_MOVE_TO_NEXT' })),
         );
 
@@ -277,6 +288,7 @@ export class PreismeldungPage {
         this.save$
             .pipe(
                 filter(x => x.type !== 'NO_SAVE_NAVIGATE'),
+                flatMap(x => showSavingDialog$.pipe(mapTo(x))),
                 takeUntil(this.ionViewDidLeave$),
             )
             .subscribe(payload => setTimeout(() => store.dispatch({ type: 'SAVE_PREISMELDUNG_PRICE', payload })));
