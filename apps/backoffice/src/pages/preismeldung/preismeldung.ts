@@ -50,7 +50,7 @@ export class PreismeldungPage {
                 orderBy(
                     preismeldungen,
                     [
-                        pm => moment(new Date(pm.preismeldung.modifiedAt)).startOf('second'),
+                        pm => moment(new Date(pm.preismeldung.erfasstAt)).startOf('second'),
                         pm => +pm.preismeldung.epNummer,
                         pm => pm.preismeldung.laufnummer,
                     ],
