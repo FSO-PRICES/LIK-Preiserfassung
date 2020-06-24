@@ -68,9 +68,15 @@ ion-button {
     &.button.ion-color-wild-sand.active {
         --ion-color-base: #{$blue-chill};
         --ion-color-base-rgb: var(--ion-color-blue-chill-rgb);
-        color: $white;
+        color: white;
         pef-icon {
-            fill: $white;
+            fill: white;
+        }
+        &:hover {
+            color: $blue-chill;
+            pef-icon {
+                fill: $blue-chill;
+            }
         }
     }
 }
