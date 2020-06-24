@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import { maxBy } from 'lodash';
 
 import { PreismeldungBag } from '../preismeldung-shared/models';
 import { PercentageWithWarning, Preismeldung, PreismeldungReference } from './models';
@@ -30,7 +29,7 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(
         preisVorReduktion: '',
         mengeVorReduktion: '',
         datumVorReduktion: '',
-        aktion: rpm.aktion,
+        aktion: beendet ? rpm.aktion : false,
         artikelnummer: rpm.artikelnummer,
         artikeltext: rpm.artikeltext,
         bemerkungen: '',
