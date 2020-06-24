@@ -165,7 +165,7 @@ export class DashboardPage implements OnDestroy {
         this.isCompatibleToDatabase$ = this.store
             .select(x => x.database.isCompatibleToDatabase)
             .pipe(
-                filter(x => x !== null),
+                map(x => !(x === false)),
                 publishReplay(1),
                 refCount(),
             );
