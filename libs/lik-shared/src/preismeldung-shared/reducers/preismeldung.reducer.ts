@@ -931,7 +931,17 @@ function createPercentages(
     if (!!bag.refPreismeldung) {
         switch (bag.preismeldung.bearbeitungscode) {
             case 99: {
-                if (bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
+                if (!bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitNegativeLimite,
+                        bag.warenkorbPosition.negativeLimite,
+                        P.Models.limitPositiveLimite,
+                        bag.warenkorbPosition.positiveLimite,
+                    );
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                } else if (bag.refPreismeldung.aktion && !bag.preismeldung.aktion) {
                     d_DPToVPVorReduktion.limitType = exceedsLimit(
                         d_DPToVPVorReduktion.percentage,
                         P.Models.limitNegativeLimite,
@@ -943,17 +953,39 @@ function createPercentages(
                     d_DPToVPVorReduktion.textzeil = d_DPToVPVorReduktion.warning
                         ? 'text_textzeil_limitverletzung'
                         : null;
+                } else if (bag.refPreismeldung.aktion && bag.preismeldung.aktion) {
+                    // VP A, T A
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitAbweichungPmUG2,
+                        bag.warenkorbPosition.abweichungPmUG2,
+                        P.Models.limitAbweichungPmOG2,
+                        bag.warenkorbPosition.abweichungPmOG2,
+                    );
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
+                    d_DPVorReduktionToVPVorReduktion.limitType = exceedsLimit(
+                        d_DPVorReduktionToVPVorReduktion.percentage,
+                        P.Models.limitNegativeLimite_1,
+                        bag.warenkorbPosition.negativeLimite_1,
+                        P.Models.limitPositiveLimite_1,
+                        bag.warenkorbPosition.positiveLimite_1,
+                    );
+                    d_DPVorReduktionToVPVorReduktion.warning = !!d_DPVorReduktionToVPVorReduktion.limitType;
+                    d_DPVorReduktionToVPVorReduktion.textzeil = d_DPVorReduktionToVPVorReduktion.warning
+                        ? 'text_textzeil_nicht_vergleichbar'
+                        : null;
+                } else {
+                    d_DPToVP.limitType = exceedsLimit(
+                        d_DPToVP.percentage,
+                        P.Models.limitAbweichungPmUG2,
+                        bag.warenkorbPosition.abweichungPmUG2,
+                        P.Models.limitAbweichungPmOG2,
+                        bag.warenkorbPosition.abweichungPmOG2,
+                    );
+                    d_DPToVP.warning = !!d_DPToVP.limitType;
+                    d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
                 }
-
-                d_DPToVP.limitType = exceedsLimit(
-                    d_DPToVP.percentage,
-                    P.Models.limitAbweichungPmUG2,
-                    bag.warenkorbPosition.abweichungPmUG2,
-                    P.Models.limitAbweichungPmOG2,
-                    bag.warenkorbPosition.abweichungPmOG2,
-                );
-                d_DPToVP.warning = !!d_DPToVP.limitType;
-                d_DPToVP.textzeil = d_DPToVP.warning ? 'text_textzeil_limitverletzung' : null;
                 break;
             }
             case 1: {
