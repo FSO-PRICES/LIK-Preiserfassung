@@ -76,7 +76,7 @@ export function checkConnectivity(url: string) {
         withCredentials: true,
         responseType: 'json',
         method: 'GET',
-        timeout: 10000,
+        timeout: 3000,
     }).pipe(
         map(
             resp =>
@@ -109,7 +109,6 @@ export function syncDatabase(data: { url: string; username: string }) {
 }
 
 function _syncDatabase(url: string, username: string, params: { push: boolean; pull: boolean }): Observable<{}> {
-    const ts = new Date().valueOf();
     return getDatabaseAsObservable().pipe(
         flatMap(pouch => {
             const couchOnOffline = new PouchDB(`${url}/onoffline`, {
@@ -236,7 +235,7 @@ export function initialisePouchForDev() {
 
 async function isCompatible(url: string) {
     const couchOnOffline = new PouchDB(`${url}/onoffline`, {
-        ajax: { timeout: 50000 },
+        ajax: { timeout: 3000 },
         skip_setup: true,
     } as any) as PouchDB.Database<{}>;
     return getDocumentByKeyFromDb<P.OnOfflineStatus>(couchOnOffline, 'onoffline_status').then(c =>
