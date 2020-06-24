@@ -18,11 +18,10 @@ import {
     getAllPreismeldungenStatus,
     getDocumentByKeyFromDb,
     getLocalDatabase,
-    getMissingPreismeldungenStatusCount,
     updateMissingPreismeldungenStatus,
     uploadDatabaseAsync,
 } from '../common/pouchdb-utils';
-import { getAllDocumentsForPrefixFromUserDbs } from '../common/user-db-values';
+import { getAllDocumentsForPrefixFromUserDbs, getMissingPreismeldungenStatusCount } from '../common/user-db-values';
 import * as fromRoot from '../reducers';
 
 @Injectable()

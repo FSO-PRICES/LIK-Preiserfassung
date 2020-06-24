@@ -15,6 +15,8 @@ import {
     getDocumentByKeyFromDb,
     getUserDatabaseName,
     listUserDatabases,
+    downloadDatabaseAsync,
+    getLocalDatabase,
 } from '../common/pouchdb-utils';
 
 type FindSelector<T> = PouchDB.Find.CombinationOperators &
@@ -497,4 +499,15 @@ async function loadByExactSearch(
         //     : null,
         pms: null,
     };
+}
+
+export async function getMissingPreismeldungenStatusCount() {
+    const preismeldungen = await getAllUploadedPm();
+    await downloadDatabaseAsync(dbNames.preismeldungen_status);
+    const db = await getLocalDatabase(dbNames.preismeldungen_status);
+    const currentPreismeldungenStatus = await getDocumentByKeyFromDb<P.PreismeldungenStatus>(
+        db,
+        'preismeldungen_status',
+    );
+    return preismeldungen.filter(pm => currentPreismeldungenStatus.statusMap[pm._id] == null).length;
 }
