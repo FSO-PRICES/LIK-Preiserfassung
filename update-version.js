@@ -6,7 +6,8 @@ const fs = require('fs');
 const config = JSON.parse(fs.readFileSync('./package.json'));
 const apps = ['backoffice', 'preiserfasser'];
 const projects = [
-    [`config`, apps.map(app => `apps/${app}/config.xml`), /(version=")[^"]+/],
+    [`config-main-version`, apps.map(app => `apps/${app}/config.xml`), /(version=")[^"]+/, config.version],
+    [`config-apk-version`, ['apps/preiserfasser/config.xml'], /(android-versionCode=")[^"]+/, config.lik_apk_version],
     [
         `environment`,
         apps.reduce(
@@ -17,17 +18,18 @@ const projects = [
             [],
         ),
         /(version: ')[^']+/,
+        config.version,
     ],
 ];
 console.log(projects);
 
-projects.forEach(([proj, files, regex]) => {
+projects.forEach(([proj, files, regex, value]) => {
     gulp.task(proj, () =>
         gulp
             .src(files, { base: './' })
-            .pipe(replace(regex, `$1${config.version}`))
+            .pipe(replace(regex, `$1${value}`))
             .pipe(gulp.dest(`./`)),
     );
 });
 
-gulp.task('default', projects.map(([name]) => name));
+gulp.task('default', gulp.series(projects.map(([name]) => name)));

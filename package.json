@@ -1,6 +1,7 @@
 {
     "name": "lik-preiserfasser",
     "version": "2.2.18",
+    "lik_apk_version": "300002",
     "author": "Lambda IT",
     "homepage": "https://www.lambda-it.ch",
     "description": "BFS - Preiserfassungs APP",
@@ -125,7 +126,7 @@
         "cordova-plugin-splashscreen": "^5.0.3",
         "cordova-plugin-statusbar": "^2.4.3",
         "cordova-plugin-whitelist": "^1.3.4",
-        "gulp": "^3.9.1",
+        "gulp": "^4.0.2",
         "gulp-zip": "^5.0.1",
         "jasmine-core": "~2.99.1",
         "jasmine-spec-reporter": "~4.2.1",
