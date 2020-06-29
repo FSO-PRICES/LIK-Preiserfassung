@@ -38,4 +38,4 @@ projects.forEach(proj => {
     );
 });
 
-gulp.task('default', projects.map(p => p.name));
+gulp.task('default', gulp.parallel(projects.map(p => p.name)));
