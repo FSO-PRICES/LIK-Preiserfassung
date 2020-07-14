@@ -26,9 +26,6 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(
         preisVPK: '',
         mengeVPK: '',
         fehlendePreiseR: '',
-        preisVorReduktion: '',
-        mengeVorReduktion: '',
-        datumVorReduktion: '',
         aktion: beendet ? rpm.aktion : false,
         artikelnummer: rpm.artikelnummer,
         artikeltext: rpm.artikeltext,
@@ -42,10 +39,17 @@ export function copyPreismeldungPropertiesFromRefPreismeldung(
         istAbgebucht: false,
         internetLink: rpm.internetLink,
         ...(beendet
-            ? {}
+            ? {
+                  preisVorReduktion: `${rpm.preisVorReduktion}`,
+                  mengeVorReduktion: `${rpm.mengeVorReduktion}`,
+                  datumVorReduktion: rpm.datumVorReduktion,
+              }
             : {
                   preis: '',
                   menge: '',
+                  preisVorReduktion: '',
+                  mengeVorReduktion: '',
+                  datumVorReduktion: '',
                   bearbeitungscode: 99,
                   erfasstAt: null,
                   d_DPToVP: createInitialPercentageWithWarning(),
