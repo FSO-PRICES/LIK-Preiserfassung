@@ -102,57 +102,39 @@
                 }
                 input[type='radio'] {
                     background-color: $bright-sun;
+                    border-style: inset;
+                    &::after {
+                        color: $trout;
+                    }
                 }
             }
             &.marked {
                 background-color: $bright-sun;
                 input[type='radio']:checked {
                     background-color: $egg-white;
+                    border-style: inset;
+                    &::after {
+                        color: $trout;
+                    }
                 }
             }
         }
 
         &.same-line {
             td {
-                max-width: 70px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-            }
-
-            &.large {
-                max-width: 230px;
-            }
-            &.medium {
-                max-width: 150px;
-            }
-            &.small {
-                max-width: 100px;
-            }
-            &.minimal {
-                max-width: 30px;
             }
         }
 
         td {
             padding-right: 10px;
 
-            &.large:not(.collapsed) {
-                min-width: 230px;
-            }
-            &.medium:not(.collapsed) {
-                min-width: 150px;
-            }
-            &.small:not(.collapsed) {
-                min-width: 100px;
-            }
-            &.minimal:not(.collapsed) {
-                min-width: 30px;
-            }
             &.marker {
                 position: relative;
-                width: 15px;
-                padding: 0 2px 0 0;
+                width: 16px;
+                padding: 0;
             }
             &.edit {
                 width: 30px;
@@ -168,20 +150,27 @@
             }
             input[type='radio'] {
                 position: absolute;
-                top: 1px;
-                bottom: 1px;
+                top: 0;
+                bottom: 0;
                 left: 0;
-                right: 0px;
+                right: 0;
                 cursor: cell;
                 background-color: $white;
                 appearance: none;
-                display: block;
-                width: 15px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 12px;
                 opacity: 0.6;
-                margin: 1px 0;
-                border-radius: 2px;
-                box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+                margin: 0;
+                border: 1px outset $white;
+                &::after {
+                    content: '›';
+                    color: $java;
+                    line-height: 25px;
+                    font-size: x-large;
+                    margin-bottom: 6px;
+                }
             }
 
             &.fixed {
