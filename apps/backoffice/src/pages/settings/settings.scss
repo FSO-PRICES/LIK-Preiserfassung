@@ -9,7 +9,7 @@
     @include set-padding(1, 1, 1, 1);
 
     .subcontent {
-        flex: 0 1 ($pef-app-max-width / 3);
+        flex: 0 1 ($pef-app-max-width / 3 + 70);
         display: flex;
         flex-direction: column;
     }
@@ -70,5 +70,15 @@
 
     .actions {
         margin-top: 1em;
+    }
+}
+
+@media (max-width: 900px) {
+    .settings-container {
+        flex-direction: column;
+        .about-app {
+            margin-top: 30px;
+            align-self: flex-end;
+        }
     }
 }
