@@ -20,15 +20,20 @@
     <ion-title>
         LIK PreisAdmin
     </ion-title>
-    <ion-button class="on-off-line with-shadow" (click)="onOffLineClicked$.emit()">
-        {{ (isOffline$ | async) ? 'OFF-LINE' : 'ON-LINE' }}
+    <ion-button
+        class="on-off-line with-shadow toggle"
+        [class.disabled]="isOffline$ | async"
+        (click)="onOffLineClicked$.emit()"
+    >
+        <pef-icon name="onoffline"></pef-icon>
     </ion-button>
     <ion-button
-        class="write-permission with-shadow"
+        class="write-permission with-shadow toggle"
+        [class.disabled]="!(hasWritePermission$ | async)"
         [disabled]="!(canToggleWritePermission$ | async)"
         (click)="writePermissionClicked$.emit()"
     >
-        {{ (hasWritePermission$ | async) ? '✓' : '✗' }} 🖉
+        <pef-icon name="pencil"></pef-icon>
     </ion-button>
     <ion-button class="reload with-shadow" (click)="reloadClicked$.emit()">Login <span>&nbsp;↻</span></ion-button>
     <ion-button

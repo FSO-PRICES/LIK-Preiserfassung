@@ -69,6 +69,15 @@
             --padding-end: 0;
         }
     }
+
+    ion-button.toggle {
+        --background: #{$sea-green};
+        --background-hover: #{scale-color($sea-green, $lightness: 10%)};
+        &.disabled {
+            --background: #{$flamingo};
+            --background-hover: #{scale-color($flamingo, $lightness: 10%)};
+        }
+    }
     .reload span {
         font-size: 20px;
     }
