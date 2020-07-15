@@ -258,7 +258,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             map(([data, preismeldungen]) =>
                 preismeldungen
                     .filter(bag => !!bag.preismeldung.uploadRequestedAt)
-                    .map(({ pmId }) => ({ pmId, status: data.value })),
+                    .map(({ pmId }) => ({ pmId, status: data.value.pmStatus })),
             ),
         );
     }
