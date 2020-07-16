@@ -27,35 +27,6 @@
                             ></ion-input>
                         </ion-item>
                     </ion-list>
-                    <h1 class="large">Transfereinstellungen (Sedex)</h1>
-                    <ion-list formGroupName="transportRequestSettings" no-lines>
-                        <ion-item class="pef-item">
-                            <ion-label position="stacked">Sender ID</ion-label>
-                            <ion-input
-                                type="text"
-                                formControlName="senderId"
-                                (keyup.enter)="saveClicked$.emit()"
-                            ></ion-input>
-                        </ion-item>
-                        <ion-item class="pef-item">
-                            <ion-label position="stacked">Recipient ID</ion-label>
-                            <ion-input
-                                type="text"
-                                formControlName="recipientId"
-                                (keyup.enter)="saveClicked$.emit()"
-                            ></ion-input>
-                        </ion-item>
-                    </ion-list>
-                    <ion-list formGroupName="export" no-lines>
-                        <ion-item class="pef-item">
-                            <ion-label position="stacked">Exportpfad (Sedex-Daten)</ion-label>
-                            <ion-input
-                                type="text"
-                                formControlName="targetPath"
-                                (keyup.enter)="saveClicked$.emit()"
-                            ></ion-input>
-                        </ion-item>
-                    </ion-list>
                     <div class="actions">
                         <ion-button type="submit" color="blue-chill" id="save" [disabled]="!(isModified$ | async)">
                             Speichern
@@ -69,6 +40,60 @@
                         </ion-button>
                     </div>
                 </form>
+                <ng-container *ngIf="sedexForm$ | async; let sedexForm">
+                    <form
+                        [formGroup]="sedexForm"
+                        class="stacked-form compact-list"
+                        (submit)="saveSedexClicked$.emit($event)"
+                    >
+                        <h1 class="large">Transfereinstellungen (Sedex)</h1>
+                        <ion-list formGroupName="transportRequestSettings" no-lines>
+                            <ion-item class="pef-item">
+                                <ion-label position="stacked">Sender ID</ion-label>
+                                <ion-input
+                                    type="text"
+                                    formControlName="senderId"
+                                    (keyup.enter)="saveClicked$.emit()"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item class="pef-item">
+                                <ion-label position="stacked">Recipient ID</ion-label>
+                                <ion-input
+                                    type="text"
+                                    formControlName="recipientId"
+                                    (keyup.enter)="saveClicked$.emit()"
+                                ></ion-input>
+                            </ion-item>
+                        </ion-list>
+                        <ion-list formGroupName="export" no-lines>
+                            <ion-item class="pef-item">
+                                <ion-label position="stacked">Exportpfad (Sedex-Daten)</ion-label>
+                                <ion-input
+                                    type="text"
+                                    formControlName="targetPath"
+                                    (keyup.enter)="saveClicked$.emit()"
+                                ></ion-input>
+                            </ion-item>
+                        </ion-list>
+                        <div class="actions">
+                            <ion-button
+                                type="submit"
+                                color="blue-chill"
+                                id="save"
+                                [disabled]="!(canConnectToDatabase$ | async)"
+                            >
+                                Speichern
+                            </ion-button>
+                            <ion-button
+                                type="button"
+                                (click)="cancelSedexClicked$.emit($event)"
+                                [disabled]="!(canConnectToDatabase$ | async)"
+                            >
+                                Abbrechen
+                            </ion-button>
+                        </div>
+                    </form>
+                </ng-container>
                 <h1 class="large danger-section"><pef-icon name="warning"></pef-icon>Datenbank (CouchDB)</h1>
                 <ng-container *ngxLet="(dangerConfirmed$ | async); let dangerConfirmed">
                     <ion-button

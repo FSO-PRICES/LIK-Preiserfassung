@@ -16,6 +16,7 @@ import {
     startWith,
     switchMap,
     withLatestFrom,
+    tap,
 } from 'rxjs/operators';
 import * as semver from 'semver';
 
@@ -36,10 +37,13 @@ export class SettingsPage implements OnDestroy {
     public isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
     public canConnectToDatabase$ = this.store.select(fromRoot.getCanConnectToDatabase);
     public minVersion$ = this.store.select(fromRoot.getMinVersion);
+    public sedexSettings$ = this.store.select(fromRoot.getSedexSettings);
 
     public cancelClicked$ = new EventEmitter<Event>();
+    public cancelSedexClicked$ = new EventEmitter<Event>();
     public cancelCompatibilityClicked$ = new EventEmitter<Event>();
     public saveClicked$ = new EventEmitter<Event>();
+    public saveSedexClicked$ = new EventEmitter<Event>();
     public saveCompatibilityClicked$ = new EventEmitter<Event>();
     public dangerConfirmedClicked$ = new EventEmitter<Event>();
     public exportDbs$ = new EventEmitter<Event>();
@@ -69,6 +73,7 @@ export class SettingsPage implements OnDestroy {
     public isModified$ = this.currentSettings$.pipe(map(x => !!x && x.isModified));
 
     public form: FormGroup;
+    public sedexForm$: Observable<FormGroup>;
     public compatibilityForm$: Observable<FormGroup>;
     private subscriptions: Subscription[] = [];
 
@@ -88,13 +93,6 @@ export class SettingsPage implements OnDestroy {
             general: formBuilder.group({
                 erhebungsorgannummer: null,
             }),
-            transportRequestSettings: formBuilder.group({
-                senderId: null,
-                recipientId: null,
-            }),
-            export: formBuilder.group({
-                targetPath: null,
-            }),
         });
 
         this.compatibilityForm$ = this.minVersion$.pipe(
@@ -104,6 +102,23 @@ export class SettingsPage implements OnDestroy {
             map(minVersion => formBuilder.group({ minVersion: [minVersion, semverValidator()] })),
             publishReplay(1),
             refCount(),
+        );
+        this.sedexForm$ = this.sedexSettings$.pipe(
+            tap(x => console.log('form 1?', x)),
+            merge(this.cancelSedexClicked$.pipe(withLatestFrom(this.sedexSettings$, (_, sedex) => sedex))),
+            tap(x => console.log('form 2?', x)),
+            map(sedex =>
+                formBuilder.group({
+                    transportRequestSettings: formBuilder.group({
+                        senderId: sedex.transportRequestSettings.senderId,
+                        recipientId: sedex.transportRequestSettings.recipientId,
+                    }),
+                    export: formBuilder.group({
+                        targetPath: sedex.export.targetPath,
+                    }),
+                }),
+            ),
+            tap(x => console.log('form 3?', x)),
         );
 
         const update$ = this.form.valueChanges.pipe(map(() => this.form.value));
@@ -229,8 +244,6 @@ export class SettingsPage implements OnDestroy {
                         _id: settings._id,
                         serverConnection: settings.serverConnection,
                         general: settings.general || {},
-                        transportRequestSettings: settings.transportRequestSettings || {},
-                        export: settings.export || {},
                     },
                     { emitEvent: false },
                 );

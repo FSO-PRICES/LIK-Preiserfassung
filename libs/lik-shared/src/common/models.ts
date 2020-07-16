@@ -343,6 +343,11 @@ export interface SettingProperties {
     general: {
         erhebungsorgannummer: string;
     };
+}
+
+export type Setting = SettingProperties & CouchProperties;
+
+export interface SedexSettingsProperties {
     transportRequestSettings: {
         senderId: string;
         recipientId: string;
@@ -351,8 +356,7 @@ export interface SettingProperties {
         targetPath: string;
     };
 }
-
-export type Setting = SettingProperties & CouchProperties;
+export type SedexSettings = SedexSettingsProperties & CouchProperties;
 
 export type DatabaseBackup = { db: string; data: PouchDB.Core.AllDocsResponse<{}> };
 export type DatabaseBackupResult = Record<string, DatabaseBackup>;

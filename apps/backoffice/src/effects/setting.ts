@@ -65,8 +65,6 @@ export class SettingEffects {
                         _rev: currentSetting._rev,
                         serverConnection: currentSetting.serverConnection,
                         general: currentSetting.general,
-                        transportRequestSettings: currentSetting.transportRequestSettings,
-                        export: currentSetting.export,
                     });
                     return (create ? db.post(setting) : db.put(setting)).then(response => ({ db, id: response.id }));
                 })

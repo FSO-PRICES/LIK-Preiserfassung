@@ -133,6 +133,10 @@ export const getCurrentSettings = createSelector(
     getSettingState,
     fromSetting.getCurrentSettings,
 );
+export const getSedexSettings = createSelector(
+    getSettingState,
+    fromSetting.getSedexSettings,
+);
 export const getIsFullscreen = createSelector(
     getSettingState,
     fromSetting.getIsFullscreen,
