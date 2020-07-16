@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { File } from '@ionic-native/file/ngx';
 import { Platform } from '@ionic/angular';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as jsPDF from 'jspdf';
@@ -29,7 +29,8 @@ export class CreatePdfEffects {
     ) {}
 
     @Effect()
-    pmsToPdf$ = this.actions$.ofType('CREATE_PMS_PDF').pipe(
+    pmsToPdf$ = this.actions$.pipe(
+        ofType('CREATE_PMS_PDF'),
         flatMap(
             ({
                 payload: { preismeldestelle, erhebungsmonat },

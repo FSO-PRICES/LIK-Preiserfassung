@@ -47,7 +47,7 @@ registerLocaleData(localeDe);
         PefComponentsModule,
         PefDialogLoginModule,
         PefMenuModule,
-        StoreModule.forRoot(reducers, { metaReducers }),
+        StoreModule.forRoot(reducers, { metaReducers, runtimeChecks: { strictStateImmutability: true, strictActionImmutability: true } }),
         TranslateModule.forRoot(),
         NgxElectronModule,
 

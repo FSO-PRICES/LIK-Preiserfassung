@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
 import { assign, flatten, keyBy, orderBy } from 'lodash';
@@ -43,7 +43,8 @@ export class ExporterEffects {
     ) {}
 
     @Effect()
-    exportPreismeldungen$ = this.actions$.ofType('EXPORT_PREISMELDUNGEN').pipe(
+    exportPreismeldungen$ = this.actions$.pipe(
+        ofType('EXPORT_PREISMELDUNGEN'),
         blockIfNotLoggedIn(this.store),
         flatMap(() =>
             resetAndContinueWith(
@@ -105,7 +106,8 @@ export class ExporterEffects {
     );
 
     @Effect()
-    exportPreismeldestellen$ = this.actions$.ofType('EXPORT_PREISMELDESTELLEN').pipe(
+    exportPreismeldestellen$ = this.actions$.pipe(
+        ofType('EXPORT_PREISMELDESTELLEN'),
         blockIfNotLoggedIn(this.store),
         flatMap(() =>
             resetAndContinueWith(
@@ -131,7 +133,8 @@ export class ExporterEffects {
     );
 
     @Effect()
-    exportPreiserheber$ = this.actions$.ofType('EXPORT_PREISERHEBER').pipe(
+    exportPreiserheber$ = this.actions$.pipe(
+        ofType('EXPORT_PREISERHEBER'),
         blockIfNotLoggedIn(this.store),
         flatMap(({ payload }) => copyUserDbErheberDetailsToPreiserheberDb().pipe(map(() => payload))),
         flatMap(payload =>

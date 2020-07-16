@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { filter, flatMap, map } from 'rxjs/operators';
 
@@ -17,7 +17,8 @@ export class PreiszuweisungEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreiszuweisung$ = this.actions$.ofType('PREISZUWEISUNG_LOAD').pipe(
+    loadPreiszuweisung$ = this.actions$.pipe(
+        ofType('PREISZUWEISUNG_LOAD'),
         blockIfNotLoggedIn(this.store),
         flatMap(() => getDatabase(dbNames.preiszuweisungen).then(db => ({ db }))),
         filter(({ db }) => db != null),

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, flatMap as arrayFlatMap } from 'lodash';
 import { filter, flatMap } from 'rxjs/operators';
@@ -35,7 +35,8 @@ export class PreismeldungEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreismeldungenForPms$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_FOR_PMS').pipe(
+    loadPreismeldungenForPms$ = this.actions$.pipe(
+        ofType('PREISMELDUNGEN_LOAD_FOR_PMS'),
         blockIfNotLoggedIn(this.store),
         flatMap(({ payload: pmsNummer }) => loadPreismeldungenAndRefPreismeldungForPms({ pmsNummers: [pmsNummer] })),
         withLatestFrom(this.store.select(fromRoot.getWarenkorb), (x, warenkorb) =>
@@ -51,7 +52,8 @@ export class PreismeldungEffects {
     );
 
     @Effect()
-    loadPreismeldungenForId$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_BY_FILTER').pipe(
+    loadPreismeldungenForId$ = this.actions$.pipe(
+        ofType('PREISMELDUNGEN_LOAD_BY_FILTER'),
         blockIfNotLoggedIn(this.store),
         flatMap(({ payload }) => loadPreismeldungenAndRefPreismeldungForPms(payload)),
         withLatestFrom(this.store.select(fromRoot.getWarenkorb), (x, warenkorb) =>
@@ -68,7 +70,8 @@ export class PreismeldungEffects {
 
     @Effect()
     // TODO Fix types
-    savePreismeldungPrice$ = this.actions$.ofType('SAVE_PREISMELDUNG_PRICE').pipe(
+    savePreismeldungPrice$ = this.actions$.pipe(
+        ofType('SAVE_PREISMELDUNG_PRICE'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreismeldung$, (action: any, currentPreismeldung: P.CurrentPreismeldungBag) => ({
             currentPreismeldung,
@@ -120,7 +123,8 @@ export class PreismeldungEffects {
     );
 
     @Effect()
-    savePreismeldungMessages$ = this.actions$.ofType('SAVE_PREISMELDUNG_MESSAGES').pipe(
+    savePreismeldungMessages$ = this.actions$.pipe(
+        ofType('SAVE_PREISMELDUNG_MESSAGES'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,
@@ -131,7 +135,8 @@ export class PreismeldungEffects {
     );
 
     @Effect()
-    savePreismeldungAttributes$ = this.actions$.ofType('SAVE_PREISMELDUNG_ATTRIBUTES').pipe(
+    savePreismeldungAttributes$ = this.actions$.pipe(
+        ofType('SAVE_PREISMELDUNG_ATTRIBUTES'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,
@@ -142,7 +147,8 @@ export class PreismeldungEffects {
     );
 
     @Effect()
-    resetPreismeldung$ = this.actions$.ofType('RESET_PREISMELDUNG').pipe(
+    resetPreismeldung$ = this.actions$.pipe(
+        ofType('RESET_PREISMELDUNG'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,
@@ -158,7 +164,8 @@ export class PreismeldungEffects {
     );
 
     @Effect()
-    deletePreismeldung$ = this.actions$.ofType('RESET_PREISMELDUNG').pipe(
+    deletePreismeldung$ = this.actions$.pipe(
+        ofType('RESET_PREISMELDUNG'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(
             this.currentPreismeldung$,

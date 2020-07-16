@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import { catchError, flatMap, map } from 'rxjs/operators';
@@ -13,7 +13,8 @@ export class WarenkorbEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadWarenkorb$ = this.actions$.ofType('LOAD_WARENKORB').pipe(
+    loadWarenkorb$ = this.actions$.pipe(
+        ofType('LOAD_WARENKORB'),
         blockIfNotLoggedIn(this.store),
         flatMap(() =>
             getDatabaseAsObservable(dbNames.warenkorb).pipe(

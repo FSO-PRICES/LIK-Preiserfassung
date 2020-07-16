@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { flatten } from 'lodash';
 import { concat } from 'rxjs';
@@ -27,7 +27,8 @@ export class ReportingEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadReportData$ = this.actions$.ofType('LOAD_REPORT_DATA').pipe(
+    loadReportData$ = this.actions$.pipe(
+        ofType('LOAD_REPORT_DATA'),
         blockIfNotLoggedIn(this.store),
         flatMap(action =>
             concat(

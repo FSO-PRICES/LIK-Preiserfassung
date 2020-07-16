@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { map, withLatestFrom } from 'rxjs/operators';
 
@@ -15,7 +15,8 @@ export class SettingEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadSetting$ = this.actions$.ofType('LOAD_SETTINGS').pipe(
+    loadSetting$ = this.actions$.pipe(
+        ofType('LOAD_SETTINGS'),
         map(() => {
             const url = getServerUrl();
             return !!url
@@ -25,7 +26,8 @@ export class SettingEffects {
     );
 
     @Effect()
-    saveSetting$ = this.actions$.ofType('SAVE_SETTINGS').pipe(
+    saveSetting$ = this.actions$.pipe(
+        ofType('SAVE_SETTINGS'),
         withLatestFrom(this.currentSetting$, (_action, currentSetting: CurrentSetting) => currentSetting),
         map(currentSetting => {
             setServerUrl(currentSetting.serverConnection.url);

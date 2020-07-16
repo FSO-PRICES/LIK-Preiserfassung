@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, groupBy, mapValues } from 'lodash';
 import { catchError, filter, map, switchMap } from 'rxjs/operators';
@@ -19,7 +19,8 @@ export class StatisticsEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNG_STATISTICS_LOAD').pipe(
+    loadPreismeldungen$ = this.actions$.pipe(
+        ofType('PREISMELDUNG_STATISTICS_LOAD'),
         switchMap(() =>
             from(
                 getDatabase().then(db =>

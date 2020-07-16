@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign } from 'lodash';
 import { concat } from 'rxjs';
@@ -22,7 +22,8 @@ export class CockpitEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadCockpitData$ = this.actions$.ofType('LOAD_COCKPIT_DATA').pipe(
+    loadCockpitData$ = this.actions$.pipe(
+        ofType('LOAD_COCKPIT_DATA'),
         blockIfNotLoggedIn(this.store),
         flatMap(() =>
             concat(

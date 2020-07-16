@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import { catchError, flatMap, map, withLatestFrom } from 'rxjs/operators';
@@ -40,14 +40,16 @@ export class PreiserheberEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreiserheber$ = this.actions$.ofType('PREISERHEBER_LOAD').pipe(
+    loadPreiserheber$ = this.actions$.pipe(
+        ofType('PREISERHEBER_LOAD'),
         blockIfNotLoggedIn(this.store),
         flatMap(() => loadAllPreiserheber()),
         map(docs => ({ type: 'PREISERHEBER_LOAD_SUCCESS', payload: docs } as Action)),
     );
 
     @Effect()
-    resetPassword$ = this.actions$.ofType('RESET_PASSWORD').pipe(
+    resetPassword$ = this.actions$.pipe(
+        ofType('RESET_PASSWORD'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreiserheber$, (action, preiserheber) => ({
             password: action.payload,
@@ -66,7 +68,8 @@ export class PreiserheberEffects {
     );
 
     @Effect()
-    deletePreiserheber$ = this.actions$.ofType('DELETE_PREISERHEBER').pipe(
+    deletePreiserheber$ = this.actions$.pipe(
+        ofType('DELETE_PREISERHEBER'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(action =>
             deletePreiserheber(action.payload).then(success => ({
@@ -83,7 +86,8 @@ export class PreiserheberEffects {
     );
 
     @Effect()
-    savePreiserheber$ = this.actions$.ofType('SAVE_PREISERHEBER').pipe(
+    savePreiserheber$ = this.actions$.pipe(
+        ofType('SAVE_PREISERHEBER'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreiserheber$, (action, currentPreiserheber) => ({
             password: action.payload,
