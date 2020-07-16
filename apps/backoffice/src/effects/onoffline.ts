@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { from, of } from 'rxjs';
 import { catchError, flatMap, map, take } from 'rxjs/operators';
@@ -24,7 +24,8 @@ export class OnOfflineEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadOnOffline$ = this.actions$.ofType('LOAD_ONOFFLINE').pipe(
+    loadOnOffline$ = this.actions$.pipe(
+        ofType('LOAD_ONOFFLINE'),
         blockIfNotLoggedIn(this.store),
         flatMap(() =>
             from(getOnOfflineStatus()).pipe(
@@ -34,7 +35,8 @@ export class OnOfflineEffects {
     );
 
     @Effect()
-    toggleOnOffline$ = this.actions$.ofType('TOGGLE_ONOFFLINE').pipe(
+    toggleOnOffline$ = this.actions$.pipe(
+        ofType('TOGGLE_ONOFFLINE'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(() =>
             from(toggleOnOfflineStatus()).pipe(
@@ -44,7 +46,8 @@ export class OnOfflineEffects {
     );
 
     @Effect()
-    loadWritePermission$ = this.actions$.ofType('LOAD_WRITE_PERMISSION').pipe(
+    loadWritePermission$ = this.actions$.pipe(
+        ofType('LOAD_WRITE_PERMISSION'),
         blockIfNotLoggedIn(this.store),
         flatMap(() =>
             from(getWritePermissionStatus()).pipe(
@@ -54,7 +57,8 @@ export class OnOfflineEffects {
     );
 
     @Effect()
-    toggleWritePermission$ = this.actions$.ofType('TOGGLE_WRITE_PERMISSION').pipe(
+    toggleWritePermission$ = this.actions$.pipe(
+        ofType('TOGGLE_WRITE_PERMISSION'),
         blockIfNotLoggedIn(this.store),
         flatMap(({ payload: { force } }) =>
             from(toggleWritePermissionStatus(force)).pipe(
@@ -64,7 +68,8 @@ export class OnOfflineEffects {
     );
 
     @Effect()
-    saveMinVersion$ = this.actions$.ofType('SAVE_MIN_VERSION').pipe(
+    saveMinVersion$ = this.actions$.pipe(
+        ofType('SAVE_MIN_VERSION'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         flatMap(({ payload }) => setMinVersion(payload)),
         flatMap(payload => [
@@ -74,7 +79,8 @@ export class OnOfflineEffects {
     );
 
     @Effect()
-    canConnectToDatabase$ = this.actions$.ofType('CHECK_CONNECTIVITY_TO_DATABASE').pipe(
+    canConnectToDatabase$ = this.actions$.pipe(
+        ofType('CHECK_CONNECTIVITY_TO_DATABASE'),
         flatMap(() =>
             this.store.select(fromRoot.getSettings).pipe(
                 take(1),

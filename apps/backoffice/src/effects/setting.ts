@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
 import { ElectronService } from 'ngx-electron';
@@ -36,7 +36,8 @@ export class SettingEffects {
     ) {}
 
     @Effect()
-    loadSetting$ = this.actions$.ofType('SETTING_LOAD').pipe(
+    loadSetting$ = this.actions$.pipe(
+        ofType('SETTING_LOAD'),
         flatMap(() => getSettings()),
         map(docs =>
             !!docs
@@ -46,7 +47,8 @@ export class SettingEffects {
     );
 
     @Effect()
-    saveSetting$ = this.actions$.ofType('SAVE_SETTING').pipe(
+    saveSetting$ = this.actions$.pipe(
+        ofType('SAVE_SETTING'),
         withLatestFrom(this.currentSetting$, (_, currentSetting: CurrentSetting) => ({ currentSetting })),
         flatMap(({ currentSetting }) =>
             getLocalDatabase(dbNames.settings)
@@ -78,14 +80,16 @@ export class SettingEffects {
     );
 
     @Effect()
-    exportDbs$ = this.actions$.ofType('EXPORT_DATABASES').pipe(
+    exportDbs$ = this.actions$.pipe(
+        ofType('EXPORT_DATABASES'),
         blockIfNotLoggedIn(this.store),
         switchMap(() => createDbBackups(this.electronService)),
         map(payload => ({ type: 'EXPORT_DATABASES_SUCCESS', payload } as setting.Action)),
     );
 
     @Effect()
-    importDb$ = this.actions$.ofType('IMPORT_DATABASE').pipe(
+    importDb$ = this.actions$.pipe(
+        ofType('IMPORT_DATABASE'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         switchMap(action => importDbBackup(action.payload)),
         map(payload => ({ type: 'IMPORT_DATABASE_SUCCESS', payload } as setting.Action)),

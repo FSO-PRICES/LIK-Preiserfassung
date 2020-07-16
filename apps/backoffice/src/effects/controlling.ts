@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { flatten } from 'lodash';
 import { concat, defer, from, iif, of } from 'rxjs';
@@ -32,14 +32,16 @@ export class ControllingEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    preControllingTasks$ = this.actions$.ofType('RUN_PRE-CONTROLLING_TASKS').pipe(
+    preControllingTasks$ = this.actions$.pipe(
+        ofType('RUN_PRE-CONTROLLING_TASKS'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store, true),
         flatMap(() => copyUserDbErheberDetailsToPreiserheberDb()),
         map(() => ({ type: 'RUN_PRE-CONTROLLING_TASKS_SUCCESS' })),
     );
 
     @Effect()
-    runControlling$ = this.actions$.ofType(controlling.RUN_CONTROLLING).pipe(
+    runControlling$ = this.actions$.pipe(
+        ofType(controlling.RUN_CONTROLLING),
         blockIfNotLoggedIn(this.store),
         withLatestFrom(
             this.store.select(fromRoot.getControllingRawCachedData),
@@ -77,7 +79,8 @@ export class ControllingEffects {
 
     @Effect()
     // TODO Fix types
-    selectControllingPm$ = this.actions$.ofType(controlling.SELECT_CONTROLLING_PM).pipe(
+    selectControllingPm$ = this.actions$.pipe(
+        ofType(controlling.SELECT_CONTROLLING_PM),
         map((action: any) => action.payload),
         withLatestFrom(this.store.select(fromRoot.getControllingRawCachedData), (pmId, controllingRawCachedData) => {
             if (!pmId) {

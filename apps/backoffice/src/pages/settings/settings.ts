@@ -49,7 +49,7 @@ export class SettingsPage implements OnDestroy {
     public showCompatibilityValidationHints$: Observable<boolean>;
     public settingsSaved$: Observable<CurrentSetting>;
     public dangerConfirmed$: Observable<boolean>;
-    public resetInput$: Observable<{}>;
+    public resetInput$: Observable<{ value: string }>;
     public dbsExported$ = this.store.select(fromRoot.getHasExportedDatabases).pipe(
         filter(exported => !!exported),
         map(exported =>

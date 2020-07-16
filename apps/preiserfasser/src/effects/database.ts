@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { chain } from 'lodash';
 import { concat, from, of } from 'rxjs';
@@ -41,7 +41,8 @@ export class DatabaseEffects {
     ];
 
     @Effect()
-    getLastSyncedAt$ = this.actions$.ofType('LOAD_DATABASE_LAST_SYNCED_AT').pipe(
+    getLastSyncedAt$ = this.actions$.pipe(
+        ofType('LOAD_DATABASE_LAST_SYNCED_AT'),
         flatMap(() =>
             from(
                 getDatabase().then(db =>
@@ -63,7 +64,8 @@ export class DatabaseEffects {
     );
 
     @Effect()
-    checkConnectivity$ = this.actions$.ofType('CHECK_CONNECTIVITY_TO_DATABASE').pipe(
+    checkConnectivity$ = this.actions$.pipe(
+        ofType('CHECK_CONNECTIVITY_TO_DATABASE'),
         flatMap(() =>
             concat(
                 [{ type: 'RESET_CONNECTIVITY_TO_DATABASE' } as DatabaseAction],
@@ -86,7 +88,8 @@ export class DatabaseEffects {
     );
 
     @Effect()
-    syncDatabase$ = this.actions$.ofType('SYNC_DATABASE').pipe(
+    syncDatabase$ = this.actions$.pipe(
+        ofType('SYNC_DATABASE'),
         flatMap(
             (action: DatabaseAction) =>
                 concat(
@@ -128,7 +131,8 @@ export class DatabaseEffects {
     );
 
     @Effect()
-    download$ = this.actions$.ofType('DOWNLOAD_DATABASE').pipe(
+    download$ = this.actions$.pipe(
+        ofType('DOWNLOAD_DATABASE'),
         flatMap((action: DatabaseAction) =>
             concat(
                 [{ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction],
@@ -141,7 +145,8 @@ export class DatabaseEffects {
     );
 
     @Effect()
-    uploadDatabase$ = this.actions$.ofType('UPLOAD_DATABASE').pipe(
+    uploadDatabase$ = this.actions$.pipe(
+        ofType('UPLOAD_DATABASE'),
         flatMap((action: DatabaseAction) =>
             concat(
                 [{ type: 'SET_DATABASE_IS_SYNCING' } as DatabaseAction],
@@ -168,12 +173,14 @@ export class DatabaseEffects {
     );
 
     @Effect()
-    checkLastUploadedAt$ = this.actions$
-        .ofType('CHECK_DATABASE_LAST_UPLOADED_AT')
-        .pipe(map(() => ({ type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: getDatabaseLastUploadedAt() })));
+    checkLastUploadedAt$ = this.actions$.pipe(
+        ofType('CHECK_DATABASE_LAST_UPLOADED_AT'),
+        map(() => ({ type: 'SET_DATABASE_LAST_UPLOADED_AT', payload: getDatabaseLastUploadedAt() })),
+    );
 
     @Effect()
-    checkDatabaseExists$ = this.actions$.ofType('CHECK_DATABASE_EXISTS').pipe(
+    checkDatabaseExists$ = this.actions$.pipe(
+        ofType('CHECK_DATABASE_EXISTS'),
         flatMap(() =>
             from(checkIfDatabaseExists()).pipe(
                 flatMap(exists => (!exists ? dropDatabase().then(() => exists) : [exists])), // drop database in case it's the wrong version
@@ -187,7 +194,8 @@ export class DatabaseEffects {
     );
 
     @Effect()
-    deleteDatabase$ = this.actions$.ofType('DELETE_DATABASE').pipe(
+    deleteDatabase$ = this.actions$.pipe(
+        ofType('DELETE_DATABASE'),
         flatMap(() =>
             from(dropDatabase()).pipe(
                 flatMap(() => [{ type: 'SET_DATABASE_EXISTS', payload: false }, ...this.resetActions]),

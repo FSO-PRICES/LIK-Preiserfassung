@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign, cloneDeep, flatMap as arrayFlatMap, isEqual, sortBy } from 'lodash';
 import { defer, from, of } from 'rxjs';
@@ -50,7 +50,8 @@ export class PreismeldungenEffects {
 
     @Effect()
     // TODO Fix types
-    loadPreismeldungen$ = this.actions$.ofType('PREISMELDUNGEN_LOAD_FOR_PMS').pipe(
+    loadPreismeldungen$ = this.actions$.pipe(
+        ofType('PREISMELDUNGEN_LOAD_FOR_PMS'),
         exhaustMap((action: any) =>
             defer(async () => {
                 const db = await getDatabase();
@@ -136,7 +137,8 @@ export class PreismeldungenEffects {
         ),
     );
 
-    savePreismeldungPrice$ = this.actions$.ofType('SAVE_PREISMELDUNG_PRICE').pipe(
+    savePreismeldungPrice$ = this.actions$.pipe(
+        ofType('SAVE_PREISMELDUNG_PRICE'),
         // TODO Fix types
         withLatestFrom(this.currentPreismeldung$, (action: any, currentPreismeldung: P.CurrentPreismeldungBag) => ({
             currentPreismeldung,
@@ -317,7 +319,8 @@ export class PreismeldungenEffects {
     );
 
     @Effect()
-    savePreismeldungMessages$ = this.actions$.ofType('SAVE_PREISMELDUNG_MESSAGES').pipe(
+    savePreismeldungMessages$ = this.actions$.pipe(
+        ofType('SAVE_PREISMELDUNG_MESSAGES'),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
@@ -331,7 +334,8 @@ export class PreismeldungenEffects {
     );
 
     @Effect()
-    savePreismeldungAttributes$ = this.actions$.ofType('SAVE_PREISMELDUNG_ATTRIBUTES').pipe(
+    savePreismeldungAttributes$ = this.actions$.pipe(
+        ofType('SAVE_PREISMELDUNG_ATTRIBUTES'),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
@@ -345,7 +349,8 @@ export class PreismeldungenEffects {
     );
 
     @Effect()
-    resetPreismeldung$ = this.actions$.ofType('RESET_PREISMELDUNG').pipe(
+    resetPreismeldung$ = this.actions$.pipe(
+        ofType('RESET_PREISMELDUNG'),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
@@ -364,7 +369,8 @@ export class PreismeldungenEffects {
     );
 
     @Effect()
-    deletePreismeldung$ = this.actions$.ofType('RESET_PREISMELDUNG').pipe(
+    deletePreismeldung$ = this.actions$.pipe(
+        ofType('RESET_PREISMELDUNG'),
         withLatestFrom(
             this.currentPreismeldung$,
             (_, currentPreismeldung: P.CurrentPreismeldungBag) => currentPreismeldung,
@@ -403,7 +409,8 @@ export class PreismeldungenEffects {
     );
 
     @Effect()
-    preismeldungenSortSave = this.actions$.ofType('PREISMELDUNGEN_SORT_SAVE').pipe(
+    preismeldungenSortSave = this.actions$.pipe(
+        ofType('PREISMELDUNGEN_SORT_SAVE'),
         flatMap((action: any) =>
             this.savePreismeldungenSort(action.payload).pipe(
                 map(payload => ({ type: 'PREISMELDUNGEN_SORT_SAVE_SUCCESS', payload })),

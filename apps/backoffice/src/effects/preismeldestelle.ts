@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { find } from 'lodash';
 import { from } from 'rxjs';
@@ -31,14 +31,16 @@ export class PreismeldestelleEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreismeldestelle$ = this.actions$.ofType('PREISMELDESTELLE_LOAD').pipe(
+    loadPreismeldestelle$ = this.actions$.pipe(
+        ofType('PREISMELDESTELLE_LOAD'),
         blockIfNotLoggedIn(this.store),
         flatMap(() => loadAllPreismeldestellen()),
         map(docs => ({ type: 'PREISMELDESTELLE_LOAD_SUCCESS', payload: docs } as preismeldestelle.Action)),
     );
 
     @Effect()
-    savePreismeldestelle$ = this.actions$.ofType('SAVE_PREISMELDESTELLE').pipe(
+    savePreismeldestelle$ = this.actions$.pipe(
+        ofType('SAVE_PREISMELDESTELLE'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         withLatestFrom(this.currentPreismeldestelle$, (_, currentPreismeldestelle: CurrentPreismeldestelle) => ({
             currentPreismeldestelle,

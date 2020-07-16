@@ -1,6 +1,5 @@
 import { MetaReducer } from '@ngrx/store';
 import { isBefore } from 'date-fns';
-import { storeFreeze } from 'ngrx-store-freeze';
 import { storeLogger } from 'ngrx-store-logger';
 import { createSelector } from 'reselect';
 
@@ -55,10 +54,7 @@ export const reducers = {
     pdf: fromPdf.reducer,
 };
 
-export const metaReducers: MetaReducer<AppState>[] = [
-    ...(!environment.production ? [storeLogger()] : []),
-    ...(!environment.production ? [storeFreeze] : []),
-];
+export const metaReducers: MetaReducer<AppState>[] = [...(!environment.production ? [storeLogger()] : [])];
 
 export const getAppConfigState = (state: AppState) => state.appConfig;
 export const getIsDesktop = createSelector(

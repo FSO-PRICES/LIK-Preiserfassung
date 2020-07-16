@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as bluebird from 'bluebird';
 import { chunk } from 'lodash';
@@ -47,7 +47,8 @@ export class ImporterEffects {
 
     @Effect()
     // TODO Fix types
-    parseFile$ = this.actions$.ofType('PARSE_FILE').pipe(
+    parseFile$ = this.actions$.pipe(
+        ofType('PARSE_FILE'),
         flatMap((action: any) => {
             if (action.payload.file == null) {
                 return of({
@@ -66,7 +67,8 @@ export class ImporterEffects {
     );
 
     @Effect()
-    import$ = this.actions$.ofType('IMPORT_DATA').pipe(
+    import$ = this.actions$.pipe(
+        ofType('IMPORT_DATA'),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
         map(action => action.payload),
         withLatestFrom(this.settings$),
@@ -121,13 +123,15 @@ export class ImporterEffects {
     );
 
     @Effect()
-    loadLatestImportedAt$ = this.actions$.ofType('LOAD_LATEST_IMPORTED_AT').pipe(
+    loadLatestImportedAt$ = this.actions$.pipe(
+        ofType('LOAD_LATEST_IMPORTED_AT'),
         blockIfNotLoggedIn(this.store),
         flatMap(() => this.loadLatestImportedAt()),
     );
 
     @Effect()
-    loadErhebungsmonate$ = this.actions$.ofType('LOAD_ERHEBUNGSMONATE').pipe(
+    loadErhebungsmonate$ = this.actions$.pipe(
+        ofType('LOAD_ERHEBUNGSMONATE'),
         blockIfNotLoggedIn(this.store),
         flatMap(() => loaderhebungsMonateAction()),
     );

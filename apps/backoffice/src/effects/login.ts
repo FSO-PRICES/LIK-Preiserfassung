@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import { catchError, concat, filter, flatMap, map, take, tap } from 'rxjs/operators';
@@ -23,7 +23,8 @@ export class LoginEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    checkIsLoggedIn$ = this.actions$.ofType('CHECK_IS_LOGGED_IN').pipe(
+    checkIsLoggedIn$ = this.actions$.pipe(
+        ofType('CHECK_IS_LOGGED_IN'),
         flatMap(() =>
             of({ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action).pipe(
                 concat(
@@ -63,7 +64,8 @@ export class LoginEffects {
 
     @Effect()
     // TODO Fix types
-    login$ = this.actions$.ofType('LOGIN').pipe(
+    login$ = this.actions$.pipe(
+        ofType('LOGIN'),
         flatMap((action: any) =>
             loginToDatabase(action.payload)
                 .then(() => {
@@ -89,7 +91,8 @@ export class LoginEffects {
     );
 
     @Effect()
-    logout$ = this.actions$.ofType('LOGOUT').pipe(
+    logout$ = this.actions$.pipe(
+        ofType('LOGOUT'),
         flatMap(() => logoutOfDatabase()),
         tap(() => resetCurrentLoggedInUser()),
         map(() => ({ type: 'SET_IS_LOGGED_OUT' } as login.Action)),

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { assign } from 'lodash';
 import { from, of } from 'rxjs';
@@ -19,7 +19,8 @@ export class PreiserheberEffects {
     constructor(private actions$: Actions, private store: Store<fromRoot.AppState>) {}
 
     @Effect()
-    loadPreiserheber$ = this.actions$.ofType('LOAD_PREISERHEBER').pipe(
+    loadPreiserheber$ = this.actions$.pipe(
+        ofType('LOAD_PREISERHEBER'),
         exhaustMap(() => getDatabase()),
         flatMap(db =>
             from(db.get('preiserheber')).pipe(
@@ -32,7 +33,8 @@ export class PreiserheberEffects {
     );
 
     @Effect()
-    savePreiserheber$ = this.actions$.ofType('SAVE_PREISERHEBER').pipe(
+    savePreiserheber$ = this.actions$.pipe(
+        ofType('SAVE_PREISERHEBER'),
         withLatestFrom(this.currentPreiserheber$, (_, currentPreiserheber) => currentPreiserheber),
         flatMap(currentPreiserheber =>
             from(

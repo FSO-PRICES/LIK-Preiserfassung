@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { concat, from, of } from 'rxjs';
@@ -20,7 +20,8 @@ export class LoginEffects {
     ) {}
 
     @Effect()
-    checkIsLoggedIn$ = this.actions$.ofType('CHECK_IS_LOGGED_IN').pipe(
+    checkIsLoggedIn$ = this.actions$.pipe(
+        ofType('CHECK_IS_LOGGED_IN'),
         flatMap(() =>
             concat(
                 [{ type: 'RESET_IS_LOGGED_IN_STATE' } as login.Action],
@@ -41,7 +42,8 @@ export class LoginEffects {
     );
 
     @Effect()
-    login$ = this.actions$.ofType('LOGIN').pipe(
+    login$ = this.actions$.pipe(
+        ofType('LOGIN'),
         flatMap((
             action: any, // TODO Fix typing
         ) =>

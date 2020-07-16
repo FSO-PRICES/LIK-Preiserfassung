@@ -45,7 +45,7 @@ import { AppComponent } from './app.component';
         PmsSortPageModule,
         SettingsPageModule,
 
-        StoreModule.forRoot(reducers, { metaReducers }),
+        StoreModule.forRoot(reducers, { metaReducers, runtimeChecks: { strictStateImmutability: true, strictActionImmutability: true } }),
     ],
     providers: [
         StatusBar,
