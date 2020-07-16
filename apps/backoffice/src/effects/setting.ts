@@ -78,6 +78,28 @@ export class SettingEffects {
     );
 
     @Effect()
+    loadSedex$ = this.actions$.pipe(
+        ofType(setting.loadSedex),
+        switchMap(async () => {
+            const db = await getDatabase(dbNames.sedex);
+            return await db.get<P.SedexSettings>('sedex').catch(() => null);
+        }),
+        map(doc => (doc ? setting.loadSedexSuccess({ payload: doc }) : setting.loadSedexFailure())),
+    );
+
+    @Effect()
+    saveSedex$ = this.actions$.pipe(
+        ofType(setting.saveSedex),
+        switchMap(async ({ payload }) => {
+            const db = await getDatabase(dbNames.sedex);
+            const prev = await db.get<P.SedexSettings>('sedex').catch(() => null);
+            await db.put({ _id: 'sedex', ...(prev ? { _rev: prev._rev } : {}), ...payload });
+            return db.get<P.SedexSettings>('sedex');
+        }),
+        map(doc => setting.saveSedexSuccess({ payload: doc })),
+    );
+
+    @Effect()
     exportDbs$ = this.actions$.pipe(
         ofType('EXPORT_DATABASES'),
         blockIfNotLoggedIn(this.store),

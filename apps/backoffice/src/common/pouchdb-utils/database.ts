@@ -22,6 +22,7 @@ export const dbNames = {
     imports: 'imports',
     exports: 'exports',
     onoffline: 'onoffline',
+    sedex: 'sedex',
 };
 
 type DbNames = keyof typeof dbNames;
@@ -36,6 +37,7 @@ export const systemDbNames: DbNames[] = [
     'preismeldungen_status',
     'imports',
     'exports',
+    'sedex',
 ];
 
 export const monthlyDbs: DbNames[] = ['preismeldungen_status', 'exports'];

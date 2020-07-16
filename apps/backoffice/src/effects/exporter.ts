@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import * as FileSaver from 'file-saver';
 import { assign, flatten, keyBy, orderBy } from 'lodash';
 import { ElectronService } from 'ngx-electron';
-import { of } from 'rxjs';
+import { of, combineLatest } from 'rxjs';
 import { catchError, concat, flatMap, map, withLatestFrom } from 'rxjs/operators';
 
 import { Models as P, preismeldestelleId, PreismeldungAction } from '@lik-shared';
@@ -30,11 +30,15 @@ import {
     loadAllPreismeldungenForExport,
 } from '../common/user-db-values';
 import * as fromRoot from '../reducers';
-import { CurrentSetting } from '../reducers/setting';
+
+type ExportSettings = P.SettingProperties & P.SedexSettingsProperties;
 
 @Injectable()
 export class ExporterEffects {
-    settings$ = this.store.select(fromRoot.getSettings);
+    settings$ = combineLatest(
+        this.store.select(fromRoot.getSettings),
+        this.store.select(fromRoot.getSedexSettings),
+    ).pipe(map(([currentSetting, sedexSetting]) => ({ ...currentSetting, ...sedexSetting })));
 
     constructor(
         private actions$: Actions,
@@ -184,7 +188,7 @@ async function createExportPm(
         refPreismeldung: P.PreismeldungReference;
         sortierungsnummer: number;
     }[],
-    settings: CurrentSetting,
+    settings: ExportSettings,
 ) {
     const preismeldungenDb = await getDatabase(dbNames.preismeldungen);
     const erhebungsmonat = await getDocumentByKeyFromDb<P.Erhebungsmonat>(preismeldungenDb, 'erhebungsmonat');
@@ -203,7 +207,7 @@ async function createExportPm(
     return count;
 }
 
-async function createExportPms(electronService: ElectronService, settings: CurrentSetting) {
+async function createExportPms(electronService: ElectronService, settings: ExportSettings) {
     const preismeldestellenDb = await getDatabase(dbNames.preismeldestellen);
     const preismeldestellen = await getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(
         preismeldestellenDb,
@@ -221,7 +225,7 @@ async function createExportPms(electronService: ElectronService, settings: Curre
 async function createExportPe(
     electronService: ElectronService,
     preiserheber: (P.Erheber & { pmsNummers: string[] })[],
-    settings: CurrentSetting,
+    settings: ExportSettings,
     erhebungsorgannummer: string,
 ) {
     const preismeldungenDb = await getDatabase(dbNames.preismeldungen);
@@ -235,7 +239,7 @@ async function createExportPe(
 
 async function createFiles(
     electronService: ElectronService,
-    settings: CurrentSetting,
+    settings: ExportSettings,
     validations: { isValid: boolean; entity?: any; error?: string }[],
 ) {
     if (!validations.every(x => x.isValid))

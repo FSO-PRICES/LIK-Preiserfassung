@@ -66,15 +66,8 @@ export function reducer(state = initialState, action: setting.Action): State {
             return { ...state, settings, currentSettings: settings };
         }
 
-        case 'SEDEX_SETTING_LOAD_SUCCESS': {
+        case 'LOAD_SEDEX_SETTING_SUCCESS': {
             return { ...state, sedex: action.payload };
-        }
-
-        case 'SEDEX_SETTING_LOAD_FAIL': {
-            return {
-                ...state,
-                sedex: { export: null, transportRequestSettings: { recipientId: null, senderId: null } },
-            };
         }
 
         case 'SAVE_SEDEX_SETTING_SUCCESS': {

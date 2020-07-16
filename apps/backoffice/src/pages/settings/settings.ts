@@ -16,7 +16,6 @@ import {
     startWith,
     switchMap,
     withLatestFrom,
-    tap,
 } from 'rxjs/operators';
 import * as semver from 'semver';
 
@@ -46,6 +45,7 @@ export class SettingsPage implements OnDestroy {
     public saveSedexClicked$ = new EventEmitter<Event>();
     public saveCompatibilityClicked$ = new EventEmitter<Event>();
     public dangerConfirmedClicked$ = new EventEmitter<Event>();
+    public loginClicked$ = new EventEmitter<Event>();
     public exportDbs$ = new EventEmitter<Event>();
     public importFileSelected$ = new EventEmitter<Event>();
 
@@ -95,18 +95,8 @@ export class SettingsPage implements OnDestroy {
             }),
         });
 
-        this.compatibilityForm$ = this.minVersion$.pipe(
-            merge(
-                this.cancelCompatibilityClicked$.pipe(withLatestFrom(this.minVersion$, (_, minVersion) => minVersion)),
-            ),
-            map(minVersion => formBuilder.group({ minVersion: [minVersion, semverValidator()] })),
-            publishReplay(1),
-            refCount(),
-        );
         this.sedexForm$ = this.sedexSettings$.pipe(
-            tap(x => console.log('form 1?', x)),
             merge(this.cancelSedexClicked$.pipe(withLatestFrom(this.sedexSettings$, (_, sedex) => sedex))),
-            tap(x => console.log('form 2?', x)),
             map(sedex =>
                 formBuilder.group({
                     transportRequestSettings: formBuilder.group({
@@ -118,7 +108,17 @@ export class SettingsPage implements OnDestroy {
                     }),
                 }),
             ),
-            tap(x => console.log('form 3?', x)),
+            publishReplay(1),
+            refCount(),
+        );
+
+        this.compatibilityForm$ = this.minVersion$.pipe(
+            merge(
+                this.cancelCompatibilityClicked$.pipe(withLatestFrom(this.minVersion$, (_, minVersion) => minVersion)),
+            ),
+            map(minVersion => formBuilder.group({ minVersion: [minVersion, semverValidator()] })),
+            publishReplay(1),
+            refCount(),
         );
 
         const update$ = this.form.valueChanges.pipe(map(() => this.form.value));
@@ -146,6 +146,12 @@ export class SettingsPage implements OnDestroy {
             distinctUntilChanged(),
             mapTo(true),
             merge(distinctSetting$.pipe(mapTo(false))),
+        );
+
+        const saveSedex$ = this.saveSedexClicked$.pipe(
+            withLatestFrom(this.sedexForm$, (_, form) => form.value),
+            publishReplay(1),
+            refCount(),
         );
 
         const canSaveCompatibility$ = this.saveCompatibilityClicked$.pipe(
@@ -215,11 +221,15 @@ export class SettingsPage implements OnDestroy {
                 this.presentLoadingScreen(this.settingsSaved$);
                 store.dispatch({ type: 'SAVE_SETTING' } as setting.Action);
             }),
+            saveSedex$.subscribe(payload => {
+                this.presentLoadingScreen(this.minVersion$);
+                store.dispatch(setting.saveSedex({ payload }));
+            }),
             saveCompatibility$.subscribe(payload => {
                 this.presentLoadingScreen(this.minVersion$);
                 store.dispatch({ type: 'SAVE_MIN_VERSION', payload } as onoffline.Action);
             }),
-            dangerConfirmedClicked$.subscribe(() => {
+            dangerConfirmedClicked$.pipe(merge(this.loginClicked$)).subscribe(() => {
                 store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
             }),
             this.exportDbs$.subscribe(() => {
@@ -253,6 +263,7 @@ export class SettingsPage implements OnDestroy {
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'SETTING_LOAD' });
+        this.store.dispatch(setting.loadSedex());
     }
 
     public ionViewCanLeave(): Promise<boolean> {
