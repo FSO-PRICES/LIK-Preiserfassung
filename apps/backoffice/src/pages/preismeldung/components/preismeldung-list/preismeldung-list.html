@@ -89,6 +89,7 @@
     </div>
     <div class="pef-advanced-item-flex-container">
         <pef-virtual-scroll
+            #pmList
             [items]="filteredPreismeldungen"
             [childHeight]="60"
             (update)="scrollList = $event"

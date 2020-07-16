@@ -10,6 +10,7 @@ import {
     Output,
     SimpleChange,
     ViewChild,
+    Inject,
 } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { ItemReorderEventDetail } from '@ionic/core';
@@ -17,7 +18,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { addDays, isAfter, isBefore, subMilliseconds } from 'date-fns';
 import dragula from 'dragula';
 import { findLastIndex, minBy, orderBy, sortBy, takeWhile } from 'lodash';
-import { merge as mergeFrom, Observable, Subject } from 'rxjs';
+import { WINDOW } from 'ngx-window-token';
+import { merge as mergeFrom, Observable, Subject, fromEvent } from 'rxjs';
 import {
     combineLatest,
     debounceTime,
@@ -33,6 +35,7 @@ import {
     startWith,
     takeUntil,
     withLatestFrom,
+    distinctUntilChanged,
 } from 'rxjs/operators';
 
 import {
@@ -146,7 +149,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
     private onDestroy$ = new Subject();
 
-    constructor(translateService: TranslateService) {
+    constructor(translateService: TranslateService, @Inject(WINDOW) public wndw: Window) {
         super();
 
         this.ionItemHeight$.asObservable().subscribe(itemHeight => {
@@ -461,9 +464,30 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
             ),
         );
 
+        const keyMap = {
+            38: -1, // Up
+            40: 1, // Down
+        };
+        const selectNextByArrowKeys$ = fromEvent(wndw.document, 'keydown').pipe(
+            filter(
+                (e: KeyboardEvent) =>
+                    !['input', 'textarea'].some(tag => (e.target as HTMLElement).tagName.toLocaleLowerCase() === tag),
+            ),
+            map((e: KeyboardEvent) => keyMap[e.keyCode]),
+            filter(x => x !== undefined),
+            withLatestFrom(this.currentPreismeldung$, this.filteredPreismeldungen$),
+            map(
+                ([next, currentPm, preismeldungen]) =>
+                    preismeldungen[preismeldungen.findIndex(pm => pm.pmId === currentPm.pmId) + next],
+            ),
+            distinctUntilChanged(),
+            filter(x => x !== undefined),
+        );
+
         this.selectPreismeldung$ = this.selectClickedPreismeldung$.pipe(
             merge(selectNext$),
             merge(selectPrev$),
+            merge(selectNextByArrowKeys$),
             merge(selectFirstPreismeldung$),
             merge(selectNoPreismeldung$.pipe(map(() => null))),
             publishReplay(1),

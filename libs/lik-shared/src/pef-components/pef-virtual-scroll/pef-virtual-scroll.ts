@@ -121,8 +121,15 @@ export class PefVirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         if (index < 0 || index >= (this.items || []).length) return;
 
         const d = this.calculateDimensions();
-        this.element.nativeElement.scrollTop = index * d.childHeight;
-        this.refresh();
+        const list = this.element.nativeElement;
+        const { height } = list.getBoundingClientRect();
+        if (list.scrollTop + height <= index * d.childHeight) {
+            this.element.nativeElement.scrollTop = index * d.childHeight + d.childHeight - height;
+            this.refresh();
+        } else if (list.scrollTop > index * d.childHeight) {
+            this.element.nativeElement.scrollTop = index * d.childHeight;
+            this.refresh();
+        }
     }
 
     private calculateDimensions() {

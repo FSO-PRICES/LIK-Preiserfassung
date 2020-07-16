@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core';
-import { NavParams } from '@ionic/angular';
+import { ChangeDetectionStrategy, Component, EventEmitter, Inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { first, orderBy } from 'lodash';
 import * as moment from 'moment';
-import { defer, Observable, Subject } from 'rxjs';
+import { WINDOW } from 'ngx-window-token';
+import { defer, merge as mergeFrom, Observable, Subject, fromEvent } from 'rxjs';
 import {
     delay,
     filter,
@@ -19,6 +19,7 @@ import {
     take,
     takeUntil,
     withLatestFrom,
+    distinctUntilChanged,
 } from 'rxjs/operators';
 
 import {
@@ -141,6 +142,7 @@ export class PreismeldungPage {
     constructor(
         activeRoute: ActivatedRoute,
         protected store: Store<fromRoot.AppState>,
+        @Inject(WINDOW) public wndw: Window,
         private pefDialogService: PefDialogService,
     ) {
         const cancelEditDialog$ = defer(() =>
@@ -150,6 +152,22 @@ export class PreismeldungPage {
         this.initialPmsNummer$ = activeRoute.params.pipe(map(({ pmsNummer }) => pmsNummer));
 
         this.initialFilter$ = this.store.select(fromRoot.getCurrentPreismeldungListFilter).pipe(take(1));
+
+        const keyMap = {
+            38: -1, // Up
+            40: 1, // Down
+        };
+        const nextPmByArrowKeys$ = fromEvent(wndw.document, 'keydown').pipe(
+            map((e: KeyboardEvent) => keyMap[e.keyCode]),
+            filter(x => x !== undefined),
+            withLatestFrom(this.currentPreismeldung$, this.preismeldungen$),
+            map(
+                ([next, currentPm, preismeldungen]) =>
+                    preismeldungen[preismeldungen.findIndex(pm => pm.pmId === currentPm.pmId) + next],
+            ),
+            distinctUntilChanged(),
+            filter(x => x !== undefined),
+        );
 
         this.selectedTab$ = this.selectTab$.pipe(
             merge(
@@ -223,7 +241,7 @@ export class PreismeldungPage {
                 this.store.dispatch({ type: 'PREISMELDUNGEN_LOAD_BY_FILTER', payload: x } as PreismeldungAction);
             });
 
-        const requestSelectPreismeldung$ = this.selectPreismeldung$.pipe(
+        const requestSelectPreismeldung$ = mergeFrom(this.selectPreismeldung$, nextPmByArrowKeys$).pipe(
             withLatestFrom(
                 this.currentPreismeldung$.pipe(startWith(null)),
                 (selectedPreismeldung: P.PreismeldungBag, currentPreismeldung: P.CurrentPreismeldungBag) => ({

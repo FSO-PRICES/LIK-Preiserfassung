@@ -19,6 +19,7 @@ import {
     PmsFilter,
     ReactiveComponent,
     StatusFilter,
+    PefVirtualScrollComponent,
 } from '@lik-shared';
 
 import {
@@ -63,6 +64,7 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('updateAllPmStatus') public updateAllPmStatus$: Observable<P.Models.PreismeldungStatusList>;
 
     @ViewChild('form', { static: true }) form: NgForm;
+    @ViewChild('pmList', { static: false }) pmList: PefVirtualScrollComponent;
 
     public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer').pipe(filter(x => !!x));
     public initialFilter$: Observable<Partial<PmsFilter>> = this.observePropertyCurrentValue<PmsFilter>(
@@ -215,6 +217,16 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 publishReplay(1),
                 refCount(),
             );
+
+        this.currentPreismeldung$
+            .pipe(
+                withLatestFrom(this.filteredPreismeldungen$.pipe(filter(x => x.length > 0))),
+                takeUntil(this.onDestroy$),
+            )
+            .subscribe(([currentPm, preismeldungen]) => {
+                const pm = preismeldungen.find(pm => currentPm.pmId === pm.pmId);
+                this.pmList.scrollInto(pm);
+            });
 
         this.suggestionsPreiserheberIds$ = this.preiserhebers$.pipe(
             filter(x => !!x),
