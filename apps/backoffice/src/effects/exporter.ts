@@ -5,7 +5,7 @@ import * as FileSaver from 'file-saver';
 import { assign, flatten, keyBy, orderBy } from 'lodash';
 import { ElectronService } from 'ngx-electron';
 import { of, combineLatest } from 'rxjs';
-import { catchError, concat, flatMap, map, withLatestFrom } from 'rxjs/operators';
+import { catchError, concat, flatMap, map, withLatestFrom, switchMap } from 'rxjs/operators';
 
 import { Models as P, preismeldestelleId, PreismeldungAction } from '@lik-shared';
 
@@ -28,6 +28,8 @@ import {
     loadAllPreiserheber,
     loadAllPreismeldestellen,
     loadAllPreismeldungenForExport,
+    getAllUploadedPm,
+    updateMissingStichtage,
 } from '../common/user-db-values';
 import * as fromRoot from '../reducers';
 
@@ -55,6 +57,11 @@ export class ExporterEffects {
                 { type: 'EXPORT_PREISMELDUNGEN_RESET' } as exporter.Action,
                 getDatabaseAsObservable(dbNames.exports).pipe(
                     flatMap(db => db.allDocs({ include_docs: true })),
+                    switchMap(pm =>
+                        getAllUploadedPm().then(preismeldungen =>
+                            updateMissingStichtage(preismeldungen).then(() => pm),
+                        ),
+                    ),
                     flatMap(pm =>
                         loadAllPreismeldungenForExport(
                             flatten(pm.rows.map((row: any) => (row.doc.preismeldungIds as any[]) || [])),

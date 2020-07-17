@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { concat } from 'rxjs';
-import { debounceTime, flatMap, map, merge, publishReplay, refCount, filter } from 'rxjs/operators';
+import { concat, from } from 'rxjs';
+import { debounceTime, flatMap, map, merge, publishReplay, refCount, filter, switchMap } from 'rxjs/operators';
 
-import { Models as P, preismeldungId } from '@lik-shared';
+import { Models as P } from '@lik-shared';
 
 import * as preismeldungenStatus from '../actions/preismeldungen-status';
 import {
@@ -21,7 +21,11 @@ import {
     updateMissingPreismeldungenStatus,
     uploadDatabaseAsync,
 } from '../common/pouchdb-utils';
-import { getAllDocumentsForPrefixFromUserDbs, getMissingPreismeldungenStatusCount } from '../common/user-db-values';
+import {
+    getMissingPreismeldungenStatusCount,
+    getAllUploadedPm,
+    updateMissingStichtage,
+} from '../common/user-db-values';
 import * as fromRoot from '../reducers';
 
 @Injectable()
@@ -90,11 +94,12 @@ export class PreismeldungenStatusEffects {
     setPreismeldungenStatusInitializing$ = this.actions$.pipe(
         ofType(preismeldungenStatus.INITIALIZE_PREISMELDUNGEN_STATUS),
         blockIfNotLoggedInOrHasNoWritePermission<SimpleAction>(this.store),
-        flatMap(() =>
+        switchMap(() => getAllUploadedPm()),
+        switchMap(preismeldungen =>
             concat(
                 [preismeldungenStatus.createSetPreismeldungenStatusAreInitializingAction()],
-                getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId()).pipe(
-                    flatMap(preismeldungen =>
+                from(updateMissingStichtage(preismeldungen).then(() => preismeldungen)).pipe(
+                    switchMap(preismeldungen =>
                         updateMissingPreismeldungenStatus(preismeldungen).then(status =>
                             preismeldungenStatus.createSetPreismeldungenStatusInitializedAction(
                                 status.count,

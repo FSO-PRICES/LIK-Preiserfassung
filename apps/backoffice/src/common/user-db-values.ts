@@ -1,7 +1,7 @@
 import * as bluebird from 'bluebird';
 import { assign, first, flatten, groupBy, intersection, sortBy } from 'lodash';
-import { concat, from, Observable } from 'rxjs';
-import { flatMap, map, reduce, tap, toArray, withLatestFrom } from 'rxjs/operators';
+import { concat, from, Observable, forkJoin } from 'rxjs';
+import { flatMap, map, reduce, toArray, withLatestFrom, switchMap } from 'rxjs/operators';
 
 import { Models as P, PmsFilter, pmsSortId, preismeldestelleId, preismeldungId, preismeldungRefId } from '@lik-shared';
 
@@ -17,6 +17,7 @@ import {
     listUserDatabases,
     downloadDatabaseAsync,
     getLocalDatabase,
+    clearRev,
 } from '../common/pouchdb-utils';
 
 type FindSelector<T> = PouchDB.Find.CombinationOperators &
@@ -183,7 +184,7 @@ const parseIdSearchParams = (filterText: string) => {
     return { pmsNummers: [pmsNummer], epNummers: [epNummer], laufNummer, preiserheberIds: [] as string[] };
 };
 
-async function loadPreiszuweisungen() {
+export async function loadPreiszuweisungen() {
     return (await getDatabase(dbNames.preiszuweisungen).then(db => getAllDocumentsFromDb<P.Preiszuweisung>(db))).filter(
         x => !!x.preismeldestellenNummern.length,
     );
@@ -349,7 +350,7 @@ export function createIndexes() {
     );
 }
 
-export function getAllUploadedPm() {
+export function getAllUploadedPm(): Promise<P.Preismeldung[]> {
     return listUserDatabases()
         .pipe(
             flatMap(dbnames =>
@@ -362,7 +363,28 @@ export function getAllUploadedPm() {
                                 _id: { $gt: 'pm_', $lt: 'pm_\uffff' },
                                 uploadRequestedAt: { $ne: null },
                             },
-                            fields: <(keyof P.Preismeldung)[]>['_id'],
+                        }),
+                    ),
+                    reduce((acc, docs) => [...acc, ...docs.docs], []),
+                ),
+            ),
+        )
+        .toPromise();
+}
+
+export function getAllEpsRelatedPm(epNummern: string[]): Promise<P.Preismeldung[]> {
+    return listUserDatabases()
+        .pipe(
+            flatMap(dbnames =>
+                from(dbnames).pipe(
+                    flatMap(dbname => getDatabaseAsObservable(dbname)),
+                    flatMap(db =>
+                        db.find({
+                            limit: Number.MAX_SAFE_INTEGER,
+                            selector: <FindSelector<P.Preismeldung>>{
+                                _id: { $gt: 'pm_', $lt: 'pm_\uffff' },
+                                epNummer: { $in: epNummern },
+                            },
                         }),
                     ),
                     reduce((acc, docs) => [...acc, ...docs.docs], []),
@@ -510,4 +532,43 @@ export async function getMissingPreismeldungenStatusCount() {
         'preismeldungen_status',
     );
     return preismeldungen.filter(pm => currentPreismeldungenStatus.statusMap[pm._id] == null).length;
+}
+
+export async function updateMissingStichtage(preismeldungen: P.Preismeldung[]) {
+    if (preismeldungen.some(pm => pm.erhebungsZeitpunkt === 99)) {
+        const pmWrongErhebungszeitpunkt = preismeldungen.filter(pm => pm.erhebungsZeitpunkt === 99);
+        const otherEps = await getAllEpsRelatedPm(pmWrongErhebungszeitpunkt.map(pm => pm.epNummer));
+        const updatedPm = pmWrongErhebungszeitpunkt.map(pm => ({
+            ...pm,
+            erhebungsZeitpunkt: (
+                otherEps.find(o => o.epNummer === pm.epNummer) || {
+                    erhebungsZeitpunkt: pm.erhebungsZeitpunkt,
+                }
+            ).erhebungsZeitpunkt,
+        }));
+
+        const pmsMap = (await loadPreiszuweisungen()).reduce(
+            (acc, z) => ({
+                ...acc,
+                ...z.preismeldestellenNummern.reduce(
+                    (list, pms) => ({ ...list, [pms]: z.preiserheberId }),
+                    {} as Record<string, string>,
+                ),
+            }),
+            {} as Record<string, string>,
+        );
+
+        return await forkJoin(
+            updatedPm.map(pm =>
+                getDatabaseAsObservable(getUserDatabaseName(pmsMap[pm.pmsNummer])).pipe(switchMap(db => db.put(pm))),
+            ),
+        )
+            .pipe(
+                map(preismeldungenArray =>
+                    flatten(preismeldungenArray).map(pm => clearRev<P.PreismeldungReference>(pm)),
+                ),
+            )
+            .toPromise();
+    }
+    return new Promise(resolve => resolve());
 }

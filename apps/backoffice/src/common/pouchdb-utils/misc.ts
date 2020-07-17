@@ -1,4 +1,3 @@
-import * as bluebird from 'bluebird';
 import { from } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { flatMap } from 'rxjs/operators';
@@ -74,7 +73,7 @@ export async function updateMissingPreismeldungenStatus(preismeldungen: P.Preism
             ? P.PreismeldungStatus['geprüft']
             : P.PreismeldungStatus['ungeprüft'];
     preismeldungen.forEach(pm => {
-        if (!!pm.uploadRequestedAt && currentPreismeldungenStatus.statusMap[pm._id] == null) {
+        if (currentPreismeldungenStatus.statusMap[pm._id] == null) {
             count++;
             currentPreismeldungenStatus.statusMap[pm._id] = newStatus;
         }
