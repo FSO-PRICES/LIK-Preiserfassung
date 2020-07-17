@@ -76,6 +76,9 @@
         &.disabled {
             --background: #{$flamingo};
             --background-hover: #{scale-color($flamingo, $lightness: 10%)};
+            pef-icon {
+                fill: white;
+            }
         }
     }
     .reload span {
