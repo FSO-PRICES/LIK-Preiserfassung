@@ -108,7 +108,7 @@ export class ExporterEffects {
                     catchError(error =>
                         of({
                             type: 'EXPORT_PREISMELDUNGEN_FAILURE',
-                            payload: error,
+                            payload: parseError(error),
                         } as exporter.Action),
                     ),
                 ),
@@ -297,4 +297,17 @@ async function saveFile(
             resolve();
         }
     });
+}
+
+function parseError(error: any): { validations: { error: string }[] } {
+    if (error.validations) {
+        return error;
+    }
+    if (error.message) {
+        return { validations: [{ error: error.message }] };
+    }
+    if (error.code === 'ENOENT') {
+        return { validations: [{ error: `Der angegebene Export-Pfad existiert nicht: ${error.path}` }] };
+    }
+    return { validations: [{ error }] };
 }
