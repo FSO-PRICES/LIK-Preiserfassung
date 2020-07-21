@@ -263,7 +263,6 @@ export class SettingsPage implements OnDestroy {
 
     public ionViewDidEnter() {
         this.store.dispatch({ type: 'SETTING_LOAD' });
-        this.store.dispatch(setting.loadSedex());
     }
 
     public ionViewCanLeave(): Promise<boolean> {

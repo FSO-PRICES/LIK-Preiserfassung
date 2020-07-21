@@ -20,6 +20,7 @@ import {
 
 import { PefDialogService, translations } from '@lik-shared';
 
+import * as setting from '../actions/setting';
 import { getOrCreateClientId } from '../common/local-storage-utils';
 import { createIndexes } from '../common/user-db-values';
 import { PefDialogLoginComponent } from '../components/pef-dialog-login/pef-dialog-login';
@@ -124,6 +125,7 @@ export class Backoffice implements OnInit {
                 this.store.dispatch({ type: 'LOAD_ONOFFLINE' });
                 this.store.dispatch({ type: 'LOAD_WRITE_PERMISSION' });
                 this.store.dispatch({ type: 'LOAD_WARENKORB' });
+                this.store.dispatch(setting.loadSedex());
 
                 store
                     .select(fromRoot.getSettings)
