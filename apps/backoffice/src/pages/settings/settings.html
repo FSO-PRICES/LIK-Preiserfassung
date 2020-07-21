@@ -81,14 +81,14 @@
                                     type="submit"
                                     color="blue-chill"
                                     id="save"
-                                    [disabled]="!(canConnectToDatabase$ | async)"
+                                    [disabled]="!(canConnectToDatabase$ | async) || !sedexForm.dirty"
                                 >
                                     Speichern
                                 </ion-button>
                                 <ion-button
                                     type="button"
                                     (click)="cancelSedexClicked$.emit($event)"
-                                    [disabled]="!(canConnectToDatabase$ | async)"
+                                    [disabled]="!(canConnectToDatabase$ | async) || !sedexForm.dirty"
                                 >
                                     Abbrechen
                                 </ion-button>

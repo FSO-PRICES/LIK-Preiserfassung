@@ -108,8 +108,8 @@
                         {{ bag.preismeldung.epNummer }}
                         <br />
                         <span class="pef-item-status" *ngIf="!!preismeldungenStatus"
-                            >{{ preismeldungenStatus[bag.pmId] === 1 ? '✗' : preismeldungenStatus[bag.pmId] === 2 ? '✓'
-                            : '&nbsp;' }}</span
+                            >{{ bag.exported ? '✓' : preismeldungenStatus[bag.pmId] === 1 ? '✗' :
+                            preismeldungenStatus[bag.pmId] === 2 ? '✓' : '&nbsp;' }}</span
                         >
                     </div>
                     <div class="pef-item-description">
