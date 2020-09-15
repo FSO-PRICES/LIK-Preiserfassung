@@ -1,14 +1,10 @@
-<ng-container *ngIf="preismeldungStatus != null || disabled; else initStatus">
-    <input
-        type="range"
-        [min]="0"
-        max="2"
-        [disabled]="disabled"
-        [value]="disabled ? 3 : preismeldungStatus"
-        [attr.value]="preismeldungStatus"
-        (change)="inputChanged$.emit($event.target.value)"
-    />
-</ng-container>
-<ng-template #initStatus>
-    <ion-button (click)="inputChanged$.emit(0)">✓</ion-button>
-</ng-template>
+<input
+    #pmStatusInput
+    [class.hidden]="!(preismeldungStatus != null || disabled)"
+    type="range"
+    min="0"
+    max="2"
+    [disabled]="disabled"
+    (change)="inputChanged$.emit($event.target.value)"
+/>
+<ion-button *ngIf="!(preismeldungStatus != null || disabled)" (click)="inputChanged$.emit(0)">✓</ion-button>

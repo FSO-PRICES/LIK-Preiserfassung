@@ -19,14 +19,14 @@
         background-color: $foam;
     }
     input[type='range'] {
-        &[value='0']::-webkit-slider-runnable-track {
+        &::-webkit-slider-runnable-track {
             background-color: $trout;
         }
         &[value='1']::-webkit-slider-runnable-track {
-            background-color: $bittersweet;
+            background-color: $bittersweet !important;
         }
         &[value='2']::-webkit-slider-runnable-track {
-            background-color: $sea-green;
+            background-color: $sea-green !important;
         }
     }
     input[type='range'][disabled]::-webkit-slider-runnable-track {
