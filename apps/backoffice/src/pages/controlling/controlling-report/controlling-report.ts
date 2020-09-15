@@ -154,7 +154,6 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                 })
                 .map((r, i) => ({
                     ...r,
-                    isEditable: preismeldungenStatus[r.pmId] < P.Models.PreismeldungStatus.geprüft,
                     values: r.values.map(c => this.enhanceColumn(c)),
                     behindMarked: i < marked,
                     marked: i === marked,

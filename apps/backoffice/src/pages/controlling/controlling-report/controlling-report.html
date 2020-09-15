@@ -121,7 +121,6 @@
                                 <td class="edit">
                                     <button
                                         [class.visibility-hidden]="!row.canView"
-                                        [disabled]="!row.isEditable"
                                         class="edit-pm"
                                         (click)="editPreismeldungId$.emit(row.pmId)"
                                     >
