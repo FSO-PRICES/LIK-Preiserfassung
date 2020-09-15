@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    version: '2.2.20',
+    version: '2.2.21',
 
     masterErhebungsorgannummer: '69',
 
