@@ -11,7 +11,7 @@ import {
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { assign, keys } from 'lodash';
 import { Observable } from 'rxjs';
-import { filter, map, shareReplay, tap, withLatestFrom } from 'rxjs/operators';
+import { filter, map, shareReplay, withLatestFrom, publishReplay, refCount } from 'rxjs/operators';
 
 import { ReactiveComponent } from '../../../../common/ReactiveComponent';
 
@@ -24,7 +24,7 @@ import * as P from '../../../models';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreismeldungAttributesComponent extends ReactiveComponent implements OnChanges, OnDestroy {
-    @Input() preismeldung: P.Models.Preismeldung;
+    @Input() preismeldung: P.CurrentPreismeldungViewBag;
     @Input() priceCountStatus: P.PriceCountStatus;
     @Input() preismeldestelle: P.Models.Preismeldestelle;
     @Input() isDesktop: boolean;
@@ -33,8 +33,9 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
     @Output('preismeldungAttributesPayload') preismeldungAttributesPayload$: Observable<string[]>;
 
     public fieldEdited$ = new EventEmitter();
+    public isReadonly$: Observable<boolean>;
 
-    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungBag>('preismeldung');
+    public preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung');
     public priceCountStatus$ = this.observePropertyCurrentValue<P.PriceCountStatus>('priceCountStatus');
     public preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     public isDesktop$ = this.observePropertyCurrentValue<P.WarenkorbInfo[]>('isDesktop');
@@ -91,6 +92,12 @@ export class PreismeldungAttributesComponent extends ReactiveComponent implement
                 return isSame ? null : productMerkmale;
             }),
             filter(x => !!x),
+        );
+
+        this.isReadonly$ = preismeldung$.pipe(
+            map(x => x.isReadonly),
+            publishReplay(1),
+            refCount(),
         );
     }
 

@@ -22,6 +22,8 @@
                             <ion-input
                                 type="text"
                                 [formControlName]="'attribute_' + i"
+                                [class.readonly]="isReadonly$ | async"
+                                [readonly]="isReadonly$ | async"
                                 (ionBlur)="fieldEdited$.emit()"
                             ></ion-input>
                         </ion-item>
