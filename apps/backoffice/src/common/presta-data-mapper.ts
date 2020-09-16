@@ -248,9 +248,17 @@ export function preparePmForExport(
             Internet_Link: toText((pm.internetLink || '').substr(0, 2000), 2000, 'Internet_Link'),
             Erhebungszeitpunkt: toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
             Sortiernummer: toNumber(sortierungsnummer, 5, 'Sortiernummer'),
-            Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
-            Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
-            Datum_vor_Reduktion: pm.datumVorReduktion,
+            ...(pm.aktion
+                ? {
+                      Preis_vor_Reduktion: toDecimal(refPreismeldung.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
+                      Menge_vor_Reduktion: toDecimal(refPreismeldung.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
+                      Datum_vor_Reduktion: refPreismeldung.datumVorReduktion,
+                  }
+                : {
+                      Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
+                      Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
+                      Datum_vor_Reduktion: pm.datumVorReduktion,
+                  }),
             Produktmerkmale: `"${toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale', false)}"`,
         })),
     );
