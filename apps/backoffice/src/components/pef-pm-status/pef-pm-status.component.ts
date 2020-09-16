@@ -48,7 +48,6 @@ export class PefPmStatusComponent extends ReactiveComponent implements AfterView
             )
             .subscribe(([pmStatus, disabled]) => {
                 const newStatus = disabled ? 3 : pmStatus;
-                console.log('SETTING VALUE TO', newStatus.toString(), this.pmStatusInput.nativeElement);
                 renderer.setAttribute(this.pmStatusInput.nativeElement, 'value', newStatus.toString());
                 renderer.setValue(this.pmStatusInput.nativeElement, newStatus.toString());
             });
