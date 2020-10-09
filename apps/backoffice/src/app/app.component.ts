@@ -16,6 +16,8 @@ import {
     startWith,
     take,
     withLatestFrom,
+    skip,
+    delay,
 } from 'rxjs/operators';
 
 import { PefDialogService, translations } from '@lik-shared';
@@ -89,6 +91,16 @@ export class Backoffice implements OnInit {
                     electronService.ipcRenderer.on('app-is-closing', () => {
                         zone.run(() => {
                             store.dispatch({ type: 'TOGGLE_WRITE_PERMISSION', payload: { force: false } });
+                            this.store
+                                .select(fromRoot.hasWritePermission)
+                                .pipe(
+                                    skip(1),
+                                    delay(0),
+                                    take(1),
+                                )
+                                .subscribe(() => {
+                                    electronService.ipcRenderer.send('can-close');
+                                });
                         });
                     });
                 }

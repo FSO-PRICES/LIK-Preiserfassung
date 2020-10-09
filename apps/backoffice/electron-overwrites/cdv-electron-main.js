@@ -109,16 +109,25 @@ function createWindow() {
         mainWindow.webContents.send('window-id', mainWindow.id);
     });
 
-    mainWindow.on('close', function() {
-        if (hasWritePermission) {
+    mainWindow.on('close', function(e) {
+        if (mainWindow && hasWritePermission) {
+            e.preventDefault();
             mainWindow.webContents.send('app-is-closing', true);
-            require('electron').dialog.showMessageBox(this, {
-                type: 'question',
-                buttons: ['Ok'],
-                title: 'Bitte warten...',
-                message: 'Bitte warten Sie bis die Schreibberechtigung zurückgesetzt wurde.',
-            });
+
+            // Force quit if not being closed after 5 seconds
+            setTimeout(function() {
+                if (mainWindow) {
+                    hasWritePermission = false;
+                    console.error('FORCE QUITTING');
+                    app.quit();
+                }
+            }, 5000);
         }
+    });
+
+    ipcMain.on('can-close', () => {
+        mainWindow = null;
+        app.quit();
     });
 
     // Emitted when the window is closed.
