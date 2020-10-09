@@ -249,11 +249,7 @@ export function preparePmForExport(
             Erhebungszeitpunkt: toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
             Sortiernummer: toNumber(sortierungsnummer, 5, 'Sortiernummer'),
             ...(pm.aktion
-                ? {
-                      Preis_vor_Reduktion: toDecimal(refPreismeldung.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
-                      Menge_vor_Reduktion: toDecimal(refPreismeldung.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
-                      Datum_vor_Reduktion: refPreismeldung.datumVorReduktion,
-                  }
+                ? vorReduktionByBearbeitungscode(pm, refPreismeldung)
                 : {
                       Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
                       Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
@@ -473,4 +469,30 @@ function _validate(mapper: () => any, requiredFields: string[], errorMessage: st
     } catch (error) {
         return { isValid: false, error: `${errorMessage}: ${error.message}` };
     }
+}
+
+function vorReduktionByBearbeitungscode(pm: P.Models.Preismeldung, refPreismeldung: P.Models.PreismeldungReference) {
+    return (
+        {
+            1: {
+                Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
+                Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
+                Datum_vor_Reduktion: pm.datumVorReduktion,
+            },
+            2: {
+                Preis_vor_Reduktion: toDecimal(pm.preis, 12, 4, 'Preis_vor_Reduktion'),
+                Menge_vor_Reduktion: toDecimal(pm.menge, 10, 3, 'Menge_vor_Reduktion'),
+                Datum_vor_Reduktion: refPreismeldung.preisGueltigSeitDatum,
+            },
+            7: {
+                Preis_vor_Reduktion: toDecimal(pm.preis, 12, 4, 'Preis_vor_Reduktion'),
+                Menge_vor_Reduktion: toDecimal(pm.menge, 10, 3, 'Menge_vor_Reduktion'),
+                Datum_vor_Reduktion: refPreismeldung.preisGueltigSeitDatum,
+            },
+        }[pm.bearbeitungscode] || {
+            Preis_vor_Reduktion: toDecimal(refPreismeldung.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
+            Menge_vor_Reduktion: toDecimal(refPreismeldung.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
+            Datum_vor_Reduktion: refPreismeldung.datumVorReduktion,
+        }
+    );
 }
