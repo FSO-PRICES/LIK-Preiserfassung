@@ -480,13 +480,13 @@ function vorReduktionByBearbeitungscode(pm: P.Models.Preismeldung, refPreismeldu
                 Datum_vor_Reduktion: pm.datumVorReduktion,
             },
             2: {
-                Preis_vor_Reduktion: toDecimal(pm.preis, 12, 4, 'Preis_vor_Reduktion'),
-                Menge_vor_Reduktion: toDecimal(pm.menge, 10, 3, 'Menge_vor_Reduktion'),
+                Preis_vor_Reduktion: toDecimal(refPreismeldung.preis, 12, 4, 'Preis_vor_Reduktion'),
+                Menge_vor_Reduktion: toDecimal(refPreismeldung.menge, 10, 3, 'Menge_vor_Reduktion'),
                 Datum_vor_Reduktion: refPreismeldung.preisGueltigSeitDatum,
             },
             7: {
-                Preis_vor_Reduktion: toDecimal(pm.preis, 12, 4, 'Preis_vor_Reduktion'),
-                Menge_vor_Reduktion: toDecimal(pm.menge, 10, 3, 'Menge_vor_Reduktion'),
+                Preis_vor_Reduktion: toDecimal(refPreismeldung.preis, 12, 4, 'Preis_vor_Reduktion'),
+                Menge_vor_Reduktion: toDecimal(refPreismeldung.menge, 10, 3, 'Menge_vor_Reduktion'),
                 Datum_vor_Reduktion: refPreismeldung.preisGueltigSeitDatum,
             },
         }[pm.bearbeitungscode] || {
