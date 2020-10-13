@@ -54,6 +54,7 @@
                     [requestPreismeldungSave]="requestPreismeldungSave$ | async"
                     [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
                     (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
+                    (setStichtag)="setStichtag$.emit($event)"
                     (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
                     (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
                     (cancel)="cancel$.emit({})"

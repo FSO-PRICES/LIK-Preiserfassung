@@ -82,6 +82,7 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
     updatePreismeldungPreis$ = new EventEmitter<P.PreismeldungPricePayload>();
     updatePreismeldungMessages$ = new EventEmitter<P.PreismeldungMessagesPayload>();
     updatePreismeldungAttributes$ = new EventEmitter<string[]>();
+    setStichtag$ = new EventEmitter<number>();
     duplicatePreismeldung$ = new EventEmitter();
     addNewPreisreihe$ = new EventEmitter();
     navigateToPmsSort$ = new EventEmitter();
@@ -235,6 +236,10 @@ export class PmsPriceEntryPage implements OnInit, OnDestroy {
         this.updatePreismeldungAttributes$
             .pipe(takeUntil(this.onDestroy$))
             .subscribe(payload => store.dispatch({ type: 'UPDATE_PREISMELDUNG_ATTRIBUTES', payload }));
+
+        this.setStichtag$
+            .pipe(takeUntil(this.onDestroy$))
+            .subscribe(payload => store.dispatch({ type: 'SET_PREISMELDUNG_STICHTAG', payload }));
 
         this.save$
             .pipe(

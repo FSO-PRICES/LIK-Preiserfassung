@@ -230,6 +230,27 @@ export function reducer(state = initialState, action: PreismeldungAction): State
             });
         }
 
+        case 'SET_PREISMELDUNG_STICHTAG': {
+            if (!state.currentPreismeldung.isNew || !state.currentPreismeldung.warenkorbPosition.erhebungszeitpunkte) {
+                return state;
+            }
+            const pm = state.currentPreismeldung.preismeldung;
+            return {
+                ...state,
+                currentPreismeldung: {
+                    ...state.currentPreismeldung,
+                    preismeldung: {
+                        ...pm,
+                        artikeltext:
+                            pm.artikeltext.indexOf('[#') !== 0
+                                ? `[#${action.payload}] ${pm.artikeltext}`
+                                : pm.artikeltext,
+                        erhebungsZeitpunkt: action.payload,
+                    },
+                },
+            };
+        }
+
         case 'UPDATE_PREISMELDUNG_PRICE': {
             const { payload } = action;
 

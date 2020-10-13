@@ -33,7 +33,25 @@
             </div>
             <div class="header-line">
                 <ion-item class="pef-item on-dark">
-                    <ion-label>{{ 'label_artikeltext' | translate }}</ion-label>
+                    <ion-label class="article-text-label">
+                        <div>{{ 'label_artikeltext' | translate }}</div>
+                        <ng-container *ngIf="(stichtagSettings$ | async); let stichtagSettings">
+                            <ion-button
+                                class="pef-icon-secondary"
+                                type="button"
+                                (click)="setStichtag$.emit(stichtagSettings.first)"
+                            >
+                                {{ stichtagSettings.first }}
+                            </ion-button>
+                            <ion-button
+                                class="pef-icon-secondary"
+                                type="button"
+                                (click)="setStichtag$.emit(stichtagSettings.second)"
+                            >
+                                {{ stichtagSettings.second }}
+                            </ion-button>
+                        </ng-container>
+                    </ion-label>
                     <ion-textarea
                         rows="2"
                         type="text"

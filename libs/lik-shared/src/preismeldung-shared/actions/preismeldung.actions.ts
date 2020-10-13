@@ -101,6 +101,7 @@ export type PreismeldungAction =
     | { type: 'PREISMELDUNGEN_RESET'; payload: null }
     | { type: 'UPDATE_PRICE_COUNT_STATUSES'; payload: PreismeldungenLoadPayload }
     | { type: 'SELECT_PREISMELDUNG'; payload: string }
+    | { type: 'SET_PREISMELDUNG_STICHTAG'; payload: number }
     | { type: 'UPDATE_PREISMELDUNG_PRICE'; payload: PreismeldungPricePayload }
     | { type: 'UPDATE_PREISMELDUNG_MESSAGES'; payload: PreismeldungMessagesPayload }
     | { type: 'UPDATE_PREISMELDUNG_ATTRIBUTES'; payload: string[] }

@@ -71,6 +71,23 @@
         .item.md.pef-item ion-label {
             color: $white;
         }
+        .article-text-label {
+            ion-button {
+                height: 28px;
+                color: $blue-chill;
+                font-size: 1.2em;
+                --padding-start: 9px;
+                --padding-top: 0;
+                --padding-end: 9px;
+                --padding-bottom: 0;
+                margin: 0;
+                margin-right: 5px;
+
+                &:last-child {
+                    margin-right: 0;
+                }
+            }
+        }
         textarea {
             resize: none;
         }

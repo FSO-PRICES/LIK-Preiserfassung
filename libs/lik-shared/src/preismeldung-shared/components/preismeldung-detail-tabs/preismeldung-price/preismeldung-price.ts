@@ -66,6 +66,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
     @Output('isSaveLookDisabled') public isSaveLookDisabled$: Observable<boolean>;
     @Output('disableQuickEqual') disableQuickEqual$: Observable<boolean>;
+    @Output('setStichtag') setStichtag$ = new EventEmitter<number>();
 
     public isReadonly$: Observable<boolean>;
 
@@ -73,6 +74,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public distinctPreismeldung$: Observable<P.CurrentPreismeldungViewBag>;
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     public requestPreismeldungQuickEqual$: Observable<string>;
+    public stichtagSettings$: Observable<{ first: number; second: number } | null>;
     public codeListType$: Observable<string>;
 
     public changeBearbeitungscode$ = new EventEmitter<P.Models.Bearbeitungscode>();
@@ -154,6 +156,11 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             refCount(),
         );
 
+        this.preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung').pipe(
+            publishReplay(1),
+            refCount(),
+        );
+
         this.disableQuickEqual$ = infoPopoverRightActive$;
 
         this.subscriptions.push(
@@ -177,6 +184,15 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
         this.subscriptions.push(
             this.mengeVPKChanged$.subscribe(x => this.form.patchValue({ mengeVPK: `${mengeFormatFn(x)}` })),
+        );
+        this.subscriptions.push(
+            this.preismeldung$
+                .pipe(
+                    filter(x => !!x),
+                    map(({ preismeldung: { artikeltext } }) => artikeltext),
+                    distinctUntilChanged(),
+                )
+                .subscribe(artikelText => this.form.patchValue({ artikeltext: artikelText }, { emitEvent: false })),
         );
 
         this.isInternet$ = this.preismeldestelle$.pipe(map(p => !!p && this.isInternet(p.erhebungsart)));
@@ -211,10 +227,6 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             { validator: this.formLevelValidationFactory() },
         );
 
-        this.preismeldung$ = this.observePropertyCurrentValue<P.CurrentPreismeldungViewBag>('preismeldung').pipe(
-            publishReplay(1),
-            refCount(),
-        );
         this.requestPreismeldungSave$ = this.observePropertyCurrentValue<P.SavePreismeldungPriceSaveAction>(
             'requestPreismeldungSave',
         ).pipe(filter(x => !!x));
@@ -229,6 +241,22 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
             refCount(),
         );
 
+        this.stichtagSettings$ = this.preismeldung$.pipe(
+            filter(needsStichtag),
+            map(bag => bag.warenkorbPosition.erhebungszeitpunkte),
+            filter(zeitpunkt => zeitpunkt !== 0),
+            map(zeitpunkt => ({ 1: { first: 1, second: 2 }, 10: { first: 10, second: 20 } }[zeitpunkt] || null)),
+            filter(x => x !== null),
+            merge(
+                this.preismeldung$.pipe(
+                    filter(x => !needsStichtag(x)),
+                    mapTo(null),
+                ),
+            ),
+            withLatestFrom(this.isAdminApp$),
+            filter(([, isAdminApp]) => !isAdminApp),
+            map(([stichtag]) => stichtag),
+        );
         this.preisCurrentValue$ = this.form.valueChanges
             .pipe(
                 map(() => this.form.value.preis),
@@ -922,6 +950,19 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
                                 );
                         },
                     },
+                    // Issue #502
+                    // Falls für ein neuen Preis noch kein Stichdatum gesetzt ist
+                    // -> autotext / [EDIT]
+                    {
+                        condition: () => !isAdminApp && needsStichtag(bag),
+                        observable: () =>
+                            pefMessageDialogService
+                                .displayMessageDialog(
+                                    [{ textKey: 'btn_edit', dismissValue: 'EDIT' }],
+                                    'dialogText_needs-stichtag',
+                                )
+                                .pipe(mapTo({ type: 'CANCEL' })),
+                    },
                 ];
 
                 const alertsToExecute = alerts.filter(x => x.condition()).map(x => x.observable);
@@ -1163,4 +1204,8 @@ function saveActionData(saveAction: P.SavePreismeldungPriceSaveAction) {
         default:
             return {};
     }
+}
+
+function needsStichtag(bag: P.CurrentPreismeldungBag) {
+    return !!bag && bag.isNew && bag.preismeldung.erhebungsZeitpunkt === 99;
 }
