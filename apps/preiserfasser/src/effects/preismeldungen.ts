@@ -150,14 +150,6 @@ export class PreismeldungenEffects {
                 preismeldung: {
                     ...currentPreismeldung.preismeldung,
                     ...createVorReduktionProperties(currentPreismeldung),
-                    artikeltext:
-                        ![null, 0, 99].some(z => z === currentPreismeldung.preismeldung.erhebungsZeitpunkt) &&
-                        currentPreismeldung.isNew &&
-                        currentPreismeldung.preismeldung.artikeltext.indexOf('[#') !== 0
-                            ? `[#${currentPreismeldung.preismeldung.erhebungsZeitpunkt}] ${
-                                  currentPreismeldung.preismeldung.artikeltext
-                              }`
-                            : currentPreismeldung.preismeldung.artikeltext,
                     erfasstAt: +new Date(),
                 },
             },
