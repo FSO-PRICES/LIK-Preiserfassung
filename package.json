@@ -25,7 +25,7 @@
         "run:browser:preiserfasser": "ionic serve --project preiserfasser --port 8101",
         "run:browser:backoffice": "ionic serve --project backoffice",
         "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser",
-        "build:electron:all": "concurrently \"npm run build:electron:backoffice\" \"sleep 2 && npm run build:electron:preiserfasser\"",
+        "build:electron:all": "concurrently \"npm run build-debug:electron:backoffice\" \"sleep 2 && npm run build-debug:electron:preiserfasser\"",
         "zip:electron:all": "gulp --gulpfile ./zip-electron.js",
         "update-version": "gulp --gulpfile ./update-version.js"
     },

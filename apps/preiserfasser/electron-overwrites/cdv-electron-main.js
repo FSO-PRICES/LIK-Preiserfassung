@@ -98,7 +98,10 @@ function createWindow() {
     }
 
     const browserWindowOpts = Object.assign({}, cdvElectronSettings.browserWindow, { icon: appIcon });
-    mainWindow = new BrowserWindow(browserWindowOpts);
+    mainWindow = new BrowserWindow({ webPreferences: { devTools: true }, ...browserWindowOpts });
+    if (process.argv.some(arg => arg === '--debug')) {
+        mainWindow.webContents.openDevTools();
+    }
 
     // and load the index.html of the app.
     // TODO: possibly get this data from config.xml
