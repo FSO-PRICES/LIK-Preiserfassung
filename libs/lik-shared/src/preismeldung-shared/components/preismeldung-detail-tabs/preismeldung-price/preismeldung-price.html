@@ -1,4 +1,4 @@
-<ion-content>
+<ion-content *ngxLet="(preismeldung$ | async); let pmBag">
     <form [formGroup]="form" [class.form-show-validation-hints]="showValidationHints$ | async" novalidate>
         <div class="pm-header">
             <div class="pms-heading" *ngIf="(isAdminApp$ | async)">
@@ -6,7 +6,7 @@
             </div>
             <div class="header-line">
                 <div class="product-heading">
-                    {{ (preismeldung$ | async)?.warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ |
+                    {{ pmBag?.warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ |
                     async)?.warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
                 </div>
                 <ion-item class="pef-item pef-item-compact on-dark">
@@ -21,13 +21,13 @@
                 <div
                     class="right-column price-count-status"
                     [ngClass]="{
-                    ok: (preismeldung$ | async)?.priceCountStatus?.ok,
-                    'not-ok': !(preismeldung$ | async)?.priceCountStatus?.ok
-                }"
+                        ok: pmBag?.priceCountStatus?.ok,
+                        'not-ok': !pmBag?.priceCountStatus?.ok
+                    }"
                 >
                     <span
-                        >{{ (preismeldung$ | async)?.priceCountStatus.numActivePrices }}/{{ (preismeldung$ |
-                        async)?.priceCountStatus.anzahlPreiseProPMS }}</span
+                        >{{ pmBag?.priceCountStatus.numActivePrices }}/{{ pmBag?.priceCountStatus.anzahlPreiseProPMS
+                        }}</span
                     >
                 </div>
             </div>
@@ -35,22 +35,18 @@
                 <ion-item class="pef-item on-dark">
                     <ion-label class="article-text-label">
                         <div>{{ 'label_artikeltext' | translate }}</div>
-                        <ng-container *ngIf="(stichtagSettings$ | async); let stichtagSettings">
-                            <ion-button
-                                class="pef-icon-secondary"
-                                type="button"
-                                (click)="setStichtag$.emit(stichtagSettings.first)"
-                            >
-                                {{ stichtagSettings.first }}
-                            </ion-button>
-                            <ion-button
-                                class="pef-icon-secondary"
-                                type="button"
-                                (click)="setStichtag$.emit(stichtagSettings.second)"
-                            >
-                                {{ stichtagSettings.second }}
+                        <ng-container *ngIf="(stichtagSettings$ | async); let stichtagSettings; else stichtagReadonly">
+                            <ion-button class="pef-icon-secondary" type="button" (click)="setStichtagClicked$.emit()">
+                                {{ currentStichtag$ | async }}
                             </ion-button>
                         </ng-container>
+                        <ng-template #stichtagReadonly>
+                            <ng-container
+                                *ngIf="!!pmBag?.preismeldung.erhebungsZeitpunkt && pmBag?.preismeldung.erhebungsZeitpunkt !== 99"
+                            >
+                                #{{ pmBag?.preismeldung.erhebungsZeitpunkt }}
+                            </ng-container>
+                        </ng-template>
                     </ion-label>
                     <ion-textarea
                         rows="2"
@@ -66,7 +62,7 @@
                         *ngIf="!(isAdminApp$ | async)"
                         class="pef-icon-secondary duplicate icon-only"
                         (click)="duplicatePreismeldung$.emit()"
-                        [disabled]="(preismeldung$ | async)?.isModified || (preismeldung$ | async)?.isNew"
+                        [disabled]="pmBag?.isModified || pmBag?.isNew"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
                             <g fill="none" fill-rule="evenodd" transform="translate(6 5)">
@@ -113,10 +109,10 @@
                         <h5 class="large">{{ 'heading_vorperiode' | translate }}</h5>
                         <preismeldung-info-popover-left
                             [class.hidden]="
-                            !(preismeldung$ | async)?.refPreismeldung ||
-                            !(preismeldung$ | async)?.refPreismeldung.aktion
+                            !pmBag?.refPreismeldung ||
+                            !pmBag?.refPreismeldung.aktion
                         "
-                            [preismeldung]="preismeldung$ | async"
+                            [preismeldung]="preismeldung"
                             [forceClose]="distinctPreismeldung$ | async"
                             [extraWidth]="wndw.document.getElementById('row-1-middle-section').offsetWidth + 'px'"
                             [height]="'0px'"
@@ -129,10 +125,10 @@
                         <h5 class="large">{{ 'heading_aktuelle_periode' | translate }}</h5>
                         <preismeldung-info-popover-right
                             [class.hidden]="
-                            (preismeldung$ | async)?.preismeldung.bearbeitungscode != 1 ||
-                            !(preismeldung$ | async)?.preismeldung.aktion
+                            pmBag?.preismeldung.bearbeitungscode != 1 ||
+                            !pmBag?.preismeldung.aktion
                         "
-                            [preismeldung]="preismeldung$ | async"
+                            [preismeldung]="preismeldung"
                             [forceClose]="closePopoverRight$ | async"
                             [popoverLeft]="
                             wndw.document.getElementById('row-1-middle-section').offsetWidth +
@@ -151,10 +147,10 @@
                     class="columns product-detail-row row-2"
                     [class.info-popover-active]="infoPopoverLeftActive$ | async"
                 >
-                    <div class="last-period" *ngIf="!(preismeldung$ | async)?.refPreismeldung">
+                    <div class="last-period" *ngIf="!pmBag?.refPreismeldung">
                         {{ 'text_nicht_zutreffend' | translate }}
                     </div>
-                    <div class="last-period" *ngIf="(preismeldung$ | async)?.refPreismeldung" id="row-2-last-period">
+                    <div class="last-period" *ngIf="pmBag?.refPreismeldung" id="row-2-last-period">
                         <div class="data-input-area" id="last-period-data-input-area">
                             <h6>
                                 {{ ((infoPopoverLeftActive$ | async) ? 'heading_artikel-vor-reduktion' :
@@ -175,8 +171,7 @@
                                     async)?.refPreismeldung.menge) | pefFormatNumber: mengeNumberFormattingOptions }}
                                 </div>
                                 <div class="unit">
-                                    {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit | pefPropertyTranslate
-                                    }}
+                                    {{ pmBag?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
                                 </div>
                             </div>
                             <div
@@ -189,15 +184,14 @@
                                             <ion-radio
                                                 value="aktion"
                                                 [disabled]="true"
-                                                [checked]="(preismeldung$ | async)?.refPreismeldung?.aktion"
+                                                [checked]="pmBag?.refPreismeldung?.aktion"
                                             ></ion-radio>
                                             <ion-label>{{ 'text_aktion' | translate }}</ion-label>
                                         </ion-item>
                                     </ion-radio-group>
                                 </ion-list>
                                 <div class="code">
-                                    {{ formatFehlendePreiseR((preismeldung$ | async)?.refPreismeldung?.fehlendePreiseR)
-                                    }}
+                                    {{ formatFehlendePreiseR(pmBag?.refPreismeldung?.fehlendePreiseR) }}
                                 </div>
                             </div>
                         </div>
@@ -214,7 +208,7 @@
                         </div>
                     </div>
                     <div class="middle-section">
-                        <div class="box-container" *ngIf="!!(preismeldung$ | async)?.refPreismeldung">
+                        <div class="box-container" *ngIf="!!pmBag?.refPreismeldung">
                             <div class="box">
                                 <div class="percentage-wrapper">
                                     <div [innerHTML]="formatPercentageChange((arrowRight$ | async)?.percentage)"></div>
@@ -278,13 +272,12 @@
                                             (click)="applyUnitQuickEqual$.emit()"
                                             [disabled]="preisAndMengeDisabled$ | async"
                                         >
-                                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
-                                            pefPropertyTranslate }}
+                                            {{ pmBag?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
                                         </ion-button>
                                         <ng-template #readonlyUnit>
                                             <span class="readonly-text"
-                                                >{{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
-                                                pefPropertyTranslate }}</span
+                                                >{{ pmBag?.warenkorbPosition.standardeinheit | pefPropertyTranslate
+                                                }}</span
                                             >
                                         </ng-template>
                                     </div>
@@ -339,8 +332,7 @@
                                             (click)="applyUnitQuickEqual$.emit()"
                                             [disabled]="preisAndMengeDisabled$ | async"
                                         >
-                                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
-                                            pefPropertyTranslate }}
+                                            {{ pmBag?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
                                         </ion-button>
                                     </div>
                                 </ion-item>
@@ -366,7 +358,7 @@
                                     class="aktion-percent-container"
                                     [class.visibility-hidden]="
                                     !form.value.aktion ||
-                                    !(preismeldung$ | async)?.refPreismeldung ||
+                                    !pmBag?.refPreismeldung ||
                                     (infoPopoverRightActive$ | async) ||
                                     (isReadonly$ | async)
                                 "
@@ -382,10 +374,10 @@
                                 <div
                                     class="code"
                                     [class.visibility-hidden]="
-                                    !formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR)
+                                    !formatFehlendePreiseR(pmBag?.preismeldung.fehlendePreiseR)
                                 "
                                 >
-                                    {{ formatFehlendePreiseR((preismeldung$ | async)?.preismeldung.fehlendePreiseR) }}
+                                    {{ formatFehlendePreiseR(pmBag?.preismeldung.fehlendePreiseR) }}
                                 </div>
                             </div>
                             <bearbeitungs-type
@@ -450,8 +442,7 @@
                                             (click)="applyUnitQuickEqualVP$.emit()"
                                             [disabled]="preisAndMengeDisabled$ | async"
                                         >
-                                            {{ (preismeldung$ | async)?.warenkorbPosition.standardeinheit |
-                                            pefPropertyTranslate }}
+                                            {{ pmBag?.warenkorbPosition.standardeinheit | pefPropertyTranslate }}
                                         </ion-button>
                                     </div>
                                 </ion-item>
@@ -467,13 +458,13 @@
                                         <div
                                             [innerHTML]="
                                             formatPercentageChange(
-                                                (preismeldung$ | async)?.preismeldung.d_DPToVPK.percentage
+                                                pmBag?.preismeldung.d_DPToVPK.percentage
                                             )
                                         "
                                         ></div>
                                         <pef-floating-icon
                                             [icon-name]="
-                                            (preismeldung$ | async)?.preismeldung.d_DPToVPK.warning ? 'warning' : ''
+                                            pmBag?.preismeldung.d_DPToVPK.warning ? 'warning' : ''
                                         "
                                             [bottom-right]="true"
                                         ></pef-floating-icon>
@@ -483,9 +474,9 @@
                         </div>
                     </div>
                     <div class="current-period">
-                        <div class="textzeil" *ngIf="(preismeldung$ | async)?.textzeile?.length">
+                        <div class="textzeil" *ngIf="pmBag?.textzeile?.length">
                             <span
-                                *ngFor="let textzeil of (preismeldung$ | async)?.textzeile"
+                                *ngFor="let textzeil of pmBag?.textzeile"
                                 [innerHTML]="(textzeil | translate) + '\u00a0'"
                             ></span>
                         </div>
@@ -520,7 +511,7 @@
                 <div class="columns product-detail-row row-4">
                     <div class="textzeil">
                         <span
-                            *ngFor="let textzeil of (preismeldung$ | async)?.textzeile"
+                            *ngFor="let textzeil of pmBag?.textzeile"
                             [innerHTML]="(textzeil | translate) + '\u00a0'"
                         ></span>
                     </div>

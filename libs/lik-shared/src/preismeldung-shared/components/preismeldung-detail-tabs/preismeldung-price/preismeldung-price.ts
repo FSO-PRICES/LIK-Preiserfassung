@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { assign, keys } from 'lodash';
 import { ElectronService } from 'ngx-electron';
 import { WINDOW } from 'ngx-window-token';
-import { defer, iif as observableIif, Observable, of as observableOf, Subscription } from 'rxjs';
+import { defer, iif as observableIif, Observable, of as observableOf, Subscription, of } from 'rxjs';
 import {
     combineLatest,
     distinctUntilChanged,
@@ -27,6 +27,9 @@ import {
     refCount,
     startWith,
     withLatestFrom,
+    shareReplay,
+    distinctUntilKeyChanged,
+    switchMap,
 } from 'rxjs/operators';
 
 import {
@@ -66,7 +69,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     @Output('requestThrowChanges') requestThrowChanges$: Observable<{}>;
     @Output('isSaveLookDisabled') public isSaveLookDisabled$: Observable<boolean>;
     @Output('disableQuickEqual') disableQuickEqual$: Observable<boolean>;
-    @Output('setStichtag') setStichtag$ = new EventEmitter<number>();
+    @Output('setStichtag') setStichtag$: Observable<number>;
 
     public isReadonly$: Observable<boolean>;
 
@@ -74,10 +77,12 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     public distinctPreismeldung$: Observable<P.CurrentPreismeldungViewBag>;
     public requestPreismeldungSave$: Observable<P.SavePreismeldungPriceSaveAction>;
     public requestPreismeldungQuickEqual$: Observable<string>;
-    public stichtagSettings$: Observable<{ first: number; second: number } | null>;
+    public stichtagSettings$: Observable<{ values: number[] } | null>;
+    public currentStichtag$: Observable<string>;
     public codeListType$: Observable<string>;
 
     public changeBearbeitungscode$ = new EventEmitter<P.Models.Bearbeitungscode>();
+    public setStichtagClicked$ = new EventEmitter<number>();
     public preisAndMengeDisabled$: Observable<boolean>;
     public aktionDisabled$: Observable<boolean>;
     public showVPArtikelNeu$: Observable<boolean>;
@@ -127,6 +132,7 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
     preismeldestelle$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle>('preismeldestelle');
     isDesktop$ = this.observePropertyCurrentValue<boolean>('isDesktop');
     isAdminApp$ = this.observePropertyCurrentValue<boolean>('isAdminApp').pipe(
+        startWith(false),
         publishReplay(1),
         refCount(),
     );
@@ -242,20 +248,37 @@ export class PreismeldungPriceComponent extends ReactiveComponent implements OnC
         );
 
         this.stichtagSettings$ = this.preismeldung$.pipe(
-            filter(needsStichtag),
-            map(bag => bag.warenkorbPosition.erhebungszeitpunkte),
-            filter(zeitpunkt => zeitpunkt !== 0),
-            map(zeitpunkt => ({ 1: { first: 1, second: 2 }, 10: { first: 10, second: 20 } }[zeitpunkt] || null)),
-            filter(x => x !== null),
-            merge(
-                this.preismeldung$.pipe(
-                    filter(x => !needsStichtag(x)),
-                    mapTo(null),
-                ),
+            filter(x => !!x),
+            distinctUntilKeyChanged('isNew'),
+            switchMap(bag =>
+                !bag.isNew
+                    ? of(null)
+                    : of(bag.warenkorbPosition.erhebungszeitpunkte).pipe(
+                          filter(zeitpunkt => zeitpunkt !== 0),
+                          map(zeitpunkt => ({ 1: { values: [1, 2] }, 10: { values: [10, 20] } }[zeitpunkt] || null)),
+                          filter(x => x !== null),
+                          withLatestFrom(this.isAdminApp$),
+                          filter(([, isAdminApp]) => !isAdminApp),
+                          map(([stichtag]) => stichtag),
+                      ),
             ),
-            withLatestFrom(this.isAdminApp$),
-            filter(([, isAdminApp]) => !isAdminApp),
-            map(([stichtag]) => stichtag),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
+        this.currentStichtag$ = this.preismeldung$.pipe(
+            map(bag =>
+                !bag || !bag.preismeldung.erhebungsZeitpunkt
+                    ? '#'
+                    : bag.preismeldung.erhebungsZeitpunkt == 99
+                    ? '#'
+                    : bag.preismeldung.erhebungsZeitpunkt.toString(),
+            ),
+        );
+        this.setStichtag$ = this.setStichtagClicked$.pipe(
+            withLatestFrom(this.stichtagSettings$, this.preismeldung$),
+            map(([, { values }, bag]) => {
+                const next = values.indexOf(bag.preismeldung.erhebungsZeitpunkt) + 1;
+                return values[next > values.length - 1 ? 0 : next];
+            }),
         );
         this.preisCurrentValue$ = this.form.valueChanges
             .pipe(

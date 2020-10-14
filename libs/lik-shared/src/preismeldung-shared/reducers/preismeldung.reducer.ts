@@ -241,10 +241,6 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     ...state.currentPreismeldung,
                     preismeldung: {
                         ...pm,
-                        artikeltext:
-                            pm.artikeltext.indexOf('[#') !== 0
-                                ? `[#${action.payload}] ${pm.artikeltext}`
-                                : pm.artikeltext,
                         erhebungsZeitpunkt: action.payload,
                     },
                 },
