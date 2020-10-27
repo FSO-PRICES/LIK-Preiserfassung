@@ -1,9 +1,10 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AppVersion } from '@ionic-native/app-version/ngx';
 import { NavController } from '@ionic/angular';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, from, of } from 'rxjs';
 import {
     combineLatest,
     distinctUntilChanged,
@@ -41,6 +42,7 @@ export class SettingsPage implements OnDestroy {
     public showValidationHints$: Observable<boolean>;
     public canConnectToDatabase$: Observable<boolean>;
     public currentSettings$: Observable<CurrentSetting>;
+    public currentVersion$: Observable<string | number>;
     public canLeave$: Observable<boolean>;
     public allowToSave$: Observable<boolean>;
 
@@ -51,10 +53,12 @@ export class SettingsPage implements OnDestroy {
         private navCtrl: NavController,
         private store: Store<fromRoot.AppState>,
         private pefDialogService: PefDialogService,
+        appVersion: AppVersion,
         translateService: TranslateService,
         formBuilder: FormBuilder,
     ) {
         this.currentSettings$ = store.select(fromRoot.getCurrentSettings);
+        this.currentVersion$ = from(appVersion.getVersionCode());
 
         this.canConnectToDatabase$ = this.store
             .select(x => x.database.canConnectToDatabase)

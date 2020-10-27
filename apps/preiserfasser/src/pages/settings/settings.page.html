@@ -20,7 +20,10 @@
                     <div>{{ 'installed-software-version' | translate }}:</div>
                 </ion-col>
                 <ion-col>
-                    <div>{{ (currentSettings$ | async)?.version }}</div>
+                    <div>
+                        {{ (currentSettings$ | async)?.version }}
+                        <span *ngIf="currentVersion$ | async; let currentVersion">({{ currentVersion }})</span>
+                    </div>
                 </ion-col>
             </ion-row>
             <form

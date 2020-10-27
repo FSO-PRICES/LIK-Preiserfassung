@@ -37,6 +37,7 @@
         "@angular/platform-browser": "^8.0.1",
         "@angular/platform-browser-dynamic": "^8.0.1",
         "@angular/router": "^8.0.1",
+        "@ionic-native/app-version": "^5.0.0",
         "@ionic-native/core": "^5.0.0",
         "@ionic-native/file": "^5.11.0",
         "@ionic-native/screen-orientation": "^5.0.0",
