@@ -36,7 +36,11 @@
                     <ion-label class="article-text-label">
                         <div>{{ 'label_artikeltext' | translate }}</div>
                         <ng-container *ngIf="(stichtagSettings$ | async); let stichtagSettings; else stichtagReadonly">
-                            <ion-button class="pef-icon-secondary" type="button" (click)="setStichtagClicked$.emit()">
+                            <ion-button
+                                class="pef-icon-secondary erhebungszeitpunkt"
+                                type="button"
+                                (click)="setStichtagClicked$.emit()"
+                            >
                                 {{ currentStichtag$ | async }}
                             </ion-button>
                         </ng-container>
@@ -44,7 +48,7 @@
                             <ng-container
                                 *ngIf="!!pmBag?.preismeldung.erhebungsZeitpunkt && pmBag?.preismeldung.erhebungsZeitpunkt !== 99"
                             >
-                                #{{ pmBag?.preismeldung.erhebungsZeitpunkt }}
+                                <span class="erhebungszeitpunkt">[#{{ pmBag?.preismeldung.erhebungsZeitpunkt }}]</span>
                             </ng-container>
                         </ng-template>
                     </ion-label>

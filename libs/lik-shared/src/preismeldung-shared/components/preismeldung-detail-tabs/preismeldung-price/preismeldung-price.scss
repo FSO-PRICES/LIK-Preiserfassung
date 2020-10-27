@@ -72,6 +72,9 @@
             color: $white;
         }
         .article-text-label {
+            display: flex;
+            flex-direction: column;
+
             ion-button {
                 height: 28px;
                 color: $blue-chill;
@@ -86,6 +89,10 @@
                 &:last-child {
                     margin-right: 0;
                 }
+            }
+            .erhebungszeitpunkt {
+                align-self: flex-end;
+                text-align: right;
             }
         }
         textarea {
