@@ -18,6 +18,10 @@ import {
     startWith,
     take,
     withLatestFrom,
+    shareReplay,
+    switchMap,
+    delay,
+    catchError,
 } from 'rxjs/operators';
 
 import { PefDialogService } from '@lik-shared';
@@ -47,6 +51,7 @@ export class SettingsPage implements OnDestroy {
     public allowToSave$: Observable<boolean>;
 
     public form: FormGroup;
+    private afterViewInit$ = new EventEmitter();
     private subscriptions: Subscription[];
 
     constructor(
@@ -58,7 +63,11 @@ export class SettingsPage implements OnDestroy {
         formBuilder: FormBuilder,
     ) {
         this.currentSettings$ = store.select(fromRoot.getCurrentSettings);
-        this.currentVersion$ = from(appVersion.getVersionCode());
+        this.currentVersion$ = this.afterViewInit$.pipe(
+            delay(3000),
+            switchMap(() => from(appVersion.getVersionCode()).pipe(catchError(() => of(null)))),
+            shareReplay({ bufferSize: 1, refCount: true }),
+        );
 
         this.canConnectToDatabase$ = this.store
             .select(x => x.database.canConnectToDatabase)
@@ -134,6 +143,7 @@ export class SettingsPage implements OnDestroy {
         );
 
         this.subscriptions = [
+            this.currentVersion$.subscribe(),
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
             this.deleteAllClicked$.subscribe(() => {
@@ -172,6 +182,10 @@ export class SettingsPage implements OnDestroy {
                     );
                 }),
         ];
+    }
+
+    public ngAfterViewInit() {
+        this.afterViewInit$.emit();
     }
 
     public ionViewDidEnter() {
