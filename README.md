@@ -110,6 +110,12 @@ http://docs.couchdb.org/en/master/install/upgrading.html#couchup-utility
     -   Android SDK Platform-tools
     -   Android 5.1.1 (API 22). (Unconfirmed) Android 5.0.1 (API 21) should work too also the API 23.
 
+Sign:
+`jarsigner.exe -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore apps/preiserfasser/platforms/android/key/bfs_apk_release_key.keystore apps/preiserfasser/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk "Preiserfassung LIK"`
+
+Zipalign:
+`AppData/Local/Android/Sdk/build-tools/25.0.3/zipalign.exe -f -v 4 apps/preiserfasser/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk apps/preiserfasser/platforms/android/app/build/outputs/apk/release/app-release-prod.apk`
+
 ## Access
 
 -   http-server: http://13.94.141.213
