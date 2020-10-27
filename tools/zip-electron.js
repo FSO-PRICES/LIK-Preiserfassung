@@ -1,9 +1,10 @@
 const gulp = require('gulp');
 const zip = require('gulp-zip');
+const git = require('gulp-git');
 
 const fs = require('fs');
 
-const config = JSON.parse(fs.readFileSync('./package.json'));
+const config = JSON.parse(fs.readFileSync('../package.json'));
 const version = `v${config.version}`;
 const basePath = (app, platform) => `apps/${app}/platforms/electron/build/${platform}/`;
 const projects = [
@@ -37,5 +38,27 @@ projects.forEach(proj => {
             .pipe(gulp.dest(`./dist/`)),
     );
 });
+gulp.task('update-tags', done => {
+    git.exec({ args: 'fetch --tags' }, err => {
+        if (err) throw err;
+        done();
+    });
+});
+gulp.task('check-if-need-to-raise-version', done => {
+    git.exec({ args: 'describe --abbrev=0 --tags' }, (err, response) => {
+        const latestTag = response.trim();
+        if (err) throw err;
+        if (latestTag === version) {
+            console.warn('#################################################');
+            console.warn(`Latest tag is same as current version: ${latestTag}`);
+            console.warn('Should this probably be updated?');
+            console.warn('#################################################');
+        }
+        done();
+    });
+});
 
-gulp.task('default', gulp.parallel(projects.map(p => p.name)));
+gulp.task(
+    'default',
+    gulp.series(['update-tags', 'check-if-need-to-raise-version', gulp.parallel(projects.map(p => p.name))]),
+);

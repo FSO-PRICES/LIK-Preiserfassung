@@ -26,8 +26,8 @@
         "run:browser:backoffice": "ionic serve --project backoffice",
         "run:apk:preiserfasser": "ionic cordova run android -l --project preiserfasser",
         "build:electron:all": "concurrently \"npm run build-debug:electron:backoffice\" \"sleep 2 && npm run build-debug:electron:preiserfasser\"",
-        "zip:electron:all": "gulp --gulpfile ./zip-electron.js",
-        "update-version": "gulp --gulpfile ./update-version.js"
+        "zip:electron:all": "gulp --gulpfile ./tools/zip-electron.js",
+        "update-version": "gulp --gulpfile ./tools/update-version.js"
     },
     "private": true,
     "dependencies": {
@@ -75,6 +75,7 @@
         "es6-promise-plugin": "^4.2.2",
         "file-saver": "^2.0.2",
         "format-number": "^2.0.2",
+        "gulp-git": "^2.10.1",
         "gulp-replace": "^1.0.0",
         "hammerjs": "^2.0.8",
         "jspdf": "^1.5.3",

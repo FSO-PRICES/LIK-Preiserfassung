@@ -3,7 +3,7 @@ const replace = require('gulp-replace');
 
 const fs = require('fs');
 
-const config = JSON.parse(fs.readFileSync('./package.json'));
+const config = JSON.parse(fs.readFileSync('../package.json'));
 const apps = ['backoffice', 'preiserfasser'];
 const projects = [
     [`config-main-version`, apps.map(app => `apps/${app}/config.xml`), /(version=")[^"]+/, config.version],
