@@ -6,14 +6,22 @@ const fs = require('fs');
 const config = JSON.parse(fs.readFileSync('../package.json'));
 const apps = ['backoffice', 'preiserfasser'];
 const projects = [
-    [`config-main-version`, apps.map(app => `apps/${app}/config.xml`), /(version=")[^"]+/, config.version],
-    [`config-apk-version`, ['apps/preiserfasser/config.xml'], /(android-versionCode=")[^"]+/, config.lik_apk_version],
+    [`config-main-version`, apps.map(app => `../apps/${app}/config.xml`), /(version=")[^"]+/, config.version],
+    [
+        `config-apk-version`,
+        ['../apps/preiserfasser/config.xml'],
+        /(android-versionCode=")[^"]+/,
+        config.lik_apk_version,
+    ],
     [
         `environment`,
         apps.reduce(
             (acc, app) => [
                 ...acc,
-                ...[`apps/${app}/src/environments/environment.ts`, `apps/${app}/src/environments/environment.prod.ts`],
+                ...[
+                    `../apps/${app}/src/environments/environment.ts`,
+                    `../apps/${app}/src/environments/environment.prod.ts`,
+                ],
             ],
             [],
         ),
