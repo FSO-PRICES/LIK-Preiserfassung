@@ -664,7 +664,9 @@ export function reducer(state = initialState, action: PreismeldungAction): State
                     priceCountId(action.payload.pmsNummer, action.payload.warenkorbPosition.gliederungspositionsnummer)
                 ];
             const numActivePrices = !priceCountStatus ? 0 : priceCountStatus.numActivePrices;
-            const erhebungsZeitpunkt = action.payload.warenkorbPosition.erhebungszeitpunkte === 1 ? 99 : null;
+            const erhebungsZeitpunkt = [1, 10].some(z => action.payload.warenkorbPosition.erhebungszeitpunkte === z)
+                ? 99
+                : null;
             const newPreismeldung = createFreshPreismeldung(
                 newPmId,
                 action.payload.pmsNummer,
