@@ -1,6 +1,6 @@
 /*
  * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
+ * Copyright (C) 2024 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
  *
  * This file is part of LIK-Preiserfassung.
  *
