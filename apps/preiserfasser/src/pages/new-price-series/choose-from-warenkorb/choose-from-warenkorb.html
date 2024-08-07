@@ -8,7 +8,7 @@
     </div>
     <div class="content">
         <div class="search-row">
-            <pef-search-input (valueChanges)="searchString$.emit($event)" [noPadding]="true"></pef-search-input>
+            <pef-search-input (valueChanges)="searchString$.emit($event)"></pef-search-input>
             <div class="search-summary">
                 <span class="label">{{ 'text_warenkorb_anzahlergebnisse' | translate | pef_no_break_string }}:</span
                 >&nbsp;<span class="number">{{ numberOfEp$ | async }}</span>
@@ -19,32 +19,34 @@
             <ion-button class="action" (click)="resetClicked$.emit()">{{ 'btn_zuruecksetzen' | translate }}</ion-button>
         </div>
         <ion-content class="scroll-bar-workaround">
-            <ion-virtual-scroll [items]="warenkorbUiItems$ | async" [itemHeight]="itemHeight" [trackBy]="trackByItem">
-                <ion-item-sliding *virtualItem="let warenkorbUiItem" #slidingList>
+            <cdk-virtual-scroll-viewport
+                cdkScrollable
+                itemSize="48"
+                minBufferPx="1200"
+                maxBufferPx="1600"
+                class="virtual-scroll">
+                <ion-item-sliding *cdkVirtualFor="let warenkorbUiItem of warenkorbUiItems$ | async" #slidingList>
                     <ion-item
                         [ngClass]="
                         'warenkorb-item-row tiefencode-' +
                         warenkorbUiItem.depth +
                         ' ' +
-                        (warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? 'leaf' : 'branch')
-                    "
+                        (warenkorbUiItem.warenkorbInfo.warenkorbItem.type === 'LEAF' ? 'leaf' : 'branch')"
                         [class.is-marked]="warenkorbUiItem.isMarked"
                         (click)="warenkorbItemClicked$.emit(warenkorbUiItem)"
-                        [attr.tappable]="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF' ? null : true"
-                    >
+                        lines="none">
                         <span class="icon">
                             <pef-icon
                                 *ngIf="iconMap[warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer]"
-                                [name]="iconMap[warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer]"
-                            ></pef-icon>
+                                [name]="iconMap[warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer]"></pef-icon>
                         </span>
                         <span class="gliederungspositionsnummer"
                             >{{ warenkorbUiItem.warenkorbInfo.warenkorbItem.gliederungspositionsnummer }}
-                            <div *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'">&nbsp;</div>
+                            <div *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type === 'LEAF'">&nbsp;</div>
                         </span>
 
                         <span
-                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
+                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type === 'BRANCH'"
                             class="positionsbezeichnung"
                             >{{ warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung | pefPropertyTranslate
                             }}</span
@@ -52,8 +54,7 @@
 
                         <div
                             class="leaf-description"
-                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'"
-                        >
+                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type === 'LEAF'">
                             <div class="leaf-positionsbezeichnung">
                                 {{ (warenkorbUiItem.warenkorbInfo.warenkorbItem.positionsbezeichnung |
                                 pefPropertyTranslate) || '&ndash;' }}
@@ -71,34 +72,31 @@
                             ({{ warenkorbUiItem.warenkorbInfo.erhoben }}/{{ warenkorbUiItem.warenkorbInfo.soll }})
                         </div>
                         <ion-button
-                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
+                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type === 'BRANCH'"
                             color="mercury"
                             class="ep-expand-button"
                             (click)="warenkorbItemEpExpand$.emit({ event: $event, warenkorbUiItem: warenkorbUiItem })"
-                            [disabled]="warenkorbUiItem.filteredLeafCount == 0"
+                            [disabled]="warenkorbUiItem.filteredLeafCount === 0"
                             >{{ warenkorbUiItem.filteredLeafCount }} EP</ion-button
                         >
                         <pef-icon
                             class="open-close"
-                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'BRANCH'"
-                            [name]="warenkorbUiItem.isExpanded ? 'dropdown_close' : 'dropdown_open'"
-                        ></pef-icon>
+                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type === 'BRANCH'"
+                            [name]="warenkorbUiItem.isExpanded ? 'dropdown_close' : 'dropdown_open'"></pef-icon>
                         <ion-button
-                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type == 'LEAF'"
+                            *ngIf="warenkorbUiItem.warenkorbInfo.warenkorbItem.type === 'LEAF'"
                             class="add-button icon-only"
                             [disabled]="!warenkorbUiItem.canSelect"
-                            (click)="selectWarenkorbItem$.emit(warenkorbUiItem)"
-                        >
+                            (click)="selectWarenkorbItem$.emit(warenkorbUiItem)">
                             <pef-icon name="add"></pef-icon>
                         </ion-button>
                     </ion-item>
                     <ion-item-options
                         (ionSwipe)="hideWarenkorbUiItem$.emit(warenkorbUiItem); slidingList.closeOpened()"
-                        side="end"
-                    >
+                        side="end">
                     </ion-item-options>
                 </ion-item-sliding>
-            </ion-virtual-scroll>
+            </cdk-virtual-scroll-viewport>
         </ion-content>
     </div>
 </div>

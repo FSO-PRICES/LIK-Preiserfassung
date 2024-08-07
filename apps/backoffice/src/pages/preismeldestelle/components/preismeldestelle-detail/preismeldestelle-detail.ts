@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import {
     ChangeDetectionStrategy,
     Component,
@@ -31,27 +11,24 @@ import {
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { assign, range } from 'lodash';
 import { Observable, Subscription } from 'rxjs';
-
-import {
-    encodeErhebungsartFromForm,
-    Models as P,
-    parseErhebungsarten,
-    preismeldestelleId,
-    ReactiveComponent,
-} from '@lik-shared';
-
 import {
     distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
     map,
-    mapTo,
-    merge,
-    publishReplay,
-    refCount,
-    scan,
+    mergeWith,
+    shareReplay,
     withLatestFrom,
 } from 'rxjs/operators';
+
+import {
+    Models as P,
+    ReactiveComponent,
+    encodeErhebungsartFromForm,
+    parseErhebungsarten,
+    preismeldestelleId,
+} from '@lik-shared';
+
 import { CurrentPreismeldestelle } from '../../../../reducers/preismeldestelle';
 
 @Component({
@@ -65,6 +42,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     @Input() erhebungsregionen: string[];
     @Input() languages: P.Language[];
     @Input() preiserheber: P.Erheber;
+    @Input() hasWritePermission: boolean;
     @Output('save') public save$: Observable<{ isValid: boolean }>;
     @Output('cancel') public cancelClicked$ = new EventEmitter<Event>();
     @Output('update') public update$: Observable<P.Preismeldestelle>;
@@ -73,13 +51,13 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     public languages$: Observable<P.Language[]>;
     public saveClicked$ = new EventEmitter<Event>();
     public erhebungsregionen$: Observable<string[]>;
+    public hasWritePermission$: Observable<boolean>;
 
     public showValidationHints$: Observable<boolean>;
 
     private subscriptions: Subscription[];
 
-    public _form: FormGroup;
-    public form: any;
+    public form: FormGroup;
 
     constructor(private formBuilder: FormBuilder) {
         super();
@@ -87,10 +65,11 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         this.preismeldestelle$ = this.observePropertyCurrentValue<P.Preismeldestelle>('preismeldestelle');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
         this.erhebungsregionen$ = this.observePropertyCurrentValue<string[]>('erhebungsregionen');
+        this.hasWritePermission$ = this.observePropertyCurrentValue<boolean>('hasWritePermission');
 
-        this._form = formBuilder.group(
+        this.form = this.formBuilder.group(
             {
-                kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),
+                kontaktpersons: formBuilder.array(range(2).map((i) => this.initKontaktpersonGroup())),
                 name: [null, Validators.required],
                 supplement: [null],
                 street: [null, Validators.required],
@@ -114,18 +93,18 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                 zusatzInformationen: [null],
                 active: [true],
             },
+
             { validator: this.formLevelValidationFactory() },
         );
-        this.form = this._form;
 
-        this.update$ = this._form.valueChanges.pipe(
+        this.update$ = this.form.valueChanges.pipe(
             withLatestFrom(this.preismeldestelle$, (formValue, preismeldestelle) => ({ formValue, preismeldestelle })),
             map(({ formValue, preismeldestelle }) => {
                 return assign(
                     {},
                     formValue,
                     { _id: preismeldestelleId(preismeldestelle.pmsNummer) },
-                    { erhebungsart: encodeErhebungsartFromForm(this._form.value.erhebungsart) },
+                    { erhebungsart: encodeErhebungsartFromForm(this.form.value.erhebungsart) },
                 );
             }),
         );
@@ -133,28 +112,26 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
         const distinctPreismeldestelle$ = this.preismeldestelle$.pipe(distinctUntilKeyChanged('_id'));
 
         const canSave$ = this.saveClicked$.pipe(
-            map(() => ({ isValid: this._form.valid })),
-            publishReplay(1),
-            refCount(),
+            map(() => ({ isValid: this.form.valid })),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         this.save$ = canSave$.pipe(
-            filter(x => x.isValid),
-            publishReplay(1),
-            refCount(),
+            filter((x) => x.isValid),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         this.showValidationHints$ = canSave$.pipe(
             distinctUntilChanged(),
-            mapTo(true),
-            merge(distinctPreismeldestelle$.pipe(mapTo(false))),
+            map(() => true),
+            mergeWith(distinctPreismeldestelle$.pipe(map(() => false))),
         );
 
         this.subscriptions = [
             distinctPreismeldestelle$.subscribe((preismeldestelle: CurrentPreismeldestelle) => {
-                this._form.markAsUntouched();
-                this._form.markAsPristine();
-                this._form.patchValue(
+                this.form.markAsUntouched();
+                this.form.markAsPristine();
+                this.form.patchValue(
                     {
                         kontaktpersons: this.getKontaktPersonMapping(preismeldestelle.kontaktpersons),
                         name: preismeldestelle.name,
@@ -165,7 +142,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                         telephone: preismeldestelle.telephone,
                         email: preismeldestelle.email,
                         internetLink: preismeldestelle.internetLink,
-                        languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
+                        languageCode: preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                         erhebungsregion: preismeldestelle.erhebungsregion,
                         erhebungsart: parseErhebungsarten(preismeldestelle.erhebungsart),
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
@@ -175,6 +152,13 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
                     { onlySelf: true, emitEvent: false },
                 );
             }),
+            this.hasWritePermission$.subscribe((hasWritePermission) => {
+                if (hasWritePermission) {
+                    this.form.enable();
+                } else {
+                    this.form.disable();
+                }
+            }),
         ];
     }
 
@@ -183,7 +167,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     }
 
     public ngOnDestroy() {
-        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
+        this.subscriptions.filter((s) => !!s && !s.closed).forEach((s) => s.unsubscribe());
     }
 
     private initKontaktpersonGroup() {
@@ -203,7 +187,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
     private getKontaktPersonMapping(kontaktpersons: P.KontaktPerson[]) {
         if (!kontaktpersons || kontaktpersons.length === 0)
             kontaktpersons = [<any>{ languageCode: '' }, { languageCode: '' }];
-        return kontaktpersons.map(x => ({
+        return kontaktpersons.map((x) => ({
             oid: x.oid,
             firstName: x.firstName,
             surname: x.surname,
@@ -229,6 +213,7 @@ export class PreismeldestelleDetailComponent extends ReactiveComponent implement
             ) {
                 return { erhebungsart_required: true };
             }
+            return undefined;
         };
     }
 }

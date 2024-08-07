@@ -41,17 +41,6 @@
 
     // .preismeldung-item-draggable is defined in global reorder.scss
 
-    pef-virtual-scroll {
-        display: block;
-        height: 100%;
-        &.is-dragging {
-            .multi-select {
-                // opacity: 0.2;
-                visibility: hidden;
-            }
-        }
-    }
-
     .right-side {
         display: flex;
         flex-direction: column;

@@ -6,6 +6,7 @@
     input[type='range'] {
         width: 2em;
         -webkit-appearance: none;
+        appearance: none;
         background-color: transparent;
         cursor: pointer;
         &[disabled] {
@@ -29,9 +30,21 @@
             background-color: $sea-green !important;
         }
     }
+    input[type='range'][disabled] {
+        cursor: auto;
+    }
     input[type='range'][disabled]::-webkit-slider-runnable-track {
         background-color: $oslo-gray;
     }
+
+    input[type='range'].large {
+        width: 2.4em;
+
+        &::-webkit-slider-thumb {
+            height: 1.2em;
+        }
+    }
+
     button.button-md {
         height: 16px;
         width: 32px;
@@ -39,5 +52,9 @@
         vertical-align: top;
         box-shadow: none;
         background-color: $hit-gray;
+    }
+
+    .hidden {
+        display: none;
     }
 }

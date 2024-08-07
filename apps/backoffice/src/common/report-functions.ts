@@ -1,29 +1,10 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import * as moment from 'moment';
 
 import { Models as P } from '@lik-shared';
 
 import * as report from '../actions/report';
 import { MonthlyReport, OrganisationReport, PmsProblemeReport } from '../reducers/report';
+
 import { PmsGeschlossen } from './pms-geschlossen';
 
 export function prepareMonthlyData({
@@ -94,13 +75,13 @@ export function prepareMonthlyData({
         (erhebungsarten, pmsBag) => ({
             ...erhebungsarten,
             [pmsBag.pms.pmsNummer]: Object.keys(pmsBag.erhebungsarten).filter(
-                art => pmsBag.erhebungsarten[art],
+                (art) => pmsBag.erhebungsarten[art],
             ) as any[],
         }),
         {} as { [pmsNummer: string]: (keyof P.Erhebungsarten)[] },
     );
 
-    preismeldungen.forEach(bag => {
+    preismeldungen.forEach((bag) => {
         if (!bag.exported) {
             return;
         }
@@ -133,15 +114,15 @@ export function prepareMonthlyData({
             map.preisentwicklungen.aktionsende++;
         }
 
-        erhebungsartenByPmsNummer[bag.preismeldung.pmsNummer].forEach(art => {
+        erhebungsartenByPmsNummer[bag.preismeldung.pmsNummer].forEach((art) => {
             map.erhebungsartDetailPm[art]++;
             map.erhebungsartDetailPm.total++;
         });
     });
     preismeldestellen.forEach(({ erhebungsarten }) => {
         Object.keys(erhebungsarten)
-            .filter(art => erhebungsarten[art])
-            .forEach(art => {
+            .filter((art) => erhebungsarten[art])
+            .forEach((art) => {
                 map.erhebungsartDetailPms[art]++;
                 map.erhebungsartDetailPms.total++;
             });
@@ -179,23 +160,23 @@ export function prepareOrganisationData({
     const pmsOnOffline = mapPmsToZentralDezentral(preismeldestellen);
     const preisereheberByPms = preismeldestellen
         .filter(({ pms }) =>
-            preiszuweisungen.some(pz => pz.preismeldestellenNummern.some(pmsNummer => pmsNummer === pms.pmsNummer)),
+            preiszuweisungen.some((pz) => pz.preismeldestellenNummern.some((pmsNummer) => pmsNummer === pms.pmsNummer)),
         )
         .reduce(
             (peMap, { pms }) => ({
                 ...peMap,
                 [pms.pmsNummer]:
                     preiserheberNamesById[
-                        preiszuweisungen.find(pz =>
-                            pz.preismeldestellenNummern.some(pmsNummer => pmsNummer === pms.pmsNummer),
+                        preiszuweisungen.find((pz) =>
+                            pz.preismeldestellenNummern.some((pmsNummer) => pmsNummer === pms.pmsNummer),
                         ).preiserheberId
                     ],
             }),
             {} as { [pmsNummer: string]: string },
         );
 
-    preiszuweisungen.forEach(pz => {
-        pz.preismeldestellenNummern.forEach(pmsNummer => {
+    preiszuweisungen.forEach((pz) => {
+        pz.preismeldestellenNummern.forEach((pmsNummer) => {
             if (preismeldestellenNamesById[pmsNummer]) {
                 map.preismeldungen[preismeldestellenNamesById[pmsNummer]] = {
                     pm: 0,
@@ -216,8 +197,8 @@ export function prepareOrganisationData({
         map.preiserheber[preisereheberByPms[pms.pmsNummer] || 'N/A'].pms++;
     });
 
-    preismeldungen.forEach(pm => {
-        if (alreadyExported.find(pmId => pmId === pm._id) == null) {
+    preismeldungen.forEach((pm) => {
+        if (alreadyExported.find((pmId) => pmId === pm._id) == null) {
             return;
         }
         map.erhebungsregionen[regionenByPms[pm.pmsNummer] || 'N/A'].pm++;
@@ -239,8 +220,8 @@ export function preparePmsProblemeData({
     return {
         zeitpunkt: getZeitpunktData(erhebungsmonat),
         pmsGeschlossen: preismeldestellen
-            .filter(pms => pms.pmsGeschlossen > 0)
-            .map(pms => ({
+            .filter((pms) => pms.pmsGeschlossen > 0)
+            .map((pms) => ({
                 name: `${pms.pmsNummer} ${pms.name}`,
                 grund: PmsGeschlossen[pms.pmsGeschlossen],
                 zusatzinfo: pms.zusatzInformationen,
@@ -262,9 +243,9 @@ const mapPmsToZentralDezentral = (
     );
 };
 
-const getZeitpunktData = erhebungsmonat => {
+const getZeitpunktData = (erhebungsmonat) => {
     return {
-        erstellungsdatum: moment().format('DD.MM.YYYY HH:mm'),
+        erstellungsdatum: moment().format('dd.MM.yyyy HH:mm'),
         erhebungsmonat: erhebungsmonat,
     };
 };

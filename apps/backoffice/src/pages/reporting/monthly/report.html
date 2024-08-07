@@ -4,17 +4,17 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>LIK-Monatsbericht</th>
-                        <th>Regionale Preiserhebung</th>
+                        <th>{{'reporting.lik_monatsbericht' | translate}}</th>
+                        <th>{{'reporting.monatlich.regionale_preiserhebung' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Erhebungsmonat</td>
+                        <td>{{ 'text_erhebungsmonat' | translate }}</td>
                         <td>{{ reportData.zeitpunkt.erhebungsmonat }}</td>
                     </tr>
                     <tr>
-                        <td>Erstellungsdatum</td>
+                        <td>{{ 'reporting.erstellungsdatum' | translate }}</td>
                         <td>{{ reportData.zeitpunkt.erstellungsdatum }}</td>
                     </tr>
                 </tbody>
@@ -22,25 +22,25 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Preismeldungen insgesamt</th>
-                        <th>#Preise</th>
+                        <th>{{'reporting.monatlich.pm_insgesamt' | translate}}</th>
+                        <th>#{{'reporting.preise' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Total erhalten</td>
+                        <td>{{'reporting.monatlich.total_erhalten' | translate}}</td>
                         <td class="number">
                             {{ reportData.preismeldungen.total | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>Total erfasst</td>
+                        <td>{{'reporting.monatlich.total_erfasst' | translate}}</td>
                         <td class="number">
                             {{ reportData.preismeldungen.erfasst | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>Neue Preisreihen</td>
+                        <td>{{'reporting.monatlich.neue_preisreihen' | translate}}</td>
                         <td class="number">
                             {{ reportData.preismeldungen.new | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -50,19 +50,19 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Erhebungsart Abrechnung</th>
-                        <th>#Preise</th>
+                        <th>{{'reporting.monatlich.erhebungsart_abrechnung' | translate}}</th>
+                        <th>#{{'reporting.preise' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Internet zentral</td>
+                        <td>{{ 'reporting.internet' | translate }}</td>
                         <td class="number">
                             {{ reportData.erhebungsart.internetZentral | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>Normalerhebung</td>
+                        <td>{{'reporting.normalerhebung' | translate}}</td>
                         <td class="number">
                             {{ reportData.erhebungsart.normalerhebung | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -72,61 +72,61 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Bearbeitungscode</th>
-                        <th>#Preise</th>
+                        <th>{{'reporting.monatlich.bearbeitungscode' | translate}}</th>
+                        <th>#{{'reporting.preise' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Standardbuchung</td>
+                        <td>{{'reporting.monatlich.standardbuchung' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['99'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>0 - Preisreihe beendet</td>
+                        <td>0 - {{'reporting.monatlich.code_0' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['0'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>1 - Direktersatz</td>
+                        <td>1 - {{'reporting.monatlich.code_1' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['1'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>2 - Neuer Preis mit VP</td>
+                        <td>2 - {{'reporting.monatlich.code_2' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['2'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>3 - Neuer Preis ohne VP</td>
+                        <td>3 - {{'reporting.monatlich.code_3' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['3'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>7 - Ersatz mit VP</td>
+                        <td>7 - {{'reporting.monatlich.code_7' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['7'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>R - fehlender Artikel</td>
+                        <td>R - {{'reporting.monatlich.code_r' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['101'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>S - fehlender Saisonartikel</td>
+                        <td>S - {{'reporting.monatlich.code_s' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['44'] | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>A - Aktionspreis</td>
+                        <td>A - {{'reporting.monatlich.code_a' | translate}}</td>
                         <td class="number">
                             {{ reportData.bearbeitungsCode['Aktion'] | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -136,37 +136,37 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Preisentwicklungen</th>
-                        <th>#Preise</th>
+                        <th>{{'reporting.monatlich.preisentwicklungen' | translate}}</th>
+                        <th>#{{'reporting.preise' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>(=) stabile Preise</td>
+                        <td>(=) {{'reporting.monatlich.stabile_priese' | translate}}</td>
                         <td class="number">
                             {{ reportData.preisentwicklungen.stabil | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>(+) gestiegene Preise</td>
+                        <td>(+) {{'reporting.monatlich.gestiegene_preise' | translate}}</td>
                         <td class="number">
                             {{ reportData.preisentwicklungen.gestiegen | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>(+) Aktionsende</td>
+                        <td>(+) {{'reporting.monatlich.aktionsende' | translate}}</td>
                         <td class="number">
                             {{ reportData.preisentwicklungen.aktionsende | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>(-) gesunkene Preise</td>
+                        <td>(-) {{'reporting.monatlich.gesunkene_preise' | translate}}</td>
                         <td class="number">
                             {{ reportData.preisentwicklungen.gesunken | pefFormatNumber: numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>(-) Aktion/Ausverkauf</td>
+                        <td>(-) {{'reporting.monatlich.aktion_ausverkauf' | translate}}</td>
                         <td class="number">
                             {{ reportData.preisentwicklungen.aktionAusverkauf | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -176,14 +176,14 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Erhebungsart</th>
-                        <th>#Preise</th>
+                        <th>{{ 'label_pms_erhebungsart' | translate }}</th>
+                        <th>#{{'reporting.preise' | translate}}</th>
                         <th>#PMS</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Tablet vor Ort</td>
+                        <td>{{ 'label_pms_erhebungsart_vor-ort-app' | translate }}</td>
                         <td class="number">
                             {{ reportData.erhebungsartDetailPm.tablet | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -192,7 +192,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Telefon</td>
+                        <td>{{ 'label_pms_erhebungsart_telephone' | translate }}</td>
                         <td class="number">
                             {{ reportData.erhebungsartDetailPm.telefon | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -201,7 +201,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>eMail</td>
+                        <td>{{ 'label_pms_erhebungsart_email' | translate }}</td>
                         <td class="number">
                             {{ reportData.erhebungsartDetailPm.email | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -210,36 +210,29 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Papierformular vor Ort</td>
+                        <td>{{ 'label_pms_erhebungsart_persoenlich' | translate }}</td>
                         <td class="number">
-                            {{
-                                reportData.erhebungsartDetailPm.papierlisteVorOrt | pefFormatNumber: numberFormatOptions
+                            {{ reportData.erhebungsartDetailPm.papierlisteVorOrt | pefFormatNumber: numberFormatOptions
                             }}
                         </td>
                         <td class="number">
-                            {{
-                                reportData.erhebungsartDetailPms.papierlisteVorOrt
-                                    | pefFormatNumber: numberFormatOptions
+                            {{ reportData.erhebungsartDetailPms.papierlisteVorOrt | pefFormatNumber: numberFormatOptions
                             }}
                         </td>
                     </tr>
                     <tr>
-                        <td>Papierformular durch PMS</td>
+                        <td>{{ 'label_pms_erhebungsart_abgegeben' | translate }}</td>
                         <td class="number">
-                            {{
-                                reportData.erhebungsartDetailPm.papierlisteAbgegeben
-                                    | pefFormatNumber: numberFormatOptions
-                            }}
+                            {{ reportData.erhebungsartDetailPm.papierlisteAbgegeben | pefFormatNumber:
+                            numberFormatOptions }}
                         </td>
                         <td class="number">
-                            {{
-                                reportData.erhebungsartDetailPms.papierlisteAbgegeben
-                                    | pefFormatNumber: numberFormatOptions
-                            }}
+                            {{ reportData.erhebungsartDetailPms.papierlisteAbgegeben | pefFormatNumber:
+                            numberFormatOptions }}
                         </td>
                     </tr>
                     <tr>
-                        <td>Internet</td>
+                        <td>{{ 'label_pms_erhebungsart_internet' | translate }}</td>
                         <td class="number">
                             {{ reportData.erhebungsartDetailPm.internet | pefFormatNumber: numberFormatOptions }}
                         </td>
@@ -248,7 +241,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Total</td>
+                        <td>{{'reporting.monatlich.total' | translate}}</td>
                         <td class="number">
                             {{ reportData.erhebungsartDetailPm.total | pefFormatNumber: numberFormatOptions }}
                         </td>

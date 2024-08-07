@@ -6,40 +6,29 @@
                 <ion-button
                     color="wild-sand"
                     [class.active]="multiSelectMode$ | async"
-                    (click)="multiSelectClick$.emit()"
-                >
+                    (click)="multiSelectClick$.emit()">
                     <pef-icon name="sortierung_zahlen"></pef-icon>
                 </ion-button>
                 <ion-button
                     color="wild-sand"
                     [disabled]="!(multiSelectMode$ | async)"
-                    (click)="multiSelectResetClick$.emit()"
-                >
+                    (click)="multiSelectResetClick$.emit()">
                     {{ 'btn_reset-selection' | translate }}
                 </ion-button>
             </div>
-            <pef-virtual-scroll
-                [items]="preismeldungen$ | async"
-                [childHeight]="60"
-                (update)="scrollList = $event"
-                pef-perfect-scrollbar
-                [enabled]="isDesktop"
-            >
+            <cdk-virtual-scroll-viewport itemSize="60" minBufferPx="1000" maxBufferPx="1400" class="virtual-scroll">
                 <ion-item-sliding
-                    *ngFor="let bag of scrollList"
+                    *cdkVirtualFor="let bag of preismeldungen$ | async; let i = index"
                     class="preismeldung-item-draggable"
-                    [class.marked]="bag.marked"
+                    [class.marked]="$any(bag).marked"
                     #slidingList
                     [disabled]="isDragging$ | async"
                     [attr.data-pmid]="bag.pmId"
-                    [class.multi-select]="!!(multiselectIndexes$ | async)[bag.pmId]"
-                >
-                    <ion-item>
+                    [class.multi-select]="!!(multiselectIndexes$ | async)[bag.pmId]">
+                    <ion-item lines="none">
                         <div class="when-dragging">
                             <div class="inner-part">
-                                <div class="message">
-                                    Many Preismeldungen
-                                </div>
+                                <div class="message">Many Preismeldungen</div>
                                 <button class="drag-handle">
                                     <pef-icon name="stroke"></pef-icon>
                                 </button>
@@ -48,9 +37,8 @@
                         <div class="when-not-dragging">
                             <button
                                 class="selection-button active"
-                                [class.visibility-hidden]="!(multiSelectMode$ | async)"
-                                (click)="selectForMultiselect$.emit(bag.pmId)"
-                            >
+                                [class.visibility-hidden]="!(multiSelectMode$ | async)!"
+                                (click)="selectForMultiselect$.emit(bag.pmId)">
                                 {{ (multiselectIndexes$ | async)[bag.pmId] }}
                             </button>
                             <div class="box-part">
@@ -63,33 +51,31 @@
                                     }}</span>
                                     <span
                                         class="artikel-text"
-                                        [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"
-                                    ></span>
+                                        [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
                                 </div>
                                 <button
                                     class="drag-handle"
                                     [disabled]="(multiSelectMode$ | async) && !(multiselectIndexes$ | async)[bag.pmId]"
-                                >
+                                    (touchmove)="preventScrollingWhileDragging($event)">
                                     <pef-icon name="stroke"></pef-icon>
                                 </button>
                             </div>
                         </div>
                         <ion-item-options
                             (ionSwipe)="movePreismeldung$.emit(bag.pmId); slidingList.closeOpened()"
-                            side="end"
-                        >
+                            side="end">
                         </ion-item-options>
                     </ion-item>
                 </ion-item-sliding>
-            </pef-virtual-scroll>
+            </cdk-virtual-scroll-viewport>
         </div>
     </div>
     <div class="button-container">
-        <ion-button color="primary" (click)="save$.emit()" [disabled]="!(isModified$ | async)">{{
-            'btn_save' | translate
+        <ion-button color="primary" (click)="save$.emit()" [disabled]="!(isModified$ | async)!">{{
+            'label.aktionen.speichern' | translate
         }}</ion-button>
-        <ion-button color="secondary" [disabled]="!(isModified$ | async)" (click)="cancel$.emit()">{{
-            'btn_cancel' | translate
+        <ion-button color="secondary" [disabled]="!(isModified$ | async)!" (click)="cancel$.emit()">{{
+            'label.aktionen.abbrechen' | translate
         }}</ion-button>
     </div>
 </div>

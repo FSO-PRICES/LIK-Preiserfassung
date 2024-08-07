@@ -1,12 +1,12 @@
 <div class="page-wrapper" *ngxLet="(currentPreismeldung$ | async); let currentPreismeldung">
     <controlling-report
         [preismeldungenStatus]="preismeldungenStatus$ | async"
-        (runReport)="runControllingReport$.next($event)"
         [reportData]="controllingReportData$ | async"
+        [hasWritePermission]="hasWritePermission$ | async"
+        (runReport)="runControllingReport$.next($event)"
         (editPreismeldungId)="editPreismeldungId$.emit($event)"
         (setPreismeldungStatus)="setPreismeldungStatus$.emit($event)"
-        (updateAllPmStatus)="updateAllPmStatus$.emit($event)"
-    >
+        (updateAllPmStatus)="updateAllPmStatus$.emit($event)">
     </controlling-report>
     <edit-preismeldung
         *ngIf="!!currentPreismeldung"
@@ -15,6 +15,7 @@
         [preiserheber]="preiserheber$ | async"
         [warenkorb]="warenkorb$ | async"
         [preismeldungenStatus]="preismeldungenStatus$ | async"
+        [hasWritePermission]="hasWritePermission$ | async"
         (updatePreismeldungPreis)="updatePreismeldungPreis$.emit($event)"
         (updatePreismeldungMessages)="updatePreismeldungMessages$.emit($event)"
         (updatePreismeldungAttributes)="updatePreismeldungAttributes$.emit($event)"
@@ -24,6 +25,5 @@
         (savePreismeldungAttributes)="savePreismeldungAttributes$.emit()"
         (kommentarClearClicked)="kommentarClearClicked$.emit()"
         (resetPreismeldung)="resetPreismeldung$.emit()"
-        (setPreismeldungStatus)="setPreismeldungStatus$.emit($event)"
-    ></edit-preismeldung>
+        (setPreismeldungStatus)="setPreismeldungStatus$.emit($event)"></edit-preismeldung>
 </div>

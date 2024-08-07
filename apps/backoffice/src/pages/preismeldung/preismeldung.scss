@@ -1,6 +1,7 @@
 @import '../../theme/imports.scss';
 
 :host {
+    flex: 1;
     .page-content .container.preismeldung-detail-container {
         flex: 3 1;
         display: flex;

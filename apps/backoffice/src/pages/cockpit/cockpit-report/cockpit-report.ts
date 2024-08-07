@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import {
     ChangeDetectionStrategy,
     Component,
@@ -28,7 +8,8 @@ import {
     Output,
     SimpleChange,
 } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { sortBy } from 'lodash';
 import { Observable } from 'rxjs';
 import {
@@ -43,7 +24,7 @@ import {
     take,
 } from 'rxjs/operators';
 
-import { PefDialogService, pefSearch, ReactiveComponent } from '@lik-shared';
+import { PefDialogService, ReactiveComponent, pefSearch } from '@lik-shared';
 
 import * as P from '../../../common-models';
 import { CockpitPreismeldungSummary } from '../../../common-models';
@@ -61,18 +42,21 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
     @Input() initializingPreismeldungenStatus: boolean;
     @Input() cockpitReportData: P.CockpitReportData;
     @Input() selectedPreiserheber: Observable<P.CockpitPreiserheberSummary>;
+    @Input() hasWritePermission: boolean;
     @Output('loadData') loadData$ = new EventEmitter();
     @Output('initPreismeldungenStatus') initPreismeldungenStatus$ = new EventEmitter();
     @Output('checkPreismeldungStatus') checkPreismeldungStatus$ = new EventEmitter();
     @Output('preiserheberSelected') preiserheberSelected$: Observable<P.CockpitPreiserheberSummary>;
 
     public selectPreiserheber$ = new EventEmitter<P.CockpitPreiserheberSummary>();
-    public selectedPreiserheber$ = this.observePropertyCurrentValue<P.CockpitPreiserheberSummary>(
-        'selectedPreiserheber',
-    );
+    public selectedPreiserheber$ =
+        this.observePropertyCurrentValue<P.CockpitPreiserheberSummary>('selectedPreiserheber');
     public reportExecuting$ = this.observePropertyCurrentValue<boolean>('reportExecuting');
     public initializingPreismeldungenStatus$ = this.observePropertyCurrentValue<boolean>(
         'initializingPreismeldungenStatus',
+    );
+    public hasWritePermission$ = this.observePropertyCurrentValue<boolean>('hasWritePermission').pipe(
+        shareReplay({ bufferSize: 1, refCount: true }),
     );
     public cockpitReportData$ = this.observePropertyCurrentValue<P.CockpitReportData>('cockpitReportData');
     public hasExecutedOnce$: Observable<boolean>;
@@ -82,11 +66,15 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
     public erhebungsZeitpunkt$: Observable<string>;
     public scrollList: Observable<P.CockpitPreiserheberSummary[]>;
 
-    public form: FormGroup;
+    public form: UntypedFormGroup;
 
     private ngOnInit$ = new EventEmitter();
 
-    constructor(private pefDialogService: PefDialogService, formBuilder: FormBuilder) {
+    constructor(
+        private pefDialogService: PefDialogService,
+        formBuilder: UntypedFormBuilder,
+        translate: TranslateService,
+    ) {
         super();
 
         this.form = formBuilder.group({
@@ -94,29 +82,26 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
             erhebungsZeitpunkt: ['indifferent'],
         });
 
-        const formValueChange$ = this.form.valueChanges.pipe(
-            publishReplay(1),
-            refCount(),
-        );
+        const formValueChange$ = this.form.valueChanges.pipe(publishReplay(1), refCount());
 
         this.erhebungsZeitpunkt$ = formValueChange$.pipe(
-            map(x => x.erhebungsZeitpunkt),
+            map((x) => x.erhebungsZeitpunkt),
             startWith('indifferent'),
         );
 
-        this.reportExecuting$.pipe(filter(x => !!x)).subscribe(() =>
-            this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
+        this.reportExecuting$.pipe(filter((x) => !!x)).subscribe(() =>
+            this.pefDialogService.displayLoading(translate.instant('label.standard.wird_bearbeited_bitte_warten'), {
                 requestDismiss$: this.reportExecuting$.pipe(
-                    filter(x => !x),
+                    filter((x) => !x),
                     take(1),
                 ),
             }),
         );
 
-        this.initializingPreismeldungenStatus$.pipe(filter(x => !!x)).subscribe(() =>
-            this.pefDialogService.displayLoading('Prüfstatus wird zugewiesen, bitte warten...', {
+        this.initializingPreismeldungenStatus$.pipe(filter((x) => !!x)).subscribe(() =>
+            this.pefDialogService.displayLoading(translate.instant('label.standard.wird_pruefstatus_zugewiesen'), {
                 requestDismiss$: this.initializingPreismeldungenStatus$.pipe(
-                    filter(x => !x),
+                    filter((x) => !x),
                     take(1),
                 ),
             }),
@@ -124,7 +109,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
 
         const filteredPreiserheber$ = formValueChange$.pipe(
             startWith({}),
-            combineLatest(this.cockpitReportData$.pipe(filter(x => !!x))),
+            combineLatest(this.cockpitReportData$.pipe(filter((x) => !!x))),
             shareReplay({ bufferSize: 1, refCount: true }),
         );
         this.notAssigned$ = filteredPreiserheber$.pipe(
@@ -140,26 +125,26 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
                 const filterStichtage = (preiserhebers: P.CockpitPreiserheberSummary[]) => {
                     return showAll
                         ? preiserhebers
-                        : preiserhebers.filter(pe => !!pe.summary && pe.summary[erhebungsZeitpunktKey].total > 0);
+                        : preiserhebers.filter((pe) => !!pe.summary && pe.summary[erhebungsZeitpunktKey].total > 0);
                 };
                 if (!form.preiserheberFilter) {
                     return filterStichtage(cockpitReportData.preiserheber);
                 } else {
                     return pefSearch(form.preiserheberFilter, filterStichtage(cockpitReportData.preiserheber), [
-                        x => x.erheber.firstName,
-                        x => x.erheber.surname,
-                        x => x.erheber.erhebungsregion,
+                        (x) => x.erheber.firstName,
+                        (x) => x.erheber.surname,
+                        (x) => x.erheber.erhebungsregion,
                     ]);
                 }
             }),
-            map(x => sortBy(x, pe => pe.erheber.surname.toLocaleLowerCase())),
+            map((x) => sortBy(x, (pe) => pe.erheber.surname.toLocaleLowerCase())),
             startWith([]),
             publishReplay(1),
             refCount(),
         );
 
         this.filteredSummary$ = this.filteredPreiserheber$.pipe(
-            map(preiserheber =>
+            map((preiserheber) =>
                 preiserheber.reduce(
                     (agg, v) =>
                         ({
@@ -195,7 +180,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
 
         this.preiserheberSelected$ = this.selectPreiserheber$.pipe(
             combineLatest(this.filteredPreiserheber$, (clickedPreiserheber, filteredPreiserheber) => {
-                if (!filteredPreiserheber.some(y => y.username === clickedPreiserheber.username)) return null;
+                if (!filteredPreiserheber.some((y) => y.username === clickedPreiserheber.username)) return null;
                 return clickedPreiserheber;
             }),
             publishReplay(1),
@@ -203,7 +188,7 @@ export class CockpitReportComponent extends ReactiveComponent implements OnChang
         );
 
         this.hasExecutedOnce$ = this.cockpitReportData$.pipe(
-            filter(x => !!x),
+            filter((x) => !!x),
             mapTo(true),
             take(1),
         );

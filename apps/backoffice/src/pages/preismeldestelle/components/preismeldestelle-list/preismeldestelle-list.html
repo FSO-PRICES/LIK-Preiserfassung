@@ -1,18 +1,17 @@
 <div class="pef-advanced-item-flex-container">
     <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
-    <!-- <ion-content pef-perfect-virtualscroll-scrollbar enabled="true"> -->
-    <ion-virtual-scroll
-        [items]="filteredPreismeldestellen$ | async"
-        approxItemHeight="50px"
+
+    <cdk-virtual-scroll-viewport
+        itemSize="56"
+        minBufferPx="1200"
+        maxBufferPx="1600"
         [class.hidden]="(filteredPreismeldestellen$ | async).length === 0"
-    >
+        class="virtual-scroll">
         <ion-item
             class="pef-advanced-item"
-            *virtualItem="let preismeldestelle"
+            *cdkVirtualFor="let preismeldestelle of filteredPreismeldestellen$ | async"
             (click)="selectPreismeldestelle$.emit(preismeldestelle._id)"
-            [class.selected]="preismeldestelle._id == (current$ | async)?._id"
-            tappable
-        >
+            [class.selected]="preismeldestelle._id === (current$ | async)?._id">
             <div class="preismeldung-wrapper">
                 <div class="pef-item-title">
                     {{ preismeldestelle.pmsNummer }}
@@ -22,11 +21,10 @@
                     <span class="text">{{ preismeldestelle.name }}</span>
                     <span class="artikel-text"
                         >{{ preismeldestelle.postcode }}&nbsp;{{ preismeldestelle.town }}&nbsp;[{{
-                            preismeldestelle.erhebungsregion
-                        }}]</span
+                        preismeldestelle.erhebungsregion }}]</span
                     >
                 </div>
             </div>
         </ion-item>
-    </ion-virtual-scroll>
+    </cdk-virtual-scroll-viewport>
 </div>

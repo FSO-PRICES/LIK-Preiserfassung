@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { flatten } from 'lodash';
 
 import { createMapOf, Models as P, sortBySelector } from '@lik-shared';
@@ -97,14 +77,14 @@ export function reducer(state = initialState, action: cockpit.Action): State {
                 preismeldestellen,
                 lastSyncedAt,
             } = action.payload;
-            const preiserheberSummary = preiserheber.map(erheber => {
-                const preiszuweisung = preiszuweisungen.find(z => z.preiserheberId === erheber.username);
+            const preiserheberSummary = preiserheber.map((erheber) => {
+                const preiszuweisung = preiszuweisungen.find((z) => z.preiserheberId === erheber.username);
                 const pmsNummern = !!preiszuweisung ? preiszuweisung.preismeldestellenNummern : [];
-                const preismeldungenSynced = preismeldungen.filter(r => pmsNummern.some(n => n === r.pmsNummer));
-                const todo = refPreismeldungen.filter(r => pmsNummern.some(n => n === r.pmsNummer));
+                const preismeldungenSynced = preismeldungen.filter((r) => pmsNummern.some((n) => n === r.pmsNummer));
+                const todo = refPreismeldungen.filter((r) => pmsNummern.some((n) => n === r.pmsNummer));
                 const summary = createStichtagGroupedCockpitPreismeldungSummary(todo, preismeldungenSynced);
-                const preiserheberPreismeldestellen = pmsNummern.map(pmsNummer =>
-                    preismeldestellen.find(pms => pms.pmsNummer === pmsNummer),
+                const preiserheberPreismeldestellen = pmsNummern.map((pmsNummer) =>
+                    preismeldestellen.find((pms) => pms.pmsNummer === pmsNummer),
                 );
                 const pmsPreismeldungSummary = createCockpitPmsPreismeldungenSummary(
                     preiserheberPreismeldestellen,
@@ -119,13 +99,13 @@ export function reducer(state = initialState, action: cockpit.Action): State {
                     pmsPreismeldungSummary,
                 };
             });
-            const assignedPmsNummern = flatten(preiszuweisungen.map(z => z.preismeldestellenNummern));
+            const assignedPmsNummern = flatten(preiszuweisungen.map((z) => z.preismeldestellenNummern));
             const unassignedRefPreismeldungen = refPreismeldungen.filter(
-                r => !assignedPmsNummern.some(n => n === r.pmsNummer),
+                (r) => !assignedPmsNummern.some((n) => n === r.pmsNummer),
             );
             const unassignedSummary = createStichtagGroupedCockpitPreismeldungSummary(unassignedRefPreismeldungen, []);
             const unassignedPriesmeldestellen = preismeldestellen.filter(
-                pms => !assignedPmsNummern.some(pmsNummer => pmsNummer === pms.pmsNummer),
+                (pms) => !assignedPmsNummern.some((pmsNummer) => pmsNummer === pms.pmsNummer),
             );
             const unassignedPmsPreismeldungSummary = createCockpitPmsPreismeldungenSummary(
                 unassignedPriesmeldestellen,
@@ -135,14 +115,14 @@ export function reducer(state = initialState, action: cockpit.Action): State {
             return {
                 isExecuting: false,
                 cockpitReportData: {
-                    preiserheber: preiserheberSummary.filter(ps => !ps.summary || ps.summary.indifferent.total > 0),
+                    preiserheber: preiserheberSummary.filter((ps) => !ps.summary || ps.summary.indifferent.total > 0),
                     unassigned: {
                         summary: unassignedSummary,
                         pmsPreismeldungSummary: unassignedPmsPreismeldungSummary,
                     },
                 },
                 selectedPreiserheber: !!state.selectedPreiserheber
-                    ? preiserheberSummary.find(ps => ps.erheber._id === state.selectedPreiserheber.erheber._id)
+                    ? preiserheberSummary.find((ps) => ps.erheber._id === state.selectedPreiserheber.erheber._id)
                     : null,
             };
         }
@@ -151,7 +131,7 @@ export function reducer(state = initialState, action: cockpit.Action): State {
             return {
                 ...state,
                 selectedPreiserheber: state.cockpitReportData.preiserheber.find(
-                    pe => pe.erheber._id === action.payload,
+                    (pe) => pe.erheber._id === action.payload,
                 ),
             };
         }
@@ -165,10 +145,10 @@ function createStichtagGroupedCockpitPreismeldungSummary(
     refPreismeldungen: P.PreismeldungReference[],
     preismeldungenSynced: P.Preismeldung[],
 ): StichtagGroupedCockpitPreismeldungSummary {
-    const todoSynced = preismeldungenSynced.filter(pm => refPreismeldungen.some(r => r.pmId === pm._id));
-    const done = preismeldungenSynced.filter(pm => pm.istAbgebucht);
-    const newPreismeldungen = preismeldungenSynced.filter(pm => !refPreismeldungen.some(r => r.pmId === pm._id));
-    const doneById = createMapOf(done, pm => pm._id);
+    const todoSynced = preismeldungenSynced.filter((pm) => refPreismeldungen.some((r) => r.pmId === pm._id));
+    const done = preismeldungenSynced.filter((pm) => pm.istAbgebucht);
+    const newPreismeldungen = preismeldungenSynced.filter((pm) => !refPreismeldungen.some((r) => r.pmId === pm._id));
+    const doneById = createMapOf(done, (pm) => pm._id);
 
     const createCockpitPreismeldungenSummaryFn = (erhebungsZeitpunkt?: number, onlyNoErhebungszeitpunkt?: boolean) =>
         createCockpitPreismeldungenSummary(
@@ -206,13 +186,13 @@ function createCockpitPreismeldungenSummary(
                 ? !pm.erhebungsZeitpunkt
                 : true
             : pm.erhebungsZeitpunkt === erhebungsZeitpunkt;
-    const todo_ = todo.filter(x => inErhebungszeitpunkt(x));
+    const todo_ = todo.filter((x) => inErhebungszeitpunkt(x));
     const summary = {
         total: todo_.length,
-        newPreismeldungen: newPreismeldungen.filter(x => inErhebungszeitpunkt(x)).length,
-        todo: todo_.filter(x => !doneById[x.pmId]).length,
-        doneButNotUploaded: done.filter(x => !x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
-        uploaded: done.filter(x => !!x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
+        newPreismeldungen: newPreismeldungen.filter((x) => inErhebungszeitpunkt(x)).length,
+        todo: todo_.filter((x) => !doneById[x.pmId]).length,
+        doneButNotUploaded: done.filter((x) => !x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
+        uploaded: done.filter((x) => !!x.uploadRequestedAt && inErhebungszeitpunkt(x)).length,
     };
     const synced = todoSynced.length > 0 || todo_.length === 0;
     const nothingTodo = synced && summary.todo === 0;
@@ -223,7 +203,7 @@ function createCockpitPreismeldungenSummary(
         synced,
         nothingTodo,
         nothingToUpload,
-        uploadedAll: nothingToUpload && todo_.every(x => !!doneById[x.pmId] && !!doneById[x.pmId].uploadRequestedAt),
+        uploadedAll: nothingToUpload && todo_.every((x) => !!doneById[x.pmId] && !!doneById[x.pmId].uploadRequestedAt),
     };
 }
 
@@ -233,15 +213,17 @@ function createCockpitPmsPreismeldungenSummary(
     preismeldungenSynced: P.Preismeldung[],
 ): CockpitPmsPreismeldungSummary[] {
     return sortBySelector(
-        preismeldestellen.map(pms => {
-            const pmsTodo = pms ? refPreismeldungen.filter(r => r.pmsNummer === pms.pmsNummer) : [];
-            const pmsPreismeldungenSynced = pms ? preismeldungenSynced.filter(r => r.pmsNummer === pms.pmsNummer) : [];
+        preismeldestellen.map((pms) => {
+            const pmsTodo = pms ? refPreismeldungen.filter((r) => r.pmsNummer === pms.pmsNummer) : [];
+            const pmsPreismeldungenSynced = pms
+                ? preismeldungenSynced.filter((r) => r.pmsNummer === pms.pmsNummer)
+                : [];
             return {
                 pms,
                 summary: createStichtagGroupedCockpitPreismeldungSummary(pmsTodo, pmsPreismeldungenSynced),
             };
         }),
-        data => (data.pms ? data.pms.name.toLowerCase() : ''),
+        (data) => (data.pms ? data.pms.name.toLowerCase() : ''),
     );
 }
 

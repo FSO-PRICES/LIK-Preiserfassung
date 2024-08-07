@@ -1,35 +1,18 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Component, EventEmitter, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable, Subscription, of } from 'rxjs';
 import {
     distinctUntilChanged,
     filter,
     flatMap,
     map,
     merge,
+    mergeWith,
     publishReplay,
     refCount,
     skip,
+    startWith,
     withLatestFrom,
 } from 'rxjs/operators';
 
@@ -43,67 +26,97 @@ import * as fromRoot from '../../reducers';
     templateUrl: 'export-to-presta.html',
     styleUrls: ['export-to-presta.scss'],
 })
-export class ExportToPrestaPage implements OnDestroy {
-    public settings$ = this.store.select(fromRoot.getSettings).pipe(
-        publishReplay(1),
-        refCount(),
-    );
+export class ExportToPrestaPage implements AfterViewInit, OnDestroy {
+    public settings$ = this.store.select(fromRoot.getSettings).pipe(publishReplay(1), refCount());
 
     public exportedPreismeldestellen$ = this.store.select(fromRoot.getExportedPreismeldestellen);
     public exportedPreismeldungen$ = this.store.select(fromRoot.getExportedPreismeldungen);
     public exportedPreiserheber$ = this.store.select(fromRoot.getExportedPreiserheber);
+    public allPreismeldungenNumberOfRecordsExported$ = this.store.select(
+        fromRoot.getAllPreismeldungenNumberOfRecordsExported,
+    );
+    public hasWritePermission$ = this.store.select(fromRoot.hasWritePermission);
 
     public exportErrorPreismeldestellen$ = this.store
         .select(fromRoot.getExporterState)
-        .pipe(map(s => s.preismeldestellenError));
+        .pipe(map((s) => s.preismeldestellenError));
     public exportErrorPreismeldungen$ = this.store
         .select(fromRoot.getExporterState)
-        .pipe(map(s => s.preismeldungenError));
-    public exportErrorPreiserheber$ = this.store.select(fromRoot.getExporterState).pipe(map(s => s.preiserheberError));
+        .pipe(map((s) => s.preismeldungenError));
+    public exportErrorPreiserheber$ = this.store
+        .select(fromRoot.getExporterState)
+        .pipe(map((s) => s.preiserheberError));
+    public exportErrorAllPreismeldungen$ = this.store
+        .select(fromRoot.getExporterState)
+        .pipe(map((s) => s.allPreismeldungenExportedError));
 
     public exportPreismeldungenClicked$ = new EventEmitter();
+    public exportAllPreismeldungenClicked$ = new EventEmitter();
     public exportPreismeldestellenClicked$ = new EventEmitter();
     public exportPreiserheberClicked$ = new EventEmitter();
+
+    public debugConfirmedClicked$ = new EventEmitter<Event>();
+    public debugConfirmed$: Observable<boolean>;
 
     public isErhebungsorgannummerSet$: Observable<boolean>;
 
     private subscriptions: Subscription[] = [];
 
-    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
+    constructor(
+        private store: Store<fromRoot.AppState>,
+        private pefDialogService: PefDialogService,
+        translate: TranslateService,
+    ) {
         this.isErhebungsorgannummerSet$ = this.settings$.pipe(
-            map(settings => !!settings && !!settings.general && !!settings.general.erhebungsorgannummer),
+            map((settings) => !!settings && !!settings.general && !!settings.general.erhebungsorgannummer),
             distinctUntilChanged(),
         );
 
         const dismissPreismeldestellenLoading$ = this.exportedPreismeldestellen$.pipe(
             skip(1),
-            filter(x => x !== null),
+            filter((x) => x !== null),
             merge(
                 this.exportErrorPreismeldestellen$.pipe(
                     skip(1),
-                    filter(x => x !== null),
+                    filter((x) => x !== null),
                 ),
             ),
         );
         const dismissPreismeldungenLoading$ = this.exportedPreismeldungen$.pipe(
             skip(1),
-            filter(x => x !== null),
+            filter((x) => x !== null),
             merge(
                 this.exportErrorPreismeldungen$.pipe(
                     skip(1),
-                    filter(x => x !== null),
+                    filter((x) => x !== null),
                 ),
             ),
         );
         const dismissPreisherberLoading$ = this.exportedPreiserheber$.pipe(
             skip(1),
-            filter(x => x !== null),
+            filter((x) => x !== null),
             merge(
                 this.exportErrorPreiserheber$.pipe(
                     skip(1),
-                    filter(x => x !== null),
+                    filter((x) => x !== null),
                 ),
             ),
+        );
+
+        const dismissAllPreismeldungenLoading$ = this.allPreismeldungenNumberOfRecordsExported$.pipe(
+            skip(1),
+            filter((x) => x !== null),
+            mergeWith(
+                this.exportErrorAllPreismeldungen$.pipe(
+                    skip(1),
+                    filter((x) => x !== null),
+                ),
+            ),
+        );
+
+        this.debugConfirmed$ = this.debugConfirmedClicked$.pipe(
+            map(() => true),
+            startWith(false),
         );
 
         this.subscriptions = [
@@ -111,9 +124,12 @@ export class ExportToPrestaPage implements OnDestroy {
             this.exportPreismeldestellenClicked$
                 .pipe(
                     flatMap(() =>
-                        this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
-                            requestDismiss$: dismissPreismeldestellenLoading$,
-                        }),
+                        this.pefDialogService.displayLoading(
+                            translate.instant('label.standard.wird_bearbeited_bitte_warten'),
+                            {
+                                requestDismiss$: dismissPreismeldestellenLoading$,
+                            },
+                        ),
                     ),
                 )
                 .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDESTELLEN' } as exporter.Action)),
@@ -121,23 +137,42 @@ export class ExportToPrestaPage implements OnDestroy {
             this.exportPreismeldungenClicked$
                 .pipe(
                     flatMap(() =>
-                        this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
-                            requestDismiss$: dismissPreismeldungenLoading$,
-                        }),
+                        this.pefDialogService.displayLoading(
+                            translate.instant('label.standard.wird_bearbeited_bitte_warten'),
+                            {
+                                requestDismiss$: dismissPreismeldungenLoading$,
+                            },
+                        ),
                     ),
                 )
                 .subscribe(() => this.store.dispatch({ type: 'EXPORT_PREISMELDUNGEN' } as exporter.Action)),
 
+            this.exportAllPreismeldungenClicked$
+                .pipe(
+                    flatMap(() =>
+                        this.pefDialogService.displayLoading(
+                            translate.instant('label.standard.wird_bearbeited_bitte_warten'),
+                            {
+                                requestDismiss$: dismissAllPreismeldungenLoading$,
+                            },
+                        ),
+                    ),
+                )
+                .subscribe(() => this.store.dispatch({ type: 'EXPORT_ALL_PREISMELDUNGEN' } as exporter.Action)),
+
             this.exportPreiserheberClicked$
                 .pipe(
                     flatMap(() =>
-                        this.pefDialogService.displayLoading('Daten werden zusammengefasst, bitte warten...', {
-                            requestDismiss$: dismissPreisherberLoading$,
-                        }),
+                        this.pefDialogService.displayLoading(
+                            translate.instant('label.standard.wird_bearbeited_bitte_warten'),
+                            {
+                                requestDismiss$: dismissPreisherberLoading$,
+                            },
+                        ),
                     ),
                     withLatestFrom(this.settings$, (_, settings) => settings.general.erhebungsorgannummer),
                 )
-                .subscribe(erhebungsorgannummer =>
+                .subscribe((erhebungsorgannummer) =>
                     this.store.dispatch({
                         type: 'EXPORT_PREISERHEBER',
                         payload: erhebungsorgannummer,
@@ -145,12 +180,11 @@ export class ExportToPrestaPage implements OnDestroy {
                 ),
         ];
     }
-
-    public ionViewDidEnter() {
+    ngAfterViewInit() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
     }
 
     ngOnDestroy() {
-        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
+        this.subscriptions.filter((s) => !!s && !s.closed).forEach((s) => s.unsubscribe());
     }
 }

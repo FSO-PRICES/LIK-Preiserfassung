@@ -2,25 +2,24 @@
     <div class="header">
         <h3>{{ 'heading_login' | translate }}</h3>
     </div>
-    <ion-item class="pef-item">
-        <ion-label position="stacked">{{ 'label_login_username' | translate }}</ion-label>
-        <!-- https://github.com/ionic-team/ionic/issues/15136#issuecomment-444388085 -->
-        <ion-input
-            type="text"
-            #username
-            formControlName="username"
-            autofocus
-            autocapitalize="none"
-            (keyup.enter)="login()"
-        ></ion-input>
-    </ion-item>
-    <ion-item class="pef-item">
-        <ion-label position="stacked">{{ 'label_login_password' | translate }}</ion-label>
-        <ion-input type="password" formControlName="password" (keyup.enter)="login()"></ion-input>
-    </ion-item>
+    <ion-input
+        labelPlacement="stacked"
+        [label]="'label.login.benutzername' | translate"
+        type="text"
+        #username
+        formControlName="username"
+        autofocus
+        autocapitalize="none"
+        (keyup.enter)="login()"></ion-input>
+    <ion-input
+        labelPlacement="stacked"
+        [label]="'label.login.passwort' | translate"
+        type="password"
+        formControlName="password"
+        (keyup.enter)="login()"></ion-input>
     <div class="actions">
-        <a (click)="navigateToSettings()" href="javascript:">
-            {{ 'a_navigate-to-settings' | translate }}
+        <a routerLink="/settings" (click)="navigateToSettings()">
+            {{ 'dialog.login.zu_den_einstellungen' | translate }}
         </a>
         <ion-button type="submit">{{ 'btn_login' | translate }}</ion-button>
     </div>

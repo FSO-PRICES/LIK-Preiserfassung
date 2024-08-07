@@ -1,10 +1,10 @@
 <input
     #pmStatusInput
-    [class.hidden]="!(preismeldungStatus != null || disabled)"
+    [class.hidden]="!(preismeldungStatus !== null || disabled)"
+    [class.large]="size === 'large'"
     type="range"
     min="0"
     max="2"
-    [disabled]="disabled"
-    (change)="inputChanged$.emit($event.target.value)"
-/>
-<ion-button *ngIf="!(preismeldungStatus != null || disabled)" (click)="inputChanged$.emit(0)">✓</ion-button>
+    [disabled]="disabled$ | async"
+    (change)="inputChanged$.emit($event.target.value)" />
+<ion-button *ngIf="!(preismeldungStatus !== null || disabled)" (click)="inputChanged$.emit(0)">✓</ion-button>

@@ -1,7 +1,9 @@
 :host {
-    margin: 0.4rem 0.2rem;
-
-    .button-md {
+    ion-button {
         margin: 0;
+
+        &:first-child {
+            margin-right: 5px;
+        }
     }
 }

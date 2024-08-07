@@ -4,17 +4,17 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>LIK-Monatsbericht</th>
-                        <th>PMS-Probleme</th>
+                        <th>{{'reporting.lik_monatsbericht' | translate}}</th>
+                        <th>{{'reporting.pms_probleme.titel' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Erhebungsmonat</td>
+                        <td>{{ 'text_erhebungsmonat' | translate }}</td>
                         <td>{{ reportData.zeitpunkt.erhebungsmonat }}</td>
                     </tr>
                     <tr>
-                        <td>Erstellungsdatum</td>
+                        <td>{{'reporting.erstellungsdatum' | translate}}</td>
                         <td>{{ reportData.zeitpunkt.erstellungsdatum }}</td>
                     </tr>
                 </tbody>
@@ -22,9 +22,9 @@
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Preismeldestellen geschlossen</th>
-                        <th>Grund</th>
-                        <th>Zusatzinfo</th>
+                        <th>{{'reporting.pms_probleme.pms_geschlossen' | translate}}</th>
+                        <th>{{'reporting.pms_probleme.grund' | translate}}</th>
+                        <th>{{'reporting.pms_probleme.zusatzinfo' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>

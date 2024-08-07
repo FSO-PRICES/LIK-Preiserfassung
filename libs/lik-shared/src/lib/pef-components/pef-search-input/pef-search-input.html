@@ -1,0 +1,9 @@
+<ion-input
+    type="text"
+    clearInput
+    aria-label="Search"
+    [placeholder]="placeholder"
+    [formControl]="filterText"
+    (ionBlur)="onTouched$.emit($event)">
+    <pef-icon slot="label" name="search"></pef-icon
+></ion-input>

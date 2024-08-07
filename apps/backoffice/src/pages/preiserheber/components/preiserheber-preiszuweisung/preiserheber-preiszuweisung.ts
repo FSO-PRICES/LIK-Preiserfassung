@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import {
     ChangeDetectionStrategy,
     Component,
@@ -29,19 +9,9 @@ import {
 } from '@angular/core';
 import { reduce, some } from 'lodash';
 import { Observable } from 'rxjs';
-import {
-    combineLatest,
-    filter,
-    map,
-    merge,
-    publishReplay,
-    refCount,
-    scan,
-    startWith,
-    withLatestFrom,
-} from 'rxjs/operators';
+import { combineLatest, filter, map, merge, scan, shareReplay, startWith, withLatestFrom } from 'rxjs/operators';
 
-import { Models as P, pefSearch, ReactiveComponent, sortBySelector } from '@lik-shared';
+import { Models as P, ReactiveComponent, pefSearch, sortBySelector } from '@lik-shared';
 
 @Component({
     selector: 'preiserheber-preiszuweisung',
@@ -53,6 +23,8 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
     @Input() preismeldestellen: P.Preismeldestelle[];
     @Input() current: P.Preiszuweisung;
     @Input() preiszuweisungen: P.Preiszuweisung[];
+    @Input() hasWritePermission: boolean;
+
     @Output('save') public save$ = new EventEmitter();
     @Output('assign') public assign$: Observable<P.Preismeldestelle[]>;
     @Output('unassign') public unassign$: Observable<P.Preismeldestelle[]>;
@@ -74,23 +46,22 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
     public selectedPreismeldestellen$: Observable<{ [_id: string]: P.Preismeldestelle }>;
     public hasSelectedUnassignedPreismeldestelle$: Observable<boolean>;
     public hasSelectedAssignedPreismeldestelle$: Observable<boolean>;
+    public hasWritePermission$: Observable<boolean>;
 
     constructor() {
         super();
 
         this.current$ = this.observePropertyCurrentValue<P.Preiszuweisung>('current').pipe(
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
-
         const preiszuweisungen$ = this.observePropertyCurrentValue<P.Preiszuweisung[]>('preiszuweisungen').pipe(
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
-
         const preismeldestellen$ = this.observePropertyCurrentValue<P.Preismeldestelle[]>('preismeldestellen').pipe(
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
+        );
+        this.hasWritePermission$ = this.observePropertyCurrentValue<boolean>('hasWritePermission').pipe(
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         const unassignedPreismeldestellen$ = preiszuweisungen$.pipe(
@@ -119,30 +90,33 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
                         <string[]>[],
                     );
                     return sortBySelector(
-                        preismeldestellen.filter(x => !alreadyAssigned.some(pmsNummer => pmsNummer === x.pmsNummer)),
-                        pms => pms.name.toLowerCase(),
+                        preismeldestellen.filter(
+                            (x) => !alreadyAssigned.some((pmsNummer) => pmsNummer === x.pmsNummer),
+                        ),
+                        (pms) => pms.name.toLowerCase(),
                     );
                 }
-                return sortBySelector(preismeldestellen, pms => pms.name.toLowerCase());
+                return sortBySelector(preismeldestellen, (pms) => pms.name.toLowerCase());
             }),
             startWith([]),
         );
 
         this.assignedPreismeldestellen$ = this.current$.pipe(
-            filter(x => !!x),
+            filter((x) => !!x),
             withLatestFrom(preismeldestellen$, (preiszuweisung, preismeldestellen) => ({
                 preiszuweisung,
                 preismeldestellen,
             })),
             map(({ preiszuweisung, preismeldestellen }) =>
                 sortBySelector(
-                    preismeldestellen.filter(p => preiszuweisung.preismeldestellenNummern.some(x => x === p.pmsNummer)),
-                    pms => pms.name.toLowerCase(),
+                    preismeldestellen.filter((p) =>
+                        preiszuweisung.preismeldestellenNummern.some((x) => x === p.pmsNummer),
+                    ),
+                    (pms) => pms.name.toLowerCase(),
                 ),
             ),
             startWith([]),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         this.filteredPreismeldestellen$ = unassignedPreismeldestellen$.pipe(
@@ -152,23 +126,23 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
             })),
             map(({ unassignedPreismeldestellen, assigned }) =>
                 unassignedPreismeldestellen.filter(
-                    preismeldestelle => assigned.length === 0 || !assigned.some(x => x._id === preismeldestelle._id),
+                    (preismeldestelle) =>
+                        assigned.length === 0 || !assigned.some((x) => x._id === preismeldestelle._id),
                 ),
             ),
-            filter(x => !!x),
+            filter((x) => !!x),
             combineLatest(this.filterTextValueChanges$.pipe(startWith(null)), (preismeldestellen, filterText) =>
                 !filterText
                     ? preismeldestellen
                     : pefSearch(filterText, preismeldestellen, [
-                          x => x.name,
-                          x => x.pmsNummer,
-                          x => x.town,
-                          x => x.postcode,
-                          x => x.erhebungsregion,
+                          (x) => x.name,
+                          (x) => x.pmsNummer,
+                          (x) => x.town,
+                          (x) => x.postcode,
+                          (x) => x.erhebungsregion,
                       ]),
             ),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         this.selectedPreismeldestellen$ = this.selectPreismeldestelleClick$.pipe(
@@ -184,26 +158,22 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
                     ),
                 ),
             ),
-            scan(
-                (previous, current) => {
-                    return !previous || !current || !current.multi
-                        ? current
-                            ? [current.preismeldestelle]
-                            : []
-                        : !previous.find(x => x._id === current.preismeldestelle._id)
-                        ? [...previous, current.preismeldestelle]
-                        : [...previous.filter(x => x._id !== current.preismeldestelle._id)];
-                },
-                null as P.Preismeldestelle[],
-            ),
-            map(x => x.reduce((prev, cur) => ({ ...prev, [cur._id]: cur }), {})),
+            scan((previous, current) => {
+                return !previous || !current || !current.multi
+                    ? current
+                        ? [current.preismeldestelle]
+                        : []
+                    : !previous.find((x) => x._id === current.preismeldestelle._id)
+                    ? [...previous, current.preismeldestelle]
+                    : [...previous.filter((x) => x._id !== current.preismeldestelle._id)];
+            }, null as P.Preismeldestelle[]),
+            map((x) => x.reduce((prev, cur) => ({ ...prev, [cur._id]: cur }), {})),
             startWith({}),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         const selectedPreismeldestellenList$ = this.selectedPreismeldestellen$.pipe(
-            map(preismeldestellen => Object.keys(preismeldestellen).map(_id => preismeldestellen[_id])),
+            map((preismeldestellen) => Object.keys(preismeldestellen).map((_id) => preismeldestellen[_id])),
         );
 
         this.hasSelectedUnassignedPreismeldestelle$ = selectedPreismeldestellenList$.pipe(
@@ -212,11 +182,10 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
                 ([preismeldestellen, filteredPreismeldestellen]) =>
                     !!preismeldestellen &&
                     some(filteredPreismeldestellen, (x: P.Preismeldestelle) =>
-                        preismeldestellen.some(p => x._id === p._id),
+                        preismeldestellen.some((p) => x._id === p._id),
                     ),
             ),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
         this.hasSelectedAssignedPreismeldestelle$ = selectedPreismeldestellenList$.pipe(
             combineLatest(this.assignedPreismeldestellen$),
@@ -224,11 +193,10 @@ export class PreiserheberPreiszuweisungComponent extends ReactiveComponent imple
                 ([preismeldestellen, assignedPreismeldestellen]) =>
                     !!preismeldestellen &&
                     some(assignedPreismeldestellen, (x: P.Preismeldestelle) =>
-                        preismeldestellen.some(p => x._id === p._id),
+                        preismeldestellen.some((p) => x._id === p._id),
                     ),
             ),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         this.assign$ = this.assignPreismeldestelleClick$.pipe(

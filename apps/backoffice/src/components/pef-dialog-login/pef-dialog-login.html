@@ -1,36 +1,36 @@
 <div class="pef-dialog-message">
     <h3>
         <pef-icon name="info-outlined"></pef-icon>
-        Bitte Einloggen
+        {{'dialog.login.titel' | translate}}
     </h3>
-    <form [formGroup]="form" class="stacked-form" (ngSubmit)="login$.emit()">
-        <p>
-            <ion-list no-lines>
-                <ion-item class="pef-item">
-                    <ion-label position="stacked">Benutzername</ion-label>
-                    <ion-input
-                        type="text"
-                        formControlName="username"
-                        autofocus
-                        #username
-                        (keyup.enter)="login$.emit()"
-                    ></ion-input>
-                </ion-item>
-                <ion-item class="pef-item">
-                    <ion-label position="stacked">Passwort</ion-label>
-                    <ion-input type="password" formControlName="password" (keyup.enter)="login$.emit()"></ion-input>
-                </ion-item>
-            </ion-list>
+    <form
+        [formGroup]="form"
+        (ngSubmit)="login$.emit()"
+        [class.form-show-validation-hints]="showValidationHints$ | async">
+        <div class="inputs-wrapper">
+            <ion-input
+                #username
+                type="text"
+                formControlName="username"
+                [label]="'label.login.benutzername' | translate"
+                labelPlacement="stacked"
+                (keyup.enter)="login$.emit()"></ion-input>
 
-            <span class="error" *ngIf="!!(loginError$ | async)">
-                {{ loginError$ | async }}
-            </span>
-        </p>
+            <ion-input
+                type="password"
+                formControlName="password"
+                [label]="'label.login.passwort' | translate"
+                labelPlacement="stacked"
+                (keyup.enter)="login$.emit()"></ion-input>
+        </div>
+
+        <span class="error" *ngIf="!!(loginError$ | async)"> {{ loginError$ | async }} </span>
+
         <div class="pef-dialog-login-button-row">
             <a (click)="navigateToSettings()" href="javascript:">
-                Einstellungen bearbeiten
+                {{'dialog.login.zu_den_einstellungen' | translate}}
             </a>
-            <ion-button type="submit" color="secondary">Login</ion-button>
+            <ion-button type="submit" color="secondary">{{'label.aktionen.login' | translate}}</ion-button>
         </div>
     </form>
 </div>

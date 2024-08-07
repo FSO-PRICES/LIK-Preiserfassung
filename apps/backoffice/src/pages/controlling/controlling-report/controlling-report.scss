@@ -6,43 +6,43 @@
     flex-direction: column;
 
     .top-section {
-        display: flex;
-        flex: 0 0 auto;
-
         h2 {
             margin: auto;
         }
 
-        .filter {
-            display: flex;
-            align-self: flex-start;
-            flex-direction: column;
-            flex: 0;
+        .status {
+            padding: 1.5rem 0;
 
-            .status {
-                flex: 1;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                ion-radio-group {
-                    --ion-background-color: transparent;
-                    display: flex;
-                    ion-radio {
-                        margin-right: 10px;
-                    }
-                    ion-item {
-                        --padding-start: 0;
-                        width: auto;
-                    }
-                }
-            }
-            .controlling {
-                align-self: flex-start;
+            .custom-radio {
+                margin-right: 2rem;
             }
         }
+
+        .controlling {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+
+            select {
+                width: auto;
+                margin: 0;
+                border: 1px solid $outer-space;
+            }
+
+            ion-button {
+                margin: 0;
+            }
+
+            .pm-count {
+                padding-left: 2rem;
+            }
+        }
+
         ion-button {
-            --padding-start: 8px;
-            --padding-end: 8px;
+            --padding-start: 16px;
+            --padding-end: 16px;
+            --padding-top: 0;
+            --padding-bottom: 0;
             &.active {
                 --background: #{$bittersweet};
                 --opacity: 0.9;
@@ -53,15 +53,6 @@
             align-self: flex-end;
             align-items: center;
         }
-    }
-
-    .btn-execute,
-    pef-zoom {
-        margin: 0 0 0 20px;
-    }
-
-    .controlling-selected {
-        padding: 6px 8px;
     }
 
     .table-wrapper {

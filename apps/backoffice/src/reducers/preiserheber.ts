@@ -1,25 +1,6 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { assign, cloneDeep } from 'lodash';
-import { createSelector } from 'reselect';
+import { createSelector } from '@ngrx/store';
+import assign from 'lodash.assign';
+import cloneDeep from 'lodash.clonedeep';
 
 import { Models as P } from '@lik-shared';
 
@@ -49,8 +30,8 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
     switch (action.type) {
         case 'PREISERHEBER_LOAD_SUCCESS': {
             const { payload } = action;
-            const preiserhebers = payload.map<P.Erheber>(erheber => Object.assign({}, erheber));
-            const preiserheberIds = preiserhebers.map(p => p._id);
+            const preiserhebers = payload.map<P.Erheber>((erheber) => Object.assign({}, erheber));
+            const preiserheberIds = preiserhebers.map((p) => p._id);
             const entities = preiserhebers.reduce((agg: { [_id: string]: P.Erheber }, preiserheberValue: P.Erheber) => {
                 return Object.assign(agg, { [preiserheberValue._id]: preiserheberValue });
             }, {});
@@ -77,8 +58,8 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
 
         case 'DELETE_PREISERHEBER_SUCCESS': {
             const entities = Object.assign({}, state.entities);
-            if (state.preiserheberIds.some(pId => pId === action.payload)) {
-                const preiserheberIds = state.preiserheberIds.filter(pId => pId !== action.payload);
+            if (state.preiserheberIds.some((pId) => pId === action.payload)) {
+                const preiserheberIds = state.preiserheberIds.filter((pId) => pId !== action.payload);
                 delete entities[action.payload];
                 return assign({}, state, { currentPreiserheber: undefined, entities, preiserheberIds });
             }
@@ -165,7 +146,7 @@ export function reducer(state = initialState, action: preiserheber.Action): Stat
                 isSaved: true,
                 error: null,
             });
-            const preiserheberIds = !!state.preiserheberIds.find(x => x === currentPreiserheber._id)
+            const preiserheberIds = state.preiserheberIds.find((x) => x === currentPreiserheber._id)
                 ? state.preiserheberIds
                 : [...state.preiserheberIds, currentPreiserheber._id];
             return assign({}, state, {
@@ -195,8 +176,6 @@ export const getEntities = (state: State) => state.entities;
 export const getPreiserheberIds = (state: State) => state.preiserheberIds;
 export const getCurrentPreiserheber = (state: State) => state.currentPreiserheber;
 
-export const getAll = createSelector(
-    getEntities,
-    getPreiserheberIds,
-    (entities, preiserheberIds) => preiserheberIds.map(x => entities[x]),
+export const getAll = createSelector(getEntities, getPreiserheberIds, (entities, preiserheberIds) =>
+    preiserheberIds.map((x) => entities[x]),
 );

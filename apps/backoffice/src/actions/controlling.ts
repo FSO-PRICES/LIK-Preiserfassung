@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { Models as P, PreismeldungBag } from '@lik-shared';
 
 export const RUN_CONTROLLING = 'RUN_CONTROLLING';
@@ -37,7 +17,11 @@ export const CONTROLLING_0200 = 'CONTROLLING_0200';
 export const CONTROLLING_0110 = 'CONTROLLING_0110';
 export const CONTROLLING_0210 = 'CONTROLLING_0210';
 export const CONTROLLING_0115 = 'CONTROLLING_0115';
+export const CONTROLLING_0116 = 'CONTROLLING_0116';
+export const CONTROLLING_0117 = 'CONTROLLING_0117';
 export const CONTROLLING_0215 = 'CONTROLLING_0215';
+export const CONTROLLING_0216 = 'CONTROLLING_0216';
+export const CONTROLLING_0217 = 'CONTROLLING_0217';
 export const CONTROLLING_0120 = 'CONTROLLING_0120';
 export const CONTROLLING_0220 = 'CONTROLLING_0220';
 export const CONTROLLING_0230 = 'CONTROLLING_0230';
@@ -64,6 +48,7 @@ export const CONTROLLING_0700 = 'CONTROLLING_0700';
 export const CONTROLLING_0810 = 'CONTROLLING_0810';
 export const CONTROLLING_0820 = 'CONTROLLING_0820';
 export const CONTROLLING_0830 = 'CONTROLLING_0830';
+export const CONTROLLING_0840 = 'CONTROLLING_0840';
 
 export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0100
@@ -96,9 +81,19 @@ export type CONTROLLING_TYPE =
     | typeof CONTROLLING_0700
     | typeof CONTROLLING_0810
     | typeof CONTROLLING_0820
-    | typeof CONTROLLING_0830;
+    | typeof CONTROLLING_0830
+    | typeof CONTROLLING_0840;
 
-export const ControllingTypesWithoutPmStatus = [CONTROLLING_0100, CONTROLLING_0200, CONTROLLING_0230, CONTROLLING_0240];
+export const ControllingTypesWithoutPmStatus = [
+    CONTROLLING_0100,
+    CONTROLLING_0200,
+    CONTROLLING_0230,
+    CONTROLLING_0240,
+    CONTROLLING_0810,
+    CONTROLLING_0820,
+    CONTROLLING_0830,
+    CONTROLLING_0840,
+];
 
 export interface ControllingData {
     alreadyExported: string[];

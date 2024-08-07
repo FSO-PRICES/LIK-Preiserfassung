@@ -1,23 +1,23 @@
 <div class="header">
-    <h1 class="large">Warenkorb</h1>
+    <h1 class="large">{{'label.wk.titel' | translate}}</h1>
 </div>
 <ion-row>
     <ion-col>
-        <label>Erhebungsschema Import</label>
+        <label>{{'import.wk_import' | translate}}</label>
     </ion-col>
     <ion-col>
         <input
+            *ngIf="(hasWritePermission$ | async)"
             class="file-select-btn"
             type="file"
             (change)="warenkorbSelected$.emit($event)"
             [value]="(resetInputValue$ | async)?.value"
-            required
-        />
+            required />
     </ion-col>
 </ion-row>
 <div class="actions">
     <ion-text *ngIf="(isWarenkorbImported$ | async)" color="primary"
-        >Warenkorb wurde erfolgreich importiert. {{ warenkorbImportedCount$ | async }} Einträge wurden
-        hinzugefügt</ion-text
+        >{{'import.wk_erfolgreich' | translate}}. {{'import.anzahl_erfolgreich' | translate: { count:
+        warenkorbImportedCount$ | async } }}</ion-text
     >
 </div>

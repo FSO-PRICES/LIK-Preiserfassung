@@ -18,17 +18,20 @@ const users = [
     'pierrinne_tabouret',
 ];
 
-
-bluebird.all(
-    users.map(x => request({
-        url,
-        method: 'POST',
-        json: {
-            _id: `org.couchdb.user:${x}`,
-            name: x,
-            roles: [],
-            type: 'user',
-            password: 'secret'
-        }
-    })))
+bluebird
+    .all(
+        users.map((x) =>
+            request({
+                url,
+                method: 'POST',
+                json: {
+                    _id: `org.couchdb.user:${x}`,
+                    name: x,
+                    roles: [],
+                    type: 'user',
+                    password: 'secret',
+                },
+            }),
+        ),
+    )
     .then(() => console.log('done!'));

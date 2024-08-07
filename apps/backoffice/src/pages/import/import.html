@@ -10,12 +10,13 @@
                             [parsed]="warenkorbFileParsed$ | async"
                             [importedCount]="warenkorbImportedCount$ | async"
                             [resetFileInput]="resetFileInputs$ | async"
-                        >
+                            [hasWritePermission]="hasWritePermission$ | async">
                         </warenkorb-import>
                     </ion-col>
                     <ion-col class="info-column">
                         <div class="text-info" *ngIf="!!(warenkorbErhebungsmonat$ | async)">
-                            Aktueller Erhebungsmonat: {{ warenkorbErhebungsmonat$ | async | date: 'MMM y' }}
+                            {{'import.uebersicht.aktueller_monat' | translate: { date: warenkorbErhebungsmonat$ | async
+                            | date: 'MMM y' } }}
                         </div>
                     </ion-col>
                 </ion-row>
@@ -27,12 +28,13 @@
                             [parsed]="preismeldestelleFileParsed$ | async"
                             [importedCount]="preismeldestellenImportedCount$ | async"
                             [resetFileInput]="resetFileInputs$ | async"
-                        >
+                            [hasWritePermission]="hasWritePermission$ | async">
                         </preismeldestellen-import>
                     </ion-col>
                     <ion-col class="info-column">
                         <div class="text-info" *ngIf="!!(preismeldestellenErhebungsmonat$ | async)">
-                            Aktueller Erhebungsmonat: {{ preismeldestellenErhebungsmonat$ | async | date: 'MMM y' }}
+                            {{'import.uebersicht.aktueller_monat' | translate: { date: preismeldestellenErhebungsmonat$
+                            | async | date: 'MMM y' } }}
                         </div>
                     </ion-col>
                 </ion-row>
@@ -44,30 +46,41 @@
                             [parsed]="preismeldungFileParsed$ | async"
                             [importedCount]="preismeldungenImportedCount$ | async"
                             [resetFileInput]="resetFileInputs$ | async"
-                        >
+                            [hasWritePermission]="hasWritePermission$ | async">
                         </preismeldungen-import>
                     </ion-col>
-                    <ion-col class=" info-column">
+                    <ion-col class="info-column">
                         <div class="text-info" *ngIf="!!(preismeldungenErhebungsmonat$ | async)">
-                            Aktueller Erhebungsmonat: {{ preismeldungenErhebungsmonat$ | async | date: 'MMM y' }}
+                            {{'import.uebersicht.aktueller_monat' | translate: { date: preismeldungenErhebungsmonat$ |
+                            async | date: 'MMM y' } }}
                         </div>
                     </ion-col>
                 </ion-row>
                 <ion-row class="import-row">
                     <ion-col>
-                        <ion-button type="button" (click)="import$.emit()" [disabled]="!(canImport$ | async)"
-                            >Importieren</ion-button
+                        <ion-button
+                            *ngIf="hasWritePermission$ | async"
+                            type="button"
+                            (click)="import$.emit()"
+                            [disabled]="!(canImport$ | async)!"
+                            >{{'import.uebersicht.importieren' | translate}}</ion-button
                         >
                     </ion-col>
                     <ion-col class="info-column">
                         <div class="text-info" *ngIf="!!(getImportedAllDataAt$ | async)">
-                            Zuletzt importiert am: {{ getImportedAllDataAt$ | async | date: 'dd MMMM yyyy, HH:mm' }}
+                            {{'import.uebersicht.letzter_import' | translate: { date: getImportedAllDataAt$ | async |
+                            date: 'dd MMMM yyyy, HH:mm' } }}
                         </div>
                     </ion-col>
                 </ion-row>
             </ion-grid>
             <ion-text *ngIf="(importErrors$ | async); let errors" color="danger" class="error-messages row import-row">
-                <div *ngFor="let error of errors">{{ error }}</div>
+                <div *ngFor="let error of errors">
+                    {{ error }}
+                    <ion-button *ngIf="error.stack" type="button" (click)="copyToClipboard$.emit(error.stack)">
+                        Copy
+                    </ion-button>
+                </div>
             </ion-text>
         </form>
     </ion-content>

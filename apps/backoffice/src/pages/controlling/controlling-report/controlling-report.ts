@@ -1,29 +1,8 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { first } from 'lodash';
-import { defer, merge, Observable, Subject } from 'rxjs';
+import { Observable, Subject, combineLatest, defer, merge } from 'rxjs';
 import {
-    combineLatest,
     distinctUntilChanged,
     filter,
     map,
@@ -41,9 +20,12 @@ import {
 
 import { PefDialogService, ReactiveComponent } from '@lik-shared';
 
-import { CONTROLLING_0830, CONTROLLING_TYPE, ControllingTypesWithoutPmStatus } from '../../../actions/controlling';
+import { CONTROLLING_0840, CONTROLLING_TYPE, ControllingTypesWithoutPmStatus } from '../../../actions/controlling';
 import * as P from '../../../common-models';
-import { PefDialogPmStatusSelectionComponent } from '../../../components/pef-dialog-pm-status-selection';
+import {
+    DialogPmStatusSelectionResult,
+    PefDialogPmStatusSelectionComponent,
+} from '../../../components/pef-dialog-pm-status-selection';
 import { ColumnValue, ShortColumnNames } from '../../../reducers/controlling';
 
 @Component({
@@ -54,6 +36,7 @@ import { ColumnValue, ShortColumnNames } from '../../../reducers/controlling';
 export class ControllingReportComponent extends ReactiveComponent implements OnChanges, OnDestroy {
     @Input() reportData: P.ControllingReportData;
     @Input() preismeldungenStatus: { [pmId: string]: P.Models.PreismeldungStatus };
+    @Input() hasWritePermission: boolean;
     @Output('setPreismeldungStatus')
     setPreismeldungStatus$ = new EventEmitter<{ pmId: string; status: P.Models.PreismeldungStatus }>();
     @Output('runReport') runReport$ = new EventEmitter<string>();
@@ -63,7 +46,7 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public updateAllPmStatusClicked$ = new EventEmitter();
     public sameLineClicked$ = new EventEmitter();
     public marked$ = new EventEmitter<number>();
-    public setPreismeldungStatusFilter$ = new EventEmitter<number>();
+    public setPreismeldungStatusFilter$ = new EventEmitter();
     public controllingTypeSelected$ = new EventEmitter<CONTROLLING_TYPE>();
     public zoomLevel$ = new EventEmitter<number>();
     public toggleColumn$ = new EventEmitter<number>();
@@ -72,48 +55,47 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     public controllingType$: Observable<string>;
     public shortColumnNames = ShortColumnNames;
 
-    private onDestroy$ = new EventEmitter();
+    private onDestroy$ = new EventEmitter<void>();
     private cleanupMarked$ = new Subject();
 
     public controllings = [
-        { name: 'CONTROLLING_0100', label: '0100: Heizöl, Treibstoffe (Stichtag 1): Vollständigkeit' },
-        { name: 'CONTROLLING_0110', label: '0110: Heizöl (Stichtag 1): Preistrend' },
-        { name: 'CONTROLLING_0115', label: '0115: Treibstoffe (Stichtag 1): Preistrend' },
-        { name: 'CONTROLLING_0120', label: '0120: Heizöl, Treibstoffe (Stichtag 1): Niveauvergleich nach EP' },
-        { name: 'CONTROLLING_0200', label: '0200: Heizöl, Treibstoffe (Stichtag 2): Vollständigkeit' },
-        { name: 'CONTROLLING_0210', label: '0210: Heizöl (Stichtag 2): Preistrend' },
-        { name: 'CONTROLLING_0215', label: '0215: Treibstoffe (Stichtag 2): Preistrend' },
-        { name: 'CONTROLLING_0220', label: '0220: Heizöl, Treibstoffe (Stichtag 2): Niveauvergleich nach EP' },
-        { name: 'CONTROLLING_0230', label: '0230: Früchte, Gemüse (Woche 1): Vollständigkeit' },
-        { name: 'CONTROLLING_0240', label: '0240: Früchte, Gemüse (Woche 2): Vollständigkeit' },
-        { name: 'CONTROLLING_0250', label: '0250: Früchte, Gemüse: Codefehler (0, R, S)' },
-        { name: 'CONTROLLING_0300', label: '0300: Bekleidung, Schuhe: Codefehler (7, R, S)' },
-        { name: 'CONTROLLING_0310', label: '0310: Bekleidung: gelöschte Preise (Code 0)' },
-        { name: 'CONTROLLING_0320', label: '0320: Bekleidung, Schuhe: Ersatz im Ausverkauf (Code 1+A)' },
-        { name: 'CONTROLLING_0400', label: '0400: Gelöschte Preise (Code 0, ohne Bekleidung, Früchte, Gemüse)' },
-        {
-            name: 'CONTROLLING_0405',
-            label: '0405: Fehlende Preise (Code R/S, ohne Bekleidung, Schuhe, Früchte, Gemüse)',
-        },
-        {
-            name: 'CONTROLLING_0410',
-            label: '0410: Direktersatz mit Aktion (Code 1+A, ohne Bekleidung, Schuhe, Früchte, Gemüse)',
-        },
-        { name: 'CONTROLLING_0420', label: '0420: Qualität Ersterfassung: Ersatz (Code 1, 7)' },
-        { name: 'CONTROLLING_0430', label: '0430: Direktersatz Prüfung: Neue Artikel (Code 1 statt 0, 2, 3 möglich?)' },
-        { name: 'CONTROLLING_0440', label: '0440: Qualität Ersterfassung: Neue Artikel (Code 2, 3)' },
-        { name: 'CONTROLLING_0450', label: '0450: Geänderter Artikeltext ohne Ersatzcode' },
-        { name: 'CONTROLLING_0500', label: '0500: Ausreisser (-75%/+250%)' },
-        { name: 'CONTROLLING_0510', label: '0510: Preisentwicklung auffällig: Normalpreise' },
-        { name: 'CONTROLLING_0520', label: '0520: Preisentwicklung auffällig: Ersatz (Code 1, 7)' },
-        { name: 'CONTROLLING_0530', label: '0530: Preisentwicklung auffällig: extreme Aktionen' },
-        { name: 'CONTROLLING_0540', label: '0540: Preisentwicklung auffällig: steigende Aktionspreise' },
-        // { name: 'CONTROLLING_0550', label: '0550: PMS mit unveränderten Preisen' }, // TODO: Not possible at the moment
-        { name: 'CONTROLLING_0600', label: '0600: Bemerkungen ans BFS' },
-        { name: 'CONTROLLING_0700', label: '0700: Preise/EP: Abweichung von Vorgabe (gemäss ES)' },
-        { name: 'CONTROLLING_0810', label: '0810: Ungeprüfte Preismeldungen' },
-        { name: 'CONTROLLING_0820', label: '0820: Blockierte Preismeldungen' },
-        { name: 'CONTROLLING_0830', label: '0830: Geprüfte Preismeldungen für Export' },
+        { name: 'CONTROLLING_0100', label: 'controlling.regel.0100' },
+        { name: 'CONTROLLING_0110', label: 'controlling.regel.0110' },
+        { name: 'CONTROLLING_0115', label: 'controlling.regel.0115' },
+        { name: 'CONTROLLING_0116', label: 'controlling.regel.0116' },
+        { name: 'CONTROLLING_0117', label: 'controlling.regel.0117' },
+        { name: 'CONTROLLING_0120', label: 'controlling.regel.0120' },
+        { name: 'CONTROLLING_0200', label: 'controlling.regel.0200' },
+        { name: 'CONTROLLING_0210', label: 'controlling.regel.0210' },
+        { name: 'CONTROLLING_0215', label: 'controlling.regel.0215' },
+        { name: 'CONTROLLING_0216', label: 'controlling.regel.0216' },
+        { name: 'CONTROLLING_0217', label: 'controlling.regel.0217' },
+        { name: 'CONTROLLING_0220', label: 'controlling.regel.0220' },
+        { name: 'CONTROLLING_0230', label: 'controlling.regel.0230' },
+        { name: 'CONTROLLING_0240', label: 'controlling.regel.0240' },
+        { name: 'CONTROLLING_0250', label: 'controlling.regel.0250' },
+        { name: 'CONTROLLING_0300', label: 'controlling.regel.0300' },
+        { name: 'CONTROLLING_0310', label: 'controlling.regel.0310' },
+        { name: 'CONTROLLING_0320', label: 'controlling.regel.0320' },
+        { name: 'CONTROLLING_0400', label: 'controlling.regel.0400' },
+        { name: 'CONTROLLING_0405', label: 'controlling.regel.0405' },
+        { name: 'CONTROLLING_0410', label: 'controlling.regel.0410' },
+        { name: 'CONTROLLING_0420', label: 'controlling.regel.0420' },
+        { name: 'CONTROLLING_0430', label: 'controlling.regel.0430' },
+        { name: 'CONTROLLING_0440', label: 'controlling.regel.0440' },
+        { name: 'CONTROLLING_0450', label: 'controlling.regel.0450' },
+        { name: 'CONTROLLING_0500', label: 'controlling.regel.0500' },
+        { name: 'CONTROLLING_0510', label: 'controlling.regel.0510' },
+        { name: 'CONTROLLING_0520', label: 'controlling.regel.0520' },
+        { name: 'CONTROLLING_0530', label: 'controlling.regel.0530' },
+        { name: 'CONTROLLING_0540', label: 'controlling.regel.0540' },
+        // { name: 'CONTROLLING_0550', label: 'controlling.regel.0550' }, // TODO: Not possible at the moment
+        { name: 'CONTROLLING_0600', label: 'controlling.regel.0600' },
+        { name: 'CONTROLLING_0700', label: 'controlling.regel.0700' },
+        { name: 'CONTROLLING_0810', label: 'controlling.regel.0810' },
+        { name: 'CONTROLLING_0820', label: 'controlling.regel.0820' },
+        { name: 'CONTROLLING_0830', label: 'controlling.regel.0830' },
+        { name: 'CONTROLLING_0840', label: 'controlling.regel.0840' },
     ];
 
     public reportData$ = this.observePropertyCurrentValue<P.ControllingReportData>('reportData').pipe(
@@ -123,17 +105,18 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     );
     public preismeldungenStatus$ = this.observePropertyCurrentValue<{ [pmId: string]: P.Models.PreismeldungStatus }>(
         'preismeldungenStatus',
-    ).pipe(
-        distinctUntilChanged(),
-        publishReplay(1),
-        refCount(),
+    ).pipe(distinctUntilChanged(), publishReplay(1), refCount());
+
+    public hasWritePermission$ = this.observePropertyCurrentValue<boolean>('hasWritePermission').pipe(
+        shareReplay({ bufferSize: 1, refCount: true }),
     );
-    public preismeldungStatusFilter$ = this.setPreismeldungStatusFilter$.asObservable().pipe(
+
+    public preismeldungStatusFilter$ = this.setPreismeldungStatusFilter$.pipe(
         startWith(P.Models.PreismeldungStatusFilter.exportiert),
         distinctUntilChanged(),
-        publishReplay(1),
-        refCount(),
+        shareReplay({ bufferSize: 1, refCount: true }),
     );
+
     public currentlyMarked$: Observable<number> = merge(this.marked$, this.cleanupMarked$.pipe(mapTo(null))).pipe(
         startWith(null),
         scan((prev, curr) => (prev === curr ? null : curr), null),
@@ -143,30 +126,33 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
     );
 
     public sameLine$ = this.sameLineClicked$.pipe(
-        scan(prev => !prev, false),
+        scan((prev) => !prev, false),
         startWith(false),
     );
 
-    public preismeldungen$ = this.reportData$.pipe(
-        combineLatest(this.preismeldungStatusFilter$, this.preismeldungenStatus$, this.currentlyMarked$),
+    public preismeldungen$ = combineLatest([
+        this.reportData$,
+        this.preismeldungStatusFilter$,
+        this.preismeldungenStatus$,
+        this.currentlyMarked$,
+    ]).pipe(
         filter(([x]) => !!x && !!x.rows),
         map(([x, statusFilter, preismeldungenStatus, marked]) =>
             x.rows
-                .filter(r => {
-                    if (ControllingTypesWithoutPmStatus.some(t => t === x.controllingType)) {
-                        return !r.exported;
+                .filter((r) => {
+                    if (x.controllingType === CONTROLLING_0840) {
+                        // 0840 shows all exported Preismeldungen
+                        return r.exported;
                     }
-                    if (x.controllingType === CONTROLLING_0830) {
-                        return (
-                            !r.exported &&
-                            preismeldungenStatus[r.pmId] != null &&
-                            preismeldungenStatus[r.pmId] <= statusFilter
-                        );
+                    if (ControllingTypesWithoutPmStatus.some((t) => t === x.controllingType)) {
+                        return !r.exported && preismeldungenStatus[r.pmId] != null; // The not exported ones from ControllingTypesWithoutPmStatus
                     }
                     if (statusFilter === P.Models.PreismeldungStatusFilter['exportiert']) {
+                        // If statusFilter is 3(exportiert) then show all exported ones or the ones who have a status
                         return r.exported || preismeldungenStatus[r.pmId] != null;
                     }
                     return (
+                        //if statusFilter is 1 or 2 then show all not exported ones with status <= statusFilter (2)
                         !r.exported &&
                         preismeldungenStatus[r.pmId] != null &&
                         preismeldungenStatus[r.pmId] <= statusFilter
@@ -174,13 +160,12 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
                 })
                 .map((r, i) => ({
                     ...r,
-                    values: r.values.map(c => this.enhanceColumn(c)),
+                    values: r.values.map((c) => this.enhanceColumn(c)),
                     behindMarked: i < marked,
                     marked: i === marked,
                 })),
         ),
-        publishReplay(1),
-        refCount(),
+        shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     constructor(private domSanitizer: DomSanitizer, pefDialogService: PefDialogService) {
@@ -189,28 +174,25 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
         this.reportData$.pipe(takeUntil(this.onDestroy$)).subscribe(this.cleanupMarked$);
 
         this.controllingType$ = this.reportData$.pipe(
-            filter(x => x != null),
-            map(x => x.controllingType),
+            filter((x) => x != null),
+            map((x) => x.controllingType),
         );
         this.preismeldungStatusFilter$.pipe(takeUntil(this.onDestroy$)).subscribe(this.cleanupMarked$);
 
         // Cleanup marked if amount of shown pm has changed
         this.preismeldungen$
             .pipe(
-                map(pm => pm && pm.length),
+                map((pm) => pm && pm.length),
                 distinctUntilChanged(),
             )
             .pipe(takeUntil(this.onDestroy$))
             .subscribe(this.cleanupMarked$);
 
         this.hiddenColumns$ = this.toggleColumn$.asObservable().pipe(
-            scan(
-                (columns, i) => {
-                    columns[i] = !columns[i];
-                    return columns;
-                },
-                [] as boolean[],
-            ),
+            scan((columns, i) => {
+                columns[i] = !columns[i];
+                return columns;
+            }, [] as boolean[]),
             startWith([]),
             publishReplay(1),
             refCount(),
@@ -220,11 +202,11 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             startWith(first(this.controllings).name),
             mergeO(
                 this.reportData$.pipe(
-                    filter(x => !!x && !!x.controllingType),
-                    map(x => x.controllingType),
+                    filter((x) => !!x && !!x.controllingType),
+                    map((x) => x.controllingType),
                 ),
             ),
-            map(type => ControllingTypesWithoutPmStatus.some(x => x === type)),
+            map((type) => ControllingTypesWithoutPmStatus.some((x) => x === type)),
             publishReplay(1),
             refCount(),
         );
@@ -233,25 +215,22 @@ export class ControllingReportComponent extends ReactiveComponent implements OnC
             defer(() =>
                 pefDialogService
                     .displayDialog(PefDialogPmStatusSelectionComponent, {
-                        dialogOptions: { backdropDismiss: true },
-                        params: { hasMarker },
+                        disableClose: true,
+                        data: { hasMarker },
                     })
-                    .pipe(
-                        map(x => x.data),
-                        filter(data => !!data && data.type === 'CONFIRM_SAVE'),
-                    ),
+                    .pipe(filter(DialogPmStatusSelectionResult.is.CONFIRM_SAVE)),
             );
 
         this.updateAllPmStatus$ = this.updateAllPmStatusClicked$.pipe(
             withLatestFrom(this.currentlyMarked$),
             switchMap(([, marked]) =>
-                confirmUpdateStatusDialog$(marked !== null).pipe(map(data => ({ data, marked }))),
+                confirmUpdateStatusDialog$(marked !== null).pipe(map((data) => ({ data, marked }))),
             ),
             withLatestFrom(this.preismeldungen$, this.preismeldungenStatus$),
             map(([{ data, marked }, preismeldungen, preismeldungenStatus]) =>
-                (data.value.toMarker ? preismeldungen.slice(0, marked + 1) : preismeldungen)
-                    .filter(pm => pm.canView && preismeldungenStatus[pm.pmId] != null)
-                    .map(({ pmId }) => ({ pmId, status: data.value.pmStatus })),
+                (data.toMarker ? preismeldungen.slice(0, marked + 1) : preismeldungen)
+                    .filter((pm) => pm.canView && preismeldungenStatus[pm.pmId] != null)
+                    .map(({ pmId }) => ({ pmId, status: data.pmStatus })),
             ),
             shareReplay({ bufferSize: 1, refCount: true }),
         );

@@ -2,192 +2,182 @@
     <ion-content class="page-content">
         <div class="settings-container container">
             <div class="subcontent">
+                <section>
+                    <h1 class="large">{{'label.standard.sprache' | translate}}</h1>
+
+                    <select #currentLang (change)="changeCurrentLanguage$.emit(currentLang.value)">
+                        <option
+                            *ngFor="let lang of languages$ | async"
+                            [selected]="(currentLanguage$ | async) === lang.languageCode"
+                            [value]="lang.languageCode">
+                            {{ ('label.language.' + lang.languageCode) | translate }}
+                        </option>
+                    </select>
+                </section>
                 <form
                     [formGroup]="form"
-                    class="stacked-form compact-list main-form"
+                    class="stacked-form main-form"
                     [class.form-show-validation-hints]="showValidationHints$ | async"
-                    (submit)="saveClicked$.emit($event)"
-                >
-                    <h1 class="large">Serververbindung</h1>
-                    <ion-list no-lines>
-                        <ion-item class="pef-item" formGroupName="serverConnection">
-                            <ion-label position="stacked">URL</ion-label>
-                            <ion-input
-                                type="text"
-                                formControlName="url"
-                                (keyup.enter)="saveClicked$.emit()"
-                            ></ion-input>
-                        </ion-item>
-                        <ion-item class="pef-item" formGroupName="general">
-                            <ion-label position="stacked">Erhebungsorgannummer</ion-label>
-                            <ion-input
-                                type="text"
-                                formControlName="erhebungsorgannummer"
-                                (keyup.enter)="saveClicked$.emit()"
-                            ></ion-input>
-                        </ion-item>
-                    </ion-list>
-                    <div class="actions">
-                        <ion-button type="submit" color="blue-chill" id="save" [disabled]="!(isModified$ | async)">
-                            Speichern
+                    (submit)="saveClicked$.emit($event)">
+                    <section formGroupName="serverConnection">
+                        <h1 class="large">{{'settings.serververbindung' | translate}}</h1>
+
+                        <ion-input labelPlacement="stacked" label="URL" type="text" formControlName="url"></ion-input>
+                    </section>
+
+                    <section formGroupName="general">
+                        <h1 class="large">{{'settings.general' | translate}}</h1>
+                        <ion-input
+                            labelPlacement="stacked"
+                            [label]="'settings.erhebungsorgannummer' | translate"
+                            type="text"
+                            formControlName="erhebungsorgannummer"
+                            (keyup.enter)="saveClicked$.emit()"></ion-input>
+                    </section>
+
+                    <section>
+                        <ion-button type="submit" color="blue-chill" id="save" [disabled]="!(isModified$ | async)!">
+                            {{'label.aktionen.speichern' | translate}}
                         </ion-button>
                         <ion-button
                             type="button"
                             (click)="cancelClicked$.emit($event)"
-                            [disabled]="!(isModified$ | async)"
-                        >
-                            Abbrechen
+                            [disabled]="!(isModified$ | async)!">
+                            {{'label.aktionen.abbrechen' | translate}}
                         </ion-button>
-                    </div>
+                    </section>
                 </form>
                 <ng-container *ngIf="sedexForm$ | async; let sedexForm">
                     <ng-container *ngIf="isLoggedIn$ |async; else: login">
-                        <form
-                            [formGroup]="sedexForm"
-                            class="stacked-form compact-list"
-                            (submit)="saveSedexClicked$.emit($event)"
-                        >
-                            <h1 class="large">Transfereinstellungen (Sedex)</h1>
-                            <ion-list formGroupName="transportRequestSettings" no-lines>
-                                <ion-item class="pef-item">
-                                    <ion-label position="stacked">Sender ID</ion-label>
+                        <section>
+                            <form
+                                [formGroup]="sedexForm"
+                                class="stacked-form compact-list"
+                                (submit)="saveSedexClicked$.emit($event)">
+                                <h1 class="large">{{'settings.transfereinstellungen' | translate}}</h1>
+                                <div formGroupName="transportRequestSettings" no-lines>
                                     <ion-input
+                                        labelPlacement="stacked"
+                                        [label]="'settings.sender_id' | translate"
                                         type="text"
                                         formControlName="senderId"
-                                        (keyup.enter)="saveClicked$.emit()"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item class="pef-item">
-                                    <ion-label position="stacked">Recipient ID</ion-label>
+                                        (keyup.enter)="saveClicked$.emit()"></ion-input>
                                     <ion-input
+                                        labelPlacement="stacked"
+                                        [label]="'settings.recipient_id' | translate"
                                         type="text"
                                         formControlName="recipientId"
-                                        (keyup.enter)="saveClicked$.emit()"
-                                    ></ion-input>
-                                </ion-item>
-                            </ion-list>
-                            <ion-list formGroupName="export" no-lines>
-                                <ion-item class="pef-item">
-                                    <ion-label position="stacked">Exportpfad (Sedex-Daten)</ion-label>
+                                        (keyup.enter)="saveClicked$.emit()"></ion-input>
+                                </div>
+                                <div formGroupName="export" no-lines>
                                     <ion-input
+                                        labelPlacement="stacked"
+                                        [label]="'settings.export_pfad' | translate"
                                         type="text"
                                         formControlName="targetPath"
-                                        (keyup.enter)="saveClicked$.emit()"
-                                    ></ion-input>
-                                </ion-item>
-                            </ion-list>
-                            <div class="actions">
-                                <ion-button
-                                    type="submit"
-                                    color="blue-chill"
-                                    id="save"
-                                    [disabled]="!(canConnectToDatabase$ | async) || !sedexForm.dirty"
-                                >
-                                    Speichern
-                                </ion-button>
-                                <ion-button
-                                    type="button"
-                                    (click)="cancelSedexClicked$.emit($event)"
-                                    [disabled]="!(canConnectToDatabase$ | async) || !sedexForm.dirty"
-                                >
-                                    Abbrechen
-                                </ion-button>
-                            </div>
-                        </form>
+                                        (keyup.enter)="saveClicked$.emit()"></ion-input>
+                                </div>
+                                <div class="actions">
+                                    <ion-button
+                                        type="submit"
+                                        color="blue-chill"
+                                        id="save"
+                                        [disabled]="!(canConnectToDatabase$ | async)! || !sedexForm.dirty">
+                                        {{'label.aktionen.speichern' | translate}}
+                                    </ion-button>
+                                    <ion-button
+                                        type="button"
+                                        (click)="cancelSedexClicked$.emit($event)"
+                                        [disabled]="!(canConnectToDatabase$ | async)! || !sedexForm.dirty">
+                                        {{'label.aktionen.abbrechen' | translate}}
+                                    </ion-button>
+                                </div>
+                            </form>
+                        </section>
                     </ng-container>
                     <ng-template #login>
                         <ion-button
-                            [disabled]="!(canConnectToDatabase$ | async)"
+                            [disabled]="!(canConnectToDatabase$ | async)!"
                             type="button"
                             class="login-button"
-                            (click)="loginClicked$.emit()"
-                        >
-                            Erweiterte Sedex Einstellungen
+                            (click)="loginClicked$.emit()">
+                            {{'settings.erweiterte_sedex_einstellungen' | translate}}
                         </ion-button>
                     </ng-template>
                 </ng-container>
-                <h1 class="large danger-section"><pef-icon name="warning"></pef-icon>Datenbank (CouchDB)</h1>
+                <h1 class="large danger-section">
+                    <pef-icon name="warning"></pef-icon>{{'settings.datenbank' | translate}}
+                </h1>
                 <ng-container *ngxLet="(dangerConfirmed$ | async); let dangerConfirmed">
                     <ion-button
                         [class.not-shown]="dangerConfirmed"
-                        [disabled]="!(canConnectToDatabase$ | async)"
+                        [disabled]="!(canConnectToDatabase$ | async)!"
                         type="button"
                         class="confirm-danger"
                         color="danger"
-                        (click)="dangerConfirmedClicked$.emit()"
-                    >
-                        Datenbank Verwaltung anzeigen
+                        (click)="dangerConfirmedClicked$.emit()">
+                        {{'settings.datenbank_verwaltung_anzeigen' | translate}}
                     </ion-button>
-                    <div [class.not-shown]="!dangerConfirmed">
+                    <section [class.not-shown]="!dangerConfirmed">
                         <form
                             *ngIf="compatibilityForm$ | async; let compatibilityForm"
                             [formGroup]="compatibilityForm"
                             [class.form-show-validation-hints]="showCompatibilityValidationHints$ | async"
                             class="stacked-form compact-list"
-                            (submit)="saveCompatibilityClicked$.emit($event)"
-                        >
-                            <h1 class="large">Kompatibilität (Preiserfasser-App)</h1>
-                            <ion-list no-lines>
-                                <ion-item class="pef-item">
-                                    <ion-label position="stacked">Mindestversion</ion-label>
-                                    <ion-input
-                                        type="text"
-                                        formControlName="minVersion"
-                                        (keyup.enter)="saveCompatibilityClicked$.emit()"
-                                    ></ion-input>
-                                    <ion-text>Muss im Format a.b.c sein, z.B. 2.2.9</ion-text>
-                                </ion-item>
-                            </ion-list>
-                            <div class="actions">
+                            (submit)="saveCompatibilityClicked$.emit($event)">
+                            <h1 class="large">{{ 'settings.kompatibilitaet_mit_preiserheber_app' | translate }}</h1>
+                            <ion-input
+                                labelPlacement="stacked"
+                                [label]="'settings.mindestversion' | translate"
+                                type="text"
+                                formControlName="minVersion"
+                                (keyup.enter)="saveCompatibilityClicked$.emit()"></ion-input>
+                            <ion-text>{{'settings.version_format_anforderung' | translate}}</ion-text>
+                            <div>
                                 <ion-button
                                     type="submit"
                                     color="blue-chill"
                                     id="save"
-                                    [disabled]="!compatibilityForm.dirty"
-                                >
-                                    Speichern
+                                    [disabled]="!compatibilityForm.dirty">
+                                    {{'label.aktionen.speichern' | translate}}
                                 </ion-button>
                                 <ion-button
                                     type="button"
                                     (click)="cancelCompatibilityClicked$.emit($event)"
-                                    [disabled]="!compatibilityForm.dirty"
-                                >
-                                    Abbrechen
+                                    [disabled]="!compatibilityForm.dirty">
+                                    {{'label.aktionen.abbrechen' | translate}}
                                 </ion-button>
                             </div>
                         </form>
-                        <div class="actions">
-                            <h1 class="large">
-                                Import/Export der definierten Preiserheber und PMS-Zuordnungen (.json-Format)
-                            </h1>
-                            <ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
-                                Export
-                            </ion-button>
-                            <ion-button type="button" (click)="file.click()">
-                                Import
-                                <input
-                                    #file
-                                    class="file-select-btn"
-                                    type="file"
-                                    (change)="importFileSelected$.emit($event)"
-                                    [value]="(resetInput$ | async)?.value"
-                                    required
-                                />
-                            </ion-button>
-                        </div>
+                    </section>
+                    <section [class.not-shown]="!dangerConfirmed">
+                        <h1 class="large">{{'settings.import_und_export_aller_daten' | translate}}</h1>
+                        <ion-button type="button" (click)="file.click()">
+                            {{'import.titel' | translate}}
+                            <input
+                                #file
+                                class="file-select-btn"
+                                type="file"
+                                (change)="importFileSelected$.emit($event)"
+                                [value]="(resetInput$ | async)?.value"
+                                required />
+                        </ion-button>
+                        <ion-button type="button" color="blue-chill" (click)="exportDbs$.emit($event)">
+                            {{'export.titel' | translate}}
+                        </ion-button>
                         <ion-text *ngIf="(dbsExported$ | async); let dbsExported" color="primary">
                             <pre>{{ dbsExported }}</pre>
                         </ion-text>
                         <ion-text *ngIf="(dbsImported$ | async); let dbsImported" color="primary">
                             <pre>{{ dbsImported }}</pre>
                         </ion-text>
-                    </div>
+                    </section>
                 </ng-container>
             </div>
             <div class="about-app">
                 <div class="about-box">
-                    <h2>LIK PreisAdmin {{ version }}</h2>
-                    <span>Autor: <a href="https://lambda-it.ch/">Lambda IT GmbH</a> </span>
+                    <h2>{{'settings.version' | translate}} {{ version }}</h2>
+                    <span>{{'settings.autor' | translate}}: <a href="https://lambda-it.ch/">Lambda IT GmbH</a> </span>
                 </div>
             </div>
         </div>

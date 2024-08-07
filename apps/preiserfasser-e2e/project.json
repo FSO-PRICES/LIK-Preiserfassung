@@ -1,0 +1,33 @@
+{
+    "name": "preiserfasser-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/preiserfasser-e2e/src",
+    "projectType": "application",
+    "targets": {
+        "e2e": {
+            "executor": "@nx/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/preiserfasser-e2e/cypress.config.ts",
+                "devServerTarget": "preiserfasser:serve:development",
+                "testingType": "e2e"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "preiserfasser:serve:production"
+                },
+                "ci": {
+                    "devServerTarget": "preiserfasser:serve-static"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["apps/preiserfasser-e2e/**/*.{js,ts}"]
+            }
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["preiserfasser"]
+}

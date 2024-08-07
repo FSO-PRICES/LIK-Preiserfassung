@@ -1,0 +1,49 @@
+<div class="pms-heading" *ngIf="(isAdminApp$ | async)">
+    {{ (preismeldestelle$ | async)?.pmsNummer }} {{ (preismeldestelle$ | async)?.name }}
+</div>
+<div class="header-line artikelnummer" *ngIf="!!(preismeldung$ | async)">
+    <div class="product-heading">
+        {{ (preismeldung$ | async).warenkorbPosition.gliederungspositionsnummer }} {{ (preismeldung$ |
+        async).warenkorbPosition.positionsbezeichnung | pefPropertyTranslate }}
+    </div>
+    <ion-input
+        class="label-left"
+        [label]="'label_artikelnummer' | translate"
+        readonly
+        type="text"
+        [class.readonly]="true"
+        [value]="(preismeldung$ | async)?.preismeldung.artikelnummer"></ion-input>
+
+    <div
+        *ngxLet="(preismeldung$ | async)?.priceCountStatus; let priceCountStatus"
+        class="right-column price-count-status"
+        [ngClass]="{
+            ok: priceCountStatus?.ok,
+            'not-ok': !priceCountStatus?.ok
+        }">
+        <span>{{ priceCountStatus?.numActivePrices }}/{{ priceCountStatus?.anzahlPreiseProPMS }}</span>
+    </div>
+</div>
+<div class="header-line" *ngIf="!!(preismeldung$ | async)">
+    <div class="article-text-label">{{ 'label_artikeltext' | translate }}</div>
+    <ion-textarea readonly rows="2" [value]="(preismeldung$ | async)?.preismeldung.artikeltext"></ion-textarea>
+    <div class="right-column">
+        <ng-content></ng-content>
+    </div>
+</div>
+<div class="header-line url" *ngIf="(isInternet$ | async)">
+    <ion-input
+        class="label-left"
+        [label]="'label_internetlink' | translate"
+        readonly
+        type="text"
+        [value]="(preismeldung$ | async)?.preismeldung.internetLink"></ion-input>
+    <div class="right-column">
+        <ion-button
+            class="pef-icon-secondary server-url-button icon-only"
+            (click)="navigateToInternetLink$.emit()"
+            [disabled]="!(preismeldung$ | async)?.preismeldung.internetLink">
+            <pef-icon name="server_url"></pef-icon>
+        </ion-button>
+    </div>
+</div>

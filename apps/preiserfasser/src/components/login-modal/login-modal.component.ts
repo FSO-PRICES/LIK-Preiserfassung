@@ -1,60 +1,43 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
+import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import * as O from '@effect/data/Option';
+import { IonInput } from '@ionic/angular';
 
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { StronglyTypedDialog } from '@lik-shared';
+
+export type LoginModalResult = O.Option<{ username: string; password: string }>;
 
 @Component({
     selector: 'login-modal',
     templateUrl: 'login-modal.component.html',
     styleUrls: ['login-modal.component.scss'],
+    host: { class: 'pef-dialog' },
 })
-export class LoginModalComponent {
-    public loginForm: FormGroup;
+export class LoginModalComponent extends StronglyTypedDialog<never, LoginModalResult> implements AfterViewInit {
+    private formBuilder = inject(FormBuilder);
+    public loginForm = this.formBuilder.group({
+        username: new FormControl('', [Validators.required]),
+        password: new FormControl('', [Validators.required]),
+    });
 
-    @ViewChild('username', { read: ElementRef, static: false }) username: ElementRef<HTMLElement>;
+    @ViewChild('username') username: IonInput;
 
-    constructor(private modalController: ModalController, private formBuilder: FormBuilder) {
-        this.loginForm = this.formBuilder.group({
-            username: [''],
-            password: [''],
-        });
-    }
-
-    ionViewDidEnter() {
-        const el = this.username.nativeElement.querySelector('input') as HTMLElement;
-        if (el && el.focus) {
+    ngAfterViewInit() {
+        this.username.getInputElement().then((el) => {
             el.focus();
-        }
+        });
     }
 
     login() {
-        this.modalController.dismiss({
-            username: this.loginForm.value.username,
-            password: this.loginForm.value.password,
-            navigateTo: null,
-        });
+        this.closeDialog(
+            O.some({
+                username: this.loginForm.getRawValue().username,
+                password: this.loginForm.getRawValue().password,
+            }),
+        );
     }
 
     navigateToSettings() {
-        this.modalController.dismiss({ username: null, password: null, navigateTo: 'settings' });
+        this.closeDialog(O.none());
     }
 }

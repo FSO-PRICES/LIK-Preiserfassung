@@ -1,25 +1,7 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { assign, cloneDeep, remove } from 'lodash';
-import { createSelector } from 'reselect';
+import { createSelector } from '@ngrx/store';
+import assign from 'lodash.assign';
+import cloneDeep from 'lodash.clonedeep';
+import remove from 'lodash.remove';
 
 import { Models as P } from '@lik-shared';
 
@@ -47,8 +29,10 @@ export function reducer(state = initialState, action: Action): State {
     switch (action.type) {
         case 'PREISZUWEISUNG_LOAD_SUCCESS': {
             const { payload } = action;
-            const preiszuweisungen = payload.map<P.Preiszuweisung>(preiszuweisung => Object.assign({}, preiszuweisung));
-            const preiszuweisungIds = preiszuweisungen.map(p => p._id);
+            const preiszuweisungen = payload.map<P.Preiszuweisung>((preiszuweisung) =>
+                Object.assign({}, preiszuweisung),
+            );
+            const preiszuweisungIds = preiszuweisungen.map((p) => p._id);
             const entities = preiszuweisungen.reduce(
                 (agg: { [_id: string]: P.Preiszuweisung }, preiszuweisung: P.Preiszuweisung) => {
                     return Object.assign(agg, { [preiszuweisung._id]: preiszuweisung });
@@ -111,26 +95,26 @@ export function reducer(state = initialState, action: Action): State {
         }
 
         case 'ASSIGN_TO_CURRENT_PREISZUWEISUNG': {
-            const pmsNummern = action.payload.map(x => x.pmsNummer);
+            const pmsNummern = action.payload.map((x) => x.pmsNummer);
             const currentPmsNummern = state.currentPreiszuweisung.preismeldestellenNummern;
             return assign({}, state, {
                 currentPreiszuweisung: {
                     ...state.currentPreiszuweisung,
                     preismeldestellenNummern: [
                         ...currentPmsNummern,
-                        ...pmsNummern.filter(x => !currentPmsNummern.some(y => x === y)),
+                        ...pmsNummern.filter((x) => !currentPmsNummern.some((y) => x === y)),
                     ],
                 },
             });
         }
 
         case 'UNASSIGN_FROM_CURRENT_PREISZUWEISUNG': {
-            const pmsNummern = action.payload.map(x => x.pmsNummer);
+            const pmsNummern = action.payload.map((x) => x.pmsNummer);
             return assign({}, state, {
                 currentPreiszuweisung: {
                     ...state.currentPreiszuweisung,
                     preismeldestellenNummern: state.currentPreiszuweisung.preismeldestellenNummern.filter(
-                        x => !pmsNummern.some(y => x === y),
+                        (x) => !pmsNummern.some((y) => x === y),
                     ),
                 },
             });
@@ -141,7 +125,7 @@ export function reducer(state = initialState, action: Action): State {
                 isModified: false,
                 isSaved: true,
             });
-            const preiszuweisungIds = !!state.preiszuweisungIds.find(x => x === currentPreiszuweisung._id)
+            const preiszuweisungIds = state.preiszuweisungIds.find((x) => x === currentPreiszuweisung._id)
                 ? state.preiszuweisungIds
                 : [...state.preiszuweisungIds, currentPreiszuweisung._id];
             return assign({}, state, {
@@ -155,7 +139,7 @@ export function reducer(state = initialState, action: Action): State {
             const currentPreiszuweisungId = state.currentPreiszuweisung._id;
             const preiszuweisungIds = state.preiszuweisungIds.slice();
             const entities = Object.assign({}, state.entities);
-            remove(preiszuweisungIds, id => id === currentPreiszuweisungId);
+            remove(preiszuweisungIds, (id) => id === currentPreiszuweisungId);
             delete entities[currentPreiszuweisungId];
 
             return assign({}, state, { currentPreiszuweisung: undefined, preiszuweisungIds, entities });
@@ -170,8 +154,6 @@ export const getEntities = (state: State) => state.entities;
 export const getPreiszuweisungIds = (state: State) => state.preiszuweisungIds;
 export const getCurrentPreiszuweisung = (state: State) => state.currentPreiszuweisung;
 
-export const getAll = createSelector(
-    getEntities,
-    getPreiszuweisungIds,
-    (entities, preiszuweisungIds) => preiszuweisungIds.map(x => entities[x]),
+export const getAll = createSelector(getEntities, getPreiszuweisungIds, (entities, preiszuweisungIds) =>
+    preiszuweisungIds.map((x) => entities[x]),
 );

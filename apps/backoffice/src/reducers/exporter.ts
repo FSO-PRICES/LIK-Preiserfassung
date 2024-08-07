@@ -1,33 +1,15 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import * as exporter from '../actions/exporter';
 
 export interface State {
     exportedPreismeldungen: number;
     exportedPreismeldestellen: number;
     exportedPreiserheber: number;
+    allPreismeldungenNumberOfRecordsExported: number;
 
     preismeldungenError: { validations: { error: string }[] };
     preismeldestellenError: { validations: { error: string }[] };
     preiserheberError: { validations: { error: string }[] };
+    allPreismeldungenExportedError: { validations: { error: string }[] };
 }
 
 const initialState: State = {
@@ -38,6 +20,9 @@ const initialState: State = {
     preismeldungenError: null,
     preismeldestellenError: null,
     preiserheberError: null,
+
+    allPreismeldungenNumberOfRecordsExported: null,
+    allPreismeldungenExportedError: null,
 };
 
 export function reducer(state = initialState, action: exporter.Action): State {
@@ -53,6 +38,22 @@ export function reducer(state = initialState, action: exporter.Action): State {
 
         case 'EXPORT_PREISMELDUNGEN_FAILURE': {
             return { ...state, exportedPreismeldungen: null, preismeldungenError: action.payload };
+        }
+
+        case 'EXPORT_ALL_PREISMELDUNGEN_RESET': {
+            return { ...state, allPreismeldungenNumberOfRecordsExported: null, allPreismeldungenExportedError: null };
+        }
+
+        case 'EXPORT_ALL_PREISMELDUNGEN_SUCCESS': {
+            return { ...state, allPreismeldungenNumberOfRecordsExported: action.payload };
+        }
+
+        case 'EXPORT_ALL_PREISMELDUNGEN_FAILURE': {
+            return {
+                ...state,
+                allPreismeldungenNumberOfRecordsExported: null,
+                allPreismeldungenExportedError: action.payload,
+            };
         }
 
         case 'EXPORT_PREISMELDESTELLEN_RESET': {
@@ -89,3 +90,5 @@ export function reducer(state = initialState, action: exporter.Action): State {
 export const getExportedPreismeldungen = (state: State) => state.exportedPreismeldungen;
 export const getExportedPreismeldestellen = (state: State) => state.exportedPreismeldestellen;
 export const getExportedPreiserheber = (state: State) => state.exportedPreiserheber;
+export const getAllPreismeldungenNumberOfRecordsExported = (state: State) =>
+    state.allPreismeldungenNumberOfRecordsExported;

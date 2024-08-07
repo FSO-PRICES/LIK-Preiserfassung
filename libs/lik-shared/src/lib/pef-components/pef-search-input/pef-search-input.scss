@@ -1,0 +1,31 @@
+@import '../../styles/_variables.scss';
+
+:host {
+    ::ng-deep ion-input.sc-ion-input-md-h {
+        min-height: 48px;
+        --highlight-color-valid: transparent;
+        --highlight-color-invalid: transparent;
+
+        input {
+            caret-color: $black !important;
+        }
+
+        .label-text-wrapper {
+            transform: none !important;
+            margin-inline-end: 0 !important;
+            padding: 8px 8px 8px 16px;
+            background-color: $white;
+            border-bottom: 0;
+        }
+
+        .native-wrapper {
+            border-bottom: 0;
+            padding: 0;
+        }
+
+        pef-icon {
+            width: 24px;
+            height: 24px;
+        }
+    }
+}

@@ -2,22 +2,32 @@ import * as os from 'os';
 import * as encoding from 'encoding';
 import * as _ from 'lodash';
 
-import { readFile, writeFile, } from '../promisified';
+import { readFile, writeFile } from '../promisified';
 import { bufferToCells } from '../utils';
 
 import { WarenkorbTreeItem, WarenkorbHierarchicalTreeItem, PeriodizitaetMonat } from '../../common/models';
 
-readFile('./warenkorb/data/Erhebungsschema_DE.txt').then(bufferToCells)
-    .then(de => readFile('./warenkorb/data/Erhebungsschema_FR.txt').then(bufferToCells).then(fr => ({ de, fr })))
-    .then(x => readFile('./warenkorb/data/Erhebungsschema_IT.txt').then(bufferToCells).then(it => ({ de: x.de, fr: x.fr, it })))
-    .then(data => {
+readFile('./warenkorb/data/Erhebungsschema_DE.txt')
+    .then(bufferToCells)
+    .then((de) =>
+        readFile('./warenkorb/data/Erhebungsschema_FR.txt')
+            .then(bufferToCells)
+            .then((fr) => ({ de, fr })),
+    )
+    .then((x) =>
+        readFile('./warenkorb/data/Erhebungsschema_IT.txt')
+            .then(bufferToCells)
+            .then((it) => ({ de: x.de, fr: x.fr, it })),
+    )
+    .then((data) => {
         const treeItems = buildTree(data);
         var hierarchy = createHierarchy(treeItems);
         // console.log('number of items', countHierarchicalItems(hierarchy));
         // console.log('number of leaves', countHierarchicalLeaves(hierarchy));
         // console.log('number of branches', countHierarchicalBranches(hierarchy));
-        return writeFile('./warenkorb/flat.json', JSON.stringify(treeItems), { encoding: 'UTF-8' })
-            .then(() => writeFile('./warenkorb/hierarchy.json', JSON.stringify(hierarchy), { encoding: 'UTF-8' }));
+        return writeFile('./warenkorb/flat.json', JSON.stringify(treeItems), { encoding: 'UTF-8' }).then(() =>
+            writeFile('./warenkorb/hierarchy.json', JSON.stringify(hierarchy), { encoding: 'UTF-8' }),
+        );
     });
 
 const indexes = {
@@ -52,12 +62,20 @@ const indexes = {
     produktmerkmal3: 29,
     produktmerkmal4: 30,
     produktmerkmal5: 31,
-    produktmerkmal6: 32
+    produktmerkmal6: 32,
 };
 
-
-function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): WarenkorbTreeItem[] {
-    const lastDepthGliederungspositionsnummers: { [index: number]: WarenkorbTreeItem } = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
+function buildTree(data: { de: string[][]; fr: string[][]; it: string[][] }): WarenkorbTreeItem[] {
+    const lastDepthGliederungspositionsnummers: { [index: number]: WarenkorbTreeItem } = {
+        1: null,
+        2: null,
+        3: null,
+        4: null,
+        5: null,
+        6: null,
+        7: null,
+        8: null,
+    };
 
     const treeItems: WarenkorbTreeItem[] = [];
     for (let i = 0; i < data.de.length; i++) {
@@ -69,14 +87,34 @@ function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): Wa
             produktecode: parseProduktecode(thisLine[indexes.produktecode]),
             gliederungspositionstyp: parseGliederungspositionstyp(thisLine[indexes.gliederungspositionstyp]),
             tiefencode: parseTiefenCode(thisLine[indexes.tiefencode]),
-            positionsbezeichnung: translationsToStringOrNull(thisLine[indexes.positionsbezeichnung], data.fr[i][indexes.positionsbezeichnung], data.it[i][indexes.positionsbezeichnung]),
-            periodizitaetscode: translationsToStringOrNull(thisLine[indexes.periodizitaetscode], data.fr[i][indexes.periodizitaetscode], data.it[i][indexes.periodizitaetscode]),
+            positionsbezeichnung: translationsToStringOrNull(
+                thisLine[indexes.positionsbezeichnung],
+                data.fr[i][indexes.positionsbezeichnung],
+                data.it[i][indexes.positionsbezeichnung],
+            ),
+            periodizitaetscode: translationsToStringOrNull(
+                thisLine[indexes.periodizitaetscode],
+                data.fr[i][indexes.periodizitaetscode],
+                data.it[i][indexes.periodizitaetscode],
+            ),
             standardmenge: parseStandardmenge(thisLine[indexes.standardmenge]),
-            standardeinheit: translationsToStringOrNull(thisLine[indexes.standardeinheit], data.fr[i][indexes.standardeinheit], data.it[i][indexes.standardeinheit]),
+            standardeinheit: translationsToStringOrNull(
+                thisLine[indexes.standardeinheit],
+                data.fr[i][indexes.standardeinheit],
+                data.it[i][indexes.standardeinheit],
+            ),
             erhebungstyp: thisLine[indexes.erhebungstyp],
             anzahlPreiseProPMS: parseAnzahlPreiseProPMS(thisLine[indexes.anzahlPreiseProPMS]),
-            beispiele: translationsToStringOrNull(parseBeispiel(thisLine[indexes.beispiele]), parseBeispiel(data.fr[i][indexes.beispiele]), parseBeispiel(data.it[i][indexes.beispiele])),
-            info: translationsToStringOrNull(parseInfo(thisLine[indexes.info]), parseInfo(data.fr[i][indexes.info]), parseInfo(data.it[i][indexes.info])),
+            beispiele: translationsToStringOrNull(
+                parseBeispiel(thisLine[indexes.beispiele]),
+                parseBeispiel(data.fr[i][indexes.beispiele]),
+                parseBeispiel(data.it[i][indexes.beispiele]),
+            ),
+            info: translationsToStringOrNull(
+                parseInfo(thisLine[indexes.info]),
+                parseInfo(data.fr[i][indexes.info]),
+                parseInfo(data.it[i][indexes.info]),
+            ),
             periodizitaetMonat: parsePeriodizitaet([
                 thisLine[indexes.periodizitaetMonat1],
                 thisLine[indexes.periodizitaetMonat2],
@@ -89,16 +127,40 @@ function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): Wa
                 thisLine[indexes.periodizitaetMonat9],
                 thisLine[indexes.periodizitaetMonat10],
                 thisLine[indexes.periodizitaetMonat11],
-                thisLine[indexes.periodizitaetMonat12]
+                thisLine[indexes.periodizitaetMonat12],
             ]),
             abweichungPmUG2: parseAbweichung(thisLine[indexes.abweichungPmUG2]),
             abweichungPmOG2: parseAbweichung(thisLine[indexes.abweichungPmOG2]),
-            produktmerkmal1: translationsToStringOrNull(thisLine[indexes.produktmerkmal1], data.fr[i][indexes.produktmerkmal1], data.it[i][indexes.produktmerkmal1]),
-            produktmerkmal2: translationsToStringOrNull(thisLine[indexes.produktmerkmal2], data.fr[i][indexes.produktmerkmal2], data.it[i][indexes.produktmerkmal2]),
-            produktmerkmal3: translationsToStringOrNull(thisLine[indexes.produktmerkmal3], data.fr[i][indexes.produktmerkmal3], data.it[i][indexes.produktmerkmal3]),
-            produktmerkmal4: translationsToStringOrNull(thisLine[indexes.produktmerkmal4], data.fr[i][indexes.produktmerkmal4], data.it[i][indexes.produktmerkmal4]),
-            produktmerkmal5: translationsToStringOrNull(thisLine[indexes.produktmerkmal5], data.fr[i][indexes.produktmerkmal5], data.it[i][indexes.produktmerkmal5]),
-            produktmerkmal6: translationsToStringOrNull(thisLine[indexes.produktmerkmal6], data.fr[i][indexes.produktmerkmal6], data.it[i][indexes.produktmerkmal6])
+            produktmerkmal1: translationsToStringOrNull(
+                thisLine[indexes.produktmerkmal1],
+                data.fr[i][indexes.produktmerkmal1],
+                data.it[i][indexes.produktmerkmal1],
+            ),
+            produktmerkmal2: translationsToStringOrNull(
+                thisLine[indexes.produktmerkmal2],
+                data.fr[i][indexes.produktmerkmal2],
+                data.it[i][indexes.produktmerkmal2],
+            ),
+            produktmerkmal3: translationsToStringOrNull(
+                thisLine[indexes.produktmerkmal3],
+                data.fr[i][indexes.produktmerkmal3],
+                data.it[i][indexes.produktmerkmal3],
+            ),
+            produktmerkmal4: translationsToStringOrNull(
+                thisLine[indexes.produktmerkmal4],
+                data.fr[i][indexes.produktmerkmal4],
+                data.it[i][indexes.produktmerkmal4],
+            ),
+            produktmerkmal5: translationsToStringOrNull(
+                thisLine[indexes.produktmerkmal5],
+                data.fr[i][indexes.produktmerkmal5],
+                data.it[i][indexes.produktmerkmal5],
+            ),
+            produktmerkmal6: translationsToStringOrNull(
+                thisLine[indexes.produktmerkmal6],
+                data.fr[i][indexes.produktmerkmal6],
+                data.it[i][indexes.produktmerkmal6],
+            ),
         };
         treeItems.push(treeItem);
         const parent = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
@@ -120,19 +182,18 @@ function buildTree(data: { de: string[][], fr: string[][], it: string[][] }): Wa
 
 function parseProduktecode(s: string) {
     const cleanedString = s.replace(/^\s*(.*?)\s*$/, '$1');
-    return (!cleanedString.length) ? null : cleanedString;
+    return !cleanedString.length ? null : cleanedString;
 }
 
 const parseInfo = parseOutQuotes;
 const parseBeispiel = parseOutQuotes;
 function parseOutQuotes(s: string) {
     const cleanedString = s.replace(/^\"?(.*?)\"?$/, '$1');
-    return (!cleanedString.length) ? null : cleanedString;
+    return !cleanedString.length ? null : cleanedString;
 }
 
 const parseGliederungspositionstyp = (s: string) => parseNumber(s, 'gliederungspositionstyp');
 const parseTiefenCode = (s: string) => parseNumber(s, 'tiefencode');
-
 
 const parseNumberOrNull = (s: string) => {
     const number = parseInt(s);
@@ -152,12 +213,20 @@ function createHierarchy(treeItems: WarenkorbTreeItem[]): WarenkorbHierarchicalT
     return createHierarchyRecursive(treeItems[0], 1, treeItems);
 }
 
-function createHierarchyRecursive(parent: WarenkorbTreeItem, currentItemIndex: number, treeItems: WarenkorbTreeItem[]): WarenkorbHierarchicalTreeItem {
+function createHierarchyRecursive(
+    parent: WarenkorbTreeItem,
+    currentItemIndex: number,
+    treeItems: WarenkorbTreeItem[],
+): WarenkorbHierarchicalTreeItem {
     if (parent.type === 'LEAF') return parent;
 
     const children = [];
     let currentItem = treeItems[currentItemIndex];
-    for (var i = currentItemIndex; i < treeItems.length && !!currentItem && currentItem.tiefencode > parent.tiefencode; i++) {
+    for (
+        var i = currentItemIndex;
+        i < treeItems.length && !!currentItem && currentItem.tiefencode > parent.tiefencode;
+        i++
+    ) {
         if (currentItem.tiefencode === parent.tiefencode + 1) {
             children.push(createHierarchyRecursive(currentItem, i + 1, treeItems));
         }
@@ -187,18 +256,18 @@ function parseBoolean(s: string) {
 
 function parsePeriodizitaet(periodizitaten: string[]) {
     return periodizitaten.reduce((prev, curr, index) => {
-        return prev |= parseBoolean(curr) ? <PeriodizitaetMonat>(1 << index) : PeriodizitaetMonat.None;
-    }, PeriodizitaetMonat.None)
+        return (prev |= parseBoolean(curr) ? <PeriodizitaetMonat>(1 << index) : PeriodizitaetMonat.None);
+    }, PeriodizitaetMonat.None);
 }
 
 const parseAbweichung = parseNumberOrNull;
 
 function parseStringOrEmpty(s: string) {
-    return !!s ? s.toString() : "";
+    return !!s ? s.toString() : '';
 }
 
 function translationsToStringOrNull(de: string, fr: string, it: string) {
-    return !!de || !!fr || !!it ?
-        { de: parseStringOrEmpty(de), fr: parseStringOrEmpty(fr), it: parseStringOrEmpty(it) } :
-        null;
+    return !!de || !!fr || !!it
+        ? { de: parseStringOrEmpty(de), fr: parseStringOrEmpty(fr), it: parseStringOrEmpty(it) }
+        : null;
 }

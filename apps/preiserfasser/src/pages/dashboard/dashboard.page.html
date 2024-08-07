@@ -4,16 +4,15 @@
             <div class="app-name">LIK</div>
             <ion-button
                 class="pef-toolbar-button person-button"
-                (click)="navigateToPreiserheber$.emit()"
-                [disabled]="isSyncing === syncState.syncing"
-            >
+                routerLink="/pe-details"
+                [disabled]="isSyncing === syncState.syncing">
                 <div class="person-icon">
                     <pef-icon name="person"></pef-icon>
                 </div>
             </ion-button>
         </div>
         <div class="settings-buttons-container">
-            <ion-button class="pef-toolbar-button" (click)="navigateToSettings$.emit()">
+            <ion-button class="pef-toolbar-button" routerLink="/settings">
                 <pef-icon name="settings"></pef-icon>
             </ion-button>
         </div>
@@ -22,13 +21,11 @@
         <div class="preismeldestellen">
             <div class="header-line">
                 <h3>{{ 'heading_choose-preismeldestelle' | translate }}</h3>
-                <div class="current-time">{{ currentTime$ | async | pefDateTranslate: 'dddd, DD.MM.YYYY HH:mm' }}</div>
+                <div class="current-time">{{ currentTime$ | async | pefDateTranslate: 'EEEE, dd.MM.yyyy HH:mm' }}</div>
             </div>
             <pef-search-input
                 class="pms-search"
-                (valueChanges)="filterTextValueChanges.emit($event)"
-                [noPadding]="true"
-            ></pef-search-input>
+                (valueChanges)="filterTextValueChanges.emit($event)"></pef-search-input>
             <div class="pms-header-table">
                 <div class="pms-header-row">
                     <div class="pms-header-cell pms-name">
@@ -57,25 +54,23 @@
                     </div>
                 </div>
             </div>
-            <ion-content pef-perfect-scrollbar class="preismeldungen-scroll" [enabled]="isDesktop$ | async">
+            <ion-content class="preismeldungen-scroll">
+                <!-- TODO: [enabled]="isDesktop$ | async -->
                 <div class="pms-table">
                     <div
                         class="pms-row"
-                        *ngFor="let bag of (filteredPreismeldestellenWithStatistics$ | async); trackBy: trackByPms"
-                    >
+                        *ngFor="let bag of (filteredPreismeldestellenWithStatistics$ | async); trackBy: trackByPms">
                         <div class="pms-cell pms-nummer">
                             <div class="pms-cell-content">
                                 <ion-button
                                     fill="clear"
                                     class="pms-detail-link icon-only"
-                                    (click)="navigateToDetails$.emit(bag.preismeldestelle)"
-                                >
+                                    [routerLink]="['/pms-details', bag.preismeldestelle.pmsNummer]">
                                     <pef-icon name="shop"></pef-icon>
                                     <pef-floating-icon
                                         [icon-name]="'warning'"
                                         [bottom-right]="true"
-                                        *ngIf="bag.preismeldestelle.keinErhebungsart"
-                                    ></pef-floating-icon>
+                                        *ngIf="bag.preismeldestelle.keinErhebungsart"></pef-floating-icon>
                                 </ion-button>
                                 {{ bag.preismeldestelle.pmsNummer }}
                             </div>
@@ -107,16 +102,14 @@
                                         !bag.preismeldestelle.isPdf || bag.preismeldestelle.keinErhebungsart
                                     "
                                     [disabled]="isSyncing === syncState.syncing"
-                                    (click)="createPmsPdf$.emit(bag.preismeldestelle)"
-                                >
+                                    (click)="createPmsPdf$.emit(bag.preismeldestelle)">
                                     <pef-icon name="pdf"></pef-icon>
                                 </ion-button>
                                 <ion-button
                                     class="price-entry-button icon-only"
                                     [class.visibility-hidden]="bag.preismeldestelle.keinErhebungsart"
                                     [disabled]="isSyncing === syncState.syncing"
-                                    (click)="navigateToPriceEntry$.emit(bag.preismeldestelle)"
-                                >
+                                    [routerLink]="['/pms-price-entry', bag.preismeldestelle.pmsNummer]">
                                     <pef-icon name="todo"></pef-icon>
                                 </ion-button>
                             </div>
@@ -132,7 +125,8 @@
                         <h3>{{ 'heading_manage-preismeldestelle' | translate }}</h3>
                     </div>
                     <div class="summary">
-                        {{ 'text_erhebungsmonat' | translate }}: {{ erhebungsmonat$ | async | pefDateTranslate: 'MMMM YYYY' }}
+                        <ng-container>{{ 'text_erhebungsmonat' | translate }}: </ng-container>
+                        {{ erhebungsmonat$ | async | pefDateTranslate: 'MMMM yyyy' }}
                     </div>
                     <div class="statistics">
                         <div class="row">
@@ -161,24 +155,22 @@
             <div class="actions">
                 <div class="status">
                     <span *ngxLet="(syncError$ | async); let syncError" [hidden]="!syncError" class="error"
-                        >{{ syncError | translate }}</span
+                        >Sync-Error: {{ syncError | translate }}</span
                     >
                     <span *ngxLet="(loginError$ | async); let loginError" [hidden]="!loginError" class="error"
-                        >{{ loginError }}</span
+                        >Login-Error: {{ loginError }}</span
                     >
-                    <span *ngIf="!(isCompatibleToDatabase$ | async)" class="error" translate
-                        >error_incompatible_version</span
+                    <span *ngIf="!(isCompatibleToDatabase$ | async)!" class="error" translate
+                        >Offline-Error: {{ 'error_incompatible_version' | translate }}</span
                     >
                     <pef-icon
                         name="sorting_arrows"
                         class="syncing"
-                        [hidden]="isSyncing !== syncState.syncing"
-                    ></pef-icon>
+                        [class.display-none]="isSyncing !== syncState.syncing"></pef-icon>
                     <pef-icon
                         name="wifi"
                         class="connectivity"
-                        [class.error]="!(canConnectToDatabase$ | async)"
-                    ></pef-icon>
+                        [class.error]="!(canConnectToDatabase$ | async)!"></pef-icon>
                 </div>
                 <div class="row">
                     <div class="number">{{ preismeldungenStatistics?.total.openSavedCount || 0 }}</div>
@@ -188,36 +180,33 @@
                     <div class="number">&nbsp;</div>
                     <div class="text">
                         {{ 'text_database-last-synced-at' | translate }}: <br />
-                        {{ lastSyncedAt | pefDateTranslate: 'DD MMMM YYYY HH:mm:ss' }}
+                        {{ lastSyncedAt | pefDateTranslate: 'dd MMMM yyyy HH:mm:ss' }}
                     </div>
                 </div>
                 <div class="buttons">
                     <ion-button
                         type="button"
                         (click)="loginClicked$.emit($event)"
-                        [hidden]="!(showLogin$ | async)"
-                        [disabled]="isSyncing === syncState.syncing"
-                    >
+                        [class.display-none]="!(showLogin$ | async)!"
+                        [disabled]="isSyncing === syncState.syncing">
                         {{ 'btn_login' | translate }}
                     </ion-button>
                     <ion-button
                         type="button"
                         (click)="synchronizeClicked$.emit($event)"
-                        [hidden]="!(canSync$ | async)"
-                        [disabled]="isSyncing === syncState.syncing"
-                    >
+                        [class.display-none]="!(canSync$ | async)!"
+                        [disabled]="isSyncing === syncState.syncing">
                         {{ 'btn_synchronize' | translate }}
                     </ion-button>
                     <ion-button
                         type="button"
                         (click)="uploadPreismeldungenClicked$.emit($event)"
                         [disabled]="
-                        !(canSync$ | async) ||
-                        (showLogin$ | async) ||
+                        !(canSync$ | async)! ||
+                        (showLogin$ | async)! ||
                         isSyncing === syncState.syncing ||
-                        !(hasOpenSavedPreismeldungen$ | async)
-                    "
-                    >
+                        !(hasOpenSavedPreismeldungen$ | async)!
+                    ">
                         {{ 'btn_upload-now' | translate }}
                     </ion-button>
                 </div>

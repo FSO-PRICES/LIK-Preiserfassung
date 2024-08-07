@@ -3,51 +3,54 @@
         [preismeldung]="currentPreismeldung$ | async"
         [selectedTab]="selectedTab$ | async"
         (selectTab)="selectTab$.emit($event)"
-        [isNotSave]="isNotSave$ | async"
+        [isSaveDisabled]="_isSaveDisabled$ | async"
         (buttonClicked)="toolbarButtonClicked$.emit($event)"
         [disableQuickEqual]="disableQuickEqual$ | async"
-    >
+        [isAdminApp]="false"
+        [isDesktop]="isDesktop$ | async">
     </preismeldung-toolbar>
     <div class="work-area">
         <div class="preismeldung-details-container">
-            <div class="tabs-container" [class.display-none]="!(currentPreismeldung$ | async)">
+            <div class="tabs-container" [class.display-none]="!(currentPreismeldung$ | async)!">
                 <preismeldung-info-warenkorb
-                    [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
+                    [class.display-none]="(selectedTab$ | async) !== 'INFO_WARENKORB'"
                     [isDesktop]="isDesktop$ | async"
                     [preismeldung]="currentPreismeldung$ | async"
                     [preismeldestelle]="preismeldestelle$ | async"
                     [warenkorb]="warenkorb$ | async"
-                    [priceCountStatus]="currentPriceCountStatus$ | async"
-                ></preismeldung-info-warenkorb>
+                    [priceCountStatus]="currentPriceCountStatus$ | async"></preismeldung-info-warenkorb>
                 <preismeldung-info
-                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
+                    [class.display-none]="(selectedTab$ | async) !== 'PREISMELDUNG_INFO'"
                     [isDesktop]="isDesktop$ | async"
                     [preismeldung]="currentPreismeldung$ | async"
                     [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     (resetClicked)="resetPreismeldung$.emit()"
                     [isAdminApp]="false"
-                ></preismeldung-info>
+                    [hasWritePermission]="true"></preismeldung-info>
                 <preismeldung-attributes
-                    [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
+                    [class.display-none]="(selectedTab$ | async) !== 'PRODUCT_ATTRIBUTES'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [isDesktop]="isDesktop$ | async"
                     [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
+                    [hasWritePermission]="true"
                     (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"
-                ></preismeldung-attributes>
+                    (saveAttributes)="savePreismeldungAttributes$.emit($event)"></preismeldung-attributes>
                 <preismeldung-messages
-                    [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
-                    [isActive]="(selectedTab$ | async) == 'MESSAGES'"
+                    [class.display-none]="(selectedTab$ | async) !== 'MESSAGES'"
+                    [isActive]="(selectedTab$ | async) === 'MESSAGES'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [preismeldestelle]="preismeldestelle$ | async"
                     [priceCountStatus]="currentPriceCountStatus$ | async"
                     [snippets]="snippets"
                     [isDesktop]="isDesktop$ | async"
+                    [hasWritePermission]="true"
+                    [isAdminApp]="false"
                     (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"
-                ></preismeldung-messages>
+                    (saveMessages)="savePreismeldungMessages$.emit($event)"></preismeldung-messages>
                 <preismeldung-price
-                    [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'"
+                    [class.display-none]="(selectedTab$ | async) !== 'PREISMELDUNG'"
                     [preismeldung]="currentPreismeldung$ | async"
                     [isDesktop]="isDesktop$ | async"
                     [preismeldestelle]="preismeldestelle$ | async"
@@ -60,10 +63,10 @@
                     (cancel)="cancel$.emit({})"
                     (requestThrowChanges)="requestThrowChanges$.emit({})"
                     [isAdminApp]="false"
+                    [hasWritePermission]="true"
                     (save)="save$.emit($event)"
-                    (isSaveLookDisabled)="isNotSave$.emit($event)"
-                    (disableQuickEqual)="disableQuickEqual$.emit($event)"
-                ></preismeldung-price>
+                    (isSaveLookDisabled)="isSaveDisabled$.emit($event)"
+                    (disableQuickEqual)="disableQuickEqual$.emit($event)"></preismeldung-price>
             </div>
             <div class="message" [class.display-none]="!!(currentPreismeldung$ | async)">
                 {{ 'label_no_preismeldung-selected' | translate }}
@@ -88,7 +91,7 @@
                 [currentLanguage]="currentLanguage$ | async"
                 [requestSelectNextPreismeldung]="selectNextPreismeldungRequested$ | async"
                 [isDesktop]="isDesktop$ | async"
-            ></preismeldung-list>
+                [isSaveDisabled]="_isSaveDisabled$ | async"></preismeldung-list>
         </div>
     </div>
 </div>

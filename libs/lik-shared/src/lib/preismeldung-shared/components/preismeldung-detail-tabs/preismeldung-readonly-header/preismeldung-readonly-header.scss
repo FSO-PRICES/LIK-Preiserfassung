@@ -1,0 +1,147 @@
+@import '../../../../styles/imports.scss';
+
+:host {
+    @include set-padding-vert-horiz(0.6, 1);
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+
+    flex: 0 0 auto;
+    color: white;
+    background-color: $surfie-green;
+
+    ion-input,
+    ion-textarea {
+        width: auto;
+        color: $black;
+        font-size: 1.1em;
+    }
+
+    ::ng-deep ion-input {
+        --highlight-color-valid: #{$bright-sun};
+        min-height: auto !important;
+        margin-bottom: 0;
+
+        .label-text-wrapper {
+            color: $white;
+            transform: none !important;
+            padding: 0 8px 0 0;
+            margin-inline-end: 0 !important;
+            font-size: 0.8em;
+            font-weight: normal;
+        }
+
+        &.label-left {
+            .input-highlight {
+                display: none;
+            }
+
+            .label-text-wrapper {
+                // font-size: 12px;
+                align-items: start;
+            }
+
+            &.has-focus {
+                .label-text-wrapper {
+                    color: $white !important;
+                }
+
+                &.readonly {
+                    .label-text {
+                        color: $white !important;
+                    }
+                }
+
+                .native-wrapper {
+                    border-bottom-color: #{$hit-gray};
+                }
+            }
+        }
+    }
+
+    ::ng-deep ion-textarea {
+        --highlight-color-valid: #{$bright-sun};
+        flex: 1;
+
+        .native-textarea {
+            caret-color: $black;
+            padding-top: 4px !important;
+            padding-bottom: 0 !important;
+        }
+    }
+
+    .article-text-label {
+        font-size: 0.9em;
+        margin-right: 8px;
+    }
+
+    .header-line {
+        display: flex;
+        align-items: center;
+
+        .article-text-label {
+            align-self: flex-start;
+        }
+
+        &.artikelnummer {
+            ::ng-deep ion-input .native-wrapper {
+                width: 22rem;
+            }
+        }
+
+        &.url {
+            justify-content: flex-end;
+
+            ::ng-deep ion-input .native-wrapper {
+                width: 22rem;
+            }
+        }
+    }
+
+    .pms-heading {
+        font-size: 1.25em;
+        // flex: 1;
+    }
+
+    .product-heading,
+    .pms-heading {
+        font-size: 1.1em;
+        font-weight: 500;
+        line-height: 1.25em;
+        max-height: 2.5em;
+        padding-bottom: 2px;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .right-column {
+        flex: 0 0 53px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .price-count-status {
+        span {
+            font-size: 1.25em;
+            margin-right: 5px;
+        }
+        &.ok {
+            color: $sulu;
+        }
+        &.not-ok {
+            color: orange;
+        }
+    }
+
+    .server-url-button {
+        --border-radius: 2px;
+        margin: 0;
+        min-width: 36px;
+        &:hover {
+            fill: white;
+        }
+    }
+}

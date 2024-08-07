@@ -36,38 +36,17 @@
         display: flex;
         flex: 0 0 auto;
         margin-bottom: 4px;
-        justify-content: space-between;
-
-        .spacer {
-            flex: 0 0 20px;
-        }
-        ion-item {
-            flex: 1;
-        }
-
-        select {
-            height: 2.5em;
-            margin-bottom: 0;
-        }
-
-        .item.md.pef-item ion-label.label-stacked.sc-ion-label-md-h {
-            margin-top: 0;
-        }
-        ion-input {
-            height: 2.5em;
-
-            ::ng-deep input {
-                height: 100%;
+        gap: 20px;
+        ::ng-deep ion-input {
+            .label-text-wrapper {
+                padding: 0;
             }
+            .input-wrapper {
+                padding: 3px 4px 4px 4px;
+                background-color: white;
+            }
+            min-height: auto !important;
         }
-        pef-search-input {
-            height: 2.5em;
-            width: 100%;
-        }
-    }
-
-    pef-virtual-scroll {
-        flex: 1;
     }
 
     .last-synced-at {

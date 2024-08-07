@@ -1,29 +1,9 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { Injectable } from '@angular/core';
 import { assign, first, keyBy, sortBy } from 'lodash';
 import PouchDB from 'pouchdb';
 import PouchDBAllDbs from 'pouchdb-all-dbs';
 import pouchDbAuthentication from 'pouchdb-authentication';
-import { from, Observable, of } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import { catchError, flatMap, map, reduce } from 'rxjs/operators';
 
@@ -58,7 +38,7 @@ export class PouchService {
 
     public updateUser(erheber: P.Erheber, password: string) {
         return this.getDatabase('_users').then((db: any) => {
-            if (!!password) {
+            if (password) {
                 return db.changePassword(erheber._id, password);
             }
             return Promise.resolve(true);
@@ -67,7 +47,7 @@ export class PouchService {
 
     public deleteUser(username: string) {
         return this.getDatabase('_users')
-            .then((db: any) => db.get(`org.couchdb.user:${username}`).then(doc => db.remove(doc)))
+            .then((db: any) => db.get(`org.couchdb.user:${username}`).then((doc) => db.remove(doc)))
             .then(() => true)
             .catch(() => false);
     }
@@ -78,7 +58,7 @@ export class PouchService {
 
     public putUserToDatabase(dbName, users: P.CouchSecurity) {
         return from(
-            this.getSettings().then(settings =>
+            this.getSettings().then((settings) =>
                 ajax({
                     url: `${settings.serverConnection.url}/${dbName}/_security`,
                     body: users,
@@ -90,7 +70,7 @@ export class PouchService {
                     timeout: 50000,
                 }),
             ),
-        ).pipe(flatMap(x => x));
+        ).pipe(flatMap((x) => x));
     }
 
     public getDatabase(dbName: string): Promise<PouchDB.Database<{}>> {
@@ -111,7 +91,7 @@ export class PouchService {
     }
 
     public getAllDocumentsFromDb<T extends P.CouchProperties>(db: PouchDB.Database<{}>): Promise<T[]> {
-        return db.allDocs({ include_docs: true }).then(x => x.rows.map(row => row.doc as T));
+        return db.allDocs({ include_docs: true }).then((x) => x.rows.map((row) => row.doc as T));
     }
 
     public getAllDocumentsForPrefixFromDb<T extends P.CouchProperties>(
@@ -120,7 +100,7 @@ export class PouchService {
     ): Promise<T[]> {
         return db
             .allDocs(assign({}, { include_docs: true }, this.getAllDocumentsForPrefix(prefix)))
-            .then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
+            .then((x) => x.rows.map((row) => row.doc)) as Promise<T[]>;
     }
 
     public getAllDocumentsForPrefixFromDbName<T extends P.CouchProperties>(
@@ -128,7 +108,7 @@ export class PouchService {
         prefix: string,
     ): Observable<T[]> {
         return this.getDatabaseAsObservable(dbName).pipe(
-            flatMap(db => this.getAllDocumentsForPrefixFromDb<T>(db, prefix)),
+            flatMap((db) => this.getAllDocumentsForPrefixFromDb<T>(db, prefix)),
         );
     }
 
@@ -136,7 +116,7 @@ export class PouchService {
         db: PouchDB.Database<{}>,
         keys: string[],
     ): Promise<T[]> {
-        return db.allDocs({ include_docs: true, keys }).then(x => x.rows.map(row => row.doc)) as Promise<T[]>;
+        return db.allDocs({ include_docs: true, keys }).then((x) => x.rows.map((row: any) => row.doc)) as Promise<T[]>;
     }
 
     public getDocumentByKeyFromDb<T>(db: PouchDB.Database<{}>, key: string): Promise<T> {
@@ -150,7 +130,7 @@ export class PouchService {
     public checkIfDatabaseExists = (dbName: string) => this._checkIfDatabaseExists(dbName);
 
     public dropDatabase(dbName: string) {
-        return this.getCouchDb(dbName).then(db =>
+        return this.getCouchDb(dbName).then((db) =>
             db
                 .destroy()
                 .then(() => true)
@@ -159,7 +139,7 @@ export class PouchService {
     }
 
     public dropLocalDatabase(dbName: string) {
-        return this.getLocalCouchDb(dbName).then(db =>
+        return this.getLocalCouchDb(dbName).then((db) =>
             db
                 .destroy()
                 .then(() => true)
@@ -169,11 +149,11 @@ export class PouchService {
 
     private getCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
         return this.getSettings()
-            .then(settings => {
+            .then((settings) => {
                 const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
                 return Promise.resolve(couch);
             })
-            .catch(err => new PouchDB(this.dbNames.emptyDb));
+            .catch((err) => new PouchDB(this.dbNames.emptyDb));
     }
 
     private getLocalCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
@@ -183,7 +163,7 @@ export class PouchService {
     public syncDb(dbName: string) {
         return this.dropDatabase(dbName)
             .then(() => {
-                return this.getSettings().then(settings => {
+                return this.getSettings().then((settings) => {
                     const pouch = new PouchDB(`${dbName}`);
                     const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`);
                     return pouch
@@ -192,7 +172,7 @@ export class PouchService {
                         .catch(() => true);
                 });
             })
-            .catch(err => new PouchDB(this.dbNames.emptyDb));
+            .catch((err) => new PouchDB(this.dbNames.emptyDb));
     }
 
     private _checkIfDatabaseExists(dbName: string) {
@@ -202,8 +182,10 @@ export class PouchService {
     }
 
     public getSettings() {
-        return this.getLocalDatabase(this.dbNames.setting).then(db =>
-            db.allDocs(assign({}, { include_docs: true })).then(res => first(res.rows.map(y => y.doc)) as P.Setting),
+        return this.getLocalDatabase(this.dbNames.setting).then((db) =>
+            db
+                .allDocs(assign({}, { include_docs: true }))
+                .then((res) => first(res.rows.map((y) => y.doc)) as P.Setting),
         );
     }
 
@@ -212,10 +194,10 @@ export class PouchService {
     }
 
     public loginToDatabase(credentials: { username: string; password: string }): Promise<PouchDB.Database<{}>> {
-        return this.getSettings().then(settings => {
+        return this.getSettings().then((settings) => {
             const couch = new PouchDB(`${settings.serverConnection.url}/${this.dbNames.users}`);
 
-            return this.couchLogin(couch)(credentials.username, credentials.password).then(x => {
+            return this.couchLogin(couch)(credentials.username, credentials.password).then((x) => {
                 this.setCouchLoginTime(+new Date());
                 return couch;
             }) as any;
@@ -231,22 +213,9 @@ export class PouchService {
         });
     };
 
-    public checkServerConnection() {
-        return from(this.getSettings()).pipe(
-            flatMap(settings =>
-                ajax({
-                    url: settings.serverConnection.url,
-                    method: 'GET',
-                    crossDomain: true,
-                    timeout: 10000,
-                }),
-            ),
-        );
-    }
-
     public listUserDatabases() {
         return from(this.getSettings()).pipe(
-            flatMap(settings =>
+            flatMap((settings) =>
                 ajax({
                     url: `${settings.serverConnection.url}/_all_dbs`,
                     headers: { 'Content-Type': 'application/json' },
@@ -256,11 +225,11 @@ export class PouchService {
                     method: 'GET',
                     timeout: 50000,
                 }).pipe(
-                    map(x => x.response as string[]),
+                    map((x) => x.response as string[]),
                     catchError(() => of([])),
                 ),
             ),
-            map((dbs: string[]) => dbs.filter(n => n.startsWith('user_'))),
+            map((dbs: string[]) => dbs.filter((n) => n.startsWith('user_'))),
         );
     }
 
@@ -270,33 +239,33 @@ export class PouchService {
 
     public loadAllPreismeldestellen() {
         return this.getAllDocumentsForPrefixFromUserDbs<P.Preismeldestelle>(preismeldestelleId()).pipe(
-            flatMap(preismeldestellen =>
+            flatMap((preismeldestellen) =>
                 this.getDatabaseAsObservable(this.dbNames.preismeldestelle).pipe(
-                    flatMap(db => this.getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId())),
-                    map(unassignedPms => {
+                    flatMap((db) => this.getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId())),
+                    map((unassignedPms) => {
                         const remainingPms = unassignedPms.filter(
-                            pms => !preismeldestellen.some(x => x.pmsNummer === pms.pmsNummer),
+                            (pms) => !preismeldestellen.some((x) => x.pmsNummer === pms.pmsNummer),
                         );
-                        return sortBy([...preismeldestellen, ...remainingPms], pms => pms.pmsNummer);
+                        return sortBy([...preismeldestellen, ...remainingPms], (pms) => pms.pmsNummer);
                     }),
                 ),
             ),
         );
     }
 
-    public loadAllPreismeldungen(pmsNummer: string = '') {
+    public loadAllPreismeldungen(pmsNummer = '') {
         return this.getAllDocumentsForPrefixFromUserDbs<P.Preismeldung>(preismeldungId(pmsNummer)).pipe(
             flatMap((preismeldungen: any[]) =>
                 this.getDatabaseAsObservable(this.dbNames.preismeldung).pipe(
-                    flatMap(db =>
+                    flatMap((db) =>
                         this.getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
                             db,
                             preismeldungRefId(pmsNummer),
-                        ).then(pmRefs => keyBy(pmRefs, pmRef => this.getPreismeldungId(pmRef))),
+                        ).then((pmRefs) => keyBy(pmRefs, (pmRef) => this.getPreismeldungId(pmRef))),
                     ),
-                    map(pmRefs =>
+                    map((pmRefs) =>
                         preismeldungen.map(
-                            pm =>
+                            (pm) =>
                                 assign({}, pm, { pmRef: pmRefs[this.getPreismeldungId(pm)] }) as P.Preismeldung & {
                                     pmRef: P.PreismeldungReference;
                                 },
@@ -309,16 +278,16 @@ export class PouchService {
 
     public loadAllPreiserheber() {
         return this.getAllDocumentsForPrefixFromUserDbs<P.Erheber>('preiserheber').pipe(
-            flatMap(preiserheber =>
+            flatMap((preiserheber) =>
                 this.getDatabaseAsObservable(this.dbNames.preiserheber).pipe(
-                    flatMap(db => this.getAllDocumentsFromDb<P.Erheber>(db)),
-                    map(unassignedPe => {
+                    flatMap((db) => this.getAllDocumentsFromDb<P.Erheber>(db)),
+                    map((unassignedPe) => {
                         const remainingPe = unassignedPe.filter(
-                            pe => !preiserheber.some(x => x.username === pe.username),
+                            (pe) => !preiserheber.some((x) => x.username === pe.username),
                         );
                         return sortBy(
-                            [...preiserheber.map(pe => assign({}, pe, { _id: pe.username })), ...remainingPe],
-                            pe => pe.username,
+                            [...preiserheber.map((pe) => assign({}, pe, { _id: pe.username })), ...remainingPe],
+                            (pe) => pe.username,
                         );
                     }),
                 ),
@@ -328,19 +297,19 @@ export class PouchService {
 
     public loadPreiserheber(id: string) {
         return this.listUserDatabases().pipe(
-            flatMap(userDbNames => {
-                const userDbName = userDbNames.find(dbName => dbName === this.getUserDatabaseName(id));
+            flatMap((userDbNames) => {
+                const userDbName = userDbNames.find((dbName) => dbName === this.getUserDatabaseName(id));
                 if (userDbName) {
                     return this.getDatabaseAsObservable(userDbName).pipe(
-                        flatMap(db =>
-                            this.getDocumentByKeyFromDb<P.Erheber>(db, 'preiserheber').then(pe =>
+                        flatMap((db) =>
+                            this.getDocumentByKeyFromDb<P.Erheber>(db, 'preiserheber').then((pe) =>
                                 assign(pe, { _id: pe.username }),
                             ),
                         ),
                     );
                 }
                 return this.getDatabaseAsObservable(this.dbNames.preiserheber).pipe(
-                    flatMap(db => this.getDocumentByKeyFromDb<P.Erheber>(db, id)),
+                    flatMap((db) => this.getDocumentByKeyFromDb<P.Erheber>(db, id)),
                 );
             }),
         );
@@ -348,20 +317,20 @@ export class PouchService {
 
     public updatePreiserheber(preiserheber: P.Erheber) {
         return this.listUserDatabases().pipe(
-            flatMap(userDbNames => {
+            flatMap((userDbNames) => {
                 const userDbName = userDbNames.find(
-                    dbName => dbName === this.getUserDatabaseName(preiserheber.username),
+                    (dbName) => dbName === this.getUserDatabaseName(preiserheber.username),
                 );
                 if (userDbName) {
                     return this.getDatabaseAsObservable(userDbName).pipe(
-                        map(db => ({
+                        map((db) => ({
                             db,
                             updatedPreiserheber: assign({}, preiserheber, { _id: 'preiserheber' }),
                         })),
                     );
                 }
                 return this.getDatabaseAsObservable(this.dbNames.preiserheber).pipe(
-                    map(db => ({
+                    map((db) => ({
                         db,
                         updatedPreiserheber: preiserheber,
                     })),
@@ -373,10 +342,10 @@ export class PouchService {
 
     public getAllDocumentsForPrefixFromUserDbs<T extends P.CouchProperties>(prefix: string): Observable<T[]> {
         return this.listUserDatabases().pipe(
-            flatMap(dbnames =>
+            flatMap((dbnames) =>
                 from(dbnames).pipe(
-                    flatMap(dbname => this.getDatabaseAsObservable(dbname)),
-                    flatMap(db => this.getAllDocumentsForPrefixFromDb<T>(db, prefix)),
+                    flatMap((dbname) => this.getDatabaseAsObservable(dbname)),
+                    flatMap((db) => this.getAllDocumentsForPrefixFromDb<T>(db, prefix)),
                     reduce((acc, docs) => [...acc, ...docs], []),
                 ),
             ),
@@ -387,11 +356,11 @@ export class PouchService {
         prefix: string,
     ): Observable<{ [username: string]: T[] }> {
         return this.listUserDatabases().pipe(
-            flatMap(dbnames =>
+            flatMap((dbnames) =>
                 from(dbnames).pipe(
-                    flatMap(dbname =>
+                    flatMap((dbname) =>
                         this.getAllDocumentsForPrefixFromDbName<T>(dbname, prefix).pipe(
-                            map(docs => ({
+                            map((docs) => ({
                                 [dbname.substr(5)]: docs,
                             })),
                         ),

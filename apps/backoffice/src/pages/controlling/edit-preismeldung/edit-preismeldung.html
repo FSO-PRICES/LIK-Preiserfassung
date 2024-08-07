@@ -12,78 +12,80 @@
             [isAdminApp]="true"
             (buttonClicked)="toolbarButtonClicked$.emit($event)"
             [disableQuickEqual]="quickEqualDisabled$ | async"
-        >
+            [isDesktop]="true">
         </preismeldung-toolbar>
         <div class="tab-container" *ngIf="!!currentPreismeldung">
             <preismeldung-info-warenkorb
-                [class.display-none]="(selectedTab$ | async) != 'INFO_WARENKORB'"
+                [class.display-none]="(selectedTab$ | async) !== 'INFO_WARENKORB'"
                 [isDesktop]="true"
                 [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
                 [warenkorb]="warenkorb$ | async"
-                [isAdminApp]="true"
-            >
+                [isAdminApp]="true">
                 <ng-container *ngTemplateOutlet="additionalActions"></ng-container>
             </preismeldung-info-warenkorb>
             <preismeldung-info
-                [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG_INFO'"
+                [class.display-none]="(selectedTab$ | async) !== 'PREISMELDUNG_INFO'"
                 [isDesktop]="true"
                 [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
-                (resetClicked)="resetPreismeldung$.emit()"
                 [isAdminApp]="true"
-            >
+                [hasWritePermission]="hasWritePermission$ | async"
+                (resetClicked)="resetPreismeldung$.emit()">
                 <ng-container *ngTemplateOutlet="additionalActions"></ng-container>
             </preismeldung-info>
             <preismeldung-attributes
-                [class.display-none]="(selectedTab$ | async) != 'PRODUCT_ATTRIBUTES'"
+                [class.display-none]="(selectedTab$ | async) !== 'PRODUCT_ATTRIBUTES'"
                 [preismeldung]="currentPreismeldung"
                 [isDesktop]="true"
+                [isAdminApp]="true"
+                [hasWritePermission]="hasWritePermission$ | async"
                 [preismeldestelle]="preismeldestelle"
                 (preismeldungAttributesPayload)="updatePreismeldungAttributes$.emit($event)"
-                [isAdminApp]="true"
-            >
+                (saveAttributes)="savePreismeldungAttributes$.emit($event)">
                 <ng-container *ngTemplateOutlet="additionalActions"></ng-container>
             </preismeldung-attributes>
             <preismeldung-messages
-                [class.display-none]="(selectedTab$ | async) != 'MESSAGES'"
-                [isActive]="(selectedTab$ | async) == 'MESSAGES'"
+                [class.display-none]="(selectedTab$ | async) !== 'MESSAGES'"
+                [isActive]="(selectedTab$ | async) === 'MESSAGES'"
                 [preismeldung]="currentPreismeldung"
                 [preismeldestelle]="preismeldestelle"
                 [isDesktop]="true"
+                [isAdminApp]="true"
+                [hasWritePermission]="hasWritePermission$ | async"
                 (preismeldungMessagesPayload)="updatePreismeldungMessages$.emit($event)"
                 (kommentarClearClicked)="kommentarClearClicked$.emit()"
-                [isAdminApp]="true"
-            >
+                (saveMessages)="savePreismeldungMessages$.emit($event)">
                 <ng-container *ngTemplateOutlet="additionalActions"></ng-container>
             </preismeldung-messages>
             <preismeldung-price
-                [class.display-none]="(selectedTab$ | async) != 'PREISMELDUNG'"
+                [class.display-none]="(selectedTab$ | async) !== 'PREISMELDUNG'"
                 [preismeldung]="currentPreismeldung"
+                [currentPreismeldungHasStatus]="currentPreismeldungHasStatus$ | async"
                 [isDesktop]="true"
                 [preismeldestelle]="preismeldestelle"
                 [requestPreismeldungQuickEqual]="requestPreismeldungQuickEqual$ | async"
+                [isAdminApp]="true"
+                [hasWritePermission]="hasWritePermission$ | async"
                 (preismeldungPricePayload)="updatePreismeldungPreis$.emit($event)"
                 (duplicatePreismeldung)="duplicatePreismeldung$.emit()"
                 (requestSelectNextPreismeldung)="requestSelectNextPreismeldung$.emit({})"
                 (requestThrowChanges)="requestThrowChanges$.emit({})"
-                [isAdminApp]="true"
                 (save)="savePreismeldungPrice$.emit($event)"
-                (disableQuickEqual)="disableQuickEqual$.emit($event)"
-            >
+                (disableQuickEqual)="disableQuickEqual$.emit($event)">
                 <ng-container *ngTemplateOutlet="additionalActions"></ng-container>
             </preismeldung-price>
             <div class="pe-details">{{ preiserheber?.firstName }} {{ preiserheber?.surname }}</div>
 
             <ng-template #additionalActions>
-                <div class="additional-actions">
+                <div
+                    class="additional-actions"
+                    *ngIf="!!currentPreismeldung.preismeldung.uploadRequestedAt && (currentPreismeldungHasStatus$ | async)">
                     <pef-pm-status
-                        [disabled]="currentPreismeldung.exported"
+                        [disabled]="currentPreismeldung.exported || !(hasWritePermission$ | async)!"
                         [preismeldungStatus]="preismeldungenStatus[currentPreismeldung.pmId]"
-                        (setPreismeldungStatus)="
-                            setPreismeldungStatus$.emit({ pmId: currentPreismeldung.pmId, status: $event })
-                        "
-                    ></pef-pm-status>
+                        (setPreismeldungStatus)="setPreismeldungStatus$.emit({ pmId: currentPreismeldung.pmId, status: $event })"
+                        size="large"></pef-pm-status>
                 </div>
             </ng-template>
         </div>

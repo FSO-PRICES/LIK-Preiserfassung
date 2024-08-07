@@ -1,27 +1,9 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
+import { createSelector } from '@ngrx/store';
+import { assign, cloneDeep } from 'lodash';
 
-import { createSelector } from 'reselect';
 import { Models as P } from '@lik-shared';
+
 import * as preismeldestellen from '../actions/preismeldestellen';
-import { assign, cloneDeep, isEqual } from 'lodash';
 
 export type CurrentPreismeldestelle = P.Preismeldestelle & {
     isModified: boolean;
@@ -42,12 +24,12 @@ const initialState: State = {
 export function reducer(state = initialState, action: preismeldestellen.Actions): State {
     switch (action.type) {
         case 'PREISMELDESTELLEN_LOAD_SUCCESS': {
-            const pmsNummers = action.payload.map(x => x.pmsNummer);
+            const pmsNummers = action.payload.map((x) => x.pmsNummer);
             const entities = action.payload.reduce(
                 (agg: { [pmsNummer: string]: P.Preismeldestelle }, preismeldestelle: P.Preismeldestelle) => {
                     return assign(agg, { [preismeldestelle.pmsNummer]: preismeldestelle });
                 },
-                {}
+                {},
             );
             return assign({}, state, { pmsNummers, entities });
         }
@@ -134,7 +116,7 @@ export function reducer(state = initialState, action: preismeldestellen.Actions)
             const currentPreismeldestelle = Object.assign({}, state.currentPreismeldestelle, action.payload, {
                 isModified: false,
             });
-            const preismeldestelleIds = !!state.pmsNummers.find(x => x === currentPreismeldestelle.pmsNummer)
+            const preismeldestelleIds = state.pmsNummers.find((x) => x === currentPreismeldestelle.pmsNummer)
                 ? state.pmsNummers
                 : [...state.pmsNummers, currentPreismeldestelle.pmsNummer];
             return assign({}, state, {
@@ -154,5 +136,5 @@ export const getPmsNummers = (state: State) => state.pmsNummers;
 export const getCurrentPreismeldestelle = (state: State) => state.currentPreismeldestelle;
 
 export const getAll = createSelector(getEntities, getPmsNummers, (entities, pmsNummers) =>
-    pmsNummers.map(x => entities[x])
+    pmsNummers.map((x) => entities[x]),
 );

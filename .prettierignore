@@ -1,1 +1,4 @@
-lik-shared/translations.ts
+# Add files here to ignore them from prettier formatting
+/dist
+/coverage
+.angular

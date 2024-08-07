@@ -1,0 +1,45 @@
+@import './shadows.scss';
+@import './mixins.scss';
+@import './_variables.scss';
+
+.pef-dialog {
+    box-shadow: $whiteframe-shadow-16dp;
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    @include set-padding(1, 2, 1, 1);
+    background-color: $white;
+    border-radius: 4px;
+    min-width: 400px;
+    // width: calc(1920px / 3);
+}
+
+.pef-dialog-message {
+    h3 {
+        display: flex;
+        align-items: flex-end;
+        line-height: 1.5em;
+        pef-icon {
+            margin-right: 1em;
+        }
+    }
+    p {
+        padding-left: calc(1em + 32px);
+    }
+}
+
+.pef-dialog-button-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1em;
+    padding-left: calc(1em + 32px);
+    button {
+        min-width: 6em;
+    }
+    button:first-of-type {
+        margin-left: 0;
+    }
+    button:last-of-type {
+        margin-right: 0;
+    }
+}

@@ -1,0 +1,43 @@
+<preismeldung-readonly-header
+    [preismeldung]="preismeldung$ | async"
+    [preismeldestelle]="preismeldestelle$ | async"
+    [isAdminApp]="isAdminApp$ | async">
+    <ng-content></ng-content>
+</preismeldung-readonly-header>
+<ion-content>
+    <div class="detail-tab-bottom-part">
+        <form [formGroup]="form">
+            <div class="detail-tab-bottom-part">
+                <h3 class="large">{{ 'heading_preismeldung-attributes' | translate }}</h3>
+
+                <ng-container *ngFor="let merkmal of (produktMerkmale$ | async); let i = index">
+                    <div class="attributes-input-wrapper">
+                        <div></div>
+                        <div class="initial">{{merkmal.initial}}</div>
+                    </div>
+                    <div class="attributes-input-wrapper">
+                        <div>{{merkmal.attribute | pefPropertyTranslate}}</div>
+                        <div>
+                            <ion-input
+                                disable-emojis
+                                type="text"
+                                aria-label="Merkmal Eigenschaft"
+                                [formControlName]="'attribute_' + i"
+                                [readonly]="(isReadonly$ | async)"
+                                [class.readonly]="(isReadonly$ | async)"
+                                (ionBlur)="fieldEdited$.emit()"></ion-input>
+                        </div>
+                    </div>
+                </ng-container>
+                <div class="actions">
+                    <ion-button
+                        type="button"
+                        (click)="saveClicked$.emit()"
+                        [disabled]="(isReadonly$ | async) || !(attributesModified$ | async)!">
+                        {{ 'label.aktionen.speichern' | translate }}
+                    </ion-button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ion-content>

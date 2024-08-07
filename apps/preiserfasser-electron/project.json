@@ -1,0 +1,40 @@
+{
+    "name": "preiserfasser-electron",
+    "tags": [],
+    "targets": {
+        "prebuild": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "npx shx rm -rf dist/apps/preiserfasser dist/apps/preiserfasser-electron",
+                    "nx build preiserfasser",
+                    "npx shx cp -r dist/apps/preiserfasser dist/apps/preiserfasser-electron",
+                    "npx shx --silent sed -i \"s/base href=\\\"\\/\\\"/base href=\\\".\\/\\\"/g\" dist/apps/preiserfasser-electron/index.html",
+                    "npx shx cp apps/preiserfasser-electron/index.js apps/preiserfasser-electron/isBfsApp.js dist/apps/preiserfasser-electron",
+                    "npx shx cp apps/preiserfasser-electron/package.json dist/apps/preiserfasser-electron",
+                    "npx shx cp apps/preiserfasser-electron/icon.ico dist/apps/preiserfasser-electron/icon.ico"
+                ]
+            }
+        },
+        "setBfsFlag": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "npx shx --silent sed -i \"s/const isBfsApp = .*;/const isBfsApp = {args.bfs};/g\" apps/preiserfasser-electron/isBfsApp.js"
+                ]
+            }
+        },
+        "build": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "npx shx rm -rf dist/apps/preiserfasser-electron-{args.out}",
+                    "cd dist/apps/preiserfasser-electron && electron-packager . --platform={args.platform} --icon=./icon.ico --out=../preiserfasser-electron-{args.out}"
+                ]
+            }
+        }
+    }
+}

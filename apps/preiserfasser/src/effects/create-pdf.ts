@@ -1,39 +1,19 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { Injectable } from '@angular/core';
-import { File } from '@ionic-native/file/ngx';
+import { Directory, Filesystem, FilesystemPlugin } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { of, Subject, partition, defer, merge } from 'rxjs';
+import { Subject, defer, merge, of, partition } from 'rxjs';
 import { catchError, concat, flatMap, map, skip, take, withLatestFrom } from 'rxjs/operators';
 
+import { PefLanguageService, formatDate, mengeFormatFn, preisFormatFn, priceCountId } from '@lik-shared';
+
+import { Action as pdfActions } from '../actions/pdf';
 import * as P from '../common-models';
 import * as fromRoot from '../reducers';
-import { Action as pdfActions } from '../actions/pdf';
-
-import { formatDate, mengeFormatFn, PefLanguageService, preisFormatFn, priceCountId } from '@lik-shared';
 
 @Injectable()
 export class CreatePdfEffects {
@@ -44,78 +24,76 @@ export class CreatePdfEffects {
         private pefLanguageService: PefLanguageService,
         private translateService: TranslateService,
         private store: Store<fromRoot.AppState>,
-        private file: File,
+        // private file: File,
         private platform: Platform,
     ) {}
 
-    @Effect()
-    pmsToPdf$ = this.actions$.pipe(
-        ofType('CREATE_PMS_PDF'),
-        flatMap(
-            ({
-                payload: { preismeldestelle, erhebungsmonat },
-            }: {
-                type: string;
-                payload: { preismeldestelle: P.Models.Preismeldestelle; erhebungsmonat: string };
-            }) =>
-                of({ type: 'PDF_RESET_PMS' }).pipe(
-                    concat(
-                        defer(() => {
-                            const [noPdfPossible$, preismeldungen$] = partition(
-                                this.store.select(fromRoot.getPreismeldungen).pipe(
-                                    skip(1),
-                                    take(1),
-                                ),
-                                preismeldungen => preismeldungen.length === 0,
-                            );
-                            return merge(
-                                preismeldungen$.pipe(
-                                    withLatestFrom(
-                                        this.store.select(fromRoot.getPriceCountStatuses),
-                                        this.pefLanguageService.currentLanguage$,
+    pmsToPdf$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType('CREATE_PMS_PDF'),
+            flatMap(
+                ({
+                    payload: { preismeldestelle, erhebungsmonat },
+                }: {
+                    type: string;
+                    payload: { preismeldestelle: P.Models.Preismeldestelle; erhebungsmonat: string };
+                }) =>
+                    of({ type: 'PDF_RESET_PMS' }).pipe(
+                        concat(
+                            defer(() => {
+                                const [noPdfPossible$, preismeldungen$] = partition(
+                                    this.store.select(fromRoot.getPreismeldungen).pipe(skip(1), take(1)),
+                                    (preismeldungen) => preismeldungen.length === 0,
+                                );
+                                return merge(
+                                    preismeldungen$.pipe(
+                                        withLatestFrom(
+                                            this.store.select(fromRoot.getPriceCountStatuses),
+                                            this.pefLanguageService.currentLanguage$,
+                                        ),
+                                        flatMap(([preismeldungen, priceCountStatuses, currentLanguage]) => {
+                                            const translateFn = (key: string) => this.translateService.instant(key);
+                                            const data = mapData(
+                                                preismeldestelle,
+                                                preismeldungen,
+                                                priceCountStatuses,
+                                                currentLanguage,
+                                                translateFn,
+                                            );
+                                            return toPdf(
+                                                data,
+                                                Filesystem,
+                                                preismeldestelle,
+                                                this.platform,
+                                                erhebungsmonat,
+                                                currentLanguage,
+                                                translateFn,
+                                            );
+                                        }),
+                                        map((savedTo) => ({ type: 'PDF_CREATED_PMS', payload: savedTo })),
                                     ),
-                                    flatMap(([preismeldungen, priceCountStatuses, currentLanguage]) => {
-                                        const translateFn = (key: string) => this.translateService.instant(key);
-                                        const data = mapData(
-                                            preismeldestelle,
-                                            preismeldungen,
-                                            priceCountStatuses,
-                                            currentLanguage,
-                                            translateFn,
-                                        );
-                                        return toPdf(
-                                            data,
-                                            this.file,
-                                            preismeldestelle,
-                                            this.platform,
-                                            erhebungsmonat,
-                                            currentLanguage,
-                                            translateFn,
-                                        );
-                                    }),
-                                    map(savedTo => ({ type: 'PDF_CREATED_PMS', payload: savedTo })),
-                                ),
-                                noPdfPossible$.pipe(
-                                    map(
-                                        () =>
-                                            ({
-                                                type: 'PDF_CREATION_FAILED',
-                                                payload: {
-                                                    error: 'No entries',
-                                                    messageKey: 'label_no_preismeldung-available',
-                                                },
-                                            } as pdfActions),
+                                    noPdfPossible$.pipe(
+                                        map(
+                                            () =>
+                                                ({
+                                                    type: 'PDF_CREATION_FAILED',
+                                                    payload: {
+                                                        error: 'No entries',
+                                                        messageKey: 'label_no_preismeldung-available',
+                                                    },
+                                                } as pdfActions),
+                                        ),
                                     ),
-                                ),
-                            );
+                                );
+                            }),
+                        ),
+
+                        catchError((error) => {
+                            console.log('PDF CREATION ERROR', error);
+                            return of({ type: 'PDF_CREATION_FAILED', payload: { error } } as pdfActions);
                         }),
                     ),
-
-                    catchError(error => {
-                        console.log('PDF CREATION ERROR', error);
-                        return of({ type: 'PDF_CREATION_FAILED', payload: { error } } as pdfActions);
-                    }),
-                ),
+            ),
         ),
     );
 }
@@ -139,27 +117,31 @@ function mapData(
     currentLanguage: string,
     translateFn: (key: string) => string,
 ) {
-    return preismeldungen.map(bag => [
+    return preismeldungen.map((bag) => [
         {
             col1: [
                 translateFn('label_print_pos'),
                 `${bag.warenkorbPosition.gliederungspositionsnummer}/${bag.preismeldung.laufnummer}`,
             ],
             col2: [
-                translateFn('label_print_positionsbezeichnung'),
+                translateFn('label.wk.name'),
                 translateProperty(bag.warenkorbPosition.positionsbezeichnung, currentLanguage),
             ],
             col5: [
                 translateFn('label_print_preiszahl'),
-                `${(
-                    priceCountStatuses[
-                        priceCountId(preismeldestelle.pmsNummer, bag.warenkorbPosition.gliederungspositionsnummer)
-                    ] || ({} as any)
-                ).numActivePrices || 0}/${(
-                    priceCountStatuses[
-                        priceCountId(preismeldestelle.pmsNummer, bag.warenkorbPosition.gliederungspositionsnummer)
-                    ] || ({} as any)
-                ).anzahlPreiseProPMS || 0}`,
+                `${
+                    (
+                        priceCountStatuses[
+                            priceCountId(preismeldestelle.pmsNummer, bag.warenkorbPosition.gliederungspositionsnummer)
+                        ] || ({} as any)
+                    ).numActivePrices || 0
+                }/${
+                    (
+                        priceCountStatuses[
+                            priceCountId(preismeldestelle.pmsNummer, bag.warenkorbPosition.gliederungspositionsnummer)
+                        ] || ({} as any)
+                    ).anzahlPreiseProPMS || 0
+                }`,
             ],
         },
         {
@@ -167,9 +149,9 @@ function mapData(
             col2: [translateFn('label_print_artikeltext'), bag.refPreismeldung.artikeltext],
             col5: [
                 translateFn('label_print_stichtag'),
-                `${
-                    bag.refPreismeldung.erhebungsAnfangsDatum ? bag.refPreismeldung.erhebungsAnfangsDatum + ' ' : ''
-                }[${bag.refPreismeldung.erhebungsZeitpunkt || '–'}]`,
+                `${bag.refPreismeldung.erhebungsAnfangsDatum ? bag.refPreismeldung.erhebungsAnfangsDatum + ' ' : ''}[${
+                    bag.refPreismeldung.erhebungsZeitpunkt || '–'
+                }]`,
             ],
         },
         {
@@ -185,7 +167,7 @@ function mapData(
         {
             col1: [
                 translateFn('label_print_bemerkungen'),
-                !!bag.refPreismeldung ? bag.refPreismeldung.bemerkungen : null || '–',
+                bag.refPreismeldung ? bag.refPreismeldung.bemerkungen : null || '–',
             ],
         },
         ...(bag.warenkorbPosition.productMerkmale.length > 0
@@ -193,7 +175,7 @@ function mapData(
                   {
                       col1: [
                           bag.warenkorbPosition.productMerkmale
-                              .map(x => translateProperty(x, currentLanguage))
+                              .map((x) => translateProperty(x, currentLanguage))
                               .join('; '),
                           bag.preismeldung.productMerkmale.join('; '),
                       ],
@@ -203,7 +185,7 @@ function mapData(
         {
             col1:
                 `${translateFn('label_print_preis-vor-reduktion')}: ${preisFormatFn(
-                    formatPrice(bag.refPreismeldung.preisVorReduktion),
+                    bag.refPreismeldung.preisVorReduktion,
                 )} / ${translateFn('label_print_menge-vor-reduktion')}: ${mengeFormatFn(
                     bag.refPreismeldung.mengeVorReduktion,
                 )} ` +
@@ -264,7 +246,7 @@ function formatPrice(price: number) {
     });
 }
 
-function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: number, isPlaceholder: boolean = false) {
+function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: number, isPlaceholder = false) {
     const docA = doc as jsPDF & { autoTable: Function; autoTableText: Function; autoTableEndPosY: Function };
     docA.autoTable(
         [
@@ -302,7 +284,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                 col5: { columnWidth: 38 },
             },
             showHeader: 'never',
-            drawCell: function(cell, data) {
+            drawCell: (cell, data) => {
                 doc.setLineWidth(settings.table.border.inner);
                 if (data.row.index === 1 && data.column.index >= 1 && data.column.index < 4) {
                     doc.setDrawColor(settings.colors.innerBorder);
@@ -357,13 +339,14 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
                     });
                     return false;
                 }
+                return undefined;
             },
-            drawRow: function(row, _opts) {
+            drawRow: function (row, _opts) {
                 if (row.index === rawData.length - 1) {
                     row.height = 7;
                 }
             },
-            createdCell: function(cell, opts) {
+            createdCell: function (cell, opts) {
                 if (isPlaceholder && opts.row.index > rawData.length - 2) {
                     cell.styles.fontSize = settings.table.smallFontSize;
                 }
@@ -386,7 +369,7 @@ function createTable(doc: jsPDF, settings: TableSettings, rawData, lastPos: numb
 
 async function toPdf(
     data: any,
-    file: File,
+    file: FilesystemPlugin,
     preismeldestelle: P.Models.Preismeldestelle,
     platform: Platform,
     erhebungsmonat: string,
@@ -395,10 +378,11 @@ async function toPdf(
 ) {
     const pmsNummer = preismeldestelle.pmsNummer;
     const doc = new jsPDF('p');
+
     const placeholderData = [
         {
             col1: [translateFn('label_print_pos'), ''],
-            col2: [translateFn('label_print_positionsbezeichnung'), ''],
+            col2: [translateFn('label.wk.name'), ''],
             col5: [translateFn('label_print_preiszahl'), ''],
         },
         {
@@ -484,7 +468,7 @@ async function toPdf(
         doc.text(
             doc.internal.pageSize.width / 2,
             settings.page.margin.top,
-            formatDate(erhebungsmonat, 'MMMM YYYY', currentLanguage),
+            formatDate(erhebungsmonat, 'MMMM yyyy', currentLanguage),
             null,
             null,
             'center',
@@ -508,27 +492,33 @@ async function toPdf(
 
     if (platform.is('mobile')) {
         const pdfOutput = doc.output();
-        const buffer = new ArrayBuffer(pdfOutput.length);
-        const array = new Uint8Array(buffer);
-        for (let i = 0; i < pdfOutput.length; i++) {
-            array[i] = pdfOutput.charCodeAt(i);
-        }
 
-        if (file.externalRootDirectory) {
+        if (file.checkPermissions()) {
             try {
-                await file.writeFile(file.externalRootDirectory, `PDF_${pmsNummer}_${+new Date()}.pdf`, buffer);
+                await file.writeFile({
+                    path: `Lik-Preiserfasser/PDF_${pmsNummer}_${+new Date()}.pdf`,
+                    data: btoa(pdfOutput),
+                    directory: Directory.Documents,
+                    recursive: true,
+                });
                 return 'DOCUMENT_LOCATION';
-            } catch (x) {
-                await file.writeFile(
-                    file.externalApplicationStorageDirectory,
-                    `PDF_${pmsNummer}_${+new Date()}.pdf`,
-                    buffer,
-                );
+            } catch (e) {
+                await file.writeFile({
+                    path: `Lik-Preiserfasser/PDF_${pmsNummer}_${+new Date()}.pdf`,
+                    data: btoa(pdfOutput),
+                    directory: Directory.Data,
+                    recursive: true,
+                });
                 return 'APPLICATION_LOCATION';
             }
         }
 
-        await file.writeFile(file.externalApplicationStorageDirectory, `PDF_${pmsNummer}_${+new Date()}.pdf`, buffer);
+        await file.writeFile({
+            path: `Lik-Preiserfasser/PDF_${pmsNummer}_${+new Date()}.pdf`,
+            data: btoa(pdfOutput),
+            directory: Directory.Data,
+            recursive: true,
+        });
         return 'APPLICATION_LOCATION';
     } else {
         doc.save(`PDF_${pmsNummer}_${+new Date()}.pdf`);
@@ -537,5 +527,5 @@ async function toPdf(
 }
 
 function translateProperty(property: P.Models.PropertyTranslation, lang: string) {
-    return property[lang] != null ? property[lang] : property[P.Models.Languages.Deutsch.languageCode];
+    return property[lang] != null ? property[lang] : property[P.Models.Languages['Deutsch'].languageCode];
 }

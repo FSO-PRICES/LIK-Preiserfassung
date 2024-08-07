@@ -1,0 +1,12 @@
+:host {
+    display: block;
+    height: 2em;
+    min-height: 20px;
+    width: 2em;
+    min-width: 20px;
+
+    svg {
+        height: 100%;
+        width: 100%;
+    }
+}

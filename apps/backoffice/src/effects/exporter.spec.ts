@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs/Rx';
 import { cold, hot } from 'jest-marbles';
@@ -100,11 +80,11 @@ describe('Exporter Effects', () => {
             const result = preparePreiserheberForExport(
                 [testData.invalid.preiserheber],
                 erhebungsmonat,
-                erhebungsorgannummer
+                erhebungsorgannummer,
             ) as any;
             expect(result[0].isValid).toBe(false);
             expect(result[0].error).toEqual(
-                'Fehler beim export von dem Preiserheber "test2": Folgende Werte sind nicht gesetzt:\nPE_Sprache'
+                'Fehler beim export von dem Preiserheber "test2": Folgende Werte sind nicht gesetzt:\nPE_Sprache',
             );
         });
     });
@@ -113,7 +93,7 @@ describe('Exporter Effects', () => {
         test('should return correctly prepared data', () => {
             const { erhebungsmonat, preiserhebers, erhebungsorgannummer } = testData.input.preiserheber;
             expect(preparePreiserheberForExport(preiserhebers, erhebungsmonat, erhebungsorgannummer)).toEqual(
-                testData.expected.preiserheber
+                testData.expected.preiserheber,
             );
         });
     });

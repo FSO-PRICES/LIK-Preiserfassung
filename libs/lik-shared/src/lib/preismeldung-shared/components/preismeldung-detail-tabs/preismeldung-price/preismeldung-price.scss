@@ -1,0 +1,555 @@
+@import '../../../../styles/imports.scss';
+
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background-color: transparent;
+
+    form {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    ion-content.md {
+        background-color: $mercury;
+    }
+
+    ion-radio-group {
+        ion-item {
+            --padding-start: 0;
+            --min-height: 0;
+        }
+        ion-radio {
+            margin-right: 0.625em;
+            margin-top: 0.5625em;
+            margin-bottom: 0.5625em;
+        }
+        ion-label {
+            padding-left: 0.7em;
+            font-size: 1em;
+        }
+    }
+
+    ion-list {
+        padding: 0;
+    }
+
+    .unit-button {
+        font-size: 1.4rem;
+        margin: 0;
+        height: 36px;
+        --ion-color-contrast: #{$blue-chill};
+        --padding-start: 0.7em;
+        --box-shadow: none;
+        --border-radius: 2px;
+    }
+
+    .pm-header {
+        @include set-padding-vert-horiz(0.6, 1);
+
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+
+        flex: 0 0 auto;
+        color: white;
+        background-color: $surfie-green;
+
+        ion-input,
+        ion-textarea {
+            width: auto;
+            color: $black;
+            font-size: 1.1em;
+        }
+
+        ::ng-deep ion-input {
+            --highlight-color-valid: #{$bright-sun};
+            margin-bottom: 0;
+
+            .label-text-wrapper {
+                color: $white;
+                transform: none !important;
+                padding: 0 8px 0 0;
+                margin-inline-end: 0;
+                align-items: start;
+                font-size: 0.8em;
+                font-weight: normal;
+            }
+
+            .native-wrapper {
+                padding: 7px 8px;
+            }
+
+            &.label-left.has-focus {
+                .native-wrapper {
+                    border-bottom-color: #{$bright-sun};
+                }
+
+                .label-text-wrapper {
+                    color: $white !important;
+                }
+            }
+        }
+
+        // ::ng-deep ion-input.label-left
+
+        ::ng-deep ion-textarea {
+            --highlight-color-valid: #{$bright-sun};
+            flex: 1;
+
+            .native-textarea {
+                padding-top: 4px;
+                padding-bottom: 0;
+                caret-color: $black;
+            }
+        }
+
+        .article-text-label {
+            font-size: 0.9em;
+        }
+    }
+
+    .header-line {
+        display: flex;
+        align-items: center;
+
+        &.artikelnummer {
+            ::ng-deep ion-input .native-wrapper {
+                width: 22rem;
+            }
+        }
+
+        &.url {
+            justify-content: flex-end;
+
+            ::ng-deep ion-input .native-wrapper {
+                width: 22rem;
+            }
+        }
+
+        .article-text-label-buttons-wrapper {
+            align-self: flex-start;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding-right: 8px;
+
+            ion-button {
+                --padding-start: 9px;
+                --padding-end: 9px;
+                min-height: auto;
+                height: 28px;
+                color: $blue-chill;
+            }
+        }
+    }
+
+    .pms-heading {
+        font-size: 1.25em;
+    }
+
+    .pms-heading,
+    .product-heading {
+        font-size: 1.1em;
+        font-weight: 500;
+        line-height: 1.25em;
+        max-height: 2.5em;
+        padding-bottom: 2px;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .right-column {
+        flex: 0 0 53px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .price-count-status {
+        span {
+            font-size: 1.25em;
+            margin-right: 5px;
+        }
+        &.ok {
+            color: $sulu;
+        }
+        &.not-ok {
+            color: orange;
+        }
+    }
+
+    .duplicate {
+        --border-radius: 2px;
+        min-width: 36px;
+        margin: 0;
+        .background-plus {
+            fill: $scooter;
+        }
+        .foreground-plus {
+            fill: $blue-chill;
+        }
+        &:hover:not(.disable-hover) {
+            .foreground-plus,
+            .background-plus {
+                fill: white;
+            }
+        }
+    }
+
+    .server-url-button {
+        --border-radius: 2px;
+        margin: 0;
+        min-width: 36px;
+        &:hover {
+            fill: white;
+        }
+    }
+
+    ion-list.list-md {
+        margin-bottom: 0;
+    }
+
+    .product-detail-body-container {
+        flex: 1;
+    }
+
+    .product-detail-body {
+        background-color: $mercury;
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+
+        .columns {
+            display: flex;
+        }
+
+        h4,
+        h5 {
+            margin-bottom: 0.5em;
+        }
+    }
+
+    .box-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .box {
+        background-color: $wild-sand;
+        @include set-padding(0.5, 0.75, 0.5, 0.75);
+        font-weight: 500;
+        font-size: 1.25em;
+        min-width: 4.5em;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .arrow {
+        width: 0;
+        height: 0;
+        &.right {
+            z-index: 1;
+            border-top: 10px solid transparent;
+            border-left: 10px solid $wild-sand;
+            border-bottom: 10px solid transparent;
+        }
+        &.down {
+            z-index: 1;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid $wild-sand;
+        }
+        &.up-right {
+            border-bottom: 13px solid $wild-sand;
+            border-left: 13px solid transparent;
+            align-self: flex-end;
+        }
+    }
+
+    .percentage-wrapper {
+        position: relative;
+    }
+
+    .last-period {
+        flex: 0 0 calc(50% - 5em);
+        max-width: calc(50% - 5em);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .middle-section {
+        flex: 0 0 10em;
+    }
+
+    .current-period,
+    .last-period {
+        flex: 0 0 calc(50% - 5em);
+        max-width: calc(50% - 5em);
+
+        .price-fields {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+
+            ion-input {
+                margin-bottom: 0;
+                min-height: auto;
+                height: 36px;
+                font-size: 2rem;
+                font-weight: 500;
+            }
+
+            > :last-child {
+                width: 6rem;
+            }
+        }
+    }
+
+    .product-detail-row {
+        .item.md.pef-item {
+            ion-label {
+                margin: 0;
+                font-size: 1em;
+                color: $outer-space;
+                opacity: 0.95;
+            }
+            &.item-input-disabled {
+                ion-label {
+                    opacity: 1;
+                    color: $oslo-gray;
+                }
+            }
+        }
+    }
+
+    .product-detail-row.row-1 {
+        .last-period {
+            margin-bottom: 5px;
+            justify-content: space-between;
+            flex-direction: row;
+        }
+        .current-period {
+            display: flex;
+            flex-direction: row;
+
+            preismeldung-info-popover-right {
+                margin-left: auto;
+            }
+        }
+    }
+    .product-detail-row.row-2 {
+        .middle-section {
+            .box-container {
+                padding-top: 4.75em;
+            }
+        }
+
+        .current-period {
+            display: flex;
+
+            .data-input-area {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .code-button-list,
+            bearbeitungs-type {
+                @include set-padding-top(0.5);
+            }
+
+            .current-period-aktion-row {
+                @include set-margin-top(0.5);
+                flex: 1;
+                display: flex;
+
+                .reduction-radio-group-list {
+                    padding: 0;
+                }
+
+                .code {
+                    flex: 1 1 auto;
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: flex-end;
+                    margin-bottom: 5px;
+                    font-weight: 500;
+                    font-size: 1.25em;
+                }
+
+                .aktion-percent-container {
+                    flex: 0 0 3.5em;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .aktion-percent-button {
+                    width: 3em;
+                    margin-left: 0.7em;
+                    margin-right: 0;
+                }
+            }
+        }
+
+        &.info-popover-active {
+            .last-period {
+                .data-input-area {
+                    // background-color: white;
+                    // don't delete until feedback from BFS
+                }
+            }
+        }
+    }
+
+    .last-period {
+        z-index: 1;
+        .last-period-price,
+        .last-period-quantity {
+            display: flex;
+            justify-content: flex-end;
+            font-weight: 500;
+            align-items: center;
+            height: 2.75em;
+            padding-bottom: 0.25em;
+        }
+
+        .number {
+            padding-right: 8px;
+            font-size: 1.25em;
+        }
+
+        .unit {
+            opacity: 0.95;
+            width: 3.5em;
+            padding-left: 0.8em;
+        }
+
+        .last-period-bottom-row {
+            display: flex;
+        }
+
+        .code {
+            flex: 1;
+            display: flex;
+            font-size: 1.25em;
+            font-weight: 500;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            margin-bottom: 5px;
+        }
+
+        .box-container {
+            flex-direction: column;
+        }
+    }
+
+    .product-detail-row.row-3 {
+        .middle-section-container-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .box-container {
+            margin-top: -13px;
+            flex: 0;
+            flex-direction: column;
+        }
+        .current-period {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .textzeil {
+            color: orange;
+            text-align: right;
+            @include set-padding-top(2);
+        }
+    }
+
+    .buttons-container {
+        @include set-padding-top(2);
+        display: flex;
+        gap: 2rem;
+        justify-content: flex-end;
+    }
+
+    .product-detail-row.row-4.columns {
+        display: none;
+        justify-content: flex-end;
+        @include set-padding-top(3);
+        .textzeil {
+            color: orange;
+            line-height: 3.6rem;
+            padding-right: 2em;
+        }
+    }
+
+    .product-detail-row {
+        .save-button,
+        .cancel-button,
+        .next-button {
+            // --padding-top: 1.5em;
+            // --padding-bottom: 1.5em;
+            // --padding-start: 1.2em;
+            // --padding-end: 1.2em;
+
+            margin-top: 0;
+            margin-bottom: 0;
+            min-width: 36px;
+
+            &:hover:not(.disable-hover),
+            &.ion-activated {
+                --ion-color-base: #{$blue-chill} !important;
+            }
+        }
+        .save-button {
+            // min-width: 70px;
+        }
+    }
+
+    .look-disabled {
+        cursor: default;
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    .data-input-area {
+        background-color: $wild-sand;
+        @include set-padding(1, 1, 1, 1);
+    }
+
+    .readonly-text {
+        color: $outer-space;
+        font-size: 1.6rem;
+        font-weight: 500;
+    }
+
+    .item.md.pef-item {
+        &.input-has-focus.on-dark {
+            ion-label {
+                color: white;
+            }
+        }
+    }
+
+    @media screen and (min-height: 800px) {
+        .product-detail-row.row-3 {
+            .current-period > * {
+                display: none;
+            }
+        }
+        .product-detail-row.row-4.columns {
+            display: flex;
+        }
+    }
+
+    @import '../common-styles.scss';
+}

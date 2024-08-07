@@ -1,26 +1,7 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Component, EventEmitter, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { combineLatest as combineLatestFrom, Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable, Subject, combineLatest as combineLatestFrom } from 'rxjs';
 import {
     combineLatest,
     filter,
@@ -36,18 +17,18 @@ import {
     withLatestFrom,
 } from 'rxjs/operators';
 
-import { parseDate, PefDialogService } from '@lik-shared';
+import { ElectronService, PefDialogService, parseDate } from '@lik-shared';
 
 import * as importer from '../../actions/importer';
-import * as fromRoot from '../../reducers';
 import { blockIfNotLoggedInOrHasNoWritePermission } from '../../common/effects-extensions';
+import * as fromRoot from '../../reducers';
 
 @Component({
     selector: 'import-page',
     templateUrl: 'import.html',
     styleUrls: ['import.scss'],
 })
-export class ImportPage implements OnDestroy {
+export class ImportPage implements OnDestroy, AfterViewInit {
     public warenkorbFileSelected$ = new EventEmitter<File>();
     public warenkorbStartImport$ = new EventEmitter();
     public warenkorbFileParsed$: Observable<boolean>;
@@ -65,74 +46,78 @@ export class ImportPage implements OnDestroy {
 
     public getImportedAllDataAt$ = this.store.select(fromRoot.getImportedAllDataAt);
     public importErrors$ = this.store.select(fromRoot.getImportError);
+    public hasWritePermission$ = this.store.select(fromRoot.hasWritePermission);
 
     public warenkorbErhebungsmonat$: Observable<Date>;
     public preismeldestellenErhebungsmonat$: Observable<Date>;
     public preismeldungenErhebungsmonat$: Observable<Date>;
 
+    public copyToClipboard$ = new EventEmitter<string>();
     public canImport$: Observable<boolean>;
     public import$ = new EventEmitter();
 
     public resetFileInputs$: Observable<{}>;
 
-    private onDestroy$ = new EventEmitter();
+    private onDestroy$ = new Subject<void>();
 
-    constructor(private store: Store<fromRoot.AppState>, private pefDialogService: PefDialogService) {
-        const parsedWarenkorb$ = this.store.select(fromRoot.getImporterParsedWarenkorb).pipe(
-            publishReplay(1),
-            refCount(),
-        );
-        const parsedPreismeldestellen$ = this.store.select(fromRoot.getImporterParsedPreismeldestellen).pipe(
-            publishReplay(1),
-            refCount(),
-        );
-        const parsedPreismeldungen$ = this.store.select(fromRoot.getImporterParsedPreismeldungen).pipe(
-            publishReplay(1),
-            refCount(),
-        );
+    constructor(
+        private store: Store<fromRoot.AppState>,
+        private pefDialogService: PefDialogService,
+        electronService: ElectronService,
+        translate: TranslateService,
+    ) {
+        const parsedWarenkorb$ = this.store
+            .select(fromRoot.getImporterParsedWarenkorb)
+            .pipe(publishReplay(1), refCount());
+        const parsedPreismeldestellen$ = this.store
+            .select(fromRoot.getImporterParsedPreismeldestellen)
+            .pipe(publishReplay(1), refCount());
+        const parsedPreismeldungen$ = this.store
+            .select(fromRoot.getImporterParsedPreismeldungen)
+            .pipe(publishReplay(1), refCount());
 
         this.warenkorbErhebungsmonat$ = this.store.select(fromRoot.getWarenkorbErhebungsmonat).pipe(
             map(parseDate),
-            combineLatest(parsedWarenkorb$, (m, parsedWarenkorb) => (!!parsedWarenkorb ? null : m)),
+            combineLatest(parsedWarenkorb$, (m, parsedWarenkorb) => (parsedWarenkorb ? null : m)),
         );
         this.preismeldestellenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldestellenErhebungsmonat).pipe(
             map(parseDate),
-            combineLatest(parsedPreismeldestellen$, (m, parsedWarenkorb) => (!!parsedWarenkorb ? null : m)),
+            combineLatest(parsedPreismeldestellen$, (m, parsedWarenkorb) => (parsedWarenkorb ? null : m)),
         );
         this.preismeldungenErhebungsmonat$ = this.store.select(fromRoot.getPreismeldungenErhebungsmonat).pipe(
             map(parseDate),
-            combineLatest(parsedPreismeldungen$, (m, parsedWarenkorb) => (!!parsedWarenkorb ? null : m)),
+            combineLatest(parsedPreismeldungen$, (m, parsedWarenkorb) => (parsedWarenkorb ? null : m)),
         );
 
-        this.warenkorbFileParsed$ = parsedWarenkorb$.pipe(map(content => content != null));
-        this.preismeldestelleFileParsed$ = parsedPreismeldestellen$.pipe(map(content => content != null));
-        this.preismeldungFileParsed$ = parsedPreismeldungen$.pipe(map(content => content != null));
+        this.warenkorbFileParsed$ = parsedWarenkorb$.pipe(map((content) => content != null));
+        this.preismeldestelleFileParsed$ = parsedPreismeldestellen$.pipe(map((content) => content != null));
+        this.preismeldungFileParsed$ = parsedPreismeldungen$.pipe(map((content) => content != null));
 
         this.warenkorbImportedCount$ = store
             .select(fromRoot.getImportedWarenkorb)
-            .pipe(map(x => (!x ? null : x.products.length)));
+            .pipe(map((x) => (!x ? null : x.products.length)));
         this.preismeldestellenImportedCount$ = store
             .select(fromRoot.getImportedPreismeldestellen)
-            .pipe(map(x => (!x ? null : x.length)));
+            .pipe(map((x) => (!x ? null : x.length)));
         this.preismeldungenImportedCount$ = store
             .select(fromRoot.getImportedPreismeldungen)
-            .pipe(map(x => (!x ? null : x.length)));
+            .pipe(map((x) => (!x ? null : x.length)));
 
-        this.warenkorbFileSelected$.pipe(takeUntil(this.onDestroy$)).subscribe(file =>
+        this.warenkorbFileSelected$.pipe(takeUntil(this.onDestroy$)).subscribe((file) =>
             store.dispatch({
                 type: 'PARSE_FILE',
                 payload: { file, parseType: importer.Type.warenkorb },
             } as importer.Action),
         );
 
-        this.preismeldestelleFileSelected$.pipe(takeUntil(this.onDestroy$)).subscribe(file =>
+        this.preismeldestelleFileSelected$.pipe(takeUntil(this.onDestroy$)).subscribe((file) =>
             store.dispatch({
                 type: 'PARSE_FILE',
                 payload: { file, parseType: importer.Type.preismeldestellen },
             } as importer.Action),
         );
 
-        this.preismeldungFileSelected$.pipe(takeUntil(this.onDestroy$)).subscribe(file =>
+        this.preismeldungFileSelected$.pipe(takeUntil(this.onDestroy$)).subscribe((file) =>
             store.dispatch({
                 type: 'PARSE_FILE',
                 payload: { file, parseType: importer.Type.preismeldungen },
@@ -148,14 +133,11 @@ export class ImportPage implements OnDestroy {
                 parsedPreismeldungen,
                 parsedPreismeldestellen,
             }),
-        ).pipe(
-            publishReplay(1),
-            refCount(),
-        );
+        ).pipe(publishReplay(1), refCount());
 
         this.canImport$ = parsedData$.pipe(
             map(
-                x =>
+                (x) =>
                     x.parsedPreismeldestellen !== null && x.parsedPreismeldungen !== null && x.parsedWarenkorb !== null,
             ),
             startWith(false),
@@ -174,25 +156,36 @@ export class ImportPage implements OnDestroy {
             .pipe(
                 blockIfNotLoggedInOrHasNoWritePermission(this.store),
                 flatMap(() =>
-                    this.pefDialogService.displayLoading('Daten werden importiert, bitte warten...', {
-                        requestDismiss$: this.getImportedAllDataAt$.pipe(
-                            skip(1),
-                            merge(this.importErrors$.pipe(skip(1))),
-                            take(1),
-                        ),
-                    }),
+                    this.pefDialogService.displayLoading(
+                        translate.instant('label.standard.wird_gespeichert_bitte_warten'),
+                        {
+                            requestDismiss$: this.getImportedAllDataAt$.pipe(
+                                skip(1),
+                                merge(this.importErrors$.pipe(skip(1))),
+                                take(1),
+                            ),
+                        },
+                    ),
                 ),
                 takeUntil(this.onDestroy$),
                 withLatestFrom(parsedData$, (_, parsedData) => parsedData),
             )
-            .subscribe(parsedData => {
+            .subscribe((parsedData) => {
                 store.dispatch({ type: 'IMPORT_DATA', payload: parsedData });
             });
 
         this.resetFileInputs$ = importRequested$.pipe(map(() => ({})));
+
+        this.copyToClipboard$.pipe(takeUntil(this.onDestroy$)).subscribe((data) => {
+            try {
+                electronService.clipboard?.writeText(data);
+            } catch (e: any) {
+                console.error(e);
+            }
+        });
     }
 
-    public ionViewDidEnter() {
+    ngAfterViewInit() {
         this.store.dispatch({ type: 'CHECK_IS_LOGGED_IN' });
         this.store.dispatch({ type: 'LOAD_LATEST_IMPORTED_AT' } as importer.Action);
         this.store.dispatch({ type: 'LOAD_ERHEBUNGSMONATE' } as importer.Action);

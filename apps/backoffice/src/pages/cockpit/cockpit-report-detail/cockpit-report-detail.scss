@@ -19,12 +19,6 @@
         flex-direction: column;
         align-content: stretch;
         min-height: 0;
-        pef-virtual-scroll {
-            display: block;
-            flex: 1;
-            height: 100%;
-            width: 100%;
-        }
     }
 
     .pms-section {

@@ -1,5 +1,9 @@
 @import '../../theme/imports.scss';
 
+:host {
+    flex: 1;
+}
+
 .settings-container {
     flex: 1;
     display: flex;
@@ -9,7 +13,7 @@
     @include set-padding(1, 1, 1, 1);
 
     .subcontent {
-        flex: 0 1 ($pef-app-max-width / 3 + 70);
+        flex: 0 1 calc($pef-app-max-width / 3 + 70px);
         display: flex;
         flex-direction: column;
     }
@@ -30,13 +34,12 @@
             padding: 1em;
         }
     }
-    form {
-        h1 {
-            margin: 1em 0 0 0;
-        }
-        h1:first-child {
-            margin-top: 0;
-        }
+    section {
+        margin-bottom: 2em;
+    }
+
+    select {
+        margin-bottom: 0;
     }
 
     ion-list {
@@ -73,7 +76,7 @@
     }
 
     .actions {
-        margin-top: 1em;
+        margin-top: 2em;
     }
 }
 

@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import {
     ChangeDetectionStrategy,
     Component,
@@ -30,9 +10,8 @@ import {
     SimpleChange,
     ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { pefSearch, ReactiveComponent } from '@lik-shared';
-import { Observable } from 'rxjs';
+import { UntypedFormControl } from '@angular/forms';
+import { Observable, Subject } from 'rxjs';
 import {
     combineLatest,
     delay,
@@ -50,6 +29,8 @@ import {
     tap,
     withLatestFrom,
 } from 'rxjs/operators';
+
+import { ReactiveComponent, pefSearch } from '@lik-shared';
 
 export interface TypeaheadData {
     shortLabel?: string;
@@ -72,12 +53,14 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     @Output('selected') selectedSuggestions$: Observable<TypeaheadData[]>;
     @Output('triggerSubmit') triggerSubmit$: Observable<any>;
     @ViewChild('singleTag', { static: true }) singleTag: ElementRef;
+    @ViewChild('scrollWrapper', { static: true }) scrollWrapper: ElementRef;
 
-    filterText = new FormControl();
+    filterText = new UntypedFormControl();
     filteredSuggestions$: Observable<TypeaheadData[]>;
     selectedIndex$: Observable<number>;
-    private onDestroy$ = new EventEmitter();
+    private onDestroy$ = new Subject<void>();
     public scrollList: TypeaheadData[];
+    private suggestionItemHeight = 32;
 
     keyup$ = new EventEmitter<{ event: KeyboardEvent; input: string }>();
     keydown$ = new EventEmitter<KeyboardEvent>();
@@ -86,11 +69,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
     selectSuggestion$ = new EventEmitter<TypeaheadData>();
     removeSuggestion$ = new EventEmitter<TypeaheadData>();
     submitSingleTag$ = new EventEmitter<KeyboardEvent>();
-    setFocus$ = this.removeSuggestion$.asObservable().pipe(
-        mapTo(true),
-        publishReplay(1),
-        refCount(),
-    );
+    setFocus$ = this.removeSuggestion$.asObservable().pipe(mapTo(true), publishReplay(1), refCount());
 
     constructor() {
         super();
@@ -99,53 +78,50 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
         this.setFocus$.pipe(takeUntil(this.onDestroy$)).subscribe();
 
         const initialValues$ = this.observePropertyCurrentValue<any[]>('initialValues').pipe(
-            filter(x => !!x && !!x.length),
+            filter((x) => !!x && !!x.length),
         );
-        const reset$ = this.observePropertyCurrentValue<any>('reset').pipe(
-            publishReplay(1),
-            refCount(),
-        );
+        const reset$ = this.observePropertyCurrentValue<any>('reset').pipe(publishReplay(1), refCount());
         const suggestions$ = this.observePropertyCurrentValue<TypeaheadData[]>('suggestions').pipe(
-            filter(x => !!x && !!x.length),
+            filter((x) => !!x && !!x.length),
         );
 
         this.selectSuggestion$
-            .pipe(
-                merge(reset$),
-                takeUntil(this.onDestroy$),
-            )
-            .subscribe(x => this.filterText.patchValue(''));
+            .pipe(merge(reset$), takeUntil(this.onDestroy$))
+            .subscribe((x) => this.filterText.patchValue(''));
 
-        const keyDown$ = this.keydown$.pipe(
-            publishReplay(1),
-            refCount(),
-        );
+        const keyDown$ = this.keydown$.pipe(publishReplay(1), refCount());
         const keyNavigation$ = keyDown$.pipe(
-            filter(x => !!arrowKeyNavigation[x.keyCode]),
-            tap(x => x.preventDefault()),
-            map(x => arrowKeyNavigation[x.keyCode] as number),
+            filter((x) => !!arrowKeyNavigation[x.keyCode]),
+            tap((x) => x.preventDefault()),
+            map((x) => arrowKeyNavigation[x.keyCode] as number),
         );
-        const keyApply$ = keyDown$.pipe(filter(x => x.keyCode === applyKey));
+        const keyApply$ = keyDown$.pipe(filter((x) => x.keyCode === applyKey));
 
         this.selectedSuggestions$ = this.selectSuggestion$.pipe(
-            map(x => ({ add: true, data: x, reset: false })),
-            merge(this.removeSuggestion$.pipe(map(x => ({ add: false, data: x, reset: false })))),
+            map((x) => ({ add: true, data: x, reset: false })),
+            merge(this.removeSuggestion$.pipe(map((x) => ({ add: false, data: x, reset: false })))),
             merge(
                 suggestions$.pipe(
                     combineLatest(initialValues$),
                     take(1),
                     map(([suggestions, initialValues]) =>
-                        suggestions.filter(x => initialValues.some(value => value === x.value)),
+                        suggestions.filter((x) => initialValues.some((value) => value === x.value)),
                     ),
-                    filter(x => !!x.length),
-                    mergeMap(x => x.map(data => ({ add: true, data, reset: false }))),
+                    filter((x) => !!x.length),
+                    mergeMap((x) => x.map((data) => ({ add: true, data, reset: false }))),
                 ),
             ),
             merge(reset$.pipe(mapTo({ add: false, data: null, reset: true }))),
             scan(
                 (acc, { add, data, reset }) =>
-                    reset ? [] : add ? (this.multi ? [...acc, data] : [data]) : acc.filter(x => x.value !== data.value),
-                [] as (TypeaheadData)[],
+                    reset
+                        ? []
+                        : add
+                        ? this.multi
+                            ? [...acc, data]
+                            : [data]
+                        : acc.filter((x) => x.value !== data.value),
+                [] as TypeaheadData[],
             ),
             startWith([]),
             publishReplay(1),
@@ -155,10 +131,10 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
         this.selectedSuggestions$
             .pipe(
                 delay(0),
-                filter(x => !!x && x.length === 1),
+                filter((x) => !!x && x.length === 1),
             )
-            .subscribe(x => {
-                if (!!this.singleTag) {
+            .subscribe((x) => {
+                if (this.singleTag) {
                     this.singleTag.nativeElement.focus();
                 }
             });
@@ -167,24 +143,34 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
             startWith(null),
             combineLatest(suggestions$, this.selectedSuggestions$),
             map(([filter, suggestions, selectedSuggestions]) => {
-                return (!filter || filter.length < 2
-                    ? []
-                    : pefSearch(filter, suggestions, [x => x.value, x => x.label])
-                ).filter(x => !selectedSuggestions.find(s => s === x));
+                return (
+                    !filter || filter.length < 2 ? [] : pefSearch(filter, suggestions, [(x) => x.value, (x) => x.label])
+                ).filter((x) => !selectedSuggestions.find((s) => s === x));
             }),
             startWith([]),
             merge(this.onClickedOutside$.pipe(mapTo([]))),
             merge(
                 this.keydown$.pipe(
-                    filter(e => e.keyCode === 27),
+                    filter((e) => e.keyCode === 27),
                     mapTo([]),
                 ),
             ),
             publishReplay(1),
             refCount(),
         );
+
+        this.filteredSuggestions$
+            .pipe(
+                takeUntil(this.onDestroy$),
+                filter((x) => !!x && x.length > 0),
+                map((x) => x.length * this.suggestionItemHeight + 2),
+            )
+            .subscribe((height) => {
+                this.scrollWrapper.nativeElement.style.height = `${height}px`;
+            });
+
         this.triggerSubmit$ = this.submitSingleTag$.pipe(
-            filter(x => x.keyCode === applyKey),
+            filter((x) => x.keyCode === applyKey),
             merge(
                 keyApply$.pipe(
                     withLatestFrom(this.filteredSuggestions$),
@@ -194,7 +180,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
         );
 
         this.selectedIndex$ = keyNavigation$.pipe(
-            combineLatest(this.filteredSuggestions$.pipe(map(x => x.length))),
+            combineLatest(this.filteredSuggestions$.pipe(map((x) => x.length))),
             scan(
                 (acc, [direction, count]) =>
                     (acc || 0) + direction > count - 1
@@ -204,7 +190,7 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
                         : (acc || 0) + direction,
                 -1,
             ),
-            map(x => (x === -1 ? null : x)),
+            map((x) => (x === -1 ? null : x)),
             startWith(null),
             publishReplay(1),
             refCount(),
@@ -214,16 +200,16 @@ export class PefTypeaheadComponent extends ReactiveComponent implements OnChange
             .pipe(
                 withLatestFrom(this.selectedIndex$, this.filteredSuggestions$),
                 map(([$event, i, suggestions]) => {
-                    if (!!suggestions.length) {
+                    if (suggestions.length) {
                         $event.preventDefault();
                     }
                     return suggestions[i];
                 }),
-                filter(x => !!x),
+                filter((x) => !!x),
                 takeUntil(this.onDestroy$),
                 delay(0), // Handle the other keyApply$ subscriptions first
             )
-            .subscribe(x => {
+            .subscribe((x) => {
                 return this.selectSuggestion$.emit(x);
             });
     }

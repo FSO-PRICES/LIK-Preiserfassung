@@ -1,0 +1,51 @@
+# Start with a base Node.js image
+FROM node:18 AS build-app
+
+RUN apt-get update && apt-get install -y vim && apt-get install -y default-jdk
+
+# Set the working directory
+WORKDIR /app
+
+# Copy project files
+COPY package*.json ./
+COPY nx.json tsconfig.base.json ./
+
+# Copy the the application
+COPY ./apps/preiserfasser ./apps/preiserfasser
+COPY ./libs ./libs
+
+# Install dependencies
+RUN npm ci
+
+# Install dependencies of preiserfaser
+RUN cd apps/preiserfasser && npm ci
+
+# Build the application
+RUN npx nx build preiserfasser
+
+# Remove the android folder if it exists
+RUN rm -rf apps/preiserfasser/android
+
+# Add Android platform to the project
+RUN npx nx run preiserfasser:add:android
+
+# Generate assets for capacitor
+RUN npx nx run preiserfasser:generate-capacitor-assets
+
+# Sync the project with Android
+RUN npx nx run preiserfasser:sync:android --preserveProjectNodeModules
+
+
+FROM mobiledevops/android-sdk-image
+
+# Copy everything from the build stage
+COPY --from=build-app /app /app
+
+# Set the working directory
+WORKDIR /app/apps/preiserfasser/android
+
+# Build the debug APK
+RUN ./gradlew assembleDebug
+
+# Copy the debug APK to the output folder
+CMD bash -c "cp app/build/outputs/apk/debug/app-debug.apk /apk-output/app-debug.apk"

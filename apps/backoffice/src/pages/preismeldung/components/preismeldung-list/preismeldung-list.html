@@ -1,134 +1,134 @@
-<div class="preismeldung-list-container container filter">
-    <div class="header">
-        <h1 class="large">Auswahlkriterien</h1>
-    </div>
-    <div class="pef-advanced-item-flex-container">
-        <form class="stacked-form" (submit)="pmIdSearchApply$.emit()">
-            <h2>Direktsuche (ungefiltert)</h2>
-            <pef-search-input
-                class="pms-search"
-                label="PreisID"
-                placeholder="PMSno/EPno/LFno"
-                [reset]="resetPmIdSearch$ | async"
-                [value]="(initialFilter$ | async).pmIdSearch"
-                (valueChanges)="pmIdSearchChanged$.emit($event)"
-            ></pef-search-input>
-        </form>
+<ng-container *ngxLet="(hasWritePermission$ |async); let hasWritePermission">
+    <div class="preismeldung-list-container container filter">
+        <div class="header">
+            <h1 class="large">{{'pms.liste.auswahl_kriterien' | translate}}</h1>
+        </div>
 
-        <form class="stacked-form" #form="ngForm" (ngSubmit)="applyClicked$.emit()">
-            <h2>Filter</h2>
-            <ion-list no-lines>
-                <ion-item class="pef-item">
-                    <ion-label position="stacked">Preisstatus</ion-label>
-                    <select class="item-md" (change)="statusFilterChanged$.emit($event.target.value)">
-                        <option value="" [selected]="resetFilter$ | async"></option>
-                        <option value="erhebung">in Erhebung</option>
-                        <option value="prüfung">in Prüfung</option>
-                        <option value="exportiert">Exportiert</option>
-                    </select>
-                </ion-item>
-            </ion-list>
-            <pef-typeahead
-                [reset]="resetFilter$ | async"
-                [initialValues]="(initialFilter$ | async)?.preiserheberIds"
-                label="Preiserheber/in"
-                [suggestions]="suggestionsPreiserheberIds$ | async"
-                (selected)="preiserheberIdsFilter$.emit($event)"
-                (triggerSubmit)="triggerSubmit$.emit()"
-                [multi]="true"
-            ></pef-typeahead>
-            <pef-typeahead
-                [reset]="resetFilter$ | async"
-                [initialValues]="(initialFilter$ | async)?.pmsNummers"
-                label="PMS"
-                [suggestions]="suggestionsPmsNummers$ | async"
-                [multi]="true"
-                (selected)="pmsNummerFilter$.emit($event)"
-                (triggerSubmit)="triggerSubmit$.emit()"
-            ></pef-typeahead>
-            <pef-typeahead
-                [reset]="resetFilter$ | async"
-                [initialValues]="(initialFilter$ | async)?.epNummers"
-                label="Erhebungsposition"
-                [suggestions]="suggestionsEpNummers$ | async"
-                (selected)="epNummersFilter$.emit($event)"
-                (triggerSubmit)="triggerSubmit$.emit()"
-                [multi]="true"
-            ></pef-typeahead>
-            <ion-button type="submit" [disabled]="!(canSearch$ | async)">anwenden</ion-button>
-            <ion-button type="button" (click)="resetFilterClicked$.emit($event)">zurücksetzen</ion-button>
-            <ion-button
-                class="icon-only"
-                type="button"
-                [disabled]="!(filteredPreismeldungen$ | async)?.length"
-                (click)="updateAllPmStatusClicked$.emit()"
-            >
-                <span class="statuswechsel">Statuswechsel</span>
-                <pef-icon name="checkmark"></pef-icon
-            ></ion-button>
-        </form>
-        <h2>Suche in Auswahl (gefiltert)</h2>
-        <pef-search-input label="Volltext" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
+        <div class="pef-advanced-item-flex-container">
+            <form (submit)="pmIdSearchApply$.emit()">
+                <h2>{{'label.aktionen.direktsuche' | translate}}</h2>
+                <!-- label="{{'label.pm.id' | translate}}" -->
+                <pef-search-input
+                    class="pms-search"
+                    placeholder="PMSno/EPno/LFno"
+                    [reset]="resetPmIdSearch$ | async"
+                    [value]="(initialFilter$ | async).pmIdSearch"
+                    (valueChanges)="pmIdSearchChanged$.emit($event)"></pef-search-input>
+            </form>
+
+            <form #form="ngForm" (ngSubmit)="applyClicked$.emit()">
+                <h2>{{'label.eingabe.filter' | translate}}</h2>
+
+                <ion-label position="stacked">{{'label.status.name' | translate}}</ion-label>
+                <select (change)="statusFilterChanged$.emit($event.target.value)">
+                    <option value="" [selected]="resetFilter$ | async"></option>
+                    <option value="erhebung">{{'label.status.in_erhebung' | translate}}</option>
+                    <option value="prüfung">{{'label.status.in_preufung' | translate}}</option>
+                    <option value="exportiert">{{'label.status.exportiert' | translate}}</option>
+                </select>
+
+                <pef-typeahead
+                    [reset]="resetFilter$ | async"
+                    [initialValues]="(initialFilter$ | async)?.preiserheberIds"
+                    label="{{'label.pe.name' | translate}}"
+                    [suggestions]="suggestionsPreiserheberIds$ | async"
+                    (selected)="preiserheberIdsFilter$.emit($event)"
+                    (triggerSubmit)="triggerSubmit$.emit()"
+                    [multi]="true"></pef-typeahead>
+                <pef-typeahead
+                    [reset]="resetFilter$ | async"
+                    [initialValues]="(initialFilter$ | async)?.pmsNummers"
+                    label="PMS"
+                    [suggestions]="suggestionsPmsNummers$ | async"
+                    [multi]="true"
+                    (selected)="pmsNummerFilter$.emit($event)"
+                    (triggerSubmit)="triggerSubmit$.emit()"></pef-typeahead>
+                <pef-typeahead
+                    [reset]="resetFilter$ | async"
+                    [initialValues]="(initialFilter$ | async)?.epNummers"
+                    label="{{'label.wk.name' | translate}}"
+                    [suggestions]="suggestionsEpNummers$ | async"
+                    (selected)="epNummersFilter$.emit($event)"
+                    (triggerSubmit)="triggerSubmit$.emit()"
+                    [multi]="true"></pef-typeahead>
+                <ion-button type="submit" [disabled]="!(canSearch$ | async)!"
+                    >{{'label.aktionen.anwenden' | translate}}</ion-button
+                >
+                <ion-button type="button" (click)="resetFilterClicked$.emit($event)"
+                    >{{'label.aktionen.zuruecksetzen' | translate}}</ion-button
+                >
+                <ion-button
+                    class="icon-only"
+                    type="button"
+                    [disabled]="!(filteredPreismeldungen$ | async)?.length || !hasWritePermission"
+                    (click)="updateAllPmStatusClicked$.emit()">
+                    <span class="statuswechsel">{{'label.aktionen.statuswechsel' | translate}}</span>
+                    <pef-icon name="checkmark"></pef-icon
+                ></ion-button>
+            </form>
+            <h2 class="margin-top">{{'label.aktionen.suche_in_auswahl' | translate}}</h2>
+            <!-- label="{{'pms.liste.suche_volltext' | translate}}" -->
+            <pef-search-input (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
+        </div>
     </div>
-</div>
-<div
-    class="preismeldung-list-container container"
-    *ngIf="(filteredPreismeldungen$ | async); let filteredPreismeldungen"
-    [class.hidden]="!filteredPreismeldungen?.length"
->
-    <div class="header">
-        <h1 class="large">
-            <span>Preismeldungen</span>
-            <div class="right">
-                <span>({{ filteredPreismeldungen.length }})</span>
-                <button class="close" type="button" (click)="resetPreismeldungen$.emit()">
-                    <pef-icon name="close_screen"></pef-icon>
-                </button>
-            </div>
-        </h1>
-    </div>
-    <div class="pef-advanced-item-flex-container">
-        <pef-virtual-scroll
-            #pmList
-            [items]="filteredPreismeldungen"
-            [childHeight]="60"
-            (update)="scrollList = $event"
-            pef-perfect-scrollbar
-            [enabled]="true"
-        >
-            <ion-item
-                class="pef-advanced-item"
-                *ngFor="let bag of scrollList"
-                (click)="selectPreismeldung$.emit(bag)"
-                [class.selected]="bag.pmId == (currentPreismeldung$ | async)?.pmId"
-                tappable
-            >
-                <div class="preismeldung-wrapper">
-                    <div class="pef-item-title">
-                        {{ bag.preismeldung.epNummer }}
-                        <br />
-                        <span class="pef-item-status" *ngIf="!!preismeldungenStatus"
-                            >{{ bag.exported ? '✓' : preismeldungenStatus[bag.pmId] === 1 ? '✗' :
-                            preismeldungenStatus[bag.pmId] === 2 ? '✓' : '&nbsp;' }}</span
-                        >
-                    </div>
-                    <div class="pef-item-description">
-                        <span class="text">{{ bag.warenkorbPosition.positionsbezeichnung.de }}</span>
-                        <span class="artikel-text" [innerHTML]="bag.preismeldung.artikeltext || '&ndash;'"></span>
-                    </div>
-                    <div class="preismeldung-status-done" *ngIf="bag.preismeldung.istAbgebucht">
-                        <div
-                            class="code"
-                            [innerHTML]="
-                                bag.preismeldung.bearbeitungscode == 99
-                                    ? '&nbsp;'
-                                    : getBearbeitungscodeDescription(bag.preismeldung.bearbeitungscode)
-                            "
-                        ></div>
-                        <div class="percentage" [innerHTML]="formatPercentageChange(bag.preismeldung)"></div>
-                    </div>
+
+    <div
+        class="preismeldung-list-container container"
+        *ngIf="(filteredPreismeldungen$ | async); let filteredPreismeldungen"
+        [class.hidden]="!filteredPreismeldungen?.length">
+        <div class="header">
+            <h1 class="large">
+                <span>Preismeldungen</span>
+                <div class="right">
+                    <span>({{ filteredPreismeldungen.length }})</span>
+                    <button class="close" type="button" (click)="resetPreismeldungen$.emit()">
+                        <pef-icon name="close_screen"></pef-icon>
+                    </button>
                 </div>
-            </ion-item>
-        </pef-virtual-scroll>
+            </h1>
+        </div>
+        <div class="pef-advanced-item-flex-container">
+            <cdk-virtual-scroll-viewport
+                cdkScrollable
+                itemSize="{{ preismeldungItemHeight }}"
+                minBufferPx="1200"
+                maxBufferPx="1600"
+                class="virtual-scroll">
+                <ion-item
+                    class="pef-advanced-item"
+                    *cdkVirtualFor="let preismeldung of filteredPreismeldungen$ | async"
+                    (click)="selectPreismeldung$.emit(preismeldung)"
+                    [class.selected]="preismeldung.pmId === (currentPreismeldung$ | async)?.pmId">
+                    <div class="preismeldung-wrapper">
+                        <div class="pef-item-title">
+                            {{ preismeldung.preismeldung.epNummer }}
+                            <br />
+                            <span class="pef-item-status" *ngIf="!!preismeldungenStatus"
+                                >{{ preismeldung.exported ? '✓' : preismeldungenStatus[preismeldung.pmId] === 1 ? '✗' :
+                                preismeldungenStatus[preismeldung.pmId] === 2 ? '✓' : '&nbsp;' }}</span
+                            >
+                        </div>
+                        <div class="pef-item-description">
+                            <span class="text">{{ preismeldung.warenkorbPosition.positionsbezeichnung.de }}</span>
+                            <span
+                                class="artikel-text"
+                                [innerHTML]="preismeldung.preismeldung.artikeltext || '&ndash;'"></span>
+                        </div>
+                        <div class="preismeldung-status-done" *ngIf="preismeldung.preismeldung.istAbgebucht">
+                            <div
+                                class="code"
+                                [innerHTML]="
+                        preismeldung.preismeldung.bearbeitungscode === 99
+                            ? '&nbsp;'
+                            : getBearbeitungscodeDescription(preismeldung.preismeldung.bearbeitungscode)
+                    "></div>
+                            <div
+                                class="percentage"
+                                [innerHTML]="formatPercentageChange(preismeldung.preismeldung)"></div>
+                        </div>
+                    </div>
+                </ion-item>
+            </cdk-virtual-scroll-viewport>
+        </div>
     </div>
-</div>
+</ng-container>

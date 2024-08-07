@@ -7,10 +7,10 @@
             [statusMissingCount]="preismeldungenStatusMapMissingCount$ | async"
             [statusUpdatedCount]="preismeldungenStatusMapUpdatedCount$ | async"
             [initializingPreismeldungenStatus]="initializingPreismeldungenStatus$ | async"
+            [hasWritePermission]="hasWritePermission$ | async"
             (loadData)="loadData$.next()"
             (checkPreismeldungStatus)="checkPreismeldungStatus$.emit()"
             (initPreismeldungenStatus)="initPreismeldungenStatus$.emit()"
-            (preiserheberSelected)="preiserheberSelected$.emit($event)"
-        ></cockpit-report>
+            (preiserheberSelected)="preiserheberSelected$.emit($event)"></cockpit-report>
     </ion-content>
 </div>

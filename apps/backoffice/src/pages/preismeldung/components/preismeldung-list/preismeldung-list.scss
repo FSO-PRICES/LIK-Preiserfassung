@@ -27,38 +27,9 @@
                 }
             }
         }
-        pef-virtual-scroll {
-            display: block;
-            flex: 1;
-        }
 
         h2 {
-            margin: 0;
-            margin-top: 16px;
-        }
-        h2:first {
-            margin-top: 0;
-        }
-
-        .stacked-form {
-            select {
-                box-shadow: none;
-            }
-            ion-input {
-                padding: 0;
-                border-bottom: none;
-            }
-            ion-list {
-                padding: 0;
-                .pef-item,
-                pef-typeahead {
-                    display: block;
-                    margin-bottom: 8px;
-                }
-            }
-        }
-        .item-md.item-block .item-inner {
-            padding-right: 0;
+            margin: 20px 0 12px 0;
         }
     }
     form {
@@ -66,19 +37,16 @@
             --padding-start: 8px;
             --padding-end: 8px;
         }
-        .statuswechsel {
-            font-size: 12.5px;
-        }
+    }
+
+    .margin-top {
+        margin-top: 3em !important;
+    }
+    .statuswechsel {
+        font-size: 12.5px;
     }
     .content {
         flex: 1;
-    }
-    select.item-md {
-        width: 100%;
-        height: 48px;
-        border: 1px;
-        border-radius: 2px;
-        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.24);
     }
 
     .preismeldung-status-done {
@@ -102,11 +70,6 @@
         .pef-item-description {
             width: calc(100% - 9em);
             max-width: calc(100% - 9em);
-        }
-        &[tappable]:hover:not(.selected) {
-            .percentage {
-                color: $white;
-            }
         }
         .pef-item-status {
             margin-left: 1em;

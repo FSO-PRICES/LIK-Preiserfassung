@@ -12,17 +12,6 @@
         display: flex;
         flex-direction: column;
         min-height: 0;
-
-        // ion-content.md {
-        //     flex: 1;
-        //     background-color: transparent;
-        // }
-
-        pef-virtual-scroll {
-            display: block;
-            flex: 1;
-            min-height: 0;
-        }
     }
 
     .is-dragging,
@@ -60,45 +49,54 @@
 
     .preismeldung-list-filter {
         display: flex;
+        gap: 1.2em;
+        align-items: center;
+        @include set-margin-bottom(0.8);
         .pms-search {
             flex: 1;
-            margin-left: 5px;
         }
-    }
 
-    .preismeldung-list-filter,
-    .preismeldung-list-check-filter {
-        @include set-margin-bottom(0.5);
-    }
-
-    .preismeldung-list-check-filter {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
         ion-button {
-            @include set-margin-right(1);
-            flex: 0 0 2.25em;
+            margin-top: 0;
+            min-width: 36px;
+            margin: 0;
+        }
+
+        pef-search-input {
+            ::ng-deep ion-input {
+                height: 48px;
+                margin-bottom: 0;
+            }
         }
     }
-    .filter-actions {
-        display: flex;
-        flex: 0;
-        .sort-one {
-            position: absolute;
-            top: 0.1em;
-            right: 0.1em;
+
+    .preismeldung-list-check-filter {
+        @include set-margin-bottom(1.2);
+        .filter-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2em;
+            div {
+                min-width: 36px;
+
+                ion-button {
+                    margin: 0 !important;
+                    width: 100%;
+                }
+            }
+        }
+
+        .name-and-completed-count {
+            @include set-padding-top(1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
     }
 
     .pms-name {
-        flex: 1;
-        min-width: 0;
-        text-align: right;
-        span {
-            @include crop-text();
-            width: auto;
-            padding: 0 5px;
-        }
+        display: flex;
+        gap: 0.3em;
     }
 
     // .adv-preismeldung-item-draggable is defined in global reorder.scss
@@ -107,30 +105,41 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        @include set-padding-top(0.625);
-    }
+        @include set-padding(1, 0.5, 0, 0);
 
-    .spacer {
-        flex: 1;
-    }
-
-    .preismeldung-list-completed-count {
-        text-align: center;
-        span {
-            display: inline-block;
-        }
-    }
-
-    .preismeldung-list-functions,
-    .preismeldung-list-arrows {
-        white-space: nowrap;
         ion-button {
-            @include set-margin-right(1);
+            min-width: 36px;
+            margin: 0;
+        }
+
+        @media (max-width: 800px) {
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 1.2rem;
         }
     }
+
+    .preismeldung-list-functions {
+        display: flex;
+        gap: 1.2rem;
+        align-items: center;
+
+        @media (max-width: 800px) {
+            gap: 0.8rem;
+        }
+    }
+
     .preismeldung-list-arrows {
         display: flex;
-        flex: 1;
+        gap: 2rem;
+        ion-button {
+            // min-width: 50px;
+            // min-height: 50px;
+            margin: 0;
+        }
+        @media (max-width: 800px) {
+            gap: 0.8rem;
+        }
     }
 
     .record {

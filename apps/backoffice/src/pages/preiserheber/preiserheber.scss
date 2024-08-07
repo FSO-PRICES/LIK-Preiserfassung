@@ -1,5 +1,9 @@
 @import '../../theme/imports.scss';
 
+:host {
+    flex: 1;
+}
+
 .preiserheber-list-container.container {
     flex: 1 1;
     display: flex;

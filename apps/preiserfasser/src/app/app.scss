@@ -1,4 +1,11 @@
-@import '../../../../libs/lik-shared/src/styles/_app.scss';
+@import '../../../../libs/lik-shared/src/lib/styles/_app.scss';
+
+.ion-page {
+    height: 100%;
+    width: 100%;
+    max-width: $pef-app-max-width;
+    margin: 0 auto;
+}
 
 app-root:not(.pef-desktop) {
     .visible-scroll-bar {
@@ -39,19 +46,14 @@ ion-button {
     height: 2.6em;
 }
 
-ion-label.sc-ion-label-md-s.md {
-    font-size: 1.2rem;
-}
+// .article-text-label {
+//     font-size: 1.2rem !important;
+// }
 
 h3 {
     margin-top: 0;
 }
 
-.login-modal .modal-wrapper.sc-ion-modal-md {
-    position: absolute;
-    top: 44px;
-    transform: none;
-}
 .editable-popover .popover-wrapper.sc-ion-popover-md .popover-content {
     top: 110px !important;
 }

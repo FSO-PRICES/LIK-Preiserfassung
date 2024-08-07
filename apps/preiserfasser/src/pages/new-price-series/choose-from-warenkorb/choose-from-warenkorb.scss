@@ -27,6 +27,7 @@
 
     h3 {
         @include set-margin-top(0.75);
+        font-size: 22px;
     }
 
     ion-button.close-button {

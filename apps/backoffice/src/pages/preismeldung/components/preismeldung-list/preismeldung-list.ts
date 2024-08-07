@@ -1,23 +1,4 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -30,18 +11,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { defer, Observable } from 'rxjs';
-
-import {
-    formatPercentageChange,
-    PefDialogService,
-    pefSearch,
-    PmsFilter,
-    ReactiveComponent,
-    StatusFilter,
-    PefVirtualScrollComponent,
-} from '@lik-shared';
-
+import { Observable, Subject, defer } from 'rxjs';
 import {
     combineLatest,
     debounceTime,
@@ -52,14 +22,28 @@ import {
     merge,
     publishReplay,
     refCount,
+    shareReplay,
     startWith,
     switchMap,
     take,
     takeUntil,
     withLatestFrom,
 } from 'rxjs/operators';
+
+import {
+    PefDialogService,
+    PmsFilter,
+    ReactiveComponent,
+    StatusFilter,
+    formatPercentageChange,
+    pefSearch,
+} from '@lik-shared';
+
 import * as P from '../../../../common-models';
-import { PefDialogPmStatusSelectionComponent } from '../../../../components/pef-dialog-pm-status-selection';
+import {
+    DialogPmStatusSelectionResult,
+    PefDialogPmStatusSelectionComponent,
+} from '../../../../components/pef-dialog-pm-status-selection';
 import { TypeaheadData } from '../pef-typeahead/pef-typeahead';
 
 @Component({
@@ -77,6 +61,8 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Input() currentPreismeldung: P.PreismeldungBag;
     @Input() initialPmsNummer: string;
     @Input() initialFilter: PmsFilter;
+    @Input() hasWritePermission: boolean;
+
     @Output('filterChanged') public filterChanged$: Observable<Partial<PmsFilter>>;
     @Output('applyFilter') public applyFilter$: Observable<PmsFilter>;
     @Output('resetPreismeldungen') public resetPreismeldungen$ = new EventEmitter();
@@ -84,23 +70,24 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     @Output('updateAllPmStatus') public updateAllPmStatus$: Observable<P.Models.PreismeldungStatusList>;
 
     @ViewChild('form', { static: true }) form: NgForm;
-    @ViewChild('pmList', { static: false }) pmList: PefVirtualScrollComponent;
+    @ViewChild(CdkScrollable) cdkScrollable: CdkScrollable;
 
-    public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer').pipe(filter(x => !!x));
+    public initialPmsNummer$ = this.observePropertyCurrentValue<string>('initialPmsNummer').pipe(filter((x) => !!x));
     public initialFilter$: Observable<Partial<PmsFilter>> = this.observePropertyCurrentValue<PmsFilter>(
         'initialFilter',
     ).pipe(
-        map(x => (this.initialPmsNummer ? { pmsNummers: [this.initialPmsNummer] } : x)),
-        publishReplay(1),
-        refCount(),
+        map((x) => (this.initialPmsNummer ? { pmsNummers: [this.initialPmsNummer] } : x)),
+        shareReplay({ bufferSize: 1, refCount: true }),
     );
     public preismeldungen$ = this.observePropertyCurrentValue<P.PreismeldungBag[]>('preismeldungen');
     public preiserhebers$ = this.observePropertyCurrentValue<P.Models.Erheber[]>('preiserhebers');
     public preismeldestellen$ = this.observePropertyCurrentValue<P.Models.Preismeldestelle[]>('preismeldestellen');
     public erhebungspositions$ = this.observePropertyCurrentValue<P.Models.WarenkorbLeaf[]>('erhebungspositions');
     public currentPreismeldung$ = this.observePropertyCurrentValue<P.PreismeldungBag>('currentPreismeldung').pipe(
-        publishReplay(1),
-        refCount(),
+        shareReplay({ bufferSize: 1, refCount: true }),
+    );
+    public hasWritePermission$ = this.observePropertyCurrentValue<boolean>('hasWritePermission').pipe(
+        shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     public applyClicked$ = new EventEmitter();
@@ -108,7 +95,6 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public updateAllPmStatusClicked$ = new EventEmitter();
     public resetFilter$: Observable<any>;
     public resetPmIdSearch$: Observable<any>;
-    public scrollList: P.PreismeldungBag[];
 
     public pmIdSearchChanged$ = new EventEmitter<string>();
     public pmIdSearchApply$ = new EventEmitter<string>();
@@ -126,15 +112,14 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
     public suggestionsPmsNummers$: Observable<TypeaheadData[]>;
     public suggestionsPreiserheberIds$: Observable<TypeaheadData[]>;
 
-    private onDestroy$ = new EventEmitter();
+    public preismeldungItemHeight = 60;
+
+    private onDestroy$ = new Subject<void>();
 
     constructor(pefDialogService: PefDialogService) {
         super();
 
-        const pmIdSearchChanged$ = this.pmIdSearchChanged$.pipe(
-            publishReplay(1),
-            refCount(),
-        );
+        const pmIdSearchChanged$ = this.pmIdSearchChanged$.pipe(publishReplay(1), refCount());
         const pmIdSearch$ = this.pmIdSearchApply$
             .asObservable()
             .pipe(withLatestFrom(pmIdSearchChanged$, (_, pmIdSearch) => pmIdSearch));
@@ -146,26 +131,24 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
 
         const confirmUpdateStatusDialog$ = defer(() =>
             pefDialogService
-                .displayDialog(PefDialogPmStatusSelectionComponent, { dialogOptions: { backdropDismiss: true } })
-                .pipe(
-                    map(x => x.data),
-                    filter(data => !!data && data.type === 'CONFIRM_SAVE'),
-                ),
+                .displayDialog(PefDialogPmStatusSelectionComponent, { disableClose: true, data: { hasMarker: false } })
+                .pipe(filter(DialogPmStatusSelectionResult.is.CONFIRM_SAVE)),
         );
 
-        const statusFilter$ = this.statusFilterChanged$.asObservable().pipe(
-            merge(this.resetFilter$.pipe(mapTo(''))),
-            startWith(''),
-            publishReplay(1),
-            refCount(),
-        ) as Observable<StatusFilter>;
+        const statusFilter$ = this.statusFilterChanged$
+            .asObservable()
+            .pipe(
+                merge(this.resetFilter$.pipe(mapTo(''))),
+                startWith(''),
+                shareReplay({ bufferSize: 1, refCount: true }),
+            ) as Observable<StatusFilter>;
 
         const currentFilter$: Observable<Partial<PmsFilter>> = this.preiserheberIdsFilter$.pipe(
-            map(p => p.map(x => x.value)),
+            map((p) => p.map((x) => x.value)),
             combineLatest(
                 statusFilter$,
-                this.epNummersFilter$.pipe(map(e => e.map(x => x.value))),
-                this.pmsNummerFilter$.pipe(map(p => p.map(x => x.value))),
+                this.epNummersFilter$.pipe(map((e) => e.map((x) => x.value))),
+                this.pmsNummerFilter$.pipe(map((p) => p.map((x) => x.value))),
                 (preiserheberIds, statusFilter, epNummers, pmsNummers) => ({
                     preiserheberIds,
                     epNummers,
@@ -174,39 +157,35 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
                 }),
             ),
             startWith({} as PmsFilter),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         const filter$: Observable<Partial<PmsFilter>> = pmIdSearch$.pipe(
-            map(pmIdSearch => ({ pmIdSearch })),
+            map((pmIdSearch) => ({ pmIdSearch })),
             merge(currentFilter$),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         this.canSearch$ = filter$.pipe(
             map(
-                x =>
+                (x) =>
                     (x.preiserheberIds && !!x.preiserheberIds.length) ||
                     (x.epNummers && !!x.epNummers.length) ||
                     (x.pmsNummers && !!x.pmsNummers.length) ||
                     !!x.statusFilter,
             ),
             startWith(false),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         this.triggerSubmit$.pipe(takeUntil(this.onDestroy$)).subscribe(() => this.form.ngSubmit.emit());
 
         this.filterChanged$ = this.applyClicked$.pipe(
             withLatestFrom(currentFilter$, (_, filter) => filter),
-            merge(pmIdSearch$.pipe(map(pmIdSearch => ({ pmIdSearch })))),
-            merge(this.initialPmsNummer$.pipe(map(x => ({ pmsNummers: [x] })))),
+            merge(pmIdSearch$.pipe(map((pmIdSearch) => ({ pmIdSearch })))),
+            merge(this.initialPmsNummer$.pipe(map((x) => ({ pmsNummers: [x] })))),
             merge(this.resetFilterClicked$.pipe(mapTo({}))),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
         this.resetPmIdSearch$ = this.resetFilterClicked$.pipe(
             merge(this.applyClicked$),
@@ -216,82 +195,99 @@ export class PreismeldungListComponent extends ReactiveComponent implements OnCh
         this.filteredPreismeldungen$ = this.preismeldungen$
             // Wait for the latest value of currentPreismeldung (null | x) otherwise the ngFor renders with outdated data and does not refresh.
             .pipe(
-                flatMap(x =>
-                    this.currentPreismeldung$.pipe(
-                        take(1),
-                        mapTo(x),
-                    ),
-                ),
+                flatMap((x) => this.currentPreismeldung$.pipe(take(1), mapTo(x))),
                 combineLatest(this.filterTextValueChanges$.pipe(startWith(null)), (preismeldungen, filterText) => {
                     if (!filterText) {
                         return preismeldungen;
                     }
                     return pefSearch(filterText, preismeldungen, [
-                        pm => pm.warenkorbPosition.gliederungspositionsnummer,
-                        pm => pm.warenkorbPosition.positionsbezeichnung.de,
-                        pm => pm.preismeldung.artikeltext,
+                        (pm) => pm.warenkorbPosition.gliederungspositionsnummer,
+                        (pm) => pm.warenkorbPosition.positionsbezeichnung.de,
+                        (pm) => pm.preismeldung.artikeltext,
                     ]);
                 }),
                 debounceTime(300),
                 startWith([]),
-                publishReplay(1),
-                refCount(),
+                shareReplay({ bufferSize: 1, refCount: true }),
             );
 
         this.currentPreismeldung$
             .pipe(
-                withLatestFrom(this.filteredPreismeldungen$.pipe(filter(x => x.length > 0))),
+                withLatestFrom(this.filteredPreismeldungen$.pipe(filter((x) => x.length > 0))),
                 takeUntil(this.onDestroy$),
             )
             .subscribe(([currentPm, preismeldungen]) => {
-                const pm = preismeldungen.find(pm => currentPm.pmId === pm.pmId);
-                this.pmList.scrollInto(pm);
+                const pm = preismeldungen.find((pm) => currentPm.pmId === pm.pmId);
+                const index = preismeldungen.indexOf(pm);
+                if (index < 0) return;
+
+                const scrollListHeight = this.cdkScrollable
+                    .getElementRef()
+                    .nativeElement.getBoundingClientRect().height;
+
+                const clickedItemOffset = index * this.preismeldungItemHeight;
+                const scrollOffset = this.cdkScrollable.measureScrollOffset('top');
+
+                if (clickedItemOffset < scrollOffset) {
+                    this.cdkScrollable.scrollTo({
+                        top: clickedItemOffset,
+                        behavior: 'smooth',
+                    });
+                }
+                if (clickedItemOffset + this.preismeldungItemHeight > scrollOffset + scrollListHeight) {
+                    this.cdkScrollable.scrollTo({
+                        top: clickedItemOffset - scrollListHeight + this.preismeldungItemHeight,
+                        behavior: 'smooth',
+                    });
+                }
             });
 
         this.suggestionsPreiserheberIds$ = this.preiserhebers$.pipe(
-            filter(x => !!x),
-            map(x =>
-                x.map(p => ({
+            filter((x) => !!x),
+            map((x) =>
+                x.map((p) => ({
                     label: `${p.surname} ${p.firstName}`,
                     value: p._id,
                 })),
             ),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         this.suggestionsPmsNummers$ = this.preismeldestellen$.pipe(
-            filter(x => !!x),
-            map(x =>
-                x.map(pms => ({
+            filter((x) => !!x),
+            map((x) =>
+                x.map((pms) => ({
                     label: `${pms.pmsNummer} ${pms.name}`,
                     value: pms.pmsNummer,
                 })),
             ),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         this.suggestionsEpNummers$ = this.erhebungspositions$.pipe(
-            filter(x => !!x),
-            map(x =>
-                x.map(ep => ({
+            filter((x) => !!x),
+            map((x) =>
+                x.map((ep) => ({
                     label: `${ep.gliederungspositionsnummer} ${ep.positionsbezeichnung.de}`,
                     value: ep.gliederungspositionsnummer,
                 })),
             ),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         this.updateAllPmStatus$ = this.updateAllPmStatusClicked$.pipe(
             switchMap(() => confirmUpdateStatusDialog$),
             withLatestFrom(this.filteredPreismeldungen$),
-            map(([data, preismeldungen]) =>
-                preismeldungen
-                    .filter(bag => !!bag.preismeldung.uploadRequestedAt)
-                    .map(({ pmId }) => ({ pmId, status: data.value.pmStatus })),
-            ),
+            map(([data, preismeldungen]) => {
+                return preismeldungen
+                    .filter((bag) => !!bag.preismeldung.uploadRequestedAt)
+                    .filter(
+                        (bag) =>
+                            this.preismeldungenStatus[bag.preismeldung._id] ||
+                            this.preismeldungenStatus[bag.preismeldung._id] === 0,
+                    )
+                    .map(({ pmId }) => ({ pmId, status: data.pmStatus }));
+            }),
         );
     }
 

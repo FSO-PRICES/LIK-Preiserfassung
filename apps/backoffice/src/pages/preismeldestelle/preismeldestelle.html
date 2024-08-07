@@ -3,13 +3,12 @@
         <div class="content">
             <div class="preismeldestelle-list-container container">
                 <div class="header">
-                    <h1 class="large">Preismeldestellen</h1>
+                    <h1 class="large">{{'label.pms.titel' | translate}}</h1>
                 </div>
                 <preismeldestelle-list
                     [list]="preismeldestellen$ | async"
                     [current]="currentPreismeldestelle$ | async"
-                    (selected)="selectPreismeldestelle$.emit($event)"
-                ></preismeldestelle-list>
+                    (selected)="selectPreismeldestelle$.emit($event)"></preismeldestelle-list>
             </div>
             <div class="preismeldestelle-detail-container container">
                 <preismeldestelle-detail
@@ -18,10 +17,10 @@
                     [languages]="languages$ | async"
                     [preiserheber]="(preiserheberMap$ | async)[(currentPreismeldestelle$ | async).pmsNummer]"
                     [erhebungsregionen]="erhebungsregionen$ | async"
+                    [hasWritePermission]="hasWritePermission$ | async"
                     (save)="savePreismeldestelle$.emit($event)"
                     (cancel)="cancelPreismeldestelle$.emit($event)"
-                    (update)="updatePreismeldestelle$.emit($event)"
-                ></preismeldestelle-detail>
+                    (update)="updatePreismeldestelle$.emit($event)"></preismeldestelle-detail>
             </div>
         </div>
     </ion-content>

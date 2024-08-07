@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { Models as P } from '@lik-shared';
 
 import * as importer from '../actions/importer';
@@ -44,7 +24,7 @@ export interface State {
     preismeldungenErhebungsmonat: string;
 
     importedAllDataAt: Date;
-    importError: string[];
+    importError: (string | Error)[];
 }
 
 const initialState: State = {
@@ -127,10 +107,10 @@ export function reducer(state = initialState, action: importer.Action): State {
 
         case 'LOAD_LATEST_IMPORTED_AT_SUCCESS': {
             const { payload } = action;
-            const warenkorb = payload.find(x => x._id === importer.Type.warenkorb);
-            const preismeldestellen = payload.find(x => x._id === importer.Type.preismeldestellen);
-            const preismeldungen = payload.find(x => x._id === importer.Type.preismeldungen);
-            const allData = payload.find(x => x._id === importer.Type.all_data);
+            const warenkorb = payload.find((x) => x._id === importer.Type.warenkorb);
+            const preismeldestellen = payload.find((x) => x._id === importer.Type.preismeldestellen);
+            const preismeldungen = payload.find((x) => x._id === importer.Type.preismeldungen);
+            const allData = payload.find((x) => x._id === importer.Type.all_data);
 
             const latestImportedAt = {
                 importedWarenkorbAt: !!warenkorb ? parseDate(warenkorb.latestImportAt) : null,
@@ -142,11 +122,8 @@ export function reducer(state = initialState, action: importer.Action): State {
         }
 
         case 'LOAD_ERHEBUNGSMONATE_SUCCESS': {
-            const {
-                warenkorbErhebungsmonat,
-                preismeldestellenErhebungsmonat,
-                preismeldungenErhebungsmonat,
-            } = action.payload;
+            const { warenkorbErhebungsmonat, preismeldestellenErhebungsmonat, preismeldungenErhebungsmonat } =
+                action.payload;
             return Object.assign({}, state, {
                 warenkorbErhebungsmonat,
                 preismeldestellenErhebungsmonat,

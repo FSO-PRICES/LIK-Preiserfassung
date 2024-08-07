@@ -1,61 +1,41 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { assign, range } from 'lodash';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, combineLatest, defer, merge, of } from 'rxjs';
 import {
-    combineLatest,
     distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
     map,
-    mapTo,
-    merge,
-    publishReplay,
-    refCount,
+    mergeWith,
     scan,
-    tap,
-    withLatestFrom,
+    shareReplay,
+    switchMap,
+    take,
 } from 'rxjs/operators';
 
-import { encodeErhebungsartFromForm, Models as P, parseErhebungsarten } from '@lik-shared';
+import { DialogCancelEditComponent, PefDialogService } from '@lik-shared';
+import { Models as P, encodeErhebungsartFromForm, parseErhebungsarten } from '@lik-shared';
 
 import { Actions as preismeldestellenAction } from '../../actions/preismeldestellen';
+import { CanDeactivate } from '../../guards/can-deactivate-guard';
 import * as fromRoot from '../../reducers';
+import { CurrentPreismeldestelle } from '../../reducers/preismeldestellen';
 
 @Component({
     selector: 'pms-details',
     templateUrl: 'pms-details.page.html',
     styleUrls: ['pms-details.page.scss'],
 })
-export class PmsDetailsPage implements OnDestroy {
+export class PmsDetailsPage implements OnDestroy, CanDeactivate {
     public isDesktop$ = this.store.select(fromRoot.getIsDesktop);
     public pms$ = this.store.select(fromRoot.getCurrentPreismeldestelle);
     public languages$ = this.store.select(fromRoot.getLanguagesList);
+    public distinctPreismeldestelle$: Observable<CurrentPreismeldestelle>;
 
-    public pmsGeschlossenClicked$ = new EventEmitter();
+    public pmsGeschlossenClicked$ = new EventEmitter<void>();
     public formErrors$: Observable<string[]>;
     public hasErrors$: Observable<boolean>;
 
@@ -63,21 +43,27 @@ export class PmsDetailsPage implements OnDestroy {
     public saveClicked$ = new EventEmitter();
     public showValidationHints$: Observable<boolean>;
 
+    public isCurrentModified$: Observable<boolean>;
+    private cancelEditDialog$ = defer(() =>
+        this.pefDialogService.displayDialog(DialogCancelEditComponent, { disableClose: true }),
+    );
+
     private subscriptions: Subscription[];
 
-    private _form: FormGroup;
+    private _form: UntypedFormGroup;
     public form: any; // To prevent the problem of casting AbstractForm to FormArray
 
     constructor(
         activeRoute: ActivatedRoute,
-        private navCtrl: NavController,
+        private router: Router,
         private store: Store<fromRoot.AppState>,
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
+        private pefDialogService: PefDialogService,
     ) {
         store.dispatch({ type: 'RESET_SELECTED_PREISMELDESTELLE' } as preismeldestellenAction);
         this._form = formBuilder.group(
             {
-                kontaktpersons: formBuilder.array(range(2).map(i => this.initKontaktpersonGroup())),
+                kontaktpersons: formBuilder.array(range(2).map((i) => this.initKontaktpersonGroup())),
                 name: [null, Validators.required],
                 supplement: [null],
                 street: [null, Validators.required],
@@ -106,38 +92,43 @@ export class PmsDetailsPage implements OnDestroy {
 
         const pmsNummerParam$ = activeRoute.params.pipe(map(({ pmsNummer }) => pmsNummer));
 
-        const distinctPreismeldestelle$ = this.pms$.pipe(
-            filter(x => !!x),
-            distinctUntilKeyChanged('_rev'),
-            publishReplay(1),
-            refCount(),
+        this.distinctPreismeldestelle$ = this.pms$.pipe(
+            filter((x) => !!x),
+            distinctUntilKeyChanged('isModified'),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         const canSave$ = this.saveClicked$.pipe(
             map(() => ({ isValid: this._form.valid })),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
         const save$ = canSave$.pipe(
-            filter(x => x.isValid),
-            publishReplay(1),
-            refCount(),
+            filter((x) => x.isValid),
+            shareReplay({ bufferSize: 1, refCount: true }),
         );
 
-        this.showValidationHints$ = canSave$.pipe(
-            distinctUntilChanged(),
-            mapTo(true),
-            merge(distinctPreismeldestelle$.pipe(mapTo(false))),
-            publishReplay(1),
-            refCount(),
+        this.showValidationHints$ = merge(
+            canSave$.pipe(
+                distinctUntilChanged(),
+                map(() => true),
+            ),
+            this.distinctPreismeldestelle$.pipe(map(() => false)),
+        ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+
+        this.formErrors$ = this.showValidationHints$.pipe(
+            map((showErrors) => (showErrors ? this.getFormErrors() : [])),
         );
 
-        this.formErrors$ = this.showValidationHints$.pipe(map(showErrors => (showErrors ? this.getFormErrors() : [])));
-        this.hasErrors$ = this.formErrors$.pipe(map(x => !!x && x.length > 0));
+        this.hasErrors$ = this.formErrors$.pipe(map((x) => !!x && x.length > 0));
+
+        this.isCurrentModified$ = merge(
+            this._form.valueChanges.pipe(map(() => this._form.dirty)),
+            save$.pipe(map(() => false)),
+        ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
         this.subscriptions = [
-            distinctPreismeldestelle$.subscribe((preismeldestelle: P.Preismeldestelle) => {
+            this.distinctPreismeldestelle$.subscribe((preismeldestelle: P.Preismeldestelle) => {
                 this._form.markAsUntouched();
                 this._form.markAsPristine();
                 this._form.patchValue(
@@ -151,7 +142,7 @@ export class PmsDetailsPage implements OnDestroy {
                         telephone: preismeldestelle.telephone,
                         email: preismeldestelle.email,
                         internetLink: preismeldestelle.internetLink,
-                        languageCode: !!preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
+                        languageCode: preismeldestelle.languageCode ? preismeldestelle.languageCode : '',
                         erhebungsarten: parseErhebungsarten(preismeldestelle.erhebungsart),
                         pmsGeschlossen: preismeldestelle.pmsGeschlossen,
                         erhebungsartComment: preismeldestelle.erhebungsartComment,
@@ -162,15 +153,14 @@ export class PmsDetailsPage implements OnDestroy {
                 );
             }),
 
-            this.store
-                .select(fromRoot.getPreismeldestellen)
-                .pipe(
-                    filter(x => !!x && x.length > 0),
-                    combineLatest(pmsNummerParam$),
-                )
-                .subscribe(([, pmsNummer]) => {
-                    this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: pmsNummer });
-                }),
+            this.isCurrentModified$.subscribe(),
+
+            combineLatest([
+                this.store.select(fromRoot.getPreismeldestellen).pipe(filter((x) => !!x && x.length > 0)),
+                pmsNummerParam$,
+            ]).subscribe(([, pmsNummer]) => {
+                this.store.dispatch({ type: 'PREISMELDESTELLE_SELECT', payload: pmsNummer });
+            }),
 
             this.cancelClicked$.subscribe(() => this.navigateToDashboard()),
 
@@ -182,23 +172,23 @@ export class PmsDetailsPage implements OnDestroy {
                         }),
                     ),
                 )
-                .subscribe(payload =>
+                .subscribe((payload) =>
                     store.dispatch({ type: 'UPDATE_CURRENT_PREISMELDESTELLE', payload } as preismeldestellenAction),
                 ),
 
             this.pmsGeschlossenClicked$
                 .pipe(
-                    mapTo(null),
-                    merge(distinctPreismeldestelle$),
+                    map(() => null),
+                    mergeWith(this.distinctPreismeldestelle$),
                     scan((pmsGeschlossen, p) => {
-                        if (!!p) return p.pmsGeschlossen;
+                        if (p) return p.pmsGeschlossen;
                         return pmsGeschlossen === this._form.value.pmsGeschlossen
                             ? null
                             : this._form.value.pmsGeschlossen;
                     }, 0),
-                    filter(pmsGeschlossen => !pmsGeschlossen),
+                    filter((pmsGeschlossen) => !pmsGeschlossen),
                 )
-                .subscribe(x => {
+                .subscribe((x) => {
                     this._form.patchValue({ pmsGeschlossen: 0 });
                 }),
 
@@ -207,11 +197,11 @@ export class PmsDetailsPage implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
+        this.subscriptions.filter((s) => !!s && !s.closed).forEach((s) => s.unsubscribe());
     }
 
     public getFormErrors() {
-        return Object.keys(this._form.errors || {}).map(errorType => `validation_${errorType}`);
+        return Object.keys(this._form.errors || {}).map((errorType) => `validation_${errorType}`);
     }
 
     private initKontaktpersonGroup() {
@@ -231,7 +221,7 @@ export class PmsDetailsPage implements OnDestroy {
     private getKontaktPersonMapping(kontaktpersons: P.KontaktPerson[]) {
         if (!kontaktpersons || kontaktpersons.length === 0)
             kontaktpersons = [<any>{ languageCode: '' }, { languageCode: '' }];
-        return kontaktpersons.map(x => ({
+        return kontaktpersons.map((x) => ({
             oid: x.oid,
             firstName: x.firstName,
             surname: x.surname,
@@ -245,15 +235,30 @@ export class PmsDetailsPage implements OnDestroy {
     }
 
     navigateToDashboard() {
-        return this.navCtrl.navigateRoot('/');
+        this.router.navigate(['/']);
     }
 
     formLevelValidationFactory() {
-        return (group: FormGroup) => {
-            const erhebungsarten = group.get('erhebungsarten') as FormGroup;
-            return Object.keys(erhebungsarten.controls).every(k => !erhebungsarten.get(k).value)
+        return (group: UntypedFormGroup) => {
+            const erhebungsarten = group.get('erhebungsarten') as UntypedFormGroup;
+            return Object.keys(erhebungsarten.controls).every((k) => !erhebungsarten.get(k).value)
                 ? { erhebungsart_required: true }
                 : null;
         };
+    }
+
+    public canDeactivate() {
+        return merge(
+            this.distinctPreismeldestelle$.pipe(
+                filter((pe) => pe.isModified === false),
+                map(() => true),
+            ),
+
+            this.distinctPreismeldestelle$.pipe(
+                filter((pe) => pe.isModified === true),
+                switchMap(() => this.cancelEditDialog$),
+                map((dialogCode) => dialogCode === 'THROW_CHANGES'),
+            ),
+        ).pipe(take(1));
     }
 }

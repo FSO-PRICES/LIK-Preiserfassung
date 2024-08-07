@@ -1,29 +1,11 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { keys, mapValues, values } from 'lodash';
 
 import { Models as P } from '@lik-shared';
 
 import { parseCsvText } from '../common/file-extensions';
 import { environment } from '../environments/environment';
+
+import { translate } from './translate';
 
 type LanguageIndexes = { de: number; fr: number; it: number };
 
@@ -129,7 +111,7 @@ export function buildTree(data: string[][], erhebungsorgannummer: string) {
             };
             treeItems.push(treeItem);
             const parent: P.WarenkorbTreeItem = lastDepthGliederungspositionsnummers[treeItem.tiefencode - 1];
-            if (!!parent) {
+            if (parent) {
                 if (parent.type === 'LEAF') {
                     delete parent.standardmenge;
                     delete parent.standardeinheit;
@@ -142,7 +124,7 @@ export function buildTree(data: string[][], erhebungsorgannummer: string) {
             }
             lastDepthGliederungspositionsnummers[treeItem.tiefencode] = treeItem;
         } catch (error) {
-            throw new Error(`Warenkorb Import Fehler (Zeile #${i + 1}): ${error.message}`);
+            throw new Error(`${translate('exceptions.import.warenkorb', { line: i + 1 })}${error.message}`);
         }
     }
 
@@ -199,7 +181,7 @@ const parseAbweichung = parseNumberOrNull;
 
 function translationsToStringOrNull(line: string[], langIndexes: LanguageIndexes): P.PropertyTranslation {
     const langKeys = Object.keys(langIndexes);
-    return langKeys.some(lang => !!line[langIndexes[lang]])
+    return langKeys.some((lang) => !!line[langIndexes[lang]])
         ? langKeys.reduce((translations, lang) => ({ ...translations, [lang]: line[langIndexes[lang]] }), {
               en: null,
           } as P.PropertyTranslation)
@@ -207,9 +189,9 @@ function translationsToStringOrNull(line: string[], langIndexes: LanguageIndexes
 }
 
 function prepareProduktmerkmale(line: string[], langIndexes: LanguageIndexes): P.PropertyTranslation[] {
-    const merkmale = mapValues(langIndexes, i => (!!line[i] ? parseSingleCsvText(line[i]) : []));
+    const merkmale = mapValues(langIndexes, (i) => (line[i] ? parseSingleCsvText(line[i]) : []));
     const merkmaleList = [];
-    Object.keys(merkmale).map(language => {
+    Object.keys(merkmale).map((language) => {
         merkmale[language].map((merkmal, i) => (merkmaleList[i] = { ...merkmaleList[i], [language]: merkmal || null }));
     });
 
@@ -217,7 +199,7 @@ function prepareProduktmerkmale(line: string[], langIndexes: LanguageIndexes): P
 }
 
 function parseBearbeitungscode(bearbeitungcodes) {
-    const getCodeNumber = code => {
+    const getCodeNumber = (code) => {
         const index = values(P.bearbeitungscodeDescriptions).indexOf(code);
         return index !== -1 ? +keys(P.bearbeitungscodeDescriptions)[index] : code;
     };

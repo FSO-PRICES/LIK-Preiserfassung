@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import {
     ChangeDetectionStrategy,
     Component,
@@ -29,7 +9,7 @@ import {
     SimpleChange,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import {
     distinctUntilChanged,
     distinctUntilKeyChanged,
@@ -37,8 +17,8 @@ import {
     map,
     mapTo,
     merge,
-    publishReplay,
-    refCount,
+    shareReplay,
+    withLatestFrom,
 } from 'rxjs/operators';
 
 import { Models as P, ReactiveComponent } from '@lik-shared';
@@ -56,15 +36,19 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     @Input() languages: P.Language[];
     @Input() erhebungsregionen: string[];
     @Input() preissubsysteme: P.Preissubsystem[];
+    @Input() hasWritePermission: boolean;
 
     @Output('save') public save$: Observable<P.Erheber>;
     @Output('cancel') public cancelClicked$ = new EventEmitter<Event>();
     @Output('resetPassword') public resetPasswordClicked$ = new EventEmitter<Event>();
     @Output('update') public update$: Observable<P.Erheber>;
 
+    private afterViewInit$ = new Subject<void>();
+
     public preiserheber$: Observable<P.Erheber>;
     public languages$: Observable<P.Language[]>;
     public erhebungsregionen$: Observable<string[]>;
+    public hasWritePermission$: Observable<boolean>;
 
     public resetForm$: Observable<boolean>;
     public saveClicked$ = new EventEmitter<Event>();
@@ -72,8 +56,7 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     public showValidationHints$: Observable<boolean>;
 
     private subscriptions: Subscription[] = [];
-    public _form: FormGroup;
-    public form: any;
+    public form: FormGroup;
 
     constructor(formBuilder: FormBuilder) {
         super();
@@ -81,14 +64,15 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         this.preiserheber$ = this.observePropertyCurrentValue<P.Erheber>('preiserheber');
         this.languages$ = this.observePropertyCurrentValue<P.Language[]>('languages');
         this.erhebungsregionen$ = this.observePropertyCurrentValue<string[]>('erhebungsregionen');
+        this.hasWritePermission$ = this.observePropertyCurrentValue<boolean>('hasWritePermission');
 
-        this._form = formBuilder.group({
+        this.form = formBuilder.group({
             preiserheber: formBuilder.group({
                 username: [
                     null,
                     Validators.compose([
                         Validators.required,
-                        Validators.pattern(/^[a-z][a-z0-9_,\$\+\-]{2,}/),
+                        Validators.pattern(/^[a-z][a-z0-9_,$+-]{2,}/),
                         Validators.minLength(3),
                     ]),
                 ],
@@ -107,15 +91,16 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
             }),
             password: [null, Validators.compose([Validators.required, Validators.maxLength(35)])],
         });
-        this.form = this._form;
 
         const distinctPreiserheber$ = this.preiserheber$.pipe(distinctUntilKeyChanged('_id'));
 
         this.update$ = this.getPreiserheberForm().valueChanges.pipe(
-            map(() => {
-                const erheber = this.getPreiserheberForm().value;
+            withLatestFrom(distinctPreiserheber$),
+            map(([formValue, preiserheber]) => {
+                const erheber = formValue;
                 return <P.Erheber>{
                     _id: erheber.username,
+                    peNummer: preiserheber.peNummer,
                     firstName: erheber.firstName,
                     surname: erheber.surname,
                     username: erheber.username,
@@ -131,21 +116,18 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     town: erheber.town,
                 };
             }),
-            publishReplay(1),
-            refCount(),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         const canSave$ = this.saveClicked$.pipe(
-            map(x => this.getPreiserheberForm().valid),
-            publishReplay(1),
-            refCount(),
+            map((x) => this.getPreiserheberForm().valid),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         this.save$ = canSave$.pipe(
-            filter(isValid => isValid),
-            publishReplay(1),
-            refCount(),
-            map(x => this._form.get('password').value),
+            filter((isValid) => isValid),
+            shareReplay({ refCount: true, bufferSize: 1 }),
+            map((x) => this.form.get('password').value),
         );
 
         this.showValidationHints$ = canSave$.pipe(
@@ -155,16 +137,15 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
         );
 
         this.isEditing$ = this.preiserheber$.pipe(
-            map(x => !!x && !!x._rev),
-            publishReplay(1),
-            refCount(),
+            map((x) => !!x && !!x._rev),
+            shareReplay({ refCount: true, bufferSize: 1 }),
         );
 
         this.subscriptions = [
             distinctPreiserheber$.subscribe((erheber: CurrentPreiserheber) => {
-                this._form.markAsUntouched();
-                this._form.markAsPristine();
-                this._form.get('password').patchValue(null);
+                this.form.markAsUntouched();
+                this.form.markAsPristine();
+                this.form.get('password').patchValue(null);
                 this.getPreiserheberForm().patchValue(
                     {
                         username: erheber._id,
@@ -184,6 +165,13 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
                     { emitEvent: false },
                 );
             }),
+            this.hasWritePermission$.pipe(distinctUntilChanged()).subscribe((hasWritePermission) => {
+                if (hasWritePermission) {
+                    this.form.enable({ emitEvent: false });
+                } else {
+                    this.form.disable({ emitEvent: false });
+                }
+            }),
         ];
     }
 
@@ -192,11 +180,11 @@ export class PreiserheberDetailComponent extends ReactiveComponent implements On
     }
 
     ngOnDestroy() {
-        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
+        this.subscriptions.filter((s) => !!s && !s.closed).forEach((s) => s.unsubscribe());
     }
 
     public getPreiserheberForm() {
-        return this._form.get('preiserheber');
+        return this.form.get('preiserheber');
     }
 
     public hasChanges() {

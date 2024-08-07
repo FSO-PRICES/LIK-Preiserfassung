@@ -1,26 +1,8 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
+import { canDeactivateGuard } from '../guards/can-deactivate-guard';
+import { settingsValidGuard } from '../guards/settings-valid-guard';
 import { CockpitPage } from '../pages/cockpit';
 import { ControllingPage } from '../pages/controlling';
 import { ExportToPrestaPage } from '../pages/export-to-presta';
@@ -30,57 +12,59 @@ import { PreismeldestellePage } from '../pages/preismeldestelle';
 import { PreismeldungPage } from '../pages/preismeldung';
 import { ReportingPage } from '../pages/reporting';
 import { SettingsPage } from '../pages/settings';
-import { AppGuard } from '../services/app-guard';
 
 const routes: Routes = [
     { path: '', redirectTo: 'cockpit', pathMatch: 'full' },
     {
         path: 'cockpit',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
         component: CockpitPage,
     },
     {
         path: 'import',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
         component: ImportPage,
     },
     {
         path: 'preismeldestellen',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
+        canDeactivate: [canDeactivateGuard],
         component: PreismeldestellePage,
     },
     {
         path: 'pe',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
+        canDeactivate: [canDeactivateGuard],
         component: PreiserheberPage,
     },
     {
         path: 'pm',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
         component: PreismeldungPage,
     },
     {
         path: 'pm/:pmsNummer',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
         component: PreismeldungPage,
     },
     {
         path: 'controlling',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
         component: ControllingPage,
     },
     {
         path: 'report',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
         component: ReportingPage,
     },
     {
         path: 'export',
-        canActivate: [AppGuard],
+        canActivate: [settingsValidGuard],
         component: ExportToPrestaPage,
     },
     {
         path: 'settings',
+        canDeactivate: [canDeactivateGuard],
         component: SettingsPage,
     },
 ];

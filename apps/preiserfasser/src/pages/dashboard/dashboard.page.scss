@@ -1,6 +1,8 @@
 @import '../../theme/imports.scss';
 
 :host {
+    flex: 1;
+
     .pef-toolbar {
         flex: 0 0 5.25em;
         max-width: 5.25em;
@@ -52,10 +54,9 @@
         border-radius: 1.5em;
         background-color: $scooter;
         fill: white;
-        pef-icon {
-            margin-top: 6px;
-            margin-left: 6px;
-        }
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .settings-buttons-container {
@@ -274,6 +275,10 @@
 
     ion-button.price-entry-button {
         @include button-color($scooter, white);
+        @media (max-width: 850px) {
+            min-height: auto;
+            height: 100%;
+        }
     }
 
     .preismeldungen {
@@ -330,7 +335,9 @@
 
             .status {
                 display: flex;
-                align-self: flex-end;
+                flex-direction: column;
+                gap: 0.5rem;
+                // align-self: flex-end;
 
                 span.error {
                     flex: 1;

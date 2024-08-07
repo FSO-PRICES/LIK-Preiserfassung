@@ -1,102 +1,124 @@
-<form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
-    <h1 class="large" [ngSwitch]="isEditing$ | async">
-        <span *ngSwitchCase="true">Editieren</span>
-        <span *ngSwitchDefault>Erfassen</span>
-    </h1>
-    <ion-button
-        type="button"
-        color="blue-chill"
-        (click)="saveClicked$.emit($event)"
-        [disabled]="!(preiserheber$ | async)?.isModified"
-        >Speichern</ion-button
-    >
-    <ion-button type="button" (click)="cancelClicked$.emit($event)">Abbrechen</ion-button>
-    <ion-list no-lines>
-        <div *ngIf="!!(preiserheber$ | async)?.error" class="error-text">
-            <p>{{ (preiserheber$ | async)?.error }}</p>
+<ng-container *ngxLet="(isEditing$ | async); let isEditing;">
+    <form [formGroup]="form" class="stacked-form" [class.form-show-validation-hints]="showValidationHints$ | async">
+        <h1 class="large" [ngSwitch]="isEditing$ | async">
+            <span *ngSwitchCase="true">{{'label.aktionen.editieren' | translate}}</span>
+            <span *ngSwitchDefault>{{'label.aktionen.erfassen' | translate}}</span>
+        </h1>
+        <ng-container *ngIf="hasWritePermission$ | async">
+            <ng-container *ngxLet="(preiserheber$ | async); let preiserheber">
+                <ion-button
+                    type="button"
+                    color="blue-chill"
+                    (click)="saveClicked$.emit($event)"
+                    [disabled]="!preiserheber?.isModified"
+                    >{{'label.aktionen.speichern' | translate}}</ion-button
+                >
+                <ion-button type="button" (click)="cancelClicked$.emit($event)"
+                    >{{( preiserheber?.isModified ? 'btn_cancel' : 'btn_close') | translate}}</ion-button
+                >
+                <div *ngIf="!!preiserheber?.error" class="error-text">
+                    <p>{{ preiserheber?.error }}</p>
+                </div>
+            </ng-container>
+        </ng-container>
+
+        <div formGroupName="preiserheber" class="preiserheber-details-form">
+            <ion-input
+                [readonly]="isEditing"
+                [class.readonly]="isEditing"
+                labelPlacement="stacked"
+                [label]="'label.login.benutzername' | translate"
+                type="text"
+                formControlName="username"></ion-input>
         </div>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Benutzername</ion-label>
-            <ion-input type="text" formControlName="username" [readonly]="isEditing$ | async"></ion-input>
-        </ion-item>
-        <div *ngIf="!(isEditing$ | async)" class="help-text">
-            <p>
-                Muss mit einem Buchstaben anfangen, mindestens 3 Zeichen lang sein und darf nur kleine Buchstaben,
-                Zahlen und folgende Zeichen haben: "_ $ , + -"
+
+        <ion-input
+            *ngIf="!isEditing"
+            labelPlacement="stacked"
+            [label]="'preiserheber.detail.initiales_passwort' | translate"
+            [helperText]="('preiserheber.detail.passwort_anforderungen_mindestanzahl' | translate) + ' ' + ('preiserheber.detail.passwort_anforderungen_zeichen' | translate)"
+            type="password"
+            formControlName="password"
+            maxlength="35"></ion-input>
+
+        <div formGroupName="preiserheber" class="preiserheber-details-form">
+            <p *ngIf="isEditing && (hasWritePermission$ | async)">
+                <a href="javascript:" (click)="resetPasswordClicked$.emit($event)"
+                    >{{'label.login.passwort_zuruecksetzen' | translate}}</a
+                >
             </p>
-        </div>
-        <ion-item class="pef-item" *ngIf="!(isEditing$ | async)">
-            <ion-label position="stacked">Initiales Passwort</ion-label>
-            <ion-input type="password" formControlName="password" maxlength="35"></ion-input>
-        </ion-item>
-        <ion-item class="pef-item" *ngIf="(isEditing$ | async)">
-            <p>
-                <a href="javascript:" (click)="resetPasswordClicked$.emit($event)">Passwort zurücksetzen</a>
-            </p>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Vorname</ion-label>
-            <ion-input type="text" formControlName="firstName"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Nachname</ion-label>
-            <ion-input type="text" formControlName="surname"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_firstName' | translate"
+                type="text"
+                formControlName="firstName"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_surname' | translate"
+                type="text"
+                formControlName="surname"></ion-input>
+
             <ion-label
                 position="stacked"
                 [class.target-ng-invalid]="form.controls['preiserheber'].controls['erhebungsregion'].invalid"
-                >Region</ion-label
+                >{{'label_pms_region' | translate}}</ion-label
             >
             <select formControlName="erhebungsregion">
-                <option *ngFor="let erhebungsregion of (erhebungsregionen$ | async)" [value]="erhebungsregion">{{
-                    erhebungsregion
-                }}</option>
+                <option *ngFor="let erhebungsregion of (erhebungsregionen$ | async)" [value]="erhebungsregion">
+                    {{ erhebungsregion }}
+                </option>
             </select>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
+
             <ion-label
                 position="stacked"
                 [class.target-ng-invalid]="form.controls['preiserheber'].controls['languageCode'].invalid"
-                >Sprache</ion-label
+                >{{'label.standard.sprache' | translate}}</ion-label
             >
             <select formControlName="languageCode">
-                <option *ngFor="let language of (languages$ | async)" [value]="language.languageCode">{{
-                    language.name
-                }}</option>
+                <option *ngFor="let language of (languages$ | async)" [value]="language.languageCode">
+                    {{ ('label.language.' + language.languageCode) | translate }}
+                </option>
             </select>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Festnetznummer</ion-label>
-            <ion-input type="text" formControlName="telephone"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Mobilnummer</ion-label>
-            <ion-input type="text" formControlName="mobilephone"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Email</ion-label>
-            <ion-input type="text" formControlName="email"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Fax</ion-label>
-            <ion-input type="text" formControlName="fax"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Webseite</ion-label>
-            <ion-input type="text" formControlName="webseite"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Strasse</ion-label>
-            <ion-input type="text" formControlName="street"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">Ort</ion-label>
-            <ion-input type="text" formControlName="town"></ion-input>
-        </ion-item>
-        <ion-item formGroupName="preiserheber" class="pef-item">
-            <ion-label position="stacked">PLZ</ion-label>
-            <ion-input type="text" formControlName="postcode"></ion-input>
-        </ion-item>
-    </ion-list>
-</form>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_telephone' | translate"
+                type="text"
+                formControlName="telephone"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_mobilephone' | translate"
+                type="text"
+                formControlName="mobilephone"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_email' | translate"
+                type="text"
+                formControlName="email"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_fax' | translate"
+                type="text"
+                formControlName="fax"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_webseite' | translate"
+                type="text"
+                formControlName="webseite"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_street' | translate"
+                type="text"
+                formControlName="street"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_town' | translate"
+                type="text"
+                formControlName="town"></ion-input>
+            <ion-input
+                labelPlacement="stacked"
+                [label]="'label_preiserheber_postcode' | translate"
+                type="text"
+                formControlName="postcode"></ion-input>
+        </div>
+    </form>
+</ng-container>

@@ -1,65 +1,61 @@
 <div class="cockpit-actions">
     <ion-button type="button" (click)="loadData$.emit()" [disabled]="reportExecuting$ | async"
-        >Statusbericht {{ (hasExecutedOnce$ | async) ? 'aktualisieren' : 'laden' }}</ion-button
+        >{{ (hasExecutedOnce$ | async) ? ('cockpit.status.update' | translate) : ('cockpit.status.laden' | translate)
+        }}</ion-button
     >
     <ion-button type="button" (click)="checkPreismeldungStatus$.emit()" [disabled]="statusMissingCount === null"
-        >Preise ohne Prüfstatus suchen</ion-button
+        >{{'cockpit.status.suchen_ohne' | translate}}</ion-button
     >
     <ion-button
         type="button"
         (click)="initPreismeldungenStatus$.emit()"
-        [disabled]="initializingPreismeldungenStatus$ | async"
-        >Prüfstatus zuweisen</ion-button
+        [disabled]="(initializingPreismeldungenStatus$ | async) || (hasWritePermission$ | async) === false || statusMissingCount === null || statusMissingCount === 0"
+        >{{'cockpit.status.zuweisen' | translate}}</ion-button
     >
     <ion-text *ngIf="statusMissingCount !== null" color="primary">
-        {{ statusMissingCount }} Preismeldungen ohne Prüfstatus
+        {{'cockpit.status.anzahl_ohne' | translate: { count: statusMissingCount } }}
     </ion-text>
 </div>
-
-<div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)">
+<div class="container-wrapper" [class.hidden]="!(cockpitReportData$ | async)!">
     <div class="container">
         <form [formGroup]="form" class="stacked-form">
-            <ion-item class="pef-item">
-                <ion-label position="stacked">Erhebungszeitpunkt</ion-label>
+            <div>
+                <ion-label position="stacked">{{'label.pm.erhebungszeitpunkt' | translate}}</ion-label>
                 <select formControlName="erhebungsZeitpunkt">
-                    <option value="indifferent">Indifferent</option>
-                    <option value="stichtag1">Stichtag 1</option>
-                    <option value="stichtag2">Stichtag 2</option>
-                    <option value="woche1">Woche 1</option>
-                    <option value="woche2">Woche 2</option>
-                    <option value="keinStichdatum">Kein Stichdatum</option>
+                    <option value="indifferent">{{'label.pm.indifferent' | translate}}</option>
+                    <option value="stichtag1">{{'label.pm.stichtag_1' | translate}}</option>
+                    <option value="stichtag2">{{'label.pm.stichtag_2' | translate}}</option>
+                    <option value="woche1">{{'label.pm.woche_1' | translate}}</option>
+                    <option value="woche2">{{'label.pm.woche_2' | translate}}</option>
+                    <option value="keinStichdatum">{{'cockpit.status.kein_stichdatum' | translate}}</option>
                 </select>
-            </ion-item>
-            <div class="spacer"></div>
-            <ion-item class="pef-item">
-                <ion-label position="stacked">Preiserheber</ion-label>
-                <pef-search-input
-                    class="pe-search"
-                    [compact]="true"
-                    formControlName="preiserheberFilter"
-                ></pef-search-input>
-            </ion-item>
+            </div>
+            <div>
+                <ion-label position="stacked">{{ 'label.pe.name' | translate }}</ion-label>
+                <pef-search-input formControlName="preiserheberFilter"></pef-search-input>
+            </div>
         </form>
         <div class="list-header">
-            <ion-item class="heading pef-advanced-item">
-                <div class="name"><strong>Preismeldungen</strong></div>
-                <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
+            <ion-item class="heading pef-advanced-item" lines="none">
+                <div class="name"><strong>{{ 'label.pm.titel' | translate }}</strong></div>
+                <div class="heruntergeladene" title="#{{'cockpit.list.anzahl_heruntergeladene' | translate}}">
                     <pef-icon name="download"></pef-icon>
                 </div>
-                <div class="offen-nicht-erfasst" title="#Preise auf Tablet zu erfassen">
+                <div class="offen-nicht-erfasst" title="#{{'cockpit.list.anzahl_nicht_erfasste' | translate}}">
                     <pef-icon name="todo"></pef-icon>
                 </div>
-                <div class="offen-erfasst" title="#Prerise auf Tablet erfasst aber nicht hochgeladen">
+                <div class="offen-erfasst" title="#{{'cockpit.list.anzahl_erfasste' | translate}}">
                     <pef-icon name="checkmark"></pef-icon>
                 </div>
-                <div class="hochgeladene" title="#Preise von Tablet hochgeladen">
+                <div class="hochgeladene" title="#{{'cockpit.list.anzahl_hochgeladene' | translate}}">
                     <pef-icon name="upload"></pef-icon>
                 </div>
             </ion-item>
-            <ion-item class="heading pef-advanced-item" *ngxLet="filteredSummary$ | async; let filteredSummary">
-                <div class="name">
-                    zugeordnet
-                </div>
+            <ion-item
+                class="heading pef-advanced-item"
+                *ngxLet="filteredSummary$ | async; let filteredSummary"
+                lines="none">
+                <div class="name">{{'cockpit.list.label_zugeordnet' | translate}}</div>
                 <div class="heruntergeladene">
                     <span class="status-number" [class.good]="filteredSummary.synced">
                         {{ filteredSummary.total }} / {{ filteredSummary.newPreismeldungen}}
@@ -81,10 +77,8 @@
                     </span>
                 </div>
             </ion-item>
-            <ion-item class="heading pef-advanced-item" *ngIf="notAssigned$ | async; let notAssigned">
-                <div class="name">
-                    Nicht zugeordnet
-                </div>
+            <ion-item class="heading pef-advanced-item" *ngIf="notAssigned$ | async; let notAssigned" lines="none">
+                <div class="name">{{'cockpit.list.label_nicht_zugeordnet' | translate}}</div>
                 <div class="heruntergeladene">
                     <span class="status-number" [class.good]="notAssigned[form.value.erhebungsZeitpunkt].synced">
                         {{ notAssigned[form.value.erhebungsZeitpunkt].total }} / {{
@@ -99,8 +93,7 @@
                 <div class="offen-erfasst">
                     <span
                         class="status-number"
-                        [class.good]="notAssigned[form.value.erhebungsZeitpunkt].nothingToUpload"
-                    >
+                        [class.good]="notAssigned[form.value.erhebungsZeitpunkt].nothingToUpload">
                         {{ notAssigned[form.value.erhebungsZeitpunkt].doneButNotUploaded }}
                     </span>
                 </div>
@@ -111,20 +104,14 @@
                 </div>
             </ion-item>
         </div>
-        <pef-virtual-scroll
-            [items]="filteredPreiserheber$ | async"
-            (update)="updateScrollList($event)"
-            pef-perfect-scrollbar
-            [enabled]="true"
-        >
+        <cdk-virtual-scroll-viewport itemSize="56" minBufferPx="1200" maxBufferPx="1600" class="virtual-scroll">
             <ion-item
                 class="pef-advanced-item cockpit-preiserheber"
-                *ngFor="let preiserheber of scrollList"
+                *cdkVirtualFor="let preiserheber of filteredPreiserheber$ | async"
                 (click)="selectPreiserheber$.emit(preiserheber)"
-                [class.selected]="(selectedPreiserheber$ | async)?.username == preiserheber.username"
-                [attr.tappable]="preiserheber.username !== 'unassigned' ? '' : null"
+                [class.selected]="(selectedPreiserheber$ | async)?.username === preiserheber.username"
                 [class.unassigned]="preiserheber.username === 'unassigned'"
-            >
+                lines="none">
                 <ion-label>
                     <div class="pef-item-description">
                         <span class="text">
@@ -136,8 +123,7 @@
                         <div class="heruntergeladene">
                             <span
                                 class="status-number"
-                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].synced"
-                            >
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].synced">
                                 {{ preiserheber.summary[form.value.erhebungsZeitpunkt].total }} / {{
                                 preiserheber.summary[form.value.erhebungsZeitpunkt].newPreismeldungen }}
                             </span>
@@ -145,37 +131,33 @@
                         <div class="offen-nicht-erfasst">
                             <span
                                 class="status-number"
-                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingTodo"
-                            >
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingTodo">
                                 {{ preiserheber.summary[form.value.erhebungsZeitpunkt].todo }}
                             </span>
                         </div>
                         <div class="offen-erfasst">
                             <span
                                 class="status-number"
-                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingToUpload"
-                            >
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].nothingToUpload">
                                 {{ preiserheber.summary[form.value.erhebungsZeitpunkt].doneButNotUploaded }}
                             </span>
                         </div>
                         <div class="hochgeladene">
                             <span
                                 class="status-number"
-                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll"
-                            >
+                                [class.good]="preiserheber.summary[form.value.erhebungsZeitpunkt].uploadedAll">
                                 {{ preiserheber.summary[form.value.erhebungsZeitpunkt].uploaded }}
                             </span>
                         </div>
                     </div>
                 </ion-label>
             </ion-item>
-        </pef-virtual-scroll>
+        </cdk-virtual-scroll-viewport>
     </div>
 
     <div class="container">
         <cockpit-report-detail
             [preiserheber]="selectedPreiserheber$ | async"
-            [erhebungsZeitpunktKey]="erhebungsZeitpunkt$ | async"
-        ></cockpit-report-detail>
+            [erhebungsZeitpunktKey]="erhebungsZeitpunkt$ | async"></cockpit-report-detail>
     </div>
 </div>

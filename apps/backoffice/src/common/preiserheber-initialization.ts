@@ -1,23 +1,3 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { assign, flatten } from 'lodash';
 import { concat, forkJoin, from, of } from 'rxjs';
 import { catchError, flatMap, map, mapTo, tap, toArray } from 'rxjs/operators';
@@ -62,37 +42,37 @@ export function createUserDbs() {
     return backupAndDeleteAllMonthDatabases().pipe(
         tap(() => console.log('DEBUG: AFTER DELETE MONTH DBS')),
         flatMap(() => _fetchStandardUserDbData()),
-        tap(x => console.log('DEBUG: AFTER FETCHING STANDARD USER DATA', x)),
-        flatMap(data =>
-            getDatabase(dbNames.preiserheber).then(db =>
-                getAllDocumentsFromDb<P.Erheber>(db).then(preiserhebers => ({ data, preiserhebers })),
+        tap((x) => console.log('DEBUG: AFTER FETCHING STANDARD USER DATA', x)),
+        flatMap((data) =>
+            getDatabase(dbNames.preiserheber).then((db) =>
+                getAllDocumentsFromDb<P.Erheber>(db).then((preiserhebers) => ({ data, preiserhebers })),
             ),
         ),
-        tap(x => console.log('DEBUG: AFTER GETTING PREISERHEBER DATA', x)),
-        flatMap(x =>
+        tap((x) => console.log('DEBUG: AFTER GETTING PREISERHEBER DATA', x)),
+        flatMap((x) =>
             x.preiserhebers.length === 0
                 ? of(null)
                 : concat(
-                      ...x.preiserhebers.map(preiserheber => _createUserDb(assign({}, x.data, { preiserheber }))),
+                      ...x.preiserhebers.map((preiserheber) => _createUserDb(assign({}, x.data, { preiserheber }))),
                   ).pipe(toArray()),
         ),
-        tap(x => console.log('DEBUG: AFTER _CREATEUSERDB', x)),
+        tap((x) => console.log('DEBUG: AFTER _CREATEUSERDB', x)),
     );
 }
 
 function backupAndDeleteAllMonthDatabases() {
     return listAllDatabases().pipe(
-        map(dbs => dbs.filter(db => db.startsWith('user_') || db === dbNames.orphaned_erfasste_preismeldungen)),
-        flatMap(dbs =>
-            dbs.length === 0 ? of({}) : concat(...dbs.map(dbName => backupAndDeleteDatabase(dbName))).pipe(toArray()),
+        map((dbs) => dbs.filter((db) => db.startsWith('user_') || db === dbNames.orphaned_erfasste_preismeldungen)),
+        flatMap((dbs) =>
+            dbs.length === 0 ? of({}) : concat(...dbs.map((dbName) => backupAndDeleteDatabase(dbName))).pipe(toArray()),
         ),
     );
 }
 
 export function createUserDb(preiserheber: P.Erheber) {
     return _fetchStandardUserDbData().pipe(
-        flatMap(data => _createUserDb(assign({}, data, { preiserheber }))),
-        flatMap(error => (!!error ? of(error) : updateZuweisung(preiserheber.username, []).pipe(mapTo(null)))),
+        flatMap((data) => _createUserDb(assign({}, data, { preiserheber }))),
+        flatMap((error) => (!!error ? of(error) : updateZuweisung(preiserheber.username, []).pipe(mapTo(null)))),
     );
 }
 
@@ -115,41 +95,41 @@ function _createUserDb({ preiserheber, warenkorb, erhebungsmonat, erhebungsorgan
     ];
 
     return getPmsNummers(preiserheber._id).pipe(
-        flatMap(pmsNummers =>
-            getPreismeldestellen(pmsNummers).pipe(map(preismeldestellen => ({ pmsNummers, preismeldestellen }))),
+        flatMap((pmsNummers) =>
+            getPreismeldestellen(pmsNummers).pipe(map((preismeldestellen) => ({ pmsNummers, preismeldestellen }))),
         ),
-        flatMap(x =>
+        flatMap((x) =>
             getPreismeldungen(x.pmsNummers).pipe(
-                map(preismeldungen => [...x.preismeldestellen, ...preismeldungen, ...standardDocs]),
+                map((preismeldungen) => [...x.preismeldestellen, ...preismeldungen, ...standardDocs]),
             ),
         ),
-        flatMap(data =>
+        flatMap((data) =>
             getDatabaseAsObservable(getUserDatabaseName(preiserheber.username)).pipe(
-                flatMap(db => db.bulkDocs({ docs: data } as any)),
+                flatMap((db) => db.bulkDocs({ docs: data } as any)),
             ),
         ),
         flatMap(() =>
             putUserToDatabase(getUserDatabaseName(preiserheber._id), { members: { names: [preiserheber._id] } }),
         ),
         mapTo(<string>null),
-        catchError(error => of(getErrorMessage(error))),
+        catchError((error) => of(getErrorMessage(error))),
     );
 }
 
 function _fetchStandardUserDbData() {
     return getDatabaseAsObservable(dbNames.warenkorb).pipe(
-        flatMap(warenkorbDb =>
-            warenkorbDb.get('warenkorb').then(doc => ({ warenkorb: clearRev<P.WarenkorbDocument>(doc) })),
+        flatMap((warenkorbDb) =>
+            warenkorbDb.get('warenkorb').then((doc) => ({ warenkorb: clearRev<P.WarenkorbDocument>(doc) })),
         ),
-        flatMap(data =>
-            getDatabase(dbNames.preismeldungen).then(preismeldungDb =>
+        flatMap((data) =>
+            getDatabase(dbNames.preismeldungen).then((preismeldungDb) =>
                 preismeldungDb
                     .get('erhebungsmonat')
-                    .then(doc => assign(data, { erhebungsmonat: clearRev<P.Erhebungsmonat>(doc) })),
+                    .then((doc) => assign(data, { erhebungsmonat: clearRev<P.Erhebungsmonat>(doc) })),
             ),
         ),
-        flatMap(data =>
-            getSettings().then(settings =>
+        flatMap((data) =>
+            getSettings().then((settings) =>
                 assign(data, {
                     erhebungsorgannummer: { _id: 'erhebungsorgannummer', value: settings.general.erhebungsorgannummer },
                 }),
@@ -163,38 +143,41 @@ function createPmsDocsBasedOnZuweisung(
     currentPreismeldestellenNummern: string[],
     newPreismeldestellenNummern: string[],
 ) {
-    const toCreate = newPreismeldestellenNummern.filter(n => !currentPreismeldestellenNummern.some(c => c === n));
-    const toRemove = currentPreismeldestellenNummern.filter(c => !newPreismeldestellenNummern.some(n => n === c));
+    const toCreate = newPreismeldestellenNummern.filter((n) => !currentPreismeldestellenNummern.some((c) => c === n));
+    const toRemove = currentPreismeldestellenNummern.filter((c) => !newPreismeldestellenNummern.some((n) => n === c));
 
     return (
         getDatabaseAsObservable(dbNames.preismeldestellen)
             // 'pms_' records to be created or deleted from user db
             .pipe(
-                flatMap(db =>
-                    getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, toCreate.map(x => preismeldestelleId(x))),
-                ),
-                flatMap(preismeldestellen =>
-                    getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).pipe(
-                        flatMap(db => getAllIdRevsForPrefixFromDb(db, preismeldestelleId())),
-                        map(existingPmsRecords => ({ preismeldestellen, existingPmsRecords })),
+                flatMap((db) =>
+                    getAllDocumentsForKeysFromDb<P.Preismeldestelle>(
+                        db,
+                        toCreate.map((x) => preismeldestelleId(x)),
                     ),
                 ),
-                map(x => {
+                flatMap((preismeldestellen) =>
+                    getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).pipe(
+                        flatMap((db) => getAllIdRevsForPrefixFromDb(db, preismeldestelleId())),
+                        map((existingPmsRecords) => ({ preismeldestellen, existingPmsRecords })),
+                    ),
+                ),
+                map((x) => {
                     const pmsToCreate = toCreate
-                        .map(y => x.preismeldestellen.filter(z => !!z).find(z => z.pmsNummer === y))
-                        .map(pms => clearRev<P.CouchProperties>(pms));
+                        .map((y) => x.preismeldestellen.filter((z) => !!z).find((z) => z.pmsNummer === y))
+                        .map((pms) => clearRev<P.CouchProperties>(pms));
                     const pmsToRemove = toRemove
-                        .map(y => x.existingPmsRecords.find(z => z._id === preismeldestelleId(y)))
-                        .map(pms => assign({}, pms, { _deleted: true }));
+                        .map((y) => x.existingPmsRecords.find((z) => z._id === preismeldestelleId(y)))
+                        .map((pms) => assign({}, pms, { _deleted: true }));
                     return [...pmsToCreate, ...pmsToRemove];
                 }),
                 // 'pm-ref_' records to be created in user db
-                flatMap(docs => getDatabaseAsObservable(dbNames.preismeldungen).pipe(map(db => ({ docs, db })))),
-                flatMap(x =>
+                flatMap((docs) => getDatabaseAsObservable(dbNames.preismeldungen).pipe(map((db) => ({ docs, db })))),
+                flatMap((x) =>
                     !toCreate.length
                         ? of(x.docs)
                         : concat(
-                              ...toCreate.map(pmsNummer =>
+                              ...toCreate.map((pmsNummer) =>
                                   from(
                                       getAllDocumentsForPrefixFromDb<P.PreismeldungReference>(
                                           x.db,
@@ -204,21 +187,21 @@ function createPmsDocsBasedOnZuweisung(
                               ),
                           ).pipe(
                               toArray(),
-                              map(preismeldungenArray =>
-                                  flatten(preismeldungenArray).map(pm => clearRev<P.PreismeldungReference>(pm)),
+                              map((preismeldungenArray) =>
+                                  flatten(preismeldungenArray).map((pm) => clearRev<P.PreismeldungReference>(pm)),
                               ),
-                              map(pmRefDocs => [...pmRefDocs, ...x.docs]),
+                              map((pmRefDocs) => [...pmRefDocs, ...x.docs]),
                           ),
                 ),
                 // 'pm_' and 'pm-sort_' records to be created in user db (sourced from backup db) and deleted from backup db
-                flatMap(docs =>
+                flatMap((docs) =>
                     !toCreate.length
                         ? of({ forUserDb: docs, forBackupDb: [] })
                         : getDatabaseAsObservable(dbNames.orphaned_erfasste_preismeldungen).pipe(
-                              flatMap(db =>
+                              flatMap((db) =>
                                   concat(
                                       ...[
-                                          ...toCreate.map(pmsNummer =>
+                                          ...toCreate.map((pmsNummer) =>
                                               from(
                                                   getAllDocumentsForPrefixFromDb<P.Preismeldung>(
                                                       db,
@@ -226,7 +209,7 @@ function createPmsDocsBasedOnZuweisung(
                                                   ),
                                               ),
                                           ),
-                                          ...toCreate.map(pmsNummer =>
+                                          ...toCreate.map((pmsNummer) =>
                                               from(
                                                   getAllDocumentsForPrefixFromDb<P.Preismeldung>(
                                                       db,
@@ -237,31 +220,35 @@ function createPmsDocsBasedOnZuweisung(
                                       ],
                                   ).pipe(
                                       toArray(),
-                                      map(preismeldungenArray => flatten(preismeldungenArray)),
-                                      map(pmDocs => ({
-                                          forUserDb: [...docs, ...pmDocs.map(pm => clearRev<P.CouchProperties>(pm))],
-                                          forBackupDb: pmDocs.map(p => ({ _id: p._id, _rev: p._rev, _deleted: true })),
+                                      map((preismeldungenArray) => flatten(preismeldungenArray)),
+                                      map((pmDocs) => ({
+                                          forUserDb: [...docs, ...pmDocs.map((pm) => clearRev<P.CouchProperties>(pm))],
+                                          forBackupDb: pmDocs.map((p) => ({
+                                              _id: p._id,
+                                              _rev: p._rev,
+                                              _deleted: true,
+                                          })),
                                       })),
                                   ),
                               ),
                           ),
                 ),
                 // 'pm-ref_' records to be deleted from user db
-                flatMap(docs =>
+                flatMap((docs) =>
                     !toRemove.length
                         ? of(docs)
                         : getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).pipe(
-                              flatMap(db =>
+                              flatMap((db) =>
                                   concat(
-                                      ...toRemove.map(pmsNummer =>
+                                      ...toRemove.map((pmsNummer) =>
                                           from(getAllIdRevsForPrefixFromDb(db, preismeldungRefId(pmsNummer))),
                                       ),
                                   ).pipe(
                                       toArray(),
-                                      map(preismeldungenArray =>
-                                          flatten(preismeldungenArray).map(pm => assign({}, pm, { _deleted: true })),
+                                      map((preismeldungenArray) =>
+                                          flatten(preismeldungenArray).map((pm) => assign({}, pm, { _deleted: true })),
                                       ),
-                                      map(pmRefDocs => ({
+                                      map((pmRefDocs) => ({
                                           forUserDb: [...pmRefDocs, ...docs.forUserDb],
                                           forBackupDb: docs.forBackupDb,
                                       })),
@@ -270,14 +257,14 @@ function createPmsDocsBasedOnZuweisung(
                           ),
                 ),
                 // 'pm_' records to be deleted from user db _and_ 'pm' records to be created in backup db
-                flatMap(docs =>
+                flatMap((docs) =>
                     !toRemove.length
                         ? of(docs)
                         : getDatabaseAsObservable(getUserDatabaseName(preiserheberId)).pipe(
-                              flatMap(db =>
+                              flatMap((db) =>
                                   concat(
                                       ...[
-                                          ...toRemove.map(pmsNummer =>
+                                          ...toRemove.map((pmsNummer) =>
                                               from(
                                                   getAllDocumentsForPrefixFromDb<P.Preismeldung>(
                                                       db,
@@ -285,7 +272,7 @@ function createPmsDocsBasedOnZuweisung(
                                                   ),
                                               ),
                                           ),
-                                          ...toRemove.map(pmsNummer =>
+                                          ...toRemove.map((pmsNummer) =>
                                               from(
                                                   getAllDocumentsForPrefixFromDb<P.Preismeldung>(
                                                       db,
@@ -296,11 +283,11 @@ function createPmsDocsBasedOnZuweisung(
                                       ],
                                   ).pipe(
                                       toArray(),
-                                      map(preismeldungenArray => flatten(preismeldungenArray)),
-                                      map(preismeldungen => ({
+                                      map((preismeldungenArray) => flatten(preismeldungenArray)),
+                                      map((preismeldungen) => ({
                                           forUserDb: [
                                               ...docs.forUserDb,
-                                              ...preismeldungen.map(p => ({
+                                              ...preismeldungen.map((p) => ({
                                                   _id: p._id,
                                                   _rev: p._rev,
                                                   _deleted: true,
@@ -308,7 +295,7 @@ function createPmsDocsBasedOnZuweisung(
                                           ],
                                           forBackupDb: [
                                               ...docs.forBackupDb,
-                                              ...preismeldungen.map(p => assign(p, { _rev: undefined })),
+                                              ...preismeldungen.map((p) => assign(p, { _rev: undefined })),
                                           ],
                                       })),
                                   ),
@@ -322,42 +309,44 @@ function createPmsDocsBasedOnZuweisung(
 export function updateUserAndZuweisungDb(preiserheber: P.Erheber, currentPrieszuweisung: P.Preiszuweisung) {
     return updateZuweisung(preiserheber._id, currentPrieszuweisung.preismeldestellenNummern).pipe(
         flatMap(() => getDatabaseAsObservable(getUserDatabaseName(preiserheber._id))),
-        flatMap(db =>
-            getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId()).then(preismeldestellen => ({
+        flatMap((db) =>
+            getAllDocumentsForPrefixFromDb<P.Preismeldestelle>(db, preismeldestelleId()).then((preismeldestellen) => ({
                 db,
                 preismeldestellen,
             })),
         ),
-        flatMap(x =>
+        flatMap((x) =>
             createPmsDocsBasedOnZuweisung(
                 preiserheber._id,
-                x.preismeldestellen.map(p => p.pmsNummer),
+                x.preismeldestellen.map((p) => p.pmsNummer),
                 currentPrieszuweisung.preismeldestellenNummern,
-            ).pipe(map(docs => assign(x, { docs }))),
+            ).pipe(map((docs) => assign(x, { docs }))),
         ),
-        flatMap(x =>
+        flatMap((x) =>
             x.db
                 .get('preiserheber')
-                .then(doc => assign(x, { preiserheber: assign({}, doc, allPropertiesExeceptIdAndRev(preiserheber)) })),
+                .then((doc) =>
+                    assign(x, { preiserheber: assign({}, doc, allPropertiesExeceptIdAndRev(preiserheber)) }),
+                ),
         ),
-        flatMap(x => x.db.bulkDocs([...x.docs.forUserDb, x.preiserheber]).then(() => x.docs.forBackupDb)),
-        flatMap(docsForBackupDb =>
+        flatMap((x) => x.db.bulkDocs([...x.docs.forUserDb, x.preiserheber]).then(() => x.docs.forBackupDb)),
+        flatMap((docsForBackupDb) =>
             getDatabaseAsObservable(dbNames.orphaned_erfasste_preismeldungen).pipe(
-                flatMap(db => db.bulkDocs(docsForBackupDb)),
+                flatMap((db) => db.bulkDocs(docsForBackupDb)),
             ),
         ),
         mapTo(<string>null),
-        catchError(error => of(getErrorMessage(error))),
+        catchError((error) => of(getErrorMessage(error))),
     );
 }
 
 function updateZuweisung(preiserheberId: string, preismeldestellenNummern: string[]) {
     return getDatabaseAsObservable(dbNames.preiszuweisungen).pipe(
-        flatMap(db =>
+        flatMap((db) =>
             db
                 .get(preiserheberId)
                 .catch(() => ({ _id: preiserheberId, preiserheberId }))
-                .then(preiszuweisung => ({ preiszuweisung, db })),
+                .then((preiszuweisung) => ({ preiszuweisung, db })),
         ),
         flatMap(({ preiszuweisung, db }) => db.put(assign(preiszuweisung, { preismeldestellenNummern }))),
     );
@@ -369,34 +358,39 @@ function getErrorMessage(error: { name: string; message: string; stack: string }
 
 function getPreismeldestellen(pmsNummers: string[]) {
     return getDatabaseAsObservable(dbNames.preismeldestellen).pipe(
-        flatMap(db => getAllDocumentsForKeysFromDb<P.Preismeldestelle>(db, pmsNummers.map(x => preismeldestelleId(x)))),
-        map(preismeldestellen => preismeldestellen.map(pm => clearRev<P.Preismeldestelle>(pm))),
+        flatMap((db) =>
+            getAllDocumentsForKeysFromDb<P.Preismeldestelle>(
+                db,
+                pmsNummers.map((x) => preismeldestelleId(x)),
+            ),
+        ),
+        map((preismeldestellen) => preismeldestellen.map((pm) => clearRev<P.Preismeldestelle>(pm))),
     );
 }
 
 function getPreismeldungen(pmsNummers: string[]) {
     return getDatabaseAsObservable(dbNames.preismeldungen).pipe(
-        flatMap(db =>
+        flatMap((db) =>
             !pmsNummers.length
                 ? of([])
                 : forkJoin(
-                      pmsNummers.map(pmsNummer =>
+                      pmsNummers.map((pmsNummer) =>
                           from(getAllDocumentsForPrefixFromDb<P.Preismeldung>(db, preismeldungRefId(pmsNummer))),
                       ),
                   ),
         ),
-        map(preismeldungenArray => flatten(preismeldungenArray).map(pm => clearRev<P.PreismeldungReference>(pm))),
+        map((preismeldungenArray) => flatten(preismeldungenArray).map((pm) => clearRev<P.PreismeldungReference>(pm))),
     );
 }
 
 function getPmsNummers(preiserheberId: string) {
     return getDatabaseAsObservable(dbNames.preiszuweisungen).pipe(
-        flatMap(preiszuweisungDb =>
+        flatMap((preiszuweisungDb) =>
             getDocumentByKeyFromDb<P.Preiszuweisung>(preiszuweisungDb, preiserheberId).catch(() => ({
                 preismeldestellenNummern: <string[]>[],
             })),
         ),
-        map(preiszuweisung => preiszuweisung.preismeldestellenNummern),
+        map((preiszuweisung) => preiszuweisung.preismeldestellenNummern),
     );
 }
 

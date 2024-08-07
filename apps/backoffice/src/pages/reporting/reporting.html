@@ -5,25 +5,22 @@
                 type="button"
                 class="load-data"
                 (click)="loadData$.emit('monthly')"
-                [disabled]="reportExecuting$ | async"
-            >
-                Preiserhebung
+                [disabled]="reportExecuting$ | async">
+                {{'label.pm.name' | translate}}
             </ion-button>
             <ion-button
                 type="button"
                 class="load-data"
                 (click)="loadData$.emit('organisation')"
-                [disabled]="reportExecuting$ | async"
-            >
-                Organisation
+                [disabled]="reportExecuting$ | async">
+                {{'reporting.organisation.titel' | translate}}
             </ion-button>
             <ion-button
                 type="button"
                 class="load-data"
                 (click)="loadData$.emit('pmsProblems')"
-                [disabled]="reportExecuting$ | async"
-            >
-                PMS-Probleme
+                [disabled]="reportExecuting$ | async">
+                {{'reporting.pms_probleme.titel' | translate}}
             </ion-button>
         </div>
         <div class="reports">

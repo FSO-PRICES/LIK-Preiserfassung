@@ -1,0 +1,31 @@
+{
+    "name": "lik-shared",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/lik-shared/src",
+    "prefix": "lik-studio",
+    "tags": [],
+    "projectType": "library",
+    "targets": {
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "libs/lik-shared/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["libs/lik-shared/**/*.ts", "libs/lik-shared/**/*.html"]
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "name": "preiserfasser",
+    "version": "2.4.0",
+    "devDependencies": {
+        "@capacitor/android": "../../node_modules/@capacitor/android",
+        "@capacitor/app": "^5.0.6",
+        "@capacitor/cli": "^5.0.3",
+        "@capacitor/filesystem": "^5.1.4",
+        "@capacitor/status-bar": "^5.0.6",
+        "@jcesarmobile/ssl-skip": "^0.3.0"
+    }
+}

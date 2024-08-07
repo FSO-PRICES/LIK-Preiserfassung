@@ -17,40 +17,57 @@ const preismeldungReferenceUri = docuri.route(preismeldungReferenceUriRoute);
 const filenameRegex = /erheber__(.*?)\.json/;
 
 readFile('./warenkorb/flat.json')
-    .then(x => JSON.parse(x.toString()))
-    .then(warenkorbProducts => readdir('./presta/').then(files => files.filter(x => !!x.match(filenameRegex))).then(files => ({ warenkorbProducts, files })))
-    .then(x => {
-        return x.files.map(filename => {
+    .then((x) => JSON.parse(x.toString()))
+    .then((warenkorbProducts) =>
+        readdir('./presta/')
+            .then((files) => files.filter((x) => !!x.match(filenameRegex)))
+            .then((files) => ({ warenkorbProducts, files })),
+    )
+    .then((x) => {
+        return x.files.map((filename) => {
             const username = filename.match(filenameRegex)[1];
             const url = `${baseUrl}/${username}`;
-            return request.del(url)
+            return request
+                .del(url)
                 .catch(() => {})
                 .then(() => request.put(url))
-                .then(() => request({
-                    url: `${url}/_security`,
-                    method: 'PUT',
-                    json: {
-                        admins: { names: [username], roles: [] },
-                        members: { names: [], 'roles': [] } }
-                }))
+                .then(() =>
+                    request({
+                        url: `${url}/_security`,
+                        method: 'PUT',
+                        json: {
+                            admins: { names: [username], roles: [] },
+                            members: { names: [], roles: [] },
+                        },
+                    }),
+                )
                 .then(() => readFile(`./presta/erheber__${username}.json`))
-                .then(buffer => {
+                .then((buffer) => {
                     const data = JSON.parse(buffer.toString());
                     const erheber = _.assign({}, data.erheber, { _id: 'erheber' });
-                    const preismeldestellen = data.preismeldestellen.map(x => (_.assign({}, x, { _id: pmsUri({ pmsNummer: x.pmsNummer }) })));
-                    const products = data.preismeldungen.map(x => _.assign(x, { _id: preismeldungReferenceUri({ pmsNummer: x.pmsNummer, epNummer: x.epNummer, laufnummer: x.laufnummer }) }));
+                    const preismeldestellen = data.preismeldestellen.map((x) =>
+                        _.assign({}, x, { _id: pmsUri({ pmsNummer: x.pmsNummer }) }),
+                    );
+                    const products = data.preismeldungen.map((x) =>
+                        _.assign(x, {
+                            _id: preismeldungReferenceUri({
+                                pmsNummer: x.pmsNummer,
+                                epNummer: x.epNummer,
+                                laufnummer: x.laufnummer,
+                            }),
+                        }),
+                    );
                     const warenkorb = {
                         _id: 'warenkorb',
-                        products: x.warenkorbProducts
+                        products: x.warenkorbProducts,
                     };
                     return request({
                         url: `${url}/_bulk_docs`,
                         method: 'POST',
                         json: {
-                            docs: [erheber, ...preismeldestellen, ...products, warenkorb]
-                        }
+                            docs: [erheber, ...preismeldestellen, ...products, warenkorb],
+                        },
                     });
                 });
-        })
+        });
     });
-

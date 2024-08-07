@@ -1,0 +1,8 @@
+{
+    "name": "backoffice",
+    "productName": "LIK-PreisAdmin",
+    "main": "index.js",
+    "dependencies": {
+        "@electron/remote": "^2.1.2"
+    }
+}

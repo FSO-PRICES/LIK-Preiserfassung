@@ -1,0 +1,68 @@
+# Start with a base Node.js image
+FROM node:18 AS build-app
+
+RUN apt-get update && apt-get install -y vim && apt-get install -y default-jdk
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json before other files
+# Utilize Docker cache to save re-installing dependencies if unchanged
+COPY package*.json ./
+COPY nx.json tsconfig.base.json ./
+# COPY node_modules ./node_modules
+
+# Copy the rest of your application code to the Docker image
+COPY ./apps/preiserfasser ./apps/preiserfasser
+COPY ./libs ./libs
+
+# Install dependencies
+RUN npm ci
+
+# Install dependencies of preiserfaser
+RUN cd apps/preiserfasser && npm ci
+
+# Build the application
+RUN npx nx build preiserfasser
+
+# Remove the android folder if it exists
+RUN rm -rf apps/preiserfasser/android
+
+# Add Android platform to the project
+RUN npx nx run preiserfasser:add:android
+
+# Generate assets for capacitor
+RUN npx nx run preiserfasser:generate-capacitor-assets
+
+# Sync the project with Android
+RUN npx nx run preiserfasser:sync:android --preserveProjectNodeModules
+
+
+FROM mobiledevops/android-sdk-image
+
+ARG PASSWORD
+
+# Copy everything from the build stage
+COPY --from=build-app /app /app
+
+# Copy the keystore file
+COPY bfs_apk_release_key.keystore /app
+
+# build the release apk
+RUN cd /app/apps/preiserfasser/android && ./gradlew assembleRelease
+
+# Set the working directory
+WORKDIR /app/apps/preiserfasser/android/app/build/outputs/apk/release
+
+# Zipalign the APK
+ENV PATH="${ANDROID_HOME}//build-tools/30.0.3:${PATH}"
+RUN zipalign -f -v 4 app-release-unsigned.apk app-release-unsigned-zipaligned.apk
+
+# Sign the APK
+RUN apksigner sign --ks /app/bfs_apk_release_key.keystore --ks-key-alias "preiserfassung lik" --ks-pass pass:$PASSWORD app-release-unsigned-zipaligned.apk
+
+# Copy the signed APK and rename it
+RUN cp app-release-unsigned-zipaligned.apk preiserfasser-release.apk
+
+# Copy the signed APK to the output folder
+CMD bash -c "cp preiserfasser-release.apk /apk-output/preiserfasser-release.apk"

@@ -1,29 +1,10 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import * as _ from 'lodash';
 
 import * as P from '@lik-shared';
 
 import { toCsv } from './file-extensions';
 import { translateKommentare } from './kommentar-functions';
+import { translate } from './translate';
 
 enum LanguageMap {
     de = 1,
@@ -105,8 +86,8 @@ function parseProduktMerkmale(content: string) {
         return [];
     }
     const merkmale = content.split(';');
-    const lastValueIndex = _.findLastIndex(merkmale, merkmal => !!merkmal && merkmal.trim() !== '');
-    return merkmale.slice(0, lastValueIndex + 1).map(x => (x === '' ? null : x));
+    const lastValueIndex = _.findLastIndex(merkmale, (merkmal) => !!merkmal && merkmal.trim() !== '');
+    return merkmale.slice(0, lastValueIndex + 1).map((x) => (x === '' ? null : x));
 }
 
 function parseKontaktPersons(cells: string[]) {
@@ -163,7 +144,7 @@ export function preparePms(lines: string[][]) {
                 kontaktpersons: parseKontaktPersons(cells),
             };
         } catch (error) {
-            throw new Error(`Preismeldestellen Import Fehler (Zeile #${i + 1}): ${error.message}`);
+            throw new Error(`${translate('exceptions.import.pms', i + 1)}: ${error.message}`);
         }
     });
 
@@ -171,9 +152,10 @@ export function preparePms(lines: string[][]) {
     return { preismeldestellen, erhebungsmonat };
 }
 
-export function preparePm(
-    lines: string[][],
-): { erhebungsmonat: string; preismeldungen: P.Models.PreismeldungReference[] } {
+export function preparePm(lines: string[][]): {
+    erhebungsmonat: string;
+    preismeldungen: P.Models.PreismeldungReference[];
+} {
     const preismeldungen = lines.map((cells, i) => {
         try {
             return {
@@ -275,13 +257,66 @@ export function preparePmForExport(
                       Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
                       Datum_vor_Reduktion: pm.datumVorReduktion,
                   }),
-            Produktmerkmale: `"${toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale', false)}"`,
+            Produktmerkmale: toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale', false),
         })),
     );
 }
 
+export function preparePmForExportAll(
+    preismeldungBags: {
+        pm: P.Models.Preismeldung;
+        refPreismeldung: P.Models.PreismeldungReference;
+        sortierungsnummer: number;
+    }[],
+    erhebungsmonat: string,
+    exportedPmIds: string[],
+    statusMap: { [pmId: string]: P.Models.PreismeldungStatus },
+) {
+    return preismeldungBags.map(({ pm, refPreismeldung, sortierungsnummer }) => ({
+        Erhebungsmonat: erhebungsmonat,
+        Preissubsystem: 2, // Preissubsystem is always 2 as defined by Serge
+        Schemanummer: 0,
+        Preiserhebungsort: toNumber(pm.pmsNummer, 8, 'Preiserhebungsort'),
+        Erhebungspositionnummer: toNumber(pm.epNummer, 8, 'Erhebungspositionnummer'),
+        Laufnummer: toNumber(pm.laufnummer, 10, 'Laufnummer'),
+        Preis_T: toDecimal(pm.preis, 12, 4, 'Preis_T'),
+        Menge_T: toDecimal(pm.menge, 10, 3, 'Menge_T'),
+        Preis_VPK: toDecimal(pm.preisVPK, 12, 4, 'Preis_VPK'), // TODO: depending on actioncode #97
+        Menge_VPK: toDecimal(pm.mengeVPK, 10, 3, 'Menge_VPK'),
+        Bearbeitungscode: excludeBearbeitungscode(toNumber(pm.bearbeitungscode, 3, 'Bearbeitungscode')),
+        Aktionscode: !pm.aktion ? 0 : 1,
+        Preisbezeichnung: toText(escapeNewlinesInText(pm.artikeltext || '').substr(0, 200), 200, 'Preisbezeichnung'),
+        Artikelnummer: toText((pm.artikelnummer || '').substr(0, 30), 30, 'Artikelnummer'),
+        Fehlende_Preise: toText(
+            (pm.fehlendePreiseR || '').substr(0, 24) || (pm.bearbeitungscode === 44 ? 'S' : null),
+            24,
+            'Fehlende_Preise',
+        ),
+        PE_Notiz: toText((pm.notiz || '').substr(0, 4000), 4000, 'PE_Notiz'),
+        PE_Kommentar: toText(translateKommentare(pm.kommentar || '').substr(0, 4000), 4000, 'PE_Kommentar'),
+        Bemerkungen: toText(
+            formatBemerkungen(pm.bemerkungen, refPreismeldung.bemerkungen).substr(0, 4000),
+            4000,
+            'Bemerkungen',
+        ),
+        Internet_Link: toText((pm.internetLink || '').substr(0, 2000), 2000, 'Internet_Link'),
+        Erhebungszeitpunkt: toNumber(pm.erhebungsZeitpunkt, 3, 'Erhebungszeitpunkt'),
+        Sortiernummer: toNumber(sortierungsnummer, 5, 'Sortiernummer'),
+        ...(pm.aktion
+            ? vorReduktionByBearbeitungscode(pm, refPreismeldung)
+            : {
+                  Preis_vor_Reduktion: toDecimal(pm.preisVorReduktion, 12, 4, 'Preis_vor_Reduktion'),
+                  Menge_vor_Reduktion: toDecimal(pm.mengeVorReduktion, 10, 3, 'Menge_vor_Reduktion'),
+                  Datum_vor_Reduktion: pm.datumVorReduktion,
+              }),
+        Produktmerkmale: toText(escapeProductMerkmale(pm.productMerkmale), 4000, 'Produktmerkmale', false),
+        Exportiert: exportedPmIds.some((id) => id === pm._id) ? 'Ja' : '',
+        Status: statusMap[pm._id] !== undefined ? P.Models.PreismeldungStatus[statusMap[pm._id]] : '',
+    }));
+}
+
 export function preparePmsForExport(preismeldestellen: P.Models.Preismeldestelle[], erhebungsmonat: string) {
-    return preismeldestellen.map(pms =>
+    return preismeldestellen.map((pms) =>
         validatePreismeldestelle(pms.pmsNummer, () => ({
             Erhebungsmonat: erhebungsmonat,
             Preissubsystem: toNumber(pms.preissubsystem, 1, 'Preissubsystem'),
@@ -336,7 +371,7 @@ export function preparePreiserheberForExport(
     erhebungsmonat: string,
     erhebungsorgannummer: string,
 ) {
-    return preiserhebers.map(preiserheber =>
+    return preiserhebers.map((preiserheber) =>
         validatePreiserheber(preiserheber.username, () => ({
             Erhebungsmonat: erhebungsmonat,
             Preissubsystem: 2, // Fix 2 defined by Serge "Das Preissubsystem ist effektiv Konstant auf 2"
@@ -360,7 +395,7 @@ export function preparePreiserheberForExport(
 }
 
 const excludeBearbeitungscode = (bearbeitungscode: number) =>
-    [99, 101, 44].some(x => x === bearbeitungscode) ? null : bearbeitungscode;
+    [99, 101, 44].some((x) => x === bearbeitungscode) ? null : bearbeitungscode;
 
 function formatBemerkungen(pmBemerkungen: string, pmRefBemerkungen: string) {
     return (pmRefBemerkungen ? `${pmRefBemerkungen}\\n` : '') + (pmBemerkungen || '');
@@ -372,7 +407,7 @@ function toNumber(value: any, maxLength: number, propertyName: string) {
     const result = parseInt(value, 10);
     if (isNaN(result)) return null;
 
-    const resultLength = !!result ? result.toString().length : 0;
+    const resultLength = result ? result.toString().length : 0;
     if (resultLength > maxLength)
         throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`);
     return result;
@@ -384,14 +419,14 @@ function toDecimal(value: any, maxLength: number, maxDigits: number, propertyNam
     const result = parseInt(value, 10);
     if (isNaN(result)) return null;
 
-    const resultLength = !!result ? result.toString().length : 0;
+    const resultLength = result ? result.toString().length : 0;
     if (resultLength > maxLength)
         throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`);
     return parseFloat(value).toFixed(maxDigits);
 }
 
 function toText(value: string, maxLength: number, propertyName: string, replaceDelimiters = true) {
-    const resultLength = !!value ? value.toString().length : 0;
+    const resultLength = value ? value.toString().length : 0;
     if (resultLength > maxLength)
         throw new Error(`Der Wert für "${propertyName}" ist zu lang. [${resultLength}/${maxLength}]`);
     return !!value && replaceDelimiters ? value.replace(/;/g, ',').replace(/"/g, "''") : value;
@@ -416,8 +451,7 @@ function escapeNewlinesInText(s: string) {
 
 function escapeProductMerkmale(merkmale: string[]) {
     if (!merkmale || merkmale.length === 0) return ';'; // At least 1 semicolon is required for the PRESTA system
-    const combined = toCsv([merkmale.reduce((a, v, i) => ({ ...a, [i]: v }), {})], false);
-    return toCsv([{ merkmale: combined }], false).replace(/(^"|"$)/g, '');
+    return merkmale.join(';');
 }
 
 function parsePmsGeschlossen(s: string) {
@@ -482,7 +516,7 @@ function _validate(mapper: () => any, requiredFields: string[], errorMessage: st
         const entity = mapper();
 
         // Simple comparison is being used to be able to compare towards undefined too
-        const missingFields = requiredFields.filter(f => entity[f] == null || entity[f] === '');
+        const missingFields = requiredFields.filter((f) => entity[f] == null || entity[f] === '');
         if (missingFields.length > 0)
             throw new Error(`Folgende Werte sind nicht gesetzt:\n${missingFields.join(', ')}`);
         return { isValid: true, entity };

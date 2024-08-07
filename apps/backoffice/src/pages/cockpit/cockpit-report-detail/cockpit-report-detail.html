@@ -10,43 +10,31 @@
                 </div>
                 <div
                     [title]="!preiserheber.lastSyncedAt ? '&ndash;' : (preiserheber.lastSyncedAt |
-                date: 'medium')"
-                >
-                    synchronisiert:
-                    <b>
-                        {{ !preiserheber.lastSyncedAt ? '&ndash;' : (preiserheber.lastSyncedAt | date: 'medium') }}
-                    </b>
+                date: 'medium')">
+                    {{'cockpit.detail.synchronisiert' | translate}}
+                    <b> {{ !preiserheber.lastSyncedAt ? '&ndash;' : (preiserheber.lastSyncedAt | date: 'medium') }} </b>
                 </div>
             </div>
-            <div class="heruntergeladene" title="#Preise auf Tablet erhalten / neu">
+            <div class="heruntergeladene" title="#{{'cockpit.list.anzahl_heruntergeladene' | translate}}">
                 <pef-icon name="download"></pef-icon>
             </div>
-            <div class="offen-nicht-erfasst" title="#Preise auf Tablet zu erfassen">
+            <div class="offen-nicht-erfasst" title="#{{'cockpit.list.anzahl_nicht_erfasste' | translate}}">
                 <pef-icon name="todo"></pef-icon>
             </div>
-            <div class="offen-erfasst" title="#Prerise auf Tablet erfasst aber nicht hochgeladen">
+            <div class="offen-erfasst" title="#{{'cockpit.list.anzahl_erfasste' | translate}}">
                 <pef-icon name="checkmark"></pef-icon>
             </div>
-            <div class="hochgeladene" title="#Preise von Tablet hochgeladen">
+            <div class="hochgeladene" title="#{{'cockpit.list.anzahl_hochgeladene' | translate}}">
                 <pef-icon name="upload"></pef-icon>
             </div>
         </div>
     </div>
     <div class="viratual-scroll-wrapper">
-        <pef-virtual-scroll
-            [items]="pmsSummaryList$ | async"
-            (update)="pmsSummaryList = $event"
-            [childHeight]="60"
-            pef-perfect-scrollbar
-            [enabled]="true"
-            [scrollToTop]="pmsSummaryList$ | async"
-        >
+        <cdk-virtual-scroll-viewport itemSize="60" minBufferPx="1200" maxBufferPx="1600" class="virtual-scroll">
             <ion-item
                 class="pef-advanced-item pms-summary-row"
-                *ngFor="let pmsSummary of pmsSummaryList"
-                (click)="navigateToPmsEdit(pmsSummary.pms.pmsNummer)"
-                tappable
-            >
+                *cdkVirtualFor="let pmsSummary of pmsSummaryList$ | async"
+                (click)="navigateToPmsEdit(pmsSummary.pms.pmsNummer)">
                 <ion-label>
                     <div class="pef-item-description">
                         <div class="text pms-name" title="[{{ pmsSummary.pms.pmsNummer }}] {{ pmsSummary.pms.name }}">
@@ -64,30 +52,27 @@
                         <div class="offen-nicht-erfasst">
                             <span
                                 class="status-number"
-                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingTodo"
-                            >
+                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingTodo">
                                 {{ pmsSummary.summary[erhebungsZeitpunktKey].todo }}
                             </span>
                         </div>
                         <div class="offen-erfasst">
                             <span
                                 class="status-number"
-                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingToUpload"
-                            >
+                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].nothingToUpload">
                                 {{ pmsSummary.summary[erhebungsZeitpunktKey].doneButNotUploaded }}
                             </span>
                         </div>
                         <div class="hochgeladene">
                             <span
                                 class="status-number"
-                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].uploadedAll"
-                            >
+                                [class.good]="pmsSummary.summary[erhebungsZeitpunktKey].uploadedAll">
                                 {{ pmsSummary.summary[erhebungsZeitpunktKey].uploaded }}
                             </span>
                         </div>
                     </div>
                 </ion-label>
             </ion-item>
-        </pef-virtual-scroll>
+        </cdk-virtual-scroll-viewport>
     </div>
 </div>

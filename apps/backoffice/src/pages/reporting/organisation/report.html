@@ -3,17 +3,17 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>LIK-Monatsbericht</th>
-                    <th>Organisation</th>
+                    <th>{{'reporting.lik_monatsbericht' | translate}}</th>
+                    <th>{{'reporting.organisation.titel' | translate}}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Erhebungsmonat</td>
+                    <td>{{ 'text_erhebungsmonat' | translate }}</td>
                     <td>{{ reportData.zeitpunkt.erhebungsmonat }}</td>
                 </tr>
                 <tr>
-                    <td>Erstellungsdatum</td>
+                    <td>{{'reporting.erstellungsdatum' | translate}}</td>
                     <td>{{ reportData.zeitpunkt.erstellungsdatum }}</td>
                 </tr>
             </tbody>
@@ -21,8 +21,8 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>Erhebungsregionen</th>
-                    <th>#Preise</th>
+                    <th>{{'reporting.organisation.erhebungsregionen' | translate}}</th>
+                    <th>#{{'reporting.preise' | translate}}</th>
                     <th>#PMS</th>
                 </tr>
             </thead>
@@ -37,10 +37,10 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>Preiserheber</th>
-                    <th>#Preise</th>
-                    <th>#Normalerhebung</th>
-                    <th>#Internet zentral</th>
+                    <th>{{'label.pe.titel' | translate}}</th>
+                    <th>#{{'reporting.preise' | translate}}</th>
+                    <th>#{{'reporting.normalerhebung' | translate}}</th>
+                    <th>#{{'reporting.internet' | translate}}</th>
                     <th>#PMS</th>
                 </tr>
             </thead>
@@ -57,9 +57,9 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>Preismeldungen pro PMS</th>
-                    <th>#Preise</th>
-                    <th>PEname</th>
+                    <th>{{'reporting.organisation.pm_pro_pms' | translate}}</th>
+                    <th>#{{'reporting.preise' | translate}}</th>
+                    <th>PE{{'label.standard.name' | translate}}</th>
                 </tr>
             </thead>
             <tbody>

@@ -13,6 +13,8 @@
 .ion-page {
     height: 100%;
     width: 100%;
+    max-width: $pef-app-max-width;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
 
@@ -71,6 +73,9 @@
             h4,
             h5 {
                 flex: 0;
+            }
+            h1 {
+                flex: 1 0 auto;
             }
             button {
                 flex: 0 0 25%;
@@ -225,11 +230,6 @@
         flex-direction: column;
         align-content: stretch;
         min-height: 0;
-
-        pef-virtual-scroll {
-            height: 100%;
-            width: 100%;
-        }
     }
 
     .pef-advanced-item.item.md {
@@ -307,9 +307,10 @@
                 height: 3.5em;
             }
         }
-        &[tappable]:hover:not(.selected) {
+        &:hover:not(.selected):not(.disable-hover) {
             background-color: $blue-chill;
             --ion-background-color: #{$blue-chill};
+            cursor: pointer;
             .pef-item-title,
             .pef-item-description .text,
             .pef-item-description .artikel-text {

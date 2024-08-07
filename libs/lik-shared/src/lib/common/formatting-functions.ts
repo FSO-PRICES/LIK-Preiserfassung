@@ -1,0 +1,43 @@
+import { format as formatDate_ } from 'date-fns';
+import format from 'format-number';
+
+import { getLocale } from './locale';
+
+export function formatPercentageChange(percentageChange: number, numDecimalPlaces: number) {
+    if (percentageChange == null || isNaN(percentageChange)) return '&mdash;';
+    const percentageFormattingOptions = {
+        padRight: numDecimalPlaces,
+        truncate: numDecimalPlaces,
+        integerSeparator: '',
+        suffix: '%',
+    };
+    const roundedPercentageChange = roundToDecimalPlaces(percentageChange, numDecimalPlaces);
+    const prefix = roundedPercentageChange > 0 ? '+' : '';
+    return `${prefix}${format(percentageFormattingOptions)(roundedPercentageChange)}`;
+}
+
+export function roundToDecimalPlaces(n: number, numDecimalPlaces: number) {
+    const factor = numDecimalPlaces === 0 ? 1 : numDecimalPlaces * 10;
+    return Math.round(n * factor) / factor;
+}
+
+const _preisNumberFormattingOptions = { padLeft: 1, padRight: 2, truncate: 4, integerSeparator: '' };
+const _mengeNumberFormattingOptions = { padLeft: 1, padRight: 0, truncate: 3, integerSeparator: '' };
+
+export const preisNumberFormattingOptions = _preisNumberFormattingOptions;
+export const mengeNumberFormattingOptions = _mengeNumberFormattingOptions;
+
+export const preisFormatFn = format(_preisNumberFormattingOptions);
+export const mengeFormatFn = format(_mengeNumberFormattingOptions);
+
+export function formatDate(value: any, formatOptions: any, currentLanguage: string) {
+    if (!value) return undefined;
+
+    return formatDate_(value, formatOptions, { locale: getLocale(currentLanguage) });
+}
+
+export function preisLabelFormatFn(value: string | number) {
+    const valueAsNumber = typeof value === 'number' ? value : parseFloat(value);
+    if (isNaN(valueAsNumber)) return value;
+    return format({ integerSeparator: "'", padLeft: 1, padRight: 2, truncate: 4 })(valueAsNumber);
+}

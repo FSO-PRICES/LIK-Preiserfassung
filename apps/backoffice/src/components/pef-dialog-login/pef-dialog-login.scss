@@ -1,17 +1,40 @@
 @import '../../theme/imports.scss';
 
 :host {
-    .error {
-        color: $alizarin-crimson;
-    }
+    background-color: $white;
+    padding: 3rem;
+    width: auto;
+}
 
-    pef-icon {
-        fill: $blue-chill;
-    }
+h3 {
+    line-height: 2;
+    margin-bottom: 2.5rem;
+}
 
-    .pef-dialog-login-button-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+.inputs-wrapper {
+    // margin-left: calc(1rem + 32px);
+    width: 50rem;
+}
+
+ion-input {
+    margin-bottom: 2rem;
+
+    ::ng-deep .native-wrapper {
+        background-color: $wild-sand;
     }
+}
+
+.error {
+    color: $alizarin-crimson;
+}
+
+pef-icon {
+    fill: $blue-chill;
+}
+
+.pef-dialog-login-button-row {
+    margin-top: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }

@@ -1,100 +1,103 @@
-<h1 class="large">Arbeitzuteilung</h1>
-<div class="zuweisung-list">
-    <div class="pef-advanced-item-flex-container assigned-preismeldestellen">
-        <h2>
-            <span>Zugewiesen</span>
-            <span>({{ (assignedPreismeldestellen$ | async)?.length || 0 }})</span>
-        </h2>
-        <!-- <ion-content pef-perfect-virtualscroll-scrollbar enabled="true"> -->
-        <ion-content>
-            <ion-virtual-scroll
-                [items]="assignedPreismeldestellen$ | async"
-                approxItemHeight="56px"
-                [class.hidden]="(assignedPreismeldestellen$ | async).length === 0"
-            >
-                <ion-item
-                    class="pef-advanced-item"
-                    *virtualItem="let preismeldestelle"
-                    (click)="selectPreismeldestelleClick$.emit({ preismeldestelle: preismeldestelle, event: $event })"
-                    [class.selected]="!!(selectedPreismeldestellen$ | async)[preismeldestelle._id]"
-                    tappable
-                >
-                    <div class="preismeldung-wrapper">
-                        <div class="pef-item-title">
-                            {{ preismeldestelle.pmsNummer }}
-                            <br />&nbsp;
+<ng-container *ngxLet="(hasWritePermission$ | async); let hasWritePermission;">
+    <h1 class="large">{{'preiserheber.uebersicht.titel' | translate}}</h1>
+    <div class="zuweisung-list">
+        <div class="pef-advanced-item-flex-container assigned-preismeldestellen">
+            <h2>
+                <span>{{'preiserheber.uebersicht.zugewiesen' | translate}}</span>
+                <span>({{ (assignedPreismeldestellen$ | async)?.length || 0 }})</span>
+            </h2>
+            <ion-content>
+                <cdk-virtual-scroll-viewport
+                    itemSize="56"
+                    minBufferPx="1200"
+                    maxBufferPx="1600"
+                    class="virtual-scroll"
+                    [class.hidden]="(assignedPreismeldestellen$ | async).length === 0">
+                    <ion-item
+                        class="pef-advanced-item"
+                        [class.disable-hover]="!hasWritePermission"
+                        *cdkVirtualFor="let preismeldestelle of (assignedPreismeldestellen$ | async)"
+                        (click)="hasWritePermission && selectPreismeldestelleClick$.emit({ preismeldestelle: preismeldestelle, event: $event })"
+                        [class.selected]="!!(selectedPreismeldestellen$ | async)[preismeldestelle._id]"
+                        lines="none">
+                        <div class="preismeldung-wrapper">
+                            <div class="pef-item-title">
+                                {{ preismeldestelle.pmsNummer }}
+                                <br />&nbsp;
+                            </div>
+                            <div class="pef-item-description">
+                                <span class="text">{{ preismeldestelle.name }}</span>
+                                <span class="artikel-text"
+                                    >{{ preismeldestelle.postcode }}&nbsp;{{ preismeldestelle.town }}&nbsp;[{{
+                                    preismeldestelle.erhebungsregion }}]</span
+                                >
+                            </div>
                         </div>
-                        <div class="pef-item-description">
-                            <span class="text">{{ preismeldestelle.name }}</span>
-                            <span class="artikel-text"
-                                >{{ preismeldestelle.postcode }}&nbsp;{{ preismeldestelle.town }}&nbsp;[{{
-                                    preismeldestelle.erhebungsregion
-                                }}]</span
-                            >
-                        </div>
-                    </div>
-                </ion-item>
-            </ion-virtual-scroll>
-        </ion-content>
-    </div>
-    <div class="actions-container">
-        <div class="actions" *ngIf="(filteredPreismeldestellen$ | async)?.length > 0">
-            <ion-button
-                icon-only
-                color="java"
-                [disabled]="!(hasSelectedUnassignedPreismeldestelle$ | async)"
-                (click)="assignPreismeldestelleClick$.emit()"
-            >
-                <pef-icon name="arrow_left"></pef-icon>
-            </ion-button>
+                    </ion-item>
+                </cdk-virtual-scroll-viewport>
+            </ion-content>
         </div>
-        <div class="actions" *ngIf="(assignedPreismeldestellen$ | async)?.length > 0">
-            <ion-button
-                icon-only
-                color="java"
-                [disabled]="!(hasSelectedAssignedPreismeldestelle$ | async)"
-                (click)="unassignPreismeldestelleClick$.emit()"
-            >
-                <pef-icon name="arrow_right"></pef-icon>
-            </ion-button>
+
+        <div class="actions-container">
+            <ng-container *ngIf="hasWritePermission">
+                <div class="actions" *ngIf="((filteredPreismeldestellen$ | async)?.length > 0)">
+                    <ion-button
+                        icon-only
+                        color="java"
+                        [disabled]="!(hasSelectedUnassignedPreismeldestelle$ | async)!"
+                        (click)="assignPreismeldestelleClick$.emit()">
+                        <pef-icon name="arrow_left"></pef-icon>
+                    </ion-button>
+                </div>
+                <div class="actions" *ngIf="((assignedPreismeldestellen$ | async)?.length) > 0">
+                    <ion-button
+                        icon-only
+                        color="java"
+                        [disabled]="!(hasSelectedAssignedPreismeldestelle$ | async)!"
+                        (click)="unassignPreismeldestelleClick$.emit()">
+                        <pef-icon name="arrow_right"></pef-icon>
+                    </ion-button>
+                </div>
+            </ng-container>
+        </div>
+        <div class="pef-advanced-item-flex-container all-preismeldestellen">
+            <h2>
+                <span>{{'preiserheber.uebersicht.nicht_zugewiesen' | translate}}</span>
+                <span>({{ (filteredPreismeldestellen$ | async)?.length || 0 }})</span>
+            </h2>
+            <pef-search-input
+                class="pms-search"
+                (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
+            <ion-content>
+                <cdk-virtual-scroll-viewport
+                    itemSize="56"
+                    minBufferPx="1200"
+                    maxBufferPx="1600"
+                    class="virtual-scroll"
+                    [class.hidden]="(filteredPreismeldestellen$ | async).length === 0">
+                    <ion-item
+                        class="pef-advanced-item pef-item-left"
+                        [class.disable-hover]="!hasWritePermission"
+                        *cdkVirtualFor="let preismeldestelle of (filteredPreismeldestellen$ | async)"
+                        (click)="hasWritePermission && selectPreismeldestelleClick$.emit({ preismeldestelle: preismeldestelle, event: $event })"
+                        [class.selected]="!!(selectedPreismeldestellen$ | async)[preismeldestelle._id]"
+                        lines="none">
+                        <div class="preismeldung-wrapper">
+                            <div class="pef-item-title">
+                                {{ preismeldestelle.pmsNummer }}
+                                <br />&nbsp;
+                            </div>
+                            <div class="pef-item-description">
+                                <span class="text">{{ preismeldestelle.name }}</span>
+                                <span class="artikel-text"
+                                    >{{ preismeldestelle.postcode }}&nbsp;{{ preismeldestelle.town }}&nbsp;[{{
+                                    preismeldestelle.erhebungsregion }}]</span
+                                >
+                            </div>
+                        </div>
+                    </ion-item>
+                </cdk-virtual-scroll-viewport>
+            </ion-content>
         </div>
     </div>
-    <div class="pef-advanced-item-flex-container all-preismeldestellen">
-        <h2>
-            <span>Nicht zugewiesen</span>
-            <span>({{ (filteredPreismeldestellen$ | async)?.length || 0 }})</span>
-        </h2>
-        <pef-search-input class="pms-search" (valueChanges)="filterTextValueChanges$.emit($event)"></pef-search-input>
-        <!-- <ion-content pef-perfect-virtualscroll-scrollbar enabled="true"> -->
-        <ion-content>
-            <ion-virtual-scroll
-                [items]="filteredPreismeldestellen$ | async"
-                approxItemHeight="56px"
-                [class.hidden]="(filteredPreismeldestellen$ | async).length === 0"
-            >
-                <ion-item
-                    class="pef-advanced-item pef-item-left"
-                    *virtualItem="let preismeldestelle"
-                    (click)="selectPreismeldestelleClick$.emit({ preismeldestelle: preismeldestelle, event: $event })"
-                    [class.selected]="!!(selectedPreismeldestellen$ | async)[preismeldestelle._id]"
-                    tappable
-                >
-                    <div class="preismeldung-wrapper">
-                        <div class="pef-item-title">
-                            {{ preismeldestelle.pmsNummer }}
-                            <br />&nbsp;
-                        </div>
-                        <div class="pef-item-description">
-                            <span class="text">{{ preismeldestelle.name }}</span>
-                            <span class="artikel-text"
-                                >{{ preismeldestelle.postcode }}&nbsp;{{ preismeldestelle.town }}&nbsp;[{{
-                                    preismeldestelle.erhebungsregion
-                                }}]</span
-                            >
-                        </div>
-                    </div>
-                </ion-item>
-            </ion-virtual-scroll>
-        </ion-content>
-    </div>
-</div>
+</ng-container>

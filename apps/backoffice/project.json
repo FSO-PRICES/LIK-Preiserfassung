@@ -1,0 +1,114 @@
+{
+    "name": "backoffice",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "prefix": "lik-studio",
+    "sourceRoot": "apps/backoffice/src",
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@angular-devkit/build-angular:browser",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/apps/backoffice",
+                "index": "apps/backoffice/src/index.html",
+                "main": "apps/backoffice/src/main.ts",
+                "polyfills": ["apps/backoffice/src/polyfills.ts"],
+                "tsConfig": "apps/backoffice/tsconfig.app.json",
+                "assets": ["apps/backoffice/src/favicon.ico", "apps/backoffice/src/assets"],
+                "styles": [
+                    {
+                        "input": "apps/backoffice/src/theme/variables.scss",
+                        "inject": true
+                    },
+                    {
+                        "input": "apps/backoffice/src/global.scss",
+                        "inject": true
+                    },
+                    {
+                        "input": "apps/backoffice/src/app/app.scss",
+                        "inject": true
+                    }
+                ],
+                "scripts": []
+            },
+            "configurations": {
+                "production": {
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "2.7mb",
+                            "maximumError": "3mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "10kb",
+                            "maximumError": "17kb"
+                        }
+                    ],
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/backoffice/src/environments/environment.ts",
+                            "with": "apps/backoffice/src/environments/environment.prod.ts"
+                        }
+                    ],
+                    "outputHashing": "all"
+                },
+                "development": {
+                    "buildOptimizer": false,
+                    "optimization": false,
+                    "vendorChunk": true,
+                    "extractLicenses": false,
+                    "sourceMap": true,
+                    "namedChunks": true
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "configurations": {
+                "production": {
+                    "browserTarget": "backoffice:build:production"
+                },
+                "development": {
+                    "browserTarget": "backoffice:build:development"
+                }
+            },
+            "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "browserTarget": "backoffice:build"
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["apps/backoffice/**/*.ts", "apps/backoffice/**/*.html"]
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "apps/backoffice/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            }
+        },
+        "serve-static": {
+            "executor": "@nx/web:file-server",
+            "options": {
+                "buildTarget": "backoffice:build"
+            }
+        }
+    }
+}

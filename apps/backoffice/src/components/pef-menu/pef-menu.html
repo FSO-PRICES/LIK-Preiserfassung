@@ -3,13 +3,12 @@
         <ion-button
             *ngFor="let entry of (pages$ | async); trackBy: trackByPageName"
             fill="clear"
-            (click)="navigateToPage(entry.page)"
+            [routerLink]="[entry.page]"
             [id]="'page_' + entry.name"
-            [class.active]="entry.active"
-        >
-            {{ entry.name }}
+            [class.active]="entry.active">
+            {{ entry.name | translate }}
         </ion-button>
-        <ion-button fill="clear" (click)="navigateToPage('settings')" [class.active]="isCurrentPage('settings')">
+        <ion-button fill="clear" [routerLink]="['settings']" [class.active]="isCurrentPage('settings')">
             <pef-icon name="settings"></pef-icon>
         </ion-button>
         <ion-button size="large" fill="clear" class="fullscreen" (click)="toggleFullscreenClicked$.emit()">
@@ -17,39 +16,33 @@
         </ion-button>
     </ion-buttons>
 
-    <ion-title>
-        LIK PreisAdmin
-    </ion-title>
+    <ion-title> {{'settings.version' | translate}} </ion-title>
     <ion-button
         class="on-off-line with-shadow toggle"
         [class.disabled]="isOffline$ | async"
-        (click)="onOffLineClicked$.emit()"
-    >
+        (click)="onOffLineClicked$.emit()">
         <pef-icon name="onoffline"></pef-icon>
     </ion-button>
     <ion-button
         class="write-permission with-shadow toggle"
-        [class.disabled]="!(hasWritePermission$ | async)"
-        [disabled]="!(canToggleWritePermission$ | async)"
-        (click)="writePermissionClicked$.emit()"
-    >
+        [class.disabled]="!(hasWritePermission$ | async)!"
+        [disabled]="!(canToggleWritePermission$ | async)!"
+        (click)="writePermissionClicked$.emit()">
         <pef-icon name="pencil"></pef-icon>
     </ion-button>
     <ion-button class="reload with-shadow" (click)="reloadClicked$.emit()">Login <span>&nbsp;↻</span></ion-button>
     <ion-button
         class="save-status icon-only"
         title="Prüfungs-Status speichern"
-        (click)="savePreismeldungStatuses$.emit()"
-    >
+        (click)="savePreismeldungStatuses$.emit()">
         <pef-icon name="save"></pef-icon>
     </ion-button>
     <pef-icon
         item-right
         name="wifi"
         class="connectivity"
-        [class.error]="(canConnectToDatabase$ | async) === false"
-        [class.ok]="(canConnectToDatabase$ | async) === true"
-    ></pef-icon>
+        [class.error]="!(canConnectToDatabase$ | async)!"
+        [class.ok]="(canConnectToDatabase$ | async) === true"></pef-icon>
     <div class="shown-on-smaller-screen placeholder"></div>
     <ion-menu-button class="shown-on-smaller-screen" [autoHide]="false">
         <pef-icon name="menu"></pef-icon>
@@ -59,14 +52,11 @@
 <ion-menu side="end" contentId="content1" type="overlay">
     <ion-content>
         <ion-list>
-            <ion-item
-                *ngFor="let entry of pages"
-                (click)="navigateToPage(entry.page)"
-                [class.active]="isCurrentPage(entry.page)"
-                >{{ entry.name }}</ion-item
+            <ion-item *ngFor="let entry of pages" [routerLink]="[entry.page]" [class.active]="isCurrentPage(entry.page)"
+                >{{ entry.name | translate }}</ion-item
             >
-            <ion-item (click)="navigateToPage('settings')" [class.active]="isCurrentPage('settings')">
-                Einstellungen
+            <ion-item [routerLink]="['settings']" [class.active]="isCurrentPage('settings')">
+                {{'settings.titel' | translate}}
             </ion-item>
         </ion-list>
     </ion-content>

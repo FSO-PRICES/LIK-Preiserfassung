@@ -1,26 +1,6 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { orderBy } from 'lodash';
 
-import { createCountMapOf, createMapOf, formatPercentageChange, Models as P, preisLabelFormatFn } from '@lik-shared';
+import { Models as P, createCountMapOf, createMapOf, formatPercentageChange, preisLabelFormatFn } from '@lik-shared';
 
 import * as controlling from '../actions/controlling';
 import * as preismeldungenStatusActions from '../actions/preismeldungen-status';
@@ -87,13 +67,13 @@ export function reducer(
         case controlling.DELETE_PREISMELDUNG_SUCCESS: {
             if (state.rawCachedData) {
                 const deletedPmId = action.payload.pmId;
-                const cachedPreismeldung = state.rawCachedData.preismeldungen.find(x => x._id === deletedPmId);
+                const cachedPreismeldung = state.rawCachedData.preismeldungen.find((x) => x._id === deletedPmId);
                 if (!cachedPreismeldung) return state;
                 const rawCachedData = {
                     ...state.rawCachedData,
-                    preismeldungen: state.rawCachedData.preismeldungen.filter(x => x._id !== deletedPmId),
+                    preismeldungen: state.rawCachedData.preismeldungen.filter((x) => x._id !== deletedPmId),
                 };
-                const rows = state.controllingReport.rows.filter(x => x.pmId !== deletedPmId);
+                const rows = state.controllingReport.rows.filter((x) => x.pmId !== deletedPmId);
                 return {
                     ...state,
                     rawCachedData,
@@ -116,11 +96,11 @@ export function reducer(
                 action.type === controlling.SAVE_PREISMELDUNG_PRICE_SUCCESS
                     ? action.payload.preismeldung
                     : action.payload;
-            const cachedPreismeldung = state.rawCachedData.preismeldungen.find(x => x._id === preismeldung._id);
+            const cachedPreismeldung = state.rawCachedData.preismeldungen.find((x) => x._id === preismeldung._id);
             if (!cachedPreismeldung) return state;
             const rawCachedData = {
                 ...state.rawCachedData,
-                preismeldungen: state.rawCachedData.preismeldungen.map(x =>
+                preismeldungen: state.rawCachedData.preismeldungen.map((x) =>
                     x._id === preismeldung._id ? preismeldung : x,
                 ),
             };
@@ -128,15 +108,15 @@ export function reducer(
                 {
                     ...state.rawCachedData,
                     preismeldungen: [preismeldung],
-                    refPreismeldungen: state.rawCachedData.refPreismeldungen.filter(x => x.pmId === preismeldung._id),
+                    refPreismeldungen: state.rawCachedData.refPreismeldungen.filter((x) => x.pmId === preismeldung._id),
                 },
                 state.controllingReport.controllingType,
                 state.preismeldungStatusMap,
             );
-            const row = report.rows.find(x => x.pmId === preismeldung._id);
+            const row = report.rows.find((x) => x.pmId === preismeldung._id);
             const rows = !row
-                ? state.controllingReport.rows.filter(x => x.pmId !== preismeldung._id)
-                : state.controllingReport.rows.map(x => (x.pmId === row.pmId ? row : x));
+                ? state.controllingReport.rows.filter((x) => x.pmId !== preismeldung._id)
+                : state.controllingReport.rows.map((x) => (x.pmId === row.pmId ? row : x));
             return {
                 ...state,
                 rawCachedData,
@@ -176,23 +156,26 @@ function runReport(
 ) {
     const controllingConfig = controllingConfigs[controllingType];
     const erhebungsPositionen = filterErhebungsPositionen(controllingConfig, data, preismeldungenStatus);
-    const results = erhebungsPositionen.map(x => ({
-        values: controllingConfig.columns.map(v => columnDefinition[v.name](x)),
+    const results = erhebungsPositionen.map((x) => ({
+        values: controllingConfig.columns.map((v) => columnDefinition[v.name](x)),
         canView: !!x.preismeldung,
-        pmId: !!x.preismeldung ? x.preismeldung._id : x.refPreismeldung.pmId,
+        pmId: x.preismeldung ? x.preismeldung._id : x.refPreismeldung.pmId,
         ...controllingConfig.sortBy.reduce(
             (acc, v, i) => ({
                 ...acc,
-                [`sort${i}`]: fwith(columnDefinition[v.column.name](x).value, y => (v.convertToNumber ? +y : y)),
+                [`sort${i}`]: fwith(columnDefinition[v.column.name](x).value, (y) => (v.convertToNumber ? +y : y)),
             }),
             {},
         ),
         exported: x.alreadyExported,
     }));
-    const orderedResults = orderBy(results, controllingConfig.sortBy.map((_, i) => `sort${i}`));
+    const orderedResults = orderBy(
+        results,
+        controllingConfig.sortBy.map((_, i) => `sort${i}`),
+    );
     return {
         columns: controllingConfig.columns,
-        rows: orderedResults.map(r => ({
+        rows: orderedResults.map((r) => ({
             pmId: r.pmId,
             canView: r.canView,
             values: r.values,
@@ -389,8 +372,10 @@ function filterErhebungsPositionen(
         gliederungspositionsnummer >= epRange.lowEpNummer && gliederungspositionsnummer <= epRange.highEpNummer;
     const filter = (item: P.WarenkorbTreeItem): boolean =>
         item.type === P.WarenkorbItemTypeLeaf &&
-        controllingConfig.gliederungspositionnummerRange.range.some(r => inRange(r, +item.gliederungspositionsnummer));
-    const warenkorbItems = data.warenkorb.products.filter(p =>
+        controllingConfig.gliederungspositionnummerRange.range.some((r) =>
+            inRange(r, +item.gliederungspositionsnummer),
+        );
+    const warenkorbItems = data.warenkorb.products.filter((p) =>
         controllingConfig.gliederungspositionnummerRange.type === REPORT_INCLUDE_EP ? filter(p) : !filter(p),
     );
 
@@ -399,26 +384,26 @@ function filterErhebungsPositionen(
         {},
     );
 
-    const uploadedPreismeldungen = data.preismeldungen.filter(p => !!p.uploadRequestedAt);
+    const uploadedPreismeldungen = data.preismeldungen.filter((p) => !!p.uploadRequestedAt);
 
     const alreadyExportedById = createMapOf(data.alreadyExported, true);
-    const refPreismeldungByPmId = createMapOf(data.refPreismeldungen, pmRef => pmRef.pmId);
-    const uploadedPreismeldungenById = createMapOf(uploadedPreismeldungen, pm => pm._id);
-    const warenkorbProductsByEpNummer = createMapOf(data.warenkorb.products, p => p.gliederungspositionsnummer);
-    const pmsByPmsNummer = createMapOf(data.preismeldestellen, pms => pms.pmsNummer);
-    const preiserheberByUsername = createMapOf(data.preiserheber, pe => pe.username);
-    const warenkorbItemsByEpNummer = createMapOf(warenkorbItems, item => item.gliederungspositionsnummer);
+    const refPreismeldungByPmId = createMapOf(data.refPreismeldungen, (pmRef) => pmRef.pmId);
+    const uploadedPreismeldungenById = createMapOf(uploadedPreismeldungen, (pm) => pm._id);
+    const warenkorbProductsByEpNummer = createMapOf(data.warenkorb.products, (p) => p.gliederungspositionsnummer);
+    const pmsByPmsNummer = createMapOf(data.preismeldestellen, (pms) => pms.pmsNummer);
+    const preiserheberByUsername = createMapOf(data.preiserheber, (pe) => pe.username);
+    const warenkorbItemsByEpNummer = createMapOf(warenkorbItems, (item) => item.gliederungspositionsnummer);
 
     const preismeldungen = data.refPreismeldungen
-        .map(refPreismeldung => ({
+        .map((refPreismeldung) => ({
             epNummer: refPreismeldung.epNummer,
             refPreismeldung,
             preismeldung: uploadedPreismeldungenById[refPreismeldung.pmId],
         }))
         .concat(
             uploadedPreismeldungen
-                .filter(pm => !refPreismeldungByPmId[pm._id])
-                .map(preismeldung => ({
+                .filter((pm) => !refPreismeldungByPmId[pm._id])
+                .map((preismeldung) => ({
                     epNummer: preismeldung.epNummer,
                     preismeldung,
                     refPreismeldung: null,
@@ -427,8 +412,8 @@ function filterErhebungsPositionen(
 
     const getPmsEpId = (pm: P.Preismeldung) => `${pm.pmsNummer}_${pm.epNummer}`;
     const preismeldungenByPmsAndEp = createCountMapOf(
-        preismeldungen.filter(x => !!x.preismeldung && x.preismeldung.bearbeitungscode !== 0),
-        pm => getPmsEpId(pm.preismeldung),
+        preismeldungen.filter((x) => !!x.preismeldung && x.preismeldung.bearbeitungscode !== 0),
+        (pm) => getPmsEpId(pm.preismeldung),
     );
 
     return preismeldungen
@@ -444,15 +429,15 @@ function filterErhebungsPositionen(
                       preismeldestelle: pmsByPmsNummer[pmsNummer],
                       warenkorbItem,
                       preiserheber: fwith(
-                          data.preiszuweisungen.find(z => z.preismeldestellenNummern.some(n => n === pmsNummer)),
-                          z => (!!z ? preiserheberByUsername[z.preiserheberId] : null),
+                          data.preiszuweisungen.find((z) => z.preismeldestellenNummern.some((n) => n === pmsNummer)),
+                          (z) => (z ? preiserheberByUsername[z.preiserheberId] : null),
                       ),
                       warenkorbIndex: warenkorbIndexes[warenkorbItem.gliederungspositionsnummer],
                       numEpForThisPms: !preismeldung ? 0 : preismeldungenByPmsAndEp[getPmsEpId(preismeldung)],
                   };
         })
         .filter(
-            x =>
+            (x) =>
                 !!x &&
                 !!warenkorbItemsByEpNummer[x.warenkorbItem.gliederungspositionsnummer] &&
                 (!controllingConfig.erherbungsPositionFilter ||
@@ -463,7 +448,10 @@ function filterErhebungsPositionen(
 const base_0100_0200_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
     gliederungspositionnummerRange: {
         type: REPORT_INCLUDE_EP,
-        range: [{ lowEpNummer: 4090, highEpNummer: 4100 }, { lowEpNummer: 7106, highEpNummer: 7111 }],
+        range: [
+            { lowEpNummer: 4090, highEpNummer: 4100 },
+            { lowEpNummer: 7106, highEpNummer: 7111 },
+        ],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
         !!x.refPreismeldung && x.refPreismeldung.erhebungsZeitpunkt === erhebungsZeitpunkt && !x.preismeldung,
@@ -555,10 +543,86 @@ const base_0115_0215_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => 
     ],
 });
 
+const base_0116_0216_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
+    gliederungspositionnummerRange: {
+        type: REPORT_INCLUDE_EP,
+        range: [{ lowEpNummer: 7108, highEpNummer: 7108 }],
+    },
+    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt,
+    columns: [
+        columnPmsErhebungsregion,
+        columnPmsNummer,
+        columnPmsName,
+        columnEpNummer,
+        columnLaufnummer,
+        columnPositionsbezeichnung,
+        columnPreisbezeichnungT,
+        columnPreisVP,
+        columnMengeVP,
+        columnPreisT,
+        columnMengeT,
+        columnStandardeinheit,
+        columnDPToVP,
+        columnKommentarT,
+        columnBemerkungenT,
+        columnPeNummer,
+        columnPeName,
+        columnPmsGeschlossen,
+    ],
+    sortBy: [
+        { column: columnPmsErhebungsregion, convertToNumber: false },
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+        { column: columnDPToVPRaw, convertToNumber: true },
+    ],
+});
+
+const base_0117_0217_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
+    gliederungspositionnummerRange: {
+        type: REPORT_INCLUDE_EP,
+        range: [
+            { lowEpNummer: 7106, highEpNummer: 7107 },
+            { lowEpNummer: 7109, highEpNummer: 7109 },
+        ],
+    },
+    erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
+        (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt,
+    columns: [
+        columnPmsErhebungsregion,
+        columnPmsNummer,
+        columnPmsName,
+        columnEpNummer,
+        columnLaufnummer,
+        columnPositionsbezeichnung,
+        columnPreisbezeichnungT,
+        columnPreisVP,
+        columnMengeVP,
+        columnPreisT,
+        columnMengeT,
+        columnStandardeinheit,
+        columnDPToVP,
+        columnKommentarT,
+        columnBemerkungenT,
+        columnPeNummer,
+        columnPeName,
+        columnPmsGeschlossen,
+    ],
+    sortBy: [
+        { column: columnPmsErhebungsregion, convertToNumber: false },
+        { column: columnPmsNummer, convertToNumber: true },
+        { column: columnEpNummer, convertToNumber: true },
+        { column: columnDPToVPRaw, convertToNumber: true },
+    ],
+});
+
 const base_0120_0220_config = (erhebungsZeitpunkt: 1 | 2): ControllingConfig => ({
     gliederungspositionnummerRange: {
         type: REPORT_INCLUDE_EP,
-        range: [{ lowEpNummer: 4090, highEpNummer: 4100 }, { lowEpNummer: 7106, highEpNummer: 7111 }],
+        range: [
+            { lowEpNummer: 4090, highEpNummer: 4100 },
+            { lowEpNummer: 7106, highEpNummer: 7111 },
+        ],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
         (x.preismeldung || x.refPreismeldung).erhebungsZeitpunkt === erhebungsZeitpunkt,
@@ -690,7 +754,7 @@ const report_0440_config: ControllingConfig = {
         range: [],
     },
     erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-        !!x.preismeldung && [2, 3].some(c => c === x.preismeldung.bearbeitungscode),
+        !!x.preismeldung && [2, 3].some((c) => c === x.preismeldung.bearbeitungscode),
     columns: [
         columnPreisId,
         columnPmsName,
@@ -849,7 +913,7 @@ const negativeLimits = [P.limitNegativeLimite, P.limitNegativeLimite_1, P.limitN
 const positiveNegativeLimits = [...positiveLimits, ...negativeLimits] as P.LimitType[];
 
 const containsLimits = (p: P.Preismeldung, limits: P.LimitType[]) =>
-    limitProperties(p).some(x => limits.some(l => l === x));
+    limitProperties(p).some((x) => limits.some((l) => l === x));
 
 const isUG2OrOG2 = (p: P.Preismeldung) => containsLimits(p, ug2og2Limits);
 const isPositiveNegative = (p: P.Preismeldung) => containsLimits(p, positiveNegativeLimits);
@@ -866,7 +930,11 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
     [controlling.CONTROLLING_0110]: base_0110_0210_config(1),
     [controlling.CONTROLLING_0210]: base_0110_0210_config(2),
     [controlling.CONTROLLING_0115]: base_0115_0215_config(1),
+    [controlling.CONTROLLING_0116]: base_0116_0216_config(1),
+    [controlling.CONTROLLING_0117]: base_0117_0217_config(1),
     [controlling.CONTROLLING_0215]: base_0115_0215_config(2),
+    [controlling.CONTROLLING_0216]: base_0116_0216_config(2),
+    [controlling.CONTROLLING_0217]: base_0117_0217_config(2),
     [controlling.CONTROLLING_0120]: base_0120_0220_config(1),
     [controlling.CONTROLLING_0220]: base_0120_0220_config(2),
     [controlling.CONTROLLING_0230]: base_0230_0240_config(10),
@@ -878,7 +946,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             range: [{ lowEpNummer: 1305, highEpNummer: 1413 }],
         },
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [0, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [0, 44, 101].some((c) => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0300]: {
         ...report_0250_300_config,
@@ -887,7 +955,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             range: [{ lowEpNummer: 3000, highEpNummer: 3999 }],
         },
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [7, 44, 101].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [7, 44, 101].some((c) => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0310]: {
         ...base_0310_0320_config,
@@ -896,39 +964,48 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             range: [{ lowEpNummer: 3000, highEpNummer: 3188 }],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [0].some((c) => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0320]: {
         ...base_0310_0320_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
+            !!x.preismeldung && [1].some((c) => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0400]: {
         ...base_0310_0320_0400_0405_0410_0420_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
-            range: [{ lowEpNummer: 3000, highEpNummer: 3188 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
+            range: [
+                { lowEpNummer: 3000, highEpNummer: 3188 },
+                { lowEpNummer: 1305, highEpNummer: 1413 },
+            ],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [0].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [0].some((c) => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0405]: {
         ...base_0310_0320_0400_0405_0410_0420_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
-            range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
+            range: [
+                { lowEpNummer: 3000, highEpNummer: 3999 },
+                { lowEpNummer: 1305, highEpNummer: 1413 },
+            ],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [101, 44].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [101, 44].some((c) => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0410]: {
         ...base_0310_0320_0400_0405_0410_0420_config,
         gliederungspositionnummerRange: {
             type: REPORT_EXCLUDE_EP,
-            range: [{ lowEpNummer: 3000, highEpNummer: 3999 }, { lowEpNummer: 1305, highEpNummer: 1413 }],
+            range: [
+                { lowEpNummer: 3000, highEpNummer: 3999 },
+                { lowEpNummer: 1305, highEpNummer: 1413 },
+            ],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [1].some(c => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
+            !!x.preismeldung && [1].some((c) => c === x.preismeldung.bearbeitungscode) && x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0420]: {
         ...base_0310_0320_0400_0405_0410_0420_config,
@@ -937,7 +1014,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             range: [],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [1, 7].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [1, 7].some((c) => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0430]: {
         ...base_0430_config,
@@ -946,7 +1023,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
             range: [],
         } as GliederungspositionnummerRangeType,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
-            !!x.preismeldung && [0, 2, 3].some(c => c === x.preismeldung.bearbeitungscode),
+            !!x.preismeldung && [0, 2, 3].some((c) => c === x.preismeldung.bearbeitungscode),
     },
     [controlling.CONTROLLING_0440]: report_0440_config,
     [controlling.CONTROLLING_0450]: report_0450_config,
@@ -961,8 +1038,10 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
             isPositiveNegative(x.preismeldung) &&
-            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
-            (!!x.refPreismeldung && !x.refPreismeldung.aktion && !x.preismeldung.aktion),
+            ![1, 7].some((c) => c === x.preismeldung.bearbeitungscode) &&
+            !!x.refPreismeldung &&
+            !x.refPreismeldung.aktion &&
+            !x.preismeldung.aktion,
     },
     [controlling.CONTROLLING_0520]: {
         ...base_0500_0510_0520_0530_0540_config,
@@ -975,7 +1054,7 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
         ...base_0500_0510_0520_0530_0540_config,
         erherbungsPositionFilter: (x: ControllingErhebungsPosition) =>
             !!x.preismeldung &&
-            ![1, 7].some(c => c === x.preismeldung.bearbeitungscode) &&
+            ![1, 7].some((c) => c === x.preismeldung.bearbeitungscode) &&
             isUG2OrOG2(x.preismeldung) &&
             ((x.refPreismeldung && x.refPreismeldung.aktion) || x.preismeldung.aktion),
     },
@@ -1001,12 +1080,17 @@ const controllingConfigs: { [controllingType: string]: ControllingConfig } = {
         erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
             !!status && !!x.preismeldung && status[x.preismeldung._id] === P.PreismeldungStatus.geprüft,
     },
+    [controlling.CONTROLLING_0840]: {
+        ...base_0800_config,
+        erherbungsPositionFilter: (x: ControllingErhebungsPosition, status) =>
+            !!status && !!x.preismeldung && x.alreadyExported === true,
+    },
 };
 
 const preismeldungOrRefPreimeldung = (p: ControllingErhebungsPosition) => p.preismeldung || p.refPreismeldung;
 
 const reportFormatPercentageChange = (n: number) =>
-    fwith(formatPercentageChange(n, 1), s => (s === '&mdash;' ? undefined : s));
+    fwith(formatPercentageChange(n, 1), (s) => (s === '&mdash;' ? undefined : s));
 const renderBearbeitungsCode = (p: ControllingErhebungsPosition) => {
     if (!p.preismeldung) {
         return undefined;
@@ -1034,7 +1118,7 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         ),
     [columnPreisId.name]: (p: ControllingErhebungsPosition) =>
         normalColumn(
-            fwith(preismeldungOrRefPreimeldung(p), x => `${x.pmsNummer}/${x.epNummer}/${x.laufnummer}`),
+            fwith(preismeldungOrRefPreimeldung(p), (x) => `${x.pmsNummer}/${x.epNummer}/${x.laufnummer}`),
             columnPreisId.cssClass,
             columnPreisId.size,
         ),
@@ -1134,11 +1218,11 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         ),
     [columnMerkmaleVP.name]: (p: ControllingErhebungsPosition) =>
         htmlColumn(
-            !!p.refPreismeldung && p.refPreismeldung.productMerkmale.some(m => !!m)
+            !!p.refPreismeldung && p.refPreismeldung.productMerkmale.some((m) => !!m)
                 ? p.warenkorbItem.productMerkmale
                       .map(
                           (m, i) =>
-                              `<b>${m.de}</b>:&nbsp;${!!p.refPreismeldung ? p.refPreismeldung.productMerkmale[i] : ''}`,
+                              `<b>${m.de}</b>:&nbsp;${p.refPreismeldung ? p.refPreismeldung.productMerkmale[i] : ''}`,
                       )
                       .join('<br>')
                 : '',
@@ -1148,7 +1232,7 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
     [columnMerkmaleT.name]: (p: ControllingErhebungsPosition) =>
         normalColumn(
             p.warenkorbItem.productMerkmale
-                .map((m, i) => `<b>${m.de}</b>:&nbsp;${!!p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
+                .map((m, i) => `<b>${m.de}</b>:&nbsp;${p.preismeldung ? p.preismeldung.productMerkmale[i] : ''}`)
                 .join('<br>'),
             columnMerkmaleT.cssClass,
             columnMerkmaleT.size,
@@ -1173,7 +1257,7 @@ const columnDefinition: { [index: string]: (p: ControllingErhebungsPosition) => 
         normalColumn(p.preiserheber && p.preiserheber.peNummer, columnPeNummer.cssClass, columnPeNummer.size),
     [columnPeName.name]: (p: ControllingErhebungsPosition) =>
         normalColumn(
-            fwith(p.preiserheber, e => (!!e ? `${e.firstName} ${e.surname}` : null)),
+            fwith(p.preiserheber, (e) => (e ? `${e.firstName} ${e.surname}` : null)),
             columnPeName.cssClass,
             columnPeName.size,
         ),

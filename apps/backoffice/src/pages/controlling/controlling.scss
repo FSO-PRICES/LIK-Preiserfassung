@@ -1,4 +1,6 @@
 :host {
+    flex: 1;
+    height: 90%; //This is a weired hack... but without it the overflow hidden for the long controlling table does not work
     .page-wrapper {
         flex-direction: column;
         position: relative;

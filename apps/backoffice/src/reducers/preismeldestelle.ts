@@ -1,25 +1,6 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { assign, cloneDeep } from 'lodash';
-import { createSelector } from 'reselect';
+import { createSelector } from '@ngrx/store';
+import assign from 'lodash.assign';
+import cloneDeep from 'lodash.clonedeep';
 
 import { Models as P } from '@lik-shared';
 
@@ -49,13 +30,13 @@ export function reducer(state = initialState, action: preismeldestelleActions.Ac
         case 'PREISMELDESTELLE_LOAD_SUCCESS': {
             const { payload } = action;
             const erhebungsregionen = [];
-            const preismeldestellen = payload.map<P.Preismeldestelle>(preismeldestelle => {
+            const preismeldestellen = payload.map<P.Preismeldestelle>((preismeldestelle) => {
                 if (erhebungsregionen.indexOf(preismeldestelle.erhebungsregion) === -1) {
                     erhebungsregionen.push(preismeldestelle.erhebungsregion);
                 }
                 return Object.assign({}, preismeldestelle);
             });
-            const preismeldestelleIds = preismeldestellen.map(p => p._id);
+            const preismeldestelleIds = preismeldestellen.map((p) => p._id);
             const entities = preismeldestellen.reduce(
                 (agg: { [_id: string]: P.Preismeldestelle }, preismeldestelle: P.Preismeldestelle) => {
                     return assign(agg, { [preismeldestelle._id]: preismeldestelle });
@@ -149,7 +130,7 @@ export function reducer(state = initialState, action: preismeldestelleActions.Ac
                 isSaved: true,
                 isModified: false,
             });
-            const preismeldestelleIds = !!state.preismeldestelleIds.find(x => x === currentPreismeldestelle._id)
+            const preismeldestelleIds = state.preismeldestelleIds.find((x) => x === currentPreismeldestelle._id)
                 ? state.preismeldestelleIds
                 : [...state.preismeldestelleIds, currentPreismeldestelle._id];
             return assign({}, state, {
@@ -169,8 +150,6 @@ export const getPreismeldestelleIds = (state: State) => state.preismeldestelleId
 export const getCurrentPreismeldestelle = (state: State) => state.currentPreismeldestelle;
 export const getErhebungsregionen = (state: State) => state.erhebungsregionen;
 
-export const getAll = createSelector(
-    getEntities,
-    getPreismeldestelleIds,
-    (entities, preismeldestelleIds) => preismeldestelleIds.map(x => entities[x]),
+export const getAll = createSelector(getEntities, getPreismeldestelleIds, (entities, preismeldestelleIds) =>
+    preismeldestelleIds.map((x) => entities[x]),
 );

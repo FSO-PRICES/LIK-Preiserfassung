@@ -1,28 +1,9 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AfterViewInit, Component, EventEmitter, OnDestroy } from '@angular/core';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { TranslateService } from '@ngx-translate/core';
 import { head } from 'lodash';
-import { merge as mergeFollowing, Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, merge as mergeFollowing } from 'rxjs';
 import {
     combineLatest,
     distinctUntilChanged,
@@ -44,6 +25,7 @@ import { Models as P, PefDialogService, PefMessageDialogService } from '@lik-sha
 import * as onoffline from '../../actions/onoffline';
 import * as setting from '../../actions/setting';
 import { environment } from '../../environments/environment';
+import { CanDeactivate } from '../../guards/can-deactivate-guard';
 import * as fromRoot from '../../reducers';
 import { CurrentSetting } from '../../reducers/setting';
 
@@ -51,16 +33,19 @@ import { CurrentSetting } from '../../reducers/setting';
     templateUrl: 'settings.html',
     styleUrls: ['settings.scss'],
 })
-export class SettingsPage implements OnDestroy {
+export class SettingsPage implements AfterViewInit, OnDestroy, CanDeactivate {
     public currentSettings$ = this.store.select(fromRoot.getCurrentSettings);
     public isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
     public canConnectToDatabase$ = this.store.select(fromRoot.getCanConnectToDatabase);
     public minVersion$ = this.store.select(fromRoot.getMinVersion);
     public sedexSettings$ = this.store.select(fromRoot.getSedexSettings);
+    public languages$ = this.store.select(fromRoot.getLanguagesList);
+    public currentLanguage$ = this.store.select(fromRoot.getCurrentLanguage);
 
     public cancelClicked$ = new EventEmitter<Event>();
     public cancelSedexClicked$ = new EventEmitter<Event>();
     public cancelCompatibilityClicked$ = new EventEmitter<Event>();
+    public changeCurrentLanguage$ = new EventEmitter<string>();
     public saveClicked$ = new EventEmitter<Event>();
     public saveSedexClicked$ = new EventEmitter<Event>();
     public saveCompatibilityClicked$ = new EventEmitter<Event>();
@@ -75,38 +60,50 @@ export class SettingsPage implements OnDestroy {
     public dangerConfirmed$: Observable<boolean>;
     public resetInput$: Observable<{ value: string }>;
     public dbsExported$ = this.store.select(fromRoot.getHasExportedDatabases).pipe(
-        filter(exported => !!exported),
-        map(exported =>
+        filter((exported) => !!exported),
+        map((exported) =>
             Object.keys(exported)
-                .map(db => `${exported[db].data.total_rows} Einträge von '${db}' wurden exportiert`)
+                .map((db) =>
+                    this.translate.instant('settings.datensaetze_wurden_exportiert', {
+                        count: exported[db].data.total_rows,
+                        db,
+                    }),
+                )
                 .join('\n'),
         ),
     );
     public dbsImported$ = this.store.select(fromRoot.getHasImportedDatabases).pipe(
-        filter(imported => !!imported),
-        map(imported =>
+        filter((imported) => !!imported),
+        map((imported) =>
             Object.keys(imported)
-                .map(db => `${imported[db]} Einträge wurden in '${db}' importiert`)
+                .map((db) =>
+                    this.translate.instant('settings.datensaetze_wurden_importiert', {
+                        count: imported[db],
+                        db,
+                    }),
+                )
                 .join('\n'),
         ),
     );
-    public isModified$ = this.currentSettings$.pipe(map(x => !!x && x.isModified));
+    public isModified$ = this.currentSettings$.pipe(map((x) => !!x && x.isModified));
 
-    public form: FormGroup;
-    public sedexForm$: Observable<FormGroup>;
-    public compatibilityForm$: Observable<FormGroup>;
+    public form: UntypedFormGroup;
+    public sedexForm$: Observable<UntypedFormGroup>;
+    public compatibilityForm$: Observable<UntypedFormGroup>;
     private subscriptions: Subscription[] = [];
 
     public version = environment.version;
 
     constructor(
-        formBuilder: FormBuilder,
+        formBuilder: UntypedFormBuilder,
         private store: Store<fromRoot.AppState>,
         private dialogService: PefDialogService,
+        private translate: TranslateService,
         pefMessageDialogService: PefMessageDialogService,
     ) {
         this.form = formBuilder.group({
             _id: [null],
+            currentLanguage: [null],
             serverConnection: formBuilder.group({
                 url: [null, Validators.required],
             }),
@@ -117,7 +114,7 @@ export class SettingsPage implements OnDestroy {
 
         this.sedexForm$ = this.sedexSettings$.pipe(
             merge(this.cancelSedexClicked$.pipe(withLatestFrom(this.sedexSettings$, (_, sedex) => sedex))),
-            map(sedex =>
+            map((sedex) =>
                 formBuilder.group({
                     transportRequestSettings: formBuilder.group({
                         senderId: sedex.transportRequestSettings.senderId,
@@ -136,7 +133,7 @@ export class SettingsPage implements OnDestroy {
             merge(
                 this.cancelCompatibilityClicked$.pipe(withLatestFrom(this.minVersion$, (_, minVersion) => minVersion)),
             ),
-            map(minVersion => formBuilder.group({ minVersion: [minVersion, semverValidator()] })),
+            map((minVersion) => formBuilder.group({ minVersion: [minVersion, semverValidator()] })),
             publishReplay(1),
             refCount(),
         );
@@ -144,20 +141,20 @@ export class SettingsPage implements OnDestroy {
         const update$ = this.form.valueChanges.pipe(map(() => this.form.value));
 
         const distinctSetting$ = this.currentSettings$.pipe(
-            filter(x => !!x),
+            filter((x) => !!x),
             distinctUntilKeyChanged('isModified'),
             publishReplay(1),
             refCount(),
         );
 
         const canSave$ = this.saveClicked$.pipe(
-            map(x => ({ isValid: this.form.valid })),
+            map((x) => ({ isValid: this.form.valid })),
             publishReplay(1),
             refCount(),
         );
 
         const save$ = canSave$.pipe(
-            filter(x => x.isValid),
+            filter((x) => x.isValid),
             publishReplay(1),
             refCount(),
         );
@@ -182,7 +179,7 @@ export class SettingsPage implements OnDestroy {
         );
 
         const saveCompatibility$ = canSaveCompatibility$.pipe(
-            filter(x => x.isValid),
+            filter((x) => x.isValid),
             withLatestFrom(this.compatibilityForm$, (_, form) => form.get('minVersion').value as string),
             publishReplay(1),
             refCount(),
@@ -195,33 +192,30 @@ export class SettingsPage implements OnDestroy {
         );
 
         this.settingsSaved$ = this.currentSettings$.pipe(
-            filter(pe => pe != null && pe.isSaved),
+            filter((pe) => pe != null && pe.isSaved),
             publishReplay(1),
             refCount(),
         );
 
-        const dangerConfirmedClicked$ = this.dangerConfirmedClicked$.pipe(
-            publishReplay(1),
-            refCount(),
-        );
+        const dangerConfirmedClicked$ = this.dangerConfirmedClicked$.pipe(publishReplay(1), refCount());
 
         this.dangerConfirmed$ = dangerConfirmedClicked$.pipe(
-            combineLatest(this.isLoggedIn$.pipe(filter(x => !!x))),
+            combineLatest(this.isLoggedIn$.pipe(filter((x) => !!x))),
             mapTo(true),
             startWith(false),
         );
 
         const onImport$ = this.importFileSelected$.pipe(
-            switchMap((e: any) => parseInputFile(head(e.target.files))),
-            switchMap(backup =>
+            switchMap((e: any) => parseInputFile(head(e.target.files), translate)),
+            switchMap((backup) =>
                 pefMessageDialogService
                     .displayDialogYesNoMessage(
-                        'Wollen Sie wirklich die folgenden Datenbanken importieren?\n' +
+                        translate.instant('settings.datenbank_wirklich_importieren\n') +
                             Object.keys(backup)
-                                .map(db => `'${db}' (${backup[db].data.total_rows} Einträge)`)
+                                .map((db) => `'${db}' (${backup[db].data.total_rows} Einträge)`)
                                 .join(', '),
                     )
-                    .pipe(map(answer => ({ answer, backup }))),
+                    .pipe(map((answer) => ({ answer, backup }))),
             ),
             publishReplay(1),
             refCount(),
@@ -235,17 +229,23 @@ export class SettingsPage implements OnDestroy {
         this.subscriptions = [
             this.cancelClicked$.subscribe(() => store.dispatch({ type: 'SETTING_LOAD' } as setting.Action)),
 
-            update$.subscribe(x => store.dispatch({ type: 'UPDATE_SETTING', payload: x } as setting.Action)),
+            this.changeCurrentLanguage$.subscribe((payload) => {
+                store.dispatch({ type: 'SET_CURRENT_LANGUAGE', payload });
+            }),
+
+            update$.subscribe((x) => {
+                store.dispatch({ type: 'UPDATE_SETTING', payload: x } as setting.Action);
+            }),
 
             save$.subscribe(() => {
                 this.presentLoadingScreen(this.settingsSaved$);
                 store.dispatch({ type: 'SAVE_SETTING' } as setting.Action);
             }),
-            saveSedex$.subscribe(payload => {
+            saveSedex$.subscribe((payload) => {
                 this.presentLoadingScreen(this.minVersion$);
                 store.dispatch(setting.saveSedex({ payload }));
             }),
-            saveCompatibility$.subscribe(payload => {
+            saveCompatibility$.subscribe((payload) => {
                 this.presentLoadingScreen(this.minVersion$);
                 store.dispatch({ type: 'SAVE_MIN_VERSION', payload } as onoffline.Action);
             }),
@@ -257,7 +257,7 @@ export class SettingsPage implements OnDestroy {
                 store.dispatch({ type: 'EXPORT_DATABASES' } as setting.Action);
             }),
             onImport$
-                .pipe(filter(({ answer }) => answer.data === 'YES'))
+                .pipe(filter(({ answer }) => answer === 'YES'))
                 .subscribe(({ backup }) =>
                     this.store.dispatch({ type: 'IMPORT_DATABASE', payload: backup } as setting.Action),
                 ),
@@ -278,33 +278,36 @@ export class SettingsPage implements OnDestroy {
                     { emitEvent: false },
                 );
             }),
+            this.currentLanguage$.subscribe((currentLang) => {
+                this.form.patchValue({ currentLanguage: currentLang });
+            }),
         ];
     }
 
-    public ionViewDidEnter() {
+    ngAfterViewInit() {
         this.store.dispatch({ type: 'SETTING_LOAD' });
     }
 
-    public ionViewCanLeave(): Promise<boolean> {
-        return this.currentSettings$.pipe(map(settings => !!settings && !settings.isDefault)).toPromise();
+    public canDeactivate() {
+        return this.currentSettings$.pipe(map((settings) => !!settings && !settings.isDefault));
     }
 
     public ngOnDestroy() {
-        this.subscriptions.filter(s => !!s && !s.closed).forEach(s => s.unsubscribe());
+        this.subscriptions.filter((s) => !!s && !s.closed).forEach((s) => s.unsubscribe());
     }
 
     private presentLoadingScreen(dismiss$: Observable<any>) {
-        this.dialogService.displayLoading('Datensynchronisierung. Bitte warten...', {
+        this.dialogService.displayLoading(this.translate.instant('label.standard.wird_synchronisiert_bitte_warten'), {
             requestDismiss$: dismiss$,
         });
     }
 }
 
-async function parseInputFile(file: File): Promise<P.DatabaseBackupResult> {
-    return JSON.parse(await readFile(file));
+async function parseInputFile(file: File, translate: TranslateService): Promise<P.DatabaseBackupResult> {
+    return JSON.parse(await readFile(file, translate));
 }
 
-async function readFile(file: File) {
+async function readFile(file: File, translate: TranslateService) {
     let reader = new FileReader();
     const cleanupReader = () => {
         reader.onload = null;
@@ -317,14 +320,14 @@ async function readFile(file: File) {
             resolve(evt.target.result as string);
         };
         reader.onerror = () => {
-            reject('Die Datei konnte nicht eingelesen werden.');
+            reject(translate.instant('exceptions.datei.konnte_nicht_gelesenen_werden'));
         };
     })
-        .then(content => {
+        .then((content) => {
             cleanupReader();
             return content;
         })
-        .catch(error => {
+        .catch((error) => {
             cleanupReader();
             throw error;
         });

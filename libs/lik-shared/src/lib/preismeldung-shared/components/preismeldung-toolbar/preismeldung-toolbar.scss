@@ -1,0 +1,93 @@
+@import '../../../styles/imports.scss';
+
+:host {
+    display: flex;
+    flex-direction: column;
+    background-color: $java;
+    min-width: 45px;
+
+    .preismeldung-buttons {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .button.md.pef-tab-button {
+        border-bottom: 4px solid white;
+        // button {
+        margin: 0;
+        height: auto;
+        --fill: white;
+        --color: white;
+        --color-hover: white;
+        --background: transparent;
+        --border: none;
+        --box-shadow: none;
+        --border-radius: none;
+        --padding-top: 16px;
+        --padding-bottom: 16px;
+        &.button-disabled {
+            opacity: 1;
+            --opacity: 1;
+            --background: #73ccd9;
+            --fill: $mercury;
+            &.selected {
+                --background: #{$surfie-green};
+            }
+            pef-icon {
+                fill: $white;
+            }
+        }
+        &:hover:not(.disable-hover) {
+            opacity: 1;
+            --opacity: 1;
+            --background-hover: #{$blue-chill};
+        }
+        // }
+    }
+
+    .button.icon-only.pef-toolbar-button {
+        height: 64px;
+        --background: transparent;
+        --border: none;
+        --box-shadow: none;
+        .pef-inner {
+            display: flex;
+            border-radius: 2px;
+            background-color: $scooter;
+            width: 36px;
+            height: 36px;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12);
+            justify-content: center;
+            align-items: center;
+        }
+        &:hover:not(.disable-hover),
+        &.ion-activated {
+            .pef-inner {
+                background-color: $blue-chill;
+            }
+        }
+        &.hidden {
+            visibility: hidden;
+        }
+        &.quick-equal-button {
+            margin-top: 4rem;
+        }
+    }
+
+    .tab-icon-with-warning {
+        position: relative;
+        .info-icon,
+        .warning-icon {
+            position: absolute;
+            top: -1em;
+        }
+        .info-icon {
+            left: -1em;
+        }
+        .warning-icon {
+            right: -1em;
+        }
+    }
+}

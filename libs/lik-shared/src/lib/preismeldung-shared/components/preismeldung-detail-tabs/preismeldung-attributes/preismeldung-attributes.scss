@@ -1,0 +1,40 @@
+@import '../../../../styles/imports.scss';
+
+:host {
+    ion-input.sc-ion-input-md-h {
+        min-height: 38px;
+        margin-bottom: 0;
+    }
+
+    .attributes-input-wrapper {
+        display: flex;
+        align-items: center;
+        min-height: 2.5rem;
+        &:nth-child(odd) {
+            margin-bottom: 1rem;
+        }
+
+        div:first-child {
+            font-weight: 500;
+            color: $trout;
+            width: 18em;
+        }
+        div:last-child {
+            flex: 1;
+        }
+
+        div.initial {
+            margin-left: 8px;
+            font-weight: 400;
+            color: $oslo-gray;
+        }
+    }
+
+    .actions {
+        width: 100%;
+        display: flex;
+        margin-top: 2rem;
+    }
+
+    @import '../common-styles.scss';
+}

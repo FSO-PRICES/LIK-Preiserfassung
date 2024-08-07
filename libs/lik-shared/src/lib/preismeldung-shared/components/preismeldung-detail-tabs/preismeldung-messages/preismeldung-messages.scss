@@ -1,0 +1,58 @@
+@import '../../../../styles/imports.scss';
+
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    h3:not(:first-child) {
+        margin-top: 2em;
+    }
+
+    .actions {
+        width: 100%;
+        align-self: flex-start;
+        display: flex;
+        height: 7rem;
+        align-items: center;
+
+        ion-button {
+            height: fit-content;
+        }
+
+        .snippets {
+            flex-grow: 1;
+            max-width: 100%;
+            padding-left: 2rem;
+            select {
+                margin-bottom: 0;
+                height: 32px;
+            }
+        }
+    }
+
+    .message-history {
+        max-width: 40em;
+    }
+
+    .message-item {
+        display: flex;
+    }
+
+    .message-author {
+        font-weight: 500;
+        max-width: 3em;
+        flex: 0 0 3em;
+    }
+
+    .message-text {
+        flex: 1;
+    }
+
+    .kommentar-autotext,
+    .message-history:last-of-type {
+        margin-bottom: 0.5em;
+    }
+
+    @import '../common-styles.scss';
+}

@@ -1,12 +1,16 @@
 <div class="pef-dialog-message">
     <h3>
         <pef-icon name="warning"></pef-icon>
-        Wollen Sie diese Entität wirklich löschen?
+        {{'dialog.loeschen.bestaetigung' | translate}}
     </h3>
-    <p>{{ message }}</p>
+    <p>{{ data.message | translate}}</p>
 </div>
 
 <div class="pef-dialog-button-row">
-    <ion-button (click)="viewCtrl.dismiss('ABBORT_DELETE')" color="primary">Abbrechen</ion-button>
-    <ion-button class="danger" (click)="viewCtrl.dismiss('CONFIRM_DELETE')" color="secondary">Löschen</ion-button>
+    <ion-button (click)="closeDialog('ABORT_DELETE')" color="primary"
+        >{{'label.aktionen.abbrechen' | translate}}</ion-button
+    >
+    <ion-button class="danger" (click)="closeDialog('CONFIRM_DELETE')" color="secondary"
+        >{{'label.aktionen.loeschen' | translate}}</ion-button
+    >
 </div>

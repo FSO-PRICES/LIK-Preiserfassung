@@ -1,0 +1,322 @@
+@import './variables';
+
+ion-input.sc-ion-input-md-h {
+    --highlight-color-valid: #{$blue-chill};
+    --highlight-color-invalid: #{$oslo-gray};
+    background-color: transparent;
+    margin-bottom: 1.5rem;
+    min-height: auto !important;
+    font-size: 16px;
+
+    .native-wrapper {
+        background-color: $white;
+        color: $black;
+        padding: 7px 8px;
+        border-bottom: 2px solid $hit-gray;
+
+        .native-input {
+            caret-color: $black;
+        }
+    }
+
+    .label-text-wrapper {
+        -webkit-transform: scale(0.75) !important;
+        transform: scale(0.75) !important;
+        font-weight: 500;
+        color: $oslo-gray;
+        padding: 0 8px;
+    }
+
+    .input-highlight {
+        transition: none;
+        bottom: 0px;
+    }
+
+    &.has-focus {
+        .label-text-wrapper {
+            color: $java !important;
+        }
+    }
+
+    &.ng-invalid.has-focus .input-highlight {
+        background-color: #{$blue-chill};
+    }
+
+    &.on-dark {
+        --highlight-color-valid: #{$bright-sun};
+        --highlight-color-invalid: $white;
+
+        &.has-focus .label-text-wrapper {
+            color: $bright-sun !important;
+        }
+
+        .label-text-wrapper {
+            color: $white;
+        }
+
+        .native-wrapper {
+            color: $black;
+        }
+
+        &.ng-invalid.has-focus .input-highlight {
+            background-color: #{$bright-sun};
+        }
+    }
+
+    &.label-left {
+        .input-highlight {
+            display: none;
+        }
+
+        .label-text-wrapper {
+            transform: none !important;
+            // font-size: 12px;
+            align-items: center;
+            margin-inline-end: 0 !important;
+        }
+
+        &.has-focus {
+            .native-wrapper {
+                border-bottom-color: #{$blue-chill};
+            }
+
+            .label-text-wrapper {
+                color: $oslo-gray !important;
+            }
+        }
+    }
+
+    &.input-disabled {
+        opacity: 1;
+
+        .native-wrapper,
+        .textarea-wrapper {
+            background-color: $alto;
+        }
+    }
+
+    &.readonly {
+        .native-wrapper,
+        .textarea-wrapper {
+            background-color: $alto;
+        }
+
+        &.has-focus {
+            .label-text {
+                color: $oslo-gray;
+            }
+        }
+    }
+}
+
+ion-input[readonly],
+ion-input.readonly,
+ion-textarea[readonly],
+ion-textarea.readonly {
+    .input-highlight,
+    .textarea-highlight {
+        display: none;
+    }
+
+    .native-wrapper,
+    .textarea-wrapper {
+        background-color: $alto;
+    }
+}
+
+form.form-show-validation-hints {
+    ion-input,
+    ion-input.on-dark {
+        --highlight-color-invalid: #{$alizarin-crimson};
+    }
+
+    ion-input.ng-invalid .native-wrapper {
+        border-bottom-color: #{$alizarin-crimson};
+    }
+
+    ion-label.target-ng-invalid {
+        color: #{$alizarin-crimson};
+    }
+}
+
+ion-label.sc-ion-label-md-h.label-stacked {
+    display: block;
+    font-weight: 500;
+    color: $oslo-gray;
+    padding-left: 8px;
+    margin-right: 8px;
+    font-size: 16px;
+    transform: scale(0.75);
+}
+
+select {
+    width: 100%;
+    height: 36px;
+    border: none;
+    background-color: $white;
+    color: $black;
+    margin-bottom: 1.5rem;
+    font-size: 16px;
+    padding-left: 4px;
+
+    &:disabled {
+        opacity: 1;
+        background-color: $alto;
+    }
+}
+
+ion-textarea.sc-ion-textarea-md-h {
+    --highlight-color-valid: #{$java};
+    --padding-top: 8px;
+    --padding-start: 8px;
+    font-size: 16px;
+
+    .textarea-highlight {
+        transition: none;
+    }
+
+    &.textarea-disabled {
+        opacity: 1;
+        label {
+            background-color: $alto;
+        }
+    }
+}
+
+ion-checkbox {
+    font-size: 16px;
+}
+
+.checkbox-list {
+    padding-right: 4rem;
+
+    ion-checkbox,
+    ion-radio {
+        display: block;
+        padding: 1em 0;
+    }
+}
+
+// Custom Radio Button because the ion-radio are in shadow dom
+.custom-radio {
+    label {
+        position: relative;
+        padding-left: 25px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-weight: 500;
+
+        /* Hide the browser's default radio button */
+        input[type='radio'] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+
+            &:checked ~ .checkmark {
+                border-color: $java;
+            }
+
+            &:checked ~ .checkmark:after {
+                display: block;
+            }
+        }
+
+        /* Create a custom radio button */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #eee;
+            border-radius: 50%;
+            border: 2px solid $trout;
+        }
+
+        /* Create the indicator (the dot/circle - hidden when not checked) */
+        .checkmark:after {
+            content: '';
+            position: absolute;
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: $java;
+        }
+    }
+}
+
+// the custom checkbox code from below is wip
+// .custom-checkbox {
+//     /* Customize the label (the container) */
+//     label {
+//         display: block;
+//         position: relative;
+//         padding-left: 35px;
+//         margin-bottom: 12px;
+//         cursor: pointer;
+//         font-size: 22px;
+//         -webkit-user-select: none;
+//         -moz-user-select: none;
+//         -ms-user-select: none;
+//         user-select: none;
+
+//         /* Hide the browser's default checkbox */
+//         input[type='checkbox'] {
+//             position: absolute;
+//             opacity: 0;
+//             cursor: pointer;
+//             height: 0;
+//             width: 0;
+//         }
+
+//         /* Create a custom checkbox */
+//         .checkmark {
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             height: 25px;
+//             width: 25px;
+//             background-color: #eee;
+//             border: 1px solid $outer-space;
+//         }
+
+//         /* Create the checkmark/indicator (hidden when not checked) */
+//         .checkmark:after {
+//             content: '';
+//             position: absolute;
+//             display: none;
+//         }
+
+//         /* On mouse-over, add a grey background color */
+//         &:hover input ~ .checkmark {
+//             background-color: #ccc;
+//         }
+
+//         /* When the checkbox is checked, add a blue background */
+//         & input:checked ~ .checkmark {
+//             background-color: #2196f3;
+//         }
+
+//         /* Show the checkmark when checked */
+//         & input:checked ~ .checkmark:after {
+//             display: block;
+//         }
+
+//         /* Style the checkmark/indicator */
+//         .checkmark:after {
+//             left: 9px;
+//             top: 5px;
+//             width: 5px;
+//             height: 10px;
+//             border: solid white;
+//             border-width: 0 3px 3px 0;
+//             -webkit-transform: rotate(45deg);
+//             -ms-transform: rotate(45deg);
+//             transform: rotate(45deg);
+//         }
+//     }
+// }

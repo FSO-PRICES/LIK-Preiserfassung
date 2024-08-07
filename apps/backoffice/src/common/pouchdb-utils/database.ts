@@ -1,31 +1,13 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import * as bluebird from 'bluebird';
 import { first } from 'lodash';
 import { from, of } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
-import { catchError, flatMap, map } from 'rxjs/operators';
-import PouchDB from './pouchdb';
+import { fromFetch } from 'rxjs/fetch';
+import { catchError, flatMap, map, switchMap } from 'rxjs/operators';
 
 import { Models as P } from '@lik-shared';
+
+import PouchDB from './pouchdb';
 
 export const dbNames = {
     emptyDb: 'inexistant',
@@ -72,21 +54,31 @@ export function getDatabase(
 }
 
 export function checkConnectivity(url: string) {
-    return ajax({
-        url,
-        headers: { 'Content-Type': 'application/json' },
-        crossDomain: true,
-        withCredentials: true,
-        responseType: 'json',
-        method: 'GET',
-        timeout: 10000,
-    }).pipe(
-        map(
-            resp =>
-                resp.response['version'] === '1.6.1' ||
-                resp.response['version'].indexOf('2.1') === 0 ||
-                resp.response['version'].indexOf('2.3') === 0,
-        ),
+    return fromFetch(url).pipe(
+        switchMap((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return of({ error: true, response });
+            }
+        }),
+        map((response) => {
+            if (response.error) {
+                console.error('Error in the response of checkConnectivity()', response);
+                return false;
+            }
+
+            if (response['version'].indexOf('3.2') === 0 || response['version'].indexOf('3.3') === 0) {
+                return true;
+            } else {
+                console.error('The Version of CouchDB is not compatible with your Application');
+                return false;
+            }
+        }),
+        catchError((e) => {
+            console.error('Error from checkConnectivity()', e);
+            return of(false);
+        }),
     );
 }
 
@@ -108,18 +100,19 @@ export async function syncDatabaseAsync(dbName: string) {
     return _syncDatabaseAsync(dbName, { push: true, pull: true });
 }
 
-async function _syncDatabaseAsync(dbName: string, params: { push: any; pull: any }, batchSize: number = 1000) {
+async function _syncDatabaseAsync(dbName: string, params: { push: any; pull: any }, batchSize = 1000) {
     const pouchDb = await getLocalCouchDb(dbName);
     const couchDb = await getCouchDb(dbName);
     const sync = pouchDb.sync(couchDb, { ...params, batch_size: batchSize });
+
     return new Promise((resolve, reject) => {
-        sync.on('complete', info => resolve(info));
-        sync.on('error', error => reject(error));
+        sync.on('complete', (info) => resolve(info));
+        sync.on('error', (error) => reject(error));
     });
 }
 
 export function dropLocalDatabase(dbName) {
-    return getLocalCouchDb(dbName).then(db =>
+    return getLocalCouchDb(dbName).then((db) =>
         db
             .destroy()
             .then(() => true)
@@ -128,7 +121,7 @@ export function dropLocalDatabase(dbName) {
 }
 
 export function dropRemoteCouchDatabase(dbName) {
-    return getCouchDb(dbName).then(db =>
+    return getCouchDb(dbName).then((db) =>
         db
             .destroy()
             .then(() => true)
@@ -138,14 +131,14 @@ export function dropRemoteCouchDatabase(dbName) {
 
 export async function dropMonthlyDatabases() {
     return bluebird.map(
-        [getLocalCouchDb(dbNames.preismeldungen_status)].concat(monthlyDbs.map(dbName => getCouchDb(dbName))),
-        db => db.destroy(),
+        [getLocalCouchDb(dbNames.preismeldungen_status)].concat(monthlyDbs.map((dbName) => getCouchDb(dbName))),
+        (db) => db.destroy(),
     );
 }
 
 export function dropRemoteCouchDatabaseAndSyncLocalToRemote(dbName: string) {
     return dropRemoteCouchDatabase(dbName).then(() => {
-        return getSettings().then(settings => {
+        return getSettings().then((settings) => {
             const pouch = new PouchDB(`${dbName}`);
             const couch = new PouchDB(`${settings.serverConnection.url}/${dbName}`, {
                 ajax: { timeout: 50000 },
@@ -157,7 +150,7 @@ export function dropRemoteCouchDatabaseAndSyncLocalToRemote(dbName: string) {
 
 export function listAllDatabases() {
     return from(getSettings()).pipe(
-        flatMap(settings =>
+        flatMap((settings) =>
             ajax({
                 url: `${settings.serverConnection.url}/_all_dbs`,
                 headers: { 'Content-Type': 'application/json' },
@@ -167,7 +160,7 @@ export function listAllDatabases() {
                 method: 'GET',
                 timeout: 50000,
             }).pipe(
-                map(x => x.response as string[]),
+                map((x) => x.response as string[]),
                 catchError(() => of(<string[]>[])),
             ),
         ),
@@ -175,8 +168,10 @@ export function listAllDatabases() {
 }
 
 export function getSettings() {
-    return getLocalDatabase(dbNames.settings).then(db =>
-        db.allDocs(Object.assign({}, { include_docs: true })).then(res => first(res.rows.map(y => y.doc)) as P.Setting),
+    return getLocalDatabase(dbNames.settings).then((db) =>
+        db
+            .allDocs(Object.assign({}, { include_docs: true }))
+            .then((res) => first(res.rows.map((y) => y.doc)) as P.Setting),
     );
 }
 
@@ -189,7 +184,7 @@ function getCouchDb(
     } as any;
     return getSettings()
         .then(
-            settings =>
+            (settings) =>
                 new PouchDB(
                     `${settings.serverConnection.url}/${dbName}`,
                     config ? { ...config, ...ajaxOptions } : ajaxOptions,
@@ -204,7 +199,7 @@ function getLocalCouchDb(dbName: string): Promise<PouchDB.Database<{}>> {
 
 function _checkIfDatabaseExists(dbName: string) {
     return getDatabase(dbName, { skip_setup: true })
-        .then(db => db.info())
+        .then((db) => db.info())
         .then(() => true)
         .catch(() => false);
 }

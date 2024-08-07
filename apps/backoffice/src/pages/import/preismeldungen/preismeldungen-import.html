@@ -1,23 +1,23 @@
 <div class="header">
-    <h1 class="large">Preismeldungen</h1>
+    <h1 class="large">{{'label.pm.titel' | translate}}</h1>
 </div>
 <ion-row>
     <ion-col>
-        <label>Preismeldungen Import</label>
+        <label>{{'import.pm_import' | translate}}</label>
     </ion-col>
     <ion-col>
         <input
+            *ngIf="(hasWritePermission$ | async)"
             class="file-select-btn"
             type="file"
             (change)="preismeldungenSelected$.emit($event)"
             [value]="(resetInputValue$ | async)?.value"
-            required
-        />
+            required />
     </ion-col>
 </ion-row>
 <div class="actions">
     <ion-text *ngIf="(arePreismeldungenImported$ | async)" color="primary"
-        >Preismeldungen wurden erfolgreich importiert. {{ preismeldungenImportedCount$ | async }} Einträge wurden
-        hinzugefügt</ion-text
+        >{{'import.pm_erfolgreich' | translate}}. {{'import.anzahl_erfolgreich' | translate: { count:
+        preismeldungenImportedCount$ | async } }}</ion-text
     >
 </div>

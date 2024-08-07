@@ -1,124 +1,163 @@
-<div class="page-wrapper">
-    <ion-content class="page-content">
-        <form>
-            <ion-row class="container">
-                <ion-col width-50>
-                    <div class="header">
-                        <h1 class="large">Preismeldungen</h1>
-                    </div>
-                    <ion-row wrap>
-                        <ion-col>
-                            Preismeldungen Export
-                            <ion-text [hidden]="!(exportedPreismeldungen$ | async)" color="primary">
-                                {{ exportedPreismeldungen$ | async }} Preismeldungen wurden exportiert
-                            </ion-text>
-                            <ion-text
-                                [hidden]="!(exportErrorPreismeldungen$ | async)"
-                                color="danger"
-                                class="error-messages"
-                            >
-                                <div *ngIf="!!(exportErrorPreismeldungen$ | async)?.validations">
-                                    <div *ngFor="let validation of (exportErrorPreismeldungen$ | async).validations">
-                                        {{ validation.error }}
+<ng-container *ngxLet="(hasWritePermission$ |async); let hasWritePermission">
+    <div class="page-wrapper">
+        <ion-content class="page-content">
+            <form>
+                <ion-row class="container">
+                    <ion-col width-50>
+                        <div class="header">
+                            <h1 class="large">{{'label.pm.titel' | translate}}</h1>
+                        </div>
+                        <ion-row wrap>
+                            <ion-col class="export-description">
+                                {{'export.pm_export' | translate}} <br />
+                                <ion-text [hidden]="!(exportedPreismeldungen$ | async)!" color="primary">
+                                    {{'export.anzahl_exporte' | translate: { count: exportedPreismeldungen$ | async } }}
+                                </ion-text>
+                                <ion-text
+                                    [hidden]="!(exportErrorPreismeldungen$ | async)!"
+                                    color="danger"
+                                    class="error-messages">
+                                    <div *ngIf="!!(exportErrorPreismeldungen$ | async)?.validations">
+                                        <div
+                                            *ngFor="let validation of (exportErrorPreismeldungen$ | async).validations">
+                                            {{ validation.error }}
+                                        </div>
                                     </div>
-                                </div>
-                                <div *ngIf="!(exportErrorPreismeldungen$ | async)?.validations">
-                                    {{ exportErrorPreismeldungen$ | async }}
-                                </div>
-                            </ion-text>
-                        </ion-col>
-                        <ion-col>
-                            <ion-button
-                                class="register-btn"
-                                type="button"
-                                (click)="exportPreismeldungenClicked$.emit($event)"
-                            >
-                                Export starten
-                            </ion-button>
-                        </ion-col>
-                    </ion-row>
-                </ion-col>
-            </ion-row>
-            <ion-row class="container">
-                <ion-col width-50>
-                    <div class="header">
-                        <h1 class="large">Preismeldestellen</h1>
-                    </div>
-                    <ion-row wrap>
-                        <ion-col>
-                            Preismeldestellen Export
-                            <ion-text [hidden]="!(exportedPreismeldestellen$ | async)" color="primary">
-                                {{ exportedPreismeldestellen$ | async }} Preismeldestellen wurden exportiert
-                            </ion-text>
-                            <ion-text
-                                [hidden]="!(exportErrorPreismeldestellen$ | async)"
-                                color="danger"
-                                class="error-messages"
-                            >
-                                <div *ngIf="!!(exportErrorPreismeldestellen$ | async)?.validations">
-                                    <div *ngFor="let validation of (exportErrorPreismeldestellen$ | async).validations">
-                                        {{ validation.error }}
+                                    <div *ngIf="!(exportErrorPreismeldungen$ | async)?.validations">
+                                        {{ exportErrorPreismeldungen$ | async }}
                                     </div>
-                                </div>
-                                <div *ngIf="!(exportErrorPreismeldestellen$ | async)?.validations">
-                                    {{ exportErrorPreismeldestellen$ | async }}
-                                </div>
-                            </ion-text>
-                        </ion-col>
-                        <ion-col>
-                            <ion-button
-                                class="register-btn"
-                                type="button"
-                                (click)="exportPreismeldestellenClicked$.emit($event)"
-                            >
-                                Export starten
-                            </ion-button>
-                        </ion-col>
-                    </ion-row>
-                </ion-col>
-            </ion-row>
-            <ion-row class="container">
-                <ion-col width-50>
-                    <div class="header">
-                        <h1 class="large">Preiserheber</h1>
-                    </div>
-                    <ion-row wrap>
-                        <ion-col>
-                            Preiserheber Export
-                            <ion-text [hidden]="!(exportedPreiserheber$ | async)" color="primary">
-                                {{ exportedPreiserheber$ | async }} Preiserheber wurden exportiert
-                            </ion-text>
-                            <div [hidden]="isErhebungsorgannummerSet$ | async" color="danger">
-                                Es ist noch keine Erhebungsorgannummer bei den Einstellungen gesetzt worden.
-                            </div>
-                            <ion-text
-                                [hidden]="!(exportErrorPreiserheber$ | async)"
-                                color="danger"
-                                class="error-messages"
-                            >
-                                <div *ngIf="!!(exportErrorPreiserheber$ | async)?.validations">
-                                    <div *ngFor="let validation of (exportErrorPreiserheber$ | async).validations">
-                                        {{ validation.error }}
+                                </ion-text>
+                            </ion-col>
+                            <ion-col>
+                                <ion-button
+                                    type="button"
+                                    (click)="exportPreismeldungenClicked$.emit($event)"
+                                    [disabled]="!hasWritePermission">
+                                    {{'export.starten' | translate}}
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-col>
+                </ion-row>
+                <ion-row class="container">
+                    <ion-col width-50>
+                        <div class="header">
+                            <h1 class="large">{{'label.pms.titel' | translate}}</h1>
+                        </div>
+                        <ion-row wrap>
+                            <ion-col class="export-description">
+                                {{'export.pms_export' | translate}} <br />
+                                <ion-text [hidden]="!(exportedPreismeldestellen$ | async)!" color="primary">
+                                    {{ exportedPreismeldestellen$ | async }} Preismeldestellen wurden exportiert
+                                </ion-text>
+                                <ion-text
+                                    [hidden]="!(exportErrorPreismeldestellen$ | async)!"
+                                    color="danger"
+                                    class="error-messages">
+                                    <div *ngIf="!!(exportErrorPreismeldestellen$ | async)?.validations">
+                                        <div
+                                            *ngFor="let validation of (exportErrorPreismeldestellen$ | async).validations">
+                                            {{ validation.error }}
+                                        </div>
                                     </div>
+                                    <div *ngIf="!(exportErrorPreismeldestellen$ | async)?.validations">
+                                        {{ exportErrorPreismeldestellen$ | async }}
+                                    </div>
+                                </ion-text>
+                            </ion-col>
+                            <ion-col>
+                                <ion-button
+                                    type="button"
+                                    (click)="exportPreismeldestellenClicked$.emit($event)"
+                                    [disabled]="!hasWritePermission">
+                                    {{'export.starten' | translate}}
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-col>
+                </ion-row>
+                <ion-row class="container">
+                    <ion-col width-50>
+                        <div class="header">
+                            <h1 class="large">{{'label.pe.titel' | translate}}</h1>
+                        </div>
+                        <ion-row wrap>
+                            <ion-col class="export-description">
+                                {{'export.pe_export' | translate}}<br />
+                                <ion-text [hidden]="!(exportedPreiserheber$ | async)!" color="primary">
+                                    {{ exportedPreiserheber$ | async }} Preiserheber wurden exportiert
+                                </ion-text>
+                                <div [hidden]="isErhebungsorgannummerSet$ | async" color="danger">
+                                    {{'export.keine_erhebungsorgannummer' | translate}}
                                 </div>
-                                <div *ngIf="!(exportErrorPreiserheber$ | async)?.validations">
-                                    {{ exportErrorPreiserheber$ | async }}
-                                </div>
-                            </ion-text>
-                        </ion-col>
-                        <ion-col>
-                            <ion-button
-                                class="register-btn"
-                                type="button"
-                                (click)="exportPreiserheberClicked$.emit($event)"
-                                [disabled]="!(isErhebungsorgannummerSet$ | async)"
-                            >
-                                Export starten
-                            </ion-button>
-                        </ion-col>
-                    </ion-row>
-                </ion-col>
-            </ion-row>
-        </form>
-    </ion-content>
-</div>
+                                <ion-text
+                                    [hidden]="!(exportErrorPreiserheber$ | async)!"
+                                    color="danger"
+                                    class="error-messages">
+                                    <div *ngIf="!!(exportErrorPreiserheber$ | async)?.validations">
+                                        <div *ngFor="let validation of (exportErrorPreiserheber$ | async).validations">
+                                            {{ validation.error }}
+                                        </div>
+                                    </div>
+                                    <div *ngIf="!(exportErrorPreiserheber$ | async)?.validations">
+                                        {{ exportErrorPreiserheber$ | async }}
+                                    </div>
+                                </ion-text>
+                            </ion-col>
+                            <ion-col>
+                                <ion-button
+                                    type="button"
+                                    (click)="exportPreiserheberClicked$.emit($event)"
+                                    [disabled]="!(isErhebungsorgannummerSet$ | async)! || !hasWritePermission">
+                                    {{'export.starten' | translate}}
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-col>
+                </ion-row>
+                <ion-row class="container debug-container">
+                    <ion-col width-50>
+                        <div class="header">
+                            <h1 class="large">{{'export.kontrollexport' | translate}}</h1>
+                        </div>
+
+                        <ion-row wrap>
+                            <ion-col class="export-description">
+                                {{'export.kontrollexport.beschreibung' | translate}} <br />
+
+                                <ion-text
+                                    [hidden]="!(allPreismeldungenNumberOfRecordsExported$ | async)!"
+                                    color="primary">
+                                    {{'export.anzahl_exporte' | translate: { count:
+                                    allPreismeldungenNumberOfRecordsExported$ | async } }}
+                                </ion-text>
+                                <ion-text
+                                    [hidden]="!(exportErrorAllPreismeldungen$ | async)!"
+                                    color="danger"
+                                    class="error-messages">
+                                    <div *ngIf="!!(exportErrorAllPreismeldungen$ | async)?.validations">
+                                        <div
+                                            *ngFor="let validation of (exportErrorAllPreismeldungen$ | async).validations">
+                                            {{ validation.error }}
+                                        </div>
+                                    </div>
+                                    <div *ngIf="!(exportErrorAllPreismeldungen$ | async)?.validations">
+                                        {{ exportErrorAllPreismeldungen$ | async }}
+                                    </div>
+                                </ion-text>
+                            </ion-col>
+                            <ion-col>
+                                <ion-button
+                                    class="controlexport-btn"
+                                    type="button"
+                                    (click)="exportAllPreismeldungenClicked$.emit($event)">
+                                    {{'export.starten' | translate}}
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-col>
+                </ion-row>
+            </form>
+        </ion-content>
+    </div>
+</ng-container>

@@ -1,3 +1,9 @@
+@import '../../theme/imports.scss';
+
+:host {
+    flex: 1;
+}
+
 .export-completed {
     margin-top: 0.8em;
 }
@@ -19,4 +25,20 @@ ion-content.content-md {
 
 form {
     font-size: 16px;
+}
+
+.debug-container {
+    margin-top: 4rem;
+    .not-shown {
+        display: none;
+    }
+}
+
+.export-description {
+    padding-right: 20rem;
+}
+
+.controlexport-btn {
+    --background: #{$scooter};
+    --background-hover: #{scale-color($sulu, $lightness: 10%)};
 }

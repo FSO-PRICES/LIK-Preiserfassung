@@ -1,19 +1,23 @@
 <div class="pef-dialog-message">
     <h3>
         <pef-icon name="warning"></pef-icon>
-        Noch nicht gespeicherte Daten vorhanden!
+        {{'dialog.editierung.ungespeicherte_daten_vorhanden' | translate}}
     </h3>
     <p>
-        Auf «Weiter bearbeiten» klicken um bei dieser Ansicht zu bleiben <br />
-        (Dateineingabe bleibt bestehen).
+        {{'dialog.editierung.weiter_bearbeiten' | translate}} <br />
+        {{'dialog.editierung.dateieingabe_geht_nicht_verloren' | translate}}.
     </p>
     <p>
-        Auf «Änderungen verwerfen» klicken um diese Ansicht zu verlassen <br />
-        (Dateneingabe geht verloren).
+        {{'dialog.editierung.verwerfen_text' | translate}} <br />
+        {{'dialog.editierung.dateieingabe_geht_verloren' | translate}}.
     </p>
 </div>
 
 <div class="pef-dialog-button-row">
-    <ion-button (click)="viewCtrl.dismiss('KEEP_WORKING')" color="primary">Weiter bearbeiten</ion-button>
-    <ion-button (click)="viewCtrl.dismiss('THROW_CHANGES')" color="secondary">Änderungen verwerfen</ion-button>
+    <ion-button (click)="closeDialog('KEEP_WORKING')" color="primary"
+        >{{'dialog.editierung.weiter_bearbeiten' | translate}}</ion-button
+    >
+    <ion-button (click)="closeDialog('THROW_CHANGES')" color="secondary"
+        >{{'label.aktionen.aenderungen_verwerfen' | translate}}</ion-button
+    >
 </div>

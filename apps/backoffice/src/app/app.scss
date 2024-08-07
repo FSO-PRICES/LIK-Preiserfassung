@@ -1,4 +1,4 @@
-@import '../../../../libs/lik-shared/src/styles/_app.scss';
+@import '../../../../libs/lik-shared/src/lib/styles/_app.scss';
 @import '../theme/imports.scss';
 @import '../theme/pages.scss';
 @import '../theme/forms.scss';
@@ -11,11 +11,6 @@ app-root.pef-desktop {
         }
     }
     header[pef-menu] {
-        max-width: $pef-app-max-width;
         width: 100%;
-        margin: 0 auto;
-    }
-    ion-router-outlet {
-        margin-top: 48px;
     }
 }

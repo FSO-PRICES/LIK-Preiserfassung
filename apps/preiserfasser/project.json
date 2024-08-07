@@ -1,0 +1,275 @@
+{
+    "name": "preiserfasser",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "prefix": "lik-studio",
+    "sourceRoot": "apps/preiserfasser/src",
+    "tags": [],
+    "targets": {
+        "generate-capacitor-assets": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "cd apps/preiserfasser && npx @capacitor/assets generate --splashBackgroundColor \"#15aabf\" --android"
+                ]
+            }
+        },
+        "capacitor-debug-apk": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "nx run preiserfasser:sync:android --preserveProjectNodeModules",
+                    "cd apps/preiserfasser/android && ./gradlew assembleDebug",
+                    "npx shx echo APK is in folder: apps\\preiserfasser\\android\\app\\build\\outputs\\apk\\debug"
+                ]
+            }
+        },
+        "capacitor-sign-apk": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "nx run preiserfasser:sync:android --preserveProjectNodeModules",
+                    "cd apps/preiserfasser/android && gradlew assembleRelease",
+                    "zipalign -f -v 4 apps/preiserfasser/android/app/build/outputs/apk/release/app-release-unsigned.apk apps/preiserfasser/android/app/build/outputs/apk/release/app-release-unsigned-zipaligned.apk",
+                    "apksigner sign --ks bfs_apk_release_key.keystore --ks-key-alias \"preiserfassung lik\" --ks-pass pass:%KEYSTORE_PW% apps/preiserfasser/android/app/build/outputs/apk/release/app-release-unsigned-zipaligned.apk",
+                    "cd apps/preiserfasser/android/app/build/outputs/apk/release && npx shx cp app-release-unsigned-zipaligned.apk preiserfasser-release.apk && npx shx rm app-release-unsigned.apk app-release-unsigned-zipaligned.apk"
+                ]
+            }
+        },
+        "prepare-build-bfs": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "cd apps/preiserfasser && npx shx cp package.json package.backup.json",
+                    "cd apps/preiserfasser && npx shx cp package.bfs.json package.json"
+                ]
+            }
+        },
+        "after-build-bfs": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": ["cd apps/preiserfasser && npx shx cp package.backup.json package.json"]
+            }
+        },
+        "build-sign-apk": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": ["nx run preiserfasser:build:production", "nx run preiserfasser:capacitor-sign-apk"]
+            }
+        },
+        "zip": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": ["gulp --gulpfile .\\tools\\zip-apk.ts --company {args.company}"]
+            }
+        },
+        "build": {
+            "executor": "@angular-devkit/build-angular:browser",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/apps/preiserfasser",
+                "index": "apps/preiserfasser/src/index.html",
+                "main": "apps/preiserfasser/src/main.ts",
+                "polyfills": ["apps/preiserfasser/src/polyfills.ts"],
+                "tsConfig": "apps/preiserfasser/tsconfig.app.json",
+                "assets": ["apps/preiserfasser/src/favicon.ico", "apps/preiserfasser/src/assets"],
+                "styles": [
+                    {
+                        "input": "apps/preiserfasser/src/theme/variables.scss",
+                        "inject": true
+                    },
+                    {
+                        "input": "apps/preiserfasser/src/global.scss",
+                        "inject": true
+                    },
+                    {
+                        "input": "apps/preiserfasser/src/app/app.scss",
+                        "inject": true
+                    }
+                ],
+                "scripts": []
+            },
+            "configurations": {
+                "production": {
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "2.7mb",
+                            "maximumError": "3mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "10kb",
+                            "maximumError": "17kb"
+                        }
+                    ],
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/preiserfasser/src/environments/environment.ts",
+                            "with": "apps/preiserfasser/src/environments/environment.prod.ts"
+                        }
+                    ],
+                    "outputHashing": "all"
+                },
+                "development": {
+                    "buildOptimizer": false,
+                    "optimization": false,
+                    "vendorChunk": true,
+                    "extractLicenses": false,
+                    "sourceMap": true,
+                    "namedChunks": true
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "configurations": {
+                "production": {
+                    "browserTarget": "preiserfasser:build:production"
+                },
+                "development": {
+                    "browserTarget": "preiserfasser:build:development"
+                }
+            },
+            "defaultConfiguration": "development"
+        },
+        "serve-dist": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": ["cd dist/apps/preiserfasser && npx http-server -p 8080"]
+            }
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "browserTarget": "preiserfasser:build"
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["apps/preiserfasser/**/*.ts", "apps/preiserfasser/**/*.html"]
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "apps/preiserfasser/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            }
+        },
+        "serve-static": {
+            "executor": "@nx/web:file-server",
+            "options": {
+                "buildTarget": "preiserfasser:build"
+            }
+        },
+        "cap": {
+            "executor": "@nxext/capacitor:cap",
+            "options": {
+                "cmd": "--help"
+            }
+        },
+        "add": {
+            "executor": "@nxext/capacitor:cap",
+            "options": {
+                "cmd": "add"
+            },
+            "configurations": {
+                "ios": {
+                    "cmd": "add ios"
+                },
+                "android": {
+                    "cmd": "add android"
+                }
+            }
+        },
+        "copy": {
+            "executor": "@nxext/capacitor:cap",
+            "options": {
+                "cmd": "copy"
+            },
+            "configurations": {
+                "ios": {
+                    "cmd": "copy ios"
+                },
+                "android": {
+                    "cmd": "copy android"
+                }
+            }
+        },
+        "open": {
+            "executor": "@nxext/capacitor:cap",
+            "options": {
+                "cmd": "open"
+            },
+            "configurations": {
+                "ios": {
+                    "cmd": "open ios"
+                },
+                "android": {
+                    "cmd": "open android"
+                }
+            }
+        },
+        "run": {
+            "executor": "@nxext/capacitor:cap",
+            "options": {
+                "cmd": "run"
+            },
+            "configurations": {
+                "ios": {
+                    "cmd": "run ios"
+                },
+                "android": {
+                    "cmd": "run android"
+                }
+            }
+        },
+        "sync": {
+            "executor": "@nxext/capacitor:cap",
+            "options": {
+                "cmd": "sync"
+            },
+            "configurations": {
+                "ios": {
+                    "cmd": "sync ios"
+                },
+                "android": {
+                    "cmd": "sync android"
+                }
+            }
+        },
+        "update": {
+            "executor": "@nxext/capacitor:cap",
+            "options": {
+                "cmd": "update"
+            },
+            "configurations": {
+                "ios": {
+                    "cmd": "update ios"
+                },
+                "android": {
+                    "cmd": "update android"
+                }
+            }
+        }
+    }
+}

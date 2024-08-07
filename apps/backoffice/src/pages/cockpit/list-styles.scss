@@ -23,8 +23,9 @@
             margin-bottom: calc(0.25 * 16px);
         }
         .heading {
-            display: flex;
+            // display: flex;
             --background: #{$alto};
+            cursor: auto !important;
         }
         .name {
             flex: 0 0 40%;

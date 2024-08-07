@@ -1,28 +1,9 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import * as Papa from 'papaparse';
-import { from, Observable, Observer } from 'rxjs';
+import { Observable, Observer, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-const defaultParseSettings = (newline: string) => ({
+// encoding is not in the type declaration, but it is in fact used when parsing text
+const defaultParseSettings = (newline: '\r\n' | '\n'): Papa.ParseConfig<unknown> & { encoding: string } => ({
     delimiter: ';',
     quoteChar: '"',
     skipEmptyLines: true,
@@ -30,17 +11,17 @@ const defaultParseSettings = (newline: string) => ({
     newline,
 });
 
-export function parseCsvText(text: string) {
+export function parseCsvText(text: string): any {
     return Papa.parse(text, defaultParseSettings(getNewlineStyle(text))).data || [];
 }
 
 export function parseCsvAsObservable(file: File): Observable<any> {
     return from(getFileContents(file)).pipe(
-        switchMap(text =>
+        switchMap((text) =>
             Observable.create((observer: Observer<any>) => {
                 Papa.parse(file, {
                     ...defaultParseSettings(getNewlineStyle(text)),
-                    complete: results => {
+                    complete: (results) => {
                         results.data.shift();
                         observer.next(results.data);
                         observer.complete();
@@ -51,14 +32,13 @@ export function parseCsvAsObservable(file: File): Observable<any> {
     );
 }
 
-export function toCsv(data: any[], header: boolean = true, quote: boolean = false): string {
-    // @types/papaparse is not available for v4.3.3
-    return Papa.unparse(data, { delimiter: ';', header, quoteChar: '', quote });
+export function toCsv(data: any[], header = true): string {
+    return Papa.unparse(data, { delimiter: ';', header });
 }
 
 function getNewlineStyle(text: string) {
     const crlfIndex = text.indexOf('\r\n');
-    return crlfIndex > 0 ? '\r\n' : '\n';
+    return crlfIndex > 0 ? ('\r\n' as const) : ('\n' as const);
 }
 
 function getFileContents(file: File): Promise<string> {

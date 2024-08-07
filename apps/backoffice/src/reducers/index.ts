@@ -1,32 +1,10 @@
-/*
- * LIK-Preiserfassung
- * Copyright (C) 2018 Bundesbehörden der Schweizerischen Eidgenossenschaft - Bundesamt für Statistik
- *
- * This file is part of LIK-Preiserfassung.
- *
- * LIK-Preiserfassung is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * LIK-Preiserfassung is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIK-Preiserfassung. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { MetaReducer } from '@ngrx/store';
-
-import { storeLogger } from 'ngrx-store-logger';
-import { createSelector } from 'reselect';
+import { Action, MetaReducer, createSelector } from '@ngrx/store';
 
 import * as P from '@lik-shared';
-import { fromPreismeldungen, fromWarenkorb } from '@lik-shared';
+import { fromPreismeldungen, fromWarenkorb, storeLogger } from '@lik-shared';
 
 import { environment } from '../environments/environment';
+
 import * as fromCockpit from './cockpit';
 import * as fromControlling from './controlling';
 import * as fromError from './error';
@@ -41,8 +19,8 @@ import * as fromPreismeldestelle from './preismeldestelle';
 import * as fromPreismeldungenStatus from './preismeldungen-status';
 import * as fromPreiszuweisung from './preiszuweisung';
 import * as fromReport from './report';
-import * as fromWritePermission from './write-permission';
 import * as fromSetting from './setting';
+import * as fromWritePermission from './write-permission';
 
 export interface AppState {
     cockpit: fromCockpit.State;
@@ -86,17 +64,23 @@ export const reducers = {
     filterOptions: fromFilterOptions.reducer,
 };
 
-export const metaReducers: MetaReducer<AppState>[] = [...(!environment.production ? [storeLogger()] : [])];
+const dontLogActionTypes = [
+    'CHECK_CONNECTIVITY_TO_DATABASE',
+    'CAN_CONNECT_TO_DATABASE',
+    'LOAD_WRITE_PERMISSION',
+    'LOAD_WRITE_PERMISSION_SUCCESS',
+];
+
+export const metaReducers: MetaReducer<AppState, Action>[] = [
+    ...(!environment.production ? [storeLogger(dontLogActionTypes)] : []),
+] as any;
 
 export const getControllingState = (state: AppState) => state.controlling;
 export const getStichtagPreismeldungenUpdated = createSelector(
     getControllingState,
     fromControlling.getStichtagPreismeldungenUpdated,
 );
-export const getControllingReportData = createSelector(
-    getControllingState,
-    fromControlling.getControllingReportData,
-);
+export const getControllingReportData = createSelector(getControllingState, fromControlling.getControllingReportData);
 export const getControllingRawCachedData = createSelector(
     getControllingState,
     fromControlling.getControllingRawCachedData,
@@ -107,74 +91,35 @@ export const getControllingReportExecuting = createSelector(
 );
 
 export const getPreiserheberState = (state: AppState) => state.preiserhebers;
-export const getPreiserhebers = createSelector(
-    getPreiserheberState,
-    fromPreiserheber.getAll,
-);
-export const getCurrentPreiserheber = createSelector(
-    getPreiserheberState,
-    fromPreiserheber.getCurrentPreiserheber,
-);
+export const getPreiserhebers = createSelector(getPreiserheberState, fromPreiserheber.getAll);
+export const getCurrentPreiserheber = createSelector(getPreiserheberState, fromPreiserheber.getCurrentPreiserheber);
 
 export const getPreismeldestelleState = (state: AppState) => state.preismeldestellen;
-export const getPreismeldestellen = createSelector(
-    getPreismeldestelleState,
-    fromPreismeldestelle.getAll,
-);
+export const getPreismeldestellen = createSelector(getPreismeldestelleState, fromPreismeldestelle.getAll);
 export const getCurrentPreismeldestelle = createSelector(
     getPreismeldestelleState,
     fromPreismeldestelle.getCurrentPreismeldestelle,
 );
-export const getErhebungsregionen = createSelector(
-    getPreismeldestelleState,
-    fromPreismeldestelle.getErhebungsregionen,
-);
+export const getErhebungsregionen = createSelector(getPreismeldestelleState, fromPreismeldestelle.getErhebungsregionen);
 
 export const getPreiszuweisungState = (state: AppState) => state.preiszuweisungen;
-export const getPreiszuweisungen = createSelector(
-    getPreiszuweisungState,
-    fromPreiszuweisung.getAll,
-);
+export const getPreiszuweisungen = createSelector(getPreiszuweisungState, fromPreiszuweisung.getAll);
 export const getCurrentPreiszuweisung = createSelector(
     getPreiszuweisungState,
     fromPreiszuweisung.getCurrentPreiszuweisung,
 );
 
 export const getSettingState = (state: AppState) => state.settings;
-export const getSettings = createSelector(
-    getSettingState,
-    fromSetting.getSettings,
-);
-export const getCurrentSettings = createSelector(
-    getSettingState,
-    fromSetting.getCurrentSettings,
-);
-export const getSedexSettings = createSelector(
-    getSettingState,
-    fromSetting.getSedexSettings,
-);
-export const getIsFullscreen = createSelector(
-    getSettingState,
-    fromSetting.getIsFullscreen,
-);
-export const getHasExportedDatabases = createSelector(
-    getSettingState,
-    fromSetting.getHasExportedDatabases,
-);
-export const getHasImportedDatabases = createSelector(
-    getSettingState,
-    fromSetting.getHasImportedDatabases,
-);
+export const getSettings = createSelector(getSettingState, fromSetting.getSettings);
+export const getCurrentSettings = createSelector(getSettingState, fromSetting.getCurrentSettings);
+export const getSedexSettings = createSelector(getSettingState, fromSetting.getSedexSettings);
+export const getIsFullscreen = createSelector(getSettingState, fromSetting.getIsFullscreen);
+export const getHasExportedDatabases = createSelector(getSettingState, fromSetting.getHasExportedDatabases);
+export const getHasImportedDatabases = createSelector(getSettingState, fromSetting.getHasImportedDatabases);
 
 export const getPreismeldungenState = (state: AppState) => state.preismeldungen;
-export const getPreismeldungen = createSelector(
-    getPreismeldungenState,
-    fromPreismeldungen.getAll,
-);
-const getCurrentPreismeldung = createSelector(
-    getPreismeldungenState,
-    fromPreismeldungen.getCurrentPreismeldung,
-);
+export const getPreismeldungen = createSelector(getPreismeldungenState, fromPreismeldungen.getAll);
+const getCurrentPreismeldung = createSelector(getPreismeldungenState, fromPreismeldungen.getCurrentPreismeldung);
 export const getPreismeldungenStatus = createSelector(
     getPreismeldungenState,
     fromPreismeldungen.getPreismeldungenStatus,
@@ -201,60 +146,36 @@ export const getArePreismeldungenStatusInitializing = createSelector(
     getPreismeldungenStatusState,
     fromPreismeldungenStatus.getAreStatusInitializing,
 );
+export const getArePreismeldungenStatusSyncing = createSelector(
+    getPreismeldungenStatusState,
+    fromPreismeldungenStatus.getAreStatusSyncing,
+);
 
 export const getLoginState = (state: AppState) => state.login;
-export const getIsLoggedIn = createSelector(
-    getLoginState,
-    fromLogin.getIsLoggedIn,
-);
-export const getLoggedInUser = createSelector(
-    getLoginState,
-    fromLogin.getLoggedInUser,
-);
-export const getLoginError = createSelector(
-    getLoginState,
-    fromLogin.getLoginError,
-);
+export const getIsLoggedIn = createSelector(getLoginState, fromLogin.getIsLoggedIn);
+export const getLoggedInUser = createSelector(getLoginState, fromLogin.getLoggedInUser);
+export const getLoginError = createSelector(getLoginState, fromLogin.getLoginError);
 
 export const getLastErrors = (state: AppState) => state.errors;
 export const getResetPasswordError = (state: AppState) => state.errors.passwordReset;
 
 export const getLanguagesState = (state: AppState) => state.languages;
-export const getLanguages = createSelector(
-    getLanguagesState,
-    fromLanguage.getLanguages,
-);
-export const getLanguagesList = createSelector(
-    getLanguagesState,
-    fromLanguage.getLanguagesList,
-);
+export const getLanguages = createSelector(getLanguagesState, fromLanguage.getLanguages);
+export const getLanguagesList = createSelector(getLanguagesState, fromLanguage.getLanguagesList);
+export const getLanguageCodes = createSelector(getLanguagesState, fromLanguage.getLanguageCodes);
+export const getCurrentLanguage = createSelector(getLanguagesState, fromLanguage.getCurrentLangugage);
 
 export const getImporterState = (state: AppState) => state.importer;
-export const getImporterParsedWarenkorb = createSelector(
-    getImporterState,
-    fromImporter.getParsedWarenkorb,
-);
-export const getImportedWarenkorb = createSelector(
-    getImporterState,
-    fromImporter.getImportedWarenkorb,
-);
-export const getImportedWarenkorbAt = createSelector(
-    getImporterState,
-    fromImporter.getImportedWarenkorbAt,
-);
-export const getWarenkorbErhebungsmonat = createSelector(
-    getImporterState,
-    fromImporter.getWarenkorbErhebungsmonat,
-);
+export const getImporterParsedWarenkorb = createSelector(getImporterState, fromImporter.getParsedWarenkorb);
+export const getImportedWarenkorb = createSelector(getImporterState, fromImporter.getImportedWarenkorb);
+export const getImportedWarenkorbAt = createSelector(getImporterState, fromImporter.getImportedWarenkorbAt);
+export const getWarenkorbErhebungsmonat = createSelector(getImporterState, fromImporter.getWarenkorbErhebungsmonat);
 
 export const getImporterParsedPreismeldestellen = createSelector(
     getImporterState,
     fromImporter.getParsedPreismeldestellen,
 );
-export const getImportedPreismeldestellen = createSelector(
-    getImporterState,
-    fromImporter.getImportedPreismeldestellen,
-);
+export const getImportedPreismeldestellen = createSelector(getImporterState, fromImporter.getImportedPreismeldestellen);
 export const getImportedPreismeldestellenAt = createSelector(
     getImporterState,
     fromImporter.getImportedPreismeldestellenAt,
@@ -264,107 +185,48 @@ export const getPreismeldestellenErhebungsmonat = createSelector(
     fromImporter.getPreismeldestellenErhebungsmonat,
 );
 
-export const getImporterParsedPreismeldungen = createSelector(
-    getImporterState,
-    fromImporter.getParsedPreismeldungen,
-);
-export const getImportedPreismeldungen = createSelector(
-    getImporterState,
-    fromImporter.getImportedPreismeldungen,
-);
-export const getImportedPreismeldungenAt = createSelector(
-    getImporterState,
-    fromImporter.getImportedPreismeldungenAt,
-);
+export const getImporterParsedPreismeldungen = createSelector(getImporterState, fromImporter.getParsedPreismeldungen);
+export const getImportedPreismeldungen = createSelector(getImporterState, fromImporter.getImportedPreismeldungen);
+export const getImportedPreismeldungenAt = createSelector(getImporterState, fromImporter.getImportedPreismeldungenAt);
 export const getPreismeldungenErhebungsmonat = createSelector(
     getImporterState,
     fromImporter.getPreismeldungenErhebungsmonat,
 );
 
-export const getImportedAllDataAt = createSelector(
-    getImporterState,
-    fromImporter.getImportedAllDataAt,
-);
-export const getImportError = createSelector(
-    getImporterState,
-    fromImporter.getImportError,
-);
+export const getImportedAllDataAt = createSelector(getImporterState, fromImporter.getImportedAllDataAt);
+export const getImportError = createSelector(getImporterState, fromImporter.getImportError);
 
 export const getExporterState = (state: AppState) => state.exporter;
-export const getExportedPreismeldungen = createSelector(
+export const getExportedPreismeldungen = createSelector(getExporterState, fromExporter.getExportedPreismeldungen);
+export const getExportedPreismeldestellen = createSelector(getExporterState, fromExporter.getExportedPreismeldestellen);
+export const getExportedPreiserheber = createSelector(getExporterState, fromExporter.getExportedPreiserheber);
+export const getAllPreismeldungenNumberOfRecordsExported = createSelector(
     getExporterState,
-    fromExporter.getExportedPreismeldungen,
-);
-export const getExportedPreismeldestellen = createSelector(
-    getExporterState,
-    fromExporter.getExportedPreismeldestellen,
-);
-export const getExportedPreiserheber = createSelector(
-    getExporterState,
-    fromExporter.getExportedPreiserheber,
+    fromExporter.getAllPreismeldungenNumberOfRecordsExported,
 );
 
 export const getCockpitState = (state: AppState) => state.cockpit;
-export const getCockpitReportData = createSelector(
-    getCockpitState,
-    fromCockpit.getCockpitReportData,
-);
-export const getCockpitIsExecuting = createSelector(
-    getCockpitState,
-    fromCockpit.getCockpitIsExecuting,
-);
-export const getCockpitSelectedPreiserheber = createSelector(
-    getCockpitState,
-    fromCockpit.getSelectedPreiserheber,
-);
+export const getCockpitReportData = createSelector(getCockpitState, fromCockpit.getCockpitReportData);
+export const getCockpitIsExecuting = createSelector(getCockpitState, fromCockpit.getCockpitIsExecuting);
+export const getCockpitSelectedPreiserheber = createSelector(getCockpitState, fromCockpit.getSelectedPreiserheber);
 
 export const getReportState = (state: AppState) => state.report;
-export const getReportData = createSelector(
-    getReportState,
-    fromReport.getReportData,
-);
-export const getMonthlyReportData = createSelector(
-    getReportState,
-    fromReport.getMonthlyReportData,
-);
-export const getOrganisationReportData = createSelector(
-    getReportState,
-    fromReport.getOrganisationReportData,
-);
-export const getPmsProblemeReportData = createSelector(
-    getReportState,
-    fromReport.getPmsProblemeReportData,
-);
-export const getReportIsExecuting = createSelector(
-    getReportState,
-    fromReport.getReportIsExecuting,
-);
+export const getReportData = createSelector(getReportState, fromReport.getReportData);
+export const getMonthlyReportData = createSelector(getReportState, fromReport.getMonthlyReportData);
+export const getOrganisationReportData = createSelector(getReportState, fromReport.getOrganisationReportData);
+export const getPmsProblemeReportData = createSelector(getReportState, fromReport.getPmsProblemeReportData);
+export const getReportIsExecuting = createSelector(getReportState, fromReport.getReportIsExecuting);
 
 export const getWarenkorbState = (state: AppState) => state.warenkorb;
-export const getWarenkorb = createSelector(
-    getWarenkorbState,
-    fromWarenkorb.getWarenkorb,
-);
+export const getWarenkorb = createSelector(getWarenkorbState, fromWarenkorb.getWarenkorb);
 
 export const getOnOfflineState = (state: AppState) => state.onoffline;
-export const getIsOffline = createSelector(
-    getOnOfflineState,
-    fromOnOffline.getIsOffline,
-);
-export const getMinVersion = createSelector(
-    getOnOfflineState,
-    fromOnOffline.getMinVersion,
-);
-export const getCanConnectToDatabase = createSelector(
-    getOnOfflineState,
-    fromOnOffline.getCanConnectToDatabase,
-);
+export const getIsOffline = createSelector(getOnOfflineState, fromOnOffline.getIsOffline);
+export const getMinVersion = createSelector(getOnOfflineState, fromOnOffline.getMinVersion);
+export const getCanConnectToDatabase = createSelector(getOnOfflineState, fromOnOffline.getCanConnectToDatabase);
 
 export const getWritePermissionState = (state: AppState) => state.writePermission;
-export const hasWritePermission = createSelector(
-    getWritePermissionState,
-    fromWritePermission.hasWritePermission,
-);
+export const hasWritePermission = createSelector(getWritePermissionState, fromWritePermission.hasWritePermission);
 export const canToggleWritePermission = createSelector(
     getWritePermissionState,
     fromWritePermission.canToggleWritePermission,

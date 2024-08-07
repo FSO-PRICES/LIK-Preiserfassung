@@ -1,15 +1,26 @@
-:host {
-    ion-radio {
-        margin-right: calc(0.625 * 16px);
+@import '../../theme/imports.scss';
+
+ion-radio-group {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5em 0 0.5rem 1em;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+ion-radio {
+    margin: 0.5em 0;
+
+    &.radio-checked {
+        color: $blue-chill;
     }
-    ion-radio-group ion-item.item ion-label {
-        font-size: 1.5rem;
-    }
-    .button-container {
-        display: flex;
-        justify-content: flex-end;
-        button {
-            min-width: 10em;
-        }
+}
+
+.button-container {
+    margin-top: 1em;
+    display: flex;
+    justify-content: flex-end;
+    button {
+        min-width: 10em;
     }
 }

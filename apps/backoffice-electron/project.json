@@ -1,0 +1,41 @@
+{
+    "name": "backoffice-electron",
+    "targets": {
+        "prebuild": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "npx shx rm -rf dist/apps/backoffice dist/apps/backoffice-electron",
+                    "nx build backoffice",
+                    "npx shx cp -r dist/apps/backoffice/. dist/apps/backoffice-electron",
+                    "npx shx --silent sed -i \"s/base href=\\\"\\/\\\"/base href=\\\".\\/\\\"/g\" dist/apps/backoffice-electron/index.html",
+                    "npx shx cp apps/backoffice-electron/index.js apps/backoffice-electron/isBfsApp.js dist/apps/backoffice-electron",
+                    "npx shx cp apps/backoffice-electron/icon.ico dist/apps/backoffice-electron/icon.ico",
+                    "npx shx cp apps/backoffice-electron/package.json dist/apps/backoffice-electron"
+                ]
+            }
+        },
+        "setBfsFlag": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "npx shx --silent sed -i \"s/const isBfsApp = .*;/const isBfsApp = {args.bfs};/g\" apps/backoffice-electron/isBfsApp.js"
+                ]
+            }
+        },
+        "build": {
+            "executor": "nx:run-commands",
+            "options": {
+                "parallel": false,
+                "commands": [
+                    "echo backoffice-electron-{args.out}",
+                    "npx shx rm -rf dist/apps/backoffice-electron-{args.out}",
+                    "echo backoffice-electron-{args.out}",
+                    "cd dist/apps/backoffice-electron && npm install && electron-packager . --platform={args.platform} --icon=./icon.ico --out=../backoffice-electron-{args.out}"
+                ]
+            }
+        }
+    }
+}
