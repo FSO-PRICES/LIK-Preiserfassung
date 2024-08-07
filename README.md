@@ -29,7 +29,7 @@ Node Version: 20.5.0
 1. go to https://www.oracle.com/java/technologies/downloads/#jdk17-windows and install the msi-installer for windows
 2. Run `java -version` to make shure Java JDK is installed
 
-### Android Command Line Tools and other Android Stuff...
+### Android Command Line Tools
 
 1. Install the android command line tools and platform-tools
    next steps are from here: https://proandroiddev.com/how-to-setup-android-sdk-without-android-studio-6d60d0f2812a
